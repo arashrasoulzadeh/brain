@@ -51,6 +51,7 @@ type Registry struct {
 	readiness     map[string]bool
 	audit         []AuditEvent
 	active        map[string]string
+	pins          map[string]string
 }
 
 type AuditEvent struct {
@@ -71,7 +72,7 @@ func (m Manifest) RequestedCapabilities() []CapabilityRequest {
 }
 
 func NewRegistry(hostAPI int) *Registry {
-	return &Registry{HostAPI: hostAPI, registered: map[string]Registered{}, installations: map[string]Installation{}, readiness: map[string]bool{}, active: map[string]string{}}
+	return &Registry{HostAPI: hostAPI, registered: map[string]Registered{}, installations: map[string]Installation{}, readiness: map[string]bool{}, active: map[string]string{}, pins: map[string]string{}}
 }
 
 func (r *Registry) Register(m Manifest) error {
@@ -292,6 +293,33 @@ func (r *Registry) Rollback(projectID, id, version string) error {
 func (r *Registry) ActiveVersion(projectID, id string) (string, bool) {
 	version, ok := r.active[projectID+":"+id]
 	return version, ok
+}
+
+func (r *Registry) PinWork(workID, projectID, id, version string) error {
+	if workID == "" {
+		return ErrProjectInvalid
+	}
+	key := projectID + ":" + id + "@" + version
+	i, ok := r.installations[key]
+	if !ok || !i.Enabled {
+		return ErrNotInstalled
+	}
+	r.pins[workID] = key
+	r.audit = append(r.audit, AuditEvent{Action: "pin", ProjectID: projectID, PluginID: id, Version: version, Detail: workID})
+	return nil
+}
+
+func (r *Registry) PinnedVersion(workID string) (string, bool) {
+	key, ok := r.pins[workID]
+	if !ok {
+		return "", false
+	}
+	for _, installation := range r.installations {
+		if installation.ProjectID+":"+installation.PluginID+"@"+installation.Version == key {
+			return installation.Version, true
+		}
+	}
+	return "", false
 }
 
 func (r *Registry) Audit() []AuditEvent { return append([]AuditEvent(nil), r.audit...) }

@@ -220,4 +220,13 @@ func TestPromotionRoutesNewWorkWithoutChangingPinnedVersion(t *testing.T) {
 	if err := r.CanStart("dev", "rooms", "2.0.0", deadline); !errors.Is(err, plugin.ErrDisabled) {
 		t.Fatal("work was admitted after deadline")
 	}
+	if err := r.PinWork("room-1", "dev", "rooms", "1.0.0"); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Promote("dev", "rooms", "2.0.0"); err != nil {
+		t.Fatal(err)
+	}
+	if got, _ := r.PinnedVersion("room-1"); got != "1.0.0" {
+		t.Fatalf("pinned version = %q", got)
+	}
 }
