@@ -1,0 +1,8 @@
+{
+  "name": "@brain/invites-plugin",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "dependencies": { "@brain/plugin-sdk": "file:../sdk-typescript" },
+  "exports": "./src/index.ts"
+}
