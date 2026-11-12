@@ -14,12 +14,20 @@ export class ArenaStateMachine {
   private currentState: ArenaState = "waiting";
   getState(): ArenaState { return this.currentState; }
   players: readonly string[] = [];
+  private readonly sequences = new Map<string, number>();
   constructor(readonly projectId: string, readonly roomId: string) {}
   start(players: readonly string[]): void {
     if (this.getState() !== "waiting") throw new Error("arena already started");
     if (players.length < 2 || new Set(players).size !== players.length || players.some((player) => !player.trim())) throw new Error("invalid arena players");
     this.players = [...players];
     this.currentState = "active";
+  }
+  action(playerId: string, sequence: number, payload: unknown): void {
+    if (this.getState() !== "active") throw new Error("arena is not active");
+    if (!this.players.includes(playerId)) throw new Error("player not in arena");
+    if (!Number.isInteger(sequence) || sequence <= (this.sequences.get(playerId) ?? 0)) throw new Error("action sequence conflict");
+    void payload;
+    this.sequences.set(playerId, sequence);
   }
 }
 

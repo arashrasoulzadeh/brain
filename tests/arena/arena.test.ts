@@ -12,5 +12,8 @@ if (arena.getState() !== "active" || arena.players.length !== 2) throw new Error
 try { arena.start(["user-1"]); throw new Error("active arena restarted"); } catch (error) { if (!(error instanceof Error) || error.message !== "arena already started") throw error; }
 const commandArena = new ArenaStateMachine("dev", "room-2");
 if (arenaStartCommand(commandArena, "dev", "room-2", ["user-1", "user-2"]).getState() !== "active") throw new Error("start command failed");
+commandArena.action("user-1", 1, { move: "left" });
+try { commandArena.action("user-1", 1, { move: "right" }); throw new Error("duplicate action accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "action sequence conflict") throw error; }
+try { commandArena.action("user-9", 1, {}); throw new Error("unknown player action accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "player not in arena") throw error; }
 try { arenaStartCommand(commandArena, "prod", "room-2", ["user-1", "user-2"]); throw new Error("cross-project start accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "arena project mismatch") throw error; }
 try { validateMatchResult({ resultId: "prod:result-1", projectId: "dev", roomId: "room-1", winnerIds: ["user-1"], completedAt: new Date().toISOString() }); throw new Error("cross-project result accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "result project mismatch") throw error; }
