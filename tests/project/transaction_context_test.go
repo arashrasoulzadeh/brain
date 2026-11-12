@@ -17,3 +17,13 @@ func TestCallerContextIsBoundToTransactionContext(t *testing.T) {
 		t.Fatal("caller leaked outside transaction context")
 	}
 }
+
+func TestCallerLeaseCannotBeReused(t *testing.T) {
+	lease := project.NewCallerLease("dev", "user-1")
+	if _, ok := lease.Consume(); !ok {
+		t.Fatal("first caller lease rejected")
+	}
+	if _, ok := lease.Consume(); ok {
+		t.Fatal("pooled caller lease reused")
+	}
+}
