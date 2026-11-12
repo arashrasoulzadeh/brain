@@ -142,13 +142,13 @@ Goal: create isolated projects and run one plugin through both supported worker 
 
 ### Permission broker
 
-- [ ] Define typed host calls.
-- [ ] Check actor permission.
-- [ ] Check project installation grant.
+- [x] Define typed host calls.
+- [x] Check actor permission.
+- [x] Check project installation grant.
 - [ ] Check matchmaking scope when present.
-- [ ] Check resource scope.
+- [x] Check resource scope.
 - [ ] Issue short-lived invocation credentials.
-- [ ] Expire invocation credentials.
+- [x] Expire invocation credentials.
 - [ ] Recheck grants before commit.
 - [ ] Return bounded errors when a worker is unavailable.
 
