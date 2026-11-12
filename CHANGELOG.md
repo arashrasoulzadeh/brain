@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `cdfa3a5` — roadmap mark plugin config validation verified
+- `3a6d311` — docs: update changelog [skip ci]
 - `73eab6d` — phase 01 validate plugin configuration schemas
 - `546e201` — docs: update changelog [skip ci]
 - `4080e7c` — roadmap mark plugin dependency validation verified
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `1a65a2e` — docs: update changelog [skip ci]
 - `c786763` — docs fix github pages static navigation
 - `7f0eb64` — docs: update changelog [skip ci]
-- `3fcac75` — docs make github pages site explicit
-- `9157a6f` — docs: update changelog [skip ci]
