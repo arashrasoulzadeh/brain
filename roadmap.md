@@ -312,7 +312,7 @@ Goal: provide project-scoped identity, PostgreSQL APIs, files, subscriptions, an
 - [x] Bind challenges to project, destination, and purpose.
 - [x] Store keyed code digests.
 - [x] Consume codes atomically.
-- [ ] Expire codes quickly.
+- [x] Expire codes quickly.
 - [ ] Limit sends and guesses.
 - [ ] Add email recovery.
 - [ ] Revoke sessions after password reset.
