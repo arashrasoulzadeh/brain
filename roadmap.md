@@ -325,7 +325,7 @@ Goal: provide project-scoped identity, PostgreSQL APIs, files, subscriptions, an
 - [x] Create scoped database roles.
 - [x] Test migration and runtime roles separately.
 - [x] Bind caller context transaction-locally.
-- [ ] Add default-deny row policies.
+- [x] Add default-deny row policies.
 - [ ] Reject cross-project reads and writes.
 - [ ] Reject pooled caller-context reuse.
 - [ ] Add table exposure records.

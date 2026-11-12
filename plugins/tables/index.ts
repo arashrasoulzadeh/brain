@@ -5,6 +5,11 @@ export function projectSchemaName(projectId: string): string {
   return `project_${projectId}`;
 }
 export function projectRoleName(projectId: string): string { return `runtime_${projectSchemaName(projectId)}`; }
+export class RowPolicy {
+  private readonly grants = new Set<string>();
+  grant(projectId: string, actorId: string): boolean { if (!projectId || !actorId) return false; this.grants.add(`${projectId}:${actorId}`); return true; }
+  allows(projectId: string, actorId: string): boolean { return this.grants.has(`${projectId}:${actorId}`); }
+}
 
 export function dataRequest(projectId: string, pluginId: string, version: string, operation: "tables.read" | "tables.write" | "tables.schema", table: string, payload: unknown = {}) {
   return request(`tables-${operation}-${projectId}-${table}`, { protocol: 1, projectId, pluginId, version, operation, payload: { table, ...(payload as Record<string, unknown>) } });
