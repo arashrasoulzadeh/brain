@@ -295,7 +295,7 @@ Goal: provide project-scoped identity, PostgreSQL APIs, files, subscriptions, an
 - [x] Reject expired invitations.
 - [x] Add guest accounts.
 - [x] Add guest upgrade without changing user ID.
-- [ ] Detect identity-link conflicts.
+- [x] Detect identity-link conflicts.
 - [ ] Add Google OIDC configuration.
 - [ ] Validate issuer, audience, expiry, signature, and nonce.
 - [ ] Require recent authentication for linking.
