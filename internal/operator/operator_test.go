@@ -3,6 +3,7 @@ package operator_test
 import (
 	"errors"
 	"testing"
+	"time"
 
 	"brain/internal/operator"
 )
@@ -18,6 +19,21 @@ func TestBootstrapCreatesSeparateOperatorAccount(t *testing.T) {
 	}
 	if account.SecretDigest == "secret" {
 		t.Fatal("raw secret was stored")
+	}
+}
+
+func TestMFAAcceptsCurrentAndAdjacentTOTPWindow(t *testing.T) {
+	store := &operator.Store{}
+	_, _ = store.Bootstrap("admin", "secret", func(string) string { return "digest" })
+	if err := store.EnableMFA("JBSWY3DPEHPK3PXP"); err != nil {
+		t.Fatal(err)
+	}
+	now := time.Unix(1700000000, 0)
+	if !store.VerifyMFA("324550", now) {
+		t.Fatal("known TOTP code was rejected")
+	}
+	if store.VerifyMFA("000000", now) {
+		t.Fatal("invalid TOTP code was accepted")
 	}
 }
 

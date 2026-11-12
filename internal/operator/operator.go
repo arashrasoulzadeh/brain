@@ -13,6 +13,7 @@ var ErrInvalidCredentials = errors.New("invalid operator credentials")
 type Account struct {
 	Username     string
 	SecretDigest string
+	MFASecret    string
 }
 
 type Store struct{ account *Account }
