@@ -8,6 +8,21 @@ import (
 )
 
 var ErrNotReady = errors.New("database not ready")
+var ErrDDLForbidden = errors.New("runtime role cannot execute DDL")
+
+type Role string
+
+const (
+	RuntimeRole   Role = "runtime"
+	MigrationRole Role = "migration"
+)
+
+func AllowDDL(role Role) error {
+	if role != MigrationRole {
+		return ErrDDLForbidden
+	}
+	return nil
+}
 
 type Opener func(driver, dsn string) (*sql.DB, error)
 
