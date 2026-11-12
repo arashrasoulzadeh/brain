@@ -183,7 +183,7 @@ Goal: create isolated projects and run one plugin through both supported worker 
 - [x] Add guest sign-in through a plugin.
 - [x] Define the analytics event contract.
 - [x] Reject unapproved event fields.
-- [ ] Capture one event in a local test sink.
+- [x] Capture one event in a local test sink.
 
 ### Phase 01 gate
 
