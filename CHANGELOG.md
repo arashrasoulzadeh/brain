@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `c1c467a` — 2026-11-13 02:55:57 +0330 — phase 03 add project rate limits
+- `df19288` — 2026-11-12 23:25:41 +0000 — docs: update changelog [skip ci]
 - `431a58b` — 2026-11-13 02:55:30 +0330 — phase 03 add account rate limits
 - `662768b` — 2026-11-12 23:25:21 +0000 — docs: update changelog [skip ci]
 - `9c81bff` — 2026-11-13 02:55:03 +0330 — phase 03 verify password sign in
