@@ -162,8 +162,8 @@ Goal: create isolated projects and run one plugin through both supported worker 
 - [x] Restrict worker CPU and memory.
 - [x] Run the contract fixture through a bundled worker.
 - [x] Add an external worker endpoint.
-- [ ] Authenticate the external worker handshake.
-- [ ] Bind external identity to the project installation.
+- [x] Authenticate the external worker handshake.
+- [x] Bind external identity to the project installation.
 - [ ] Run the same fixture through the external worker.
 
 ### Dashboard and first event
