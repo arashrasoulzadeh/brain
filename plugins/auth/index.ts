@@ -97,6 +97,11 @@ export class OIDCConfigStore {
   }
 }
 
+export type OIDCTokenClaims = { issuer: string; audience: string; expiresAt: number; nonce: string; signature: string };
+export function validateOIDCToken(claims: OIDCTokenClaims, config: OIDCConfig, expectedNonce: string, now: number, verifySignature: (signature: string) => boolean): void {
+  if (claims.issuer !== config.issuer || claims.audience !== config.audience || claims.expiresAt <= now || claims.nonce !== expectedNonce || !verifySignature(claims.signature)) throw new Error("invalid OIDC token");
+}
+
 export class AuthService {
   private readonly accounts = new Map<string, Map<string, Account>>();
   private readonly sessions = new Map<string, { projectId: string; username: string; expiresAt: number }>();
