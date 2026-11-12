@@ -2,6 +2,16 @@
   "name": "brain",
   "private": true,
   "type": "module",
-  "scripts": { "test:ts": "tsx --test tests/**/*.test.ts", "typecheck": "tsc --noEmit" },
-  "devDependencies": { "@types/node": "^22.0.0", "tsx": "^4.19.0", "typescript": "^5.6.0" }
+  "scripts": {
+    "test:ts": "tsx --test tests/**/*.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  },
+  "dependencies": {
+    "@node-rs/argon2": "^2.2.2"
+  }
 }

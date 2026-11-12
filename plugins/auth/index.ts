@@ -1,4 +1,5 @@
-import { createHash, createHmac, randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
+import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
+import { hash as argon2Hash, verify as argon2Verify } from "@node-rs/argon2";
 import { request, type PluginFunction, type RpcRequest } from "../sdk-typescript/src/index.js";
 
 export function signInRequest(projectId: string, pluginId: string, version: string, provider: string, credential: unknown) {
@@ -13,7 +14,7 @@ export function guestRequest(projectId: string, pluginId: string, version: strin
   return request(`auth-guest-${projectId}`, { protocol: 1, projectId, pluginId, version, operation: "auth.guest", payload: {} });
 }
 
-type Account = { username: string; userId: string; salt: Buffer; passwordHash: Buffer };
+type Account = { username: string; userId: string; passwordHash: string };
 
 export function projectUserID(projectId: string, userId: string): string {
   if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(projectId) || !/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(userId)) throw new Error("invalid project user id");
@@ -230,19 +231,19 @@ export class AuthService {
     if (sessionTtlMs <= 0) throw new Error("invalid session ttl");
   }
 
-  signup(projectId: string, username: string, password: string) {
+  async signup(projectId: string, username: string, password: string) {
     this.validate(projectId, username, password);
     const project = this.accounts.get(projectId) ?? new Map<string, Account>();
     if (project.has(username)) throw new Error("account already exists");
-    const salt = randomBytes(16);
-    project.set(username, { username, userId: projectUserID(projectId, username), salt, passwordHash: this.hash(password, salt) });
+    const passwordHash = await this.hash(password);
+    project.set(username, { username, userId: projectUserID(projectId, username), passwordHash });
     this.accounts.set(projectId, project);
     return { username, userId: projectUserID(projectId, username) };
   }
 
-  signin(projectId: string, username: string, password: string, now = Date.now()) {
+  async signin(projectId: string, username: string, password: string, now = Date.now()) {
     const account = this.accounts.get(projectId)?.get(username);
-    if (!account || !timingSafeEqual(account.passwordHash, this.hash(password, account.salt))) throw new Error("invalid credentials");
+    if (!account || !(await argon2Verify(account.passwordHash, password))) throw new Error("invalid credentials");
     const token = randomBytes(32).toString("hex");
     this.sessions.set(sessionTokenDigest(token), { projectId, username, expiresAt: now + this.sessionTtlMs });
     return { token, username };
@@ -273,13 +274,11 @@ export class AuthService {
     this.sessions.delete(digest);
   }
 
-  resetPassword(projectId: string, username: string, password: string): void {
+  async resetPassword(projectId: string, username: string, password: string): Promise<void> {
     this.validate(projectId, username, password);
     const account = this.accounts.get(projectId)?.get(username);
     if (!account) throw new Error("account not found");
-    const salt = randomBytes(16);
-    account.salt = salt;
-    account.passwordHash = this.hash(password, salt);
+    account.passwordHash = await this.hash(password);
     for (const [digest, session] of this.sessions) if (session.projectId === projectId && session.username === username) this.sessions.delete(digest);
   }
 
@@ -291,7 +290,7 @@ export class AuthService {
     return { token, username, userId: projectUserID(projectId, username), guest: true };
   }
 
-  upgradeGuest(projectId: string, token: string, username: string, password: string) {
+  async upgradeGuest(projectId: string, token: string, username: string, password: string) {
     const session = this.sessions.get(sessionTokenDigest(token));
     if (!session || session.projectId !== projectId || !session.username.startsWith("guest-")) throw new Error("guest session required");
     const userId = projectUserID(projectId, session.username);
@@ -299,13 +298,13 @@ export class AuthService {
     const project = this.accounts.get(projectId) ?? new Map<string, Account>();
     if (project.has(username)) throw new Error("account already exists");
     const salt = randomBytes(16);
-    project.set(username, { username, userId, salt, passwordHash: this.hash(password, salt) });
+    project.set(username, { username, userId, passwordHash: await this.hash(password) });
     this.accounts.set(projectId, project);
     session.username = username;
     return { username, userId };
   }
 
-  private hash(password: string, salt: Buffer) { return scryptSync(password, salt, 32); }
+  private hash(password: string) { return argon2Hash(password, { memoryCost: 19456, timeCost: 2, parallelism: 1, outputLen: 32 }); }
   private validate(projectId: string, username: string, password: string) {
     if (!projectId || !username || password.length < 8) throw new Error("invalid signup");
   }
