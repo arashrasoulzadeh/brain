@@ -1,6 +1,8 @@
 package plugin
 
 import (
+	"crypto/rand"
+	"encoding/base64"
 	"errors"
 	"time"
 )
@@ -21,6 +23,26 @@ type HostCall struct {
 type Broker struct {
 	Registry    *Registry
 	ActorAllows func(actorID, capability, resource string) bool
+}
+
+type InvocationCredential struct {
+	Token string
+	Call  HostCall
+}
+
+func (b Broker) Issue(call HostCall, now time.Time, lifetime time.Duration) (InvocationCredential, error) {
+	if lifetime <= 0 {
+		return InvocationCredential{}, ErrInvocationExpired
+	}
+	call.ExpiresAt = now.Add(lifetime)
+	if err := b.Authorize(call, now); err != nil {
+		return InvocationCredential{}, err
+	}
+	var raw [32]byte
+	if _, err := rand.Read(raw[:]); err != nil {
+		return InvocationCredential{}, err
+	}
+	return InvocationCredential{Token: base64.RawURLEncoding.EncodeToString(raw[:]), Call: call}, nil
 }
 
 func (b Broker) Authorize(call HostCall, now time.Time) error {
