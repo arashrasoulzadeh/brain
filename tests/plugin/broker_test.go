@@ -35,6 +35,17 @@ func TestBrokerAuthorizesTypedHostCall(t *testing.T) {
 	}
 }
 
+func TestBrokerChecksMatchmakingScopeWhenPresent(t *testing.T) {
+	b := plugin.Broker{
+		ActorAllows:       func(string, string, string) bool { return true },
+		MatchmakingAllows: func(projectID, scope string) bool { return projectID == "dev" && scope == "ranked" },
+	}
+	call := plugin.HostCall{ProjectID: "prod", ActorID: "alice", MatchmakingScope: "ranked", ExpiresAt: time.Unix(100, 0)}
+	if err := b.Authorize(call, time.Unix(99, 0)); !errors.Is(err, plugin.ErrPluginScopeDenied) {
+		t.Fatalf("unapproved matchmaking scope = %v", err)
+	}
+}
+
 func TestBrokerRejectsActorAndExpiredInvocation(t *testing.T) {
 	b := plugin.Broker{ActorAllows: func(string, string, string) bool { return false }}
 	call := plugin.HostCall{ProjectID: "dev", ActorID: "alice", ExpiresAt: time.Unix(1, 0)}

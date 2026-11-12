@@ -10,6 +10,7 @@ import (
 var ErrActorDenied = errors.New("actor permission denied")
 var ErrInvocationExpired = errors.New("invocation credential expired")
 var ErrWorkerUnavailable = errors.New("plugin worker unavailable")
+var ErrPluginScopeDenied = errors.New("plugin scope denied")
 
 type HostCall struct {
 	ProjectID  string
@@ -18,6 +19,7 @@ type HostCall struct {
 	Version    string
 	Capability string
 	Resource   string
+	MatchmakingScope string
 	ExpiresAt  time.Time
 }
 
@@ -25,6 +27,7 @@ type Broker struct {
 	Registry        *Registry
 	ActorAllows     func(actorID, capability, resource string) bool
 	WorkerAvailable func(pluginID, version string) bool
+	MatchmakingAllows func(projectID, scope string) bool
 }
 
 type InvocationCredential struct {
@@ -56,6 +59,9 @@ func (b Broker) Authorize(call HostCall, now time.Time) error {
 	}
 	if b.WorkerAvailable != nil && !b.WorkerAvailable(call.PluginID, call.Version) {
 		return ErrWorkerUnavailable
+	}
+	if call.MatchmakingScope != "" && (b.MatchmakingAllows == nil || !b.MatchmakingAllows(call.ProjectID, call.MatchmakingScope)) {
+		return ErrPluginScopeDenied
 	}
 	if b.ActorAllows == nil || !b.ActorAllows(call.ActorID, call.Capability, call.Resource) {
 		return ErrActorDenied
