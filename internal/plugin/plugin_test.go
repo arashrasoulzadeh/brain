@@ -143,3 +143,30 @@ func TestCapabilityRequestsAndResourceScopedGrants(t *testing.T) {
 		t.Fatal("cross-resource access was accepted")
 	}
 }
+
+func TestPluginMutationsProduceAuditEvents(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	m := plugin.Manifest{ID: "audit", Version: "1.0.0", HostAPI: 1, Capabilities: []string{"read"}}
+	if err := r.Register(m); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Install("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.SetReadiness(m.ID, m.Version, true); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Grant("dev", m.ID, m.Version, "read"); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Enable("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	audit := r.Audit()
+	if len(audit) < 5 {
+		t.Fatalf("audit events = %d, want at least 5", len(audit))
+	}
+	if audit[0].Action != "register" || audit[1].Action != "install" {
+		t.Fatalf("audit order = %#v", audit[:2])
+	}
+}

@@ -46,6 +46,11 @@ type Registry struct {
 	registered    map[string]Registered
 	installations map[string]Installation
 	readiness     map[string]bool
+	audit         []AuditEvent
+}
+
+type AuditEvent struct {
+	Action, ProjectID, PluginID, Version, Detail string
 }
 
 type CapabilityRequest struct {
@@ -83,6 +88,7 @@ func (r *Registry) Register(m Manifest) error {
 	}
 	r.registered[key] = Registered{Manifest: m}
 	r.readiness[key] = false
+	r.audit = append(r.audit, AuditEvent{Action: "register", PluginID: m.ID, Version: m.Version})
 	return nil
 }
 
@@ -92,6 +98,7 @@ func (r *Registry) SetReadiness(id, version string, ready bool) error {
 		return ErrNotRegistered
 	}
 	r.readiness[key] = ready
+	r.audit = append(r.audit, AuditEvent{Action: "readiness", PluginID: id, Version: version, Detail: fmt.Sprintf("ready=%t", ready)})
 	return nil
 }
 
@@ -102,6 +109,7 @@ func (r *Registry) Install(projectID, id, version string) error {
 	}
 	installKey := projectID + ":" + key
 	r.installations[installKey] = Installation{ProjectID: projectID, PluginID: id, Version: version, Grants: map[string]bool{}, Resources: map[string]map[string]bool{}, Config: map[string]any{}}
+	r.audit = append(r.audit, AuditEvent{Action: "install", ProjectID: projectID, PluginID: id, Version: version})
 	return nil
 }
 
@@ -128,6 +136,7 @@ func (r *Registry) GrantResource(projectID, id, version, capability, resource st
 	i.Grants[capability] = true
 	i.Resources[capability][resource] = true
 	r.installations[projectID+":"+id+"@"+version] = i
+	r.audit = append(r.audit, AuditEvent{Action: "grant_resource", ProjectID: projectID, PluginID: id, Version: version, Detail: capability + ":" + resource})
 	return nil
 }
 
@@ -157,6 +166,7 @@ func (r *Registry) Configure(projectID, id, version string, values map[string]an
 		i.Config[name] = value
 	}
 	r.installations[key] = i
+	r.audit = append(r.audit, AuditEvent{Action: "configure", ProjectID: projectID, PluginID: id, Version: version})
 	return nil
 }
 
@@ -185,6 +195,7 @@ func (r *Registry) Grant(projectID, id, version, capability string) error {
 		if requested == capability {
 			i.Grants[capability] = true
 			r.installations[projectID+":"+id+"@"+version] = i
+			r.audit = append(r.audit, AuditEvent{Action: "grant", ProjectID: projectID, PluginID: id, Version: version, Detail: capability})
 			return nil
 		}
 	}
@@ -207,8 +218,11 @@ func (r *Registry) Enable(projectID, id, version string) error {
 	}
 	i.Enabled = true
 	r.installations[key] = i
+	r.audit = append(r.audit, AuditEvent{Action: "enable", ProjectID: projectID, PluginID: id, Version: version})
 	return nil
 }
+
+func (r *Registry) Audit() []AuditEvent { return append([]AuditEvent(nil), r.audit...) }
 
 func (r *Registry) Authorize(projectID, id, version, capability string) error {
 	if projectID == "" {
