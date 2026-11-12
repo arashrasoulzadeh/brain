@@ -37,12 +37,26 @@ type Installation struct {
 	Enabled   bool
 	Grants    map[string]bool
 	Config    map[string]any
+	Resources map[string]map[string]bool
 }
 
 type Registry struct {
 	HostAPI       int
 	registered    map[string]Registered
 	installations map[string]Installation
+}
+
+type CapabilityRequest struct {
+	Capability string
+	Required   bool
+}
+
+func (m Manifest) RequestedCapabilities() []CapabilityRequest {
+	requests := make([]CapabilityRequest, 0, len(m.Capabilities))
+	for _, capability := range m.Capabilities {
+		requests = append(requests, CapabilityRequest{Capability: capability, Required: true})
+	}
+	return requests
 }
 
 func NewRegistry(hostAPI int) *Registry {
@@ -75,7 +89,44 @@ func (r *Registry) Install(projectID, id, version string) error {
 		return ErrNotRegistered
 	}
 	installKey := projectID + ":" + key
-	r.installations[installKey] = Installation{ProjectID: projectID, PluginID: id, Version: version, Grants: map[string]bool{}, Config: map[string]any{}}
+	r.installations[installKey] = Installation{ProjectID: projectID, PluginID: id, Version: version, Grants: map[string]bool{}, Resources: map[string]map[string]bool{}, Config: map[string]any{}}
+	return nil
+}
+
+func (r *Registry) GrantResource(projectID, id, version, capability, resource string) error {
+	if resource == "" {
+		return ErrGrantDenied
+	}
+	i, ok := r.installations[projectID+":"+id+"@"+version]
+	if !ok {
+		return ErrNotInstalled
+	}
+	allowed := false
+	for _, requested := range r.registered[id+"@"+version].Manifest.Capabilities {
+		if requested == capability {
+			allowed = true
+		}
+	}
+	if !allowed {
+		return ErrGrantDenied
+	}
+	if i.Resources[capability] == nil {
+		i.Resources[capability] = map[string]bool{}
+	}
+	i.Grants[capability] = true
+	i.Resources[capability][resource] = true
+	r.installations[projectID+":"+id+"@"+version] = i
+	return nil
+}
+
+func (r *Registry) AuthorizeResource(projectID, id, version, capability, resource string) error {
+	if err := r.Authorize(projectID, id, version, capability); err != nil {
+		return err
+	}
+	i := r.installations[projectID+":"+id+"@"+version]
+	if resources := i.Resources[capability]; len(resources) > 0 && !resources[resource] {
+		return ErrGrantDenied
+	}
 	return nil
 }
 

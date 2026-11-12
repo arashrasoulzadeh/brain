@@ -108,3 +108,29 @@ func TestInstallationConfigurationUsesManifestSchema(t *testing.T) {
 		t.Fatalf("Configure() = %v", err)
 	}
 }
+
+func TestCapabilityRequestsAndResourceScopedGrants(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	m := plugin.Manifest{ID: "tables", Version: "1.0.0", HostAPI: 1, Capabilities: []string{"records.read"}}
+	if len(m.RequestedCapabilities()) != 1 || !m.RequestedCapabilities()[0].Required {
+		t.Fatal("capability request was not exposed")
+	}
+	if err := r.Register(m); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Install("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.GrantResource("dev", m.ID, m.Version, "records.read", "users"); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Enable("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.AuthorizeResource("dev", m.ID, m.Version, "records.read", "users"); err != nil {
+		t.Fatal(err)
+	}
+	if !errors.Is(r.AuthorizeResource("dev", m.ID, m.Version, "records.read", "payments"), plugin.ErrGrantDenied) {
+		t.Fatal("cross-resource access was accepted")
+	}
+}
