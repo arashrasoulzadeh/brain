@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `cfb5d95` — 2026-11-13 01:54:47 +0330 — docs mark dashboard plugin installation complete
+- `2df8959` — 2026-11-12 22:24:50 +0000 — docs: update changelog [skip ci]
 - `d743a43` — 2026-11-13 01:54:36 +0330 — phase 01 implement dashboard plugin installation
 - `550106e` — 2026-11-12 22:24:15 +0000 — docs: update changelog [skip ci]
 - `88ce7c9` — 2026-11-13 01:53:55 +0330 — docs mark dashboard project creation complete
