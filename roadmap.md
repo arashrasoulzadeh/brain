@@ -72,14 +72,14 @@ Goal: boot a small Go service with PostgreSQL, migrations, Compose, and CI.
 
 - [ ] Add the smallest local Compose file.
 - [ ] Keep the PostgreSQL port private.
-- [ ] Add isolated test settings and data.
+- [x] Add isolated test settings and data.
 - [ ] Add a clean-start smoke test.
 - [ ] Add a clean-stop smoke test.
 - [ ] Repeat the Compose smoke test from scratch.
 - [x] Add formatting checks.
 - [x] Add Go tests to CI.
 - [ ] Add the Compose smoke test to CI.
-- [ ] Add the backend image build check for amd64 and arm64.
+- [x] Add the backend image build check for amd64 and arm64.
 
 ### Phase 00 gate
 
