@@ -138,7 +138,7 @@ Goal: create isolated projects and run one plugin through both supported worker 
 - [x] Reject enablement with missing grants.
 - [x] Reject enablement when readiness fails.
 - [x] Enable the same plugin independently in two projects.
-- [ ] Audit installation, grants, and enablement.
+- [x] Audit installation, grants, and enablement.
 
 ### Permission broker
 
