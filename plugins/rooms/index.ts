@@ -13,6 +13,11 @@ export type RoomState = "waiting" | "matching" | "active" | "finished" | "closed
 export type Room = { id: string; projectId: string; state: RoomState; maxPlayers: number; slots: PlayerSlot[] };
 export type ConnectionTicket = { token: string; projectId: string; roomId: string; playerId: string; expiresAt: number; used: boolean };
 
+export function authorizedRoomSnapshot(room: Room, projectId: string, playerId: string): Room {
+  if (room.projectId !== projectId || !room.slots.some((slot) => slot.playerId === playerId)) throw new Error("room membership required");
+  return { ...room, slots: [...room.slots] };
+}
+
 export class ConnectionTickets {
   private readonly tickets = new Map<string, ConnectionTicket>();
   issue(projectId: string, roomId: string, playerId: string, now: number, ttlSeconds: number): ConnectionTicket {
