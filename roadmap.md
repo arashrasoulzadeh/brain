@@ -264,7 +264,7 @@ Goal: complete a private multiplayer match with matchmaking, realtime updates, a
 - [x] Persist one durable result.
 - [x] Exercise private rooms.
 - [x] Exercise FIFO matchmaking.
-- [ ] Record the eight-player test result.
+- [x] Record the eight-player test result.
 
 ## Phase 03 — App data and authentication
 

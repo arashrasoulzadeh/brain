@@ -25,3 +25,7 @@ const first = queue.enqueue("dev", "ranked", "user-1", 1000);
 queue.enqueue("dev", "ranked", "user-2", 1001);
 const decision = queue.assign("dev", "ranked", 2, 1002);
 if (!decision || decision.ticketIds[0] !== first.id) throw new Error("FIFO matchmaking gate failed");
+const eightPlayers = Array.from({ length: 8 }, (_, index) => `player-${index + 1}`);
+const eightArena = new ArenaStateMachine("dev", "eight-player-gate");
+eightArena.start(eightPlayers);
+if (eightArena.players.length !== 8) throw new Error("eight-player gate result missing");
