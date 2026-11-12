@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `03da91a` — 2026-11-13 02:47:32 +0330 — phase 02 verify fifo matchmaking
+- `1722913` — 2026-11-12 23:17:22 +0000 — docs: update changelog [skip ci]
 - `ce97a28` — 2026-11-13 02:47:11 +0330 — phase 02 verify private room isolation
 - `60b6d91` — 2026-11-12 23:17:05 +0000 — docs: update changelog [skip ci]
 - `58a6286` — 2026-11-13 02:46:52 +0330 — phase 02 verify durable result persistence
