@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `24c424b` — phase 01 validate plugin dependencies
+- `d822b0a` — docs: update changelog [skip ci]
 - `fdf7d90` — arch enforce plugin first feature structure
 - `5c63d91` — docs: update changelog [skip ci]
 - `d874944` — roadmap mark csrf protection verified
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `a3eb529` — phase 00 add isolated local test settings
 - `56306e8` — roadmap mark go CI checks verified
 - `de73677` — phase 00 add go test workflow
-- `8fb01d2` — roadmap mark runtime DDL policy verified
-- `5def130` — phase 00 prevent runtime DDL
