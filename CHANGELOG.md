@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `76ff9ce` — 2026-11-13 03:03:54 +0330 — phase 03 add google oidc configuration
+- `016aab9` — 2026-11-12 23:33:16 +0000 — docs: update changelog [skip ci]
 - `b799c87` — 2026-11-13 03:03:05 +0330 — phase 03 detect identity link conflicts
 - `7852f43` — 2026-11-12 23:32:42 +0000 — docs: update changelog [skip ci]
 - `5f06224` — 2026-11-13 03:02:25 +0330 — phase 03 preserve guest identity on upgrade
