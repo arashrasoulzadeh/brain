@@ -1,0 +1,12 @@
+id: auth
+version: 0.1.0
+host_api: 1
+entrypoint: src/index.ts
+dependencies: []
+capabilities:
+  - auth.signin
+  - auth.session
+extension_points:
+  - auth.provider
+config_schema:
+  registration: string
