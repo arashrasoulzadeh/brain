@@ -23,6 +23,7 @@ export function adminRequest(projectId: string, operation: string, payload: unkn
 export class DashboardService {
   private readonly projects = new Set<string>();
   private readonly installations = new Set<string>();
+  private readonly grants = new Set<string>();
 
   createProject(projectId: string) {
     if (!projectId.trim()) throw new Error("project id required");
@@ -44,6 +45,15 @@ export class DashboardService {
   }
 
   isInstalled(projectId: string, pluginId: string, version: string) { return this.installations.has(`${projectId}:${pluginId}@${version}`); }
+
+  grantCapability(projectId: string, pluginId: string, version: string, capability: string) {
+    if (!this.isInstalled(projectId, pluginId, version)) throw new Error("plugin not installed");
+    if (!capability.trim()) throw new Error("capability required");
+    this.grants.add(`${projectId}:${pluginId}@${version}:${capability}`);
+    return { projectId, pluginId, version, capability };
+  }
+
+  hasGrant(projectId: string, pluginId: string, version: string, capability: string) { return this.grants.has(`${projectId}:${pluginId}@${version}:${capability}`); }
 }
 
 export function createHandler(service = new DashboardService()): PluginHandler {
@@ -53,6 +63,13 @@ export function createHandler(service = new DashboardService()): PluginHandler {
   if (rpc.params.operation === "project.create") {
     const payload = rpc.params.payload as { id?: string } | undefined;
     return { accepted: true, operation: rpc.params.operation, ...service.createProject(payload?.id ?? "") };
+  }
+  if (rpc.params.operation === "plugin.install" || rpc.params.operation === "plugin.grant") {
+    const payload = rpc.params.payload as { targetPlugin?: string; targetVersion?: string; capability?: string } | undefined;
+    const pluginId = payload?.targetPlugin ?? "";
+    const version = payload?.targetVersion ?? "";
+    if (rpc.params.operation === "plugin.install") return { accepted: true, operation: rpc.params.operation, ...service.installPlugin(rpc.params.projectId, pluginId, version) };
+    return { accepted: true, operation: rpc.params.operation, ...service.grantCapability(rpc.params.projectId, pluginId, version, payload?.capability ?? "") };
   }
   return { accepted: true, operation: rpc.params.operation, payload: rpc.params.payload ?? null };
  };

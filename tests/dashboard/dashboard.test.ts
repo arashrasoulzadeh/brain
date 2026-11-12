@@ -21,3 +21,6 @@ try { service.createProject("project-a"); throw new Error("duplicate project was
 service.installPlugin("project-a", "auth", "0.1.0");
 if (!service.isInstalled("project-a", "auth", "0.1.0")) throw new Error("dashboard plugin was not installed");
 try { service.installPlugin("project-b", "auth", "0.1.0"); throw new Error("unknown project accepted installation"); } catch (error) { if (!(error instanceof Error) || error.message !== "unknown project") throw error; }
+service.grantCapability("project-a", "auth", "0.1.0", "auth.session");
+if (!service.hasGrant("project-a", "auth", "0.1.0", "auth.session")) throw new Error("dashboard grant was not recorded");
+try { service.grantCapability("project-a", "files", "0.1.0", "files.read"); throw new Error("grant without installation accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "plugin not installed") throw error; }
