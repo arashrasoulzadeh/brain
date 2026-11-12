@@ -1,4 +1,4 @@
-import { AccountRateLimiter, AuthService, AuthorizationCodeStore, IdentityLinker, OIDCConfigStore, OperatorSessionRegistry, ProjectRateLimiter, createPKCEChallenge, functions, guestRequest, projectUserID, requireRecentAuthentication, sessionTokenDigest, signInRequest, signUpRequest, validateOIDCToken, verifyPKCE } from "../../plugins/auth/index.js";
+import { AccountRateLimiter, AuthService, AuthorizationCodeStore, IdentityLinker, OIDCConfigStore, OIDCStateStore, OperatorSessionRegistry, ProjectRateLimiter, createPKCEChallenge, functions, guestRequest, projectUserID, requireRecentAuthentication, sessionTokenDigest, signInRequest, signUpRequest, validateOIDCToken, verifyPKCE } from "../../plugins/auth/index.js";
 import { createFunctionHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const serviceForHandler = new AuthService();
@@ -33,6 +33,10 @@ const code = codes.issue("project-a", "client-id", "https://app.example/callback
 if (codes.consume(code, "project-a", "client-id", "https://app.example/callback", 1001).userId !== "user-1") throw new Error("authorization code exchange failed");
 try { codes.consume(code, "project-a", "client-id", "https://app.example/callback", 1002); throw new Error("authorization code replay accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "authorization code unavailable") throw error; }
 if (!verifyPKCE("verifier", createPKCEChallenge("verifier"), "S256") || verifyPKCE("wrong", createPKCEChallenge("verifier"), "S256")) throw new Error("PKCE verification failed");
+const states = new OIDCStateStore();
+const state = states.issue("project-a", "client-id", "https://app.example/callback");
+states.consume(state, "project-a", "client-id", "https://app.example/callback");
+try { states.consume(state, "project-a", "client-id", "https://app.example/callback"); throw new Error("callback state replay accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "callback state mismatch") throw error; }
 
 const service = new AuthService();
 const registration = service.signup("project-a", "alice", "correct horse battery");

@@ -23,6 +23,19 @@ export function projectUserID(projectId: string, userId: string): string {
 export function sessionTokenDigest(token: string): string { return createHash("sha256").update(token).digest("hex"); }
 export function createPKCEChallenge(verifier: string): string { return createHash("sha256").update(verifier).digest("base64url"); }
 export function verifyPKCE(verifier: string, challenge: string, method: string): boolean { return method === "S256" && timingSafeEqual(Buffer.from(createPKCEChallenge(verifier)), Buffer.from(challenge)); }
+export class OIDCStateStore {
+  private readonly states = new Map<string, { projectId: string; clientId: string; redirectUri: string }>();
+  issue(projectId: string, clientId: string, redirectUri: string): string {
+    const state = randomBytes(24).toString("base64url");
+    this.states.set(state, { projectId, clientId, redirectUri });
+    return state;
+  }
+  consume(state: string, projectId: string, clientId: string, redirectUri: string): void {
+    const record = this.states.get(state);
+    if (!record || record.projectId !== projectId || record.clientId !== clientId || record.redirectUri !== redirectUri) throw new Error("callback state mismatch");
+    this.states.delete(state);
+  }
+}
 
 export class AccountRateLimiter {
   private readonly attempts = new Map<string, { startedAt: number; count: number }>();
