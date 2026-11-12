@@ -160,7 +160,7 @@ Goal: create isolated projects and run one plugin through both supported worker 
 - [x] Restrict worker filesystem access.
 - [x] Restrict worker network access.
 - [x] Restrict worker CPU and memory.
-- [ ] Run the contract fixture through a bundled worker.
+- [x] Run the contract fixture through a bundled worker.
 - [ ] Add an external worker endpoint.
 - [ ] Authenticate the external worker handshake.
 - [ ] Bind external identity to the project installation.
