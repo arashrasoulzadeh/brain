@@ -1,4 +1,4 @@
-import { TableExposureRegistry, dataRequest, projectRoleName, projectSchemaName, projectRow, requirePrimaryKey, RowPolicy, validateColumnTypes, validateFilter } from "../../plugins/tables/index.js";
+import { TableExposureRegistry, dataRequest, paginate, projectRoleName, projectSchemaName, projectRow, requirePrimaryKey, RowPolicy, validateColumnTypes, validateFilter } from "../../plugins/tables/index.js";
 import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = dataRequest("dev", "tables", "0.1.0", "tables.read", "users", { filter: { active: true } });
@@ -18,3 +18,5 @@ try { validateColumnTypes({ profile: "jsonb" }); throw new Error("unsupported co
 if (Object.keys(projectRow({ id: "1", secret: "x" }, ["id"])).length !== 1) throw new Error("unapproved column exposed");
 validateFilter({ active: { eq: true } }, ["active"]);
 try { validateFilter({ secret: { eq: true } }, ["active"]); throw new Error("unapproved filter accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "unapproved filter") throw error; }
+const page = paginate([1, 2, 3], undefined, 2);
+if (page.items.join(",") !== "1,2" || !page.nextCursor || paginate([1, 2, 3], page.nextCursor, 2).items[0] !== 3) throw new Error("cursor pagination failed");
