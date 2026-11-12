@@ -101,6 +101,9 @@ export type OIDCTokenClaims = { issuer: string; audience: string; expiresAt: num
 export function validateOIDCToken(claims: OIDCTokenClaims, config: OIDCConfig, expectedNonce: string, now: number, verifySignature: (signature: string) => boolean): void {
   if (claims.issuer !== config.issuer || claims.audience !== config.audience || claims.expiresAt <= now || claims.nonce !== expectedNonce || !verifySignature(claims.signature)) throw new Error("invalid OIDC token");
 }
+export function requireRecentAuthentication(authenticatedAt: number, now: number, maxAgeMs: number): void {
+  if (maxAgeMs <= 0 || now - authenticatedAt > maxAgeMs) throw new Error("recent authentication required");
+}
 
 export class AuthService {
   private readonly accounts = new Map<string, Map<string, Account>>();
