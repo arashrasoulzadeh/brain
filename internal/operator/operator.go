@@ -1,12 +1,14 @@
 package operator
 
 import (
+	"crypto/subtle"
 	"errors"
 	"strings"
 )
 
 var ErrAlreadyBootstrapped = errors.New("operator already bootstrapped")
 var ErrInvalidBootstrap = errors.New("operator bootstrap requires username and secret")
+var ErrInvalidCredentials = errors.New("invalid operator credentials")
 
 type Account struct {
 	Username     string
@@ -32,4 +34,15 @@ func (s *Store) Account() (Account, bool) {
 		return Account{}, false
 	}
 	return *s.account, true
+}
+
+func (s *Store) Authenticate(username, secret string, digest func(string) string) error {
+	if s.account == nil || digest == nil || username != s.account.Username {
+		return ErrInvalidCredentials
+	}
+	got := digest(secret)
+	if subtle.ConstantTimeCompare([]byte(got), []byte(s.account.SecretDigest)) != 1 {
+		return ErrInvalidCredentials
+	}
+	return nil
 }

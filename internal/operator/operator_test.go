@@ -28,3 +28,24 @@ func TestBootstrapRunsOnlyOnce(t *testing.T) {
 		t.Fatalf("Bootstrap() = %v", err)
 	}
 }
+
+func TestAuthenticateAcceptsOnlyMatchingOperatorCredentials(t *testing.T) {
+	store := &operator.Store{}
+	digest := func(value string) string { return "digest:" + value }
+	_, _ = store.Bootstrap("admin", "secret", digest)
+	if err := store.Authenticate("admin", "secret", digest); err != nil {
+		t.Fatal(err)
+	}
+	if err := store.Authenticate("admin", "wrong", digest); !errors.Is(err, operator.ErrInvalidCredentials) {
+		t.Fatalf("wrong secret = %v", err)
+	}
+	if err := store.Authenticate("other", "secret", digest); !errors.Is(err, operator.ErrInvalidCredentials) {
+		t.Fatalf("wrong user = %v", err)
+	}
+}
+
+func TestAuthenticateRejectsMissingAccount(t *testing.T) {
+	if err := (&operator.Store{}).Authenticate("admin", "secret", func(string) string { return "digest" }); !errors.Is(err, operator.ErrInvalidCredentials) {
+		t.Fatalf("missing account = %v", err)
+	}
+}
