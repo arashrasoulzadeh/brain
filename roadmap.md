@@ -154,9 +154,9 @@ Goal: create isolated projects and run one plugin through both supported worker 
 
 ### Workers
 
-- [ ] Add a bundled worker fixture.
+- [x] Add a bundled worker fixture.
 - [x] Add the private worker protocol.
-- [ ] Add worker startup supervision.
+- [x] Add worker startup supervision.
 - [ ] Restrict worker filesystem access.
 - [ ] Restrict worker network access.
 - [ ] Restrict worker CPU and memory.
