@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `4080e7c` — roadmap mark plugin dependency validation verified
+- `008253e` — docs: update changelog [skip ci]
 - `24c424b` — phase 01 validate plugin dependencies
 - `d822b0a` — docs: update changelog [skip ci]
 - `fdf7d90` — arch enforce plugin first feature structure
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `9157a6f` — docs: update changelog [skip ci]
 - `1b9b865` — docs add github pages admin developer guides
 - `a3eb529` — phase 00 add isolated local test settings
-- `56306e8` — roadmap mark go CI checks verified
-- `de73677` — phase 00 add go test workflow
