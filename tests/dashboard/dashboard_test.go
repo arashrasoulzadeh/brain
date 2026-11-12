@@ -31,3 +31,21 @@ func TestDashboardIsAHostValidatedPlugin(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestDashboardBootstrapUsesPluginRegistry(t *testing.T) {
+	r, err := dashboard.Bootstrap(1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Install("dev", "dashboard", "0.1.0"); err != nil {
+		t.Fatal(err)
+	}
+	for _, capability := range dashboard.Manifest().Capabilities {
+		if err := r.Grant("dev", "dashboard", "0.1.0", capability); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := r.Enable("dev", "dashboard", "0.1.0"); err != nil {
+		t.Fatal(err)
+	}
+}

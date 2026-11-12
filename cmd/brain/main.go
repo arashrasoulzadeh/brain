@@ -10,11 +10,19 @@ import (
 	"brain/internal/app"
 	"brain/internal/config"
 	"brain/internal/operator"
+	"brain/plugins/dashboard/implementation"
 )
 
 func main() {
 	if len(os.Args) > 1 && os.Args[1] == "bootstrap-operator" {
 		bootstrapOperator()
+		return
+	}
+	if len(os.Args) > 1 && os.Args[1] == "bootstrap-dashboard" {
+		if _, err := dashboard.Bootstrap(1); err != nil {
+			log.Fatal(err)
+		}
+		log.Print("dashboard plugin bootstrapped")
 		return
 	}
 	cfg := config.FromEnv()
