@@ -1,6 +1,9 @@
 package plugin
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+)
 
 var (
 	ErrDuplicate         = errors.New("plugin version already registered")
@@ -12,6 +15,7 @@ var (
 	ErrProjectInvalid    = errors.New("project identity invalid")
 	ErrDependencyMissing = errors.New("plugin dependency missing")
 	ErrInvalidManifest   = errors.New("invalid plugin manifest")
+	ErrInvalidConfig     = errors.New("invalid plugin configuration")
 )
 
 type Manifest struct {
@@ -32,6 +36,7 @@ type Installation struct {
 	Version   string
 	Enabled   bool
 	Grants    map[string]bool
+	Config    map[string]any
 }
 
 type Registry struct {
@@ -70,8 +75,42 @@ func (r *Registry) Install(projectID, id, version string) error {
 		return ErrNotRegistered
 	}
 	installKey := projectID + ":" + key
-	r.installations[installKey] = Installation{ProjectID: projectID, PluginID: id, Version: version, Grants: map[string]bool{}}
+	r.installations[installKey] = Installation{ProjectID: projectID, PluginID: id, Version: version, Grants: map[string]bool{}, Config: map[string]any{}}
 	return nil
+}
+
+func (r *Registry) Configure(projectID, id, version string, values map[string]any) error {
+	key := projectID + ":" + id + "@" + version
+	i, ok := r.installations[key]
+	if !ok {
+		return ErrNotInstalled
+	}
+	m := r.registered[id+"@"+version].Manifest
+	for name, value := range values {
+		want, declared := m.ConfigSchema[name]
+		if !declared || !configTypeMatches(want, value) {
+			return fmt.Errorf("%w: %s", ErrInvalidConfig, name)
+		}
+		i.Config[name] = value
+	}
+	r.installations[key] = i
+	return nil
+}
+
+func configTypeMatches(want string, value any) bool {
+	switch want {
+	case "string":
+		_, ok := value.(string)
+		return ok
+	case "bool":
+		_, ok := value.(bool)
+		return ok
+	case "int":
+		_, ok := value.(int)
+		return ok
+	default:
+		return false
+	}
 }
 
 func (r *Registry) Grant(projectID, id, version, capability string) error {

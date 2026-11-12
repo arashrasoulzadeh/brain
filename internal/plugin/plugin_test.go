@@ -91,3 +91,20 @@ func TestPluginRegistrationRejectsIncompleteManifest(t *testing.T) {
 		t.Fatal("incomplete manifest was accepted")
 	}
 }
+
+func TestInstallationConfigurationUsesManifestSchema(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	m := plugin.Manifest{ID: "dashboard", Version: "1.0.0", HostAPI: 1, ConfigSchema: map[string]string{"label": "string", "enabled": "bool"}}
+	if err := r.Register(m); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Install("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Configure("dev", m.ID, m.Version, map[string]any{"label": "local", "enabled": true}); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Configure("dev", m.ID, m.Version, map[string]any{"enabled": "yes"}); !errors.Is(err, plugin.ErrInvalidConfig) {
+		t.Fatalf("Configure() = %v", err)
+	}
+}
