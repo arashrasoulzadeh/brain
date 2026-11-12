@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `58a6286` — 2026-11-13 02:46:52 +0330 — phase 02 verify durable result persistence
+- `9e1f58b` — 2026-11-12 23:16:44 +0000 — docs: update changelog [skip ci]
 - `22392a5` — 2026-11-13 02:46:32 +0330 — phase 02 verify denied plugin action
 - `d7a6e1e` — 2026-11-12 23:16:26 +0000 — docs: update changelog [skip ci]
 - `7b6af32` — 2026-11-13 02:46:11 +0330 — phase 02 verify dropped connection recovery
