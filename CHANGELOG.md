@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `749535e` — 2026-11-13 02:27:52 +0330 — docs mark room player events complete
+- `a2a44b0` — 2026-11-12 22:57:54 +0000 — docs: update changelog [skip ci]
 - `c7a9475` — 2026-11-13 02:27:41 +0330 — phase 02 emit room player events
 - `1cadd9e` — 2026-11-12 22:57:11 +0000 — docs: update changelog [skip ci]
 - `cd275b1` — 2026-11-13 02:26:50 +0330 — docs mark non member socket denial complete
