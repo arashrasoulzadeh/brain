@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `6e89db4` — 2026-11-13 02:38:17 +0330 — phase 02 add websocket heartbeat tracking
+- `f5b277f` — 2026-11-12 23:08:03 +0000 — docs: update changelog [skip ci]
 - `80ea046` — 2026-11-13 02:37:50 +0330 — phase 02 validate websocket origins
 - `4b75d8a` — 2026-11-12 23:07:39 +0000 — docs: update changelog [skip ci]
 - `64dff7d` — 2026-11-13 02:37:23 +0330 — phase 02 add single use connection tickets
