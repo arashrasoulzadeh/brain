@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `26ffb44` — phase 01 bootstrap dashboard plugin from cli
+- `34cd635` — phase 01 add dashboard plugin manifest
+- `363efea` — test move all tests into tests tree
+- `cb13964` — docs: update changelog [skip ci]
 - `1fe937f` — roadmap mark external worker fixture verified
 - `f5d44a8` — docs: update changelog [skip ci]
 - `5c137de` — phase 01 run contract through external worker
@@ -49,7 +53,3 @@ Automatically generated from commits on main.
 - `38b4671` — docs: update changelog [skip ci]
 - `acd0604` — roadmap mark plugin audit verified
 - `d68459a` — docs: update changelog [skip ci]
-- `08dc5eb` — phase 01 audit plugin lifecycle changes
-- `688a462` — docs: update changelog [skip ci]
-- `a422c24` — roadmap mark plugin readiness verified
-- `36be720` — docs: update changelog [skip ci]
