@@ -330,7 +330,7 @@ Goal: provide project-scoped identity, PostgreSQL APIs, files, subscriptions, an
 - [x] Reject pooled caller-context reuse.
 - [x] Add table exposure records.
 - [x] Require a supported primary key.
-- [ ] Reject unsupported types.
+- [x] Reject unsupported types.
 - [ ] Hide unapproved columns.
 - [ ] Allow only approved filters.
 - [ ] Add cursor pagination.

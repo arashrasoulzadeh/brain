@@ -22,6 +22,10 @@ export class TableExposureRegistry {
 export function requirePrimaryKey(columns: readonly string[], primaryKey: string): void {
   if (!primaryKey || !columns.includes(primaryKey)) throw new Error("supported primary key required");
 }
+export function validateColumnTypes(columns: Record<string, string>): void {
+  const supported = new Set(["string", "number", "boolean", "date"]);
+  if (Object.values(columns).some((type) => !supported.has(type))) throw new Error("unsupported column type");
+}
 
 export function dataRequest(projectId: string, pluginId: string, version: string, operation: "tables.read" | "tables.write" | "tables.schema", table: string, payload: unknown = {}) {
   return request(`tables-${operation}-${projectId}-${table}`, { protocol: 1, projectId, pluginId, version, operation, payload: { table, ...(payload as Record<string, unknown>) } });
