@@ -78,6 +78,12 @@ export class SMSOTPService {
   }
   private digest(code: string): string { return createHmac("sha256", this.secret).update(code).digest("hex"); }
 }
+export function normalizePhoneNumber(value: string): string {
+  const compact = value.replace(/[\s().-]/g, "");
+  const normalized = compact.startsWith("00") ? `+${compact.slice(2)}` : compact;
+  if (!/^\+[1-9][0-9]{7,14}$/.test(normalized)) throw new Error("invalid phone number");
+  return normalized;
+}
 
 export class AccountRateLimiter {
   private readonly attempts = new Map<string, { startedAt: number; count: number }>();

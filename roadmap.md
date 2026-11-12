@@ -308,7 +308,7 @@ Goal: provide project-scoped identity, PostgreSQL APIs, files, subscriptions, an
 - [x] Add a local test delivery inbox.
 - [x] Add email OTP.
 - [x] Add SMS OTP.
-- [ ] Normalize phone numbers to E.164.
+- [x] Normalize phone numbers to E.164.
 - [ ] Bind challenges to project, destination, and purpose.
 - [ ] Store keyed code digests.
 - [ ] Consume codes atomically.
