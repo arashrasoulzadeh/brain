@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `e79bfce` — 2026-11-13 03:10:55 +0330 — phase 03 verify keyed otp digests
+- `318a5da` — 2026-11-12 23:40:47 +0000 — docs: update changelog [skip ci]
 - `12ea34c` — 2026-11-13 03:10:34 +0330 — phase 03 verify otp challenge binding
 - `e225583` — 2026-11-12 23:40:24 +0000 — docs: update changelog [skip ci]
 - `b5a20bc` — 2026-11-13 03:10:07 +0330 — phase 03 normalize phone numbers
