@@ -38,7 +38,7 @@ Do not run Docker during normal development. Use in-process tests and isolated l
 
 ## Plugin-first feature development
 
-Product features belong under `plugins/<plugin-id>/`; use `plugins/template/` as the starting point. The core host remains shared infrastructure and contracts. Each plugin needs its own manifest, tests, grants, configuration schema, developer notes, administrator notes, and dynamic lifecycle behavior.
+Product features belong under `plugins/<plugin-id>/` as TypeScript/Node.js plugins; use `plugins/template/` as the starting point. Go is reserved for the core host. Each plugin needs its own manifest, tests, grants, configuration schema, developer notes, administrator notes, and dynamic lifecycle behavior.
 
 Plugin communication follows [the plugin communication architecture](plugin-communication.md): JSON-RPC over Unix sockets locally, gRPC/mTLS externally, and the shared host authorization contract for both.
 

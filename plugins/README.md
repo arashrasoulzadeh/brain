@@ -1,6 +1,6 @@
 # Plugin catalog
 
-All Brain product features live here. The host in `internal/` provides shared infrastructure only.
+All Brain product features live here as TypeScript plugins. The Go host in `internal/` provides shared infrastructure only.
 
 ## Required layout
 
@@ -8,7 +8,7 @@ All Brain product features live here. The host in `internal/` provides shared in
 plugins/<plugin-id>/
 ├── plugin.yaml
 ├── README.md
-├── implementation/
+├── src/               # TypeScript implementation
 ├── tests/
 └── migrations/
 ```
@@ -31,6 +31,10 @@ plugins/<plugin-id>/
 | `turn-rules` | Turn-based game runtime | 04 |
 | `analytics` | Validated event contract | 01 |
 | `eye-export` | Eye event export | 02 |
+
+## Runtime rule
+
+Every plugin runs as a TypeScript/Node.js worker and communicates through the host RPC contract. User-authored functions use the stricter sandboxed runtime.
 
 ## Completion contract
 

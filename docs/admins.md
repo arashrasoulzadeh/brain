@@ -12,7 +12,7 @@ The current implementation provides the foundations for project and plugin admin
 - Project-scoped authorization.
 - Runtime versus migration credential separation.
 
-All feature capabilities are managed as separate plugins. Review each plugin's requested grants, configuration, readiness, lifecycle, rollback, and removal behavior before enabling it. The catalog is in [`plugins/README.md`](../plugins/README.md).
+All feature capabilities are managed as separate TypeScript plugins. Review each plugin's requested grants, configuration, readiness, lifecycle, rollback, and removal behavior before enabling it. The catalog is in [`plugins/README.md`](../plugins/README.md).
 
 Plugins communicate through host-controlled local sockets or authenticated external services. They do not receive unrestricted database, operator-token, filesystem, or network access.
 

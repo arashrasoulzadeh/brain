@@ -7,10 +7,11 @@ This repository is building a Go multi-tenant mobile backend. The complete produ
 ## Plugin-first architecture law
 
 - Core host infrastructure is limited to transport, project isolation, configuration, lifecycle, permission brokering, storage primitives, worker supervision, and shared contracts.
-- Every user-facing or product capability must be implemented as a separate plugin under `plugins/<plugin-id>/`.
+- Every user-facing or product capability must be implemented as a separate TypeScript plugin under `plugins/<plugin-id>/`.
+- Go is reserved for the host infrastructure; no plugin implementation may be written in Go.
 - Do not add auth, files, tables, subscriptions, rooms, matchmaking, analytics, workflows, dashboard features, or client-facing product behavior directly to the core host.
 - Every plugin must have a manifest, implementation, focused tests, permissions, configuration schema, developer notes, and administrator notes.
-- Plugins may depend on host contracts and approved plugins, but may not bypass the permission broker or project boundary.
+- TypeScript plugins communicate with the Go host through the versioned RPC contract and may not bypass the permission broker or project boundary.
 - Plugins remain dynamically replaceable: version, enable, disable, promote, rollback, drain, and remove them through host lifecycle contracts.
 - All tests for every layer—unit, contract, API, admin, plugin, integration, and end-to-end—must live under the top-level `tests/` directory. Never add test files beside implementation packages.
 - Preserve test package boundaries under `tests/<area>/`, and run the full suite with `go test ./...` after moves.
