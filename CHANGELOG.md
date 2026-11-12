@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `7f31707` — chore ignore typescript dependencies
+- `da06adb` — docs: update changelog [skip ci]
 - `e431f83` — phase 02 implement project scoped auth plugin
 - `f9dc6be` — docs: update changelog [skip ci]
 - `e2a3227` — phase 02 add typescript arena plugin
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `962995c` — docs: update changelog [skip ci]
 - `0f5daa3` — phase 05 pin plugin versions for active work
 - `aed4619` — docs: update changelog [skip ci]
-- `95e9851` — phase 05 add controlled plugin drain deadline
-- `c268525` — docs: update changelog [skip ci]
