@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `59dc20b` — roadmap mark operator mfa verified
+- `9ffed2e` — docs: update changelog [skip ci]
 - `1300f98` — phase 01 add operator totp mfa
 - `b4afe14` — docs: update changelog [skip ci]
 - `8a74ff3` — roadmap mark operator sign-in verified
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `8f4b2ef` — phase 00 add injectable database owner
 - `ca66b98` — phase 01 support independent project plugin installs
 - `07c1acc` — roadmap mark verified phase 01 plugin steps
-- `3152529` — phase 01 add scoped plugin registry
-- `e0b68ea` — phase 00 foundation and roadmap
