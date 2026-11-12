@@ -29,6 +29,14 @@ export class ArenaStateMachine {
     void payload;
     this.sequences.set(playerId, sequence);
   }
+  result(winnerIds: readonly string[], completedAt: string): DurableMatchResult {
+    if (this.getState() !== "active") throw new Error("arena is not active");
+    if (!winnerIds.length || winnerIds.some((winner) => !this.players.includes(winner)) || !completedAt) throw new Error("invalid arena result");
+    this.currentState = "finished";
+    const result = { resultId: `${this.projectId}:${this.roomId}-${Date.parse(completedAt)}`, projectId: this.projectId, roomId: this.roomId, winnerIds: [...winnerIds], completedAt };
+    validateMatchResult(result);
+    return result;
+  }
 }
 
 export function arenaStartCommand(arena: ArenaStateMachine, projectId: string, roomId: string, players: readonly string[]): ArenaStateMachine {

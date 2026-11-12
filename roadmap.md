@@ -250,7 +250,7 @@ Goal: complete a private multiplayer match with matchmaking, realtime updates, a
 - [x] Implement a minimal arena state machine.
 - [x] Add a start command.
 - [x] Add a player action.
-- [ ] Add a result command.
+- [x] Add a result command.
 - [ ] Persist one completed result.
 - [ ] Export one validated Eye event.
 - [ ] Add an eight-player fixture.
