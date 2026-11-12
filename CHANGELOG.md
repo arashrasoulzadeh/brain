@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `15a3bf2` — phase 01 add operator credential verification
+- `2071a37` — docs: update changelog [skip ci]
 - `d7cd480` — roadmap mark operator bootstrap verified
 - `0bfdc3f` — docs: update changelog [skip ci]
 - `73ccd50` — phase 01 add operator bootstrap command
