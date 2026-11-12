@@ -300,7 +300,7 @@ Goal: provide project-scoped identity, PostgreSQL APIs, files, subscriptions, an
 - [x] Validate issuer, audience, expiry, signature, and nonce.
 - [x] Require recent authentication for linking.
 - [x] Add native authorization-code exchange.
-- [ ] Add PKCE verification.
+- [x] Add PKCE verification.
 - [ ] Reject callback state mismatch.
 
 ### Email, SMS, and recovery
