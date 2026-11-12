@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `d66c5f4` — 2026-11-13 02:14:38 +0330 — phase 01 reject undeclared analytics fields
+- `441347a` — 2026-11-12 22:44:27 +0000 — docs: update changelog [skip ci]
 - `a0da5ba` — 2026-11-13 02:14:09 +0330 — docs mark analytics contract complete
 - `efde8ab` — 2026-11-12 22:44:09 +0000 — docs: update changelog [skip ci]
 - `ba2acba` — 2026-11-13 02:13:57 +0330 — phase 01 define analytics event contract
