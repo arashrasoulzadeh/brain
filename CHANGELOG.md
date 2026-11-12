@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `ca4397c` — phase 00 define platform migration schema
+- `183a3a6` — docs: update changelog [skip ci]
 - `ada4b46` — ci add opt-in compose smoke test and changelog rules
 - `def3a9c` — docs: update changelog [skip ci]
 - `0fb174a` — phase 00 add multi-architecture backend build check
