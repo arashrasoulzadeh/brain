@@ -1,7 +1,8 @@
-import { AuthService, createHandler, signInRequest, signUpRequest } from "../../plugins/auth/index.js";
+import { AuthService, functions, signInRequest, signUpRequest } from "../../plugins/auth/index.js";
+import { createFunctionHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const serviceForHandler = new AuthService();
-const handler = createHandler(serviceForHandler, [
+const handler = createFunctionHandler(functions(serviceForHandler), [
   { operation: "auth.signup", function: "signup", capability: "auth.signup" },
   { operation: "auth.signin", function: "signin", capability: "auth.signin" },
   { operation: "auth.session", function: "session", capability: "auth.session" },

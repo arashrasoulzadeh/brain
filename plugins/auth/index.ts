@@ -1,5 +1,5 @@
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
-import { request, type PluginHandler, type PluginRoute } from "../sdk-typescript/src/index.js";
+import { request, type PluginFunction, type RpcRequest } from "../sdk-typescript/src/index.js";
 
 export function signInRequest(projectId: string, pluginId: string, version: string, provider: string, credential: unknown) {
   return request(`auth-signin-${projectId}`, { protocol: 1, projectId, pluginId, version, operation: "auth.signin", payload: { provider, credential } });
@@ -45,16 +45,11 @@ export class AuthService {
   }
 }
 
-export function createHandler(service = new AuthService(), routes: readonly PluginRoute[] = []): PluginHandler {
-  return (rpc) => {
-    const route = routes.find((candidate) => candidate.operation === rpc.params.operation);
-    if (!route) throw new Error("operation not declared in plugin manifest");
-    const payload = rpc.params.payload as Record<string, string> | undefined;
-    if (route.function === "signup") return { accepted: true, operation: rpc.params.operation, ...service.signup(rpc.params.projectId, payload?.username ?? "", payload?.password ?? "") };
-    if (route.function === "signin") return { accepted: true, operation: rpc.params.operation, ...service.signin(rpc.params.projectId, payload?.username ?? payload?.provider ?? "", payload?.password ?? String(payload?.credential ?? "")) };
-    if (route.function === "session") return { accepted: true, operation: rpc.params.operation, ...service.session(rpc.params.projectId, payload?.token ?? "") };
-    throw new Error("route function not implemented");
+export function functions(service = new AuthService()): Readonly<Record<string, PluginFunction>> {
+  const payload = (rpc: RpcRequest) => rpc.params.payload as Record<string, string> | undefined;
+  return {
+    signup: (rpc) => { const p = payload(rpc); return service.signup(rpc.params.projectId, p?.username ?? "", p?.password ?? ""); },
+    signin: (rpc) => { const p = payload(rpc); return service.signin(rpc.params.projectId, p?.username ?? p?.provider ?? "", p?.password ?? String(p?.credential ?? "")); },
+    session: (rpc) => { const p = payload(rpc); return service.session(rpc.params.projectId, p?.token ?? ""); },
   };
 }
-
-export const handle = createHandler();

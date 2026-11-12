@@ -1,8 +1,5 @@
 import {
   request,
-  createHostHandler,
-  type PluginHandler,
-  type PluginRoute,
   type RpcRequest,
 } from "../sdk-typescript/src/index.js";
 
@@ -34,6 +31,3 @@ export function adminRequest(
   });
 }
 
-export const createHandler = createHostHandler;
-
-export const handle: PluginHandler = () => { throw new Error("host route registry required"); };

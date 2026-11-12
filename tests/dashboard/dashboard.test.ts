@@ -1,4 +1,5 @@
-import { adminRequest, createHandler, projectCreateRequest } from "../../plugins/dashboard/index.js";
+import { adminRequest, projectCreateRequest } from "../../plugins/dashboard/index.js";
+import { createHostHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = projectCreateRequest("dashboard", "0.1.0", "dev");
 if (request.params.pluginId !== "dashboard" || request.params.operation !== "project.create") {
@@ -20,7 +21,7 @@ const routes = [
 ] as const;
 const calls: unknown[] = [];
 const host = { invoke(projectId: string, operation: string, capability: string, payload: unknown) { calls.push({ projectId, operation, capability, payload }); return { acceptedByHost: true }; } };
-const result = createHandler(host, routes)(projectCreateRequest("dashboard", "0.1.0", "dev"));
+const result = createHostHandler(host, routes)(projectCreateRequest("dashboard", "0.1.0", "dev"));
 if (typeof result !== "object") throw new Error("dashboard handler did not return a result");
 if (calls.length !== 1) throw new Error("dashboard host was not invoked");
-try { createHandler(host, routes)(adminRequest("dev", "dashboard", "0.1.0", "plugin.unknown", {})); throw new Error("undeclared route was accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "operation not declared in plugin manifest") throw error; }
+try { createHostHandler(host, routes)(adminRequest("dev", "dashboard", "0.1.0", "plugin.unknown", {})); throw new Error("undeclared route was accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "operation not declared in plugin manifest") throw error; }

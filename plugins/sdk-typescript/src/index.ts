@@ -54,6 +54,19 @@ export function createHostHandler(host: HostInvoker, routes: readonly PluginRout
   };
 }
 
+export type PluginFunction = (request: RpcRequest) => unknown;
+
+export function createFunctionHandler(functions: Readonly<Record<string, PluginFunction>>, routes: readonly PluginRoute[]): PluginHandler {
+  return (rpc) => {
+    const route = routes.find((candidate) => candidate.operation === rpc.params.operation);
+    if (!route) throw new Error("operation not declared in plugin manifest");
+    if (!route.function || !route.capability) throw new Error("invalid plugin route");
+    const fn = functions[route.function];
+    if (!fn) throw new Error("route function not implemented");
+    return { accepted: true, operation: rpc.params.operation, payload: fn(rpc) };
+  };
+}
+
 export function request(id: string, params: WorkerParams): RpcRequest {
   if (!id || !params.projectId || !params.pluginId || !params.version || !params.operation) {
     throw new Error("invalid plugin request");
