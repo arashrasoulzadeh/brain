@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `01f6320` — phase 01 bound unavailable worker errors
+- `4f4fae4` — docs: update changelog [skip ci]
 - `a794ab0` — roadmap mark commit grant recheck verified
 - `74e6631` — phase 01 recheck plugin grants at commit
 - `b4339a7` — docs: update changelog [skip ci]
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `8a74ff3` — roadmap mark operator sign-in verified
 - `75e30b1` — docs: update changelog [skip ci]
 - `15a3bf2` — phase 01 add operator credential verification
-- `2071a37` — docs: update changelog [skip ci]
-- `d7cd480` — roadmap mark operator bootstrap verified
