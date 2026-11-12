@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `3cb01bf` — 2026-11-13 02:39:52 +0330 — phase 02 authorize room snapshots
+- `1f2e599` — 2026-11-12 23:09:39 +0000 — docs: update changelog [skip ci]
 - `b290450` — 2026-11-13 02:39:23 +0330 — phase 02 bound websocket send queues
 - `52272cc` — 2026-11-12 23:09:13 +0000 — docs: update changelog [skip ci]
 - `aa9c695` — 2026-11-13 02:38:53 +0330 — phase 02 bound websocket frame sizes
