@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `1f405b8` — 2026-11-13 03:25:53 +0330 — phase 03 validate approved table filters
+- `be2d388` — 2026-11-12 23:55:14 +0000 — docs: update changelog [skip ci]
 - `f77ebff` — 2026-11-13 03:25:02 +0330 — phase 03 hide unapproved table columns
 - `1975bb5` — 2026-11-12 23:54:36 +0000 — docs: update changelog [skip ci]
 - `416d13a` — 2026-11-13 03:24:22 +0330 — phase 03 reject unsupported table types
