@@ -258,7 +258,7 @@ Goal: complete a private multiplayer match with matchmaking, realtime updates, a
 
 ### Phase 02 gate
 
-- [ ] Start a match in two browsers.
+- [x] Start a match in two browsers.
 - [ ] Recover one dropped connection.
 - [ ] Reject one denied plugin action.
 - [ ] Persist one durable result.
