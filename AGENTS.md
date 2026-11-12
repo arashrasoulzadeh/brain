@@ -11,6 +11,9 @@ This repository is building a Go multi-tenant mobile backend. The complete produ
 - Go is reserved for the host infrastructure; no plugin implementation may be written in Go.
 - Do not add auth, files, tables, subscriptions, rooms, matchmaking, analytics, workflows, dashboard features, or client-facing product behavior directly to the core host.
 - Every plugin must have a manifest, implementation, focused tests, permissions, configuration schema, developer notes, and administrator notes.
+- Each plugin must contain only `plugins/<plugin-id>/index.ts` and `plugins/<plugin-id>/plugin.yaml` as its source contract; do not add plugin-local `src/`, `package.json`, or README files.
+- `plugin.yaml` is authoritative for plugin title, description, version, routes, function names, capabilities, extension points, and configuration; TypeScript must not duplicate manifest metadata or route allowlists.
+- The host discovers YAML routes and denies undeclared operations or capability mismatches before invoking a plugin function. Documentation is generated from the YAML contract.
 - TypeScript plugins communicate with the Go host through the versioned RPC contract and may not bypass the permission broker or project boundary.
 - Plugins remain dynamically replaceable: version, enable, disable, promote, rollback, drain, and remove them through host lifecycle contracts.
 - All tests for every layer—unit, contract, API, admin, plugin, integration, and end-to-end—must live under the top-level `tests/` directory. Never add test files beside implementation packages.

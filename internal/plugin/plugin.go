@@ -66,6 +66,15 @@ func (m Manifest) Route(operation string) (Route, bool) {
 	return Route{}, false
 }
 
+func Documentation(m Manifest) string {
+	var b strings.Builder
+	fmt.Fprintf(&b, "# %s\n\n%s\n\n## Routes\n\n", m.Title, m.Description)
+	for _, route := range m.Routes {
+		fmt.Fprintf(&b, "- `%s` → `%s` (capability: `%s`)\n", route.Operation, route.Function, route.Capability)
+	}
+	return b.String()
+}
+
 type Registered struct{ Manifest Manifest }
 
 type Installation struct {
