@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `b799c87` — 2026-11-13 03:03:05 +0330 — phase 03 detect identity link conflicts
+- `7852f43` — 2026-11-12 23:32:42 +0000 — docs: update changelog [skip ci]
 - `5f06224` — 2026-11-13 03:02:25 +0330 — phase 03 preserve guest identity on upgrade
 - `1723388` — 2026-11-12 23:31:27 +0000 — docs: update changelog [skip ci]
 - `32206f5` — 2026-11-13 03:01:14 +0330 — phase 03 verify guest accounts
