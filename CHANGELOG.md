@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `2c19a9f` — phase 02 add typescript invites plugin
+- `86c9fde` — docs: update changelog [skip ci]
 - `c3afb5e` — phase 02 add typescript rooms plugin
 - `24b9645` — docs: update changelog [skip ci]
 - `aa918b0` — phase 03 add typescript subscriptions plugin
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `9fdc07b` — docs: update changelog [skip ci]
 - `de567eb` — phase 05 add plugin version promotion routing
 - `402f2fd` — docs: update changelog [skip ci]
-- `bce5756` — arch add typescript sdk and unix transport
-- `2ee9b37` — docs: update changelog [skip ci]
