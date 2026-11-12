@@ -95,9 +95,9 @@ Goal: create isolated projects and run one plugin through both supported worker 
 ### Projects and operator access
 
 - [x] Add a project record with ID and status.
-- [ ] Resolve the project at the request entry point.
-- [ ] Reject unknown projects.
-- [ ] Reject inactive projects.
+- [x] Resolve the project at the request entry point.
+- [x] Reject unknown projects.
+- [x] Reject inactive projects.
 - [ ] Add operator bootstrap through the CLI.
 - [ ] Add operator sign-in.
 - [ ] Add MFA verification.
