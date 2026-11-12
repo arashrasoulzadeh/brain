@@ -9,6 +9,9 @@ capabilities:
 extension_points: []
 config_schema:
   maxFields: int
+event_fields:
+  - roomId
+  - players
 routes:
   - operation: analytics.capture
     function: capture
