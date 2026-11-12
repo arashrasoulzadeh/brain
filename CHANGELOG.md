@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `d874944` — roadmap mark csrf protection verified
+- `e27f17e` — docs: update changelog [skip ci]
 - `d30a702` — phase 01 add csrf middleware
 - `e2c3236` — docs: update changelog [skip ci]
 - `bf97384` — roadmap mark operator recovery verified
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `5def130` — phase 00 prevent runtime DDL
 - `3afa2da` — roadmap mark credential separation verified
 - `24cb401` — phase 00 separate migration credentials
-- `2957232` — roadmap mark migration idempotency verified
-- `44e2a54` — phase 00 add idempotent migration runner
