@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `0884b4b` — phase 01 issue short lived plugin credentials
+- `7ac7139` — docs: update changelog [skip ci]
 - `8068cc2` — roadmap mark permission broker checks verified
 - `6a09351` — docs: update changelog [skip ci]
 - `f3319c4` — phase 01 add typed permission broker
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `f1ffa41` — docs: update changelog [skip ci]
 - `ce3452b` — roadmap mark project entry isolation verified
 - `33f8bdf` — docs: update changelog [skip ci]
-- `219366a` — phase 01 resolve project at http entry
-- `587b679` — docs: update changelog [skip ci]
