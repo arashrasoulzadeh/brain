@@ -66,6 +66,14 @@ func TestAuthenticateRejectsMissingAccount(t *testing.T) {
 	}
 }
 
+func TestStoreRejectsEndUserOperatorAction(t *testing.T) {
+	store := &operator.Store{}
+	_, _ = store.Bootstrap("admin", "secret", func(string) string { return "digest" })
+	if err := store.AuthorizeAction(operator.Actor{ID: "user-1", Kind: operator.ActorUser}, "plugin.enable"); !errors.Is(err, operator.ErrOperatorRequired) {
+		t.Fatalf("ordinary user authorization error = %v", err)
+	}
+}
+
 func TestRecoveryTokenReplacesSecretAndIsSingleUse(t *testing.T) {
 	store := &operator.Store{}
 	digest := func(value string) string { return "digest:" + value }

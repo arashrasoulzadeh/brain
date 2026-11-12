@@ -11,6 +11,19 @@ import (
 var ErrAlreadyBootstrapped = errors.New("operator already bootstrapped")
 var ErrInvalidBootstrap = errors.New("operator bootstrap requires username and secret")
 var ErrInvalidCredentials = errors.New("invalid operator credentials")
+var ErrOperatorRequired = errors.New("operator access required")
+
+type ActorKind string
+
+const (
+	ActorUser     ActorKind = "user"
+	ActorOperator ActorKind = "operator"
+)
+
+type Actor struct {
+	ID   string
+	Kind ActorKind
+}
 
 type Account struct {
 	Username       string
@@ -48,6 +61,13 @@ func (s *Store) Recover(token, newSecret string, digest func(string) string) err
 }
 
 type Store struct{ account *Account }
+
+func (s *Store) AuthorizeAction(actor Actor, action string) error {
+	if actor.ID == "" || action == "" || actor.Kind != ActorOperator || s.account == nil || actor.ID != s.account.Username {
+		return ErrOperatorRequired
+	}
+	return nil
+}
 
 func (s *Store) Bootstrap(username, secret string, digest func(string) string) (Account, error) {
 	if s.account != nil {
