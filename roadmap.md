@@ -1,0 +1,708 @@
+# Go multi-tenant mBaaS roadmap
+
+This is the execution roadmap for the project. Work from top to bottom. Each checkbox should be small enough to implement and verify independently.
+
+## Required delivery loop
+
+For every checkbox:
+
+- [ ] Write the focused failing test.
+- [ ] Implement the smallest passing change.
+- [ ] Run the focused and affected tests.
+- [ ] Check off the item only after the tests pass.
+- [ ] Commit the completed item in a focused commit.
+- [ ] Push the commit to the configured remote.
+- [ ] Confirm the remote contains the commit before starting the next item.
+
+At the end of every phase, run its exit gate, commit any gate changes, push them, and record the verification result.
+
+## Working rules
+
+- [ ] Start each feature with one failing test.
+- [ ] Make the smallest implementation pass the test.
+- [ ] Refactor only after the focused test passes.
+- [ ] Run unit tests for decisions and integration tests for real boundaries.
+- [ ] Record the command and result when a step is complete.
+- [ ] Keep development and production project IDs separate.
+- [ ] Enforce project isolation at every request, job, socket, worker, and commit boundary.
+- [ ] Keep operator access separate from end-user access.
+- [ ] Treat destructive actions, migrations, releases, and permission changes as audited operations.
+
+## Local development policy
+
+- [ ] Do not run Docker or Docker Compose during ordinary local development.
+- [ ] Use SQLite for fast local tests when PostgreSQL-specific behavior is not required.
+- [ ] Keep PostgreSQL, Compose, and multi-service checks explicit and opt-in.
+- [ ] Use PostgreSQL integration tests for roles, row-level security, migrations, locks, and database-specific transactions.
+
+## Phase 00 — Local foundation
+
+Goal: boot a small Go service with PostgreSQL, migrations, Compose, and CI.
+
+### Host
+
+- [x] Create the Go module.
+- [x] Add the HTTP command entry point.
+- [x] Add a testable application package.
+- [x] Add a liveness endpoint.
+- [x] Add a liveness test.
+- [x] Add required configuration fields.
+- [x] Reject missing configuration at startup.
+- [x] Redact secrets from startup errors.
+
+### PostgreSQL
+
+- [ ] Add a PostgreSQL connection owner.
+- [ ] Add bounded connection startup.
+- [ ] Add database readiness checks.
+- [ ] Fail readiness when PostgreSQL is unavailable.
+- [ ] Recover readiness when PostgreSQL returns.
+- [ ] Add the first platform migration.
+- [ ] Use a migration-only database credential.
+- [ ] Prevent the runtime role from running DDL.
+- [ ] Run migrations twice and verify idempotency.
+
+### Compose and CI
+
+- [ ] Add the smallest local Compose file.
+- [ ] Keep the PostgreSQL port private.
+- [ ] Add isolated test settings and data.
+- [ ] Add a clean-start smoke test.
+- [ ] Add a clean-stop smoke test.
+- [ ] Repeat the Compose smoke test from scratch.
+- [ ] Add formatting checks.
+- [ ] Add Go tests to CI.
+- [ ] Add the Compose smoke test to CI.
+- [ ] Add the backend image build check for amd64 and arm64.
+
+### Phase 00 gate
+
+- [ ] A clean checkout passes tests locally.
+- [ ] A clean checkout passes tests in GitHub Actions.
+- [ ] Readiness distinguishes process health from database health.
+- [ ] Migration and runtime credentials are separate.
+
+## Phase 01 — Projects and plugin host
+
+Goal: create isolated projects and run one plugin through both supported worker paths.
+
+### Projects and operator access
+
+- [x] Add a project record with ID and status.
+- [ ] Resolve the project at the request entry point.
+- [ ] Reject unknown projects.
+- [ ] Reject inactive projects.
+- [ ] Add operator bootstrap through the CLI.
+- [ ] Add operator sign-in.
+- [ ] Add MFA verification.
+- [ ] Reject invalid MFA.
+- [ ] Add operator recovery.
+- [ ] Add CSRF protection.
+- [ ] Reject an ordinary user attempting an operator action.
+- [ ] Audit operator sign-in and recovery.
+
+### Plugin registration
+
+- [ ] Define the plugin manifest.
+- [ ] Add stable plugin ID and immutable version.
+- [ ] Add host API compatibility.
+- [ ] Add dependency declarations.
+- [ ] Add capability declarations.
+- [ ] Add extension-point declarations.
+- [ ] Add configuration schema validation.
+- [ ] Reject duplicate registrations.
+- [ ] Reject incompatible protocol versions.
+- [ ] Store approved artifact or endpoint information.
+
+### Installation and grants
+
+- [ ] Install a plugin for one project.
+- [ ] Start every installation disabled.
+- [ ] Add requested capability display.
+- [ ] Grant a named capability.
+- [ ] Bind grants to project resources.
+- [ ] Reject enablement with missing grants.
+- [ ] Reject enablement when readiness fails.
+- [ ] Enable the same plugin independently in two projects.
+- [ ] Audit installation, grants, and enablement.
+
+### Permission broker
+
+- [ ] Define typed host calls.
+- [ ] Check actor permission.
+- [ ] Check project installation grant.
+- [ ] Check matchmaking scope when present.
+- [ ] Check resource scope.
+- [ ] Issue short-lived invocation credentials.
+- [ ] Expire invocation credentials.
+- [ ] Recheck grants before commit.
+- [ ] Return bounded errors when a worker is unavailable.
+
+### Workers
+
+- [ ] Add a bundled worker fixture.
+- [ ] Add the private worker protocol.
+- [ ] Add worker startup supervision.
+- [ ] Restrict worker filesystem access.
+- [ ] Restrict worker network access.
+- [ ] Restrict worker CPU and memory.
+- [ ] Run the contract fixture through a bundled worker.
+- [ ] Add an external worker endpoint.
+- [ ] Authenticate the external worker handshake.
+- [ ] Bind external identity to the project installation.
+- [ ] Run the same fixture through the external worker.
+
+### Dashboard and first event
+
+- [ ] Bootstrap the dashboard through the CLI.
+- [ ] Add project creation form.
+- [ ] Add plugin installation form.
+- [ ] Add grant approval form.
+- [ ] Add enablement form.
+- [ ] Show worker readiness separately from enablement.
+- [ ] Add guest sign-in through a plugin.
+- [ ] Define the analytics event contract.
+- [ ] Reject unapproved event fields.
+- [ ] Capture one event in a local test sink.
+
+### Phase 01 gate
+
+- [ ] Create two projects through the dashboard.
+- [ ] Configure the same plugin independently in both.
+- [ ] Pass the same contract tests through both worker paths.
+- [ ] Prove cross-project isolation.
+- [ ] Prove revoked grants reject an in-flight effect.
+- [ ] Issue one project-scoped guest session.
+
+## Phase 02 — First co-op arena
+
+Goal: complete a private multiplayer match with matchmaking, realtime updates, and durable results.
+
+### Protocol and room model
+
+- [ ] Define versioned HTTP request envelopes.
+- [ ] Define versioned WebSocket messages.
+- [ ] Define request IDs and error codes.
+- [ ] Define retry and conflict behavior.
+- [ ] Define project-scoped room IDs.
+- [ ] Define player slots and membership.
+- [ ] Define room lifecycle states.
+- [ ] Define durable match results.
+
+### Private rooms
+
+- [ ] Add room creation.
+- [ ] Require project membership for room access.
+- [ ] Add invite creation.
+- [ ] Make invites single-use.
+- [ ] Reject an invite from another project.
+- [ ] Reject a non-member socket.
+- [ ] Add player join and leave events.
+- [ ] Persist room membership.
+
+### FIFO matchmaking
+
+- [ ] Add a matchmaking configuration.
+- [ ] Add a project-scoped queue.
+- [ ] Add a FIFO ticket.
+- [ ] Prevent duplicate active tickets.
+- [ ] Match compatible tickets.
+- [ ] Reject tickets for disabled scopes.
+- [ ] Add assignment expiry.
+- [ ] Requeue failed assignments.
+- [ ] Record assignment decisions.
+
+### Realtime gameplay
+
+- [ ] Add a WebSocket connection endpoint.
+- [ ] Issue single-use connection tickets.
+- [ ] Validate origin and project.
+- [ ] Add heartbeat handling.
+- [ ] Add bounded frame sizes.
+- [ ] Add bounded send queues.
+- [ ] Broadcast authorized snapshots.
+- [ ] Reject unauthorized commands.
+- [ ] Reconnect an existing player.
+- [ ] Replay missed durable events.
+
+### Arena and Eye analytics
+
+- [ ] Implement a minimal arena state machine.
+- [ ] Add a start command.
+- [ ] Add a player action.
+- [ ] Add a result command.
+- [ ] Persist one completed result.
+- [ ] Export one validated Eye event.
+- [ ] Add an eight-player fixture.
+- [ ] Measure room latency and memory.
+
+### Phase 02 gate
+
+- [ ] Start a match in two browsers.
+- [ ] Recover one dropped connection.
+- [ ] Reject one denied plugin action.
+- [ ] Persist one durable result.
+- [ ] Exercise private rooms.
+- [ ] Exercise FIFO matchmaking.
+- [ ] Record the eight-player test result.
+
+## Phase 03 — App data and authentication
+
+Goal: provide project-scoped identity, PostgreSQL APIs, files, subscriptions, and dashboard controls.
+
+### Identity and sessions
+
+- [ ] Add project-scoped user IDs.
+- [ ] Add username uniqueness per project.
+- [ ] Add Argon2id password hashing.
+- [ ] Add password registration without email delivery.
+- [ ] Add password sign-in.
+- [ ] Add per-account rate limits.
+- [ ] Add per-project rate limits.
+- [ ] Add session token digests.
+- [ ] Add session expiry.
+- [ ] Add session rotation.
+- [ ] Revoke refresh tokens after reuse.
+- [ ] Add logout.
+- [ ] Add operator session revocation.
+- [ ] Reject a session in another project.
+
+### Invitations and identity providers
+
+- [ ] Add one-time invitation links.
+- [ ] Add invitation codes.
+- [ ] Reject invitation replay.
+- [ ] Reject expired invitations.
+- [ ] Add guest accounts.
+- [ ] Add guest upgrade without changing user ID.
+- [ ] Detect identity-link conflicts.
+- [ ] Add Google OIDC configuration.
+- [ ] Validate issuer, audience, expiry, signature, and nonce.
+- [ ] Require recent authentication for linking.
+- [ ] Add native authorization-code exchange.
+- [ ] Add PKCE verification.
+- [ ] Reject callback state mismatch.
+
+### Email, SMS, and recovery
+
+- [ ] Add a local test delivery inbox.
+- [ ] Add email OTP.
+- [ ] Add SMS OTP.
+- [ ] Normalize phone numbers to E.164.
+- [ ] Bind challenges to project, destination, and purpose.
+- [ ] Store keyed code digests.
+- [ ] Consume codes atomically.
+- [ ] Expire codes quickly.
+- [ ] Limit sends and guesses.
+- [ ] Add email recovery.
+- [ ] Revoke sessions after password reset.
+- [ ] Hide account enumeration signals.
+- [ ] Reject fake delivery configuration in production.
+
+### PostgreSQL tables and API exposure
+
+- [ ] Create one schema per project.
+- [ ] Create scoped database roles.
+- [ ] Test migration and runtime roles separately.
+- [ ] Bind caller context transaction-locally.
+- [ ] Add default-deny row policies.
+- [ ] Reject cross-project reads and writes.
+- [ ] Reject pooled caller-context reuse.
+- [ ] Add table exposure records.
+- [ ] Require a supported primary key.
+- [ ] Reject unsupported types.
+- [ ] Hide unapproved columns.
+- [ ] Allow only approved filters.
+- [ ] Add cursor pagination.
+- [ ] Validate values and identifiers.
+- [ ] Add record versions.
+- [ ] Reject stale writes.
+- [ ] Make retried creates idempotent.
+- [ ] Add guided schema changes.
+- [ ] Add SQL migration preview.
+- [ ] Require recent authentication for destructive schema actions.
+- [ ] Audit schema publication.
+
+### Change capture and subscriptions
+
+- [ ] Add transactional row capture.
+- [ ] Capture approved old and new authorization scopes.
+- [ ] Capture API changes.
+- [ ] Capture direct SQL changes.
+- [ ] Do not capture rolled-back changes.
+- [ ] Add subscription tickets.
+- [ ] Make tickets single-use.
+- [ ] Validate browser origins.
+- [ ] Authorize each subscription.
+- [ ] Handle owner-transfer invalidations.
+- [ ] Handle writes during initial fetch.
+- [ ] Handle slow consumers.
+- [ ] Reconnect with missed events.
+
+### Files
+
+- [ ] Configure a private S3-compatible bucket.
+- [ ] Namespace object keys by project.
+- [ ] Add pending upload metadata.
+- [ ] Reserve file quota.
+- [ ] Stream authorized uploads.
+- [ ] Publish metadata after object success.
+- [ ] Reject unauthorized reads and deletes.
+- [ ] Reject cross-project object IDs.
+- [ ] Add upload size limits.
+- [ ] Reconcile interrupted uploads.
+- [ ] Reconcile orphaned objects.
+- [ ] Serve protected downloads as attachments.
+- [ ] Require explicit publication for public assets.
+
+### Dashboard and gate
+
+- [ ] Add auth settings pages.
+- [ ] Add signup settings.
+- [ ] Add record browsing.
+- [ ] Add record editing.
+- [ ] Add table management.
+- [ ] Add file management.
+- [ ] Add audited form actions.
+- [ ] Add the browser quickstart.
+- [ ] Run the full suite against local Compose.
+- [ ] Prove API and direct SQL isolation.
+- [ ] Re-run the Phase 02 guest co-op flow.
+
+## Phase 04 — Go functions and turn-based rooms
+
+Goal: compile dashboard-authored Go to WASM, execute it safely, run durable triggers, and complete Tic-tac-toe.
+
+### Offline compiler
+
+- [ ] Define the approved SDK imports.
+- [ ] Add an entry-package fixture.
+- [ ] Add a project-local helper fixture.
+- [ ] Compile the fixture to `wasip1/wasm`.
+- [ ] Pin the Go toolchain.
+- [ ] Generate platform module settings.
+- [ ] Vendor approved dependencies.
+- [ ] Reject missing imports.
+- [ ] Reject unsupported imports.
+- [ ] Reject cross-project source access.
+- [ ] Reject workspace and toolchain overrides.
+- [ ] Enforce source and artifact limits.
+- [ ] Use a disposable compiler workspace.
+- [ ] Run without credentials or network access.
+- [ ] Bound compiler CPU, memory, processes, and time.
+
+### WASM runner
+
+- [ ] Define the typed invocation request.
+- [ ] Define the typed invocation result.
+- [ ] Reject malformed output.
+- [ ] Reject extra results.
+- [ ] Cap diagnostics.
+- [ ] Reject unexpected WASI imports.
+- [ ] Run each invocation in a fresh wazero instance.
+- [ ] Allow only approved WASI interfaces.
+- [ ] Deny filesystem access.
+- [ ] Deny network access.
+- [ ] Deny environment credentials.
+- [ ] Test infinite-loop timeouts.
+- [ ] Test linear-memory limits.
+- [ ] Test startup timeouts.
+- [ ] Test sandbox escape attempts.
+- [ ] Confirm failed invocations produce no writes.
+
+### Publication and invocation
+
+- [ ] Add draft saving.
+- [ ] Add shared-package compilation.
+- [ ] Add source diagnostics.
+- [ ] Add fixture execution.
+- [ ] Add publication.
+- [ ] Add rollback.
+- [ ] Keep the active version after a failed draft.
+- [ ] Pin artifact digest and toolchain.
+- [ ] Add direct HTTPS invocation.
+- [ ] Load only declared inputs.
+- [ ] Validate write intents.
+- [ ] Validate stale input versions.
+- [ ] Commit effects and idempotency records together.
+- [ ] Retry safely after a lost response.
+
+### Triggers and workflows
+
+- [ ] Add scheduled functions.
+- [ ] Claim schedules safely under concurrency.
+- [ ] Handle duplicate UTC occurrences.
+- [ ] Enqueue the latest missed occurrence.
+- [ ] Pin the function version at enqueue.
+- [ ] Add record-change triggers.
+- [ ] Trigger only committed writes.
+- [ ] Suppress recursive worker writes.
+- [ ] Add short job leases.
+- [ ] Recheck grants at job commit.
+- [ ] Cap retries.
+- [ ] Add workflow graph validation.
+- [ ] Add conditions.
+- [ ] Add approvals.
+- [ ] Add workflow retries and idempotency.
+- [ ] Hide secrets from run status.
+
+### Turn-based rooms
+
+- [ ] Add Tic-tac-toe initialization.
+- [ ] Add legal move validation.
+- [ ] Reject out-of-turn moves.
+- [ ] Detect wins.
+- [ ] Detect draws.
+- [ ] Publish the rules through the compiler.
+- [ ] Give rules only authorized state and commands.
+- [ ] Add duplicate command protection.
+- [ ] Reject command payload mismatches.
+- [ ] Handle concurrent moves.
+- [ ] Reject malformed rule results.
+- [ ] Reconnect after restart.
+- [ ] Add hidden-state player views.
+- [ ] Add timed-out moves.
+- [ ] Reconstruct history from committed outcomes.
+
+### Phase 04 gate
+
+- [ ] Pass compiler and runner isolation tests in Compose.
+- [ ] Publish and roll back a shared-helper artifact.
+- [ ] Run direct, scheduled, and record-change invocations.
+- [ ] Verify crash recovery and grant revocation.
+- [ ] Play a complete two-client Tic-tac-toe match.
+- [ ] Record compiler time, turn latency, and memory use.
+
+## Phase 05 — Plugin lifecycle, admin UI, and workflows
+
+Goal: safely promote, roll back, disable, drain, uninstall, and extend plugin-controlled UI and workflows.
+
+### Version lifecycle
+
+- [ ] Promote one plugin version for one project.
+- [ ] Validate config before promotion.
+- [ ] Validate readiness before promotion.
+- [ ] Validate requested grants.
+- [ ] Validate schema compatibility.
+- [ ] Preserve versions pinned by active rooms.
+- [ ] Cancel incompatible unmatched tickets.
+- [ ] Roll back to a retained version.
+- [ ] Reject missing or incompatible rollback versions.
+- [ ] Keep current grants during rollback.
+- [ ] Require approval for new capabilities.
+
+### Disable and drain
+
+- [ ] Calculate transitive dependents.
+- [ ] Add a disable preview revision.
+- [ ] Reject stale disable previews.
+- [ ] Disable one matchmaking scope independently.
+- [ ] Block new calls, jobs, subscriptions, and assignments.
+- [ ] Cancel affected queued matches.
+- [ ] Persist drain scope and deadline.
+- [ ] Use a five-minute default drain window.
+- [ ] Allow current participants to reconnect.
+- [ ] Reject new room admissions during drain.
+- [ ] Pause turn rooms at the last committed move.
+- [ ] Interrupt action rooms at expiry.
+- [ ] Add immediate stop for security revocation.
+- [ ] Recheck lifecycle revision at assignment.
+- [ ] Recheck lifecycle revision at result commit.
+- [ ] Resume paused rooms only with permitted pinned versions.
+
+### Uninstall and registry cleanup
+
+- [ ] Wait for active work before project uninstall.
+- [ ] Revoke project grants.
+- [ ] Preserve durable plugin data.
+- [ ] Audit project uninstall.
+- [ ] Reject server unregister while references remain.
+- [ ] Remove a server version only after all references are gone.
+- [ ] Keep data deletion as a separate action.
+- [ ] Keep CLI recovery available.
+
+### Admin UI extensions
+
+- [ ] Add one declarative admin extension point.
+- [ ] Render a host-owned fixture view.
+- [ ] Add two view contributions.
+- [ ] Activate one replacement per named view and scope.
+- [ ] Reject a second replacement.
+- [ ] Reject cross-project submissions.
+- [ ] Route actions through host authorization.
+- [ ] Add CSRF checks.
+- [ ] Audit view actions.
+- [ ] Add one custom TypeScript view.
+- [ ] Serve it from a separate origin.
+- [ ] Embed it in a restricted frame.
+- [ ] Validate typed bridge messages.
+- [ ] Reject malformed or unbound messages.
+- [ ] Keep operator tokens in the trusted UI.
+- [ ] Keep sensitive confirmations in the trusted UI.
+
+### Workflow extensions
+
+- [ ] Add one registered project workflow action.
+- [ ] Replace one named workflow step.
+- [ ] Reject revoked workflow grants.
+- [ ] Reject invalid workflow graphs.
+- [ ] Ensure retried effects commit once.
+- [ ] Add named triggers, conditions, actions, and approvals.
+- [ ] Prevent project plugins from registering release steps.
+- [ ] Add explicitly granted deployment plugins.
+- [ ] Add test, build, preflight, and post-deploy hooks.
+- [ ] Keep publish credentials outside plugin processes.
+- [ ] Keep the Docker socket outside plugin processes.
+- [ ] Audit deployment workflow steps.
+
+### Phase 05 gate
+
+- [ ] Promote and roll back a plugin from the dashboard.
+- [ ] Preview and apply a dependency disable.
+- [ ] Demonstrate drain, resume, and immediate stop.
+- [ ] Uninstall a plugin while preserving durable records.
+- [ ] Replace one admin view declaratively.
+- [ ] Replace one admin view with a custom frame.
+- [ ] Run one project workflow extension.
+- [ ] Run one granted server workflow extension.
+- [ ] Verify permission and credential separation.
+
+## Phase 06 — Clients and release
+
+Goal: finish the supported clients, publish the protocol, and rehearse production deployment and recovery.
+
+### Browser client
+
+- [ ] Add shared sign-in fixtures.
+- [ ] Add shared data fixtures.
+- [ ] Add shared file fixtures.
+- [ ] Add shared function fixtures.
+- [ ] Add shared subscription fixtures.
+- [ ] Add shared matchmaking fixtures.
+- [ ] Add shared gameplay fixtures.
+- [ ] Add shared reconnect fixtures.
+- [ ] Test first-party cookie sessions.
+- [ ] Test CSRF protection.
+- [ ] Test invalidation during a fetch.
+- [ ] Test safe retry after reconnect.
+- [ ] Finish the typed JavaScript client.
+- [ ] Publish the browser quickstart.
+- [ ] Publish the playable arena.
+
+### Flutter client
+
+- [ ] Run shared fixtures in Flutter.
+- [ ] Test the native system-browser callback.
+- [ ] Test secure token storage.
+- [ ] Test Flutter Web cookies.
+- [ ] Add native transport adapter.
+- [ ] Add web transport adapter.
+- [ ] Hide platform storage behind adapters.
+- [ ] Complete sign-in on a native target.
+- [ ] Complete sign-in on Flutter Web.
+- [ ] Complete one app flow.
+- [ ] Complete one match flow.
+- [ ] Document both setup paths.
+
+### Android client
+
+- [ ] Test the verified App Link callback.
+- [ ] Test reconnect after backgrounding.
+- [ ] Test expired access-token recovery.
+- [ ] Finish the Kotlin client.
+- [ ] Add coroutine-friendly requests.
+- [ ] Store refresh credentials with Android Keystore.
+- [ ] Run shared fixtures on an emulator or device.
+- [ ] Play one match.
+- [ ] Publish the Kotlin quickstart.
+
+### Zarvan protocol
+
+- [ ] Define transport-neutral login fixtures.
+- [ ] Define room-admission fixtures.
+- [ ] Define assignment fixtures.
+- [ ] Define player-input fixtures.
+- [ ] Define authorized-snapshot fixtures.
+- [ ] Define reconnect fixtures.
+- [ ] Validate fixtures with a Dart consumer.
+- [ ] Publish fixtures with the protocol version.
+- [ ] Document compatibility and error behavior.
+
+### Release images and CI
+
+- [ ] Gate releases on protected `main`.
+- [ ] Reject incomplete builds.
+- [ ] Build the backend image for amd64 and arm64.
+- [ ] Build the compiler image for amd64 and arm64.
+- [ ] Build the runner image for amd64 and arm64.
+- [ ] Publish images to public GHCR.
+- [ ] Publish the full commit SHA as the release version.
+- [ ] Publish all image digests in one manifest.
+- [ ] Scope publish credentials to the release job.
+- [ ] Pull and smoke-test both architectures.
+
+### Manual Compose deployment
+
+- [ ] Add a deployment lock.
+- [ ] Validate the requested release SHA.
+- [ ] Validate the release manifest.
+- [ ] Validate the Compose configuration.
+- [ ] Pull all pinned images before draining.
+- [ ] Pause new match assignments.
+- [ ] Drain active rooms for the configured window.
+- [ ] Close remaining sockets explicitly.
+- [ ] Run the one-shot migration when required.
+- [ ] Start with Compose `--no-build`.
+- [ ] Check API readiness.
+- [ ] Check PostgreSQL access.
+- [ ] Check enabled worker health.
+- [ ] Record the deployed version.
+- [ ] Keep the last healthy image set.
+- [ ] Test rollback with a compatible schema.
+- [ ] Document incompatible-migration recovery.
+
+### Backup and restore
+
+- [ ] Schedule encrypted off-host backups every 12 hours.
+- [ ] Snapshot PostgreSQL consistently.
+- [ ] Record referenced object versions.
+- [ ] Verify the database backup.
+- [ ] Verify the object manifest.
+- [ ] Alert when the latest verified backup is over 18 hours old.
+- [ ] Test a fresh restore.
+- [ ] Test a missing object version.
+- [ ] Restore into a fresh Compose instance.
+- [ ] Record recovery time and retention.
+- [ ] Check the 24-hour data-loss target.
+
+### Capacity and final gate
+
+- [ ] Record the reference test profile.
+- [ ] Start with one eight-player room.
+- [ ] Add representative app requests.
+- [ ] Add uploads and background jobs.
+- [ ] Add Eye export activity.
+- [ ] Simulate latency and packet loss.
+- [ ] Measure p95 input-to-snapshot latency.
+- [ ] Measure tick delay.
+- [ ] Measure CPU, RAM, queue depth, disconnects, and traffic.
+- [ ] Set a conservative room cap.
+- [ ] Run cross-project isolation tests on the packaged release.
+- [ ] Run plugin revocation tests on the packaged release.
+- [ ] Publish the deployment runbook.
+- [ ] Publish the restore runbook.
+- [ ] Publish browser, Flutter, Android, and Zarvan quickstarts.
+- [ ] Verify all three clients complete a match.
+- [ ] Verify deploy, rollback, and restore in a clean environment.
+
+## Final release gates
+
+- [ ] The dashboard covers routine project, plugin, database, function, workflow, file, and live-session operations.
+- [ ] Project isolation holds across APIs, SQL, workers, jobs, sockets, and WASM.
+- [ ] Permission revocation affects new work and in-flight commits.
+- [ ] The arena and Tic-tac-toe work through supported clients.
+- [ ] Recovery works after connection, worker, and deployment failures.
+- [ ] Multi-architecture images are digest-pinned.
+- [ ] Compose deployment and rollback are rehearsed.
+- [ ] PostgreSQL and object data restore together.
+- [ ] Production limits are based on measured capacity.
