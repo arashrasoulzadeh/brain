@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `b83f99b` — 2026-11-13 03:00:46 +0330 — phase 03 verify invitation replay rejection
+- `03e439d` — 2026-11-12 23:30:45 +0000 — docs: update changelog [skip ci]
 - `d0c729c` — 2026-11-13 03:00:31 +0330 — phase 03 add invitation codes
 - `703268a` — 2026-11-12 23:30:13 +0000 — docs: update changelog [skip ci]
 - `06c918a` — 2026-11-13 03:00:02 +0330 — phase 03 verify one time invitation links
