@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `c198e4b` — 2026-11-13 02:24:55 +0330 — docs mark invite creation complete
+- `e419b9e` — 2026-11-12 22:54:56 +0000 — docs: update changelog [skip ci]
 - `ed1ade0` — 2026-11-13 02:24:44 +0330 — phase 02 add project scoped invite creation
 - `6f601eb` — 2026-11-12 22:54:33 +0000 — docs: update changelog [skip ci]
 - `6609b03` — 2026-11-13 02:24:14 +0330 — docs mark room membership complete
