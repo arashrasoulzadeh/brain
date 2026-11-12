@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `a422c24` — roadmap mark plugin readiness verified
+- `36be720` — docs: update changelog [skip ci]
 - `812bb28` — phase 01 gate enablement on worker readiness
 - `4f6cf7e` — docs: update changelog [skip ci]
 - `3ab227d` — roadmap mark resource grants verified
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `183a3a6` — docs: update changelog [skip ci]
 - `ada4b46` — ci add opt-in compose smoke test and changelog rules
 - `def3a9c` — docs: update changelog [skip ci]
-- `0fb174a` — phase 00 add multi-architecture backend build check
-- `e859214` — docs: update changelog [skip ci]
