@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `d381fe1` — 2026-11-13 02:48:35 +0330 — docs complete phase 02 guides
+- `5898c00` — 2026-11-12 23:18:07 +0000 — docs: update changelog [skip ci]
 - `17f7833` — 2026-11-13 02:47:55 +0330 — phase 02 record eight player gate result
 - `e2c2f8f` — 2026-11-12 23:17:45 +0000 — docs: update changelog [skip ci]
 - `03da91a` — 2026-11-13 02:47:32 +0330 — phase 02 verify fifo matchmaking
