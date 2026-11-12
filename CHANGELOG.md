@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- docs make github pages site explicit
+- docs: update changelog [skip ci]
 - docs add github pages admin developer guides
 - phase 00 add isolated local test settings
 - roadmap mark go CI checks verified
