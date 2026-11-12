@@ -3,6 +3,9 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `8232db3` — 2026-11-13 02:31:09 +0330 — docs mark duplicate ticket prevention complete
+- `940c3a4` — 2026-11-13 02:30:59 +0330 — phase 02 prevent duplicate matchmaking tickets
+- `6d8bcc8` — 2026-11-12 23:00:52 +0000 — docs: update changelog [skip ci]
 - `61df4cb` — 2026-11-13 02:30:31 +0330 — docs mark fifo ticket complete
 - `2d81c1d` — 2026-11-12 23:00:31 +0000 — docs: update changelog [skip ci]
 - `4e866b5` — 2026-11-13 02:30:11 +0330 — docs mark matchmaking queue complete
