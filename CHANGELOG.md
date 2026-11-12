@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `20b3c3d` — 2026-11-13 02:43:01 +0330 — phase 02 add sequenced arena player actions
+- `a645e00` — 2026-11-12 23:12:46 +0000 — docs: update changelog [skip ci]
 - `5d64228` — 2026-11-13 02:42:34 +0330 — phase 02 add arena start command
 - `6a41b44` — 2026-11-12 23:12:19 +0000 — docs: update changelog [skip ci]
 - `d0cf9b3` — 2026-11-13 02:42:07 +0330 — phase 02 add arena state machine
