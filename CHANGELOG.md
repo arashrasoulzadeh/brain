@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `e2a3227` — phase 02 add typescript arena plugin
+- `55d3012` — docs: update changelog [skip ci]
 - `4ca8b0a` — phase 02 add typescript matchmaking plugin
 - `b7cf97b` — docs: update changelog [skip ci]
 - `2c19a9f` — phase 02 add typescript invites plugin
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `c268525` — docs: update changelog [skip ci]
 - `2d79239` — phase 05 add plugin drain and rollback
 - `a084b9a` — docs: update changelog [skip ci]
-- `39fb55f` — arch add external grpc mtls contract
-- `9fdc07b` — docs: update changelog [skip ci]
