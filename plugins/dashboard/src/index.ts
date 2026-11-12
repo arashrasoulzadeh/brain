@@ -1,4 +1,4 @@
-import { request, type RpcRequest } from "../../sdk-typescript/src/index.js";
+import { request, type PluginHandler, type RpcRequest } from "../../sdk-typescript/src/index.js";
 
 export const manifest = {
   id: "dashboard",
@@ -27,3 +27,9 @@ export function pluginGrantRequest(projectId: string, pluginId: string, version:
 export function pluginEnableRequest(projectId: string, pluginId: string, version: string): RpcRequest {
   return request(`dashboard-enable-${projectId}-${pluginId}`, { protocol: 1, projectId, pluginId: manifest.id, version: manifest.version, operation: "plugin.enable", payload: { targetPlugin: pluginId, targetVersion: version } });
 }
+
+export const handle: PluginHandler = (rpc) => {
+  const supported = ["project.create", "plugin.install", "plugin.grant", "plugin.enable"];
+  if (!supported.includes(rpc.params.operation)) throw new Error("unsupported dashboard operation");
+  return { accepted: true, operation: rpc.params.operation, payload: rpc.params.payload ?? null };
+};

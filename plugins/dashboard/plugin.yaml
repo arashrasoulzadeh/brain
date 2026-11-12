@@ -1,6 +1,7 @@
 id: dashboard
 version: 0.1.0
 host_api: 1
+entrypoint: src/index.ts
 dependencies: []
 capabilities:
   - project.manage
