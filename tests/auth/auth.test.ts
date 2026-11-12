@@ -17,7 +17,8 @@ const guest = (handler(guestRequest("dev", "auth", "0.1.0")) as { payload: { tok
 if (!guest.token || !guest.username.startsWith("guest-") || !guest.guest) throw new Error("guest session failed");
 
 const service = new AuthService();
-service.signup("project-a", "alice", "correct horse battery");
+const registration = service.signup("project-a", "alice", "correct horse battery");
+if (registration.username !== "alice" || "email" in registration) throw new Error("password registration attempted email delivery");
 if (!projectUserID("project-a", "user-1").startsWith("project-a:")) throw new Error("project-scoped user ID failed");
 try { service.signup("project-a", "alice", "another password"); throw new Error("duplicate username accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "account already exists") throw error; }
 service.signup("project-b", "alice", "correct horse battery");
