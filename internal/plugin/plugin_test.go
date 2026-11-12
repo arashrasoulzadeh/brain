@@ -16,6 +16,9 @@ func TestPluginLifecycleAndScopedAuthorization(t *testing.T) {
 	if err := r.Install("dev", m.ID, m.Version); err != nil {
 		t.Fatal(err)
 	}
+	if err := r.SetReadiness(m.ID, m.Version, true); err != nil {
+		t.Fatal(err)
+	}
 	if err := r.Enable("dev", m.ID, m.Version); !errors.Is(err, plugin.ErrGrantDenied) {
 		t.Fatalf("Enable() = %v, want grant denial", err)
 	}
@@ -37,6 +40,9 @@ func TestProjectsCanInstallSameVersionIndependently(t *testing.T) {
 	r := plugin.NewRegistry(1)
 	m := plugin.Manifest{ID: "guest", Version: "1.0.0", HostAPI: 1, Capabilities: []string{"session.issue"}}
 	if err := r.Register(m); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.SetReadiness(m.ID, m.Version, true); err != nil {
 		t.Fatal(err)
 	}
 	for _, projectID := range []string{"dev", "prod"} {
@@ -119,6 +125,9 @@ func TestCapabilityRequestsAndResourceScopedGrants(t *testing.T) {
 		t.Fatal(err)
 	}
 	if err := r.Install("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.SetReadiness(m.ID, m.Version, true); err != nil {
 		t.Fatal(err)
 	}
 	if err := r.GrantResource("dev", m.ID, m.Version, "records.read", "users"); err != nil {

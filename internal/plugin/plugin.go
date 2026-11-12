@@ -16,6 +16,7 @@ var (
 	ErrDependencyMissing = errors.New("plugin dependency missing")
 	ErrInvalidManifest   = errors.New("invalid plugin manifest")
 	ErrInvalidConfig     = errors.New("invalid plugin configuration")
+	ErrNotReady          = errors.New("plugin worker not ready")
 )
 
 type Manifest struct {
@@ -44,6 +45,7 @@ type Registry struct {
 	HostAPI       int
 	registered    map[string]Registered
 	installations map[string]Installation
+	readiness     map[string]bool
 }
 
 type CapabilityRequest struct {
@@ -60,7 +62,7 @@ func (m Manifest) RequestedCapabilities() []CapabilityRequest {
 }
 
 func NewRegistry(hostAPI int) *Registry {
-	return &Registry{HostAPI: hostAPI, registered: map[string]Registered{}, installations: map[string]Installation{}}
+	return &Registry{HostAPI: hostAPI, registered: map[string]Registered{}, installations: map[string]Installation{}, readiness: map[string]bool{}}
 }
 
 func (r *Registry) Register(m Manifest) error {
@@ -80,6 +82,16 @@ func (r *Registry) Register(m Manifest) error {
 		return ErrDuplicate
 	}
 	r.registered[key] = Registered{Manifest: m}
+	r.readiness[key] = false
+	return nil
+}
+
+func (r *Registry) SetReadiness(id, version string, ready bool) error {
+	key := id + "@" + version
+	if _, ok := r.registered[key]; !ok {
+		return ErrNotRegistered
+	}
+	r.readiness[key] = ready
 	return nil
 }
 
@@ -184,6 +196,9 @@ func (r *Registry) Enable(projectID, id, version string) error {
 	i, ok := r.installations[key]
 	if !ok {
 		return ErrNotInstalled
+	}
+	if !r.readiness[id+"@"+version] {
+		return ErrNotReady
 	}
 	for _, capability := range r.registered[id+"@"+version].Manifest.Capabilities {
 		if !i.Grants[capability] {
