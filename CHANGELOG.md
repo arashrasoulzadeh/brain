@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `d641e65` — 2026-11-13 02:18:43 +0330 — docs mark phase 02 error contract complete
+- `04733d8` — 2026-11-12 22:48:44 +0000 — docs: update changelog [skip ci]
 - `609b61e` — 2026-11-13 02:18:31 +0330 — phase 02 define request ids and bounded errors
 - `2e92a06` — 2026-11-12 22:48:23 +0000 — docs: update changelog [skip ci]
 - `2f96c41` — 2026-11-13 02:18:03 +0330 — docs mark phase 02 websocket contract complete
