@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `f7cc970` — roadmap mark worker failure bounds verified
+- `9dec1aa` — docs: update changelog [skip ci]
 - `01f6320` — phase 01 bound unavailable worker errors
 - `4f4fae4` — docs: update changelog [skip ci]
 - `a794ab0` — roadmap mark commit grant recheck verified
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `1300f98` — phase 01 add operator totp mfa
 - `b4afe14` — docs: update changelog [skip ci]
 - `8a74ff3` — roadmap mark operator sign-in verified
-- `75e30b1` — docs: update changelog [skip ci]
-- `15a3bf2` — phase 01 add operator credential verification
