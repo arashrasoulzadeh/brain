@@ -59,7 +59,7 @@ Goal: boot a small Go service with PostgreSQL, migrations, Compose, and CI.
 - [x] Recover readiness when PostgreSQL returns.
 - [ ] Add the first platform migration.
 - [x] Use a migration-only database credential.
-- [ ] Prevent the runtime role from running DDL.
+- [x] Prevent the runtime role from running DDL.
 - [x] Run migrations twice and verify idempotency.
 
 ### Compose and CI
