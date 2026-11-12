@@ -211,7 +211,7 @@ Goal: complete a private multiplayer match with matchmaking, realtime updates, a
 
 ### Private rooms
 
-- [ ] Add room creation.
+- [x] Add room creation.
 - [ ] Require project membership for room access.
 - [ ] Add invite creation.
 - [ ] Make invites single-use.
