@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `1fe937f` — roadmap mark external worker fixture verified
+- `f5d44a8` — docs: update changelog [skip ci]
 - `5c137de` — phase 01 run contract through external worker
 - `183ba13` — docs: update changelog [skip ci]
 - `cc1027b` — roadmap mark external worker auth verified
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `688a462` — docs: update changelog [skip ci]
 - `a422c24` — roadmap mark plugin readiness verified
 - `36be720` — docs: update changelog [skip ci]
-- `812bb28` — phase 01 gate enablement on worker readiness
-- `4f6cf7e` — docs: update changelog [skip ci]
