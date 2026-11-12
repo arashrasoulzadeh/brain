@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `aa918b0` — phase 03 add typescript subscriptions plugin
+- `3671048` — docs: update changelog [skip ci]
 - `f4736b5` — phase 03 add typescript files plugin
 - `28c9e8a` — docs: update changelog [skip ci]
 - `20b5766` — phase 03 add typescript tables plugin
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `2ee9b37` — docs: update changelog [skip ci]
 - `595eb06` — arch add language neutral plugin rpc contract
 - `daf456e` — docs: update changelog [skip ci]
-- `27618bf` — roadmap mark dashboard cli bootstrap verified
-- `019012d` — docs: update changelog [skip ci]
