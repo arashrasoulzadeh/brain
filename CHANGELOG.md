@@ -3,6 +3,9 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `9e1da42` — roadmap mark worker protocol verified
+- `1eb421c` — phase 01 add versioned worker contract
+- `1edb4ec` — docs: update changelog [skip ci]
 - `f7cc970` — roadmap mark worker failure bounds verified
 - `9dec1aa` — docs: update changelog [skip ci]
 - `01f6320` — phase 01 bound unavailable worker errors
@@ -50,6 +53,3 @@ Automatically generated from commits on main.
 - `440be75` — docs: update changelog [skip ci]
 - `59dc20b` — roadmap mark operator mfa verified
 - `9ffed2e` — docs: update changelog [skip ci]
-- `1300f98` — phase 01 add operator totp mfa
-- `b4afe14` — docs: update changelog [skip ci]
-- `8a74ff3` — roadmap mark operator sign-in verified
