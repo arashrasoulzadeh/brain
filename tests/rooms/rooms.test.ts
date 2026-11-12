@@ -33,4 +33,5 @@ if (!rooms.isMember("dev", "room-new", "user-1") || rooms.isMember("dev", "room-
 try { rooms.join("dev", "room-new", "user-1", 1); throw new Error("duplicate membership accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid membership") throw error; }
 rooms.leave("dev", "room-new", "user-1");
 if (rooms.events("dev", "room-new").map((event) => event.type).join(",") !== "player.joined,player.left") throw new Error("room events failed");
+if (rooms.eventsSince("dev", "room-new", 1).length !== 1 || rooms.eventsSince("dev", "room-new", 1)[0].type !== "player.left") throw new Error("missed events were not replayed");
 try { rooms.join("prod", "room-new", "user-2", 1); throw new Error("cross-project join accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "room not found") throw error; }

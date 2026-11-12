@@ -92,6 +92,11 @@ export class RoomDirectory {
     this.roomEvents.get(key)?.push({ type: "player.left", projectId, roomId, playerId, sequence: ++this.sequence });
   }
   events(projectId: string, roomId: string): readonly RoomEvent[] { return [...(this.roomEvents.get(projectRoomID(projectId, roomId)) ?? [])]; }
+  eventsSince(projectId: string, roomId: string, sequence: number): readonly RoomEvent[] {
+    this.get(projectId, roomId);
+    if (!Number.isInteger(sequence) || sequence < 0) throw new Error("invalid event sequence");
+    return this.events(projectId, roomId).filter((event) => event.sequence > sequence);
+  }
 }
 
 export function canTransitionRoom(from: RoomState, to: RoomState): boolean {
