@@ -1,6 +1,9 @@
 package dashboard_test
 
 import (
+	"net/http"
+	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -116,5 +119,24 @@ func TestDashboardProjectAdminActionsDelegateToHostBoundaries(t *testing.T) {
 	}
 	if _, err := projects.Resolve("dev"); err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestDashboardProjectFormDelegatesAndReturnsBoundedErrors(t *testing.T) {
+	admin := dashboard.ProjectAdmin{Projects: project.NewStore(), Plugins: plugin.NewRegistry(1)}
+	handler := dashboard.Handler(admin)
+	req := httptest.NewRequest(http.MethodPost, "/admin/projects", strings.NewReader("id=dev"))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	res := httptest.NewRecorder()
+	handler.ServeHTTP(res, req)
+	if res.Code != http.StatusCreated {
+		t.Fatalf("create status = %d", res.Code)
+	}
+	duplicate := httptest.NewRequest(http.MethodPost, "/admin/projects", strings.NewReader("id=dev"))
+	duplicate.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	duplicateRes := httptest.NewRecorder()
+	handler.ServeHTTP(duplicateRes, duplicate)
+	if duplicateRes.Code != http.StatusBadRequest {
+		t.Fatalf("duplicate status = %d", duplicateRes.Code)
 	}
 }
