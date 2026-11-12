@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `cd275b1` — 2026-11-13 02:26:50 +0330 — docs mark non member socket denial complete
+- `c81232d` — 2026-11-12 22:56:52 +0000 — docs: update changelog [skip ci]
 - `1dbbb35` — 2026-11-13 02:26:40 +0330 — phase 02 reject non member room sockets
 - `9394da4` — 2026-11-12 22:56:31 +0000 — docs: update changelog [skip ci]
 - `426c254` — 2026-11-13 02:26:11 +0330 — docs mark cross project invite rejection complete
