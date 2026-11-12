@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `bef9b66` — 2026-11-13 02:29:26 +0330 — docs mark matchmaking configuration complete
+- `30a6759` — 2026-11-12 22:59:26 +0000 — docs: update changelog [skip ci]
 - `ffb7463` — 2026-11-13 02:29:14 +0330 — phase 02 add project matchmaking configuration
 - `46b012c` — 2026-11-12 22:58:52 +0000 — docs: update changelog [skip ci]
 - `b2ecdda` — 2026-11-13 02:28:32 +0330 — docs mark room membership persistence complete
