@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- phase 00 add multi-architecture backend build check
+- docs: update changelog [skip ci]
 - ci enable github pages deployment
 - docs: update changelog [skip ci]
 - docs require phase documentation updates
