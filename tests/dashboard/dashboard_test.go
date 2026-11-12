@@ -2,6 +2,7 @@ package dashboard_test
 
 import (
 	"testing"
+	"time"
 
 	"brain/internal/plugin"
 	"brain/plugins/dashboard/implementation"
@@ -47,5 +48,41 @@ func TestDashboardBootstrapUsesPluginRegistry(t *testing.T) {
 	}
 	if err := r.Enable("dev", "dashboard", "0.1.0"); err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestDashboardLifecycleActionsUseHostRegistry(t *testing.T) {
+	r, err := dashboard.Bootstrap(1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	m := plugin.Manifest{ID: "rooms", Version: "1", HostAPI: 1, Capabilities: []string{"room.manage"}}
+	if err := r.Register(m); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Install("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.SetReadiness(m.ID, m.Version, true); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Grant("dev", m.ID, m.Version, "room.manage"); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Enable("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	actions := dashboard.Lifecycle{Registry: r}
+	if err := actions.Promote("dev", "rooms", "1"); err != nil {
+		t.Fatal(err)
+	}
+	if err := actions.Drain("dev", "rooms", "1", time.Unix(100, 0)); err != nil {
+		t.Fatal(err)
+	}
+	if err := actions.Rollback("dev", "rooms", "1"); err != nil {
+		t.Fatal(err)
+	}
+	if err := actions.Remove("dev", "rooms", "1"); err == nil {
+		t.Fatal("dashboard removed referenced active version")
 	}
 }
