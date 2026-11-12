@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `595eb06` — arch add language neutral plugin rpc contract
+- `daf456e` — docs: update changelog [skip ci]
 - `27618bf` — roadmap mark dashboard cli bootstrap verified
 - `019012d` — docs: update changelog [skip ci]
 - `26ffb44` — phase 01 bootstrap dashboard plugin from cli
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `7ac7139` — docs: update changelog [skip ci]
 - `8068cc2` — roadmap mark permission broker checks verified
 - `6a09351` — docs: update changelog [skip ci]
-- `f3319c4` — phase 01 add typed permission broker
-- `38b4671` — docs: update changelog [skip ci]
