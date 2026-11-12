@@ -314,7 +314,7 @@ Goal: provide project-scoped identity, PostgreSQL APIs, files, subscriptions, an
 - [x] Consume codes atomically.
 - [x] Expire codes quickly.
 - [x] Limit sends and guesses.
-- [ ] Add email recovery.
+- [x] Add email recovery.
 - [ ] Revoke sessions after password reset.
 - [ ] Hide account enumeration signals.
 - [ ] Reject fake delivery configuration in production.
