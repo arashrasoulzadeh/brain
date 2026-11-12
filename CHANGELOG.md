@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `f64373e` — roadmap mark bundled worker supervision verified
+- `c30be31` — docs: update changelog [skip ci]
 - `253c617` — phase 01 add bundled worker supervisor
 - `1dbe4ec` — docs: update changelog [skip ci]
 - `9e1da42` — roadmap mark worker protocol verified
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `e2c3236` — docs: update changelog [skip ci]
 - `bf97384` — roadmap mark operator recovery verified
 - `35cf830` — docs: update changelog [skip ci]
-- `30b1f5d` — phase 01 add one-time operator recovery
-- `440be75` — docs: update changelog [skip ci]
