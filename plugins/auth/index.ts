@@ -55,6 +55,7 @@ export class ProjectRateLimiter {
 export class AuthService {
   private readonly accounts = new Map<string, Map<string, Account>>();
   private readonly sessions = new Map<string, { projectId: string; username: string; expiresAt: number }>();
+  private readonly rotated = new Set<string>();
   constructor(private readonly sessionTtlMs = 24 * 60 * 60 * 1000) {
     if (sessionTtlMs <= 0) throw new Error("invalid session ttl");
   }
@@ -86,8 +87,10 @@ export class AuthService {
   rotate(projectId: string, token: string, now = Date.now()): string {
     const digest = sessionTokenDigest(token);
     const session = this.sessions.get(digest);
+    if (!session && this.rotated.has(digest)) throw new Error("refresh token reuse detected");
     if (!session || session.projectId !== projectId || session.expiresAt <= now) throw new Error("invalid session");
     this.sessions.delete(digest);
+    this.rotated.add(digest);
     const rotated = randomBytes(32).toString("hex");
     this.sessions.set(sessionTokenDigest(rotated), { projectId, username: session.username, expiresAt: now + this.sessionTtlMs });
     return rotated;
