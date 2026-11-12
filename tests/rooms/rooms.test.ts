@@ -9,11 +9,13 @@ try { projectRoomID("dev", "prod:room"); throw new Error("invalid room id accept
 validateMembership("dev", "room-1", [{ playerId: "user-1", slot: 0 }, { playerId: "user-2", slot: 1 }], 2);
 try { validateMembership("dev", "room-1", [{ playerId: "user-1", slot: 0 }, { playerId: "user-2", slot: 0 }], 2); throw new Error("duplicate player slot accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid player slots") throw error; }
 if (!canTransitionRoom("waiting", "matching") || !canTransitionRoom("matching", "active") || canTransitionRoom("closed", "active")) throw new Error("room lifecycle transition invalid");
-const rooms = new RoomDirectory();
+const savedMembership = new Map<string, number>();
+const rooms = new RoomDirectory({ save: (roomId, slots) => savedMembership.set(roomId, slots.length) });
 if (rooms.create("dev", "room-new", 4).state !== "waiting") throw new Error("room did not start waiting");
 try { rooms.create("dev", "room-new", 4); throw new Error("duplicate room accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "room already exists") throw error; }
 try { rooms.get("prod", "room-new"); throw new Error("cross-project room lookup accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "room not found") throw error; }
 rooms.join("dev", "room-new", "user-1", 0);
+if (savedMembership.get("dev:room-new") !== 1) throw new Error("room membership was not persisted");
 if (!rooms.isMember("dev", "room-new", "user-1") || rooms.isMember("dev", "room-new", "user-2")) throw new Error("room membership check failed");
 try { rooms.join("dev", "room-new", "user-1", 1); throw new Error("duplicate membership accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid membership") throw error; }
 rooms.leave("dev", "room-new", "user-1");
