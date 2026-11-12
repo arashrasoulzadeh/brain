@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- docs fix github pages static navigation
+- docs: update changelog [skip ci]
 - docs make github pages site explicit
 - docs: update changelog [skip ci]
 - docs add github pages admin developer guides
