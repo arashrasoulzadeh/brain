@@ -289,7 +289,7 @@ Goal: provide project-scoped identity, PostgreSQL APIs, files, subscriptions, an
 
 ### Invitations and identity providers
 
-- [ ] Add one-time invitation links.
+- [x] Add one-time invitation links.
 - [ ] Add invitation codes.
 - [ ] Reject invitation replay.
 - [ ] Reject expired invitations.
