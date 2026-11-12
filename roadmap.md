@@ -123,7 +123,7 @@ Goal: create isolated projects and run one plugin through both supported worker 
 - [x] Add dependency declarations.
 - [x] Add capability declarations.
 - [ ] Add extension-point declarations.
-- [ ] Add configuration schema validation.
+- [x] Add configuration schema validation.
 - [x] Reject duplicate registrations.
 - [x] Reject incompatible protocol versions.
 - [ ] Store approved artifact or endpoint information.
