@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `ba79b0b` — 2026-11-13 02:21:44 +0330 — phase 02 define durable match results
+- `ed6c2f1` — 2026-11-12 22:51:32 +0000 — docs: update changelog [skip ci]
 - `817e388` — 2026-11-13 02:21:13 +0330 — docs mark room lifecycle complete
 - `dff8368` — 2026-11-12 22:51:15 +0000 — docs: update changelog [skip ci]
 - `acf8a1f` — 2026-11-13 02:21:02 +0330 — phase 02 define room lifecycle states
