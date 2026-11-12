@@ -19,6 +19,8 @@ if (!guest.token || !guest.username.startsWith("guest-") || !guest.guest) throw 
 const service = new AuthService();
 service.signup("project-a", "alice", "correct horse battery");
 if (!projectUserID("project-a", "user-1").startsWith("project-a:")) throw new Error("project-scoped user ID failed");
+try { service.signup("project-a", "alice", "another password"); throw new Error("duplicate username accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "account already exists") throw error; }
+service.signup("project-b", "alice", "correct horse battery");
 const session = service.signin("project-a", "alice", "correct horse battery");
 if (service.session("project-a", session.token).username !== "alice") throw new Error("session lookup failed");
 try { service.session("project-b", session.token); throw new Error("cross-project session accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid session") throw error; }
