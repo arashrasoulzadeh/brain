@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `7d1051f` — arch add typescript plugin worker runner
+- `7098378` — docs: update changelog [skip ci]
 - `f0ea324` — phase 01 add typescript dashboard admin requests
 - `8cb585c` — docs: update changelog [skip ci]
 - `9f3ebc6` — roadmap align dashboard with typescript migration
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `23d487f` — docs: update changelog [skip ci]
 - `4208c34` — phase 01 authenticate external worker handshakes
 - `7df79a1` — docs: update changelog [skip ci]
-- `9da8786` — roadmap mark external worker endpoint verified
-- `7a5aa97` — docs: update changelog [skip ci]
