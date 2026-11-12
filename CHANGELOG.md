@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- ci enable github pages deployment
+- docs: update changelog [skip ci]
 - docs require phase documentation updates
 - docs: update changelog [skip ci]
 - docs fix github pages static navigation
