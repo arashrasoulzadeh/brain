@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `d9a43d3` — phase 01 validate external worker handshakes
+- `2f3fa43` — docs: update changelog [skip ci]
 - `cbd44f2` — roadmap mark bundled worker fixture verified
 - `c74474a` — docs: update changelog [skip ci]
 - `e48ac3f` — phase 01 run bundled worker contract fixture
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `546e201` — docs: update changelog [skip ci]
 - `4080e7c` — roadmap mark plugin dependency validation verified
 - `008253e` — docs: update changelog [skip ci]
-- `24c424b` — phase 01 validate plugin dependencies
-- `d822b0a` — docs: update changelog [skip ci]
