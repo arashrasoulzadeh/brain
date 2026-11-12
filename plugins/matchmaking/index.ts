@@ -20,6 +20,7 @@ export class MatchmakingConfigs {
     if (!config) throw new Error("matchmaking config not found");
     return { ...config };
   }
+  isEnabled(projectId: string, scope: string): boolean { return this.configs.get(`${projectId}:${scope}`)?.enabled ?? false; }
 }
 
 export type MatchmakingTicket = { id: string; projectId: string; scope: string; playerId: string; createdAt: number };
@@ -27,8 +28,10 @@ export type MatchmakingTicket = { id: string; projectId: string; scope: string; 
 export class MatchmakingQueue {
   private sequence = 0;
   private readonly queues = new Map<string, MatchmakingTicket[]>();
+  constructor(private readonly configs?: MatchmakingConfigs) {}
   enqueue(projectId: string, scope: string, playerId: string, now = Date.now()): MatchmakingTicket {
     if (!projectId || !scope || !playerId) throw new Error("invalid matchmaking ticket");
+    if (this.configs && !this.configs.isEnabled(projectId, scope)) throw new Error("matchmaking scope disabled");
     const key = `${projectId}:${scope}`;
     if ((this.queues.get(key) ?? []).some((ticket) => ticket.playerId === playerId)) throw new Error("active ticket already exists");
     const ticket = { id: `${key}:ticket-${++this.sequence}`, projectId, scope, playerId, createdAt: now };

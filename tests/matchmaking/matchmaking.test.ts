@@ -15,3 +15,6 @@ if (queue.peek("dev", "ranked")[0].id !== first.id || queue.peek("prod", "ranked
 try { queue.enqueue("dev", "ranked", "user-1", 3000); throw new Error("duplicate active ticket accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "active ticket already exists") throw error; }
 const matched = queue.match("dev", "ranked", 2);
 if (matched.length !== 2 || matched[0].playerId !== "user-1" || queue.peek("dev", "ranked").length !== 0) throw new Error("compatible FIFO matching failed");
+const disabledConfigs = new MatchmakingConfigs();
+disabledConfigs.set({ projectId: "dev", scope: "casual", matchSize: 2, ticketTtlSeconds: 60, enabled: false });
+try { new MatchmakingQueue(disabledConfigs).enqueue("dev", "casual", "user-3"); throw new Error("disabled scope accepted ticket"); } catch (error) { if (!(error instanceof Error) || error.message !== "matchmaking scope disabled") throw error; }
