@@ -26,6 +26,10 @@ export class RoomDirectory {
     if (!room) throw new Error("room not found");
     return { ...room, slots: [...room.slots] };
   }
+  isMember(projectId: string, roomId: string, playerId: string): boolean {
+    const room = this.rooms.get(projectRoomID(projectId, roomId));
+    return room?.slots.some((player) => player.playerId === playerId) ?? false;
+  }
   join(projectId: string, roomId: string, playerId: string, slot: number): Room {
     const key = projectRoomID(projectId, roomId);
     const room = this.rooms.get(key);
