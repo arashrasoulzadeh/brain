@@ -1,0 +1,16 @@
+id: matchmaking
+version: 0.1.0
+host_api: 1
+entrypoint: src/index.ts
+dependencies:
+  - rooms@0.1.0
+capabilities:
+  - matchmaking.queue
+  - matchmaking.cancel
+  - matchmaking.status
+  - matchmaking.assign
+extension_points:
+  - matchmaking.policy
+config_schema:
+  ticketTtlSeconds: int
+  matchSize: int
