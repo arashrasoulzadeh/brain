@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `bce5756` — arch add typescript sdk and unix transport
+- `2ee9b37` — docs: update changelog [skip ci]
 - `595eb06` — arch add language neutral plugin rpc contract
 - `daf456e` — docs: update changelog [skip ci]
 - `27618bf` — roadmap mark dashboard cli bootstrap verified
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `f526462` — docs: update changelog [skip ci]
 - `0884b4b` — phase 01 issue short lived plugin credentials
 - `7ac7139` — docs: update changelog [skip ci]
-- `8068cc2` — roadmap mark permission broker checks verified
-- `6a09351` — docs: update changelog [skip ci]
