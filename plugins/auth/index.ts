@@ -35,6 +35,21 @@ export class AccountRateLimiter {
   }
 }
 
+export class ProjectRateLimiter {
+  private readonly attempts = new Map<string, { startedAt: number; count: number }>();
+  constructor(private readonly limit: number, private readonly windowMs: number) {
+    if (!Number.isInteger(limit) || limit < 1 || windowMs <= 0) throw new Error("invalid project rate limit");
+  }
+  allow(projectId: string, now: number): boolean {
+    if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(projectId)) throw new Error("invalid project id");
+    const current = this.attempts.get(projectId);
+    if (!current || now - current.startedAt >= this.windowMs) { this.attempts.set(projectId, { startedAt: now, count: 1 }); return true; }
+    if (current.count >= this.limit) return false;
+    current.count += 1;
+    return true;
+  }
+}
+
 export class AuthService {
   private readonly accounts = new Map<string, Map<string, Account>>();
   private readonly sessions = new Map<string, { projectId: string; username: string }>();

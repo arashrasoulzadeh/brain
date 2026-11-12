@@ -1,4 +1,4 @@
-import { AccountRateLimiter, AuthService, functions, guestRequest, projectUserID, signInRequest, signUpRequest } from "../../plugins/auth/index.js";
+import { AccountRateLimiter, AuthService, ProjectRateLimiter, functions, guestRequest, projectUserID, signInRequest, signUpRequest } from "../../plugins/auth/index.js";
 import { createFunctionHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const serviceForHandler = new AuthService();
@@ -29,3 +29,5 @@ try { service.session("project-b", session.token); throw new Error("cross-projec
 try { service.signin("project-a", "alice", "wrong password"); throw new Error("invalid password accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid credentials") throw error; }
 const accountLimiter = new AccountRateLimiter(2, 1000);
 if (!accountLimiter.allow("project-a", "alice", 100) || !accountLimiter.allow("project-a", "alice", 101) || accountLimiter.allow("project-a", "alice", 102)) throw new Error("account rate limit failed");
+const projectLimiter = new ProjectRateLimiter(1, 1000);
+if (!projectLimiter.allow("project-a", 100) || projectLimiter.allow("project-a", 101) || !projectLimiter.allow("project-b", 101)) throw new Error("project rate limit failed");
