@@ -180,7 +180,7 @@ Goal: create isolated projects and run one plugin through both supported worker 
 - [x] Add grant approval form.
 - [x] Add enablement form.
 - [x] Show worker readiness separately from enablement.
-- [ ] Add guest sign-in through a plugin.
+- [x] Add guest sign-in through a plugin.
 - [ ] Define the analytics event contract.
 - [ ] Reject unapproved event fields.
 - [ ] Capture one event in a local test sink.
