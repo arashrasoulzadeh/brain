@@ -11,10 +11,14 @@ try { configs.get("prod", "ranked"); throw new Error("cross-project matchmaking 
 const queue = new MatchmakingQueue();
 const first = queue.enqueue("dev", "ranked", "user-1", 1000);
 queue.enqueue("dev", "ranked", "user-2", 2000);
-if (queue.peek("dev", "ranked")[0].id !== first.id || queue.peek("prod", "ranked").length !== 0) throw new Error("project queue isolation or FIFO failed");
+if (queue.peek("dev", "ranked")[0].id !== first.id || queue.peek("prod", "ranked").length !== 0 || first.expiresAt !== 61000) throw new Error("project queue isolation or FIFO failed");
 try { queue.enqueue("dev", "ranked", "user-1", 3000); throw new Error("duplicate active ticket accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "active ticket already exists") throw error; }
 const matched = queue.match("dev", "ranked", 2);
 if (matched.length !== 2 || matched[0].playerId !== "user-1" || queue.peek("dev", "ranked").length !== 0) throw new Error("compatible FIFO matching failed");
 const disabledConfigs = new MatchmakingConfigs();
 disabledConfigs.set({ projectId: "dev", scope: "casual", matchSize: 2, ticketTtlSeconds: 60, enabled: false });
 try { new MatchmakingQueue(disabledConfigs).enqueue("dev", "casual", "user-3"); throw new Error("disabled scope accepted ticket"); } catch (error) { if (!(error instanceof Error) || error.message !== "matchmaking scope disabled") throw error; }
+const expiringQueue = new MatchmakingQueue();
+expiringQueue.enqueue("dev", "ranked", "user-4", 1000);
+expiringQueue.enqueue("dev", "ranked", "user-5", 2000);
+if (expiringQueue.expire(62000).length !== 2 || expiringQueue.peek("dev", "ranked").length !== 0) throw new Error("ticket expiry failed");

@@ -23,7 +23,7 @@ export class MatchmakingConfigs {
   isEnabled(projectId: string, scope: string): boolean { return this.configs.get(`${projectId}:${scope}`)?.enabled ?? false; }
 }
 
-export type MatchmakingTicket = { id: string; projectId: string; scope: string; playerId: string; createdAt: number };
+export type MatchmakingTicket = { id: string; projectId: string; scope: string; playerId: string; createdAt: number; expiresAt: number };
 
 export class MatchmakingQueue {
   private sequence = 0;
@@ -34,7 +34,8 @@ export class MatchmakingQueue {
     if (this.configs && !this.configs.isEnabled(projectId, scope)) throw new Error("matchmaking scope disabled");
     const key = `${projectId}:${scope}`;
     if ((this.queues.get(key) ?? []).some((ticket) => ticket.playerId === playerId)) throw new Error("active ticket already exists");
-    const ticket = { id: `${key}:ticket-${++this.sequence}`, projectId, scope, playerId, createdAt: now };
+    const ttl = this.configs?.get(projectId, scope).ticketTtlSeconds ?? 60;
+    const ticket = { id: `${key}:ticket-${++this.sequence}`, projectId, scope, playerId, createdAt: now, expiresAt: now + ttl * 1000 };
     this.queues.set(key, [...(this.queues.get(key) ?? []), ticket]);
     return { ...ticket };
   }
@@ -46,6 +47,14 @@ export class MatchmakingQueue {
     const matched = queue.slice(0, matchSize);
     this.queues.set(key, queue.slice(matchSize));
     return matched.map((ticket) => ({ ...ticket }));
+  }
+  expire(now = Date.now()): MatchmakingTicket[] {
+    const expired: MatchmakingTicket[] = [];
+    for (const [key, queue] of this.queues) {
+      const active = queue.filter((ticket) => { if (ticket.expiresAt <= now) { expired.push({ ...ticket }); return false; } return true; });
+      this.queues.set(key, active);
+    }
+    return expired;
   }
 }
 
