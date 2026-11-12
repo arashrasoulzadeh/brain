@@ -1,0 +1,14 @@
+id: dashboard
+version: 0.1.0
+host_api: 1
+dependencies: []
+capabilities:
+  - project.manage
+  - plugin.install
+  - plugin.grant
+  - plugin.enable
+extension_points:
+  - admin.navigation
+  - admin.page
+config_schema:
+  title: string
