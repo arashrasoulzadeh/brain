@@ -1,0 +1,14 @@
+id: files
+version: 0.1.0
+host_api: 1
+entrypoint: src/index.ts
+dependencies: []
+capabilities:
+  - files.upload
+  - files.download
+  - files.metadata
+  - files.publish
+extension_points:
+  - files.storage
+config_schema:
+  bucket: string
