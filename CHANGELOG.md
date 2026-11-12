@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `2d79239` — phase 05 add plugin drain and rollback
+- `a084b9a` — docs: update changelog [skip ci]
 - `39fb55f` — arch add external grpc mtls contract
 - `9fdc07b` — docs: update changelog [skip ci]
 - `de567eb` — phase 05 add plugin version promotion routing
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `01f6320` — phase 01 bound unavailable worker errors
 - `4f4fae4` — docs: update changelog [skip ci]
 - `a794ab0` — roadmap mark commit grant recheck verified
-- `74e6631` — phase 01 recheck plugin grants at commit
-- `b4339a7` — docs: update changelog [skip ci]
