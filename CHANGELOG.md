@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `5c137de` — phase 01 run contract through external worker
+- `183ba13` — docs: update changelog [skip ci]
 - `cc1027b` — roadmap mark external worker auth verified
 - `23d487f` — docs: update changelog [skip ci]
 - `4208c34` — phase 01 authenticate external worker handshakes
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `36be720` — docs: update changelog [skip ci]
 - `812bb28` — phase 01 gate enablement on worker readiness
 - `4f6cf7e` — docs: update changelog [skip ci]
-- `3ab227d` — roadmap mark resource grants verified
-- `c823d26` — docs: update changelog [skip ci]
