@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `73eab6d` — phase 01 validate plugin configuration schemas
+- `546e201` — docs: update changelog [skip ci]
 - `4080e7c` — roadmap mark plugin dependency validation verified
 - `008253e` — docs: update changelog [skip ci]
 - `24c424b` — phase 01 validate plugin dependencies
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `7f0eb64` — docs: update changelog [skip ci]
 - `3fcac75` — docs make github pages site explicit
 - `9157a6f` — docs: update changelog [skip ci]
-- `1b9b865` — docs add github pages admin developer guides
-- `a3eb529` — phase 00 add isolated local test settings
