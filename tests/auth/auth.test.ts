@@ -31,6 +31,12 @@ expiring.signup("project-a", "bob", "correct horse battery");
 const expiringSession = expiring.signin("project-a", "bob", "correct horse battery", 100);
 if (expiring.session("project-a", expiringSession.token, 1099).username !== "bob") throw new Error("valid session expired early");
 try { expiring.session("project-a", expiringSession.token, 1100); throw new Error("expired session accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid session") throw error; }
+const rotating = new AuthService();
+rotating.signup("project-a", "carol", "correct horse battery");
+const originalToken = rotating.signin("project-a", "carol", "correct horse battery", 200).token;
+const rotatedToken = rotating.rotate("project-a", originalToken, 201);
+if (rotatedToken === originalToken || rotating.session("project-a", rotatedToken, 202).username !== "carol") throw new Error("session rotation failed");
+try { rotating.session("project-a", originalToken, 202); throw new Error("rotated token remained valid"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid session") throw error; }
 try { service.session("project-b", session.token); throw new Error("cross-project session accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid session") throw error; }
 try { service.signin("project-a", "alice", "wrong password"); throw new Error("invalid password accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid credentials") throw error; }
 const accountLimiter = new AccountRateLimiter(2, 1000);

@@ -83,6 +83,16 @@ export class AuthService {
     return { username: session.username };
   }
 
+  rotate(projectId: string, token: string, now = Date.now()): string {
+    const digest = sessionTokenDigest(token);
+    const session = this.sessions.get(digest);
+    if (!session || session.projectId !== projectId || session.expiresAt <= now) throw new Error("invalid session");
+    this.sessions.delete(digest);
+    const rotated = randomBytes(32).toString("hex");
+    this.sessions.set(sessionTokenDigest(rotated), { projectId, username: session.username, expiresAt: now + this.sessionTtlMs });
+    return rotated;
+  }
+
   guest(projectId: string) {
     if (!projectId) throw new Error("project id required");
     const token = randomBytes(32).toString("hex");
