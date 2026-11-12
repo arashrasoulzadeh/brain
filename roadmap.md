@@ -70,8 +70,8 @@ Goal: boot a small Go service with PostgreSQL, migrations, Compose, and CI.
 - [ ] Add a clean-start smoke test.
 - [ ] Add a clean-stop smoke test.
 - [ ] Repeat the Compose smoke test from scratch.
-- [ ] Add formatting checks.
-- [ ] Add Go tests to CI.
+- [x] Add formatting checks.
+- [x] Add Go tests to CI.
 - [ ] Add the Compose smoke test to CI.
 - [ ] Add the backend image build check for amd64 and arm64.
 
