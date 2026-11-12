@@ -222,7 +222,7 @@ Goal: complete a private multiplayer match with matchmaking, realtime updates, a
 
 ### FIFO matchmaking
 
-- [ ] Add a matchmaking configuration.
+- [x] Add a matchmaking configuration.
 - [ ] Add a project-scoped queue.
 - [ ] Add a FIFO ticket.
 - [ ] Prevent duplicate active tickets.
