@@ -310,7 +310,7 @@ Goal: provide project-scoped identity, PostgreSQL APIs, files, subscriptions, an
 - [x] Add SMS OTP.
 - [x] Normalize phone numbers to E.164.
 - [x] Bind challenges to project, destination, and purpose.
-- [ ] Store keyed code digests.
+- [x] Store keyed code digests.
 - [ ] Consume codes atomically.
 - [ ] Expire codes quickly.
 - [ ] Limit sends and guesses.
