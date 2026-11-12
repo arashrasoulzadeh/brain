@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `dc0728b` — 2026-11-13 02:41:15 +0330 — phase 02 replay missed room events
+- `f0a409b` — 2026-11-12 23:11:03 +0000 — docs: update changelog [skip ci]
 - `74a49eb` — 2026-11-13 02:40:45 +0330 — phase 02 reconnect existing room players
 - `76c6c75` — 2026-11-12 23:10:34 +0000 — docs: update changelog [skip ci]
 - `2bc8a75` — 2026-11-13 02:40:19 +0330 — phase 02 reject unauthorized room commands
