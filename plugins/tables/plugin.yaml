@@ -1,0 +1,13 @@
+id: tables
+version: 0.1.0
+host_api: 1
+entrypoint: src/index.ts
+dependencies: []
+capabilities:
+  - tables.read
+  - tables.write
+  - tables.schema
+extension_points:
+  - data.policy
+config_schema:
+  exposure: string
