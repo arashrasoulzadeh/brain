@@ -1,4 +1,4 @@
-import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
+import { createHash, randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 import { request, type PluginFunction, type RpcRequest } from "../sdk-typescript/src/index.js";
 
 export function signInRequest(projectId: string, pluginId: string, version: string, provider: string, credential: unknown) {
@@ -19,6 +19,8 @@ export function projectUserID(projectId: string, userId: string): string {
   if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(projectId) || !/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(userId)) throw new Error("invalid project user id");
   return `${projectId}:${userId}`;
 }
+
+export function sessionTokenDigest(token: string): string { return createHash("sha256").update(token).digest("hex"); }
 
 export class AccountRateLimiter {
   private readonly attempts = new Map<string, { startedAt: number; count: number }>();
@@ -68,12 +70,12 @@ export class AuthService {
     const account = this.accounts.get(projectId)?.get(username);
     if (!account || !timingSafeEqual(account.passwordHash, this.hash(password, account.salt))) throw new Error("invalid credentials");
     const token = randomBytes(32).toString("hex");
-    this.sessions.set(token, { projectId, username });
+    this.sessions.set(sessionTokenDigest(token), { projectId, username });
     return { token, username };
   }
 
   session(projectId: string, token: string) {
-    const session = this.sessions.get(token);
+    const session = this.sessions.get(sessionTokenDigest(token));
     if (!session || session.projectId !== projectId) throw new Error("invalid session");
     return { username: session.username };
   }
@@ -82,7 +84,7 @@ export class AuthService {
     if (!projectId) throw new Error("project id required");
     const token = randomBytes(32).toString("hex");
     const username = `guest-${randomBytes(8).toString("hex")}`;
-    this.sessions.set(token, { projectId, username });
+    this.sessions.set(sessionTokenDigest(token), { projectId, username });
     return { token, username, guest: true };
   }
 
