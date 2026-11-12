@@ -241,7 +241,7 @@ Goal: complete a private multiplayer match with matchmaking, realtime updates, a
 - [x] Add bounded frame sizes.
 - [x] Add bounded send queues.
 - [x] Broadcast authorized snapshots.
-- [ ] Reject unauthorized commands.
+- [x] Reject unauthorized commands.
 - [ ] Reconnect an existing player.
 - [ ] Replay missed durable events.
 

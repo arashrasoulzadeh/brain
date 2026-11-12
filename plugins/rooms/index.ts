@@ -18,6 +18,12 @@ export function authorizedRoomSnapshot(room: Room, projectId: string, playerId: 
   return { ...room, slots: [...room.slots] };
 }
 
+export function authorizeRoomCommand(room: Room, projectId: string, playerId: string, operation: string): boolean {
+  if (!operation.trim()) throw new Error("operation required");
+  authorizedRoomSnapshot(room, projectId, playerId);
+  return true;
+}
+
 export class ConnectionTickets {
   private readonly tickets = new Map<string, ConnectionTicket>();
   issue(projectId: string, roomId: string, playerId: string, now: number, ttlSeconds: number): ConnectionTicket {

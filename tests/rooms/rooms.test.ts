@@ -1,4 +1,4 @@
-import { ConnectionTickets, RoomDirectory, authorizedRoomSnapshot, canTransitionRoom, projectRoomID, roomRequest, validateMembership } from "../../plugins/rooms/index.js";
+import { ConnectionTickets, RoomDirectory, authorizeRoomCommand, authorizedRoomSnapshot, canTransitionRoom, projectRoomID, roomRequest, validateMembership } from "../../plugins/rooms/index.js";
 import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = roomRequest("dev", "rooms", "0.1.0", "rooms.create", "room-1", { maxPlayers: 2 });
@@ -23,6 +23,8 @@ try { rooms.create("dev", "room-new", 4); throw new Error("duplicate room accept
 try { rooms.get("prod", "room-new"); throw new Error("cross-project room lookup accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "room not found") throw error; }
 rooms.join("dev", "room-new", "user-1", 0);
 if (authorizedRoomSnapshot(rooms.get("dev", "room-new"), "dev", "user-1").projectId !== "dev") throw new Error("authorized snapshot missing");
+if (!authorizeRoomCommand(rooms.get("dev", "room-new"), "dev", "user-1", "room.action")) throw new Error("authorized command rejected");
+try { authorizeRoomCommand(rooms.get("dev", "room-new"), "dev", "user-2", "room.action"); throw new Error("unauthorized command accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "room membership required") throw error; }
 try { authorizedRoomSnapshot(rooms.get("dev", "room-new"), "dev", "user-2"); throw new Error("unauthorized snapshot accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "room membership required") throw error; }
 if (savedMembership.get("dev:room-new") !== 1) throw new Error("room membership was not persisted");
 if (!rooms.isMember("dev", "room-new", "user-1") || rooms.isMember("dev", "room-new", "user-2")) throw new Error("room membership check failed");
