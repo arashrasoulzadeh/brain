@@ -201,7 +201,7 @@ Goal: complete a private multiplayer match with matchmaking, realtime updates, a
 ### Protocol and room model
 
 - [x] Define versioned HTTP request envelopes.
-- [ ] Define versioned WebSocket messages.
+- [x] Define versioned WebSocket messages.
 - [ ] Define request IDs and error codes.
 - [ ] Define retry and conflict behavior.
 - [ ] Define project-scoped room IDs.
