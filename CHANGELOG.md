@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `8b9aadc` — roadmap mark worker isolation policy verified
+- `549e3a8` — docs: update changelog [skip ci]
 - `32832ad` — phase 01 define worker isolation policy
 - `11db57e` — docs: update changelog [skip ci]
 - `f64373e` — roadmap mark bundled worker supervision verified
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `5c63d91` — docs: update changelog [skip ci]
 - `d874944` — roadmap mark csrf protection verified
 - `e27f17e` — docs: update changelog [skip ci]
-- `d30a702` — phase 01 add csrf middleware
-- `e2c3236` — docs: update changelog [skip ci]
