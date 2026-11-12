@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `aa9c695` — 2026-11-13 02:38:53 +0330 — phase 02 bound websocket frame sizes
+- `1d85ab0` — 2026-11-12 23:08:31 +0000 — docs: update changelog [skip ci]
 - `6e89db4` — 2026-11-13 02:38:17 +0330 — phase 02 add websocket heartbeat tracking
 - `f5b277f` — 2026-11-12 23:08:03 +0000 — docs: update changelog [skip ci]
 - `80ea046` — 2026-11-13 02:37:50 +0330 — phase 02 validate websocket origins
