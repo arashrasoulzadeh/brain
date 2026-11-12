@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `5f06224` — 2026-11-13 03:02:25 +0330 — phase 03 preserve guest identity on upgrade
+- `1723388` — 2026-11-12 23:31:27 +0000 — docs: update changelog [skip ci]
 - `32206f5` — 2026-11-13 03:01:14 +0330 — phase 03 verify guest accounts
 - `b35921f` — 2026-11-12 23:31:13 +0000 — docs: update changelog [skip ci]
 - `1850a68` — 2026-11-13 03:01:00 +0330 — phase 03 verify expired invitation rejection
