@@ -24,9 +24,11 @@ export class MatchmakingConfigs {
 }
 
 export type MatchmakingTicket = { id: string; projectId: string; scope: string; playerId: string; createdAt: number; expiresAt: number };
+export type AssignmentDecision = { id: string; projectId: string; scope: string; ticketIds: readonly string[]; createdAt: number };
 
 export class MatchmakingQueue {
   private sequence = 0;
+  private decisionSequence = 0;
   private readonly queues = new Map<string, MatchmakingTicket[]>();
   constructor(private readonly configs?: MatchmakingConfigs) {}
   enqueue(projectId: string, scope: string, playerId: string, now = Date.now()): MatchmakingTicket {
@@ -62,6 +64,11 @@ export class MatchmakingQueue {
     const queue = this.queues.get(key) ?? [];
     if (queue.some((active) => active.id === ticket.id || active.playerId === ticket.playerId)) throw new Error("active ticket already exists");
     this.queues.set(key, [...queue, { ...ticket }].sort((a, b) => a.createdAt - b.createdAt));
+  }
+  assign(projectId: string, scope: string, matchSize: number, now = Date.now()): AssignmentDecision | null {
+    const tickets = this.match(projectId, scope, matchSize);
+    if (tickets.length !== matchSize) return null;
+    return { id: `${projectId}:${scope}:assignment-${++this.decisionSequence}`, projectId, scope, ticketIds: tickets.map((ticket) => ticket.id), createdAt: now };
   }
 }
 

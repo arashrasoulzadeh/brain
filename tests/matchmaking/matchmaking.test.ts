@@ -27,3 +27,8 @@ const failed = retryQueue.enqueue("dev", "ranked", "user-6", 1000);
 retryQueue.match("dev", "ranked", 1);
 retryQueue.requeue(failed, 2000);
 if (retryQueue.peek("dev", "ranked")[0].id !== failed.id) throw new Error("failed assignment was not requeued");
+const assignmentQueue = new MatchmakingQueue();
+assignmentQueue.enqueue("dev", "ranked", "user-7", 1000);
+assignmentQueue.enqueue("dev", "ranked", "user-8", 1100);
+const decision = assignmentQueue.assign("dev", "ranked", 2, 2000);
+if (!decision || decision.ticketIds.length !== 2 || !decision.id.startsWith("dev:ranked:assignment-")) throw new Error("assignment decision was not recorded");
