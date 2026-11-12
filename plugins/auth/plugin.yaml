@@ -8,6 +8,7 @@ dependencies: []
 capabilities:
   - auth.signin
   - auth.session
+  - auth.guest
 extension_points:
   - auth.provider
 config_schema:
@@ -22,3 +23,6 @@ routes:
   - operation: auth.session
     function: session
     capability: auth.session
+  - operation: auth.guest
+    function: guest
+    capability: auth.guest

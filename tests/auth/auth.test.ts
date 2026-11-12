@@ -1,4 +1,4 @@
-import { AuthService, functions, signInRequest, signUpRequest } from "../../plugins/auth/index.js";
+import { AuthService, functions, guestRequest, signInRequest, signUpRequest } from "../../plugins/auth/index.js";
 import { createFunctionHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const serviceForHandler = new AuthService();
@@ -6,12 +6,15 @@ const handler = createFunctionHandler(functions(serviceForHandler), [
   { operation: "auth.signup", function: "signup", capability: "auth.signup" },
   { operation: "auth.signin", function: "signin", capability: "auth.signin" },
   { operation: "auth.session", function: "session", capability: "auth.session" },
+  { operation: "auth.guest", function: "guest", capability: "auth.guest" },
 ]);
 const signup = signUpRequest("dev", "auth", "0.1.0", "guest", "correct horse battery");
 if (signup.params.pluginId !== "auth" || signup.params.operation !== "auth.signup") throw new Error("auth plugin contract failed");
 if (typeof handler(signup) !== "object") throw new Error("auth signup handler contract failed");
 const request = signInRequest("dev", "auth", "0.1.0", "guest", "correct horse battery");
 if (typeof handler(request) !== "object") throw new Error("auth handler contract failed");
+const guest = (handler(guestRequest("dev", "auth", "0.1.0")) as { payload: { token: string; username: string; guest: boolean } }).payload;
+if (!guest.token || !guest.username.startsWith("guest-") || !guest.guest) throw new Error("guest session failed");
 
 const service = new AuthService();
 service.signup("project-a", "alice", "correct horse battery");

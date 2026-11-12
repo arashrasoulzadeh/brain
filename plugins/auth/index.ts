@@ -9,6 +9,10 @@ export function signUpRequest(projectId: string, pluginId: string, version: stri
   return request(`auth-signup-${projectId}-${username}`, { protocol: 1, projectId, pluginId, version, operation: "auth.signup", payload: { username, password } });
 }
 
+export function guestRequest(projectId: string, pluginId: string, version: string) {
+  return request(`auth-guest-${projectId}`, { protocol: 1, projectId, pluginId, version, operation: "auth.guest", payload: {} });
+}
+
 type Account = { username: string; salt: Buffer; passwordHash: Buffer };
 
 export class AuthService {
@@ -39,6 +43,14 @@ export class AuthService {
     return { username: session.username };
   }
 
+  guest(projectId: string) {
+    if (!projectId) throw new Error("project id required");
+    const token = randomBytes(32).toString("hex");
+    const username = `guest-${randomBytes(8).toString("hex")}`;
+    this.sessions.set(token, { projectId, username });
+    return { token, username, guest: true };
+  }
+
   private hash(password: string, salt: Buffer) { return scryptSync(password, salt, 32); }
   private validate(projectId: string, username: string, password: string) {
     if (!projectId || !username || password.length < 8) throw new Error("invalid signup");
@@ -51,5 +63,6 @@ export function functions(service = new AuthService()): Readonly<Record<string, 
     signup: (rpc) => { const p = payload(rpc); return service.signup(rpc.params.projectId, p?.username ?? "", p?.password ?? ""); },
     signin: (rpc) => { const p = payload(rpc); return service.signin(rpc.params.projectId, p?.username ?? p?.provider ?? "", p?.password ?? String(p?.credential ?? "")); },
     session: (rpc) => { const p = payload(rpc); return service.session(rpc.params.projectId, p?.token ?? ""); },
+    guest: (rpc) => service.guest(rpc.params.projectId),
   };
 }
