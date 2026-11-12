@@ -1,0 +1,14 @@
+id: rooms
+version: 0.1.0
+host_api: 1
+entrypoint: src/index.ts
+dependencies: []
+capabilities:
+  - rooms.create
+  - rooms.join
+  - rooms.reconnect
+  - rooms.result
+extension_points:
+  - rooms.runtime
+config_schema:
+  maxPlayers: int
