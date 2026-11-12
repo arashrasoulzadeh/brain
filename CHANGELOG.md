@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `36c2723` — 2026-11-13 03:13:39 +0330 — phase 03 revoke sessions after password reset
+- `f4440f1` — 2026-11-12 23:43:10 +0000 — docs: update changelog [skip ci]
 - `af971af` — 2026-11-13 03:12:57 +0330 — phase 03 add email recovery tokens
 - `7187832` — 2026-11-12 23:42:32 +0000 — docs: update changelog [skip ci]
 - `5317616` — 2026-11-13 03:12:12 +0330 — phase 03 limit otp sends and guesses
