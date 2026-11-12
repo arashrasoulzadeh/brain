@@ -260,7 +260,7 @@ Goal: complete a private multiplayer match with matchmaking, realtime updates, a
 
 - [x] Start a match in two browsers.
 - [x] Recover one dropped connection.
-- [ ] Reject one denied plugin action.
+- [x] Reject one denied plugin action.
 - [ ] Persist one durable result.
 - [ ] Exercise private rooms.
 - [ ] Exercise FIFO matchmaking.

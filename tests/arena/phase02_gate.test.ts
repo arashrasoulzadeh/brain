@@ -1,5 +1,5 @@
 import { ArenaStateMachine, arenaStartCommand } from "../../plugins/arena/index.js";
-import { ConnectionTickets, RoomDirectory } from "../../plugins/rooms/index.js";
+import { ConnectionTickets, RoomDirectory, authorizeRoomCommand } from "../../plugins/rooms/index.js";
 
 const browserOne = new ArenaStateMachine("dev", "gate-room");
 const browserTwo = new ArenaStateMachine("dev", "gate-room");
@@ -12,3 +12,4 @@ rooms.join("dev", "gate-room", "user-1", 0);
 const tickets = new ConnectionTickets();
 const reconnectTicket = tickets.issue("dev", "gate-room", "user-1", 1000, 60);
 if (!rooms.reconnect("dev", "gate-room", "user-1") || !tickets.consume(reconnectTicket.token, "dev", "gate-room", "user-1", 1001)) throw new Error("dropped connection did not recover");
+try { authorizeRoomCommand(rooms.get("dev", "gate-room"), "dev", "user-9", "arena.input"); throw new Error("denied plugin action accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "room membership required") throw error; }
