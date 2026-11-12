@@ -1,4 +1,4 @@
-import { AccountRateLimiter, AuthService, ProjectRateLimiter, functions, guestRequest, projectUserID, sessionTokenDigest, signInRequest, signUpRequest } from "../../plugins/auth/index.js";
+import { AccountRateLimiter, AuthService, OperatorSessionRegistry, ProjectRateLimiter, functions, guestRequest, projectUserID, sessionTokenDigest, signInRequest, signUpRequest } from "../../plugins/auth/index.js";
 import { createFunctionHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const serviceForHandler = new AuthService();
@@ -41,6 +41,11 @@ try { rotating.rotate("project-a", originalToken, 203); throw new Error("refresh
 const logoutToken = rotating.signin("project-a", "carol", "correct horse battery", 300).token;
 rotating.logout("project-a", logoutToken);
 try { rotating.session("project-a", logoutToken, 301); throw new Error("logged out session accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid session") throw error; }
+const operators = new OperatorSessionRegistry();
+const operatorToken = operators.issue("admin");
+if (!operators.valid(operatorToken, "admin") || operators.valid(operatorToken, "other")) throw new Error("operator session isolation failed");
+operators.revoke(operatorToken);
+if (operators.valid(operatorToken, "admin")) throw new Error("operator session revocation failed");
 try { service.session("project-b", session.token); throw new Error("cross-project session accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid session") throw error; }
 try { service.signin("project-a", "alice", "wrong password"); throw new Error("invalid password accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid credentials") throw error; }
 const accountLimiter = new AccountRateLimiter(2, 1000);

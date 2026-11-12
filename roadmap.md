@@ -284,7 +284,7 @@ Goal: provide project-scoped identity, PostgreSQL APIs, files, subscriptions, an
 - [x] Add session rotation.
 - [x] Revoke refresh tokens after reuse.
 - [x] Add logout.
-- [ ] Add operator session revocation.
+- [x] Add operator session revocation.
 - [ ] Reject a session in another project.
 
 ### Invitations and identity providers

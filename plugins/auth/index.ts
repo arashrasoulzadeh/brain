@@ -52,6 +52,26 @@ export class ProjectRateLimiter {
   }
 }
 
+export class OperatorSessionRegistry {
+  private readonly sessions = new Map<string, string>();
+  private readonly revoked = new Set<string>();
+  issue(operatorId: string): string {
+    if (!operatorId.trim()) throw new Error("operator id required");
+    const token = randomBytes(32).toString("hex");
+    this.sessions.set(sessionTokenDigest(token), operatorId);
+    return token;
+  }
+  valid(token: string, operatorId: string): boolean {
+    const digest = sessionTokenDigest(token);
+    return !this.revoked.has(digest) && this.sessions.get(digest) === operatorId;
+  }
+  revoke(token: string): void {
+    const digest = sessionTokenDigest(token);
+    this.sessions.delete(digest);
+    this.revoked.add(digest);
+  }
+}
+
 export class AuthService {
   private readonly accounts = new Map<string, Map<string, Account>>();
   private readonly sessions = new Map<string, { projectId: string; username: string; expiresAt: number }>();
