@@ -13,20 +13,20 @@ var ErrWorkerUnavailable = errors.New("plugin worker unavailable")
 var ErrPluginScopeDenied = errors.New("plugin scope denied")
 
 type HostCall struct {
-	ProjectID  string
-	ActorID    string
-	PluginID   string
-	Version    string
-	Capability string
-	Resource   string
+	ProjectID        string
+	ActorID          string
+	PluginID         string
+	Version          string
+	Capability       string
+	Resource         string
 	MatchmakingScope string
-	ExpiresAt  time.Time
+	ExpiresAt        time.Time
 }
 
 type Broker struct {
-	Registry        *Registry
-	ActorAllows     func(actorID, capability, resource string) bool
-	WorkerAvailable func(pluginID, version string) bool
+	Registry          *Registry
+	ActorAllows       func(actorID, capability, resource string) bool
+	WorkerAvailable   func(pluginID, version string) bool
 	MatchmakingAllows func(projectID, scope string) bool
 }
 
