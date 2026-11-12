@@ -164,7 +164,7 @@ Goal: create isolated projects and run one plugin through both supported worker 
 - [x] Add an external worker endpoint.
 - [x] Authenticate the external worker handshake.
 - [x] Bind external identity to the project installation.
-- [ ] Run the same fixture through the external worker.
+- [x] Run the same fixture through the external worker.
 
 ### Dashboard and first event
 
