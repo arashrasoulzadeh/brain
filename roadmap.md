@@ -251,7 +251,7 @@ Goal: complete a private multiplayer match with matchmaking, realtime updates, a
 - [x] Add a start command.
 - [x] Add a player action.
 - [x] Add a result command.
-- [ ] Persist one completed result.
+- [x] Persist one completed result.
 - [ ] Export one validated Eye event.
 - [ ] Add an eight-player fixture.
 - [ ] Measure room latency and memory.
