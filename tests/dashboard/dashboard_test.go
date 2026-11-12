@@ -140,3 +140,35 @@ func TestDashboardProjectFormDelegatesAndReturnsBoundedErrors(t *testing.T) {
 		t.Fatalf("duplicate status = %d", duplicateRes.Code)
 	}
 }
+
+func TestDashboardPluginFormsInstallGrantAndEnable(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	m := plugin.Manifest{ID: "auth", Version: "1", HostAPI: 1, Capabilities: []string{"auth.manage"}}
+	if err := r.Register(m); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.SetReadiness(m.ID, m.Version, true); err != nil {
+		t.Fatal(err)
+	}
+	admin := dashboard.ProjectAdmin{Projects: project.NewStore(), Plugins: r}
+	if err := admin.CreateProject("dev"); err != nil {
+		t.Fatal(err)
+	}
+	handler := dashboard.Handler(admin)
+	post := func(path, form string) int {
+		req := httptest.NewRequest(http.MethodPost, path, strings.NewReader(form))
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		res := httptest.NewRecorder()
+		handler.ServeHTTP(res, req)
+		return res.Code
+	}
+	if got := post("/admin/plugins/install", "project=dev&plugin=auth&version=1"); got != http.StatusCreated {
+		t.Fatalf("install status = %d", got)
+	}
+	if got := post("/admin/plugins/grant", "project=dev&plugin=auth&version=1&capability=auth.manage"); got != http.StatusNoContent {
+		t.Fatalf("grant status = %d", got)
+	}
+	if got := post("/admin/plugins/enable", "project=dev&plugin=auth&version=1"); got != http.StatusNoContent {
+		t.Fatalf("enable status = %d", got)
+	}
+}
