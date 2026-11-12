@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -17,12 +18,24 @@ func main() {
 		bootstrapOperator()
 		return
 	}
+	if len(os.Args) > 1 && os.Args[1] == "bootstrap-dashboard" {
+		bootstrapDashboard()
+		return
+	}
 	cfg := config.FromEnv()
 	if err := cfg.SafeError(); err != nil {
 		log.Fatal(err)
 	}
 	server := app.NewServer()
 	log.Fatal(http.ListenAndServe(cfg.HTTPAddress, server.Handler()))
+}
+
+func bootstrapDashboard() {
+	bootstrap, err := app.BootstrapDashboard()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("dashboard plugin %s@%s ready at %s\n", bootstrap.PluginID, bootstrap.Version, bootstrap.EntryPoint)
 }
 
 func bootstrapOperator() {
