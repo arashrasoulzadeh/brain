@@ -305,7 +305,7 @@ Goal: provide project-scoped identity, PostgreSQL APIs, files, subscriptions, an
 
 ### Email, SMS, and recovery
 
-- [ ] Add a local test delivery inbox.
+- [x] Add a local test delivery inbox.
 - [ ] Add email OTP.
 - [ ] Add SMS OTP.
 - [ ] Normalize phone numbers to E.164.

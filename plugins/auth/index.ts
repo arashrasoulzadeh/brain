@@ -36,6 +36,14 @@ export class OIDCStateStore {
     this.states.delete(state);
   }
 }
+export class TestDeliveryInbox {
+  private readonly messages = new Map<string, string[]>();
+  deliver(destination: string, body: string): void {
+    if (!destination.trim() || !body.trim()) throw new Error("invalid test delivery");
+    this.messages.set(destination, [...(this.messages.get(destination) ?? []), body]);
+  }
+  read(destination: string): string | undefined { return this.messages.get(destination)?.at(-1); }
+}
 
 export class AccountRateLimiter {
   private readonly attempts = new Map<string, { startedAt: number; count: number }>();

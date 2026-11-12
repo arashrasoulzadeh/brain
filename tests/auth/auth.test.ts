@@ -1,4 +1,4 @@
-import { AccountRateLimiter, AuthService, AuthorizationCodeStore, IdentityLinker, OIDCConfigStore, OIDCStateStore, OperatorSessionRegistry, ProjectRateLimiter, createPKCEChallenge, functions, guestRequest, projectUserID, requireRecentAuthentication, sessionTokenDigest, signInRequest, signUpRequest, validateOIDCToken, verifyPKCE } from "../../plugins/auth/index.js";
+import { AccountRateLimiter, AuthService, AuthorizationCodeStore, IdentityLinker, OIDCConfigStore, OIDCStateStore, OperatorSessionRegistry, ProjectRateLimiter, TestDeliveryInbox, createPKCEChallenge, functions, guestRequest, projectUserID, requireRecentAuthentication, sessionTokenDigest, signInRequest, signUpRequest, validateOIDCToken, verifyPKCE } from "../../plugins/auth/index.js";
 import { createFunctionHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const serviceForHandler = new AuthService();
@@ -37,6 +37,9 @@ const states = new OIDCStateStore();
 const state = states.issue("project-a", "client-id", "https://app.example/callback");
 states.consume(state, "project-a", "client-id", "https://app.example/callback");
 try { states.consume(state, "project-a", "client-id", "https://app.example/callback"); throw new Error("callback state replay accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "callback state mismatch") throw error; }
+const inbox = new TestDeliveryInbox();
+inbox.deliver("alice@example.com", "code-1");
+if (inbox.read("alice@example.com") !== "code-1") throw new Error("test delivery inbox failed");
 
 const service = new AuthService();
 const registration = service.signup("project-a", "alice", "correct horse battery");
