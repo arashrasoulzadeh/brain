@@ -239,7 +239,7 @@ Goal: complete a private multiplayer match with matchmaking, realtime updates, a
 - [x] Validate origin and project.
 - [x] Add heartbeat handling.
 - [x] Add bounded frame sizes.
-- [ ] Add bounded send queues.
+- [x] Add bounded send queues.
 - [ ] Broadcast authorized snapshots.
 - [ ] Reject unauthorized commands.
 - [ ] Reconnect an existing player.
