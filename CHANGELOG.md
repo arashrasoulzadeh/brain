@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `a1e6946` — refactor dashboard to generic plugin operations
+- `cd68ff7` — docs: update changelog [skip ci]
 - `2dc7ac4` — phase 01 complete dashboard typescript contract
 - `16febf3` — docs: update changelog [skip ci]
 - `e18f338` — arch dynamically discover plugin manifests
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `cb13964` — docs: update changelog [skip ci]
 - `1fe937f` — roadmap mark external worker fixture verified
 - `f5d44a8` — docs: update changelog [skip ci]
-- `5c137de` — phase 01 run contract through external worker
-- `183ba13` — docs: update changelog [skip ci]
