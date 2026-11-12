@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `06c918a` — 2026-11-13 03:00:02 +0330 — phase 03 verify one time invitation links
+- `c715657` — 2026-11-12 23:29:55 +0000 — docs: update changelog [skip ci]
 - `af2ad33` — 2026-11-13 02:59:43 +0330 — phase 03 verify cross project session rejection
 - `0cdde86` — 2026-11-12 23:29:40 +0000 — docs: update changelog [skip ci]
 - `e11d85b` — 2026-11-13 02:59:27 +0330 — phase 03 revoke operator sessions
