@@ -8,6 +8,13 @@ export type DurableMatchResult = {
   completedAt: string;
 };
 
+export type EyeEvent = { projectId: string; name: "arena.result"; fields: { resultId: string; roomId: string; winnerCount: number } };
+
+export function exportEyeEvent(result: DurableMatchResult): EyeEvent {
+  validateMatchResult(result);
+  return { projectId: result.projectId, name: "arena.result", fields: { resultId: result.resultId, roomId: result.roomId, winnerCount: result.winnerIds.length } };
+}
+
 export type ArenaState = "waiting" | "active" | "finished";
 
 export class MatchResultStore {
