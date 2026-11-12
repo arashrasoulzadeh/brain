@@ -26,3 +26,10 @@ func TestFromEnvReadsHTTPAddress(t *testing.T) {
 		t.Fatalf("HTTPAddress = %q, want %q", got, ":9090")
 	}
 }
+
+func TestConfigRejectsSharedDatabaseCredentials(t *testing.T) {
+	err := (config.Config{HTTPAddress: ":8080", RuntimeDSN: "runtime", MigrationDSN: "runtime"}).SafeError()
+	if err == nil || !strings.Contains(err.Error(), "must differ") {
+		t.Fatalf("SafeError() = %v", err)
+	}
+}

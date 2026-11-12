@@ -8,16 +8,21 @@ import (
 )
 
 type Config struct {
-	HTTPAddress string
+	HTTPAddress  string
+	RuntimeDSN   string
+	MigrationDSN string
 }
 
 func FromEnv() Config {
-	return Config{HTTPAddress: os.Getenv("HTTP_ADDRESS")}
+	return Config{HTTPAddress: os.Getenv("HTTP_ADDRESS"), RuntimeDSN: os.Getenv("RUNTIME_DSN"), MigrationDSN: os.Getenv("MIGRATION_DSN")}
 }
 
 func (c Config) Validate() error {
 	if strings.TrimSpace(c.HTTPAddress) == "" {
 		return errors.New("HTTP_ADDRESS is required")
+	}
+	if c.RuntimeDSN != "" && c.RuntimeDSN == c.MigrationDSN {
+		return errors.New("RUNTIME_DSN and MIGRATION_DSN must differ")
 	}
 	return nil
 }
