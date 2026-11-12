@@ -102,7 +102,7 @@ Goal: create isolated projects and run one plugin through both supported worker 
 - [x] Add operator sign-in.
 - [x] Add MFA verification.
 - [x] Reject invalid MFA.
-- [ ] Add operator recovery.
+- [x] Add operator recovery.
 - [ ] Add CSRF protection.
 - [ ] Reject an ordinary user attempting an operator action.
 - [ ] Audit operator sign-in and recovery.
