@@ -18,3 +18,6 @@ if (typeof result !== "object") throw new Error("dashboard handler did not retur
 service.createProject("project-a");
 if (!service.hasProject("project-a")) throw new Error("dashboard project was not created");
 try { service.createProject("project-a"); throw new Error("duplicate project was accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "project already exists") throw error; }
+service.installPlugin("project-a", "auth", "0.1.0");
+if (!service.isInstalled("project-a", "auth", "0.1.0")) throw new Error("dashboard plugin was not installed");
+try { service.installPlugin("project-b", "auth", "0.1.0"); throw new Error("unknown project accepted installation"); } catch (error) { if (!(error instanceof Error) || error.message !== "unknown project") throw error; }

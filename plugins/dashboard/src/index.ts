@@ -22,6 +22,7 @@ export function adminRequest(projectId: string, operation: string, payload: unkn
 
 export class DashboardService {
   private readonly projects = new Set<string>();
+  private readonly installations = new Set<string>();
 
   createProject(projectId: string) {
     if (!projectId.trim()) throw new Error("project id required");
@@ -32,6 +33,17 @@ export class DashboardService {
   }
 
   hasProject(projectId: string) { return this.projects.has(projectId); }
+
+  installPlugin(projectId: string, pluginId: string, version: string) {
+    if (!this.projects.has(projectId)) throw new Error("unknown project");
+    if (!pluginId.trim() || !version.trim()) throw new Error("plugin identity required");
+    const key = `${projectId}:${pluginId}@${version}`;
+    if (this.installations.has(key)) throw new Error("plugin already installed");
+    this.installations.add(key);
+    return { projectId, pluginId, version, enabled: false };
+  }
+
+  isInstalled(projectId: string, pluginId: string, version: string) { return this.installations.has(`${projectId}:${pluginId}@${version}`); }
 }
 
 export function createHandler(service = new DashboardService()): PluginHandler {
