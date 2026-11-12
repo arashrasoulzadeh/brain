@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `88ce7c9` — 2026-11-13 01:53:55 +0330 — docs mark dashboard project creation complete
+- `efa3cc7` — 2026-11-12 22:23:57 +0000 — docs: update changelog [skip ci]
 - `646544c` — 2026-11-13 01:53:42 +0330 — phase 01 implement dashboard project creation
 - `4672ce1` — 2026-11-12 22:23:06 +0000 — docs: update changelog [skip ci]
 - `628ac82` — 2026-11-13 01:52:53 +0330 — docs mark dashboard cli bootstrap complete
