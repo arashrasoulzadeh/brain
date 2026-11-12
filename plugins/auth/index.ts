@@ -96,6 +96,13 @@ export class AuthService {
     return rotated;
   }
 
+  logout(projectId: string, token: string): void {
+    const digest = sessionTokenDigest(token);
+    const session = this.sessions.get(digest);
+    if (!session || session.projectId !== projectId) throw new Error("invalid session");
+    this.sessions.delete(digest);
+  }
+
   guest(projectId: string) {
     if (!projectId) throw new Error("project id required");
     const token = randomBytes(32).toString("hex");

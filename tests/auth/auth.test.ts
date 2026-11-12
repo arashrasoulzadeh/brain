@@ -38,6 +38,9 @@ const rotatedToken = rotating.rotate("project-a", originalToken, 201);
 if (rotatedToken === originalToken || rotating.session("project-a", rotatedToken, 202).username !== "carol") throw new Error("session rotation failed");
 try { rotating.session("project-a", originalToken, 202); throw new Error("rotated token remained valid"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid session") throw error; }
 try { rotating.rotate("project-a", originalToken, 203); throw new Error("refresh token reuse accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "refresh token reuse detected") throw error; }
+const logoutToken = rotating.signin("project-a", "carol", "correct horse battery", 300).token;
+rotating.logout("project-a", logoutToken);
+try { rotating.session("project-a", logoutToken, 301); throw new Error("logged out session accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid session") throw error; }
 try { service.session("project-b", session.token); throw new Error("cross-project session accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid session") throw error; }
 try { service.signin("project-a", "alice", "wrong password"); throw new Error("invalid password accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid credentials") throw error; }
 const accountLimiter = new AccountRateLimiter(2, 1000);
