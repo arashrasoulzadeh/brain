@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `839db64` — roadmap mark dashboard project form verified
+- `80a5369` — docs: update changelog [skip ci]
 - `fe19f48` — phase 01 add dashboard project form
 - `4cbcb9d` — docs: update changelog [skip ci]
 - `846904d` — phase 01 add dashboard project admin actions
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `77d4bda` — docs: update changelog [skip ci]
 - `8b9aadc` — roadmap mark worker isolation policy verified
 - `549e3a8` — docs: update changelog [skip ci]
-- `32832ad` — phase 01 define worker isolation policy
-- `11db57e` — docs: update changelog [skip ci]
