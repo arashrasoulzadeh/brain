@@ -52,7 +52,7 @@ Goal: boot a small Go service with PostgreSQL, migrations, Compose, and CI.
 
 ### PostgreSQL
 
-- [ ] Add a PostgreSQL connection owner.
+- [x] Add a PostgreSQL connection owner.
 - [ ] Add bounded connection startup.
 - [ ] Add database readiness checks.
 - [ ] Fail readiness when PostgreSQL is unavailable.
