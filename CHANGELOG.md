@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `b5a20bc` — 2026-11-13 03:10:07 +0330 — phase 03 normalize phone numbers
+- `36d3fa7` — 2026-11-12 23:39:43 +0000 — docs: update changelog [skip ci]
 - `f75b317` — 2026-11-13 03:09:29 +0330 — phase 03 add sms otp
 - `ad68dbe` — 2026-11-12 23:38:58 +0000 — docs: update changelog [skip ci]
 - `a9b68be` — 2026-11-13 03:08:46 +0330 — phase 03 add email otp
