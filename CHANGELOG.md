@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `28a00cd` — 2026-11-13 02:29:59 +0330 — phase 02 add project scoped matchmaking queue
+- `f0fa3bf` — 2026-11-12 22:59:48 +0000 — docs: update changelog [skip ci]
 - `bef9b66` — 2026-11-13 02:29:26 +0330 — docs mark matchmaking configuration complete
 - `30a6759` — 2026-11-12 22:59:26 +0000 — docs: update changelog [skip ci]
 - `ffb7463` — 2026-11-13 02:29:14 +0330 — phase 02 add project matchmaking configuration
