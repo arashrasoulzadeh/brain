@@ -37,3 +37,9 @@ The changelog is newest first and separated into one auditable entry per commit.
 ## Phase 00 completed
 
 The foundation is complete and verified. Administrators now have documented separation between runtime and migration credentials, runtime DDL protection, a platform migration contract, isolated local test settings, and an opt-in Compose smoke test. CI verifies formatting, Go tests, and multi-architecture image builds. Project/plugin administration remains the next implementation phase.
+
+## Phase 02 completed
+
+Administrators can now operate project-scoped realtime rooms with origin checks, single-use connection tickets, heartbeat expiry, bounded transport queues, member-only snapshots and commands, reconnects, replayable room events, FIFO matchmaking, and durable arena results. Eye exports are validated before delivery, and the eight-player profile has a repeatable gate fixture. Local verification uses `npm run typecheck && npm run test:ts` and `GOCACHE=/tmp/brain-go-cache go test ./...`; Docker remains opt-in for CI or release checks.
+
+Phase 03 adds project-scoped identity, sessions, and app data. Review plugin grants and origin allowlists before enabling realtime access.

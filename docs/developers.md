@@ -42,6 +42,12 @@ Product features belong under `plugins/<plugin-id>/` as TypeScript serverless fu
 
 Phase 01 verification: the dashboard is bootstrapped through the CLI; YAML routes are host-discovered and unauthorized operations are rejected; readiness is reported separately from enablement; auth supports project-scoped guest sessions; analytics events are validated against allowed fields and captured by an in-process sink. Run `go test ./...`, `npm run typecheck`, and `npm run test:ts` locally.
 
+## Phase 02 completed
+
+Realtime gameplay is covered by project-scoped WebSocket endpoint validation, exact origin allowlists, single-use connection tickets, heartbeat expiry, bounded frames, bounded FIFO send queues, authorized snapshots and commands, reconnect checks, and sequence-based event replay. The arena plugin now supports a validated start/action/result flow, idempotent completed-result storage, Eye event export, an eight-player fixture, and latency/memory measurement. The Phase 02 gate is in `tests/arena/phase02_gate.test.ts`. Run `npm run typecheck && npm run test:ts` and `GOCACHE=/tmp/brain-go-cache go test ./...`; do not run Docker locally.
+
+Phase 03 begins with project-scoped user IDs and authentication.
+
 Plugin communication follows [the plugin communication architecture](plugin-communication.md): JSON-RPC over Unix sockets locally, gRPC/mTLS externally, and the shared host authorization contract for both.
 
 ## Security rules
