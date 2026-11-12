@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `de567eb` — phase 05 add plugin version promotion routing
+- `402f2fd` — docs: update changelog [skip ci]
 - `bce5756` — arch add typescript sdk and unix transport
 - `2ee9b37` — docs: update changelog [skip ci]
 - `595eb06` — arch add language neutral plugin rpc contract
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `b4339a7` — docs: update changelog [skip ci]
 - `0efcfa3` — roadmap mark invocation credentials verified
 - `f526462` — docs: update changelog [skip ci]
-- `0884b4b` — phase 01 issue short lived plugin credentials
-- `7ac7139` — docs: update changelog [skip ci]
