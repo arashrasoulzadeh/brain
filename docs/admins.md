@@ -14,6 +14,8 @@ The current implementation provides the foundations for project and plugin admin
 
 All feature capabilities are managed as separate plugins. Review each plugin's requested grants, configuration, readiness, lifecycle, rollback, and removal behavior before enabling it. The catalog is in [`plugins/README.md`](../plugins/README.md).
 
+Plugins communicate through host-controlled local sockets or authenticated external services. They do not receive unrestricted database, operator-token, filesystem, or network access.
+
 ## Current limitations
 
 The dashboard, operator MFA, recovery, worker supervision, external workers, and audit storage are not implemented yet. Do not treat the current HTTP host as production-ready.

@@ -40,6 +40,8 @@ Do not run Docker during normal development. Use in-process tests and isolated l
 
 Product features belong under `plugins/<plugin-id>/`; use `plugins/template/` as the starting point. The core host remains shared infrastructure and contracts. Each plugin needs its own manifest, tests, grants, configuration schema, developer notes, administrator notes, and dynamic lifecycle behavior.
 
+Plugin communication follows [the plugin communication architecture](plugin-communication.md): JSON-RPC over Unix sockets locally, gRPC/mTLS externally, and the shared host authorization contract for both.
+
 ## Security rules
 
 Never trust project IDs, plugin grants, room membership, or permissions supplied by clients. Recheck lifecycle, grants, versions, and idempotency at commit time. Keep secrets out of logs and tests.
