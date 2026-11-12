@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `b84d1ac` — 2026-11-13 02:23:19 +0330 — phase 02 implement project scoped room creation
+- `28ca16c` — 2026-11-12 22:52:15 +0000 — docs: update changelog [skip ci]
 - `8037a8c` — 2026-11-13 02:21:55 +0330 — docs mark durable results complete
 - `64c1b01` — 2026-11-12 22:51:56 +0000 — docs: update changelog [skip ci]
 - `ba79b0b` — 2026-11-13 02:21:44 +0330 — phase 02 define durable match results
