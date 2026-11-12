@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `7b6af32` — 2026-11-13 02:46:11 +0330 — phase 02 verify dropped connection recovery
+- `a38ac2f` — 2026-11-12 23:16:03 +0000 — docs: update changelog [skip ci]
 - `64402fc` — 2026-11-13 02:45:49 +0330 — phase 02 verify two browser match start
 - `c6b4b10` — 2026-11-12 23:15:37 +0000 — docs: update changelog [skip ci]
 - `67fd118` — 2026-11-13 02:45:24 +0330 — phase 02 measure arena latency and memory
