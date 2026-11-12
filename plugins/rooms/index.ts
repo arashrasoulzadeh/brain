@@ -10,15 +10,19 @@ export type PlayerSlot = { playerId: string; slot: number };
 export type RoomState = "waiting" | "matching" | "active" | "finished" | "closed";
 
 export type Room = { id: string; projectId: string; state: RoomState; maxPlayers: number; slots: PlayerSlot[] };
+export type RoomEvent = { type: "player.joined" | "player.left"; projectId: string; roomId: string; playerId: string; sequence: number };
 
 export class RoomDirectory {
   private readonly rooms = new Map<string, Room>();
+  private readonly roomEvents = new Map<string, RoomEvent[]>();
+  private sequence = 0;
   create(projectId: string, roomId: string, maxPlayers: number): Room {
     const id = projectRoomID(projectId, roomId);
     if (maxPlayers < 1 || maxPlayers > 64) throw new Error("invalid max players");
     if (this.rooms.has(id)) throw new Error("room already exists");
     const room: Room = { id, projectId, state: "waiting", maxPlayers, slots: [] };
     this.rooms.set(id, room);
+    this.roomEvents.set(id, []);
     return { ...room, slots: [] };
   }
   get(projectId: string, roomId: string): Room {
@@ -37,8 +41,17 @@ export class RoomDirectory {
     if (room.state !== "waiting" && room.state !== "matching") throw new Error("room not joinable");
     if (!playerId || slot < 0 || slot >= room.maxPlayers || room.slots.some((player) => player.slot === slot || player.playerId === playerId)) throw new Error("invalid membership");
     room.slots.push({ playerId, slot });
+    this.roomEvents.get(key)?.push({ type: "player.joined", projectId, roomId, playerId, sequence: ++this.sequence });
     return { ...room, slots: [...room.slots] };
   }
+  leave(projectId: string, roomId: string, playerId: string): void {
+    const key = projectRoomID(projectId, roomId);
+    const room = this.rooms.get(key);
+    if (!room || !room.slots.some((player) => player.playerId === playerId)) throw new Error("player not in room");
+    room.slots = room.slots.filter((player) => player.playerId !== playerId);
+    this.roomEvents.get(key)?.push({ type: "player.left", projectId, roomId, playerId, sequence: ++this.sequence });
+  }
+  events(projectId: string, roomId: string): readonly RoomEvent[] { return [...(this.roomEvents.get(projectRoomID(projectId, roomId)) ?? [])]; }
 }
 
 export function canTransitionRoom(from: RoomState, to: RoomState): boolean {

@@ -15,5 +15,7 @@ try { rooms.create("dev", "room-new", 4); throw new Error("duplicate room accept
 try { rooms.get("prod", "room-new"); throw new Error("cross-project room lookup accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "room not found") throw error; }
 rooms.join("dev", "room-new", "user-1", 0);
 if (!rooms.isMember("dev", "room-new", "user-1") || rooms.isMember("dev", "room-new", "user-2")) throw new Error("room membership check failed");
-try { rooms.join("prod", "room-new", "user-2", 1); throw new Error("cross-project join accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "room not found") throw error; }
 try { rooms.join("dev", "room-new", "user-1", 1); throw new Error("duplicate membership accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid membership") throw error; }
+rooms.leave("dev", "room-new", "user-1");
+if (rooms.events("dev", "room-new").map((event) => event.type).join(",") !== "player.joined,player.left") throw new Error("room events failed");
+try { rooms.join("prod", "room-new", "user-2", 1); throw new Error("cross-project join accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "room not found") throw error; }
