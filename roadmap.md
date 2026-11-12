@@ -147,7 +147,7 @@ Goal: create isolated projects and run one plugin through both supported worker 
 - [x] Check project installation grant.
 - [ ] Check matchmaking scope when present.
 - [x] Check resource scope.
-- [ ] Issue short-lived invocation credentials.
+- [x] Issue short-lived invocation credentials.
 - [x] Expire invocation credentials.
 - [ ] Recheck grants before commit.
 - [ ] Return bounded errors when a worker is unavailable.
