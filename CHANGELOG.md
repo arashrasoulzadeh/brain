@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `812bb28` — phase 01 gate enablement on worker readiness
+- `4f6cf7e` — docs: update changelog [skip ci]
 - `3ab227d` — roadmap mark resource grants verified
 - `c823d26` — docs: update changelog [skip ci]
 - `eb3779f` — phase 01 add capability and resource grants
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `def3a9c` — docs: update changelog [skip ci]
 - `0fb174a` — phase 00 add multi-architecture backend build check
 - `e859214` — docs: update changelog [skip ci]
-- `8243ca4` — ci enable github pages deployment
-- `869ec77` — docs: update changelog [skip ci]
