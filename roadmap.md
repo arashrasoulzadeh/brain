@@ -63,22 +63,22 @@ Goal: boot a small Go service with PostgreSQL, migrations, Compose, and CI.
 - [x] Add database readiness checks.
 - [x] Fail readiness when PostgreSQL is unavailable.
 - [x] Recover readiness when PostgreSQL returns.
-- [ ] Add the first platform migration.
+- [x] Add the first platform migration.
 - [x] Use a migration-only database credential.
 - [x] Prevent the runtime role from running DDL.
 - [x] Run migrations twice and verify idempotency.
 
 ### Compose and CI
 
-- [ ] Add the smallest local Compose file.
-- [ ] Keep the PostgreSQL port private.
+- [x] Add the smallest local Compose file.
+- [x] Keep the PostgreSQL port private.
 - [x] Add isolated test settings and data.
-- [ ] Add a clean-start smoke test.
-- [ ] Add a clean-stop smoke test.
-- [ ] Repeat the Compose smoke test from scratch.
+- [x] Add a clean-start smoke test.
+- [x] Add a clean-stop smoke test.
+- [x] Repeat the Compose smoke test from scratch.
 - [x] Add formatting checks.
 - [x] Add Go tests to CI.
-- [ ] Add the Compose smoke test to CI.
+- [x] Add the Compose smoke test to CI.
 - [x] Add the backend image build check for amd64 and arm64.
 
 ### Phase 00 gate
