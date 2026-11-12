@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `e431f83` — phase 02 implement project scoped auth plugin
+- `f9dc6be` — docs: update changelog [skip ci]
 - `e2a3227` — phase 02 add typescript arena plugin
 - `55d3012` — docs: update changelog [skip ci]
 - `4ca8b0a` — phase 02 add typescript matchmaking plugin
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `aed4619` — docs: update changelog [skip ci]
 - `95e9851` — phase 05 add controlled plugin drain deadline
 - `c268525` — docs: update changelog [skip ci]
-- `2d79239` — phase 05 add plugin drain and rollback
-- `a084b9a` — docs: update changelog [skip ci]
