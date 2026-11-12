@@ -21,6 +21,9 @@ const resultStore = new MatchResultStore();
 resultStore.save(result);
 if (resultStore.get(result.resultId)?.roomId !== "room-2") throw new Error("completed result was not persisted");
 if (exportEyeEvent(result).name !== "arena.result") throw new Error("Eye event was not exported");
+const eightPlayerArena = new ArenaStateMachine("dev", "room-8");
+eightPlayerArena.start(Array.from({ length: 8 }, (_, index) => `user-${index + 1}`));
+if (eightPlayerArena.players.length !== 8) throw new Error("eight-player fixture failed");
 try { resultStore.save({ ...result, roomId: "room-other" }); throw new Error("result overwrite accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "result already exists") throw error; }
 try { arenaStartCommand(commandArena, "prod", "room-2", ["user-1", "user-2"]); throw new Error("cross-project start accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "arena project mismatch") throw error; }
 try { validateMatchResult({ resultId: "prod:result-1", projectId: "dev", roomId: "room-1", winnerIds: ["user-1"], completedAt: new Date().toISOString() }); throw new Error("cross-project result accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "result project mismatch") throw error; }

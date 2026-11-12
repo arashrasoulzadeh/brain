@@ -253,7 +253,7 @@ Goal: complete a private multiplayer match with matchmaking, realtime updates, a
 - [x] Add a result command.
 - [x] Persist one completed result.
 - [x] Export one validated Eye event.
-- [ ] Add an eight-player fixture.
+- [x] Add an eight-player fixture.
 - [ ] Measure room latency and memory.
 
 ### Phase 02 gate
