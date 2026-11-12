@@ -227,7 +227,7 @@ Goal: complete a private multiplayer match with matchmaking, realtime updates, a
 - [x] Add a FIFO ticket.
 - [x] Prevent duplicate active tickets.
 - [x] Match compatible tickets.
-- [ ] Reject tickets for disabled scopes.
+- [x] Reject tickets for disabled scopes.
 - [ ] Add assignment expiry.
 - [ ] Requeue failed assignments.
 - [ ] Record assignment decisions.
