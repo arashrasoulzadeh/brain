@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `cc1027b` — roadmap mark external worker auth verified
+- `23d487f` — docs: update changelog [skip ci]
 - `4208c34` — phase 01 authenticate external worker handshakes
 - `7df79a1` — docs: update changelog [skip ci]
 - `9da8786` — roadmap mark external worker endpoint verified
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `4f6cf7e` — docs: update changelog [skip ci]
 - `3ab227d` — roadmap mark resource grants verified
 - `c823d26` — docs: update changelog [skip ci]
-- `eb3779f` — phase 01 add capability and resource grants
-- `3ef659e` — docs: update changelog [skip ci]
