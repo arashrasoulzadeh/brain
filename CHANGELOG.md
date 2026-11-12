@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `0efcfa3` — roadmap mark invocation credentials verified
+- `f526462` — docs: update changelog [skip ci]
 - `0884b4b` — phase 01 issue short lived plugin credentials
 - `7ac7139` — docs: update changelog [skip ci]
 - `8068cc2` — roadmap mark permission broker checks verified
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `0bfdc3f` — docs: update changelog [skip ci]
 - `73ccd50` — phase 01 add operator bootstrap command
 - `f1ffa41` — docs: update changelog [skip ci]
-- `ce3452b` — roadmap mark project entry isolation verified
-- `33f8bdf` — docs: update changelog [skip ci]
