@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `de0ebca` — 2026-11-13 03:21:40 +0330 — phase 03 verify cross project table isolation
+- `b306eeb` — 2026-11-12 23:51:32 +0000 — docs: update changelog [skip ci]
 - `6b15efc` — 2026-11-13 03:21:16 +0330 — phase 03 add default deny row policies
 - `eaf6838` — 2026-11-12 23:50:53 +0000 — docs: update changelog [skip ci]
 - `dadcea3` — 2026-11-13 03:20:38 +0330 — phase 03 bind transaction caller context
