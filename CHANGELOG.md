@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `9a95ad4` — 2026-11-13 03:14:20 +0330 — phase 03 hide account enumeration errors
+- `cc4879e` — 2026-11-12 23:43:53 +0000 — docs: update changelog [skip ci]
 - `36c2723` — 2026-11-13 03:13:39 +0330 — phase 03 revoke sessions after password reset
 - `f4440f1` — 2026-11-12 23:43:10 +0000 — docs: update changelog [skip ci]
 - `af971af` — 2026-11-13 03:12:57 +0330 — phase 03 add email recovery tokens
