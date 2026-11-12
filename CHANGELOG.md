@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `acd0604` — roadmap mark plugin audit verified
+- `d68459a` — docs: update changelog [skip ci]
 - `08dc5eb` — phase 01 audit plugin lifecycle changes
 - `688a462` — docs: update changelog [skip ci]
 - `a422c24` — roadmap mark plugin readiness verified
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `8d2d5ea` — docs: update changelog [skip ci]
 - `2241574` — roadmap mark compose and migration checks verified
 - `74669a6` — docs: update changelog [skip ci]
-- `ca4397c` — phase 00 define platform migration schema
-- `183a3a6` — docs: update changelog [skip ci]
