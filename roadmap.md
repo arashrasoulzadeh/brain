@@ -291,7 +291,7 @@ Goal: provide project-scoped identity, PostgreSQL APIs, files, subscriptions, an
 
 - [x] Add one-time invitation links.
 - [x] Add invitation codes.
-- [ ] Reject invitation replay.
+- [x] Reject invitation replay.
 - [ ] Reject expired invitations.
 - [ ] Add guest accounts.
 - [ ] Add guest upgrade without changing user ID.
