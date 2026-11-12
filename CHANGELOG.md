@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `0f5daa3` — phase 05 pin plugin versions for active work
+- `aed4619` — docs: update changelog [skip ci]
 - `95e9851` — phase 05 add controlled plugin drain deadline
 - `c268525` — docs: update changelog [skip ci]
 - `2d79239` — phase 05 add plugin drain and rollback
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `1eb421c` — phase 01 add versioned worker contract
 - `1edb4ec` — docs: update changelog [skip ci]
 - `f7cc970` — roadmap mark worker failure bounds verified
-- `9dec1aa` — docs: update changelog [skip ci]
-- `01f6320` — phase 01 bound unavailable worker errors
