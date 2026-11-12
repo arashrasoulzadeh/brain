@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `18df8c9` — 2026-11-13 02:15:29 +0330 — docs mark local analytics sink complete
+- `bb83013` — 2026-11-12 22:45:30 +0000 — docs: update changelog [skip ci]
 - `befdd67` — 2026-11-13 02:15:18 +0330 — phase 01 capture analytics events in local sink
 - `b8746a4` — 2026-11-12 22:45:08 +0000 — docs: update changelog [skip ci]
 - `b6f15e9` — 2026-11-13 02:14:50 +0330 — docs mark analytics field validation complete
