@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `2d1ba09` — 2026-11-13 01:58:02 +0330 — phase 01 implement dashboard plugin enablement
+- `729d11c` — 2026-11-12 22:27:26 +0000 — docs: update changelog [skip ci]
 - `1256bc7` — 2026-11-13 01:57:12 +0330 — docs mark dashboard grant approval complete
 - `9e07bec` — 2026-11-12 22:26:11 +0000 — docs: update changelog [skip ci]
 - `2382dc7` — 2026-11-13 01:55:56 +0330 — style format broker for ci
