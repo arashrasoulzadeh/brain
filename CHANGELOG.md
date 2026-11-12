@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `b03dd45` — 2026-11-13 02:32:18 +0330 — docs mark disabled matchmaking scopes complete
+- `7646454` — 2026-11-12 23:02:19 +0000 — docs: update changelog [skip ci]
 - `07ed02b` — 2026-11-13 02:32:07 +0330 — phase 02 reject disabled matchmaking scopes
 - `73e93c8` — 2026-11-12 23:01:52 +0000 — docs: update changelog [skip ci]
 - `bf0309a` — 2026-11-13 02:31:40 +0330 — docs mark compatible matchmaking complete
