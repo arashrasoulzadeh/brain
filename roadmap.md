@@ -263,7 +263,7 @@ Goal: complete a private multiplayer match with matchmaking, realtime updates, a
 - [x] Reject one denied plugin action.
 - [x] Persist one durable result.
 - [x] Exercise private rooms.
-- [ ] Exercise FIFO matchmaking.
+- [x] Exercise FIFO matchmaking.
 - [ ] Record the eight-player test result.
 
 ## Phase 03 — App data and authentication
