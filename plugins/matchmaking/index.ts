@@ -22,6 +22,21 @@ export class MatchmakingConfigs {
   }
 }
 
+export type MatchmakingTicket = { id: string; projectId: string; scope: string; playerId: string; createdAt: number };
+
+export class MatchmakingQueue {
+  private sequence = 0;
+  private readonly queues = new Map<string, MatchmakingTicket[]>();
+  enqueue(projectId: string, scope: string, playerId: string, now = Date.now()): MatchmakingTicket {
+    if (!projectId || !scope || !playerId) throw new Error("invalid matchmaking ticket");
+    const key = `${projectId}:${scope}`;
+    const ticket = { id: `${key}:ticket-${++this.sequence}`, projectId, scope, playerId, createdAt: now };
+    this.queues.set(key, [...(this.queues.get(key) ?? []), ticket]);
+    return { ...ticket };
+  }
+  peek(projectId: string, scope: string): readonly MatchmakingTicket[] { return [...(this.queues.get(`${projectId}:${scope}`) ?? [])]; }
+}
+
 export function matchmakingRequest(projectId: string, pluginId: string, version: string, operation: "matchmaking.queue" | "matchmaking.cancel" | "matchmaking.status" | "matchmaking.assign", config: string, payload: unknown = {}) {
   return request(`matchmaking-${operation}-${projectId}-${config}`, { protocol: 1, projectId, pluginId, version, operation, payload: { config, ...(payload as Record<string, unknown>) } });
 }
