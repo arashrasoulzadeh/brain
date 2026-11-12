@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `f4736b5` — phase 03 add typescript files plugin
+- `28c9e8a` — docs: update changelog [skip ci]
 - `20b5766` — phase 03 add typescript tables plugin
 - `4ea9588` — docs: update changelog [skip ci]
 - `4a76fd1` — phase 03 add typescript auth plugin
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `daf456e` — docs: update changelog [skip ci]
 - `27618bf` — roadmap mark dashboard cli bootstrap verified
 - `019012d` — docs: update changelog [skip ci]
-- `26ffb44` — phase 01 bootstrap dashboard plugin from cli
-- `34cd635` — phase 01 add dashboard plugin manifest
