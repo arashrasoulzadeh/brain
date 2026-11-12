@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `217909e` — 2026-11-13 03:07:48 +0330 — phase 03 add local test delivery inbox
+- `4bf8496` — 2026-11-12 23:37:23 +0000 — docs: update changelog [skip ci]
 - `302f569` — 2026-11-13 03:07:10 +0330 — phase 03 reject oidc callback state mismatch
 - `7b02cf9` — 2026-11-12 23:36:42 +0000 — docs: update changelog [skip ci]
 - `6cf21df` — 2026-11-13 03:06:30 +0330 — phase 03 add pkce verification
