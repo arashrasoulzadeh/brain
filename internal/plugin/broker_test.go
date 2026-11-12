@@ -71,3 +71,34 @@ func TestBrokerIssuesBoundedCredential(t *testing.T) {
 		t.Fatalf("credential = %#v, %v", credential, err)
 	}
 }
+
+func TestBrokerRechecksGrantAtCommit(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	m := plugin.Manifest{ID: "plugin", Version: "1", HostAPI: 1, Capabilities: []string{"write"}}
+	if err := r.Register(m); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Install("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Grant("dev", m.ID, m.Version, "write"); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.SetReadiness(m.ID, m.Version, true); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Enable("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	b := plugin.Broker{Registry: r, ActorAllows: func(string, string, string) bool { return true }}
+	call := plugin.HostCall{ProjectID: "dev", ActorID: "a", PluginID: m.ID, Version: m.Version, Capability: "write", ExpiresAt: time.Unix(100, 0)}
+	if err := b.Authorize(call, time.Unix(99, 0)); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Revoke("dev", m.ID, m.Version, "write"); err != nil {
+		t.Fatal(err)
+	}
+	if !errors.Is(b.Commit(call, time.Unix(99, 0)), plugin.ErrGrantDenied) {
+		t.Fatal("revoked grant committed")
+	}
+}

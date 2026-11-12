@@ -202,6 +202,19 @@ func (r *Registry) Grant(projectID, id, version, capability string) error {
 	return ErrGrantDenied
 }
 
+func (r *Registry) Revoke(projectID, id, version, capability string) error {
+	key := projectID + ":" + id + "@" + version
+	i, ok := r.installations[key]
+	if !ok {
+		return ErrNotInstalled
+	}
+	delete(i.Grants, capability)
+	delete(i.Resources, capability)
+	r.installations[key] = i
+	r.audit = append(r.audit, AuditEvent{Action: "revoke", ProjectID: projectID, PluginID: id, Version: version, Detail: capability})
+	return nil
+}
+
 func (r *Registry) Enable(projectID, id, version string) error {
 	key := projectID + ":" + id + "@" + version
 	i, ok := r.installations[key]

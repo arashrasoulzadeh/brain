@@ -60,3 +60,7 @@ func (b Broker) Authorize(call HostCall, now time.Time) error {
 	}
 	return b.Registry.Authorize(call.ProjectID, call.PluginID, call.Version, call.Capability)
 }
+
+func (b Broker) Commit(call HostCall, now time.Time) error {
+	return b.Authorize(call, now)
+}
