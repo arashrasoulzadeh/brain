@@ -1,0 +1,16 @@
+id: arena
+version: 0.1.0
+host_api: 1
+entrypoint: src/index.ts
+dependencies:
+  - rooms@0.1.0
+  - matchmaking@0.1.0
+capabilities:
+  - arena.start
+  - arena.input
+  - arena.snapshot
+  - arena.result
+extension_points: []
+config_schema:
+  tickRate: int
+  maxPlayers: int
