@@ -24,3 +24,10 @@ func TestExternalWorkerHandshakeRejectsWrongIdentity(t *testing.T) {
 		t.Fatal("wrong service accepted")
 	}
 }
+
+func TestExternalHandshakeAuthenticatesSignature(t *testing.T) {
+	h := plugin.Handshake{Protocol: 1, ProjectID: "dev", PluginID: "arena", Version: "1", ServiceID: "arena-dev", Signature: "bad"}
+	if plugin.AuthenticateHandshake(h, "secret") {
+		t.Fatal("invalid signature accepted")
+	}
+}
