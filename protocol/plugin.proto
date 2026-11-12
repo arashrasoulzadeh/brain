@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package brain.plugin.v1;
+
+message WorkerRequest {
+  int32 protocol = 1;
+  string request_id = 2;
+  string project_id = 3;
+  string plugin_id = 4;
+  string version = 5;
+  string operation = 6;
+  bytes payload = 7;
+}
+
+message WorkerResponse {
+  int32 protocol = 1;
+  string request_id = 2;
+  bool success = 3;
+  bytes payload = 4;
+  string error_code = 5;
+}
+
+service PluginWorker {
+  rpc Invoke(WorkerRequest) returns (WorkerResponse);
+}

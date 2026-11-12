@@ -11,6 +11,8 @@ Brain uses a host-owned, language-neutral plugin contract.
 
 The transport is replaceable; the authorization, project scope, lifecycle revision, plugin version, request ID, and error model are not.
 
+The external contract is defined in `protocol/plugin.proto`. External workers must use TLS 1.3 or newer and mutual certificate verification.
+
 ## Request flow
 
 1. The Go host resolves project and actor identity.
