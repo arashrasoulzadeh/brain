@@ -242,7 +242,7 @@ Goal: complete a private multiplayer match with matchmaking, realtime updates, a
 - [x] Add bounded send queues.
 - [x] Broadcast authorized snapshots.
 - [x] Reject unauthorized commands.
-- [ ] Reconnect an existing player.
+- [x] Reconnect an existing player.
 - [ ] Replay missed durable events.
 
 ### Arena and Eye analytics

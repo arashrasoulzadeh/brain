@@ -22,6 +22,8 @@ if (rooms.create("dev", "room-new", 4).state !== "waiting") throw new Error("roo
 try { rooms.create("dev", "room-new", 4); throw new Error("duplicate room accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "room already exists") throw error; }
 try { rooms.get("prod", "room-new"); throw new Error("cross-project room lookup accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "room not found") throw error; }
 rooms.join("dev", "room-new", "user-1", 0);
+if (rooms.reconnect("dev", "room-new", "user-1").slots.length !== 1) throw new Error("existing player did not reconnect");
+try { rooms.reconnect("dev", "room-new", "user-2"); throw new Error("unknown player reconnected"); } catch (error) { if (!(error instanceof Error) || error.message !== "player not in room") throw error; }
 if (authorizedRoomSnapshot(rooms.get("dev", "room-new"), "dev", "user-1").projectId !== "dev") throw new Error("authorized snapshot missing");
 if (!authorizeRoomCommand(rooms.get("dev", "room-new"), "dev", "user-1", "room.action")) throw new Error("authorized command rejected");
 try { authorizeRoomCommand(rooms.get("dev", "room-new"), "dev", "user-2", "room.action"); throw new Error("unauthorized command accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "room membership required") throw error; }

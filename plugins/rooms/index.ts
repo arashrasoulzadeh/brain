@@ -67,6 +67,11 @@ export class RoomDirectory {
     const room = this.rooms.get(projectRoomID(projectId, roomId));
     return room?.slots.some((player) => player.playerId === playerId) ?? false;
   }
+  reconnect(projectId: string, roomId: string, playerId: string): Room {
+    const room = this.get(projectId, roomId);
+    if (!room.slots.some((player) => player.playerId === playerId)) throw new Error("player not in room");
+    return room;
+  }
   join(projectId: string, roomId: string, playerId: string, slot: number): Room {
     const key = projectRoomID(projectId, roomId);
     const room = this.rooms.get(key);
