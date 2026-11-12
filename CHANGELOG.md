@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `dadcea3` — 2026-11-13 03:20:38 +0330 — phase 03 bind transaction caller context
+- `58b443c` — 2026-11-12 23:50:02 +0000 — docs: update changelog [skip ci]
 - `d5715ae` — 2026-11-13 03:19:50 +0330 — phase 03 verify separate database roles
 - `c22b58f` — 2026-11-12 23:49:32 +0000 — docs: update changelog [skip ci]
 - `4d05c30` — 2026-11-13 03:19:20 +0330 — phase 03 add scoped database role names
