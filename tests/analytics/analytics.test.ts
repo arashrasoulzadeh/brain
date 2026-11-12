@@ -1,4 +1,4 @@
-import { captureRequest, validateEvent } from "../../plugins/analytics/index.js";
+import { capture, captureRequest, validateEvent, type AnalyticsEvent } from "../../plugins/analytics/index.js";
 
 validateEvent({ projectId: "dev", name: "room.joined", fields: { roomId: "room-1", players: 2 } });
 const request = captureRequest("dev", "analytics", "0.1.0", { name: "room.joined", fields: { roomId: "room-1" } });
@@ -6,3 +6,6 @@ if (request.params.operation !== "analytics.capture") throw new Error("analytics
 try { validateEvent({ projectId: "dev", name: "room joined", fields: {} }); throw new Error("invalid event name accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid event name") throw error; }
 try { validateEvent({ projectId: "dev", name: "room.joined", fields: { "bad-key": "x" } }); throw new Error("invalid event field accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid event fields") throw error; }
 try { validateEvent({ projectId: "dev", name: "room.joined", fields: { secret: "x" } }, ["roomId", "players"]); throw new Error("unapproved event field accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "unapproved event field") throw error; }
+const events: AnalyticsEvent[] = [];
+const result = capture({ projectId: "dev", name: "room.joined", fields: { roomId: "room-1" } }, { append: (event) => events.push(event) }, ["roomId"]);
+if (!result.captured || events.length !== 1 || events[0].projectId !== "dev") throw new Error("local event sink capture failed");

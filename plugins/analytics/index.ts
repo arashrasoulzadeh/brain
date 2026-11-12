@@ -6,6 +6,14 @@ export type AnalyticsEvent = {
   fields: Record<string, string | number | boolean>;
 };
 
+export type EventSink = { append(event: AnalyticsEvent): void };
+
+export function capture(event: AnalyticsEvent, sink: EventSink, allowedFields: readonly string[] = []) {
+  validateEvent(event, allowedFields);
+  sink.append({ projectId: event.projectId, name: event.name, fields: { ...event.fields } });
+  return { captured: true, name: event.name };
+}
+
 export function captureRequest(projectId: string, pluginId: string, version: string, event: Omit<AnalyticsEvent, "projectId">) {
   validateEvent({ projectId, ...event });
   return request(`analytics-capture-${projectId}-${event.name}`, { protocol: 1, projectId, pluginId, version, operation: "analytics.capture", payload: event });
