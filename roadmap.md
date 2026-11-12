@@ -207,7 +207,7 @@ Goal: complete a private multiplayer match with matchmaking, realtime updates, a
 - [x] Define project-scoped room IDs.
 - [x] Define player slots and membership.
 - [x] Define room lifecycle states.
-- [ ] Define durable match results.
+- [x] Define durable match results.
 
 ### Private rooms
 
