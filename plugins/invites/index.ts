@@ -1,6 +1,6 @@
 import { request } from "../sdk-typescript/src/index.js";
 
-export type Invite = { id: string; projectId: string; roomId: string; targetPlayerId: string; expiresAt: number; used: boolean };
+export type Invite = { id: string; code: string; projectId: string; roomId: string; targetPlayerId: string; expiresAt: number; used: boolean };
 
 export class InviteDirectory {
   private counter = 0;
@@ -8,7 +8,7 @@ export class InviteDirectory {
   create(projectId: string, roomId: string, targetPlayerId: string, ttlSeconds: number, now = Date.now()): Invite {
     if (!projectId || !roomId || !targetPlayerId || ttlSeconds <= 0) throw new Error("invalid invite");
     const id = `${projectId}:invite-${++this.counter}`;
-    const invite = { id, projectId, roomId, targetPlayerId, expiresAt: now + ttlSeconds * 1000, used: false };
+    const invite = { id, code: `INVITE-${projectId}-${++this.counter}`, projectId, roomId, targetPlayerId, expiresAt: now + ttlSeconds * 1000, used: false };
     this.invites.set(id, invite);
     return { ...invite };
   }
@@ -18,6 +18,12 @@ export class InviteDirectory {
     if (!invite || invite.projectId !== projectId || invite.targetPlayerId !== playerId || invite.used || invite.expiresAt <= now) throw new Error("invite unavailable");
     invite.used = true;
     return { ...invite };
+  }
+
+  acceptCode(code: string, projectId: string, playerId: string, now = Date.now()): Invite {
+    const invite = [...this.invites.values()].find((candidate) => candidate.code === code);
+    if (!invite) throw new Error("invite unavailable");
+    return this.accept(invite.id, projectId, playerId, now);
   }
 }
 
