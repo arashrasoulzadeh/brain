@@ -174,7 +174,7 @@ Goal: create isolated projects and run one plugin through both supported worker 
 
 ### Dashboard and first event
 
-- [ ] Bootstrap the dashboard through the CLI.
+- [x] Bootstrap the dashboard through the CLI.
 - [ ] Add project creation form.
 - [ ] Add plugin installation form.
 - [ ] Add grant approval form.
