@@ -235,7 +235,7 @@ Goal: complete a private multiplayer match with matchmaking, realtime updates, a
 ### Realtime gameplay
 
 - [x] Add a WebSocket connection endpoint.
-- [ ] Issue single-use connection tickets.
+- [x] Issue single-use connection tickets.
 - [ ] Validate origin and project.
 - [ ] Add heartbeat handling.
 - [ ] Add bounded frame sizes.

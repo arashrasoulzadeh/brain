@@ -1,4 +1,5 @@
 import { request } from "../sdk-typescript/src/index.js";
+import { randomUUID } from "node:crypto";
 
 export function projectRoomID(projectId: string, roomId: string): string {
   if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(projectId) || !/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(roomId)) throw new Error("invalid project room id");
@@ -10,6 +11,24 @@ export type PlayerSlot = { playerId: string; slot: number };
 export type RoomState = "waiting" | "matching" | "active" | "finished" | "closed";
 
 export type Room = { id: string; projectId: string; state: RoomState; maxPlayers: number; slots: PlayerSlot[] };
+export type ConnectionTicket = { token: string; projectId: string; roomId: string; playerId: string; expiresAt: number; used: boolean };
+
+export class ConnectionTickets {
+  private readonly tickets = new Map<string, ConnectionTicket>();
+  issue(projectId: string, roomId: string, playerId: string, now: number, ttlSeconds: number): ConnectionTicket {
+    projectRoomID(projectId, roomId);
+    if (!playerId.trim() || !Number.isFinite(now) || !Number.isFinite(ttlSeconds) || ttlSeconds <= 0) throw new Error("invalid connection ticket");
+    const ticket = { token: randomUUID(), projectId, roomId, playerId, expiresAt: now + ttlSeconds * 1000, used: false };
+    this.tickets.set(ticket.token, ticket);
+    return { ...ticket };
+  }
+  consume(token: string, projectId: string, roomId: string, playerId: string, now: number): boolean {
+    const ticket = this.tickets.get(token);
+    if (!ticket || ticket.used || ticket.expiresAt <= now || ticket.projectId !== projectId || ticket.roomId !== roomId || ticket.playerId !== playerId) return false;
+    ticket.used = true;
+    return true;
+  }
+}
 export type RoomEvent = { type: "player.joined" | "player.left"; projectId: string; roomId: string; playerId: string; sequence: number };
 export type MembershipStore = { save(roomId: string, slots: readonly PlayerSlot[]): void };
 
