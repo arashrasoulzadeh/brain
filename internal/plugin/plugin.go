@@ -3,6 +3,7 @@ package plugin
 import (
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -82,6 +83,11 @@ func (r *Registry) Register(m Manifest) error {
 			return ErrInvalidManifest
 		}
 		return ErrIncompatible
+	}
+	for _, extensionPoint := range m.ExtensionPoints {
+		if strings.TrimSpace(extensionPoint) == "" {
+			return ErrInvalidManifest
+		}
 	}
 	for _, dependency := range m.Dependencies {
 		if _, ok := r.registered[dependency]; !ok {

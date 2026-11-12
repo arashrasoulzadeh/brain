@@ -99,6 +99,21 @@ func TestPluginRegistrationRejectsIncompleteManifest(t *testing.T) {
 	}
 }
 
+func TestPluginRegistrationAcceptsDeclaredExtensionPoints(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	m := plugin.Manifest{ID: "auth", Version: "1.0.0", HostAPI: 1, ExtensionPoints: []string{"auth.provider"}}
+	if err := r.Register(m); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestPluginRegistrationRejectsBlankExtensionPoint(t *testing.T) {
+	m := plugin.Manifest{ID: "auth", Version: "1.0.0", HostAPI: 1, ExtensionPoints: []string{""}}
+	if !errors.Is(plugin.NewRegistry(1).Register(m), plugin.ErrInvalidManifest) {
+		t.Fatal("blank extension point was accepted")
+	}
+}
+
 func TestInstallationConfigurationUsesManifestSchema(t *testing.T) {
 	r := plugin.NewRegistry(1)
 	m := plugin.Manifest{ID: "dashboard", Version: "1.0.0", HostAPI: 1, ConfigSchema: map[string]string{"label": "string", "enabled": "bool"}}
