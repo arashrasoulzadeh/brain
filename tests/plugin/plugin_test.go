@@ -200,4 +200,13 @@ func TestPromotionRoutesNewWorkWithoutChangingPinnedVersion(t *testing.T) {
 	if got, _ := r.ActiveVersion("dev", "rooms"); got != "2.0.0" {
 		t.Fatalf("active version = %q", got)
 	}
+	if err := r.Drain("dev", "rooms", "1.0.0"); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Rollback("dev", "rooms", "1.0.0"); err != nil {
+		t.Fatal(err)
+	}
+	if got, _ := r.ActiveVersion("dev", "rooms"); got != "1.0.0" {
+		t.Fatalf("rollback version = %q", got)
+	}
 }

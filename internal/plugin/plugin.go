@@ -39,6 +39,7 @@ type Installation struct {
 	Grants    map[string]bool
 	Config    map[string]any
 	Resources map[string]map[string]bool
+	Draining  bool
 }
 
 type Registry struct {
@@ -247,6 +248,26 @@ func (r *Registry) Promote(projectID, id, version string) error {
 	}
 	r.active[projectID+":"+id] = version
 	r.audit = append(r.audit, AuditEvent{Action: "promote", ProjectID: projectID, PluginID: id, Version: version})
+	return nil
+}
+
+func (r *Registry) Drain(projectID, id, version string) error {
+	key := projectID + ":" + id + "@" + version
+	i, ok := r.installations[key]
+	if !ok {
+		return ErrNotInstalled
+	}
+	i.Draining = true
+	r.installations[key] = i
+	r.audit = append(r.audit, AuditEvent{Action: "drain", ProjectID: projectID, PluginID: id, Version: version})
+	return nil
+}
+
+func (r *Registry) Rollback(projectID, id, version string) error {
+	if err := r.Promote(projectID, id, version); err != nil {
+		return err
+	}
+	r.audit = append(r.audit, AuditEvent{Action: "rollback", ProjectID: projectID, PluginID: id, Version: version})
 	return nil
 }
 
