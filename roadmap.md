@@ -259,7 +259,7 @@ Goal: complete a private multiplayer match with matchmaking, realtime updates, a
 ### Phase 02 gate
 
 - [x] Start a match in two browsers.
-- [ ] Recover one dropped connection.
+- [x] Recover one dropped connection.
 - [ ] Reject one denied plugin action.
 - [ ] Persist one durable result.
 - [ ] Exercise private rooms.
