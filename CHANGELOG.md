@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `121f52c` — arch make all plugins typescript
+- `d9d397a` — docs: update changelog [skip ci]
 - `f3849dc` — roadmap mark dashboard plugin forms verified
 - `5cec197` — docs: update changelog [skip ci]
 - `4c48b07` — phase 01 add dashboard plugin forms
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `40ba61b` — docs: update changelog [skip ci]
 - `d9a43d3` — phase 01 validate external worker handshakes
 - `2f3fa43` — docs: update changelog [skip ci]
-- `cbd44f2` — roadmap mark bundled worker fixture verified
-- `c74474a` — docs: update changelog [skip ci]
