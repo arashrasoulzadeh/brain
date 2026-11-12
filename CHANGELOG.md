@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `2dc7ac4` — phase 01 complete dashboard typescript contract
+- `16febf3` — docs: update changelog [skip ci]
 - `e18f338` — arch dynamically discover plugin manifests
 - `c70566e` — docs: update changelog [skip ci]
 - `7d1051f` — arch add typescript plugin worker runner
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `f5d44a8` — docs: update changelog [skip ci]
 - `5c137de` — phase 01 run contract through external worker
 - `183ba13` — docs: update changelog [skip ci]
-- `cc1027b` — roadmap mark external worker auth verified
-- `23d487f` — docs: update changelog [skip ci]
