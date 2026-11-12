@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `628ac82` — 2026-11-13 01:52:53 +0330 — docs mark dashboard cli bootstrap complete
+- `5cf796d` — 2026-11-12 22:22:34 +0000 — docs: update changelog [skip ci]
 - `522752e` — 2026-11-13 01:52:18 +0330 — phase 01 bootstrap dashboard plugin from cli
 - `c5e735c` — 2026-11-12 22:21:57 +0000 — docs: update changelog [skip ci]
 - `02f66a5` — 2026-11-13 01:51:44 +0330 — ci fix complete timestamped changelog workflow
