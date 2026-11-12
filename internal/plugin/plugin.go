@@ -18,6 +18,7 @@ var (
 	ErrInvalidManifest   = errors.New("invalid plugin manifest")
 	ErrInvalidConfig     = errors.New("invalid plugin configuration")
 	ErrNotReady          = errors.New("plugin worker not ready")
+	ErrVersionReferenced = errors.New("plugin version still referenced")
 )
 
 type Manifest struct {
@@ -320,6 +321,24 @@ func (r *Registry) PinnedVersion(workID string) (string, bool) {
 		}
 	}
 	return "", false
+}
+
+func (r *Registry) Remove(projectID, id, version string) error {
+	key := projectID + ":" + id + "@" + version
+	if _, ok := r.installations[key]; !ok {
+		return ErrNotInstalled
+	}
+	for _, pinned := range r.pins {
+		if pinned == key {
+			return ErrVersionReferenced
+		}
+	}
+	if r.active[projectID+":"+id] == version {
+		return ErrVersionReferenced
+	}
+	delete(r.installations, key)
+	r.audit = append(r.audit, AuditEvent{Action: "remove", ProjectID: projectID, PluginID: id, Version: version})
+	return nil
 }
 
 func (r *Registry) Audit() []AuditEvent { return append([]AuditEvent(nil), r.audit...) }

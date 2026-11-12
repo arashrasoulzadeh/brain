@@ -229,4 +229,10 @@ func TestPromotionRoutesNewWorkWithoutChangingPinnedVersion(t *testing.T) {
 	if got, _ := r.PinnedVersion("room-1"); got != "1.0.0" {
 		t.Fatalf("pinned version = %q", got)
 	}
+	if !errors.Is(r.Remove("dev", "rooms", "1.0.0"), plugin.ErrVersionReferenced) {
+		t.Fatal("referenced version was removed")
+	}
+	if !errors.Is(r.Remove("dev", "rooms", "2.0.0"), plugin.ErrVersionReferenced) {
+		t.Fatal("active version was removed")
+	}
 }
