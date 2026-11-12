@@ -3,53 +3,208 @@
 Automatically generated from commits on main.
 
 ## Unreleased
-- `c559069` — phase 01 reject user operator actions
-- `1863c59` — docs: update changelog [skip ci]
-- `7f31707` — chore ignore typescript dependencies
-- `da06adb` — docs: update changelog [skip ci]
-- `e431f83` — phase 02 implement project scoped auth plugin
-- `f9dc6be` — docs: update changelog [skip ci]
-- `e2a3227` — phase 02 add typescript arena plugin
-- `55d3012` — docs: update changelog [skip ci]
-- `4ca8b0a` — phase 02 add typescript matchmaking plugin
-- `b7cf97b` — docs: update changelog [skip ci]
-- `2c19a9f` — phase 02 add typescript invites plugin
-- `86c9fde` — docs: update changelog [skip ci]
-- `c3afb5e` — phase 02 add typescript rooms plugin
-- `24b9645` — docs: update changelog [skip ci]
-- `aa918b0` — phase 03 add typescript subscriptions plugin
-- `3671048` — docs: update changelog [skip ci]
-- `f4736b5` — phase 03 add typescript files plugin
-- `28c9e8a` — docs: update changelog [skip ci]
-- `20b5766` — phase 03 add typescript tables plugin
-- `4ea9588` — docs: update changelog [skip ci]
-- `4a76fd1` — phase 03 add typescript auth plugin
-- `23621b0` — docs: update changelog [skip ci]
-- `a1e6946` — refactor dashboard to generic plugin operations
-- `cd68ff7` — docs: update changelog [skip ci]
-- `2dc7ac4` — phase 01 complete dashboard typescript contract
-- `16febf3` — docs: update changelog [skip ci]
-- `e18f338` — arch dynamically discover plugin manifests
-- `c70566e` — docs: update changelog [skip ci]
-- `7d1051f` — arch add typescript plugin worker runner
-- `7098378` — docs: update changelog [skip ci]
-- `f0ea324` — phase 01 add typescript dashboard admin requests
-- `8cb585c` — docs: update changelog [skip ci]
-- `9f3ebc6` — roadmap align dashboard with typescript migration
-- `6778558` — docs: update changelog [skip ci]
-- `121f52c` — arch make all plugins typescript
-- `d9d397a` — docs: update changelog [skip ci]
-- `f3849dc` — roadmap mark dashboard plugin forms verified
-- `5cec197` — docs: update changelog [skip ci]
-- `4c48b07` — phase 01 add dashboard plugin forms
-- `907ccb0` — docs: update changelog [skip ci]
-- `839db64` — roadmap mark dashboard project form verified
-- `80a5369` — docs: update changelog [skip ci]
-- `fe19f48` — phase 01 add dashboard project form
-- `4cbcb9d` — docs: update changelog [skip ci]
-- `846904d` — phase 01 add dashboard project admin actions
-- `6760425` — docs: update changelog [skip ci]
-- `91f2fdd` — phase 05 add dashboard plugin lifecycle actions
-- `d4077c1` — docs: update changelog [skip ci]
-- `376a239` — phase 05 guard referenced plugin removal
-- `962995c` — docs: update changelog [skip ci]
+- `02f66a5` — 2026-11-13 01:51:44 +0330 — ci fix complete timestamped changelog workflow
+- `45ac4bb` — 2026-11-13 01:50:22 +0330 — docs mark verified phase 01 checks
+- `a23fa6e` — 2026-11-13 01:49:57 +0330 — phase 01 enforce matchmaking broker scope
+- `56000a0` — 2026-11-13 01:49:20 +0330 — phase 01 store approved plugin artifacts
+- `b44f980` — 2026-11-13 01:48:48 +0330 — phase 01 validate plugin extension points
+- `880d9c8` — 2026-11-13 01:48:07 +0330 — docs generate complete dated changelog history
+- `0b7b170` — 2026-11-13 01:47:39 +0330 — docs add commit timestamps to changelog law
+- `4915751` — 2026-11-13 01:46:51 +0330 — phase 01 audit operator sign in and recovery
+- `fcf021b` — 2026-11-12 22:16:20 +0000 — docs: update changelog [skip ci]
+- `c559069` — 2026-11-13 01:45:57 +0330 — phase 01 reject user operator actions
+- `1863c59` — 2026-11-12 22:15:13 +0000 — docs: update changelog [skip ci]
+- `7f31707` — 2026-11-13 01:44:55 +0330 — chore ignore typescript dependencies
+- `da06adb` — 2026-11-12 22:14:48 +0000 — docs: update changelog [skip ci]
+- `e431f83` — 2026-11-13 01:44:31 +0330 — phase 02 implement project scoped auth plugin
+- `f9dc6be` — 2026-11-12 22:10:36 +0000 — docs: update changelog [skip ci]
+- `e2a3227` — 2026-11-13 01:40:22 +0330 — phase 02 add typescript arena plugin
+- `55d3012` — 2026-11-12 22:10:06 +0000 — docs: update changelog [skip ci]
+- `4ca8b0a` — 2026-11-13 01:39:53 +0330 — phase 02 add typescript matchmaking plugin
+- `b7cf97b` — 2026-11-12 22:09:38 +0000 — docs: update changelog [skip ci]
+- `2c19a9f` — 2026-11-13 01:39:24 +0330 — phase 02 add typescript invites plugin
+- `86c9fde` — 2026-11-12 22:09:12 +0000 — docs: update changelog [skip ci]
+- `c3afb5e` — 2026-11-13 01:38:56 +0330 — phase 02 add typescript rooms plugin
+- `24b9645` — 2026-11-12 22:08:38 +0000 — docs: update changelog [skip ci]
+- `aa918b0` — 2026-11-13 01:38:25 +0330 — phase 03 add typescript subscriptions plugin
+- `3671048` — 2026-11-12 22:08:09 +0000 — docs: update changelog [skip ci]
+- `f4736b5` — 2026-11-13 01:37:57 +0330 — phase 03 add typescript files plugin
+- `28c9e8a` — 2026-11-12 22:07:41 +0000 — docs: update changelog [skip ci]
+- `20b5766` — 2026-11-13 01:37:28 +0330 — phase 03 add typescript tables plugin
+- `4ea9588` — 2026-11-12 22:06:44 +0000 — docs: update changelog [skip ci]
+- `4a76fd1` — 2026-11-13 01:36:32 +0330 — phase 03 add typescript auth plugin
+- `23621b0` — 2026-11-12 22:06:14 +0000 — docs: update changelog [skip ci]
+- `a1e6946` — 2026-11-13 01:36:02 +0330 — refactor dashboard to generic plugin operations
+- `cd68ff7` — 2026-11-12 22:05:41 +0000 — docs: update changelog [skip ci]
+- `2dc7ac4` — 2026-11-13 01:35:27 +0330 — phase 01 complete dashboard typescript contract
+- `16febf3` — 2026-11-12 22:05:09 +0000 — docs: update changelog [skip ci]
+- `e18f338` — 2026-11-13 01:34:55 +0330 — arch dynamically discover plugin manifests
+- `c70566e` — 2026-11-12 22:04:26 +0000 — docs: update changelog [skip ci]
+- `7d1051f` — 2026-11-13 01:34:12 +0330 — arch add typescript plugin worker runner
+- `7098378` — 2026-11-12 22:03:50 +0000 — docs: update changelog [skip ci]
+- `f0ea324` — 2026-11-13 01:33:38 +0330 — phase 01 add typescript dashboard admin requests
+- `8cb585c` — 2026-11-12 22:03:22 +0000 — docs: update changelog [skip ci]
+- `9f3ebc6` — 2026-11-13 01:33:09 +0330 — roadmap align dashboard with typescript migration
+- `6778558` — 2026-11-12 22:03:05 +0000 — docs: update changelog [skip ci]
+- `121f52c` — 2026-11-13 01:32:52 +0330 — arch make all plugins typescript
+- `d9d397a` — 2026-11-12 22:02:13 +0000 — docs: update changelog [skip ci]
+- `f3849dc` — 2026-11-13 01:32:00 +0330 — roadmap mark dashboard plugin forms verified
+- `5cec197` — 2026-11-12 22:02:00 +0000 — docs: update changelog [skip ci]
+- `4c48b07` — 2026-11-13 01:31:46 +0330 — phase 01 add dashboard plugin forms
+- `907ccb0` — 2026-11-12 22:01:18 +0000 — docs: update changelog [skip ci]
+- `839db64` — 2026-11-13 01:30:58 +0330 — roadmap mark dashboard project form verified
+- `80a5369` — 2026-11-12 22:00:58 +0000 — docs: update changelog [skip ci]
+- `fe19f48` — 2026-11-13 01:30:43 +0330 — phase 01 add dashboard project form
+- `4cbcb9d` — 2026-11-12 21:59:41 +0000 — docs: update changelog [skip ci]
+- `846904d` — 2026-11-13 01:29:25 +0330 — phase 01 add dashboard project admin actions
+- `6760425` — 2026-11-12 21:59:01 +0000 — docs: update changelog [skip ci]
+- `91f2fdd` — 2026-11-13 01:28:46 +0330 — phase 05 add dashboard plugin lifecycle actions
+- `d4077c1` — 2026-11-12 21:58:28 +0000 — docs: update changelog [skip ci]
+- `376a239` — 2026-11-13 01:28:11 +0330 — phase 05 guard referenced plugin removal
+- `962995c` — 2026-11-12 21:57:46 +0000 — docs: update changelog [skip ci]
+- `0f5daa3` — 2026-11-13 01:27:31 +0330 — phase 05 pin plugin versions for active work
+- `aed4619` — 2026-11-12 21:57:11 +0000 — docs: update changelog [skip ci]
+- `95e9851` — 2026-11-13 01:26:55 +0330 — phase 05 add controlled plugin drain deadline
+- `c268525` — 2026-11-12 21:55:53 +0000 — docs: update changelog [skip ci]
+- `2d79239` — 2026-11-13 01:25:39 +0330 — phase 05 add plugin drain and rollback
+- `a084b9a` — 2026-11-12 21:55:24 +0000 — docs: update changelog [skip ci]
+- `39fb55f` — 2026-11-13 01:25:09 +0330 — arch add external grpc mtls contract
+- `9fdc07b` — 2026-11-12 21:54:37 +0000 — docs: update changelog [skip ci]
+- `de567eb` — 2026-11-13 01:24:20 +0330 — phase 05 add plugin version promotion routing
+- `402f2fd` — 2026-11-12 21:54:04 +0000 — docs: update changelog [skip ci]
+- `bce5756` — 2026-11-13 01:23:43 +0330 — arch add typescript sdk and unix transport
+- `2ee9b37` — 2026-11-12 21:52:30 +0000 — docs: update changelog [skip ci]
+- `595eb06` — 2026-11-13 01:22:15 +0330 — arch add language neutral plugin rpc contract
+- `daf456e` — 2026-11-12 21:46:03 +0000 — docs: update changelog [skip ci]
+- `27618bf` — 2026-11-13 01:15:43 +0330 — roadmap mark dashboard cli bootstrap verified
+- `019012d` — 2026-11-12 21:45:43 +0000 — docs: update changelog [skip ci]
+- `26ffb44` — 2026-11-13 01:15:29 +0330 — phase 01 bootstrap dashboard plugin from cli
+- `34cd635` — 2026-11-13 01:14:56 +0330 — phase 01 add dashboard plugin manifest
+- `363efea` — 2026-11-13 01:14:16 +0330 — test move all tests into tests tree
+- `cb13964` — 2026-11-12 21:43:34 +0000 — docs: update changelog [skip ci]
+- `1fe937f` — 2026-11-13 01:13:20 +0330 — roadmap mark external worker fixture verified
+- `f5d44a8` — 2026-11-12 21:43:16 +0000 — docs: update changelog [skip ci]
+- `5c137de` — 2026-11-13 01:13:00 +0330 — phase 01 run contract through external worker
+- `183ba13` — 2026-11-12 21:42:48 +0000 — docs: update changelog [skip ci]
+- `cc1027b` — 2026-11-13 01:12:28 +0330 — roadmap mark external worker auth verified
+- `23d487f` — 2026-11-12 21:42:29 +0000 — docs: update changelog [skip ci]
+- `4208c34` — 2026-11-13 01:12:15 +0330 — phase 01 authenticate external worker handshakes
+- `7df79a1` — 2026-11-12 21:41:46 +0000 — docs: update changelog [skip ci]
+- `9da8786` — 2026-11-13 01:11:24 +0330 — roadmap mark external worker endpoint verified
+- `7a5aa97` — 2026-11-12 21:41:25 +0000 — docs: update changelog [skip ci]
+- `bd3d96f` — 2026-11-13 01:11:10 +0330 — phase 01 add external worker handshake endpoint
+- `40ba61b` — 2026-11-12 21:40:52 +0000 — docs: update changelog [skip ci]
+- `d9a43d3` — 2026-11-13 01:10:37 +0330 — phase 01 validate external worker handshakes
+- `2f3fa43` — 2026-11-12 21:40:31 +0000 — docs: update changelog [skip ci]
+- `cbd44f2` — 2026-11-13 01:10:11 +0330 — roadmap mark bundled worker fixture verified
+- `c74474a` — 2026-11-12 21:40:09 +0000 — docs: update changelog [skip ci]
+- `e48ac3f` — 2026-11-13 01:09:55 +0330 — phase 01 run bundled worker contract fixture
+- `77d4bda` — 2026-11-12 21:39:39 +0000 — docs: update changelog [skip ci]
+- `8b9aadc` — 2026-11-13 01:09:19 +0330 — roadmap mark worker isolation policy verified
+- `549e3a8` — 2026-11-12 21:39:20 +0000 — docs: update changelog [skip ci]
+- `32832ad` — 2026-11-13 01:09:04 +0330 — phase 01 define worker isolation policy
+- `11db57e` — 2026-11-12 21:38:50 +0000 — docs: update changelog [skip ci]
+- `f64373e` — 2026-11-13 01:08:27 +0330 — roadmap mark bundled worker supervision verified
+- `c30be31` — 2026-11-12 21:38:28 +0000 — docs: update changelog [skip ci]
+- `253c617` — 2026-11-13 01:08:13 +0330 — phase 01 add bundled worker supervisor
+- `1dbe4ec` — 2026-11-12 21:38:12 +0000 — docs: update changelog [skip ci]
+- `9e1da42` — 2026-11-13 01:07:35 +0330 — roadmap mark worker protocol verified
+- `1eb421c` — 2026-11-13 01:07:21 +0330 — phase 01 add versioned worker contract
+- `1edb4ec` — 2026-11-12 21:37:08 +0000 — docs: update changelog [skip ci]
+- `f7cc970` — 2026-11-13 01:06:45 +0330 — roadmap mark worker failure bounds verified
+- `9dec1aa` — 2026-11-12 21:36:47 +0000 — docs: update changelog [skip ci]
+- `01f6320` — 2026-11-13 01:06:32 +0330 — phase 01 bound unavailable worker errors
+- `4f4fae4` — 2026-11-12 21:35:52 +0000 — docs: update changelog [skip ci]
+- `a794ab0` — 2026-11-13 01:05:39 +0330 — roadmap mark commit grant recheck verified
+- `74e6631` — 2026-11-13 01:05:20 +0330 — phase 01 recheck plugin grants at commit
+- `b4339a7` — 2026-11-12 21:34:59 +0000 — docs: update changelog [skip ci]
+- `0efcfa3` — 2026-11-13 01:04:36 +0330 — roadmap mark invocation credentials verified
+- `f526462` — 2026-11-12 21:34:38 +0000 — docs: update changelog [skip ci]
+- `0884b4b` — 2026-11-13 01:04:21 +0330 — phase 01 issue short lived plugin credentials
+- `7ac7139` — 2026-11-12 21:33:16 +0000 — docs: update changelog [skip ci]
+- `8068cc2` — 2026-11-13 01:03:02 +0330 — roadmap mark permission broker checks verified
+- `6a09351` — 2026-11-12 21:33:02 +0000 — docs: update changelog [skip ci]
+- `f3319c4` — 2026-11-13 01:02:48 +0330 — phase 01 add typed permission broker
+- `38b4671` — 2026-11-12 21:32:26 +0000 — docs: update changelog [skip ci]
+- `acd0604` — 2026-11-13 01:02:04 +0330 — roadmap mark plugin audit verified
+- `d68459a` — 2026-11-12 21:32:05 +0000 — docs: update changelog [skip ci]
+- `08dc5eb` — 2026-11-13 01:01:48 +0330 — phase 01 audit plugin lifecycle changes
+- `688a462` — 2026-11-12 21:30:58 +0000 — docs: update changelog [skip ci]
+- `a422c24` — 2026-11-13 01:00:36 +0330 — roadmap mark plugin readiness verified
+- `36be720` — 2026-11-12 21:30:39 +0000 — docs: update changelog [skip ci]
+- `812bb28` — 2026-11-13 01:00:23 +0330 — phase 01 gate enablement on worker readiness
+- `4f6cf7e` — 2026-11-12 21:29:10 +0000 — docs: update changelog [skip ci]
+- `3ab227d` — 2026-11-13 00:58:50 +0330 — roadmap mark resource grants verified
+- `c823d26` — 2026-11-12 21:28:51 +0000 — docs: update changelog [skip ci]
+- `eb3779f` — 2026-11-13 00:58:38 +0330 — phase 01 add capability and resource grants
+- `3ef659e` — 2026-11-12 21:27:59 +0000 — docs: update changelog [skip ci]
+- `cdfa3a5` — 2026-11-13 00:57:37 +0330 — roadmap mark plugin config validation verified
+- `3a6d311` — 2026-11-12 21:27:38 +0000 — docs: update changelog [skip ci]
+- `73eab6d` — 2026-11-13 00:57:21 +0330 — phase 01 validate plugin configuration schemas
+- `546e201` — 2026-11-12 21:26:54 +0000 — docs: update changelog [skip ci]
+- `4080e7c` — 2026-11-13 00:55:44 +0330 — roadmap mark plugin dependency validation verified
+- `008253e` — 2026-11-12 21:25:44 +0000 — docs: update changelog [skip ci]
+- `24c424b` — 2026-11-13 00:55:25 +0330 — phase 01 validate plugin dependencies
+- `d822b0a` — 2026-11-12 21:25:09 +0000 — docs: update changelog [skip ci]
+- `fdf7d90` — 2026-11-13 00:54:53 +0330 — arch enforce plugin first feature structure
+- `5c63d91` — 2026-11-12 21:23:49 +0000 — docs: update changelog [skip ci]
+- `d874944` — 2026-11-13 00:53:28 +0330 — roadmap mark csrf protection verified
+- `e27f17e` — 2026-11-12 21:23:30 +0000 — docs: update changelog [skip ci]
+- `d30a702` — 2026-11-13 00:53:11 +0330 — phase 01 add csrf middleware
+- `e2c3236` — 2026-11-12 21:22:24 +0000 — docs: update changelog [skip ci]
+- `bf97384` — 2026-11-13 00:52:03 +0330 — roadmap mark operator recovery verified
+- `35cf830` — 2026-11-12 21:22:04 +0000 — docs: update changelog [skip ci]
+- `30b1f5d` — 2026-11-13 00:51:49 +0330 — phase 01 add one-time operator recovery
+- `440be75` — 2026-11-12 21:21:19 +0000 — docs: update changelog [skip ci]
+- `59dc20b` — 2026-11-13 00:50:04 +0330 — roadmap mark operator mfa verified
+- `9ffed2e` — 2026-11-12 21:20:12 +0000 — docs: update changelog [skip ci]
+- `1300f98` — 2026-11-13 00:49:49 +0330 — phase 01 add operator totp mfa
+- `b4afe14` — 2026-11-12 21:18:04 +0000 — docs: update changelog [skip ci]
+- `8a74ff3` — 2026-11-13 00:47:43 +0330 — roadmap mark operator sign-in verified
+- `75e30b1` — 2026-11-12 21:17:46 +0000 — docs: update changelog [skip ci]
+- `15a3bf2` — 2026-11-13 00:47:31 +0330 — phase 01 add operator credential verification
+- `2071a37` — 2026-11-12 21:17:17 +0000 — docs: update changelog [skip ci]
+- `d7cd480` — 2026-11-13 00:46:57 +0330 — roadmap mark operator bootstrap verified
+- `0bfdc3f` — 2026-11-12 21:16:57 +0000 — docs: update changelog [skip ci]
+- `73ccd50` — 2026-11-13 00:46:43 +0330 — phase 01 add operator bootstrap command
+- `f1ffa41` — 2026-11-12 21:16:17 +0000 — docs: update changelog [skip ci]
+- `ce3452b` — 2026-11-13 00:46:03 +0330 — roadmap mark project entry isolation verified
+- `33f8bdf` — 2026-11-12 21:16:03 +0000 — docs: update changelog [skip ci]
+- `219366a` — 2026-11-13 00:45:46 +0330 — phase 01 resolve project at http entry
+- `587b679` — 2026-11-12 21:15:21 +0000 — docs: update changelog [skip ci]
+- `6b2dd6c` — 2026-11-13 00:45:07 +0330 — phase 00 close foundation documentation
+- `8d2d5ea` — 2026-11-12 21:14:40 +0000 — docs: update changelog [skip ci]
+- `2241574` — 2026-11-13 00:44:26 +0330 — roadmap mark compose and migration checks verified
+- `74669a6` — 2026-11-12 21:13:27 +0000 — docs: update changelog [skip ci]
+- `ca4397c` — 2026-11-13 00:43:10 +0330 — phase 00 define platform migration schema
+- `183a3a6` — 2026-11-12 21:10:17 +0000 — docs: update changelog [skip ci]
+- `ada4b46` — 2026-11-13 00:40:02 +0330 — ci add opt-in compose smoke test and changelog rules
+- `def3a9c` — 2026-11-12 21:09:18 +0000 — docs: update changelog [skip ci]
+- `0fb174a` — 2026-11-13 00:39:05 +0330 — phase 00 add multi-architecture backend build check
+- `e859214` — 2026-11-12 21:07:02 +0000 — docs: update changelog [skip ci]
+- `8243ca4` — 2026-11-13 00:36:48 +0330 — ci enable github pages deployment
+- `869ec77` — 2026-11-12 21:06:33 +0000 — docs: update changelog [skip ci]
+- `b05cf4c` — 2026-11-13 00:36:17 +0330 — docs require phase documentation updates
+- `1a65a2e` — 2026-11-12 21:05:24 +0000 — docs: update changelog [skip ci]
+- `c786763` — 2026-11-13 00:35:03 +0330 — docs fix github pages static navigation
+- `7f0eb64` — 2026-11-12 21:03:06 +0000 — docs: update changelog [skip ci]
+- `3fcac75` — 2026-11-13 00:32:42 +0330 — docs make github pages site explicit
+- `9157a6f` — 2026-11-12 21:01:41 +0000 — docs: update changelog [skip ci]
+- `1b9b865` — 2026-11-13 00:31:29 +0330 — docs add github pages admin developer guides
+- `a3eb529` — 2026-11-13 00:30:40 +0330 — phase 00 add isolated local test settings
+- `56306e8` — 2026-11-13 00:30:14 +0330 — roadmap mark go CI checks verified
+- `de73677` — 2026-11-13 00:30:04 +0330 — phase 00 add go test workflow
+- `8fb01d2` — 2026-11-13 00:29:47 +0330 — roadmap mark runtime DDL policy verified
+- `5def130` — 2026-11-13 00:29:35 +0330 — phase 00 prevent runtime DDL
+- `3afa2da` — 2026-11-13 00:29:03 +0330 — roadmap mark credential separation verified
+- `24cb401` — 2026-11-13 00:28:53 +0330 — phase 00 separate migration credentials
+- `2957232` — 2026-11-13 00:28:24 +0330 — roadmap mark migration idempotency verified
+- `44e2a54` — 2026-11-13 00:28:13 +0330 — phase 00 add idempotent migration runner
+- `f942c18` — 2026-11-13 00:27:46 +0330 — roadmap mark bounded readiness verified
+- `aef766d` — 2026-11-13 00:27:31 +0330 — phase 00 add bounded readiness retry
+- `49e5b50` — 2026-11-13 00:26:50 +0330 — roadmap mark database owner verified
+- `8f4b2ef` — 2026-11-13 00:26:39 +0330 — phase 00 add injectable database owner
+- `ca66b98` — 2026-11-13 00:25:58 +0330 — phase 01 support independent project plugin installs
+- `07c1acc` — 2026-11-13 00:25:36 +0330 — roadmap mark verified phase 01 plugin steps
+- `3152529` — 2026-11-13 00:25:13 +0330 — phase 01 add scoped plugin registry
+- `e0b68ea` — 2026-11-13 00:24:28 +0330 — phase 00 foundation and roadmap
