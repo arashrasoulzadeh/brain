@@ -24,3 +24,7 @@ try { service.installPlugin("project-b", "auth", "0.1.0"); throw new Error("unkn
 service.grantCapability("project-a", "auth", "0.1.0", "auth.session");
 if (!service.hasGrant("project-a", "auth", "0.1.0", "auth.session")) throw new Error("dashboard grant was not recorded");
 try { service.grantCapability("project-a", "files", "0.1.0", "files.read"); throw new Error("grant without installation accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "plugin not installed") throw error; }
+service.setPluginReadiness("auth", "0.1.0", true);
+service.enablePlugin("project-a", "auth", "0.1.0");
+if (!service.isEnabled("project-a", "auth", "0.1.0")) throw new Error("dashboard plugin was not enabled");
+try { service.enablePlugin("project-a", "files", "0.1.0"); throw new Error("uninstalled plugin was enabled"); } catch (error) { if (!(error instanceof Error) || error.message !== "plugin not installed") throw error; }
