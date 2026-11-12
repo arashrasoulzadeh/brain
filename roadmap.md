@@ -176,7 +176,7 @@ Goal: create isolated projects and run one plugin through both supported worker 
 
 - [x] Bootstrap the dashboard through the CLI.
 - [x] Add project creation form.
-- [ ] Add plugin installation form.
+- [x] Add plugin installation form.
 - [ ] Add grant approval form.
 - [ ] Add enablement form.
 - [ ] Show worker readiness separately from enablement.
