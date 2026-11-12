@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `f3849dc` — roadmap mark dashboard plugin forms verified
+- `5cec197` — docs: update changelog [skip ci]
 - `4c48b07` — phase 01 add dashboard plugin forms
 - `907ccb0` — docs: update changelog [skip ci]
 - `839db64` — roadmap mark dashboard project form verified
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `2f3fa43` — docs: update changelog [skip ci]
 - `cbd44f2` — roadmap mark bundled worker fixture verified
 - `c74474a` — docs: update changelog [skip ci]
-- `e48ac3f` — phase 01 run bundled worker contract fixture
-- `77d4bda` — docs: update changelog [skip ci]
