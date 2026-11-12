@@ -24,3 +24,5 @@ The transport is replaceable; the authorization, project scope, lifecycle revisi
 TypeScript plugins run as separate Node.js workers. They never run inside the Go host process and never receive database credentials, operator tokens, or unrestricted network access. Each version has its own worker and can be started, tested, promoted, drained, rolled back, or stopped independently.
 
 User-authored functions use a stricter sandboxed runtime and must not be treated as trusted TypeScript plugins.
+
+The starter SDK is in `plugins/sdk-typescript`. It produces the same JSON-RPC envelope used by the Go host and does not provide direct database or credential access.
