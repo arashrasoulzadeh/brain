@@ -103,25 +103,25 @@ Goal: create isolated projects and run one plugin through both supported worker 
 
 ### Plugin registration
 
-- [ ] Define the plugin manifest.
-- [ ] Add stable plugin ID and immutable version.
-- [ ] Add host API compatibility.
+- [x] Define the plugin manifest.
+- [x] Add stable plugin ID and immutable version.
+- [x] Add host API compatibility.
 - [ ] Add dependency declarations.
-- [ ] Add capability declarations.
+- [x] Add capability declarations.
 - [ ] Add extension-point declarations.
 - [ ] Add configuration schema validation.
-- [ ] Reject duplicate registrations.
-- [ ] Reject incompatible protocol versions.
+- [x] Reject duplicate registrations.
+- [x] Reject incompatible protocol versions.
 - [ ] Store approved artifact or endpoint information.
 
 ### Installation and grants
 
-- [ ] Install a plugin for one project.
-- [ ] Start every installation disabled.
+- [x] Install a plugin for one project.
+- [x] Start every installation disabled.
 - [ ] Add requested capability display.
-- [ ] Grant a named capability.
+- [x] Grant a named capability.
 - [ ] Bind grants to project resources.
-- [ ] Reject enablement with missing grants.
+- [x] Reject enablement with missing grants.
 - [ ] Reject enablement when readiness fails.
 - [ ] Enable the same plugin independently in two projects.
 - [ ] Audit installation, grants, and enablement.
