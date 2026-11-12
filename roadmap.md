@@ -328,7 +328,7 @@ Goal: provide project-scoped identity, PostgreSQL APIs, files, subscriptions, an
 - [x] Add default-deny row policies.
 - [x] Reject cross-project reads and writes.
 - [x] Reject pooled caller-context reuse.
-- [ ] Add table exposure records.
+- [x] Add table exposure records.
 - [ ] Require a supported primary key.
 - [ ] Reject unsupported types.
 - [ ] Hide unapproved columns.

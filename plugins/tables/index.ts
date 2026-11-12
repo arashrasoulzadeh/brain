@@ -10,6 +10,15 @@ export class RowPolicy {
   grant(projectId: string, actorId: string): boolean { if (!projectId || !actorId) return false; this.grants.add(`${projectId}:${actorId}`); return true; }
   allows(projectId: string, actorId: string): boolean { return this.grants.has(`${projectId}:${actorId}`); }
 }
+export type TableExposure = { projectId: string; table: string; columns: readonly string[] };
+export class TableExposureRegistry {
+  private readonly records = new Map<string, TableExposure>();
+  expose(projectId: string, table: string, columns: readonly string[]): void {
+    if (!projectId || !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table) || !columns.length) throw new Error("invalid table exposure");
+    this.records.set(`${projectId}:${table}`, { projectId, table, columns: [...columns] });
+  }
+  get(projectId: string, table: string): TableExposure | undefined { const record = this.records.get(`${projectId}:${table}`); return record ? { ...record, columns: [...record.columns] } : undefined; }
+}
 
 export function dataRequest(projectId: string, pluginId: string, version: string, operation: "tables.read" | "tables.write" | "tables.schema", table: string, payload: unknown = {}) {
   return request(`tables-${operation}-${projectId}-${table}`, { protocol: 1, projectId, pluginId, version, operation, payload: { table, ...(payload as Record<string, unknown>) } });
