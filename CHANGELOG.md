@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `d30a702` — phase 01 add csrf middleware
+- `e2c3236` — docs: update changelog [skip ci]
 - `bf97384` — roadmap mark operator recovery verified
 - `35cf830` — docs: update changelog [skip ci]
 - `30b1f5d` — phase 01 add one-time operator recovery
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `24cb401` — phase 00 separate migration credentials
 - `2957232` — roadmap mark migration idempotency verified
 - `44e2a54` — phase 00 add idempotent migration runner
-- `f942c18` — roadmap mark bounded readiness verified
-- `aef766d` — phase 00 add bounded readiness retry
