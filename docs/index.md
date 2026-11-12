@@ -7,8 +7,8 @@ Brain is a project-isolated Go backend for apps, websites, and games.
 - [Developer guide](developers.md)
 - [Administrator guide](admins.md)
 - [Phase options and decisions](phase-options.md)
-- [Roadmap](../roadmap.md)
-- [Changelog](../CHANGELOG.md)
+- [Roadmap](https://github.com/arashrasoulzadeh/brain/blob/main/roadmap.md)
+- [Changelog](https://github.com/arashrasoulzadeh/brain/blob/main/CHANGELOG.md)
 
 ## Current status
 
