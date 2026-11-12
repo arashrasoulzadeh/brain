@@ -53,10 +53,10 @@ Goal: boot a small Go service with PostgreSQL, migrations, Compose, and CI.
 ### PostgreSQL
 
 - [x] Add a PostgreSQL connection owner.
-- [ ] Add bounded connection startup.
-- [ ] Add database readiness checks.
-- [ ] Fail readiness when PostgreSQL is unavailable.
-- [ ] Recover readiness when PostgreSQL returns.
+- [x] Add bounded connection startup.
+- [x] Add database readiness checks.
+- [x] Fail readiness when PostgreSQL is unavailable.
+- [x] Recover readiness when PostgreSQL returns.
 - [ ] Add the first platform migration.
 - [ ] Use a migration-only database credential.
 - [ ] Prevent the runtime role from running DDL.
