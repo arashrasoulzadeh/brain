@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `eed3947` — 2026-11-13 03:26:31 +0330 — phase 03 add cursor pagination
+- `2b5ff62` — 2026-11-12 23:56:05 +0000 — docs: update changelog [skip ci]
 - `1f405b8` — 2026-11-13 03:25:53 +0330 — phase 03 validate approved table filters
 - `be2d388` — 2026-11-12 23:55:14 +0000 — docs: update changelog [skip ci]
 - `f77ebff` — 2026-11-13 03:25:02 +0330 — phase 03 hide unapproved table columns
