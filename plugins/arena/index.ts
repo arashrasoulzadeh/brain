@@ -16,6 +16,7 @@ export function exportEyeEvent(result: DurableMatchResult): EyeEvent {
 }
 
 export type ArenaState = "waiting" | "active" | "finished";
+export type ArenaMeasurement = { iterations: number; elapsedMs: number; memoryBytes: number };
 
 export class MatchResultStore {
   private readonly results = new Map<string, DurableMatchResult>();
@@ -48,6 +49,13 @@ export class ArenaStateMachine {
     if (!Number.isInteger(sequence) || sequence <= (this.sequences.get(playerId) ?? 0)) throw new Error("action sequence conflict");
     void payload;
     this.sequences.set(playerId, sequence);
+  }
+  measure(iterations: number): ArenaMeasurement {
+    if (!Number.isInteger(iterations) || iterations < 1) throw new Error("invalid measurement iterations");
+    const start = globalThis.performance.now();
+    let memoryBytes = 0;
+    for (let index = 0; index < iterations; index += 1) memoryBytes += JSON.stringify({ state: this.currentState, players: this.players, sequences: [...this.sequences] }).length;
+    return { iterations, elapsedMs: globalThis.performance.now() - start, memoryBytes };
   }
   result(winnerIds: readonly string[], completedAt: string): DurableMatchResult {
     if (this.getState() !== "active") throw new Error("arena is not active");
