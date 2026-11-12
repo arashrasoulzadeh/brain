@@ -105,6 +105,23 @@ export function requireRecentAuthentication(authenticatedAt: number, now: number
   if (maxAgeMs <= 0 || now - authenticatedAt > maxAgeMs) throw new Error("recent authentication required");
 }
 
+type AuthorizationCode = { projectId: string; clientId: string; redirectUri: string; userId: string; expiresAt: number; used: boolean };
+export class AuthorizationCodeStore {
+  private readonly codes = new Map<string, AuthorizationCode>();
+  issue(projectId: string, clientId: string, redirectUri: string, userId: string, now: number, ttlSeconds: number): string {
+    if (!projectId || !clientId || !redirectUri || !userId || ttlSeconds <= 0) throw new Error("invalid authorization code");
+    const code = randomBytes(24).toString("base64url");
+    this.codes.set(code, { projectId, clientId, redirectUri, userId, expiresAt: now + ttlSeconds * 1000, used: false });
+    return code;
+  }
+  consume(code: string, projectId: string, clientId: string, redirectUri: string, now: number): { userId: string } {
+    const record = this.codes.get(code);
+    if (!record || record.used || record.expiresAt <= now || record.projectId !== projectId || record.clientId !== clientId || record.redirectUri !== redirectUri) throw new Error("authorization code unavailable");
+    record.used = true;
+    return { userId: record.userId };
+  }
+}
+
 export class AuthService {
   private readonly accounts = new Map<string, Map<string, Account>>();
   private readonly sessions = new Map<string, { projectId: string; username: string; expiresAt: number }>();

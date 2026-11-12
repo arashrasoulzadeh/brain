@@ -1,4 +1,4 @@
-import { AccountRateLimiter, AuthService, IdentityLinker, OIDCConfigStore, OperatorSessionRegistry, ProjectRateLimiter, functions, guestRequest, projectUserID, requireRecentAuthentication, sessionTokenDigest, signInRequest, signUpRequest, validateOIDCToken } from "../../plugins/auth/index.js";
+import { AccountRateLimiter, AuthService, AuthorizationCodeStore, IdentityLinker, OIDCConfigStore, OperatorSessionRegistry, ProjectRateLimiter, functions, guestRequest, projectUserID, requireRecentAuthentication, sessionTokenDigest, signInRequest, signUpRequest, validateOIDCToken } from "../../plugins/auth/index.js";
 import { createFunctionHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const serviceForHandler = new AuthService();
@@ -28,6 +28,10 @@ if (oidc.get("project-a").issuer !== "https://accounts.google.com") throw new Er
 validateOIDCToken({ issuer: "https://accounts.google.com", audience: "client-id", expiresAt: 2000, nonce: "nonce-1", signature: "sig" }, oidc.get("project-a"), "nonce-1", 1000, (signature) => signature === "sig");
 requireRecentAuthentication(1000, 1200, 300);
 try { requireRecentAuthentication(1000, 1301, 300); throw new Error("stale authentication accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "recent authentication required") throw error; }
+const codes = new AuthorizationCodeStore();
+const code = codes.issue("project-a", "client-id", "https://app.example/callback", "user-1", 1000, 60);
+if (codes.consume(code, "project-a", "client-id", "https://app.example/callback", 1001).userId !== "user-1") throw new Error("authorization code exchange failed");
+try { codes.consume(code, "project-a", "client-id", "https://app.example/callback", 1002); throw new Error("authorization code replay accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "authorization code unavailable") throw error; }
 
 const service = new AuthService();
 const registration = service.signup("project-a", "alice", "correct horse battery");

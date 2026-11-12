@@ -299,7 +299,7 @@ Goal: provide project-scoped identity, PostgreSQL APIs, files, subscriptions, an
 - [x] Add Google OIDC configuration.
 - [x] Validate issuer, audience, expiry, signature, and nonce.
 - [x] Require recent authentication for linking.
-- [ ] Add native authorization-code exchange.
+- [x] Add native authorization-code exchange.
 - [ ] Add PKCE verification.
 - [ ] Reject callback state mismatch.
 
