@@ -1,0 +1,13 @@
+id: subscriptions
+version: 0.1.0
+host_api: 1
+entrypoint: src/index.ts
+dependencies: []
+capabilities:
+  - subscriptions.open
+  - subscriptions.receive
+  - subscriptions.resync
+extension_points:
+  - realtime.transport
+config_schema:
+  maxSubscriptions: int
