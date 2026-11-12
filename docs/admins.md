@@ -14,6 +14,8 @@ The current implementation provides the foundations for project and plugin admin
 
 All feature capabilities are managed as separate TypeScript plugins. Review the host-generated YAML documentation, requested grants, configuration, readiness, lifecycle, rollback, and removal behavior before enabling a plugin. The catalog is in [`plugins/README.md`](../plugins/README.md).
 
+Phase 01 operator notes: dashboard lifecycle actions are host-authorized; worker readiness is distinct from enablement; guest sessions are project-scoped; and analytics rejects fields not declared by the plugin contract. Local verification does not require Docker.
+
 Plugins communicate through host-controlled local sockets or authenticated external services. They do not receive unrestricted database, operator-token, filesystem, or network access.
 
 ## Current limitations

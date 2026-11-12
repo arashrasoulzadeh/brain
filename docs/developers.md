@@ -40,6 +40,8 @@ Do not run Docker during normal development. Use in-process tests and isolated l
 
 Product features belong under `plugins/<plugin-id>/` as TypeScript serverless functions. Each plugin contains only `index.ts` and `plugin.yaml`; the YAML is authoritative for metadata, routes, functions, permissions, and configuration. The host supplies runtime dependencies and generates documentation. Go is reserved for the core host, and tests live under top-level `tests/`.
 
+Phase 01 verification: the dashboard is bootstrapped through the CLI; YAML routes are host-discovered and unauthorized operations are rejected; readiness is reported separately from enablement; auth supports project-scoped guest sessions; analytics events are validated against allowed fields and captured by an in-process sink. Run `go test ./...`, `npm run typecheck`, and `npm run test:ts` locally.
+
 Plugin communication follows [the plugin communication architecture](plugin-communication.md): JSON-RPC over Unix sockets locally, gRPC/mTLS externally, and the shared host authorization contract for both.
 
 ## Security rules

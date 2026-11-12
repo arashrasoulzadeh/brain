@@ -187,12 +187,12 @@ Goal: create isolated projects and run one plugin through both supported worker 
 
 ### Phase 01 gate
 
-- [ ] Create two projects through the dashboard.
-- [ ] Configure the same plugin independently in both.
-- [ ] Pass the same contract tests through both worker paths.
-- [ ] Prove cross-project isolation.
-- [ ] Prove revoked grants reject an in-flight effect.
-- [ ] Issue one project-scoped guest session.
+- [x] Create two projects through the dashboard.
+- [x] Configure the same plugin independently in both.
+- [x] Pass the same contract tests through both worker paths.
+- [x] Prove cross-project isolation.
+- [x] Prove revoked grants reject an in-flight effect.
+- [x] Issue one project-scoped guest session.
 
 ## Phase 02 — First co-op arena
 
