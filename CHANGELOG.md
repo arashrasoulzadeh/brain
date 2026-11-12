@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `1dbbb35` — 2026-11-13 02:26:40 +0330 — phase 02 reject non member room sockets
+- `9394da4` — 2026-11-12 22:56:31 +0000 — docs: update changelog [skip ci]
 - `426c254` — 2026-11-13 02:26:11 +0330 — docs mark cross project invite rejection complete
 - `6f6984f` — 2026-11-12 22:56:12 +0000 — docs: update changelog [skip ci]
 - `165fe9b` — 2026-11-13 02:25:59 +0330 — phase 02 reject cross project invites
