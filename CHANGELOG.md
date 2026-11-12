@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `eb3779f` — phase 01 add capability and resource grants
+- `3ef659e` — docs: update changelog [skip ci]
 - `cdfa3a5` — roadmap mark plugin config validation verified
 - `3a6d311` — docs: update changelog [skip ci]
 - `73eab6d` — phase 01 validate plugin configuration schemas
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `869ec77` — docs: update changelog [skip ci]
 - `b05cf4c` — docs require phase documentation updates
 - `1a65a2e` — docs: update changelog [skip ci]
-- `c786763` — docs fix github pages static navigation
-- `7f0eb64` — docs: update changelog [skip ci]
