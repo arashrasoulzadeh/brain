@@ -56,6 +56,13 @@ export class MatchmakingQueue {
     }
     return expired;
   }
+  requeue(ticket: MatchmakingTicket, now = Date.now()): void {
+    if (ticket.expiresAt <= now) throw new Error("ticket expired");
+    const key = `${ticket.projectId}:${ticket.scope}`;
+    const queue = this.queues.get(key) ?? [];
+    if (queue.some((active) => active.id === ticket.id || active.playerId === ticket.playerId)) throw new Error("active ticket already exists");
+    this.queues.set(key, [...queue, { ...ticket }].sort((a, b) => a.createdAt - b.createdAt));
+  }
 }
 
 export function matchmakingRequest(projectId: string, pluginId: string, version: string, operation: "matchmaking.queue" | "matchmaking.cancel" | "matchmaking.status" | "matchmaking.assign", config: string, payload: unknown = {}) {

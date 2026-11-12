@@ -22,3 +22,8 @@ const expiringQueue = new MatchmakingQueue();
 expiringQueue.enqueue("dev", "ranked", "user-4", 1000);
 expiringQueue.enqueue("dev", "ranked", "user-5", 2000);
 if (expiringQueue.expire(62000).length !== 2 || expiringQueue.peek("dev", "ranked").length !== 0) throw new Error("ticket expiry failed");
+const retryQueue = new MatchmakingQueue();
+const failed = retryQueue.enqueue("dev", "ranked", "user-6", 1000);
+retryQueue.match("dev", "ranked", 1);
+retryQueue.requeue(failed, 2000);
+if (retryQueue.peek("dev", "ranked")[0].id !== failed.id) throw new Error("failed assignment was not requeued");
