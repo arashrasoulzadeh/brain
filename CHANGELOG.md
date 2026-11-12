@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `1300f98` — phase 01 add operator totp mfa
+- `b4afe14` — docs: update changelog [skip ci]
 - `8a74ff3` — roadmap mark operator sign-in verified
 - `75e30b1` — docs: update changelog [skip ci]
 - `15a3bf2` — phase 01 add operator credential verification
