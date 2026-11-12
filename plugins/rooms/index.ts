@@ -7,6 +7,12 @@ export function projectRoomID(projectId: string, roomId: string): string {
 
 export type PlayerSlot = { playerId: string; slot: number };
 
+export type RoomState = "waiting" | "matching" | "active" | "finished" | "closed";
+
+export function canTransitionRoom(from: RoomState, to: RoomState): boolean {
+  return ({ waiting: ["matching", "closed"], matching: ["active", "waiting", "closed"], active: ["finished", "closed"], finished: ["closed"], closed: [] } as Record<RoomState, RoomState[]>)[from].includes(to);
+}
+
 export function validateMembership(projectId: string, roomId: string, slots: readonly PlayerSlot[], maxPlayers: number): void {
   projectRoomID(projectId, roomId);
   if (maxPlayers < 1 || maxPlayers > 64 || slots.length > maxPlayers) throw new Error("invalid player slots");
