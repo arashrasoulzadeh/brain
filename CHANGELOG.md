@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `32832ad` — phase 01 define worker isolation policy
+- `11db57e` — docs: update changelog [skip ci]
 - `f64373e` — roadmap mark bundled worker supervision verified
 - `c30be31` — docs: update changelog [skip ci]
 - `253c617` — phase 01 add bundled worker supervisor
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `e27f17e` — docs: update changelog [skip ci]
 - `d30a702` — phase 01 add csrf middleware
 - `e2c3236` — docs: update changelog [skip ci]
-- `bf97384` — roadmap mark operator recovery verified
-- `35cf830` — docs: update changelog [skip ci]
