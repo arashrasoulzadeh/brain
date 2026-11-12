@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `6c0689e` — 2026-11-13 03:28:22 +0330 — phase 03 verify stale write rejection
+- `b0bbc8c` — 2026-11-12 23:58:14 +0000 — docs: update changelog [skip ci]
 - `c75dc03` — 2026-11-13 03:28:02 +0330 — phase 03 add record version checks
 - `19f60d0` — 2026-11-12 23:57:20 +0000 — docs: update changelog [skip ci]
 - `60d808c` — 2026-11-13 03:27:09 +0330 — phase 03 validate table values and identifiers
