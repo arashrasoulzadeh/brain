@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `9087ac5` — 2026-11-13 02:33:55 +0330 — docs mark matchmaking requeue complete
+- `6794a17` — 2026-11-12 23:03:57 +0000 — docs: update changelog [skip ci]
 - `9fec058` — 2026-11-13 02:33:43 +0330 — phase 02 requeue failed matchmaking assignments
 - `9f88ad1` — 2026-11-12 23:03:35 +0000 — docs: update changelog [skip ci]
 - `a045bc9` — 2026-11-13 02:33:23 +0330 — docs mark matchmaking expiry complete
