@@ -4,6 +4,15 @@
 
 This repository is building a Go multi-tenant mobile backend. The complete product context is in [plan.md](plan.md); the executable checklist is [roadmap.md](roadmap.md).
 
+## Plugin-first architecture law
+
+- Core host infrastructure is limited to transport, project isolation, configuration, lifecycle, permission brokering, storage primitives, worker supervision, and shared contracts.
+- Every user-facing or product capability must be implemented as a separate plugin under `plugins/<plugin-id>/`.
+- Do not add auth, files, tables, subscriptions, rooms, matchmaking, analytics, workflows, dashboard features, or client-facing product behavior directly to the core host.
+- Every plugin must have a manifest, implementation, focused tests, permissions, configuration schema, developer notes, and administrator notes.
+- Plugins may depend on host contracts and approved plugins, but may not bypass the permission broker or project boundary.
+- Plugins remain dynamically replaceable: version, enable, disable, promote, rollback, drain, and remove them through host lifecycle contracts.
+
 ## How to work
 
 1. Read this file and the relevant `.agents/phase-XX.md` file.

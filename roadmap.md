@@ -34,6 +34,14 @@ Every phase exit must also update:
 - [ ] Keep operator access separate from end-user access.
 - [ ] Treat destructive actions, migrations, releases, and permission changes as audited operations.
 
+## Plugin-first delivery law
+
+- [ ] Keep the core host limited to shared infrastructure and contracts.
+- [ ] Implement every product capability under `plugins/<plugin-id>/`.
+- [ ] Give every plugin a manifest, grants, config schema, tests, developer notes, and administrator notes.
+- [ ] Make every plugin dynamically versionable, enableable, disableable, promotable, rollbackable, drainable, and removable.
+- [ ] Do not bypass the host permission broker or project boundary from plugin code.
+
 ## Local development policy
 
 - [ ] Do not run Docker or Docker Compose during ordinary local development.
