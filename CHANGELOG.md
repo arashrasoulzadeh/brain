@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `2bc8a75` — 2026-11-13 02:40:19 +0330 — phase 02 reject unauthorized room commands
+- `27aee5c` — 2026-11-12 23:10:06 +0000 — docs: update changelog [skip ci]
 - `3cb01bf` — 2026-11-13 02:39:52 +0330 — phase 02 authorize room snapshots
 - `1f2e599` — 2026-11-12 23:09:39 +0000 — docs: update changelog [skip ci]
 - `b290450` — 2026-11-13 02:39:23 +0330 — phase 02 bound websocket send queues
