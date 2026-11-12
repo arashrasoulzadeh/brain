@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `08dc5eb` — phase 01 audit plugin lifecycle changes
+- `688a462` — docs: update changelog [skip ci]
 - `a422c24` — roadmap mark plugin readiness verified
 - `36be720` — docs: update changelog [skip ci]
 - `812bb28` — phase 01 gate enablement on worker readiness
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `74669a6` — docs: update changelog [skip ci]
 - `ca4397c` — phase 00 define platform migration schema
 - `183a3a6` — docs: update changelog [skip ci]
-- `ada4b46` — ci add opt-in compose smoke test and changelog rules
-- `def3a9c` — docs: update changelog [skip ci]
