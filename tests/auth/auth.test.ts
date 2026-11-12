@@ -1,4 +1,4 @@
-import { AccountRateLimiter, AuthService, AuthorizationCodeStore, IdentityLinker, OIDCConfigStore, OIDCStateStore, OperatorSessionRegistry, ProjectRateLimiter, TestDeliveryInbox, createPKCEChallenge, functions, guestRequest, projectUserID, requireRecentAuthentication, sessionTokenDigest, signInRequest, signUpRequest, validateOIDCToken, verifyPKCE } from "../../plugins/auth/index.js";
+import { AccountRateLimiter, AuthService, AuthorizationCodeStore, EmailOTPService, IdentityLinker, OIDCConfigStore, OIDCStateStore, OperatorSessionRegistry, ProjectRateLimiter, TestDeliveryInbox, createPKCEChallenge, functions, guestRequest, projectUserID, requireRecentAuthentication, sessionTokenDigest, signInRequest, signUpRequest, validateOIDCToken, verifyPKCE } from "../../plugins/auth/index.js";
 import { createFunctionHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const serviceForHandler = new AuthService();
@@ -40,6 +40,10 @@ try { states.consume(state, "project-a", "client-id", "https://app.example/callb
 const inbox = new TestDeliveryInbox();
 inbox.deliver("alice@example.com", "code-1");
 if (inbox.read("alice@example.com") !== "code-1") throw new Error("test delivery inbox failed");
+const otp = new EmailOTPService("test-secret", inbox);
+otp.issue("project-a", "alice@example.com", "signin", 1000, 300);
+const emailCode = inbox.read("alice@example.com");
+if (!emailCode || !otp.verify("project-a", "alice@example.com", "signin", emailCode, 1001)) throw new Error("email OTP failed");
 
 const service = new AuthService();
 const registration = service.signup("project-a", "alice", "correct horse battery");
