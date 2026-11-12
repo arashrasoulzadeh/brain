@@ -205,7 +205,7 @@ Goal: complete a private multiplayer match with matchmaking, realtime updates, a
 - [x] Define request IDs and error codes.
 - [x] Define retry and conflict behavior.
 - [x] Define project-scoped room IDs.
-- [ ] Define player slots and membership.
+- [x] Define player slots and membership.
 - [ ] Define room lifecycle states.
 - [ ] Define durable match results.
 
