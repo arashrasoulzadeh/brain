@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `30b1f5d` — phase 01 add one-time operator recovery
+- `440be75` — docs: update changelog [skip ci]
 - `59dc20b` — roadmap mark operator mfa verified
 - `9ffed2e` — docs: update changelog [skip ci]
 - `1300f98` — phase 01 add operator totp mfa
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `aef766d` — phase 00 add bounded readiness retry
 - `49e5b50` — roadmap mark database owner verified
 - `8f4b2ef` — phase 00 add injectable database owner
-- `ca66b98` — phase 01 support independent project plugin installs
-- `07c1acc` — roadmap mark verified phase 01 plugin steps
