@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `c3afb5e` — phase 02 add typescript rooms plugin
+- `24b9645` — docs: update changelog [skip ci]
 - `aa918b0` — phase 03 add typescript subscriptions plugin
 - `3671048` — docs: update changelog [skip ci]
 - `f4736b5` — phase 03 add typescript files plugin
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `402f2fd` — docs: update changelog [skip ci]
 - `bce5756` — arch add typescript sdk and unix transport
 - `2ee9b37` — docs: update changelog [skip ci]
-- `595eb06` — arch add language neutral plugin rpc contract
-- `daf456e` — docs: update changelog [skip ci]
