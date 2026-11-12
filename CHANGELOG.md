@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `8a71cc1` — 2026-11-13 03:18:46 +0330 — phase 03 isolate project schemas
+- `6ffb8e0` — 2026-11-12 23:48:10 +0000 — docs: update changelog [skip ci]
 - `dea5245` — 2026-11-13 03:17:58 +0330 — phase 03 add argon2id password hashing
 - `e1a0163` — 2026-11-12 23:45:16 +0000 — docs: update changelog [skip ci]
 - `53eb4ce` — 2026-11-13 03:14:59 +0330 — phase 03 reject fake production delivery
