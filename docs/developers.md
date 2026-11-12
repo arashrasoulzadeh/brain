@@ -12,6 +12,8 @@
 
 At the end of every phase, update this guide with the implementation notes, test commands, compatibility changes, and the next phase before committing the phase result.
 
+Keep changelog entries newest first, with one entry per commit containing the short commit hash and subject.
+
 ## Local development
 
 Do not run Docker during normal development. Use in-process tests and isolated local settings. Use real PostgreSQL integration tests when behavior depends on roles, row-level security, migrations, locks, or PostgreSQL transactions.

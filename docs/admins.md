@@ -25,3 +25,5 @@ The dashboard, operator MFA, recovery, worker supervision, external workers, and
 - Record the commit and test result for every completed roadmap item.
 
 At the end of every phase, this guide must be updated with new operator capabilities, configuration changes, migration notes, security considerations, limitations, and rollback guidance.
+
+The changelog is newest first and separated into one auditable entry per commit.

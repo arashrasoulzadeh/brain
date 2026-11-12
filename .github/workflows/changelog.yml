@@ -24,7 +24,7 @@ jobs:
             echo 'Automatically generated from commits on main.'
             echo
             echo '## Unreleased'
-            git log --pretty='- %s' -n 50
+            git log --pretty='- `%h` — %s' -n 50
           } > CHANGELOG.md
       - name: Commit changelog
         run: |
