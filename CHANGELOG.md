@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `98fa91f` — 2026-11-13 03:05:50 +0330 — phase 03 add authorization code exchange
+- `a3904b4` — 2026-11-12 23:35:23 +0000 — docs: update changelog [skip ci]
 - `9872ee9` — 2026-11-13 03:05:08 +0330 — phase 03 require recent authentication for linking
 - `47c043c` — 2026-11-12 23:34:44 +0000 — docs: update changelog [skip ci]
 - `f8ebf1e` — 2026-11-13 03:04:32 +0330 — phase 03 validate oidc token claims
