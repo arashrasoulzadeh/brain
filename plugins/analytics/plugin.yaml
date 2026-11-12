@@ -1,0 +1,15 @@
+id: analytics
+title: Analytics
+description: Project-scoped validated event capture.
+version: 0.1.0
+host_api: 1
+dependencies: []
+capabilities:
+  - analytics.capture
+extension_points: []
+config_schema:
+  maxFields: int
+routes:
+  - operation: analytics.capture
+    function: capture
+    capability: analytics.capture
