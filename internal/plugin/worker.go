@@ -3,6 +3,7 @@ package plugin
 import "errors"
 
 var ErrInvalidWorkerRequest = errors.New("invalid worker request")
+var ErrWorkerNotReady = errors.New("worker not ready")
 
 type WorkerRequest struct {
 	Protocol  int
@@ -18,6 +19,21 @@ type WorkerResponse struct {
 	Success   bool
 	Payload   []byte
 	ErrorCode string
+}
+
+type ContractWorker interface {
+	Worker
+	Handle(WorkerRequest) WorkerResponse
+}
+
+func Invoke(worker ContractWorker, request WorkerRequest, protocol int) (WorkerResponse, error) {
+	if err := ValidateWorkerRequest(request, protocol); err != nil {
+		return WorkerResponse{}, err
+	}
+	if !worker.Ready() {
+		return WorkerResponse{}, ErrWorkerNotReady
+	}
+	return worker.Handle(request), nil
 }
 
 func ValidateWorkerRequest(request WorkerRequest, hostProtocol int) error {
