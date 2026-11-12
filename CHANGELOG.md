@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `f8ebf1e` — 2026-11-13 03:04:32 +0330 — phase 03 validate oidc token claims
+- `84d1885` — 2026-11-12 23:34:10 +0000 — docs: update changelog [skip ci]
 - `76ff9ce` — 2026-11-13 03:03:54 +0330 — phase 03 add google oidc configuration
 - `016aab9` — 2026-11-12 23:33:16 +0000 — docs: update changelog [skip ci]
 - `b799c87` — 2026-11-13 03:03:05 +0330 — phase 03 detect identity link conflicts
