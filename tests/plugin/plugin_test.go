@@ -170,3 +170,34 @@ func TestPluginMutationsProduceAuditEvents(t *testing.T) {
 		t.Fatalf("audit order = %#v", audit[:2])
 	}
 }
+
+func TestPromotionRoutesNewWorkWithoutChangingPinnedVersion(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	for _, version := range []string{"1.0.0", "2.0.0"} {
+		m := plugin.Manifest{ID: "rooms", Version: version, HostAPI: 1, Capabilities: []string{"room.run"}}
+		if err := r.Register(m); err != nil {
+			t.Fatal(err)
+		}
+		if err := r.SetReadiness(m.ID, m.Version, true); err != nil {
+			t.Fatal(err)
+		}
+		if err := r.Install("dev", m.ID, m.Version); err != nil {
+			t.Fatal(err)
+		}
+		if err := r.Grant("dev", m.ID, m.Version, "room.run"); err != nil {
+			t.Fatal(err)
+		}
+		if err := r.Enable("dev", m.ID, m.Version); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := r.Promote("dev", "rooms", "1.0.0"); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Promote("dev", "rooms", "2.0.0"); err != nil {
+		t.Fatal(err)
+	}
+	if got, _ := r.ActiveVersion("dev", "rooms"); got != "2.0.0" {
+		t.Fatalf("active version = %q", got)
+	}
+}

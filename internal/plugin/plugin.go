@@ -47,6 +47,7 @@ type Registry struct {
 	installations map[string]Installation
 	readiness     map[string]bool
 	audit         []AuditEvent
+	active        map[string]string
 }
 
 type AuditEvent struct {
@@ -67,7 +68,7 @@ func (m Manifest) RequestedCapabilities() []CapabilityRequest {
 }
 
 func NewRegistry(hostAPI int) *Registry {
-	return &Registry{HostAPI: hostAPI, registered: map[string]Registered{}, installations: map[string]Installation{}, readiness: map[string]bool{}}
+	return &Registry{HostAPI: hostAPI, registered: map[string]Registered{}, installations: map[string]Installation{}, readiness: map[string]bool{}, active: map[string]string{}}
 }
 
 func (r *Registry) Register(m Manifest) error {
@@ -233,6 +234,25 @@ func (r *Registry) Enable(projectID, id, version string) error {
 	r.installations[key] = i
 	r.audit = append(r.audit, AuditEvent{Action: "enable", ProjectID: projectID, PluginID: id, Version: version})
 	return nil
+}
+
+func (r *Registry) Promote(projectID, id, version string) error {
+	key := projectID + ":" + id + "@" + version
+	i, ok := r.installations[key]
+	if !ok {
+		return ErrNotInstalled
+	}
+	if !i.Enabled {
+		return ErrDisabled
+	}
+	r.active[projectID+":"+id] = version
+	r.audit = append(r.audit, AuditEvent{Action: "promote", ProjectID: projectID, PluginID: id, Version: version})
+	return nil
+}
+
+func (r *Registry) ActiveVersion(projectID, id string) (string, bool) {
+	version, ok := r.active[projectID+":"+id]
+	return version, ok
 }
 
 func (r *Registry) Audit() []AuditEvent { return append([]AuditEvent(nil), r.audit...) }
