@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `817e388` — 2026-11-13 02:21:13 +0330 — docs mark room lifecycle complete
+- `dff8368` — 2026-11-12 22:51:15 +0000 — docs: update changelog [skip ci]
 - `acf8a1f` — 2026-11-13 02:21:02 +0330 — phase 02 define room lifecycle states
 - `0a36b13` — 2026-11-12 22:50:52 +0000 — docs: update changelog [skip ci]
 - `5bf0da6` — 2026-11-13 02:20:33 +0330 — docs mark room slots complete
