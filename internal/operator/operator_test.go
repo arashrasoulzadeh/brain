@@ -65,3 +65,25 @@ func TestAuthenticateRejectsMissingAccount(t *testing.T) {
 		t.Fatalf("missing account = %v", err)
 	}
 }
+
+func TestRecoveryTokenReplacesSecretAndIsSingleUse(t *testing.T) {
+	store := &operator.Store{}
+	digest := func(value string) string { return "digest:" + value }
+	_, _ = store.Bootstrap("admin", "old", digest)
+	if err := store.EnableMFA("JBSWY3DPEHPK3PXP"); err != nil {
+		t.Fatal(err)
+	}
+	token, err := store.CreateRecoveryToken(func() string { return "one-time-token" })
+	if err != nil || token != "one-time-token" {
+		t.Fatalf("CreateRecoveryToken() = %q, %v", token, err)
+	}
+	if err := store.Recover(token, "new", func(value string) string { return "digest:" + value }); err != nil {
+		t.Fatal(err)
+	}
+	if err := store.Authenticate("admin", "new", digest); err != nil {
+		t.Fatal("new secret rejected")
+	}
+	if store.VerifyMFA("000000", time.Unix(1700000000, 0)) {
+		t.Fatal("MFA was not cleared")
+	}
+}
