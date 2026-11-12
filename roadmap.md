@@ -334,7 +334,7 @@ Goal: provide project-scoped identity, PostgreSQL APIs, files, subscriptions, an
 - [x] Hide unapproved columns.
 - [x] Allow only approved filters.
 - [x] Add cursor pagination.
-- [ ] Validate values and identifiers.
+- [x] Validate values and identifiers.
 - [ ] Add record versions.
 - [ ] Reject stale writes.
 - [ ] Make retried creates idempotent.

@@ -41,6 +41,8 @@ export function paginate<T>(items: readonly T[], cursor: string | undefined, lim
   const page = [...items.slice(start, start + limit)];
   return { items: page, ...(start + page.length < items.length ? { nextCursor: Buffer.from(String(start + page.length)).toString("base64url") } : {}) };
 }
+export function validateIdentifier(value: string): void { if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(value)) throw new Error("invalid identifier"); }
+export function validateValue(column: string, value: unknown): void { validateIdentifier(column); if (value === undefined || typeof value === "function" || (typeof value === "string" && value.length > 4096)) throw new Error("invalid value"); }
 
 export function dataRequest(projectId: string, pluginId: string, version: string, operation: "tables.read" | "tables.write" | "tables.schema", table: string, payload: unknown = {}) {
   return request(`tables-${operation}-${projectId}-${table}`, { protocol: 1, projectId, pluginId, version, operation, payload: { table, ...(payload as Record<string, unknown>) } });
