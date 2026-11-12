@@ -58,6 +58,10 @@ func TestAuthenticateAcceptsOnlyMatchingOperatorCredentials(t *testing.T) {
 	if err := store.Authenticate("other", "secret", digest); !errors.Is(err, operator.ErrInvalidCredentials) {
 		t.Fatalf("wrong user = %v", err)
 	}
+	events := store.Audit()
+	if len(events) != 3 || events[0].Action != "operator.signin" || events[0].Success != true || events[1].Success != false || events[2].Success != false {
+		t.Fatalf("signin audit = %#v", events)
+	}
 }
 
 func TestAuthenticateRejectsMissingAccount(t *testing.T) {
@@ -93,5 +97,12 @@ func TestRecoveryTokenReplacesSecretAndIsSingleUse(t *testing.T) {
 	}
 	if store.VerifyMFA("000000", time.Unix(1700000000, 0)) {
 		t.Fatal("MFA was not cleared")
+	}
+	events := store.Audit()
+	if len(events) != 2 || events[0].Action != "operator.recovery" || !events[0].Success || events[1].Action != "operator.signin" {
+		t.Fatalf("recovery audit = %#v", events)
+	}
+	if events[0].Detail != "admin" {
+		t.Fatal("recovery audit exposed sensitive data")
 	}
 }

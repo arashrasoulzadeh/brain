@@ -25,6 +25,13 @@ type Actor struct {
 	Kind ActorKind
 }
 
+type AuditEvent struct {
+	Action  string
+	ActorID string
+	Success bool
+	Detail  string
+}
+
 type Account struct {
 	Username       string
 	SecretDigest   string
@@ -57,10 +64,20 @@ func (s *Store) Recover(token, newSecret string, digest func(string) string) err
 	s.account.SecretDigest = digest(newSecret)
 	s.account.RecoveryDigest = ""
 	s.account.MFASecret = ""
+	s.record("operator.recovery", s.account.Username, true, s.account.Username)
 	return nil
 }
 
-type Store struct{ account *Account }
+type Store struct {
+	account *Account
+	audit   []AuditEvent
+}
+
+func (s *Store) Audit() []AuditEvent { return append([]AuditEvent(nil), s.audit...) }
+
+func (s *Store) record(action, actorID string, success bool, detail string) {
+	s.audit = append(s.audit, AuditEvent{Action: action, ActorID: actorID, Success: success, Detail: detail})
+}
 
 func (s *Store) AuthorizeAction(actor Actor, action string) error {
 	if actor.ID == "" || action == "" || actor.Kind != ActorOperator || s.account == nil || actor.ID != s.account.Username {
@@ -90,11 +107,14 @@ func (s *Store) Account() (Account, bool) {
 
 func (s *Store) Authenticate(username, secret string, digest func(string) string) error {
 	if s.account == nil || digest == nil || username != s.account.Username {
+		s.record("operator.signin", username, false, "")
 		return ErrInvalidCredentials
 	}
 	got := digest(secret)
 	if subtle.ConstantTimeCompare([]byte(got), []byte(s.account.SecretDigest)) != 1 {
+		s.record("operator.signin", username, false, "")
 		return ErrInvalidCredentials
 	}
+	s.record("operator.signin", username, true, "")
 	return nil
 }
