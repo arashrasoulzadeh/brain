@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `d4d7d3f` — 2026-11-13 03:29:00 +0330 — phase 03 make table creates idempotent
+- `52cd5ef` — 2026-11-12 23:58:34 +0000 — docs: update changelog [skip ci]
 - `6c0689e` — 2026-11-13 03:28:22 +0330 — phase 03 verify stale write rejection
 - `b0bbc8c` — 2026-11-12 23:58:14 +0000 — docs: update changelog [skip ci]
 - `c75dc03` — 2026-11-13 03:28:02 +0330 — phase 03 add record version checks
