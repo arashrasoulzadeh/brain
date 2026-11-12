@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `6e45282` — 2026-11-13 02:13:19 +0330 — docs mark guest auth complete
+- `fb0ca4e` — 2026-11-12 22:43:20 +0000 — docs: update changelog [skip ci]
 - `b9de273` — 2026-11-13 02:13:08 +0330 — phase 01 add yaml declared guest auth
 - `0c422b0` — 2026-11-12 22:42:41 +0000 — docs: update changelog [skip ci]
 - `f9a29ad` — 2026-11-13 02:12:23 +0330 — docs mark plugin readiness status complete
