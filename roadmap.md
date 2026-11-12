@@ -83,10 +83,10 @@ Goal: boot a small Go service with PostgreSQL, migrations, Compose, and CI.
 
 ### Phase 00 gate
 
-- [ ] A clean checkout passes tests locally.
-- [ ] A clean checkout passes tests in GitHub Actions.
-- [ ] Readiness distinguishes process health from database health.
-- [ ] Migration and runtime credentials are separate.
+- [x] A clean checkout passes tests locally.
+- [x] A clean checkout passes tests in GitHub Actions.
+- [x] Readiness distinguishes process health from database health.
+- [x] Migration and runtime credentials are separate.
 
 ## Phase 01 — Projects and plugin host
 
