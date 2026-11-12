@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `4ca8b0a` — phase 02 add typescript matchmaking plugin
+- `b7cf97b` — docs: update changelog [skip ci]
 - `2c19a9f` — phase 02 add typescript invites plugin
 - `86c9fde` — docs: update changelog [skip ci]
 - `c3afb5e` — phase 02 add typescript rooms plugin
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `a084b9a` — docs: update changelog [skip ci]
 - `39fb55f` — arch add external grpc mtls contract
 - `9fdc07b` — docs: update changelog [skip ci]
-- `de567eb` — phase 05 add plugin version promotion routing
-- `402f2fd` — docs: update changelog [skip ci]
