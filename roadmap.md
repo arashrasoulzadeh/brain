@@ -322,7 +322,7 @@ Goal: provide project-scoped identity, PostgreSQL APIs, files, subscriptions, an
 ### PostgreSQL tables and API exposure
 
 - [x] Create one schema per project.
-- [ ] Create scoped database roles.
+- [x] Create scoped database roles.
 - [ ] Test migration and runtime roles separately.
 - [ ] Bind caller context transaction-locally.
 - [ ] Add default-deny row policies.
