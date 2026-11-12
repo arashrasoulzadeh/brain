@@ -316,7 +316,7 @@ Goal: provide project-scoped identity, PostgreSQL APIs, files, subscriptions, an
 - [x] Limit sends and guesses.
 - [x] Add email recovery.
 - [x] Revoke sessions after password reset.
-- [ ] Hide account enumeration signals.
+- [x] Hide account enumeration signals.
 - [ ] Reject fake delivery configuration in production.
 
 ### PostgreSQL tables and API exposure

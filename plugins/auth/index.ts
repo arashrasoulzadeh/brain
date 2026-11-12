@@ -196,6 +196,10 @@ export function validateOIDCToken(claims: OIDCTokenClaims, config: OIDCConfig, e
 export function requireRecentAuthentication(authenticatedAt: number, now: number, maxAgeMs: number): void {
   if (maxAgeMs <= 0 || now - authenticatedAt > maxAgeMs) throw new Error("recent authentication required");
 }
+export function publicAuthError(error: unknown): string {
+  if (error instanceof Error && ["account already exists", "invalid credentials", "account not found"].includes(error.message)) return "invalid credentials";
+  return "authentication failed";
+}
 
 type AuthorizationCode = { projectId: string; clientId: string; redirectUri: string; userId: string; expiresAt: number; used: boolean };
 export class AuthorizationCodeStore {
