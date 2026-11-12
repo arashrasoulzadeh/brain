@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `64402fc` — 2026-11-13 02:45:49 +0330 — phase 02 verify two browser match start
+- `c6b4b10` — 2026-11-12 23:15:37 +0000 — docs: update changelog [skip ci]
 - `67fd118` — 2026-11-13 02:45:24 +0330 — phase 02 measure arena latency and memory
 - `96b43fb` — 2026-11-12 23:15:08 +0000 — docs: update changelog [skip ci]
 - `067a82f` — 2026-11-13 02:44:52 +0330 — phase 02 add eight player arena fixture
