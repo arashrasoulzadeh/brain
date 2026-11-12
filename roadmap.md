@@ -217,7 +217,7 @@ Goal: complete a private multiplayer match with matchmaking, realtime updates, a
 - [x] Make invites single-use.
 - [x] Reject an invite from another project.
 - [x] Reject a non-member socket.
-- [ ] Add player join and leave events.
+- [x] Add player join and leave events.
 - [ ] Persist room membership.
 
 ### FIFO matchmaking
