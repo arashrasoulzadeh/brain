@@ -83,6 +83,20 @@ export class IdentityLinker {
   }
 }
 
+export type OIDCConfig = { issuer: string; audience: string; clientId: string; redirectUri: string };
+export class OIDCConfigStore {
+  private readonly configs = new Map<string, OIDCConfig>();
+  set(projectId: string, config: OIDCConfig): void {
+    if (!projectId || !config.audience || !config.clientId || !/^https:\/\//.test(config.issuer) || !/^https:\/\//.test(config.redirectUri)) throw new Error("invalid OIDC configuration");
+    this.configs.set(projectId, { ...config });
+  }
+  get(projectId: string): OIDCConfig {
+    const config = this.configs.get(projectId);
+    if (!config) throw new Error("OIDC configuration not found");
+    return { ...config };
+  }
+}
+
 export class AuthService {
   private readonly accounts = new Map<string, Map<string, Account>>();
   private readonly sessions = new Map<string, { projectId: string; username: string; expiresAt: number }>();

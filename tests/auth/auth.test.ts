@@ -1,4 +1,4 @@
-import { AccountRateLimiter, AuthService, IdentityLinker, OperatorSessionRegistry, ProjectRateLimiter, functions, guestRequest, projectUserID, sessionTokenDigest, signInRequest, signUpRequest } from "../../plugins/auth/index.js";
+import { AccountRateLimiter, AuthService, IdentityLinker, OIDCConfigStore, OperatorSessionRegistry, ProjectRateLimiter, functions, guestRequest, projectUserID, sessionTokenDigest, signInRequest, signUpRequest } from "../../plugins/auth/index.js";
 import { createFunctionHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const serviceForHandler = new AuthService();
@@ -22,6 +22,9 @@ if (upgraded.userId !== guestAccount.userId || upgraded.username !== "dana") thr
 const links = new IdentityLinker();
 links.link("project-a:user-1", "google", "subject-1");
 try { links.link("project-a:user-2", "google", "subject-1"); throw new Error("identity-link conflict accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "identity already linked") throw error; }
+const oidc = new OIDCConfigStore();
+oidc.set("project-a", { issuer: "https://accounts.google.com", audience: "client-id", clientId: "client-id", redirectUri: "https://app.example/callback" });
+if (oidc.get("project-a").issuer !== "https://accounts.google.com") throw new Error("OIDC configuration failed");
 
 const service = new AuthService();
 const registration = service.signup("project-a", "alice", "correct horse battery");

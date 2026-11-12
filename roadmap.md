@@ -296,7 +296,7 @@ Goal: provide project-scoped identity, PostgreSQL APIs, files, subscriptions, an
 - [x] Add guest accounts.
 - [x] Add guest upgrade without changing user ID.
 - [x] Detect identity-link conflicts.
-- [ ] Add Google OIDC configuration.
+- [x] Add Google OIDC configuration.
 - [ ] Validate issuer, audience, expiry, signature, and nonce.
 - [ ] Require recent authentication for linking.
 - [ ] Add native authorization-code exchange.
