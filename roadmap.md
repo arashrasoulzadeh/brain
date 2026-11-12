@@ -120,7 +120,7 @@ Goal: create isolated projects and run one plugin through both supported worker 
 - [x] Define the plugin manifest.
 - [x] Add stable plugin ID and immutable version.
 - [x] Add host API compatibility.
-- [ ] Add dependency declarations.
+- [x] Add dependency declarations.
 - [x] Add capability declarations.
 - [ ] Add extension-point declarations.
 - [ ] Add configuration schema validation.
