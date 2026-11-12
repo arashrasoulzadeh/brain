@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `27618bf` — roadmap mark dashboard cli bootstrap verified
+- `019012d` — docs: update changelog [skip ci]
 - `26ffb44` — phase 01 bootstrap dashboard plugin from cli
 - `34cd635` — phase 01 add dashboard plugin manifest
 - `363efea` — test move all tests into tests tree
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `6a09351` — docs: update changelog [skip ci]
 - `f3319c4` — phase 01 add typed permission broker
 - `38b4671` — docs: update changelog [skip ci]
-- `acd0604` — roadmap mark plugin audit verified
-- `d68459a` — docs: update changelog [skip ci]
