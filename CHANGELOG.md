@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `18670d1` — 2026-11-13 02:12:06 +0330 — phase 01 expose plugin readiness separately
+- `c512dbf` — 2026-11-12 22:41:37 +0000 — docs: update changelog [skip ci]
 - `5bbd0df` — 2026-11-13 02:11:25 +0330 — docs define yaml-only plugin structure
 - `289ce4f` — 2026-11-12 22:41:13 +0000 — docs: update changelog [skip ci]
 - `fceb533` — 2026-11-13 02:11:01 +0330 — arch centralize plugin function dispatch
