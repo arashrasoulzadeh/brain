@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `067a82f` — 2026-11-13 02:44:52 +0330 — phase 02 add eight player arena fixture
+- `ba57734` — 2026-11-12 23:14:44 +0000 — docs: update changelog [skip ci]
 - `a8fdcf5` — 2026-11-13 02:44:28 +0330 — phase 02 export validated eye arena event
 - `6c247e3` — 2026-11-12 23:14:12 +0000 — docs: update changelog [skip ci]
 - `a57342d` — 2026-11-13 02:43:58 +0330 — phase 02 persist completed arena results
