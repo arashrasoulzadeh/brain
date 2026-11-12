@@ -3,6 +3,9 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `a045bc9` — 2026-11-13 02:33:23 +0330 — docs mark matchmaking expiry complete
+- `4f110a2` — 2026-11-13 02:33:12 +0330 — phase 02 expire matchmaking tickets
+- `59dcd44` — 2026-11-12 23:02:37 +0000 — docs: update changelog [skip ci]
 - `b03dd45` — 2026-11-13 02:32:18 +0330 — docs mark disabled matchmaking scopes complete
 - `7646454` — 2026-11-12 23:02:19 +0000 — docs: update changelog [skip ci]
 - `07ed02b` — 2026-11-13 02:32:07 +0330 — phase 02 reject disabled matchmaking scopes
