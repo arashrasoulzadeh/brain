@@ -23,6 +23,7 @@ if (!projectUserID("project-a", "user-1").startsWith("project-a:")) throw new Er
 try { service.signup("project-a", "alice", "another password"); throw new Error("duplicate username accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "account already exists") throw error; }
 service.signup("project-b", "alice", "correct horse battery");
 const session = service.signin("project-a", "alice", "correct horse battery");
+if (!session.token || session.username !== "alice") throw new Error("password sign-in failed");
 if (service.session("project-a", session.token).username !== "alice") throw new Error("session lookup failed");
 try { service.session("project-b", session.token); throw new Error("cross-project session accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid session") throw error; }
 try { service.signin("project-a", "alice", "wrong password"); throw new Error("invalid password accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid credentials") throw error; }
