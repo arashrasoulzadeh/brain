@@ -102,3 +102,11 @@ func TestBrokerRechecksGrantAtCommit(t *testing.T) {
 		t.Fatal("revoked grant committed")
 	}
 }
+
+func TestBrokerReturnsBoundedWorkerUnavailableError(t *testing.T) {
+	b := plugin.Broker{WorkerAvailable: func(string, string) bool { return false }, ActorAllows: func(string, string, string) bool { return true }}
+	err := b.Authorize(plugin.HostCall{ProjectID: "dev", ActorID: "a", PluginID: "p", Version: "1", ExpiresAt: time.Unix(100, 0)}, time.Unix(99, 0))
+	if !errors.Is(err, plugin.ErrWorkerUnavailable) {
+		t.Fatalf("Authorize() = %v", err)
+	}
+}
