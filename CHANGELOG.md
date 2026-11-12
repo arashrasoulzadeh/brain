@@ -3,6 +3,9 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `21b9c51` — 2026-11-13 02:08:17 +0330 — arch make yaml routes authoritative for plugins
+- `4c4a0aa` — 2026-11-13 01:58:15 +0330 — docs mark dashboard enablement complete
+- `d21c1fd` — 2026-11-12 22:28:17 +0000 — docs: update changelog [skip ci]
 - `2d1ba09` — 2026-11-13 01:58:02 +0330 — phase 01 implement dashboard plugin enablement
 - `729d11c` — 2026-11-12 22:27:26 +0000 — docs: update changelog [skip ci]
 - `1256bc7` — 2026-11-13 01:57:12 +0330 — docs mark dashboard grant approval complete
