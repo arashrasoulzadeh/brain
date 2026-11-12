@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `e24bc58` — 2026-11-13 02:34:38 +0330 — docs mark assignment decisions complete
+- `140f494` — 2026-11-12 23:04:41 +0000 — docs: update changelog [skip ci]
 - `02481ee` — 2026-11-13 02:34:27 +0330 — phase 02 record matchmaking assignments
 - `474cdca` — 2026-11-12 23:04:15 +0000 — docs: update changelog [skip ci]
 - `9087ac5` — 2026-11-13 02:33:55 +0330 — docs mark matchmaking requeue complete
