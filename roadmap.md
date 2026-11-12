@@ -238,7 +238,7 @@ Goal: complete a private multiplayer match with matchmaking, realtime updates, a
 - [x] Issue single-use connection tickets.
 - [x] Validate origin and project.
 - [x] Add heartbeat handling.
-- [ ] Add bounded frame sizes.
+- [x] Add bounded frame sizes.
 - [ ] Add bounded send queues.
 - [ ] Broadcast authorized snapshots.
 - [ ] Reject unauthorized commands.
