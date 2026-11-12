@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `80de493` — 2026-11-13 02:56:27 +0330 — phase 03 store session token digests
+- `b3dcc41` — 2026-11-12 23:26:10 +0000 — docs: update changelog [skip ci]
 - `c1c467a` — 2026-11-13 02:55:57 +0330 — phase 03 add project rate limits
 - `df19288` — 2026-11-12 23:25:41 +0000 — docs: update changelog [skip ci]
 - `431a58b` — 2026-11-13 02:55:30 +0330 — phase 03 add account rate limits
