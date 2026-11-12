@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `c559069` — phase 01 reject user operator actions
+- `1863c59` — docs: update changelog [skip ci]
 - `7f31707` — chore ignore typescript dependencies
 - `da06adb` — docs: update changelog [skip ci]
 - `e431f83` — phase 02 implement project scoped auth plugin
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `d4077c1` — docs: update changelog [skip ci]
 - `376a239` — phase 05 guard referenced plugin removal
 - `962995c` — docs: update changelog [skip ci]
-- `0f5daa3` — phase 05 pin plugin versions for active work
-- `aed4619` — docs: update changelog [skip ci]
