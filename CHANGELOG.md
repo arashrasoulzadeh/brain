@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `b5bdfa0` — 2026-11-13 02:58:55 +0330 — phase 03 add session logout
+- `ecb0054` — 2026-11-12 23:28:43 +0000 — docs: update changelog [skip ci]
 - `b5cb183` — 2026-11-13 02:58:32 +0330 — phase 03 reject refresh token reuse
 - `40663cf` — 2026-11-12 23:27:39 +0000 — docs: update changelog [skip ci]
 - `6682877` — 2026-11-13 02:57:26 +0330 — phase 03 rotate session tokens
