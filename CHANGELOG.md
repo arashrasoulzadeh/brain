@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `5317616` — 2026-11-13 03:12:12 +0330 — phase 03 limit otp sends and guesses
+- `2d31640` — 2026-11-12 23:41:45 +0000 — docs: update changelog [skip ci]
 - `c96f4b9` — 2026-11-13 03:11:33 +0330 — phase 03 verify otp expiry
 - `74c73a1` — 2026-11-12 23:41:25 +0000 — docs: update changelog [skip ci]
 - `922b0ac` — 2026-11-13 03:11:12 +0330 — phase 03 verify atomic otp consumption
