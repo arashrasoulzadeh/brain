@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `53eb4ce` — 2026-11-13 03:14:59 +0330 — phase 03 reject fake production delivery
+- `4840589` — 2026-11-12 23:44:33 +0000 — docs: update changelog [skip ci]
 - `9a95ad4` — 2026-11-13 03:14:20 +0330 — phase 03 hide account enumeration errors
 - `cc4879e` — 2026-11-12 23:43:53 +0000 — docs: update changelog [skip ci]
 - `36c2723` — 2026-11-13 03:13:39 +0330 — phase 03 revoke sessions after password reset
