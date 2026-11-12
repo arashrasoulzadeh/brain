@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `82d784f` — 2026-11-13 02:54:45 +0330 — phase 03 verify password registration
+- `38b2937` — 2026-11-12 23:19:46 +0000 — docs: update changelog [skip ci]
 - `02fca1b` — 2026-11-13 02:49:33 +0330 — phase 03 enforce project username uniqueness
 - `e399db5` — 2026-11-12 23:19:27 +0000 — docs: update changelog [skip ci]
 - `5c6b2c8` — 2026-11-13 02:49:14 +0330 — phase 03 add project scoped user ids
