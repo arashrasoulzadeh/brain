@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `2241574` — roadmap mark compose and migration checks verified
+- `74669a6` — docs: update changelog [skip ci]
 - `ca4397c` — phase 00 define platform migration schema
 - `183a3a6` — docs: update changelog [skip ci]
 - `ada4b46` — ci add opt-in compose smoke test and changelog rules
