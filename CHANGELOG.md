@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `6b2dd6c` — phase 00 close foundation documentation
+- `8d2d5ea` — docs: update changelog [skip ci]
 - `2241574` — roadmap mark compose and migration checks verified
 - `74669a6` — docs: update changelog [skip ci]
 - `ca4397c` — phase 00 define platform migration schema
