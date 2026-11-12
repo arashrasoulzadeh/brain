@@ -1,4 +1,4 @@
-import { adminRequest, handle, manifest, projectCreateRequest } from "../../plugins/dashboard/src/index.js";
+import { DashboardService, adminRequest, createHandler, manifest, projectCreateRequest } from "../../plugins/dashboard/src/index.js";
 
 const request = projectCreateRequest("dev");
 if (manifest.id !== "dashboard" || request.params.operation !== "project.create") {
@@ -12,5 +12,9 @@ if (install.params.operation !== "plugin.install" || grant.params.operation !== 
   throw new Error("generic dashboard operation contract failed");
 }
 
-const result = handle(projectCreateRequest("dev"));
+const service = new DashboardService();
+const result = createHandler(service)(projectCreateRequest("dev"));
 if (typeof result !== "object") throw new Error("dashboard handler did not return a result");
+service.createProject("project-a");
+if (!service.hasProject("project-a")) throw new Error("dashboard project was not created");
+try { service.createProject("project-a"); throw new Error("duplicate project was accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "project already exists") throw error; }

@@ -20,8 +20,30 @@ export function adminRequest(projectId: string, operation: string, payload: unkn
   return request(`dashboard-${operation}-${projectId}`, { protocol: 1, projectId, pluginId: manifest.id, version: manifest.version, operation, payload });
 }
 
-export const handle: PluginHandler = (rpc) => {
+export class DashboardService {
+  private readonly projects = new Set<string>();
+
+  createProject(projectId: string) {
+    if (!projectId.trim()) throw new Error("project id required");
+    if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(projectId)) throw new Error("invalid project id");
+    if (this.projects.has(projectId)) throw new Error("project already exists");
+    this.projects.add(projectId);
+    return { projectId };
+  }
+
+  hasProject(projectId: string) { return this.projects.has(projectId); }
+}
+
+export function createHandler(service = new DashboardService()): PluginHandler {
+ return (rpc) => {
   const supported = ["project.create", "plugin.install", "plugin.grant", "plugin.enable"];
   if (!supported.includes(rpc.params.operation)) throw new Error("unsupported dashboard operation");
+  if (rpc.params.operation === "project.create") {
+    const payload = rpc.params.payload as { id?: string } | undefined;
+    return { accepted: true, operation: rpc.params.operation, ...service.createProject(payload?.id ?? "") };
+  }
   return { accepted: true, operation: rpc.params.operation, payload: rpc.params.payload ?? null };
-};
+ };
+}
+
+export const handle = createHandler();
