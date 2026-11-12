@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `219366a` — phase 01 resolve project at http entry
+- `587b679` — docs: update changelog [skip ci]
 - `6b2dd6c` — phase 00 close foundation documentation
 - `8d2d5ea` — docs: update changelog [skip ci]
 - `2241574` — roadmap mark compose and migration checks verified
