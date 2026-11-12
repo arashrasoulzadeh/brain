@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `39fb55f` — arch add external grpc mtls contract
+- `9fdc07b` — docs: update changelog [skip ci]
 - `de567eb` — phase 05 add plugin version promotion routing
 - `402f2fd` — docs: update changelog [skip ci]
 - `bce5756` — arch add typescript sdk and unix transport
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `a794ab0` — roadmap mark commit grant recheck verified
 - `74e6631` — phase 01 recheck plugin grants at commit
 - `b4339a7` — docs: update changelog [skip ci]
-- `0efcfa3` — roadmap mark invocation credentials verified
-- `f526462` — docs: update changelog [skip ci]
