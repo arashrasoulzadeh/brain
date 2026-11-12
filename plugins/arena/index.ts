@@ -23,6 +23,12 @@ export class ArenaStateMachine {
   }
 }
 
+export function arenaStartCommand(arena: ArenaStateMachine, projectId: string, roomId: string, players: readonly string[]): ArenaStateMachine {
+  if (arena.projectId !== projectId || arena.roomId !== roomId) throw new Error("arena project mismatch");
+  arena.start(players);
+  return arena;
+}
+
 export function validateMatchResult(result: DurableMatchResult): void {
   if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*:[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(result.resultId)) throw new Error("invalid result id");
   if (!result.projectId || !result.roomId || !result.completedAt || result.winnerIds.length === 0) throw new Error("invalid match result");
