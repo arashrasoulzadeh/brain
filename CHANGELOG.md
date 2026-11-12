@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `2f96c41` — 2026-11-13 02:18:03 +0330 — docs mark phase 02 websocket contract complete
+- `a3c3146` — 2026-11-12 22:48:05 +0000 — docs: update changelog [skip ci]
 - `0f372db` — 2026-11-13 02:17:52 +0330 — phase 02 define versioned websocket messages
 - `7fc9af9` — 2026-11-12 22:47:31 +0000 — docs: update changelog [skip ci]
 - `1c8b805` — 2026-11-13 02:17:13 +0330 — docs mark phase 02 http envelope complete
