@@ -30,6 +30,8 @@ This repository is building a Go multi-tenant mobile backend. The complete produ
 - Do not mark a checkbox complete without committing and pushing its verified change.
 - Keep one checkbox's implementation in one commit when practical; do not mix unrelated work.
 - After the final checkbox in a phase, run the phase exit gate, commit its result, and push again if the gate creates changes.
+- After every phase, update `CHANGELOG.md`, `docs/developers.md`, and `docs/admins.md` with the verified work, operator impact, limitations, and next phase.
+- Treat the phase documentation update as part of the phase exit gate; do not declare a phase complete without it.
 
 ## Coding defaults
 

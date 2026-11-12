@@ -16,6 +16,12 @@ For every checkbox:
 
 At the end of every phase, run its exit gate, commit any gate changes, push them, and record the verification result.
 
+Every phase exit must also update:
+
+- [ ] `CHANGELOG.md` with the completed capabilities and commit reference.
+- [ ] `docs/developers.md` with implementation and testing notes.
+- [ ] `docs/admins.md` with available operations, configuration, and limitations.
+
 ## Working rules
 
 - [ ] Start each feature with one failing test.

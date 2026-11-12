@@ -10,6 +10,8 @@
 6. Update only the verified roadmap item.
 7. Commit and push before starting the next item.
 
+At the end of every phase, update this guide with the implementation notes, test commands, compatibility changes, and the next phase before committing the phase result.
+
 ## Local development
 
 Do not run Docker during normal development. Use in-process tests and isolated local settings. Use real PostgreSQL integration tests when behavior depends on roles, row-level security, migrations, locks, or PostgreSQL transactions.

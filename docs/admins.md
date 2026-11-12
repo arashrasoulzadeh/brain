@@ -23,3 +23,5 @@ The dashboard, operator MFA, recovery, worker supervision, external workers, and
 - Keep runtime credentials unable to run DDL.
 - Use Docker/Compose only for explicit integration or release checks.
 - Record the commit and test result for every completed roadmap item.
+
+At the end of every phase, this guide must be updated with new operator capabilities, configuration changes, migration notes, security considerations, limitations, and rollback guidance.

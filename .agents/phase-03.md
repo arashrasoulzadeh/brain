@@ -7,3 +7,5 @@ Use real PostgreSQL roles and transactions for isolation tests. Bind caller cont
 Never log codes, tokens, credentials, or raw sensitive payloads. Keep fake email/SMS delivery test-only. Recheck authorization during subscription delivery, file access, and destructive dashboard actions.
 
 After every completed checkbox, make a focused commit and push it before taking the next checkbox. After the Phase 03 gate passes, commit and push the phase result.
+
+Before the Phase 03 result commit, update `CHANGELOG.md`, `docs/developers.md`, and `docs/admins.md`.

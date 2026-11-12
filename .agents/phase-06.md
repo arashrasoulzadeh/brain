@@ -7,3 +7,5 @@ Keep all clients aligned to shared HTTP and WebSocket fixtures. Retries must be 
 Release artifacts are keyed by the full commit SHA and pinned image digests. Pull and validate images before draining. Preserve the last healthy set. Test migration failure, health failure, rollback, restore, both architectures, and the measured 4-vCPU/8-GB profile.
 
 After every completed checkbox, make a focused commit and push it before taking the next checkbox. After the Phase 06 gate passes, commit and push the phase result.
+
+Before the Phase 06 result commit, update `CHANGELOG.md`, `docs/developers.md`, and `docs/admins.md`.
