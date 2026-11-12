@@ -12,6 +12,13 @@ export class InviteDirectory {
     this.invites.set(id, invite);
     return { ...invite };
   }
+
+  accept(inviteId: string, projectId: string, playerId: string, now = Date.now()): Invite {
+    const invite = this.invites.get(inviteId);
+    if (!invite || invite.projectId !== projectId || invite.targetPlayerId !== playerId || invite.used || invite.expiresAt <= now) throw new Error("invite unavailable");
+    invite.used = true;
+    return { ...invite };
+  }
 }
 
 export function inviteRequest(projectId: string, pluginId: string, version: string, operation: "invites.create" | "invites.accept" | "invites.cancel", roomId: string, payload: unknown = {}) {
