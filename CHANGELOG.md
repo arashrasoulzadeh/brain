@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `d0cf9b3` — 2026-11-13 02:42:07 +0330 — phase 02 add arena state machine
+- `1364700` — 2026-11-12 23:11:27 +0000 — docs: update changelog [skip ci]
 - `dc0728b` — 2026-11-13 02:41:15 +0330 — phase 02 replay missed room events
 - `f0a409b` — 2026-11-12 23:11:03 +0000 — docs: update changelog [skip ci]
 - `74a49eb` — 2026-11-13 02:40:45 +0330 — phase 02 reconnect existing room players
