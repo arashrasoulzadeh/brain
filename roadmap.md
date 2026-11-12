@@ -336,7 +336,7 @@ Goal: provide project-scoped identity, PostgreSQL APIs, files, subscriptions, an
 - [x] Add cursor pagination.
 - [x] Validate values and identifiers.
 - [x] Add record versions.
-- [ ] Reject stale writes.
+- [x] Reject stale writes.
 - [ ] Make retried creates idempotent.
 - [ ] Add guided schema changes.
 - [ ] Add SQL migration preview.
