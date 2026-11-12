@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `dd19842` — 2026-11-13 02:16:24 +0330 — phase 01 pass plugin dashboard exit gate
+- `daa40d8` — 2026-11-12 22:45:47 +0000 — docs: update changelog [skip ci]
 - `18df8c9` — 2026-11-13 02:15:29 +0330 — docs mark local analytics sink complete
 - `bb83013` — 2026-11-12 22:45:30 +0000 — docs: update changelog [skip ci]
 - `befdd67` — 2026-11-13 02:15:18 +0330 — phase 01 capture analytics events in local sink
