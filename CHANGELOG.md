@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `5bbd0df` — 2026-11-13 02:11:25 +0330 — docs define yaml-only plugin structure
+- `289ce4f` — 2026-11-12 22:41:13 +0000 — docs: update changelog [skip ci]
 - `fceb533` — 2026-11-13 02:11:01 +0330 — arch centralize plugin function dispatch
 - `0cdbc65` — 2026-11-12 22:39:13 +0000 — docs: update changelog [skip ci]
 - `e4279cb` — 2026-11-13 02:08:59 +0330 — arch generate plugin docs from yaml routes
