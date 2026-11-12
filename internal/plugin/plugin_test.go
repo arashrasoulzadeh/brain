@@ -33,6 +33,31 @@ func TestPluginLifecycleAndScopedAuthorization(t *testing.T) {
 	}
 }
 
+func TestProjectsCanInstallSameVersionIndependently(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	m := plugin.Manifest{ID: "guest", Version: "1.0.0", HostAPI: 1, Capabilities: []string{"session.issue"}}
+	if err := r.Register(m); err != nil {
+		t.Fatal(err)
+	}
+	for _, projectID := range []string{"dev", "prod"} {
+		if err := r.Install(projectID, m.ID, m.Version); err != nil {
+			t.Fatal(err)
+		}
+		if err := r.Grant(projectID, m.ID, m.Version, "session.issue"); err != nil {
+			t.Fatal(err)
+		}
+		if err := r.Enable(projectID, m.ID, m.Version); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := r.Authorize("dev", m.ID, m.Version, "session.issue"); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Authorize("prod", m.ID, m.Version, "session.issue"); err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestPluginRegistrationRejectsDuplicatesAndWrongHostAPI(t *testing.T) {
 	r := plugin.NewRegistry(1)
 	m := plugin.Manifest{ID: "arena", Version: "1.0.0", HostAPI: 1}

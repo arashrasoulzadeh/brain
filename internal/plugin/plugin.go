@@ -13,10 +13,13 @@ var (
 )
 
 type Manifest struct {
-	ID           string
-	Version      string
-	HostAPI      int
-	Capabilities []string
+	ID              string
+	Version         string
+	HostAPI         int
+	Dependencies    []string
+	Capabilities    []string
+	ExtensionPoints []string
+	ConfigSchema    map[string]string
 }
 
 type Registered struct{ Manifest Manifest }
@@ -40,7 +43,7 @@ func NewRegistry(hostAPI int) *Registry {
 }
 
 func (r *Registry) Register(m Manifest) error {
-	if m.HostAPI != r.HostAPI {
+	if m.ID == "" || m.Version == "" || m.HostAPI != r.HostAPI {
 		return ErrIncompatible
 	}
 	key := m.ID + "@" + m.Version
