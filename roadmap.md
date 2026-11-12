@@ -118,8 +118,8 @@ Goal: create isolated projects and run one plugin through both supported worker 
 - [x] Reject invalid MFA.
 - [x] Add operator recovery.
 - [x] Add CSRF protection.
-- [ ] Reject an ordinary user attempting an operator action.
-- [ ] Audit operator sign-in and recovery.
+- [x] Reject an ordinary user attempting an operator action.
+- [x] Audit operator sign-in and recovery.
 
 ### Plugin registration
 
@@ -128,11 +128,11 @@ Goal: create isolated projects and run one plugin through both supported worker 
 - [x] Add host API compatibility.
 - [x] Add dependency declarations.
 - [x] Add capability declarations.
-- [ ] Add extension-point declarations.
+- [x] Add extension-point declarations.
 - [x] Add configuration schema validation.
 - [x] Reject duplicate registrations.
 - [x] Reject incompatible protocol versions.
-- [ ] Store approved artifact or endpoint information.
+- [x] Store approved artifact or endpoint information.
 
 ### Installation and grants
 
@@ -151,7 +151,7 @@ Goal: create isolated projects and run one plugin through both supported worker 
 - [x] Define typed host calls.
 - [x] Check actor permission.
 - [x] Check project installation grant.
-- [ ] Check matchmaking scope when present.
+- [x] Check matchmaking scope when present.
 - [x] Check resource scope.
 - [x] Issue short-lived invocation credentials.
 - [x] Expire invocation credentials.
