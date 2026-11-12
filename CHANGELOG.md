@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `60d808c` — 2026-11-13 03:27:09 +0330 — phase 03 validate table values and identifiers
+- `e06abcb` — 2026-11-12 23:56:44 +0000 — docs: update changelog [skip ci]
 - `eed3947` — 2026-11-13 03:26:31 +0330 — phase 03 add cursor pagination
 - `2b5ff62` — 2026-11-12 23:56:05 +0000 — docs: update changelog [skip ci]
 - `1f405b8` — 2026-11-13 03:25:53 +0330 — phase 03 validate approved table filters
