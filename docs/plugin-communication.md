@@ -28,3 +28,5 @@ TypeScript plugins run as separate Node.js workers. They never run inside the Go
 User-authored functions use a stricter sandboxed runtime and must not be treated as trusted TypeScript plugins.
 
 The starter SDK is in `plugins/sdk-typescript`. It produces the same JSON-RPC envelope used by the Go host and does not provide direct database or credential access.
+
+The host discovers feature plugins by scanning `plugins/<plugin-id>/plugin.yaml`; feature registration is not hardcoded in the Go host.
