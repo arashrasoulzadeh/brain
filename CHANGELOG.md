@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `dc0a1a1` — 2026-11-13 02:17:02 +0330 — phase 02 define versioned http request envelope
+- `a422ca3` — 2026-11-12 22:46:41 +0000 — docs: update changelog [skip ci]
 - `dd19842` — 2026-11-13 02:16:24 +0330 — phase 01 pass plugin dashboard exit gate
 - `daa40d8` — 2026-11-12 22:45:47 +0000 — docs: update changelog [skip ci]
 - `18df8c9` — 2026-11-13 02:15:29 +0330 — docs mark local analytics sink complete
