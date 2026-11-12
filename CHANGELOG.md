@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `8068cc2` — roadmap mark permission broker checks verified
+- `6a09351` — docs: update changelog [skip ci]
 - `f3319c4` — phase 01 add typed permission broker
 - `38b4671` — docs: update changelog [skip ci]
 - `acd0604` — roadmap mark plugin audit verified
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `33f8bdf` — docs: update changelog [skip ci]
 - `219366a` — phase 01 resolve project at http entry
 - `587b679` — docs: update changelog [skip ci]
-- `6b2dd6c` — phase 00 close foundation documentation
-- `8d2d5ea` — docs: update changelog [skip ci]
