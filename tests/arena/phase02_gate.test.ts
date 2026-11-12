@@ -17,3 +17,5 @@ const completed = browserOne.result(["user-1"], "2026-11-13T00:00:00.000Z");
 const store = new MatchResultStore();
 store.save(completed);
 if (store.get(completed.resultId)?.projectId !== "dev") throw new Error("durable result was not persisted");
+try { rooms.get("prod", "gate-room"); throw new Error("private room crossed project boundary"); } catch (error) { if (!(error instanceof Error) || error.message !== "room not found") throw error; }
+if (rooms.isMember("dev", "gate-room", "user-1") !== true || rooms.isMember("dev", "gate-room", "user-9") !== false) throw new Error("private room membership gate failed");
