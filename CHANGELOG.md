@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `91f2fdd` — phase 05 add dashboard plugin lifecycle actions
+- `d4077c1` — docs: update changelog [skip ci]
 - `376a239` — phase 05 guard referenced plugin removal
 - `962995c` — docs: update changelog [skip ci]
 - `0f5daa3` — phase 05 pin plugin versions for active work
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `c30be31` — docs: update changelog [skip ci]
 - `253c617` — phase 01 add bundled worker supervisor
 - `1dbe4ec` — docs: update changelog [skip ci]
-- `9e1da42` — roadmap mark worker protocol verified
-- `1eb421c` — phase 01 add versioned worker contract
