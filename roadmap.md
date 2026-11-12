@@ -99,7 +99,7 @@ Goal: create isolated projects and run one plugin through both supported worker 
 - [x] Reject unknown projects.
 - [x] Reject inactive projects.
 - [x] Add operator bootstrap through the CLI.
-- [ ] Add operator sign-in.
+- [x] Add operator sign-in.
 - [ ] Add MFA verification.
 - [ ] Reject invalid MFA.
 - [ ] Add operator recovery.
