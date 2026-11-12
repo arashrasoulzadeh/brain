@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `b6f15e9` — 2026-11-13 02:14:50 +0330 — docs mark analytics field validation complete
+- `19513b7` — 2026-11-12 22:44:51 +0000 — docs: update changelog [skip ci]
 - `d66c5f4` — 2026-11-13 02:14:38 +0330 — phase 01 reject undeclared analytics fields
 - `441347a` — 2026-11-12 22:44:27 +0000 — docs: update changelog [skip ci]
 - `a0da5ba` — 2026-11-13 02:14:09 +0330 — docs mark analytics contract complete
