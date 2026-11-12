@@ -26,6 +26,15 @@ export class RoomDirectory {
     if (!room) throw new Error("room not found");
     return { ...room, slots: [...room.slots] };
   }
+  join(projectId: string, roomId: string, playerId: string, slot: number): Room {
+    const key = projectRoomID(projectId, roomId);
+    const room = this.rooms.get(key);
+    if (!room) throw new Error("room not found");
+    if (room.state !== "waiting" && room.state !== "matching") throw new Error("room not joinable");
+    if (!playerId || slot < 0 || slot >= room.maxPlayers || room.slots.some((player) => player.slot === slot || player.playerId === playerId)) throw new Error("invalid membership");
+    room.slots.push({ playerId, slot });
+    return { ...room, slots: [...room.slots] };
+  }
 }
 
 export function canTransitionRoom(from: RoomState, to: RoomState): boolean {
