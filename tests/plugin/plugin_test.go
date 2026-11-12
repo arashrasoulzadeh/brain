@@ -114,6 +114,21 @@ func TestPluginRegistrationRejectsBlankExtensionPoint(t *testing.T) {
 	}
 }
 
+func TestPluginStoresApprovedArtifactEndpoint(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	m := plugin.Manifest{ID: "auth", Version: "1.0.0", HostAPI: 1}
+	if err := r.Register(m); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.ApproveArtifact(m.ID, m.Version, "https://plugins.example/auth-1.0.0.tgz"); err != nil {
+		t.Fatal(err)
+	}
+	approved, ok := r.ApprovedArtifact(m.ID, m.Version)
+	if !ok || approved != "https://plugins.example/auth-1.0.0.tgz" {
+		t.Fatalf("approved artifact = %q, %v", approved, ok)
+	}
+}
+
 func TestInstallationConfigurationUsesManifestSchema(t *testing.T) {
 	r := plugin.NewRegistry(1)
 	m := plugin.Manifest{ID: "dashboard", Version: "1.0.0", HostAPI: 1, ConfigSchema: map[string]string{"label": "string", "enabled": "bool"}}

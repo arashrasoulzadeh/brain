@@ -3,6 +3,7 @@ package plugin
 import (
 	"errors"
 	"fmt"
+	"net/url"
 	"strings"
 	"time"
 )
@@ -54,6 +55,7 @@ type Registry struct {
 	audit         []AuditEvent
 	active        map[string]string
 	pins          map[string]string
+	artifacts     map[string]string
 }
 
 type AuditEvent struct {
@@ -74,7 +76,25 @@ func (m Manifest) RequestedCapabilities() []CapabilityRequest {
 }
 
 func NewRegistry(hostAPI int) *Registry {
-	return &Registry{HostAPI: hostAPI, registered: map[string]Registered{}, installations: map[string]Installation{}, readiness: map[string]bool{}, active: map[string]string{}, pins: map[string]string{}}
+	return &Registry{HostAPI: hostAPI, registered: map[string]Registered{}, installations: map[string]Installation{}, readiness: map[string]bool{}, active: map[string]string{}, pins: map[string]string{}, artifacts: map[string]string{}}
+}
+
+func (r *Registry) ApproveArtifact(id, version, endpoint string) error {
+	if _, ok := r.registered[id+"@"+version]; !ok {
+		return ErrNotRegistered
+	}
+	u, err := url.Parse(endpoint)
+	if err != nil || u.Scheme != "https" || u.Host == "" {
+		return ErrInvalidManifest
+	}
+	r.artifacts[id+"@"+version] = endpoint
+	r.audit = append(r.audit, AuditEvent{Action: "approve_artifact", PluginID: id, Version: version, Detail: endpoint})
+	return nil
+}
+
+func (r *Registry) ApprovedArtifact(id, version string) (string, bool) {
+	endpoint, ok := r.artifacts[id+"@"+version]
+	return endpoint, ok
 }
 
 func (r *Registry) Register(m Manifest) error {
