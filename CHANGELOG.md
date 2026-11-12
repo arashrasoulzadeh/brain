@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `6cf21df` — 2026-11-13 03:06:30 +0330 — phase 03 add pkce verification
+- `84fa542` — 2026-11-12 23:36:05 +0000 — docs: update changelog [skip ci]
 - `98fa91f` — 2026-11-13 03:05:50 +0330 — phase 03 add authorization code exchange
 - `a3904b4` — 2026-11-12 23:35:23 +0000 — docs: update changelog [skip ci]
 - `9872ee9` — 2026-11-13 03:05:08 +0330 — phase 03 require recent authentication for linking
