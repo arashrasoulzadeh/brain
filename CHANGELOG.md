@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `4208c34` — phase 01 authenticate external worker handshakes
+- `7df79a1` — docs: update changelog [skip ci]
 - `9da8786` — roadmap mark external worker endpoint verified
 - `7a5aa97` — docs: update changelog [skip ci]
 - `bd3d96f` — phase 01 add external worker handshake endpoint
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `c823d26` — docs: update changelog [skip ci]
 - `eb3779f` — phase 01 add capability and resource grants
 - `3ef659e` — docs: update changelog [skip ci]
-- `cdfa3a5` — roadmap mark plugin config validation verified
-- `3a6d311` — docs: update changelog [skip ci]
