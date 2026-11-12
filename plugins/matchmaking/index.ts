@@ -36,6 +36,14 @@ export class MatchmakingQueue {
     return { ...ticket };
   }
   peek(projectId: string, scope: string): readonly MatchmakingTicket[] { return [...(this.queues.get(`${projectId}:${scope}`) ?? [])]; }
+  match(projectId: string, scope: string, matchSize: number): MatchmakingTicket[] {
+    const key = `${projectId}:${scope}`;
+    const queue = this.queues.get(key) ?? [];
+    if (matchSize < 1 || queue.length < matchSize) return [];
+    const matched = queue.slice(0, matchSize);
+    this.queues.set(key, queue.slice(matchSize));
+    return matched.map((ticket) => ({ ...ticket }));
+  }
 }
 
 export function matchmakingRequest(projectId: string, pluginId: string, version: string, operation: "matchmaking.queue" | "matchmaking.cancel" | "matchmaking.status" | "matchmaking.assign", config: string, payload: unknown = {}) {

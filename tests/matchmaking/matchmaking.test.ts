@@ -13,3 +13,5 @@ const first = queue.enqueue("dev", "ranked", "user-1", 1000);
 queue.enqueue("dev", "ranked", "user-2", 2000);
 if (queue.peek("dev", "ranked")[0].id !== first.id || queue.peek("prod", "ranked").length !== 0) throw new Error("project queue isolation or FIFO failed");
 try { queue.enqueue("dev", "ranked", "user-1", 3000); throw new Error("duplicate active ticket accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "active ticket already exists") throw error; }
+const matched = queue.match("dev", "ranked", 2);
+if (matched.length !== 2 || matched[0].playerId !== "user-1" || queue.peek("dev", "ranked").length !== 0) throw new Error("compatible FIFO matching failed");
