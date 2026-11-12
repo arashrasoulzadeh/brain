@@ -226,7 +226,7 @@ Goal: complete a private multiplayer match with matchmaking, realtime updates, a
 - [x] Add a project-scoped queue.
 - [x] Add a FIFO ticket.
 - [x] Prevent duplicate active tickets.
-- [ ] Match compatible tickets.
+- [x] Match compatible tickets.
 - [ ] Reject tickets for disabled scopes.
 - [ ] Add assignment expiry.
 - [ ] Requeue failed assignments.
