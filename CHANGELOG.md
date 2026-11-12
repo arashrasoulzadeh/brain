@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `ba2acba` — 2026-11-13 02:13:57 +0330 — phase 01 define analytics event contract
+- `646ba03` — 2026-11-12 22:43:39 +0000 — docs: update changelog [skip ci]
 - `6e45282` — 2026-11-13 02:13:19 +0330 — docs mark guest auth complete
 - `fb0ca4e` — 2026-11-12 22:43:20 +0000 — docs: update changelog [skip ci]
 - `b9de273` — 2026-11-13 02:13:08 +0330 — phase 01 add yaml declared guest auth
