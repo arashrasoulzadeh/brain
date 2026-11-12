@@ -84,6 +84,18 @@ export function normalizePhoneNumber(value: string): string {
   if (!/^\+[1-9][0-9]{7,14}$/.test(normalized)) throw new Error("invalid phone number");
   return normalized;
 }
+export class OTPLimiter {
+  private readonly counts = new Map<string, { startedAt: number; count: number }>();
+  constructor(private readonly limit: number, private readonly windowMs: number) {}
+  allow(projectId: string, destination: string, now: number): boolean {
+    const key = `${projectId}:${destination}`;
+    const current = this.counts.get(key);
+    if (!current || now - current.startedAt >= this.windowMs) { this.counts.set(key, { startedAt: now, count: 1 }); return true; }
+    if (current.count >= this.limit) return false;
+    current.count += 1;
+    return true;
+  }
+}
 
 export class AccountRateLimiter {
   private readonly attempts = new Map<string, { startedAt: number; count: number }>();

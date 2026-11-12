@@ -1,4 +1,4 @@
-import { AccountRateLimiter, AuthService, AuthorizationCodeStore, EmailOTPService, IdentityLinker, OIDCConfigStore, OIDCStateStore, OperatorSessionRegistry, ProjectRateLimiter, SMSOTPService, TestDeliveryInbox, createPKCEChallenge, functions, guestRequest, normalizePhoneNumber, projectUserID, requireRecentAuthentication, sessionTokenDigest, signInRequest, signUpRequest, validateOIDCToken, verifyPKCE } from "../../plugins/auth/index.js";
+import { AccountRateLimiter, AuthService, AuthorizationCodeStore, EmailOTPService, IdentityLinker, OIDCConfigStore, OIDCStateStore, OTPLimiter, OperatorSessionRegistry, ProjectRateLimiter, SMSOTPService, TestDeliveryInbox, createPKCEChallenge, functions, guestRequest, normalizePhoneNumber, projectUserID, requireRecentAuthentication, sessionTokenDigest, signInRequest, signUpRequest, validateOIDCToken, verifyPKCE } from "../../plugins/auth/index.js";
 import { createFunctionHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const serviceForHandler = new AuthService();
@@ -49,6 +49,8 @@ sms.issue("project-a", "+989121234567", "signin", 1000, 300);
 const smsCode = inbox.read("+989121234567");
 if (!smsCode || !sms.verify("project-a", "+989121234567", "signin", smsCode, 1001)) throw new Error("SMS OTP failed");
 if (normalizePhoneNumber("0098 912-123-4567") !== "+989121234567") throw new Error("phone normalization failed");
+const otpLimiter = new OTPLimiter(2, 1000);
+if (!otpLimiter.allow("project-a", "alice@example.com", 100) || !otpLimiter.allow("project-a", "alice@example.com", 101) || otpLimiter.allow("project-a", "alice@example.com", 102)) throw new Error("OTP send limit failed");
 
 const service = new AuthService();
 const registration = service.signup("project-a", "alice", "correct horse battery");
