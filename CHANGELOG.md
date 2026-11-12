@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `cbd44f2` — roadmap mark bundled worker fixture verified
+- `c74474a` — docs: update changelog [skip ci]
 - `e48ac3f` — phase 01 run bundled worker contract fixture
 - `77d4bda` — docs: update changelog [skip ci]
 - `8b9aadc` — roadmap mark worker isolation policy verified
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `008253e` — docs: update changelog [skip ci]
 - `24c424b` — phase 01 validate plugin dependencies
 - `d822b0a` — docs: update changelog [skip ci]
-- `fdf7d90` — arch enforce plugin first feature structure
-- `5c63d91` — docs: update changelog [skip ci]
