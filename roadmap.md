@@ -311,7 +311,7 @@ Goal: provide project-scoped identity, PostgreSQL APIs, files, subscriptions, an
 - [x] Normalize phone numbers to E.164.
 - [x] Bind challenges to project, destination, and purpose.
 - [x] Store keyed code digests.
-- [ ] Consume codes atomically.
+- [x] Consume codes atomically.
 - [ ] Expire codes quickly.
 - [ ] Limit sends and guesses.
 - [ ] Add email recovery.
