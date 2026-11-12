@@ -230,7 +230,7 @@ Goal: complete a private multiplayer match with matchmaking, realtime updates, a
 - [x] Reject tickets for disabled scopes.
 - [x] Add assignment expiry.
 - [x] Requeue failed assignments.
-- [ ] Record assignment decisions.
+- [x] Record assignment decisions.
 
 ### Realtime gameplay
 
