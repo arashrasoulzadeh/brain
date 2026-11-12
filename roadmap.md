@@ -150,7 +150,7 @@ Goal: create isolated projects and run one plugin through both supported worker 
 - [x] Issue short-lived invocation credentials.
 - [x] Expire invocation credentials.
 - [x] Recheck grants before commit.
-- [ ] Return bounded errors when a worker is unavailable.
+- [x] Return bounded errors when a worker is unavailable.
 
 ### Workers
 
