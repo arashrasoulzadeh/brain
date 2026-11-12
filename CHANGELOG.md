@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `2d2586d` — 2026-11-13 02:28:21 +0330 — phase 02 persist room membership through store
+- `084ac03` — 2026-11-12 22:58:11 +0000 — docs: update changelog [skip ci]
 - `749535e` — 2026-11-13 02:27:52 +0330 — docs mark room player events complete
 - `a2a44b0` — 2026-11-12 22:57:54 +0000 — docs: update changelog [skip ci]
 - `c7a9475` — 2026-11-13 02:27:41 +0330 — phase 02 emit room player events
