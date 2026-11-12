@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `3260eb9` — 2026-11-13 03:23:14 +0330 — phase 03 add table exposure records
+- `e32c424` — 2026-11-12 23:52:46 +0000 — docs: update changelog [skip ci]
 - `02bc456` — 2026-11-13 03:22:33 +0330 — phase 03 reject pooled caller reuse
 - `1da4f7a` — 2026-11-12 23:51:51 +0000 — docs: update changelog [skip ci]
 - `de0ebca` — 2026-11-13 03:21:40 +0330 — phase 03 verify cross project table isolation
