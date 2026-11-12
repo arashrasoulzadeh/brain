@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `4a76fd1` — phase 03 add typescript auth plugin
+- `23621b0` — docs: update changelog [skip ci]
 - `a1e6946` — refactor dashboard to generic plugin operations
 - `cd68ff7` — docs: update changelog [skip ci]
 - `2dc7ac4` — phase 01 complete dashboard typescript contract
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `34cd635` — phase 01 add dashboard plugin manifest
 - `363efea` — test move all tests into tests tree
 - `cb13964` — docs: update changelog [skip ci]
-- `1fe937f` — roadmap mark external worker fixture verified
-- `f5d44a8` — docs: update changelog [skip ci]
