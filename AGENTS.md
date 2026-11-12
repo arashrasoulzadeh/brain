@@ -12,6 +12,8 @@ This repository is building a Go multi-tenant mobile backend. The complete produ
 - Every plugin must have a manifest, implementation, focused tests, permissions, configuration schema, developer notes, and administrator notes.
 - Plugins may depend on host contracts and approved plugins, but may not bypass the permission broker or project boundary.
 - Plugins remain dynamically replaceable: version, enable, disable, promote, rollback, drain, and remove them through host lifecycle contracts.
+- All tests for every layer—unit, contract, API, admin, plugin, integration, and end-to-end—must live under the top-level `tests/` directory. Never add test files beside implementation packages.
+- Preserve test package boundaries under `tests/<area>/`, and run the full suite with `go test ./...` after moves.
 
 ## How to work
 

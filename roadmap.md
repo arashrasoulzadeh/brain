@@ -42,6 +42,12 @@ Every phase exit must also update:
 - [ ] Make every plugin dynamically versionable, enableable, disableable, promotable, rollbackable, drainable, and removable.
 - [ ] Do not bypass the host permission broker or project boundary from plugin code.
 
+## Test organization law
+
+- [ ] Keep every test file for every layer under `tests/`.
+- [ ] Group tests under `tests/<area>/` without placing test files beside implementation code.
+- [ ] Run the complete `go test ./...` suite after moving or adding tests.
+
 ## Local development policy
 
 - [ ] Do not run Docker or Docker Compose during ordinary local development.

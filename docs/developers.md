@@ -14,6 +14,10 @@ At the end of every phase, update this guide with the implementation notes, test
 
 Keep changelog entries newest first, with one entry per commit containing the short commit hash and subject.
 
+## Tests
+
+All tests live under the top-level `tests/` directory. Keep tests grouped by area, preserve external package boundaries, and run `GOCACHE=/tmp/brain-go-cache go test ./...` after every test move or implementation change.
+
 ## Phase 00 completed
 
 The foundation phase now has a Go host, validated configuration, an injectable database owner, bounded readiness retry, migration orchestration, runtime DDL protection, isolated local settings, an opt-in Compose smoke test, and CI checks for formatting, tests, and amd64/arm64 image builds. The local verification command is `GOCACHE=/tmp/brain-go-cache go test ./...`. Phase 01 begins with project and plugin-host operations.
