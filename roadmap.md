@@ -331,7 +331,7 @@ Goal: provide project-scoped identity, PostgreSQL APIs, files, subscriptions, an
 - [x] Add table exposure records.
 - [x] Require a supported primary key.
 - [x] Reject unsupported types.
-- [ ] Hide unapproved columns.
+- [x] Hide unapproved columns.
 - [ ] Allow only approved filters.
 - [ ] Add cursor pagination.
 - [ ] Validate values and identifiers.

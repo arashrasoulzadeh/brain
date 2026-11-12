@@ -1,4 +1,4 @@
-import { TableExposureRegistry, dataRequest, projectRoleName, projectSchemaName, requirePrimaryKey, RowPolicy, validateColumnTypes } from "../../plugins/tables/index.js";
+import { TableExposureRegistry, dataRequest, projectRoleName, projectSchemaName, projectRow, requirePrimaryKey, RowPolicy, validateColumnTypes } from "../../plugins/tables/index.js";
 import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = dataRequest("dev", "tables", "0.1.0", "tables.read", "users", { filter: { active: true } });
@@ -15,3 +15,4 @@ requirePrimaryKey(["id", "name"], "id");
 try { requirePrimaryKey(["name"], "id"); throw new Error("unsupported primary key accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "supported primary key required") throw error; }
 validateColumnTypes({ id: "string", active: "boolean" });
 try { validateColumnTypes({ profile: "jsonb" }); throw new Error("unsupported column type accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "unsupported column type") throw error; }
+if (Object.keys(projectRow({ id: "1", secret: "x" }, ["id"])).length !== 1) throw new Error("unapproved column exposed");
