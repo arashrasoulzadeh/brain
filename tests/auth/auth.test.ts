@@ -26,6 +26,11 @@ const session = service.signin("project-a", "alice", "correct horse battery");
 if (!session.token || session.username !== "alice") throw new Error("password sign-in failed");
 if (service.session("project-a", session.token).username !== "alice") throw new Error("session lookup failed");
 if (sessionTokenDigest(session.token) === session.token) throw new Error("session token was not digested");
+const expiring = new AuthService(1000);
+expiring.signup("project-a", "bob", "correct horse battery");
+const expiringSession = expiring.signin("project-a", "bob", "correct horse battery", 100);
+if (expiring.session("project-a", expiringSession.token, 1099).username !== "bob") throw new Error("valid session expired early");
+try { expiring.session("project-a", expiringSession.token, 1100); throw new Error("expired session accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid session") throw error; }
 try { service.session("project-b", session.token); throw new Error("cross-project session accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid session") throw error; }
 try { service.signin("project-a", "alice", "wrong password"); throw new Error("invalid password accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid credentials") throw error; }
 const accountLimiter = new AccountRateLimiter(2, 1000);

@@ -54,7 +54,10 @@ export class ProjectRateLimiter {
 
 export class AuthService {
   private readonly accounts = new Map<string, Map<string, Account>>();
-  private readonly sessions = new Map<string, { projectId: string; username: string }>();
+  private readonly sessions = new Map<string, { projectId: string; username: string; expiresAt: number }>();
+  constructor(private readonly sessionTtlMs = 24 * 60 * 60 * 1000) {
+    if (sessionTtlMs <= 0) throw new Error("invalid session ttl");
+  }
 
   signup(projectId: string, username: string, password: string) {
     this.validate(projectId, username, password);
@@ -66,17 +69,17 @@ export class AuthService {
     return { username, userId: projectUserID(projectId, username) };
   }
 
-  signin(projectId: string, username: string, password: string) {
+  signin(projectId: string, username: string, password: string, now = Date.now()) {
     const account = this.accounts.get(projectId)?.get(username);
     if (!account || !timingSafeEqual(account.passwordHash, this.hash(password, account.salt))) throw new Error("invalid credentials");
     const token = randomBytes(32).toString("hex");
-    this.sessions.set(sessionTokenDigest(token), { projectId, username });
+    this.sessions.set(sessionTokenDigest(token), { projectId, username, expiresAt: now + this.sessionTtlMs });
     return { token, username };
   }
 
-  session(projectId: string, token: string) {
+  session(projectId: string, token: string, now = Date.now()) {
     const session = this.sessions.get(sessionTokenDigest(token));
-    if (!session || session.projectId !== projectId) throw new Error("invalid session");
+    if (!session || session.projectId !== projectId || session.expiresAt <= now) throw new Error("invalid session");
     return { username: session.username };
   }
 
@@ -84,7 +87,7 @@ export class AuthService {
     if (!projectId) throw new Error("project id required");
     const token = randomBytes(32).toString("hex");
     const username = `guest-${randomBytes(8).toString("hex")}`;
-    this.sessions.set(sessionTokenDigest(token), { projectId, username });
+    this.sessions.set(sessionTokenDigest(token), { projectId, username, expiresAt: Date.now() + this.sessionTtlMs });
     return { token, username, guest: true };
   }
 
