@@ -30,6 +30,7 @@ export class MatchmakingQueue {
   enqueue(projectId: string, scope: string, playerId: string, now = Date.now()): MatchmakingTicket {
     if (!projectId || !scope || !playerId) throw new Error("invalid matchmaking ticket");
     const key = `${projectId}:${scope}`;
+    if ((this.queues.get(key) ?? []).some((ticket) => ticket.playerId === playerId)) throw new Error("active ticket already exists");
     const ticket = { id: `${key}:ticket-${++this.sequence}`, projectId, scope, playerId, createdAt: now };
     this.queues.set(key, [...(this.queues.get(key) ?? []), ticket]);
     return { ...ticket };
