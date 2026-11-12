@@ -46,6 +46,7 @@ This repository is building a Go multi-tenant mobile backend. The complete produ
 - Treat the phase documentation update as part of the phase exit gate; do not declare a phase complete without it.
 - Changelog entries must be newest first.
 - Changelog entries must be separated per commit and include the commit hash and subject.
+- Changelog entries must include the commit date and time in ISO 8601 format (UTC).
 
 ## Coding defaults
 
