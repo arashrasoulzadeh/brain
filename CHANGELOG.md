@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `80ea046` — 2026-11-13 02:37:50 +0330 — phase 02 validate websocket origins
+- `4b75d8a` — 2026-11-12 23:07:39 +0000 — docs: update changelog [skip ci]
 - `64dff7d` — 2026-11-13 02:37:23 +0330 — phase 02 add single use connection tickets
 - `5b258aa` — 2026-11-12 23:06:59 +0000 — docs: update changelog [skip ci]
 - `24c9db8` — 2026-11-13 02:36:44 +0330 — phase 02 add websocket endpoint boundary
