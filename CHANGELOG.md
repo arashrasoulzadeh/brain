@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `bf97384` — roadmap mark operator recovery verified
+- `35cf830` — docs: update changelog [skip ci]
 - `30b1f5d` — phase 01 add one-time operator recovery
 - `440be75` — docs: update changelog [skip ci]
 - `59dc20b` — roadmap mark operator mfa verified
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `44e2a54` — phase 00 add idempotent migration runner
 - `f942c18` — roadmap mark bounded readiness verified
 - `aef766d` — phase 00 add bounded readiness retry
-- `49e5b50` — roadmap mark database owner verified
-- `8f4b2ef` — phase 00 add injectable database owner
