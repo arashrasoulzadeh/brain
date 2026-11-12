@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `376a239` — phase 05 guard referenced plugin removal
+- `962995c` — docs: update changelog [skip ci]
 - `0f5daa3` — phase 05 pin plugin versions for active work
 - `aed4619` — docs: update changelog [skip ci]
 - `95e9851` — phase 05 add controlled plugin drain deadline
@@ -51,5 +53,3 @@ Automatically generated from commits on main.
 - `1dbe4ec` — docs: update changelog [skip ci]
 - `9e1da42` — roadmap mark worker protocol verified
 - `1eb421c` — phase 01 add versioned worker contract
-- `1edb4ec` — docs: update changelog [skip ci]
-- `f7cc970` — roadmap mark worker failure bounds verified
