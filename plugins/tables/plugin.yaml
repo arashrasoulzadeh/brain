@@ -1,4 +1,6 @@
 id: tables
+title: Tables
+description: Project-scoped data table functions.
 version: 0.1.0
 host_api: 1
 entrypoint: src/index.ts
@@ -11,3 +13,13 @@ extension_points:
   - data.policy
 config_schema:
   exposure: string
+routes:
+  - operation: tables.read
+    function: read
+    capability: tables.read
+  - operation: tables.write
+    function: write
+    capability: tables.write
+  - operation: tables.schema
+    function: schema
+    capability: tables.schema

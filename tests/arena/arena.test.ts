@@ -1,5 +1,5 @@
-import { arenaRequest, handle, manifest } from "../../plugins/arena/src/index.js";
+import { arenaRequest, createHandler } from "../../plugins/arena/index.js";
 
-const request = arenaRequest("dev", "arena.start", "room-1", { players: ["user-1", "user-2"] });
-if (manifest.id !== "arena" || request.params.operation !== "arena.start") throw new Error("arena plugin contract failed");
-if (typeof handle(request) !== "object") throw new Error("arena handler contract failed");
+const request = arenaRequest("dev", "arena", "0.1.0", "arena.start", "room-1", { players: ["user-1", "user-2"] });
+if (request.params.pluginId !== "arena" || request.params.operation !== "arena.start") throw new Error("arena plugin contract failed");
+if (typeof createHandler([{ operation: "arena.start", function: "start", capability: "arena.start" }])(request) !== "object") throw new Error("arena handler contract failed");

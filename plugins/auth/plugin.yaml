@@ -1,4 +1,6 @@
 id: auth
+title: Authentication
+description: Project-scoped account and session functions.
 version: 0.1.0
 host_api: 1
 entrypoint: src/index.ts
@@ -10,3 +12,13 @@ extension_points:
   - auth.provider
 config_schema:
   registration: string
+routes:
+  - operation: auth.signup
+    function: signup
+    capability: auth.signup
+  - operation: auth.signin
+    function: signin
+    capability: auth.signin
+  - operation: auth.session
+    function: session
+    capability: auth.session

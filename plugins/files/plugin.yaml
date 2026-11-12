@@ -1,4 +1,6 @@
 id: files
+title: Files
+description: Project-scoped object storage functions.
 version: 0.1.0
 host_api: 1
 entrypoint: src/index.ts
@@ -12,3 +14,16 @@ extension_points:
   - files.storage
 config_schema:
   bucket: string
+routes:
+  - operation: files.upload
+    function: upload
+    capability: files.upload
+  - operation: files.download
+    function: download
+    capability: files.download
+  - operation: files.metadata
+    function: metadata
+    capability: files.metadata
+  - operation: files.publish
+    function: publish
+    capability: files.publish

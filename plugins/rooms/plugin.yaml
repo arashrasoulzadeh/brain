@@ -1,4 +1,6 @@
 id: rooms
+title: Rooms
+description: Project-scoped room and membership functions.
 version: 0.1.0
 host_api: 1
 entrypoint: src/index.ts
@@ -12,3 +14,16 @@ extension_points:
   - rooms.runtime
 config_schema:
   maxPlayers: int
+routes:
+  - operation: rooms.create
+    function: create
+    capability: rooms.create
+  - operation: rooms.join
+    function: join
+    capability: rooms.join
+  - operation: rooms.reconnect
+    function: reconnect
+    capability: rooms.reconnect
+  - operation: rooms.result
+    function: result
+    capability: rooms.result

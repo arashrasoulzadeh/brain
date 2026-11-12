@@ -1,4 +1,6 @@
 id: arena
+title: Arena
+description: Project-scoped cooperative match functions.
 version: 0.1.0
 host_api: 1
 entrypoint: src/index.ts
@@ -14,3 +16,16 @@ extension_points: []
 config_schema:
   tickRate: int
   maxPlayers: int
+routes:
+  - operation: arena.start
+    function: start
+    capability: arena.start
+  - operation: arena.input
+    function: input
+    capability: arena.input
+  - operation: arena.snapshot
+    function: snapshot
+    capability: arena.snapshot
+  - operation: arena.result
+    function: result
+    capability: arena.result

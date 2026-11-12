@@ -46,6 +46,15 @@ func TestBrokerChecksMatchmakingScopeWhenPresent(t *testing.T) {
 	}
 }
 
+func TestBrokerRejectsUndeclaredOperation(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	m := plugin.Manifest{ID: "auth", Version: "1.0.0", HostAPI: 1, Capabilities: []string{"auth.signin"}, Routes: []plugin.Route{{Operation: "auth.signin", Function: "signin", Capability: "auth.signin"}}}
+	if err := r.Register(m); err != nil { t.Fatal(err) }
+	b := plugin.Broker{Registry: r, ActorAllows: func(string, string, string) bool { return true }}
+	call := plugin.HostCall{ProjectID: "dev", ActorID: "a", PluginID: "auth", Version: "1.0.0", Operation: "auth.delete", Capability: "auth.signin", ExpiresAt: time.Unix(100, 0)}
+	if !errors.Is(b.Authorize(call, time.Unix(99, 0)), plugin.ErrActorDenied) { t.Fatal("undeclared operation was accepted") }
+}
+
 func TestBrokerRejectsActorAndExpiredInvocation(t *testing.T) {
 	b := plugin.Broker{ActorAllows: func(string, string, string) bool { return false }}
 	call := plugin.HostCall{ProjectID: "dev", ActorID: "alice", ExpiresAt: time.Unix(1, 0)}

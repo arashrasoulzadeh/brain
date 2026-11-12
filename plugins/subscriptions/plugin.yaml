@@ -1,4 +1,6 @@
 id: subscriptions
+title: Subscriptions
+description: Project-scoped realtime subscription functions.
 version: 0.1.0
 host_api: 1
 entrypoint: src/index.ts
@@ -11,3 +13,13 @@ extension_points:
   - realtime.transport
 config_schema:
   maxSubscriptions: int
+routes:
+  - operation: subscriptions.open
+    function: open
+    capability: subscriptions.open
+  - operation: subscriptions.receive
+    function: receive
+    capability: subscriptions.receive
+  - operation: subscriptions.resync
+    function: resync
+    capability: subscriptions.resync

@@ -1,4 +1,6 @@
 id: invites
+title: Invites
+description: Project-scoped invitation functions.
 version: 0.1.0
 host_api: 1
 entrypoint: src/index.ts
@@ -11,3 +13,13 @@ capabilities:
 extension_points: []
 config_schema:
   ttlSeconds: int
+routes:
+  - operation: invites.create
+    function: create
+    capability: invites.create
+  - operation: invites.accept
+    function: accept
+    capability: invites.accept
+  - operation: invites.cancel
+    function: cancel
+    capability: invites.cancel

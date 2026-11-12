@@ -1,4 +1,6 @@
 id: matchmaking
+title: Matchmaking
+description: Project-scoped queue and assignment functions.
 version: 0.1.0
 host_api: 1
 entrypoint: src/index.ts
@@ -14,3 +16,16 @@ extension_points:
 config_schema:
   ticketTtlSeconds: int
   matchSize: int
+routes:
+  - operation: matchmaking.queue
+    function: queue
+    capability: matchmaking.queue
+  - operation: matchmaking.cancel
+    function: cancel
+    capability: matchmaking.cancel
+  - operation: matchmaking.status
+    function: status
+    capability: matchmaking.status
+  - operation: matchmaking.assign
+    function: assign
+    capability: matchmaking.assign

@@ -18,6 +18,7 @@ type HostCall struct {
 	PluginID         string
 	Version          string
 	Capability       string
+	Operation        string
 	Resource         string
 	MatchmakingScope string
 	ExpiresAt        time.Time
@@ -59,6 +60,16 @@ func (b Broker) Authorize(call HostCall, now time.Time) error {
 	}
 	if b.WorkerAvailable != nil && !b.WorkerAvailable(call.PluginID, call.Version) {
 		return ErrWorkerUnavailable
+	}
+	if call.Operation != "" {
+		registered, ok := b.Registry.registered[call.PluginID+"@"+call.Version]
+		if !ok {
+			return ErrNotRegistered
+		}
+		route, ok := registered.Manifest.Route(call.Operation)
+		if !ok || route.Capability != call.Capability {
+			return ErrActorDenied
+		}
 	}
 	if call.MatchmakingScope != "" && (b.MatchmakingAllows == nil || !b.MatchmakingAllows(call.ProjectID, call.MatchmakingScope)) {
 		return ErrPluginScopeDenied

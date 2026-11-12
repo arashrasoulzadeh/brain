@@ -1,4 +1,6 @@
 id: example.plugin
+title: Example plugin
+description: Minimal host-discovered TypeScript plugin template.
 version: 0.1.0
 host_api: 1
 dependencies: []

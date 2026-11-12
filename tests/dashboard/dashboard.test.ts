@@ -1,30 +1,26 @@
-import { DashboardService, adminRequest, createHandler, manifest, projectCreateRequest } from "../../plugins/dashboard/src/index.js";
+import { adminRequest, createHandler, projectCreateRequest } from "../../plugins/dashboard/index.js";
 
-const request = projectCreateRequest("dev");
-if (manifest.id !== "dashboard" || request.params.operation !== "project.create") {
+const request = projectCreateRequest("dashboard", "0.1.0", "dev");
+if (request.params.pluginId !== "dashboard" || request.params.operation !== "project.create") {
   throw new Error("dashboard TypeScript plugin contract failed");
 }
 
-const install = adminRequest("dev", "plugin.install", { targetPlugin: "auth", targetVersion: "1.0.0" });
-const grant = adminRequest("dev", "plugin.grant", { targetPlugin: "auth", targetVersion: "1.0.0", capability: "auth.manage" });
-const enable = adminRequest("dev", "plugin.enable", { targetPlugin: "auth", targetVersion: "1.0.0" });
+const install = adminRequest("dev", "dashboard", "0.1.0", "plugin.install", { targetPlugin: "auth", targetVersion: "1.0.0" });
+const grant = adminRequest("dev", "dashboard", "0.1.0", "plugin.grant", { targetPlugin: "auth", targetVersion: "1.0.0", capability: "auth.manage" });
+const enable = adminRequest("dev", "dashboard", "0.1.0", "plugin.enable", { targetPlugin: "auth", targetVersion: "1.0.0" });
 if (install.params.operation !== "plugin.install" || grant.params.operation !== "plugin.grant" || enable.params.operation !== "plugin.enable") {
   throw new Error("generic dashboard operation contract failed");
 }
 
-const service = new DashboardService();
-const result = createHandler(service)(projectCreateRequest("dev"));
+const routes = [
+  { operation: "project.create", function: "createProject", capability: "project.manage" },
+  { operation: "plugin.install", function: "installPlugin", capability: "plugin.install" },
+  { operation: "plugin.grant", function: "grantCapability", capability: "plugin.grant" },
+  { operation: "plugin.enable", function: "enablePlugin", capability: "plugin.enable" },
+] as const;
+const calls: unknown[] = [];
+const host = { invoke(projectId: string, operation: string, capability: string, payload: unknown) { calls.push({ projectId, operation, capability, payload }); return { acceptedByHost: true }; } };
+const result = createHandler(host, routes)(projectCreateRequest("dashboard", "0.1.0", "dev"));
 if (typeof result !== "object") throw new Error("dashboard handler did not return a result");
-service.createProject("project-a");
-if (!service.hasProject("project-a")) throw new Error("dashboard project was not created");
-try { service.createProject("project-a"); throw new Error("duplicate project was accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "project already exists") throw error; }
-service.installPlugin("project-a", "auth", "0.1.0");
-if (!service.isInstalled("project-a", "auth", "0.1.0")) throw new Error("dashboard plugin was not installed");
-try { service.installPlugin("project-b", "auth", "0.1.0"); throw new Error("unknown project accepted installation"); } catch (error) { if (!(error instanceof Error) || error.message !== "unknown project") throw error; }
-service.grantCapability("project-a", "auth", "0.1.0", "auth.session");
-if (!service.hasGrant("project-a", "auth", "0.1.0", "auth.session")) throw new Error("dashboard grant was not recorded");
-try { service.grantCapability("project-a", "files", "0.1.0", "files.read"); throw new Error("grant without installation accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "plugin not installed") throw error; }
-service.setPluginReadiness("auth", "0.1.0", true);
-service.enablePlugin("project-a", "auth", "0.1.0");
-if (!service.isEnabled("project-a", "auth", "0.1.0")) throw new Error("dashboard plugin was not enabled");
-try { service.enablePlugin("project-a", "files", "0.1.0"); throw new Error("uninstalled plugin was enabled"); } catch (error) { if (!(error instanceof Error) || error.message !== "plugin not installed") throw error; }
+if (calls.length !== 1) throw new Error("dashboard host was not invoked");
+try { createHandler(host, routes)(adminRequest("dev", "dashboard", "0.1.0", "plugin.unknown", {})); throw new Error("undeclared route was accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "operation not declared in plugin manifest") throw error; }

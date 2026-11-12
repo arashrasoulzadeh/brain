@@ -4,8 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"os"
 	"strings"
 	"time"
+
+	"gopkg.in/yaml.v3"
 )
 
 var (
@@ -24,13 +27,43 @@ var (
 )
 
 type Manifest struct {
-	ID              string
-	Version         string
-	HostAPI         int
-	Dependencies    []string
-	Capabilities    []string
-	ExtensionPoints []string
-	ConfigSchema    map[string]string
+	Title           string            `yaml:"title"`
+	Description     string            `yaml:"description"`
+	ID              string            `yaml:"id"`
+	Version         string            `yaml:"version"`
+	HostAPI         int               `yaml:"host_api"`
+	Dependencies    []string          `yaml:"dependencies"`
+	Capabilities    []string          `yaml:"capabilities"`
+	ExtensionPoints []string          `yaml:"extension_points"`
+	ConfigSchema    map[string]string `yaml:"config_schema"`
+	Routes          []Route           `yaml:"routes"`
+}
+
+type Route struct {
+	Operation  string `yaml:"operation"`
+	Function   string `yaml:"function"`
+	Capability string `yaml:"capability"`
+}
+
+func LoadManifest(path string) (Manifest, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return Manifest{}, err
+	}
+	var manifest Manifest
+	if err := yaml.Unmarshal(data, &manifest); err != nil {
+		return Manifest{}, err
+	}
+	return manifest, nil
+}
+
+func (m Manifest) Route(operation string) (Route, bool) {
+	for _, route := range m.Routes {
+		if route.Operation == operation {
+			return route, true
+		}
+	}
+	return Route{}, false
 }
 
 type Registered struct{ Manifest Manifest }

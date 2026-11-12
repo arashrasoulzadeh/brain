@@ -1,11 +1,15 @@
-import { AuthService, createHandler, manifest, signInRequest, signUpRequest } from "../../plugins/auth/src/index.js";
+import { AuthService, createHandler, signInRequest, signUpRequest } from "../../plugins/auth/index.js";
 
 const serviceForHandler = new AuthService();
-const handler = createHandler(serviceForHandler);
-const signup = signUpRequest("dev", "guest", "correct horse battery");
-if (manifest.id !== "auth" || signup.params.operation !== "auth.signup") throw new Error("auth plugin contract failed");
+const handler = createHandler(serviceForHandler, [
+  { operation: "auth.signup", function: "signup", capability: "auth.signup" },
+  { operation: "auth.signin", function: "signin", capability: "auth.signin" },
+  { operation: "auth.session", function: "session", capability: "auth.session" },
+]);
+const signup = signUpRequest("dev", "auth", "0.1.0", "guest", "correct horse battery");
+if (signup.params.pluginId !== "auth" || signup.params.operation !== "auth.signup") throw new Error("auth plugin contract failed");
 if (typeof handler(signup) !== "object") throw new Error("auth signup handler contract failed");
-const request = signInRequest("dev", "guest", "correct horse battery");
+const request = signInRequest("dev", "auth", "0.1.0", "guest", "correct horse battery");
 if (typeof handler(request) !== "object") throw new Error("auth handler contract failed");
 
 const service = new AuthService();

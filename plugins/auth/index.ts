@@ -1,21 +1,12 @@
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
-import { request, type PluginHandler } from "../../sdk-typescript/src/index.js";
+import { request, type PluginHandler, type PluginRoute } from "../sdk-typescript/src/index.js";
 
-export const manifest = {
-  id: "auth",
-  version: "0.1.0",
-  hostApi: 1,
-  capabilities: ["auth.signup", "auth.signin", "auth.session"],
-  extensionPoints: ["auth.provider"],
-  configSchema: { registration: "string" },
-} as const;
-
-export function signInRequest(projectId: string, provider: string, credential: unknown) {
-  return request(`auth-signin-${projectId}`, { protocol: 1, projectId, pluginId: manifest.id, version: manifest.version, operation: "auth.signin", payload: { provider, credential } });
+export function signInRequest(projectId: string, pluginId: string, version: string, provider: string, credential: unknown) {
+  return request(`auth-signin-${projectId}`, { protocol: 1, projectId, pluginId, version, operation: "auth.signin", payload: { provider, credential } });
 }
 
-export function signUpRequest(projectId: string, username: string, password: string) {
-  return request(`auth-signup-${projectId}-${username}`, { protocol: 1, projectId, pluginId: manifest.id, version: manifest.version, operation: "auth.signup", payload: { username, password } });
+export function signUpRequest(projectId: string, pluginId: string, version: string, username: string, password: string) {
+  return request(`auth-signup-${projectId}-${username}`, { protocol: 1, projectId, pluginId, version, operation: "auth.signup", payload: { username, password } });
 }
 
 type Account = { username: string; salt: Buffer; passwordHash: Buffer };
@@ -54,15 +45,15 @@ export class AuthService {
   }
 }
 
-export function createHandler(service = new AuthService()): PluginHandler {
+export function createHandler(service = new AuthService(), routes: readonly PluginRoute[] = []): PluginHandler {
   return (rpc) => {
+    const route = routes.find((candidate) => candidate.operation === rpc.params.operation);
+    if (!route) throw new Error("operation not declared in plugin manifest");
     const payload = rpc.params.payload as Record<string, string> | undefined;
-    switch (rpc.params.operation) {
-      case "auth.signup": return { accepted: true, operation: rpc.params.operation, ...service.signup(rpc.params.projectId, payload?.username ?? "", payload?.password ?? "") };
-      case "auth.signin": return { accepted: true, operation: rpc.params.operation, ...service.signin(rpc.params.projectId, payload?.username ?? payload?.provider ?? "", payload?.password ?? String(payload?.credential ?? "")) };
-      case "auth.session": return { accepted: true, operation: rpc.params.operation, ...service.session(rpc.params.projectId, payload?.token ?? "") };
-      default: throw new Error("unsupported auth operation");
-    }
+    if (route.function === "signup") return { accepted: true, operation: rpc.params.operation, ...service.signup(rpc.params.projectId, payload?.username ?? "", payload?.password ?? "") };
+    if (route.function === "signin") return { accepted: true, operation: rpc.params.operation, ...service.signin(rpc.params.projectId, payload?.username ?? payload?.provider ?? "", payload?.password ?? String(payload?.credential ?? "")) };
+    if (route.function === "session") return { accepted: true, operation: rpc.params.operation, ...service.session(rpc.params.projectId, payload?.token ?? "") };
+    throw new Error("route function not implemented");
   };
 }
 
