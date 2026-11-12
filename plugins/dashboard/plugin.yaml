@@ -10,6 +10,7 @@ capabilities:
   - plugin.install
   - plugin.grant
   - plugin.enable
+  - plugin.readiness
 extension_points:
   - admin.navigation
   - admin.page
@@ -28,3 +29,6 @@ routes:
   - operation: plugin.enable
     function: enablePlugin
     capability: plugin.enable
+  - operation: plugin.readiness
+    function: showReadiness
+    capability: plugin.readiness

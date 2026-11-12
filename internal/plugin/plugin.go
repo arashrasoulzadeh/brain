@@ -89,6 +89,14 @@ type Installation struct {
 	DrainUntil time.Time
 }
 
+type InstallationStatus struct {
+	ProjectID string
+	PluginID  string
+	Version   string
+	Enabled   bool
+	Ready     bool
+}
+
 type Registry struct {
 	HostAPI       int
 	registered    map[string]Registered
@@ -119,6 +127,14 @@ func (m Manifest) RequestedCapabilities() []CapabilityRequest {
 
 func NewRegistry(hostAPI int) *Registry {
 	return &Registry{HostAPI: hostAPI, registered: map[string]Registered{}, installations: map[string]Installation{}, readiness: map[string]bool{}, active: map[string]string{}, pins: map[string]string{}, artifacts: map[string]string{}}
+}
+
+func (r *Registry) Status(projectID, pluginID, version string) (InstallationStatus, error) {
+	installation, ok := r.installations[projectID+":"+pluginID+"@"+version]
+	if !ok {
+		return InstallationStatus{}, ErrNotInstalled
+	}
+	return InstallationStatus{ProjectID: projectID, PluginID: pluginID, Version: version, Enabled: installation.Enabled, Ready: r.readiness[pluginID+"@"+version]}, nil
 }
 
 func (r *Registry) ApproveArtifact(id, version, endpoint string) error {

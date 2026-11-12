@@ -18,10 +18,13 @@ const routes = [
   { operation: "plugin.install", function: "installPlugin", capability: "plugin.install" },
   { operation: "plugin.grant", function: "grantCapability", capability: "plugin.grant" },
   { operation: "plugin.enable", function: "enablePlugin", capability: "plugin.enable" },
+  { operation: "plugin.readiness", function: "showReadiness", capability: "plugin.readiness" },
 ] as const;
 const calls: unknown[] = [];
 const host = { invoke(projectId: string, operation: string, capability: string, payload: unknown) { calls.push({ projectId, operation, capability, payload }); return { acceptedByHost: true }; } };
 const result = createHostHandler(host, routes)(projectCreateRequest("dashboard", "0.1.0", "dev"));
 if (typeof result !== "object") throw new Error("dashboard handler did not return a result");
 if (calls.length !== 1) throw new Error("dashboard host was not invoked");
+const readiness = adminRequest("dev", "dashboard", "0.1.0", "plugin.readiness", { targetPlugin: "auth", targetVersion: "0.1.0" });
+if (typeof createHostHandler(host, routes)(readiness) !== "object") throw new Error("readiness request was not dispatched");
 try { createHostHandler(host, routes)(adminRequest("dev", "dashboard", "0.1.0", "plugin.unknown", {})); throw new Error("undeclared route was accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "operation not declared in plugin manifest") throw error; }

@@ -65,6 +65,28 @@ func TestProjectsCanInstallSameVersionIndependently(t *testing.T) {
 	}
 }
 
+func TestInstallationStatusSeparatesReadinessFromEnablement(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	m := plugin.Manifest{ID: "auth", Version: "1.0.0", HostAPI: 1, Capabilities: []string{"auth.signin"}}
+	if err := r.Register(m); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Install("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	status, err := r.Status("dev", m.ID, m.Version)
+	if err != nil || status.Enabled || status.Ready {
+		t.Fatalf("initial status = %#v, %v", status, err)
+	}
+	if err := r.SetReadiness(m.ID, m.Version, true); err != nil {
+		t.Fatal(err)
+	}
+	status, err = r.Status("dev", m.ID, m.Version)
+	if err != nil || status.Enabled || !status.Ready {
+		t.Fatalf("ready status = %#v, %v", status, err)
+	}
+}
+
 func TestPluginRegistrationRejectsDuplicatesAndWrongHostAPI(t *testing.T) {
 	r := plugin.NewRegistry(1)
 	m := plugin.Manifest{ID: "arena", Version: "1.0.0", HostAPI: 1}
