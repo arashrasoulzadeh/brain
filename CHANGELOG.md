@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `e4279cb` — 2026-11-13 02:08:59 +0330 — arch generate plugin docs from yaml routes
+- `fd7c38a` — 2026-11-12 22:38:42 +0000 — docs: update changelog [skip ci]
 - `21b9c51` — 2026-11-13 02:08:17 +0330 — arch make yaml routes authoritative for plugins
 - `4c4a0aa` — 2026-11-13 01:58:15 +0330 — docs mark dashboard enablement complete
 - `d21c1fd` — 2026-11-12 22:28:17 +0000 — docs: update changelog [skip ci]
