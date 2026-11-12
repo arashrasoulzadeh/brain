@@ -1,4 +1,4 @@
-import { AccountRateLimiter, AuthService, AuthorizationCodeStore, EmailOTPService, EmailRecoveryService, IdentityLinker, OIDCConfigStore, OIDCStateStore, OTPLimiter, OperatorSessionRegistry, ProjectRateLimiter, SMSOTPService, TestDeliveryInbox, createPKCEChallenge, functions, guestRequest, normalizePhoneNumber, projectUserID, publicAuthError, requireRecentAuthentication, sessionTokenDigest, signInRequest, signUpRequest, validateOIDCToken, verifyPKCE } from "../../plugins/auth/index.js";
+import { AccountRateLimiter, AuthService, AuthorizationCodeStore, EmailOTPService, EmailRecoveryService, IdentityLinker, OIDCConfigStore, OIDCStateStore, OTPLimiter, OperatorSessionRegistry, ProjectRateLimiter, SMSOTPService, TestDeliveryInbox, createPKCEChallenge, functions, guestRequest, normalizePhoneNumber, projectUserID, publicAuthError, requireRecentAuthentication, sessionTokenDigest, signInRequest, signUpRequest, validateDeliveryConfig, validateOIDCToken, verifyPKCE } from "../../plugins/auth/index.js";
 import { createFunctionHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const serviceForHandler = new AuthService();
@@ -61,6 +61,8 @@ const resetSession = resetService.signin("project-a", "erin", "old password", 10
 resetService.resetPassword("project-a", "erin", "new password");
 try { resetService.session("project-a", resetSession.token, 1001); throw new Error("session survived password reset"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid session") throw error; }
 if (publicAuthError(new Error("account already exists")) !== "invalid credentials" || publicAuthError(new Error("invalid credentials")) !== "invalid credentials") throw new Error("account enumeration signal leaked");
+validateDeliveryConfig("test", "local");
+try { validateDeliveryConfig("production", "local"); throw new Error("fake production delivery accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "fake delivery forbidden in production") throw error; }
 
 const service = new AuthService();
 const registration = service.signup("project-a", "alice", "correct horse battery");
