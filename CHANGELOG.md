@@ -3,6 +3,9 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `7e61a05` — 2026-11-13 02:19:22 +0330 — docs mark phase 02 retry behavior complete
+- `a072334` — 2026-11-13 02:19:10 +0330 — phase 02 define bounded retry conflict behavior
+- `b43da7d` — 2026-11-12 22:49:02 +0000 — docs: update changelog [skip ci]
 - `d641e65` — 2026-11-13 02:18:43 +0330 — docs mark phase 02 error contract complete
 - `04733d8` — 2026-11-12 22:48:44 +0000 — docs: update changelog [skip ci]
 - `609b61e` — 2026-11-13 02:18:31 +0330 — phase 02 define request ids and bounded errors
