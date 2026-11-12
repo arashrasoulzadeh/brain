@@ -337,7 +337,7 @@ Goal: provide project-scoped identity, PostgreSQL APIs, files, subscriptions, an
 - [x] Validate values and identifiers.
 - [x] Add record versions.
 - [x] Reject stale writes.
-- [ ] Make retried creates idempotent.
+- [x] Make retried creates idempotent.
 - [ ] Add guided schema changes.
 - [ ] Add SQL migration preview.
 - [ ] Require recent authentication for destructive schema actions.

@@ -50,6 +50,16 @@ export class VersionedRecord<T extends Record<string, unknown>> {
   update(expectedVersion: number, next: T): void { if (expectedVersion !== this.version) throw new Error("stale record version"); this.value = { ...next }; this.version += 1; }
   read(): { value: T; version: number } { return { value: { ...this.value }, version: this.version }; }
 }
+export class IdempotentCreateStore<T> {
+  private readonly results = new Map<string, T>();
+  create(projectId: string, key: string, factory: () => T): T {
+    if (!projectId || !key) throw new Error("idempotency key required");
+    const id = `${projectId}:${key}`;
+    const existing = this.results.get(id);
+    if (existing) return existing;
+    const value = factory(); this.results.set(id, value); return value;
+  }
+}
 
 export function dataRequest(projectId: string, pluginId: string, version: string, operation: "tables.read" | "tables.write" | "tables.schema", table: string, payload: unknown = {}) {
   return request(`tables-${operation}-${projectId}-${table}`, { protocol: 1, projectId, pluginId, version, operation, payload: { table, ...(payload as Record<string, unknown>) } });

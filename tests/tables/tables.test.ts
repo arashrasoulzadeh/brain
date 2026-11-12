@@ -1,4 +1,4 @@
-import { TableExposureRegistry, VersionedRecord, dataRequest, paginate, projectRoleName, projectSchemaName, projectRow, requirePrimaryKey, RowPolicy, validateColumnTypes, validateFilter, validateIdentifier, validateValue } from "../../plugins/tables/index.js";
+import { IdempotentCreateStore, TableExposureRegistry, VersionedRecord, dataRequest, paginate, projectRoleName, projectSchemaName, projectRow, requirePrimaryKey, RowPolicy, validateColumnTypes, validateFilter, validateIdentifier, validateValue } from "../../plugins/tables/index.js";
 import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = dataRequest("dev", "tables", "0.1.0", "tables.read", "users", { filter: { active: true } });
@@ -25,3 +25,7 @@ try { validateIdentifier("users;drop"); throw new Error("unsafe identifier accep
 const record = new VersionedRecord({ id: "1", name: "alice" });
 record.update(0, { id: "1", name: "bob" });
 try { record.update(0, { id: "1", name: "carol" }); throw new Error("stale write accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "stale record version") throw error; }
+const creates = new IdempotentCreateStore<{ id: string }>();
+let calls = 0;
+const created = creates.create("dev", "key-1", () => { calls += 1; return { id: "row-1" }; });
+if (creates.create("dev", "key-1", () => { calls += 1; return { id: "row-2" }; }).id !== created.id || calls !== 1) throw new Error("idempotent create failed");
