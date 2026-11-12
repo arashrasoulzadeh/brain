@@ -132,9 +132,9 @@ Goal: create isolated projects and run one plugin through both supported worker 
 
 - [x] Install a plugin for one project.
 - [x] Start every installation disabled.
-- [ ] Add requested capability display.
+- [x] Add requested capability display.
 - [x] Grant a named capability.
-- [ ] Bind grants to project resources.
+- [x] Bind grants to project resources.
 - [x] Reject enablement with missing grants.
 - [ ] Reject enablement when readiness fails.
 - [ ] Enable the same plugin independently in two projects.
