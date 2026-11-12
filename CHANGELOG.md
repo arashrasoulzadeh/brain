@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `fceb533` — 2026-11-13 02:11:01 +0330 — arch centralize plugin function dispatch
+- `0cdbc65` — 2026-11-12 22:39:13 +0000 — docs: update changelog [skip ci]
 - `e4279cb` — 2026-11-13 02:08:59 +0330 — arch generate plugin docs from yaml routes
 - `fd7c38a` — 2026-11-12 22:38:42 +0000 — docs: update changelog [skip ci]
 - `21b9c51` — 2026-11-13 02:08:17 +0330 — arch make yaml routes authoritative for plugins
