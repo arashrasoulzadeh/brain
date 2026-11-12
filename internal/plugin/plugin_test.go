@@ -71,3 +71,23 @@ func TestPluginRegistrationRejectsDuplicatesAndWrongHostAPI(t *testing.T) {
 		t.Fatal("wrong API was accepted")
 	}
 }
+
+func TestPluginRegistrationRequiresDependencies(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	child := plugin.Manifest{ID: "room", Version: "1.0.0", HostAPI: 1, Dependencies: []string{"core@1.0.0"}}
+	if !errors.Is(r.Register(child), plugin.ErrDependencyMissing) {
+		t.Fatal("missing dependency was accepted")
+	}
+	if err := r.Register(plugin.Manifest{ID: "core", Version: "1.0.0", HostAPI: 1}); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Register(child); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestPluginRegistrationRejectsIncompleteManifest(t *testing.T) {
+	if !errors.Is(plugin.NewRegistry(1).Register(plugin.Manifest{HostAPI: 1}), plugin.ErrInvalidManifest) {
+		t.Fatal("incomplete manifest was accepted")
+	}
+}

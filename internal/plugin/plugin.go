@@ -3,13 +3,15 @@ package plugin
 import "errors"
 
 var (
-	ErrDuplicate      = errors.New("plugin version already registered")
-	ErrIncompatible   = errors.New("plugin host API incompatible")
-	ErrNotRegistered  = errors.New("plugin version not registered")
-	ErrNotInstalled   = errors.New("plugin not installed for project")
-	ErrDisabled       = errors.New("plugin disabled")
-	ErrGrantDenied    = errors.New("plugin grant denied")
-	ErrProjectInvalid = errors.New("project identity invalid")
+	ErrDuplicate         = errors.New("plugin version already registered")
+	ErrIncompatible      = errors.New("plugin host API incompatible")
+	ErrNotRegistered     = errors.New("plugin version not registered")
+	ErrNotInstalled      = errors.New("plugin not installed for project")
+	ErrDisabled          = errors.New("plugin disabled")
+	ErrGrantDenied       = errors.New("plugin grant denied")
+	ErrProjectInvalid    = errors.New("project identity invalid")
+	ErrDependencyMissing = errors.New("plugin dependency missing")
+	ErrInvalidManifest   = errors.New("invalid plugin manifest")
 )
 
 type Manifest struct {
@@ -44,7 +46,15 @@ func NewRegistry(hostAPI int) *Registry {
 
 func (r *Registry) Register(m Manifest) error {
 	if m.ID == "" || m.Version == "" || m.HostAPI != r.HostAPI {
+		if m.ID == "" || m.Version == "" {
+			return ErrInvalidManifest
+		}
 		return ErrIncompatible
+	}
+	for _, dependency := range m.Dependencies {
+		if _, ok := r.registered[dependency]; !ok {
+			return ErrDependencyMissing
+		}
 	}
 	key := m.ID + "@" + m.Version
 	if _, ok := r.registered[key]; ok {
