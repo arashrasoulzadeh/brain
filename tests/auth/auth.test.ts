@@ -15,6 +15,10 @@ const request = signInRequest("dev", "auth", "0.1.0", "guest", "correct horse ba
 if (typeof handler(request) !== "object") throw new Error("auth handler contract failed");
 const guest = (handler(guestRequest("dev", "auth", "0.1.0")) as { payload: { token: string; username: string; guest: boolean } }).payload;
 if (!guest.token || !guest.username.startsWith("guest-") || !guest.guest) throw new Error("guest session failed");
+const guestService = new AuthService();
+const guestAccount = guestService.guest("project-a");
+const upgraded = guestService.upgradeGuest("project-a", guestAccount.token, "dana", "correct horse battery");
+if (upgraded.userId !== guestAccount.userId || upgraded.username !== "dana") throw new Error("guest upgrade changed user id");
 
 const service = new AuthService();
 const registration = service.signup("project-a", "alice", "correct horse battery");

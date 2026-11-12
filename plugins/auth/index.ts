@@ -13,7 +13,7 @@ export function guestRequest(projectId: string, pluginId: string, version: strin
   return request(`auth-guest-${projectId}`, { protocol: 1, projectId, pluginId, version, operation: "auth.guest", payload: {} });
 }
 
-type Account = { username: string; salt: Buffer; passwordHash: Buffer };
+type Account = { username: string; userId: string; salt: Buffer; passwordHash: Buffer };
 
 export function projectUserID(projectId: string, userId: string): string {
   if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(projectId) || !/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(userId)) throw new Error("invalid project user id");
@@ -85,7 +85,7 @@ export class AuthService {
     const project = this.accounts.get(projectId) ?? new Map<string, Account>();
     if (project.has(username)) throw new Error("account already exists");
     const salt = randomBytes(16);
-    project.set(username, { username, salt, passwordHash: this.hash(password, salt) });
+    project.set(username, { username, userId: projectUserID(projectId, username), salt, passwordHash: this.hash(password, salt) });
     this.accounts.set(projectId, project);
     return { username, userId: projectUserID(projectId, username) };
   }
@@ -128,7 +128,21 @@ export class AuthService {
     const token = randomBytes(32).toString("hex");
     const username = `guest-${randomBytes(8).toString("hex")}`;
     this.sessions.set(sessionTokenDigest(token), { projectId, username, expiresAt: Date.now() + this.sessionTtlMs });
-    return { token, username, guest: true };
+    return { token, username, userId: projectUserID(projectId, username), guest: true };
+  }
+
+  upgradeGuest(projectId: string, token: string, username: string, password: string) {
+    const session = this.sessions.get(sessionTokenDigest(token));
+    if (!session || session.projectId !== projectId || !session.username.startsWith("guest-")) throw new Error("guest session required");
+    const userId = projectUserID(projectId, session.username);
+    this.validate(projectId, username, password);
+    const project = this.accounts.get(projectId) ?? new Map<string, Account>();
+    if (project.has(username)) throw new Error("account already exists");
+    const salt = randomBytes(16);
+    project.set(username, { username, userId, salt, passwordHash: this.hash(password, salt) });
+    this.accounts.set(projectId, project);
+    session.username = username;
+    return { username, userId };
   }
 
   private hash(password: string, salt: Buffer) { return scryptSync(password, salt, 32); }
