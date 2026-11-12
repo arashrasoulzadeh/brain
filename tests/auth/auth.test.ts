@@ -1,4 +1,4 @@
-import { AccountRateLimiter, AuthService, AuthorizationCodeStore, EmailOTPService, IdentityLinker, OIDCConfigStore, OIDCStateStore, OperatorSessionRegistry, ProjectRateLimiter, TestDeliveryInbox, createPKCEChallenge, functions, guestRequest, projectUserID, requireRecentAuthentication, sessionTokenDigest, signInRequest, signUpRequest, validateOIDCToken, verifyPKCE } from "../../plugins/auth/index.js";
+import { AccountRateLimiter, AuthService, AuthorizationCodeStore, EmailOTPService, IdentityLinker, OIDCConfigStore, OIDCStateStore, OperatorSessionRegistry, ProjectRateLimiter, SMSOTPService, TestDeliveryInbox, createPKCEChallenge, functions, guestRequest, projectUserID, requireRecentAuthentication, sessionTokenDigest, signInRequest, signUpRequest, validateOIDCToken, verifyPKCE } from "../../plugins/auth/index.js";
 import { createFunctionHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const serviceForHandler = new AuthService();
@@ -44,6 +44,10 @@ const otp = new EmailOTPService("test-secret", inbox);
 otp.issue("project-a", "alice@example.com", "signin", 1000, 300);
 const emailCode = inbox.read("alice@example.com");
 if (!emailCode || !otp.verify("project-a", "alice@example.com", "signin", emailCode, 1001)) throw new Error("email OTP failed");
+const sms = new SMSOTPService("test-secret", inbox);
+sms.issue("project-a", "+989121234567", "signin", 1000, 300);
+const smsCode = inbox.read("+989121234567");
+if (!smsCode || !sms.verify("project-a", "+989121234567", "signin", smsCode, 1001)) throw new Error("SMS OTP failed");
 
 const service = new AuthService();
 const registration = service.signup("project-a", "alice", "correct horse battery");
