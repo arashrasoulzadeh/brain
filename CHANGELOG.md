@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `1c8b805` — 2026-11-13 02:17:13 +0330 — docs mark phase 02 http envelope complete
+- `1da84f6` — 2026-11-12 22:47:14 +0000 — docs: update changelog [skip ci]
 - `dc0a1a1` — 2026-11-13 02:17:02 +0330 — phase 02 define versioned http request envelope
 - `a422ca3` — 2026-11-12 22:46:41 +0000 — docs: update changelog [skip ci]
 - `dd19842` — 2026-11-13 02:16:24 +0330 — phase 01 pass plugin dashboard exit gate
