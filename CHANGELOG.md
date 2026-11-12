@@ -3,6 +3,9 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `a794ab0` — roadmap mark commit grant recheck verified
+- `74e6631` — phase 01 recheck plugin grants at commit
+- `b4339a7` — docs: update changelog [skip ci]
 - `0efcfa3` — roadmap mark invocation credentials verified
 - `f526462` — docs: update changelog [skip ci]
 - `0884b4b` — phase 01 issue short lived plugin credentials
@@ -50,6 +53,3 @@ Automatically generated from commits on main.
 - `15a3bf2` — phase 01 add operator credential verification
 - `2071a37` — docs: update changelog [skip ci]
 - `d7cd480` — roadmap mark operator bootstrap verified
-- `0bfdc3f` — docs: update changelog [skip ci]
-- `73ccd50` — phase 01 add operator bootstrap command
-- `f1ffa41` — docs: update changelog [skip ci]
