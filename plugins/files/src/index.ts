@@ -10,7 +10,7 @@ export const manifest = {
 } as const;
 
 export function fileRequest(projectId: string, operation: "files.upload" | "files.download" | "files.metadata" | "files.publish", objectId: string, payload: unknown = {}) {
-  return request(`files-${operation}-${projectId}-${objectId}`, { protocol: 1, projectId, pluginId: manifest.id, version: manifest.version, operation, payload: { objectId, ...payload } });
+  return request(`files-${operation}-${projectId}-${objectId}`, { protocol: 1, projectId, pluginId: manifest.id, version: manifest.version, operation, payload: { objectId, ...(payload as Record<string, unknown>) } });
 }
 
 export const handle: PluginHandler = (rpc) => {

@@ -21,6 +21,8 @@ export type RpcResponse = {
   errorCode?: string;
 };
 
+export type PluginHandler = (request: RpcRequest) => Promise<unknown> | unknown;
+
 export function request(id: string, params: WorkerParams): RpcRequest {
   if (!id || !params.projectId || !params.pluginId || !params.version || !params.operation) {
     throw new Error("invalid plugin request");

@@ -11,7 +11,7 @@ export const manifest = {
 } as const;
 
 export function arenaRequest(projectId: string, operation: "arena.start" | "arena.input" | "arena.snapshot" | "arena.result", roomId: string, payload: unknown = {}) {
-  return request(`arena-${operation}-${projectId}-${roomId}`, { protocol: 1, projectId, pluginId: manifest.id, version: manifest.version, operation, payload: { roomId, ...payload } });
+  return request(`arena-${operation}-${projectId}-${roomId}`, { protocol: 1, projectId, pluginId: manifest.id, version: manifest.version, operation, payload: { roomId, ...(payload as Record<string, unknown>) } });
 }
 
 export const handle: PluginHandler = (rpc) => {

@@ -10,7 +10,7 @@ export const manifest = {
 } as const;
 
 export function roomRequest(projectId: string, operation: "rooms.create" | "rooms.join" | "rooms.reconnect" | "rooms.result", roomId: string, payload: unknown = {}) {
-  return request(`rooms-${operation}-${projectId}-${roomId}`, { protocol: 1, projectId, pluginId: manifest.id, version: manifest.version, operation, payload: { roomId, ...payload } });
+  return request(`rooms-${operation}-${projectId}-${roomId}`, { protocol: 1, projectId, pluginId: manifest.id, version: manifest.version, operation, payload: { roomId, ...(payload as Record<string, unknown>) } });
 }
 
 export const handle: PluginHandler = (rpc) => {

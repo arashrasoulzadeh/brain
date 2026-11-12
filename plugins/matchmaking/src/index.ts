@@ -11,7 +11,7 @@ export const manifest = {
 } as const;
 
 export function matchmakingRequest(projectId: string, operation: "matchmaking.queue" | "matchmaking.cancel" | "matchmaking.status" | "matchmaking.assign", config: string, payload: unknown = {}) {
-  return request(`matchmaking-${operation}-${projectId}-${config}`, { protocol: 1, projectId, pluginId: manifest.id, version: manifest.version, operation, payload: { config, ...payload } });
+  return request(`matchmaking-${operation}-${projectId}-${config}`, { protocol: 1, projectId, pluginId: manifest.id, version: manifest.version, operation, payload: { config, ...(payload as Record<string, unknown>) } });
 }
 
 export const handle: PluginHandler = (rpc) => {

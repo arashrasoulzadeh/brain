@@ -10,7 +10,7 @@ export const manifest = {
 } as const;
 
 export function dataRequest(projectId: string, operation: "tables.read" | "tables.write" | "tables.schema", table: string, payload: unknown = {}) {
-  return request(`tables-${operation}-${projectId}-${table}`, { protocol: 1, projectId, pluginId: manifest.id, version: manifest.version, operation, payload: { table, ...payload } });
+  return request(`tables-${operation}-${projectId}-${table}`, { protocol: 1, projectId, pluginId: manifest.id, version: manifest.version, operation, payload: { table, ...(payload as Record<string, unknown>) } });
 }
 
 export const handle: PluginHandler = (rpc) => {
