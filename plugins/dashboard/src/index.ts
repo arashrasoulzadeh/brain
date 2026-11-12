@@ -16,16 +16,8 @@ export function projectCreateRequest(id: string): RpcRequest {
   });
 }
 
-export function pluginInstallRequest(projectId: string, pluginId: string, version: string): RpcRequest {
-  return request(`dashboard-install-${projectId}-${pluginId}`, { protocol: 1, projectId, pluginId: manifest.id, version: manifest.version, operation: "plugin.install", payload: { targetPlugin: pluginId, targetVersion: version } });
-}
-
-export function pluginGrantRequest(projectId: string, pluginId: string, version: string, capability: string): RpcRequest {
-  return request(`dashboard-grant-${projectId}-${pluginId}`, { protocol: 1, projectId, pluginId: manifest.id, version: manifest.version, operation: "plugin.grant", payload: { targetPlugin: pluginId, targetVersion: version, capability } });
-}
-
-export function pluginEnableRequest(projectId: string, pluginId: string, version: string): RpcRequest {
-  return request(`dashboard-enable-${projectId}-${pluginId}`, { protocol: 1, projectId, pluginId: manifest.id, version: manifest.version, operation: "plugin.enable", payload: { targetPlugin: pluginId, targetVersion: version } });
+export function adminRequest(projectId: string, operation: string, payload: unknown): RpcRequest {
+  return request(`dashboard-${operation}-${projectId}`, { protocol: 1, projectId, pluginId: manifest.id, version: manifest.version, operation, payload });
 }
 
 export const handle: PluginHandler = (rpc) => {

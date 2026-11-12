@@ -9,7 +9,7 @@ The dashboard plugin owns trusted operator project and plugin administration. It
 - `plugin.grant`
 - `plugin.enable`
 
-The plugin creates typed host requests. The Go host remains responsible for authentication, authorization, project isolation, persistence, and effect commits.
+The plugin creates generic host requests from operation metadata; it does not contain one function per target plugin. The Go host remains responsible for authentication, authorization, project isolation, persistence, and effect commits.
 
 ## Grants
 
