@@ -332,7 +332,7 @@ Goal: provide project-scoped identity, PostgreSQL APIs, files, subscriptions, an
 - [x] Require a supported primary key.
 - [x] Reject unsupported types.
 - [x] Hide unapproved columns.
-- [ ] Allow only approved filters.
+- [x] Allow only approved filters.
 - [ ] Add cursor pagination.
 - [ ] Validate values and identifiers.
 - [ ] Add record versions.
