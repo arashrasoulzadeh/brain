@@ -3,6 +3,7 @@ package plugin_test
 import (
 	"errors"
 	"testing"
+	"time"
 
 	"brain/internal/plugin"
 )
@@ -208,5 +209,15 @@ func TestPromotionRoutesNewWorkWithoutChangingPinnedVersion(t *testing.T) {
 	}
 	if got, _ := r.ActiveVersion("dev", "rooms"); got != "1.0.0" {
 		t.Fatalf("rollback version = %q", got)
+	}
+	deadline := time.Unix(200, 0)
+	if err := r.DrainUntil("dev", "rooms", "2.0.0", deadline); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.CanStart("dev", "rooms", "2.0.0", time.Unix(199, 0)); err != nil {
+		t.Fatal("work was blocked before deadline")
+	}
+	if err := r.CanStart("dev", "rooms", "2.0.0", deadline); !errors.Is(err, plugin.ErrDisabled) {
+		t.Fatal("work was admitted after deadline")
 	}
 }

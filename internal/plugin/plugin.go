@@ -3,6 +3,7 @@ package plugin
 import (
 	"errors"
 	"fmt"
+	"time"
 )
 
 var (
@@ -32,14 +33,15 @@ type Manifest struct {
 type Registered struct{ Manifest Manifest }
 
 type Installation struct {
-	ProjectID string
-	PluginID  string
-	Version   string
-	Enabled   bool
-	Grants    map[string]bool
-	Config    map[string]any
-	Resources map[string]map[string]bool
-	Draining  bool
+	ProjectID  string
+	PluginID   string
+	Version    string
+	Enabled    bool
+	Grants     map[string]bool
+	Config     map[string]any
+	Resources  map[string]map[string]bool
+	Draining   bool
+	DrainUntil time.Time
 }
 
 type Registry struct {
@@ -252,14 +254,30 @@ func (r *Registry) Promote(projectID, id, version string) error {
 }
 
 func (r *Registry) Drain(projectID, id, version string) error {
+	return r.DrainUntil(projectID, id, version, time.Time{})
+}
+
+func (r *Registry) DrainUntil(projectID, id, version string, deadline time.Time) error {
 	key := projectID + ":" + id + "@" + version
 	i, ok := r.installations[key]
 	if !ok {
 		return ErrNotInstalled
 	}
 	i.Draining = true
+	i.DrainUntil = deadline
 	r.installations[key] = i
 	r.audit = append(r.audit, AuditEvent{Action: "drain", ProjectID: projectID, PluginID: id, Version: version})
+	return nil
+}
+
+func (r *Registry) CanStart(projectID, id, version string, now time.Time) error {
+	i, ok := r.installations[projectID+":"+id+"@"+version]
+	if !ok {
+		return ErrNotInstalled
+	}
+	if i.Draining && (i.DrainUntil.IsZero() || !now.Before(i.DrainUntil)) {
+		return ErrDisabled
+	}
 	return nil
 }
 
