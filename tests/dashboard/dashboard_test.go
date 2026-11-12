@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"brain/internal/plugin"
+	"brain/internal/project"
 	"brain/plugins/dashboard/implementation"
 )
 
@@ -84,5 +85,36 @@ func TestDashboardLifecycleActionsUseHostRegistry(t *testing.T) {
 	}
 	if err := actions.Remove("dev", "rooms", "1"); err == nil {
 		t.Fatal("dashboard removed referenced active version")
+	}
+}
+
+func TestDashboardProjectAdminActionsDelegateToHostBoundaries(t *testing.T) {
+	registry, err := dashboard.Bootstrap(1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	m := plugin.Manifest{ID: "auth", Version: "1", HostAPI: 1, Capabilities: []string{"auth.manage"}}
+	if err := registry.Register(m); err != nil {
+		t.Fatal(err)
+	}
+	if err := registry.SetReadiness(m.ID, m.Version, true); err != nil {
+		t.Fatal(err)
+	}
+	projects := project.NewStore()
+	admin := dashboard.ProjectAdmin{Projects: projects, Plugins: registry}
+	if err := admin.CreateProject("dev"); err != nil {
+		t.Fatal(err)
+	}
+	if err := admin.InstallPlugin("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	if err := admin.GrantPlugin("dev", m.ID, m.Version, "auth.manage"); err != nil {
+		t.Fatal(err)
+	}
+	if err := admin.EnablePlugin("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := projects.Resolve("dev"); err != nil {
+		t.Fatal(err)
 	}
 }
