@@ -38,7 +38,7 @@ Do not run Docker during normal development. Use in-process tests and isolated l
 
 ## Plugin-first feature development
 
-Product features belong under `plugins/<plugin-id>/` as TypeScript/Node.js plugins; use `plugins/template/` as the starting point. Go is reserved for the core host. Each plugin needs its own manifest, tests, grants, configuration schema, developer notes, administrator notes, and dynamic lifecycle behavior.
+Product features belong under `plugins/<plugin-id>/` as TypeScript serverless functions. Each plugin contains only `index.ts` and `plugin.yaml`; the YAML is authoritative for metadata, routes, functions, permissions, and configuration. The host supplies runtime dependencies and generates documentation. Go is reserved for the core host, and tests live under top-level `tests/`.
 
 Plugin communication follows [the plugin communication architecture](plugin-communication.md): JSON-RPC over Unix sockets locally, gRPC/mTLS externally, and the shared host authorization contract for both.
 

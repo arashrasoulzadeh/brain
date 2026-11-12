@@ -6,11 +6,8 @@ All Brain product features live here as TypeScript plugins. The Go host in `inte
 
 ```text
 plugins/<plugin-id>/
-├── plugin.yaml
-├── README.md
-├── src/               # TypeScript implementation
-├── tests/
-└── migrations/
+├── plugin.yaml        # authoritative metadata, routes, functions, permissions
+└── index.ts           # serverless TypeScript functions only
 ```
 
 ## Feature plugins
@@ -38,4 +35,4 @@ Every plugin runs as a TypeScript/Node.js worker and communicates through the ho
 
 ## Completion contract
 
-Every plugin needs a versioned manifest, explicit grants, project/lifecycle isolation tests, readiness and failure behavior, developer and administrator documentation, and documented promotion, disable, rollback, and removal behavior.
+The host supplies the runtime and package dependencies, discovers `plugin.yaml`, validates routes and grants, and generates developer/administrator documentation from the YAML contract. Tests live under the top-level `tests/` directory.
