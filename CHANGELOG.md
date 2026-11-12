@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `416d13a` — 2026-11-13 03:24:22 +0330 — phase 03 reject unsupported table types
+- `d1ac95d` — 2026-11-12 23:54:00 +0000 — docs: update changelog [skip ci]
 - `6b10ada` — 2026-11-13 03:23:48 +0330 — phase 03 require supported table primary keys
 - `a6ba7de` — 2026-11-12 23:53:25 +0000 — docs: update changelog [skip ci]
 - `3260eb9` — 2026-11-13 03:23:14 +0330 — phase 03 add table exposure records
