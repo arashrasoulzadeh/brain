@@ -55,6 +55,11 @@ const recovery = new EmailRecoveryService("recovery-secret", inbox);
 recovery.issue("project-a", "alice@example.com", 1000, 60);
 const recoveryCode = inbox.read("alice@example.com");
 if (!recovery.consume("project-a", "alice@example.com", recoveryCode ?? "", 1001)) throw new Error("email recovery failed");
+const resetService = new AuthService();
+resetService.signup("project-a", "erin", "old password");
+const resetSession = resetService.signin("project-a", "erin", "old password", 1000);
+resetService.resetPassword("project-a", "erin", "new password");
+try { resetService.session("project-a", resetSession.token, 1001); throw new Error("session survived password reset"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid session") throw error; }
 
 const service = new AuthService();
 const registration = service.signup("project-a", "alice", "correct horse battery");

@@ -265,6 +265,16 @@ export class AuthService {
     this.sessions.delete(digest);
   }
 
+  resetPassword(projectId: string, username: string, password: string): void {
+    this.validate(projectId, username, password);
+    const account = this.accounts.get(projectId)?.get(username);
+    if (!account) throw new Error("account not found");
+    const salt = randomBytes(16);
+    account.salt = salt;
+    account.passwordHash = this.hash(password, salt);
+    for (const [digest, session] of this.sessions) if (session.projectId === projectId && session.username === username) this.sessions.delete(digest);
+  }
+
   guest(projectId: string) {
     if (!projectId) throw new Error("project id required");
     const token = randomBytes(32).toString("hex");
