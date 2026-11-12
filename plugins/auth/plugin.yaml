@@ -3,7 +3,7 @@ title: Authentication
 description: Project-scoped account and session functions.
 version: 0.1.0
 host_api: 1
-entrypoint: src/index.ts
+entrypoint: index.ts
 dependencies: []
 capabilities:
   - auth.signin

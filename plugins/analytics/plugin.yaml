@@ -1,4 +1,5 @@
 id: analytics
+entrypoint: index.ts
 title: Analytics
 description: Project-scoped validated event capture.
 version: 0.1.0

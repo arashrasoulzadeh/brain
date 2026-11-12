@@ -3,7 +3,7 @@ title: Matchmaking
 description: Project-scoped queue and assignment functions.
 version: 0.1.0
 host_api: 1
-entrypoint: src/index.ts
+entrypoint: index.ts
 dependencies:
   - rooms@0.1.0
 capabilities:

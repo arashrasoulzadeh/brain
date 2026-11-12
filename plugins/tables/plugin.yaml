@@ -3,7 +3,7 @@ title: Tables
 description: Project-scoped data table functions.
 version: 0.1.0
 host_api: 1
-entrypoint: src/index.ts
+entrypoint: index.ts
 dependencies: []
 capabilities:
   - tables.read

@@ -9,6 +9,25 @@ export type PlayerSlot = { playerId: string; slot: number };
 
 export type RoomState = "waiting" | "matching" | "active" | "finished" | "closed";
 
+export type Room = { id: string; projectId: string; state: RoomState; maxPlayers: number; slots: PlayerSlot[] };
+
+export class RoomDirectory {
+  private readonly rooms = new Map<string, Room>();
+  create(projectId: string, roomId: string, maxPlayers: number): Room {
+    const id = projectRoomID(projectId, roomId);
+    if (maxPlayers < 1 || maxPlayers > 64) throw new Error("invalid max players");
+    if (this.rooms.has(id)) throw new Error("room already exists");
+    const room: Room = { id, projectId, state: "waiting", maxPlayers, slots: [] };
+    this.rooms.set(id, room);
+    return { ...room, slots: [] };
+  }
+  get(projectId: string, roomId: string): Room {
+    const room = this.rooms.get(projectRoomID(projectId, roomId));
+    if (!room) throw new Error("room not found");
+    return { ...room, slots: [...room.slots] };
+  }
+}
+
 export function canTransitionRoom(from: RoomState, to: RoomState): boolean {
   return ({ waiting: ["matching", "closed"], matching: ["active", "waiting", "closed"], active: ["finished", "closed"], finished: ["closed"], closed: [] } as Record<RoomState, RoomState[]>)[from].includes(to);
 }

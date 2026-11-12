@@ -3,7 +3,7 @@ title: Dashboard
 description: Trusted operator project and plugin administration.
 version: 0.1.0
 host_api: 1
-entrypoint: src/index.ts
+entrypoint: index.ts
 dependencies: []
 capabilities:
   - project.manage
