@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `cf2c894` — 2026-11-13 02:24:00 +0330 — phase 02 require project room membership
+- `6cfec69` — 2026-11-12 22:53:50 +0000 — docs: update changelog [skip ci]
 - `5e0aaa1` — 2026-11-13 02:23:30 +0330 — docs mark room creation complete
 - `8dd39ce` — 2026-11-12 22:53:31 +0000 — docs: update changelog [skip ci]
 - `b84d1ac` — 2026-11-13 02:23:19 +0330 — phase 02 implement project scoped room creation
