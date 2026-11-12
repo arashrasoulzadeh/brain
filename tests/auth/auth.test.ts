@@ -1,4 +1,4 @@
-import { AuthService, functions, guestRequest, signInRequest, signUpRequest } from "../../plugins/auth/index.js";
+import { AuthService, functions, guestRequest, projectUserID, signInRequest, signUpRequest } from "../../plugins/auth/index.js";
 import { createFunctionHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const serviceForHandler = new AuthService();
@@ -18,6 +18,7 @@ if (!guest.token || !guest.username.startsWith("guest-") || !guest.guest) throw 
 
 const service = new AuthService();
 service.signup("project-a", "alice", "correct horse battery");
+if (!projectUserID("project-a", "user-1").startsWith("project-a:")) throw new Error("project-scoped user ID failed");
 const session = service.signin("project-a", "alice", "correct horse battery");
 if (service.session("project-a", session.token).username !== "alice") throw new Error("session lookup failed");
 try { service.session("project-b", session.token); throw new Error("cross-project session accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid session") throw error; }

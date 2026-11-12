@@ -272,7 +272,7 @@ Goal: provide project-scoped identity, PostgreSQL APIs, files, subscriptions, an
 
 ### Identity and sessions
 
-- [ ] Add project-scoped user IDs.
+- [x] Add project-scoped user IDs.
 - [ ] Add username uniqueness per project.
 - [ ] Add Argon2id password hashing.
 - [ ] Add password registration without email delivery.

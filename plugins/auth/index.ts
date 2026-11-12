@@ -15,6 +15,11 @@ export function guestRequest(projectId: string, pluginId: string, version: strin
 
 type Account = { username: string; salt: Buffer; passwordHash: Buffer };
 
+export function projectUserID(projectId: string, userId: string): string {
+  if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(projectId) || !/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(userId)) throw new Error("invalid project user id");
+  return `${projectId}:${userId}`;
+}
+
 export class AuthService {
   private readonly accounts = new Map<string, Map<string, Account>>();
   private readonly sessions = new Map<string, { projectId: string; username: string }>();
@@ -26,7 +31,7 @@ export class AuthService {
     const salt = randomBytes(16);
     project.set(username, { username, salt, passwordHash: this.hash(password, salt) });
     this.accounts.set(projectId, project);
-    return { username };
+    return { username, userId: projectUserID(projectId, username) };
   }
 
   signin(projectId: string, username: string, password: string) {
