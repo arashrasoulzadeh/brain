@@ -418,7 +418,7 @@ Goal: compile dashboard-authored Go to WASM, execute it safely, run durable trig
 - [x] Reject malformed output.
 - [x] Reject extra results.
 - [x] Cap diagnostics.
-- [ ] Reject unexpected WASI imports.
+- [x] Reject unexpected WASI imports.
 - [ ] Run each invocation in a fresh wazero instance.
 - [ ] Allow only approved WASI interfaces.
 - [ ] Deny filesystem access.
