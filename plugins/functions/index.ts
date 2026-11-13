@@ -109,6 +109,7 @@ export class FunctionDraftStore {
 export type FunctionPublication = FunctionDraft & { version: number; artifactDigest: string; publishedAt: number };
 export class FunctionPublicationStore {
   private readonly publications = new Map<string, FunctionPublication>();
+  private readonly activeVersions = new Map<string, number>();
   publish(draft: FunctionDraft, artifactDigest: string, publishedAt = Date.now()): FunctionPublication {
     if (!draft.projectId || !draft.functionId || !draft.source || !/^sha256:[a-f0-9]+$/.test(artifactDigest) || !Number.isFinite(publishedAt)) throw new Error("invalid function publication");
     const prefix = `${draft.projectId}:${draft.functionId}:`;
@@ -116,11 +117,22 @@ export class FunctionPublicationStore {
     const version = versions.length ? Math.max(...versions) + 1 : 1;
     const publication = { ...draft, version, artifactDigest, publishedAt };
     this.publications.set(`${prefix}${version}`, publication);
+    this.activeVersions.set(`${draft.projectId}:${draft.functionId}`, version);
     return { ...publication };
   }
   get(projectId: string, functionId: string, version: number): FunctionPublication | undefined {
     const publication = this.publications.get(`${projectId}:${functionId}:${version}`);
     return publication ? { ...publication } : undefined;
+  }
+  active(projectId: string, functionId: string): FunctionPublication | undefined {
+    const version = this.activeVersions.get(`${projectId}:${functionId}`);
+    return version === undefined ? undefined : this.get(projectId, functionId, version);
+  }
+  rollback(projectId: string, functionId: string, version: number): FunctionPublication {
+    const publication = this.get(projectId, functionId, version);
+    if (!publication) throw new Error("function publication not found");
+    this.activeVersions.set(`${projectId}:${functionId}`, version);
+    return publication;
   }
 }
 export class SharedPackageStore {

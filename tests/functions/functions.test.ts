@@ -62,3 +62,6 @@ const publicationDraft = publicationDrafts.save("dev", "hello", "package main", 
 const publications = new FunctionPublicationStore();
 const publication = publications.publish(publicationDraft, "sha256:abc", 2000);
 if (publication.version !== 1 || publication.artifactDigest !== "sha256:abc" || publications.get("dev", "hello", 1)?.source !== "package main") throw new Error("function publication failed");
+const secondPublication = publications.publish({ ...publicationDraft, source: "package main\n// v2" }, "sha256:def", 3000);
+if (publications.active("dev", "hello")?.version !== secondPublication.version) throw new Error("latest publication was not active");
+if (publications.rollback("dev", "hello", 1).version !== 1 || publications.active("dev", "hello")?.artifactDigest !== "sha256:abc") throw new Error("function rollback failed");
