@@ -31,9 +31,10 @@ if (projectOverviewContribution("dev").view !== "project.overview" || pluginHeal
 const views = createViewReplacementRegistry();
 views.activate("dev", "project.overview", "custom-dashboard");
 try { views.activate("dev", "project.overview", "second-dashboard"); throw new Error("duplicate view replacement accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "view replacement already active") throw error; }
-try { views.submit("dev", "prod", "project.overview", () => true); throw new Error("cross-project view submission accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "host project context mismatch") throw error; }
-if (views.submit("dev", "dev", "project.overview", () => true).pluginId !== "custom-dashboard") throw new Error("authorized view action was not routed");
-try { views.submit("dev", "dev", "project.overview", () => false); throw new Error("unauthorized view action accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "admin view authorization denied") throw error; }
+try { views.submit("dev", "prod", "project.overview", () => true, () => {}); throw new Error("cross-project view submission accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "host project context mismatch") throw error; }
+let auditedView = "";
+if (views.submit("dev", "dev", "project.overview", () => true, (project, view, plugin) => { auditedView = `${project}:${view}:${plugin}`; }).pluginId !== "custom-dashboard" || auditedView !== "dev:project.overview:custom-dashboard") throw new Error("authorized view action was not audited");
+try { views.submit("dev", "dev", "project.overview", () => false, () => {}); throw new Error("unauthorized view action accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "admin view authorization denied") throw error; }
 validateCsrfToken("csrf-123", "csrf-123");
 try { validateCsrfToken("csrf-123", "csrf-124"); throw new Error("invalid csrf token accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "csrf validation failed") throw error; }
 if (typeof createHostHandler(host, routes, { projectId: "dev", invocationId: "test-readiness" })(readiness) !== "object") throw new Error("readiness request was not dispatched");
