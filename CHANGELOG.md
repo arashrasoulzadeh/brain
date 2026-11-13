@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `f8d1805` — 2026-11-13 17:12:35 +0330 — feat: add declarative dashboard view contributions
+  Files: plugins/dashboard/index.ts,plugins/dashboard/plugin-health-contribution.ts plugins/dashboard/plugin.yaml,plugins/dashboard/project-overview-contribution.ts roadmap.md,tests/dashboard/dashboard.test.ts
+- `7e0c0b3` — 2026-11-13 13:42:07 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `2d18d15` — 2026-11-13 17:11:42 +0330 — feat: render host-owned admin fixture
   Files: plugins/dashboard/host-owned-admin-view.ts,plugins/dashboard/index.ts plugins/dashboard/plugin.yaml,roadmap.md tests/dashboard/dashboard.test.ts
 - `a5a3e1f` — 2026-11-13 13:41:19 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `c1ed766` — 2026-11-13 16:34:07 +0330 — feat: reject stale plugin disable previews
   Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
 - `8fd0204` — 2026-11-13 13:03:45 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `9f3b4f8` — 2026-11-13 16:33:21 +0330 — feat: add plugin disable previews
-  Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
-- `37774a0` — 2026-11-13 13:02:44 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
