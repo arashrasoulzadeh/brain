@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `a19fe89` — 2026-11-13 16:50:19 +0330 — feat: add immediate plugin security stop
+  Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
+- `6551be1` — 2026-11-13 13:19:57 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `c2b688b` — 2026-11-13 16:49:36 +0330 — feat: interrupt expired action rooms
   Files: plugins/arena/index.ts,plugins/arena/interrupt-expired-action-room.ts plugins/arena/plugin.yaml,plugins/arena/types.ts roadmap.md,tests/arena/arena.test.ts
 - `9bae6ae` — 2026-11-13 13:18:58 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `37a6b4c` — 2026-11-13 16:11:46 +0330 — verify two client tic tac toe match
   Files: roadmap.md,tests/functions/phase04_tictactoe_gate.test.ts
 - `056ed1b` — 2026-11-13 12:41:31 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `2df9268` — 2026-11-13 16:11:07 +0330 — verify function crash recovery and grant revocation
-  Files: roadmap.md,tests/functions/phase04_recovery_gate.test.ts
-- `e23347b` — 2026-11-13 12:40:49 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
