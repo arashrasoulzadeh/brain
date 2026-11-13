@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `2666974` — 2026-11-13 03:38:58 +0330 — phase 03 invalidate owner subscription grants
+- `296f6fa` — 2026-11-13 00:08:45 +0000 — docs: update changelog [skip ci]
 - `ff22351` — 2026-11-13 03:38:34 +0330 — phase 03 authorize subscriptions
 - `ebdfa3b` — 2026-11-13 00:08:14 +0000 — docs: update changelog [skip ci]
 - `7751c55` — 2026-11-13 03:38:03 +0330 — phase 03 validate subscription browser origins
