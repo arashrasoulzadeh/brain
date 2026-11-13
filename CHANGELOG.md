@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `4129d35` — 2026-11-13 04:44:11 +0330 — phase 04 mark recursive write suppression complete
+- `af522af` — 2026-11-13 01:14:09 +0000 — docs: update changelog [skip ci]
 - `bb5ac93` — 2026-11-13 04:43:58 +0330 — phase 04 suppress recursive worker writes
 - `c02c8e2` — 2026-11-13 01:13:34 +0000 — docs: update changelog [skip ci]
 - `bb0c70a` — 2026-11-13 04:43:22 +0330 — phase 04 mark committed write triggers complete
