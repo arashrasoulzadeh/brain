@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `4185b13` — 2026-11-13 04:01:34 +0330 — phase 04 record project helper fixture
+- `bec7f84` — 2026-11-13 00:31:36 +0000 — docs: update changelog [skip ci]
 - `89336e1` — 2026-11-13 04:01:22 +0330 — phase 04 add project helper fixture
 - `5eada83` — 2026-11-13 00:31:06 +0000 — docs: update changelog [skip ci]
 - `3a7e7b3` — 2026-11-13 04:00:53 +0330 — phase 04 add function entry package fixture
