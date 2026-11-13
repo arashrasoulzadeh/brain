@@ -1,6 +1,7 @@
 import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { hash as argon2Hash, verify as argon2Verify } from "@node-rs/argon2";
 import { type PluginFunction, type RpcRequest, validateProjectId } from "../sdk-typescript/src/index.js";
+import { sessionTokenDigest } from "./session-token-digest.js";
 
 export { guestRequest } from "./guest-request.js";
 export { signInRequest } from "./sign-in-request.js";
@@ -13,7 +14,7 @@ export function projectUserID(projectId: string, userId: string): string {
   return `${projectId}:${userId}`;
 }
 
-export function sessionTokenDigest(token: string): string { return createHash("sha256").update(token).digest("hex"); }
+export { sessionTokenDigest } from "./session-token-digest.js";
 export function createPKCEChallenge(verifier: string): string { return createHash("sha256").update(verifier).digest("base64url"); }
 export function verifyPKCE(verifier: string, challenge: string, method: string): boolean {
   if (method !== "S256") return false;
@@ -130,25 +131,9 @@ export class ProjectRateLimiter {
   }
 }
 
-export class OperatorSessionRegistry {
-  private readonly sessions = new Map<string, string>();
-  private readonly revoked = new Set<string>();
-  issue(operatorId: string): string {
-    if (!operatorId.trim()) throw new Error("operator id required");
-    const token = randomBytes(32).toString("hex");
-    this.sessions.set(sessionTokenDigest(token), operatorId);
-    return token;
-  }
-  valid(token: string, operatorId: string): boolean {
-    const digest = sessionTokenDigest(token);
-    return !this.revoked.has(digest) && this.sessions.get(digest) === operatorId;
-  }
-  revoke(token: string): void {
-    const digest = sessionTokenDigest(token);
-    this.sessions.delete(digest);
-    this.revoked.add(digest);
-  }
-}
+export { OperatorSessionIssuer } from "./operator-session-issuer.js";
+export { OperatorSessionValidator } from "./operator-session-validator.js";
+export { OperatorSessionRevoker } from "./operator-session-revoker.js";
 
 export class IdentityLinker {
   private readonly links = new Map<string, string>();

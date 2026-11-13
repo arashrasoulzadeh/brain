@@ -17,6 +17,10 @@ source_files:
   - authorization-code-issuer.ts
   - authorization-code-consumer.ts
   - authorization-code-types.ts
+  - operator-session-issuer.ts
+  - operator-session-validator.ts
+  - operator-session-revoker.ts
+  - session-token-digest.ts
   - guest-request.ts
 imports:
   - ../sdk-typescript/src/index.js
@@ -34,6 +38,10 @@ imports:
   - ./authorization-code-issuer.js
   - ./authorization-code-consumer.js
   - ./authorization-code-types.js
+  - ./operator-session-issuer.js
+  - ./operator-session-validator.js
+  - ./operator-session-revoker.js
+  - ./session-token-digest.js
   - ./index.js
 plugin_imports:
 dependencies: []
