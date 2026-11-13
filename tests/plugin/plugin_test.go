@@ -644,3 +644,25 @@ func TestDrainScopeAndDeadlinePersistInInstallationStatus(t *testing.T) {
 		t.Fatalf("drain status = %#v", status)
 	}
 }
+
+func TestDrainUsesFiveMinuteDefaultWindow(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	m := plugin.Manifest{ID: "default-drain", Version: "1.0.0", HostAPI: 1}
+	if err := r.Register(m); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Install("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	before := time.Now().Add(5 * time.Minute)
+	if err := r.Drain("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	status, err := r.Status("dev", m.ID, m.Version)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if status.DrainUntil.Before(before.Add(-2*time.Second)) || status.DrainUntil.After(time.Now().Add(5*time.Minute+2*time.Second)) {
+		t.Fatalf("default drain deadline = %v", status.DrainUntil)
+	}
+}

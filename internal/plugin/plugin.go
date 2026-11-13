@@ -206,6 +206,8 @@ type DisablePreview struct {
 	Dependents []string
 }
 
+const DefaultDrainWindow = 5 * time.Minute
+
 type CapabilityRequest struct {
 	Capability string
 	Required   bool
@@ -528,7 +530,7 @@ func (r *Registry) Promote(projectID, id, version string) error {
 }
 
 func (r *Registry) Drain(projectID, id, version string) error {
-	return r.DrainUntil(projectID, id, version, time.Time{})
+	return r.DrainUntil(projectID, id, version, time.Now().Add(DefaultDrainWindow))
 }
 
 func (r *Registry) DrainUntil(projectID, id, version string, deadline time.Time) error {
