@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `b855075` — 2026-11-13 17:07:46 +0330 — test: verify referenced server cleanup
+  Files: roadmap.md
+- `3fd9d31` — 2026-11-13 13:37:29 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `e22425b` — 2026-11-13 17:05:55 +0330 — feat: protect referenced plugin versions from unregister
   Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
 - `cc33511` — 2026-11-13 13:35:14 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `f7ecc1f` — 2026-11-13 16:26:33 +0330 — test: reject incompatible plugin rollbacks
   Files: roadmap.md,tests/plugin/plugin_test.go
 - `3dea4f3` — 2026-11-13 12:55:10 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `fe9536b` — 2026-11-13 16:24:11 +0330 — test: enforce retained plugin rollback versions
-  Files: roadmap.md,tests/plugin/plugin_test.go
-- `159698b` — 2026-11-13 12:53:09 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
