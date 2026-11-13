@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `e4d637d` — 2026-11-13 04:51:40 +0330 — phase 04 mark workflow retry idempotency complete
+- `191ceba` — 2026-11-13 01:21:39 +0000 — docs: update changelog [skip ci]
 - `0784982` — 2026-11-13 04:51:26 +0330 — phase 04 add workflow retry idempotency
 - `c3f264c` — 2026-11-13 01:20:53 +0000 — docs: update changelog [skip ci]
 - `5c53b74` — 2026-11-13 04:50:32 +0330 — phase 04 mark workflow approvals complete
