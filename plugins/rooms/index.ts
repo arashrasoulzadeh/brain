@@ -113,7 +113,7 @@ export function validateMembership(projectId: string, roomId: string, slots: rea
     seen.add(player.slot);
   }
 }
-export type TicTacToeState = { projectId: string; roomId: string; players: readonly [string, string]; board: readonly ("X" | "O" | null)[]; turn: string; status: "active" };
+export type TicTacToeState = { projectId: string; roomId: string; players: readonly [string, string]; board: readonly ("X" | "O" | null)[]; turn: string; status: "active"; turnDeadlineAt?: number };
 export function initializeTicTacToe(projectId: string, roomId: string, firstPlayer: string, secondPlayer: string): TicTacToeState {
   projectRoomID(projectId, roomId);
   if (!firstPlayer.trim() || !secondPlayer.trim() || firstPlayer === secondPlayer) throw new Error("invalid tic-tac-toe players");
@@ -127,6 +127,11 @@ export function validateTicTacToeMove(state: TicTacToeState, playerId: string, c
   const board = [...state.board] as ("X" | "O" | null)[];
   board[cell] = mark;
   return { ...state, board, turn: state.players.find((player) => player !== playerId)! };
+}
+export function expireTicTacToeTurn(state: TicTacToeState, now: number, nextDeadlineAt: number): TicTacToeState {
+  if (state.status !== "active" || !Number.isFinite(now) || !Number.isFinite(nextDeadlineAt) || nextDeadlineAt <= now) throw new Error("invalid tic-tac-toe timeout");
+  if (state.turnDeadlineAt === undefined || now < state.turnDeadlineAt) throw new Error("tic-tac-toe turn not expired");
+  return { ...state, turn: state.players.find((player) => player !== state.turn)!, turnDeadlineAt: nextDeadlineAt };
 }
 export function ticTacToeWinner(state: TicTacToeState): string | undefined {
   const lines = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
