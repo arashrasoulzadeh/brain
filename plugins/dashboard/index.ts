@@ -13,3 +13,4 @@ export type { AuthSettings, FormAudit, SignupSettings } from "./types.js";
 export { hostOwnedAdminView } from "./host-owned-admin-view.js";
 export { projectOverviewContribution } from "./project-overview-contribution.js";
 export { pluginHealthContribution } from "./plugin-health-contribution.js";
+export { createViewReplacementRegistry } from "./view-replacement-registry.js";

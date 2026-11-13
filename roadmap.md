@@ -558,7 +558,7 @@ Goal: safely promote, roll back, disable, drain, uninstall, and extend plugin-co
 - [x] Add one declarative admin extension point.
 - [x] Render a host-owned fixture view.
 - [x] Add two view contributions.
-- [ ] Activate one replacement per named view and scope.
+- [x] Activate one replacement per named view and scope.
 - [ ] Reject a second replacement.
 - [ ] Reject cross-project submissions.
 - [ ] Route actions through host authorization.
