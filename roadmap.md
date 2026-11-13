@@ -551,7 +551,7 @@ Goal: safely promote, roll back, disable, drain, uninstall, and extend plugin-co
 - [x] Reject server unregister while references remain.
 - [x] Remove a server version only after all references are gone.
 - [x] Keep data deletion as a separate action.
-- [ ] Keep CLI recovery available.
+- [x] Keep CLI recovery available.
 
 ### Admin UI extensions
 

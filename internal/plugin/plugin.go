@@ -584,6 +584,20 @@ func (r *Registry) StopImmediately(projectID, id, version string) error {
 	return nil
 }
 
+func (r *Registry) Recover(projectID, id, version string) error {
+	key := projectID + ":" + id + "@" + version
+	i, ok := r.installations[key]
+	if !ok {
+		return ErrNotInstalled
+	}
+	i.Draining = false
+	i.DrainUntil = time.Time{}
+	r.installations[key] = i
+	r.lifecycleRevision++
+	r.audit = append(r.audit, AuditEvent{Action: "recover", ProjectID: projectID, PluginID: id, Version: version})
+	return nil
+}
+
 func (r *Registry) CanStart(projectID, id, version string, now time.Time) error {
 	i, ok := r.installations[projectID+":"+id+"@"+version]
 	if !ok {

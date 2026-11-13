@@ -694,6 +694,12 @@ func TestImmediateStopBlocksNewWorkAndReconnects(t *testing.T) {
 	if !errors.Is(r.CanReconnect("dev", m.ID, m.Version, time.Unix(1, 0)), plugin.ErrDisabled) {
 		t.Fatal("immediate stop admitted reconnect")
 	}
+	if err := r.Recover("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.CanStartNew("dev", m.ID, m.Version); err != nil {
+		t.Fatalf("recovery did not restore admission: %v", err)
+	}
 }
 
 func TestProjectUninstallWaitsForActiveWork(t *testing.T) {
