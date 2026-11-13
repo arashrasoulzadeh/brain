@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `cbfd92c` — 2026-11-13 04:06:36 +0330 — phase 04 reject workspace and toolchain overrides
+- `91a13fa` — 2026-11-13 00:36:18 +0000 — docs: update changelog [skip ci]
 - `1cd892d` — 2026-11-13 04:06:05 +0330 — phase 04 record source project isolation
 - `0c3f87e` — 2026-11-13 00:36:06 +0000 — docs: update changelog [skip ci]
 - `e8070e8` — 2026-11-13 04:05:54 +0330 — phase 04 reject cross project function sources
