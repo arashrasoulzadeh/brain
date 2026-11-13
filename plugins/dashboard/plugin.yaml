@@ -15,12 +15,14 @@ source_files:
   - record-edit-page.ts
   - table-management-page.ts
   - file-management-page.ts
-  - audited-form-actions.ts
+  - form-audit-recorder.ts
+  - form-audit-reader.ts
   - browser-quickstart.ts
 imports:
   - ../sdk-typescript/src/index.js
   - ./admin-request.js
-  - ./audited-form-actions.js
+  - ./form-audit-recorder.js
+  - ./form-audit-reader.js
   - ./auth-settings-page.js
   - ./browser-quickstart.js
   - ./file-management-page.js

@@ -1,5 +1,6 @@
 export { adminRequest } from "./admin-request.js";
-export { AuditedFormActions } from "./audited-form-actions.js";
+export { FormAuditRecorder } from "./form-audit-recorder.js";
+export { FormAuditReader } from "./form-audit-reader.js";
 export { browserQuickstart } from "./browser-quickstart.js";
 export { authSettingsPage } from "./auth-settings-page.js";
 export { fileManagementPage } from "./file-management-page.js";
