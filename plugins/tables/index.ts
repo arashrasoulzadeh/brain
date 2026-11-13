@@ -16,7 +16,7 @@ export { validateFilter } from "./validate-filter.js";
 export { paginate } from "./paginate.js";
 export const validateIdentifier = validateSdkIdentifier;
 export { validateValue } from "./validate-value.js";
-export { VersionedRecord } from "./versioned-record.js";
+export { createVersionedRecord } from "./versioned-record.js";
 export { IdempotentCreateStore } from "./idempotent-create-store.js";
 export type SchemaChange =
   | { kind: "add_column"; name: string; type: "string" | "number" | "boolean" | "date" }

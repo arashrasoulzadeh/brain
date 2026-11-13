@@ -21,6 +21,9 @@ source_files:
   - paginate.ts
   - validate-value.ts
   - versioned-record.ts
+  - versioned-record-state.ts
+  - versioned-record-reader.ts
+  - versioned-record-updater.ts
   - idempotent-create-store.ts
 imports:
   - ../sdk-typescript/src/index.js
@@ -39,6 +42,9 @@ imports:
   - ./paginate.js
   - ./validate-value.js
   - ./versioned-record.js
+  - ./versioned-record-state.js
+  - ./versioned-record-reader.js
+  - ./versioned-record-updater.js
   - ./idempotent-create-store.js
 plugin_imports:
 dependencies: []

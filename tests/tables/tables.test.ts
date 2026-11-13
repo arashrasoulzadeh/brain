@@ -1,4 +1,4 @@
-import { ApiChangeCapture, DirectSQLChangeCapture, IdempotentCreateStore, SchemaPublicationAudit, TableExposureWriter, TableExposureReader, TransactionalChangeCapture, VersionedRecord, dataRequest, paginate, planSchemaChange, previewSchemaSQL, projectRoleName, projectSchemaName, projectRow, requirePrimaryKey, requireRecentSchemaAuth, RowPolicyGranter, RowPolicyChecker, validateColumnTypes, validateFilter, validateIdentifier, validateValue } from "../../plugins/tables/index.js";
+import { ApiChangeCapture, DirectSQLChangeCapture, IdempotentCreateStore, SchemaPublicationAudit, TableExposureWriter, TableExposureReader, TransactionalChangeCapture, createVersionedRecord, dataRequest, paginate, planSchemaChange, previewSchemaSQL, projectRoleName, projectSchemaName, projectRow, requirePrimaryKey, requireRecentSchemaAuth, RowPolicyGranter, RowPolicyChecker, validateColumnTypes, validateFilter, validateIdentifier, validateValue } from "../../plugins/tables/index.js";
 import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = dataRequest("dev", "tables", "0.1.0", "tables.read", "users", { filter: { active: true } });
@@ -22,7 +22,7 @@ const page = paginate([1, 2, 3], undefined, 2);
 if (page.items.join(",") !== "1,2" || !page.nextCursor || paginate([1, 2, 3], page.nextCursor, 2).items[0] !== 3) throw new Error("cursor pagination failed");
 validateIdentifier("users"); validateValue("name", "alice");
 try { validateIdentifier("users;drop"); throw new Error("unsafe identifier accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid identifier") throw error; }
-const record = new VersionedRecord({ id: "1", name: "alice" });
+const record = createVersionedRecord({ id: "1", name: "alice" });
 record.update(0, { id: "1", name: "bob" });
 try { record.update(0, { id: "1", name: "carol" }); throw new Error("stale write accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "stale record version") throw error; }
 const creates = new IdempotentCreateStore<{ id: string }>();
