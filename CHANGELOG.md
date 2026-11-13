@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `f7ecc1f` — 2026-11-13 16:26:33 +0330 — test: reject incompatible plugin rollbacks
+  Files: roadmap.md,tests/plugin/plugin_test.go
+- `3dea4f3` — 2026-11-13 12:55:10 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `fe9536b` — 2026-11-13 16:24:11 +0330 — test: enforce retained plugin rollback versions
   Files: roadmap.md,tests/plugin/plugin_test.go
 - `159698b` — 2026-11-13 12:53:09 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `00deca8` — 2026-11-13 14:42:10 +0330 — split function approval operations
   Files: plugins/functions/approval-granter.ts,plugins/functions/approval-reader.ts plugins/functions/approval-requester.ts,plugins/functions/approval-state.ts plugins/functions/index.ts,plugins/functions/plugin.yaml tests/functions/functions.test.ts
 - `df8123b` — 2026-11-13 11:10:35 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `d0689ee` — 2026-11-13 14:40:10 +0330 — split transactional change capture operations
-  Files: plugins/tables/index.ts,plugins/tables/plugin.yaml plugins/tables/scoped-transaction-change-reader.ts,plugins/tables/scoped-transaction-change-writer.ts plugins/tables/transaction-change-reader.ts,plugins/tables/transaction-change-state.ts plugins/tables/transaction-change-writer.ts,tests/tables/tables.test.ts
-- `08a44e8` — 2026-11-13 11:08:44 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
