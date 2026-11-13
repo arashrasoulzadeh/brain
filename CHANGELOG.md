@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `00deca8` — 2026-11-13 14:42:10 +0330 — split function approval operations
+- `df8123b` — 2026-11-13 11:10:35 +0000 — docs: update changelog [skip ci]
 - `d0689ee` — 2026-11-13 14:40:10 +0330 — split transactional change capture operations
 - `08a44e8` — 2026-11-13 11:08:44 +0000 — docs: update changelog [skip ci]
 - `967f65c` — 2026-11-13 14:38:22 +0330 — split SQL change capture operations
