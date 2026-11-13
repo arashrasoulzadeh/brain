@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `3653e36` — 2026-11-13 04:35:57 +0330 — phase 04 commit effects with idempotency
+- `59187ce` — 2026-11-13 01:05:21 +0000 — docs: update changelog [skip ci]
 - `b23cf4c` — 2026-11-13 04:35:10 +0330 — phase 04 mark stale version validation complete
 - `0aee148` — 2026-11-13 01:05:10 +0000 — docs: update changelog [skip ci]
 - `a67ffdb` — 2026-11-13 04:34:58 +0330 — phase 04 validate stale input versions
