@@ -458,7 +458,7 @@ Goal: compile dashboard-authored Go to WASM, execute it safely, run durable trig
 - [x] Trigger only committed writes.
 - [x] Suppress recursive worker writes.
 - [x] Add short job leases.
-- [ ] Recheck grants at job commit.
+- [x] Recheck grants at job commit.
 - [ ] Cap retries.
 - [ ] Add workflow graph validation.
 - [ ] Add conditions.
