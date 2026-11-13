@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `c55a777` — 2026-11-13 04:05:00 +0330 — phase 04 reject missing SDK imports
+- `666ea3e` — 2026-11-13 00:34:51 +0000 — docs: update changelog [skip ci]
 - `14995e5` — 2026-11-13 04:04:32 +0330 — phase 04 record vendored dependencies
 - `e4b5fd7` — 2026-11-13 00:34:33 +0000 — docs: update changelog [skip ci]
 - `c2ca62e` — 2026-11-13 04:04:20 +0330 — phase 04 vendor approved Go dependencies
