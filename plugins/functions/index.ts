@@ -262,6 +262,20 @@ export function evaluateCondition(condition: WorkflowCondition, context: Readonl
   if (!condition.field || condition.operator !== "equals") throw new Error("unsupported condition");
   return Object.prototype.hasOwnProperty.call(context, condition.field) && Object.is(context[condition.field], condition.value);
 }
+export class ApprovalStore {
+  private readonly approvals = new Map<string, { requester: string; approved: boolean }>();
+  request(runId: string, requester: string): void {
+    if (!runId || !requester || this.approvals.has(runId)) throw new Error("invalid approval request");
+    this.approvals.set(runId, { requester, approved: false });
+  }
+  approve(runId: string, approver: string): boolean {
+    const approval = this.approvals.get(runId);
+    if (!approval || approval.approved || !approver || approver === approval.requester) return false;
+    approval.approved = true;
+    return true;
+  }
+  isApproved(runId: string): boolean { return this.approvals.get(runId)?.approved === true; }
+}
 export type FunctionDraft = { projectId: string; functionId: string; source: string; savedAt: number };
 export class FunctionDraftStore {
   private readonly drafts = new Map<string, FunctionDraft>();
