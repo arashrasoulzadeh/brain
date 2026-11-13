@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `3134afb` — 2026-11-13 13:00:31 +0330 — standardize plugin manifest block lists
+- `0036981` — 2026-11-13 09:27:52 +0000 — docs: update changelog [skip ci]
 - `cbf1c65` — 2026-11-13 12:57:08 +0330 — require plugin readiness before promotion
 - `6ba360b` — 2026-11-13 09:26:04 +0000 — docs: update changelog [skip ci]
 - `4005ce0` — 2026-11-13 12:55:50 +0330 — split rooms request boundary
