@@ -18,6 +18,13 @@ source_files:
   - validate-tic-tac-toe-rule-result.ts
   - connection-ticket-issuer.ts
   - connection-ticket-consumer.ts
+  - room-runtime.ts
+  - room-creator.ts
+  - room-reader.ts
+  - room-membership-reader.ts
+  - room-joiner.ts
+  - room-leaver.ts
+  - room-event-reader.ts
 imports:
   - ../sdk-typescript/src/index.js
   - node:crypto
@@ -33,6 +40,13 @@ imports:
   - ./validate-tic-tac-toe-rule-result.js
   - ./connection-ticket-issuer.js
   - ./connection-ticket-consumer.js
+  - ./room-runtime.js
+  - ./room-creator.js
+  - ./room-reader.js
+  - ./room-membership-reader.js
+  - ./room-joiner.js
+  - ./room-leaver.js
+  - ./room-event-reader.js
   - ./index.js
 plugin_imports:
 dependencies: []

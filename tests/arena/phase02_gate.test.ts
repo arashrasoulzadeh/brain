@@ -1,5 +1,5 @@
 import { createArena, MatchResultReader, MatchResultSaver, arenaStartCommand } from "../../plugins/arena/index.js";
-import { ConnectionTicketIssuer, ConnectionTicketConsumer, RoomDirectory, authorizeRoomCommand } from "../../plugins/rooms/index.js";
+import { ConnectionTicketIssuer, ConnectionTicketConsumer, createRoomDirectory, authorizeRoomCommand } from "../../plugins/rooms/index.js";
 import { MatchmakingQueue } from "../../plugins/matchmaking/index.js";
 
 const browserOne = createArena("dev", "gate-room");
@@ -7,7 +7,7 @@ const browserTwo = createArena("dev", "gate-room");
 arenaStartCommand(browserOne, "dev", "gate-room", ["user-1", "user-2"]);
 arenaStartCommand(browserTwo, "dev", "gate-room", ["user-1", "user-2"]);
 if (browserOne.getState() !== "active" || browserTwo.getState() !== "active") throw new Error("two-browser match did not start");
-const rooms = new RoomDirectory();
+const rooms = createRoomDirectory();
 rooms.create("dev", "gate-room", 2);
 rooms.join("dev", "gate-room", "user-1", 0);
 const ticketMap = new Map(); const ticketIssuer = new ConnectionTicketIssuer(ticketMap); const ticketConsumer = new ConnectionTicketConsumer(ticketMap);

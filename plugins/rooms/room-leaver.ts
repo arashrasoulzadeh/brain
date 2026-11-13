@@ -1,0 +1,3 @@
+import { projectRoomID } from "./project-room-id.js";
+import type { RoomRuntime } from "./room-runtime.js";
+export class RoomLeaver { constructor(private readonly runtime: RoomRuntime) {} leave(projectId: string, roomId: string, playerId: string): void { const key = projectRoomID(projectId, roomId); const room = this.runtime.rooms.get(key); if (!room || !room.slots.some((player) => player.playerId === playerId)) throw new Error("player not in room"); room.slots = room.slots.filter((player) => player.playerId !== playerId); this.runtime.store.save(key, room.slots); this.runtime.events.get(key)?.push({ type: "player.left", projectId, roomId, playerId, sequence: ++this.runtime.sequence }); } }
