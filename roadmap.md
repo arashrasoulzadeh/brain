@@ -357,7 +357,7 @@ Goal: provide project-scoped identity, PostgreSQL APIs, files, subscriptions, an
 - [x] Handle owner-transfer invalidations.
 - [x] Handle writes during initial fetch.
 - [x] Handle slow consumers.
-- [ ] Reconnect with missed events.
+- [x] Reconnect with missed events.
 
 ### Files
 
