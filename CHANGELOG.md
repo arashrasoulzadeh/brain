@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `1b08e90` — 2026-11-13 03:54:42 +0330 — ci format plugin tests
+- `f823fd2` — 2026-11-13 00:24:26 +0000 — docs: update changelog [skip ci]
 - `0df7b86` — 2026-11-13 03:54:06 +0330 — ci pin Node runtime
 - `5b7fed6` — 2026-11-13 00:23:59 +0000 — docs: update changelog [skip ci]
 - `2839ee1` — 2026-11-13 03:53:47 +0330 — ci run full TypeScript suite
