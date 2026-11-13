@@ -65,3 +65,5 @@ if (publication.version !== 1 || publication.artifactDigest !== "sha256:abc" || 
 const secondPublication = publications.publish({ ...publicationDraft, source: "package main\n// v2" }, "sha256:def", 3000);
 if (publications.active("dev", "hello")?.version !== secondPublication.version) throw new Error("latest publication was not active");
 if (publications.rollback("dev", "hello", 1).version !== 1 || publications.active("dev", "hello")?.artifactDigest !== "sha256:abc") throw new Error("function rollback failed");
+try { publications.publish({ ...publicationDraft, source: "package main\n// broken" }, "bad-digest", 4000); throw new Error("invalid draft was published"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid function publication") throw error; }
+if (publications.active("dev", "hello")?.version !== 1) throw new Error("failed draft changed active version");
