@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `9f31e2a` — 2026-11-13 13:24:01 +0330 — split subscription buffer responsibilities
+- `5922847` — 2026-11-13 09:53:24 +0000 — docs: update changelog [skip ci]
 - `f1d69b0` — 2026-11-13 13:23:05 +0330 — split files helper responsibilities
 - `9aafc13` — 2026-11-13 09:51:56 +0000 — docs: update changelog [skip ci]
 - `9d2713a` — 2026-11-13 13:21:42 +0330 — enforce focused plugin file responsibilities
