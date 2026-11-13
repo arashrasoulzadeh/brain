@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `5a9d18b` — 2026-11-13 03:50:56 +0330 — phase 03 audit dashboard form actions
+- `2d3916b` — 2026-11-13 00:20:39 +0000 — docs: update changelog [skip ci]
 - `a5c9060` — 2026-11-13 03:50:28 +0330 — phase 03 add dashboard file management
 - `9cf5153` — 2026-11-13 00:20:13 +0000 — docs: update changelog [skip ci]
 - `51297ae` — 2026-11-13 03:50:02 +0330 — phase 03 add dashboard table management
