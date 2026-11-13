@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `1b79b98` — 2026-11-13 12:29:27 +0330 — refactor plugins with SDK validation and TypeScript lint
+- `6daefcb` — 2026-11-13 08:56:08 +0000 — docs: update changelog [skip ci]
 - `638b93b` — 2026-11-13 12:25:56 +0330 — refactor shared plugin identity helpers
 - `d2d2033` — 2026-11-13 08:54:49 +0000 — docs: update changelog [skip ci]
 - `3091961` — 2026-11-13 12:24:36 +0330 — refactor plugins through shared SDK request builder
