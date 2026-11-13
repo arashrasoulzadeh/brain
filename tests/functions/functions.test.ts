@@ -73,6 +73,9 @@ const httpsResponse = await invokeDirectHttps("https://functions.example.test/in
 });
 if (!httpsResponse.success) throw new Error("direct HTTPS invocation failed");
 try { await invokeDirectHttps("http://functions.example.test/invoke", {}, async () => new Response()); throw new Error("HTTP invocation accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "HTTPS endpoint required") throw error; }
+for (const endpoint of ["https://127.0.0.1/invoke", "https://169.254.169.254/latest/meta-data", "https://localhost/invoke", "https://user:pass@functions.example.test/invoke"]) {
+  try { await invokeDirectHttps(endpoint, {}, async () => new Response()); throw new Error("unsafe HTTPS endpoint accepted"); } catch (error) { if (!(error instanceof Error) || !["HTTPS endpoint target denied", "HTTPS endpoint required"].includes(error.message)) throw error; }
+}
 const declaredInputs = loadDeclaredInputs({ user: "ada", secret: "must-not-load" }, ["user"]);
 if (JSON.stringify(declaredInputs) !== JSON.stringify({ user: "ada" })) throw new Error("undeclared input was loaded");
 try { loadDeclaredInputs({ user: "ada" }, ["missing"]); throw new Error("missing declared input accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "declared input missing") throw error; }

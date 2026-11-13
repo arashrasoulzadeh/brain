@@ -57,6 +57,8 @@ Project isolation is enforced from the host execution context. A plugin or clien
 
 Invocation credentials are single-use and project-bound. Tampered or replayed credentials are rejected at commit time.
 
+Security review covers plugin network targets, authentication comparisons, project isolation, replay protection, and YAML execution boundaries before release.
+
 Promotion is project-scoped and audited. Only an installed, enabled version can become active; pinned work remains on its pinned version during later promotion or rollback.
 
 Before promotion, all manifest-declared configuration fields must be present and match their declared types.

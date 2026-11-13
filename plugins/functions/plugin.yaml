@@ -8,6 +8,7 @@ imports:
   - node:fs
   - node:os
   - node:path
+  - node:net
   - ./function-request.js
 plugin_imports:
 title: Functions

@@ -48,6 +48,8 @@ Request constructors accept project IDs only to serialize protocol fixtures. The
 
 Go broker commits must use `CommitCredential`; credentials are bound to the originally authorized call and consumed once. The raw `Commit` method exists only for low-level tests.
 
+The plugin security baseline also denies SSRF targets in direct HTTPS invocation and treats malformed PKCE challenges as ordinary verification failures rather than exceptions.
+
 Phase 01 verification: the dashboard is bootstrapped through the CLI; YAML routes are host-discovered and unauthorized operations are rejected; readiness is reported separately from enablement; auth supports project-scoped guest sessions; analytics events are validated against allowed fields and captured by an in-process sink. Run `go test ./...`, `npm run typecheck`, and `npm run test:ts` locally.
 
 ## Phase 02 completed

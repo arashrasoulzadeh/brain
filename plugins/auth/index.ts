@@ -15,7 +15,12 @@ export function projectUserID(projectId: string, userId: string): string {
 
 export function sessionTokenDigest(token: string): string { return createHash("sha256").update(token).digest("hex"); }
 export function createPKCEChallenge(verifier: string): string { return createHash("sha256").update(verifier).digest("base64url"); }
-export function verifyPKCE(verifier: string, challenge: string, method: string): boolean { return method === "S256" && timingSafeEqual(Buffer.from(createPKCEChallenge(verifier)), Buffer.from(challenge)); }
+export function verifyPKCE(verifier: string, challenge: string, method: string): boolean {
+  if (method !== "S256") return false;
+  const expected = Buffer.from(createPKCEChallenge(verifier));
+  const received = Buffer.from(challenge);
+  return expected.length === received.length && timingSafeEqual(expected, received);
+}
 export class OIDCStateStore {
   private readonly states = new Map<string, { projectId: string; clientId: string; redirectUri: string }>();
   issue(projectId: string, clientId: string, redirectUri: string): string {

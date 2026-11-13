@@ -35,6 +35,7 @@ const code = codes.issue("project-a", "client-id", "https://app.example/callback
 if (codes.consume(code, "project-a", "client-id", "https://app.example/callback", 1001).userId !== "user-1") throw new Error("authorization code exchange failed");
 try { codes.consume(code, "project-a", "client-id", "https://app.example/callback", 1002); throw new Error("authorization code replay accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "authorization code unavailable") throw error; }
 if (!verifyPKCE("verifier", createPKCEChallenge("verifier"), "S256") || verifyPKCE("wrong", createPKCEChallenge("verifier"), "S256")) throw new Error("PKCE verification failed");
+if (verifyPKCE("verifier", "short", "S256")) throw new Error("malformed PKCE challenge accepted");
 const states = new OIDCStateStore();
 const state = states.issue("project-a", "client-id", "https://app.example/callback");
 states.consume(state, "project-a", "client-id", "https://app.example/callback");
