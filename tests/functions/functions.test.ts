@@ -96,6 +96,9 @@ const retryCommit = commits.commit("request-1", [{ path: "profile/name", value: 
 if (JSON.stringify(firstCommit) !== JSON.stringify(retryCommit) || commits.effects().length !== 1) throw new Error("idempotent effect commit failed");
 try { commits.commit("request-2", [{ path: "secret", value: "x" }], undefined, false); throw new Error("failed commit accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invocation commit failed") throw error; }
 if (commits.effects().length !== 1 || commits.result("request-2") !== undefined) throw new Error("failed commit mutated state");
+const staleCommits = createInvocationCommitStore();
+staleCommits.setLifecycleRevision(2);
+try { staleCommits.commit("request-stale", [], { ok: true }, true, 1); throw new Error("stale invocation commit accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "stale invocation lifecycle revision") throw error; }
 let executions = 0;
 const firstResponse = await retryInvocation(commits, "lost-response", () => { executions++; return { ok: true }; }, [{ path: "profile/name", value: "ada" }]);
 const recoveredResponse = await retryInvocation(commits, "lost-response", () => { executions++; return { ok: false }; }, [{ path: "profile/name", value: "changed" }]);
