@@ -561,7 +561,7 @@ Goal: safely promote, roll back, disable, drain, uninstall, and extend plugin-co
 - [x] Activate one replacement per named view and scope.
 - [x] Reject a second replacement.
 - [x] Reject cross-project submissions.
-- [ ] Route actions through host authorization.
+- [x] Route actions through host authorization.
 - [ ] Add CSRF checks.
 - [ ] Audit view actions.
 - [ ] Add one custom TypeScript view.

@@ -31,7 +31,9 @@ if (projectOverviewContribution("dev").view !== "project.overview" || pluginHeal
 const views = createViewReplacementRegistry();
 views.activate("dev", "project.overview", "custom-dashboard");
 try { views.activate("dev", "project.overview", "second-dashboard"); throw new Error("duplicate view replacement accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "view replacement already active") throw error; }
-try { views.submit("dev", "prod", "project.overview"); throw new Error("cross-project view submission accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "host project context mismatch") throw error; }
+try { views.submit("dev", "prod", "project.overview", () => true); throw new Error("cross-project view submission accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "host project context mismatch") throw error; }
+if (views.submit("dev", "dev", "project.overview", () => true).pluginId !== "custom-dashboard") throw new Error("authorized view action was not routed");
+try { views.submit("dev", "dev", "project.overview", () => false); throw new Error("unauthorized view action accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "admin view authorization denied") throw error; }
 if (typeof createHostHandler(host, routes, { projectId: "dev", invocationId: "test-readiness" })(readiness) !== "object") throw new Error("readiness request was not dispatched");
 try { createHostHandler(host, routes, { projectId: "dev", invocationId: "test-unknown" })(adminRequest("dev", "dashboard", "0.1.0", "plugin.unknown", {})); throw new Error("undeclared route was accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "operation not declared in plugin manifest") throw error; }
 try { createHostHandler(host, routes, { projectId: "dev", invocationId: "test-cross-project" })(adminRequest("prod", "dashboard", "0.1.0", "plugin.enable", {})); throw new Error("cross-project host request accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "host project context mismatch") throw error; }

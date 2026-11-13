@@ -9,8 +9,9 @@ export function createViewReplacementRegistry() {
       return { projectId, view, pluginId };
     },
     active(projectId: string, view: string) { return replacements.get(`${projectId}:${view}`); },
-    submit(hostProjectId: string, projectId: string, view: string) {
+    submit(hostProjectId: string, projectId: string, view: string, authorize: (projectId: string, view: string) => boolean) {
       if (!hostProjectId.trim() || hostProjectId !== projectId) throw new Error("host project context mismatch");
+      if (!authorize(projectId, view)) throw new Error("admin view authorization denied");
       return { projectId, view, pluginId: replacements.get(`${projectId}:${view}`) };
     },
   };
