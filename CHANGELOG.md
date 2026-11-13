@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `94f6982` — 2026-11-13 16:39:22 +0330 — feat: block new work during plugin drain
+  Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
+- `f3216a4` — 2026-11-13 13:09:01 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `216353a` — 2026-11-13 16:37:17 +0330 — test: isolate matchmaking scope disable
   Files: roadmap.md,tests/matchmaking/matchmaking.test.ts
 - `45c2e89` — 2026-11-13 13:06:51 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `813fb10` — 2026-11-13 14:54:47 +0330 — split record trigger operations
   Files: plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/record-trigger-adder.ts,plugins/functions/record-trigger-dispatcher.ts plugins/functions/record-trigger-matcher.ts,plugins/functions/record-trigger-state.ts tests/functions/functions.test.ts
 - `2616adf` — 2026-11-13 11:23:46 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `c53fac7` — 2026-11-13 14:53:26 +0330 — split invocation commit operations
-  Files: plugins/functions/index.ts,plugins/functions/invocation-commit-reader.ts plugins/functions/invocation-commit-state.ts,plugins/functions/invocation-commit-writer.ts plugins/functions/invocation-existence-reader.ts,plugins/functions/invocation-result-reader.ts plugins/functions/plugin.yaml,tests/functions/functions.test.ts
-- `e4ab489` — 2026-11-13 11:22:29 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
