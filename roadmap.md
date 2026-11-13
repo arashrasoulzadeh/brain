@@ -362,7 +362,7 @@ Goal: provide project-scoped identity, PostgreSQL APIs, files, subscriptions, an
 ### Files
 
 - [x] Configure a private S3-compatible bucket.
-- [ ] Namespace object keys by project.
+- [x] Namespace object keys by project.
 - [ ] Add pending upload metadata.
 - [ ] Reserve file quota.
 - [ ] Stream authorized uploads.

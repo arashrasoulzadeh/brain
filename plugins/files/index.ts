@@ -12,3 +12,8 @@ export function configurePrivateBucket(config: Omit<PrivateBucketConfig, "public
   return { ...config, publicAccess: false };
 }
 
+export function projectObjectKey(projectId: string, objectId: string): string {
+  if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(projectId) || !/^[a-zA-Z0-9][a-zA-Z0-9._-]*$/.test(objectId)) throw new Error("invalid object identity");
+  return `projects/${projectId}/objects/${objectId}`;
+}
+
