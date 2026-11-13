@@ -455,7 +455,7 @@ Goal: compile dashboard-authored Go to WASM, execute it safely, run durable trig
 - [x] Enqueue the latest missed occurrence.
 - [x] Pin the function version at enqueue.
 - [x] Add record-change triggers.
-- [ ] Trigger only committed writes.
+- [x] Trigger only committed writes.
 - [ ] Suppress recursive worker writes.
 - [ ] Add short job leases.
 - [ ] Recheck grants at job commit.
