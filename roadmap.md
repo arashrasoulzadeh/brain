@@ -416,7 +416,7 @@ Goal: compile dashboard-authored Go to WASM, execute it safely, run durable trig
 - [x] Define the typed invocation request.
 - [x] Define the typed invocation result.
 - [x] Reject malformed output.
-- [ ] Reject extra results.
+- [x] Reject extra results.
 - [ ] Cap diagnostics.
 - [ ] Reject unexpected WASI imports.
 - [ ] Run each invocation in a fresh wazero instance.
