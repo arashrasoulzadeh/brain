@@ -15,8 +15,11 @@ source_files:
   - subscription-grant-store.ts
   - subscription-authorization.ts
   - subscription-owner-invalidator.ts
-  - initial-fetch-buffer.ts
-  - slow-consumer-queue.ts
+  - initial-fetch-writer.ts
+  - initial-fetch-completer.ts
+  - slow-consumer-pusher.ts
+  - slow-consumer-shifter.ts
+  - slow-consumer-size.ts
   - subscription-event-appender.ts
   - subscription-event-reader.ts
 imports:
@@ -25,8 +28,11 @@ imports:
   - ./subscription-grant-store.js
   - ./subscription-authorization.js
   - ./subscription-owner-invalidator.js
-  - ./initial-fetch-buffer.js
-  - ./slow-consumer-queue.js
+  - ./initial-fetch-writer.js
+  - ./initial-fetch-completer.js
+  - ./slow-consumer-pusher.js
+  - ./slow-consumer-shifter.js
+  - ./slow-consumer-size.js
   - ./origin.js
   - ./subscription-event-appender.js
   - ./subscription-event-reader.js

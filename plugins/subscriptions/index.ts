@@ -1,8 +1,11 @@
 export { SubscriptionGrantStore } from "./subscription-grant-store.js";
 export { SubscriptionAuthorization } from "./subscription-authorization.js";
 export { SubscriptionOwnerInvalidator } from "./subscription-owner-invalidator.js";
-export { InitialFetchBuffer } from "./initial-fetch-buffer.js";
-export { SlowConsumerQueue } from "./slow-consumer-queue.js";
+export { InitialFetchWriter } from "./initial-fetch-writer.js";
+export { InitialFetchCompleter } from "./initial-fetch-completer.js";
+export { SlowConsumerPusher } from "./slow-consumer-pusher.js";
+export { SlowConsumerShifter } from "./slow-consumer-shifter.js";
+export { SlowConsumerSize } from "./slow-consumer-size.js";
 export { validateBrowserOrigin } from "./origin.js";
 export { SubscriptionEventAppender } from "./subscription-event-appender.js";
 export { SubscriptionEventReader } from "./subscription-event-reader.js";
