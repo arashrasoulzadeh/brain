@@ -4,9 +4,11 @@ description: Project-scoped data table functions.
 version: 0.1.0
 host_api: 1
 entrypoint: index.ts
-source_files: [index.ts]
-imports: [../sdk-typescript/src/index.js]
-plugin_imports: []
+source_files:
+  - index.ts
+imports:
+  - ../sdk-typescript/src/index.js
+plugin_imports:
 dependencies: []
 capabilities:
   - tables.read

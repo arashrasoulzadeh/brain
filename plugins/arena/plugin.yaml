@@ -4,9 +4,27 @@ description: Project-scoped cooperative match functions.
 version: 0.1.0
 host_api: 1
 entrypoint: index.ts
-source_files: [index.ts, types.ts, validate-result.ts, eye-event.ts, result-store.ts, state-machine.ts, arena-start.ts, arena-request.ts]
-imports: [../sdk-typescript/src/index.js, ./arena-request.js, ./arena-start.js, ./eye-event.js, ./result-store.js, ./state-machine.js, ./validate-result.js, ./types.js]
-plugin_imports: [rooms@0.1.0, matchmaking@0.1.0]
+source_files:
+  - index.ts
+  - types.ts
+  - validate-result.ts
+  - eye-event.ts
+  - result-store.ts
+  - state-machine.ts
+  - arena-start.ts
+  - arena-request.ts
+imports:
+  - ../sdk-typescript/src/index.js
+  - ./arena-request.js
+  - ./arena-start.js
+  - ./eye-event.js
+  - ./result-store.js
+  - ./state-machine.js
+  - ./validate-result.js
+  - ./types.js
+plugin_imports:
+  - rooms@0.1.0
+  - matchmaking@0.1.0
 dependencies:
   - rooms@0.1.0
   - matchmaking@0.1.0

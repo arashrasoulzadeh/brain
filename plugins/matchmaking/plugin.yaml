@@ -4,9 +4,22 @@ description: Project-scoped queue and assignment functions.
 version: 0.1.0
 host_api: 1
 entrypoint: index.ts
-source_files: [index.ts, types.ts, validate-config.ts, config-store.ts, queue.ts, matchmaking-request.ts]
-imports: [../sdk-typescript/src/index.js, ./config-store.js, ./queue.js, ./matchmaking-request.js, ./validate-config.js, ./types.js]
-plugin_imports: [rooms@0.1.0]
+source_files:
+  - index.ts
+  - types.ts
+  - validate-config.ts
+  - config-store.ts
+  - queue.ts
+  - matchmaking-request.ts
+imports:
+  - ../sdk-typescript/src/index.js
+  - ./config-store.js
+  - ./queue.js
+  - ./matchmaking-request.js
+  - ./validate-config.js
+  - ./types.js
+plugin_imports:
+  - rooms@0.1.0
 dependencies:
   - rooms@0.1.0
 capabilities:

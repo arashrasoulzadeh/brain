@@ -47,6 +47,13 @@ func TestRepositoryPluginManifestsDeclareSourceAndImportGates(t *testing.T) {
 		t.Fatalf("plugin manifests = %v, %v", paths, err)
 	}
 	for _, manifestPath := range paths {
+		rawManifest, readErr := os.ReadFile(manifestPath)
+		if readErr != nil {
+			t.Fatal(readErr)
+		}
+		if strings.Contains(string(rawManifest), "source_files: [") || strings.Contains(string(rawManifest), "imports: [") || strings.Contains(string(rawManifest), "plugin_imports: [") {
+			t.Fatalf("manifest %s uses prohibited inline YAML lists", manifestPath)
+		}
 		manifest, loadErr := plugin.LoadManifest(manifestPath)
 		if loadErr != nil {
 			t.Fatalf("LoadManifest(%s) = %v", manifestPath, loadErr)

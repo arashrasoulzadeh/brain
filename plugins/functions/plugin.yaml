@@ -1,8 +1,13 @@
 id: functions
 entrypoint: index.ts
-source_files: [index.ts]
-imports: [../sdk-typescript/src/index.js, node:fs, node:os, node:path]
-plugin_imports: []
+source_files:
+  - index.ts
+imports:
+  - ../sdk-typescript/src/index.js
+  - node:fs
+  - node:os
+  - node:path
+plugin_imports:
 title: Functions
 description: Project-scoped serverless function compilation and invocation controls.
 version: 0.1.0

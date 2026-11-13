@@ -4,9 +4,26 @@ description: Project-scoped realtime subscription functions.
 version: 0.1.0
 host_api: 1
 entrypoint: index.ts
-source_files: [index.ts, types.ts, subscription-request.ts, ticket-store.ts, origin.ts, authorizer.ts, buffers.ts, replay.ts]
-imports: [../sdk-typescript/src/index.js, node:crypto, ./authorizer.js, ./buffers.js, ./origin.js, ./replay.js, ./subscription-request.js, ./ticket-store.js, ./types.js]
-plugin_imports: []
+source_files:
+  - index.ts
+  - types.ts
+  - subscription-request.ts
+  - ticket-store.ts
+  - origin.ts
+  - authorizer.ts
+  - buffers.ts
+  - replay.ts
+imports:
+  - ../sdk-typescript/src/index.js
+  - node:crypto
+  - ./authorizer.js
+  - ./buffers.js
+  - ./origin.js
+  - ./replay.js
+  - ./subscription-request.js
+  - ./ticket-store.js
+  - ./types.js
+plugin_imports:
 dependencies: []
 capabilities:
   - subscriptions.open

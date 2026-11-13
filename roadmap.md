@@ -47,6 +47,7 @@ Every phase exit must also update:
 - [ ] Keep source declarations ordered: imports, types, constants, and file-level variables first; classes next; standalone functions after classes; class fields before methods. Use descriptive names.
 - [ ] Split plugins into one focused product function per TypeScript handler file; keep `index.ts` as exports/bootstrap only, declare every file and import in YAML, and split multi-responsibility classes.
 - [ ] Gate every plugin source file, runtime import, and plugin-to-plugin import through `plugin.yaml`; the host must reject undeclared files, imports, and dependencies before execution.
+- [ ] Use block YAML lists for every plugin source/import/dependency declaration; inline flow lists are prohibited.
 
 ## Test organization law
 

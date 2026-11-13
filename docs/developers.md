@@ -42,6 +42,8 @@ Product features belong under `plugins/<plugin-id>/` as TypeScript serverless fu
 
 This split is intentional: a handler can be replaced, scaled, tested, and audited independently. Analytics is the first migrated plugin; follow its `types.ts`, one-handler-file, and export-only `index.ts` pattern for the remaining plugins.
 
+Keep manifest lists in block form with one `-` entry per line. Do not use inline YAML arrays for source files or imports.
+
 Phase 01 verification: the dashboard is bootstrapped through the CLI; YAML routes are host-discovered and unauthorized operations are rejected; readiness is reported separately from enablement; auth supports project-scoped guest sessions; analytics events are validated against allowed fields and captured by an in-process sink. Run `go test ./...`, `npm run typecheck`, and `npm run test:ts` locally.
 
 ## Phase 02 completed

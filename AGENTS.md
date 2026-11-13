@@ -19,6 +19,7 @@ This repository is building a Go multi-tenant mobile backend. The complete produ
 - In each TypeScript source file, keep imports, types, constants, and other file-level variables first; place classes next; place standalone functions after classes, with class fields before methods. Use descriptive domain names instead of ambiguous names.
 - `plugin.yaml` is authoritative for plugin title, description, version, routes, function names, capabilities, extension points, and configuration; TypeScript must not duplicate manifest metadata or route allowlists.
 - `plugin.yaml` is also the import boundary: declare every plugin source file in `source_files`, every runtime/module import in `imports`, and every plugin-to-plugin dependency in both `dependencies` and `plugin_imports`; the host must reject undeclared files, imports, or plugin dependencies before execution.
+- Manifest lists must use block YAML sequences (`source_files:`/`imports:`/`plugin_imports:` followed by `-` entries), never inline flow lists; this keeps diffs readable and makes generated/automated edits safe.
 - The host discovers YAML routes and denies undeclared operations or capability mismatches before invoking a plugin function. Documentation is generated from the YAML contract.
 - TypeScript plugins communicate with the Go host through the versioned RPC contract and may not bypass the permission broker or project boundary.
 - Plugins remain dynamically replaceable: version, enable, disable, promote, rollback, drain, and remove them through host lifecycle contracts.
