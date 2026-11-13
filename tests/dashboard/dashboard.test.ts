@@ -1,4 +1,4 @@
-import { adminRequest, authSettingsPage, projectCreateRequest, recordBrowserPage, signupSettingsPage } from "../../plugins/dashboard/index.js";
+import { adminRequest, authSettingsPage, projectCreateRequest, recordBrowserPage, recordEditPage, signupSettingsPage } from "../../plugins/dashboard/index.js";
 import { createHostHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = projectCreateRequest("dashboard", "0.1.0", "dev");
@@ -32,3 +32,5 @@ if (authSettingsPage("dev", { passwordEnabled: true, oidcProviders: ["google"], 
 if (signupSettingsPage("dev", { enabled: true, allowedDomains: ["example.com"], requireInvite: false }).title !== "Signup settings") throw new Error("signup settings page failed");
 const browser = recordBrowserPage("dev", "users", [{ id: "1", name: "alice", secret: "x" }], ["id", "name"]);
 if (browser.rows[0].secret !== undefined || browser.rows[0].name !== "alice") throw new Error("record browser exposure failed");
+const edit = recordEditPage("dev", "users", "1", 2, { name: "bob", secret: "nope" }, ["name"]);
+if (edit.patch.name !== "bob" || edit.patch.secret !== undefined || edit.expectedVersion !== 2) throw new Error("record edit validation failed");
