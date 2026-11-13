@@ -11,6 +11,12 @@ source_files:
   - project-role-name.ts
   - row-policy.ts
   - table-exposure.ts
+  - require-primary-key.ts
+  - validate-column-types.ts
+  - project-row.ts
+  - validate-filter.ts
+  - paginate.ts
+  - validate-value.ts
 imports:
   - ../sdk-typescript/src/index.js
   - ./data-request.js
@@ -18,6 +24,12 @@ imports:
   - ./project-role-name.js
   - ./row-policy.js
   - ./table-exposure.js
+  - ./require-primary-key.js
+  - ./validate-column-types.js
+  - ./project-row.js
+  - ./validate-filter.js
+  - ./paginate.js
+  - ./validate-value.js
 plugin_imports:
 dependencies: []
 capabilities:

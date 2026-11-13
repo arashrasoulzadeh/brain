@@ -7,30 +7,13 @@ export { projectRoleName } from "./project-role-name.js";
 export { RowPolicy } from "./row-policy.js";
 export { TableExposureRegistry } from "./table-exposure.js";
 export type { TableExposure } from "./table-exposure.js";
-export function requirePrimaryKey(columns: readonly string[], primaryKey: string): void {
-  if (!primaryKey || !columns.includes(primaryKey)) throw new Error("supported primary key required");
-}
-export function validateColumnTypes(columns: Record<string, string>): void {
-  const supported = new Set(["string", "number", "boolean", "date"]);
-  if (Object.values(columns).some((type) => !supported.has(type))) throw new Error("unsupported column type");
-}
-export function projectRow(row: Record<string, unknown>, approvedColumns: readonly string[]): Record<string, unknown> {
-  return Object.fromEntries(approvedColumns.filter((column) => Object.prototype.hasOwnProperty.call(row, column)).map((column) => [column, row[column]]));
-}
-export function validateFilter(filter: Record<string, unknown>, approvedColumns: readonly string[]): void {
-  for (const [column, expression] of Object.entries(filter)) {
-    if (!approvedColumns.includes(column) || typeof expression !== "object" || expression === null || !Object.keys(expression as object).every((operator) => ["eq", "lt", "gt", "in"].includes(operator))) throw new Error("unapproved filter");
-  }
-}
-export function paginate<T>(items: readonly T[], cursor: string | undefined, limit: number): { items: T[]; nextCursor?: string } {
-  if (!Number.isInteger(limit) || limit < 1 || limit > 100) throw new Error("invalid page limit");
-  const start = cursor ? Number(Buffer.from(cursor, "base64url").toString("utf8")) : 0;
-  if (!Number.isInteger(start) || start < 0 || start > items.length) throw new Error("invalid page cursor");
-  const page = [...items.slice(start, start + limit)];
-  return { items: page, ...(start + page.length < items.length ? { nextCursor: Buffer.from(String(start + page.length)).toString("base64url") } : {}) };
-}
+export { requirePrimaryKey } from "./require-primary-key.js";
+export { validateColumnTypes } from "./validate-column-types.js";
+export { projectRow } from "./project-row.js";
+export { validateFilter } from "./validate-filter.js";
+export { paginate } from "./paginate.js";
 export const validateIdentifier = validateSdkIdentifier;
-export function validateValue(column: string, value: unknown): void { validateIdentifier(column); if (value === undefined || typeof value === "function" || (typeof value === "string" && value.length > 4096)) throw new Error("invalid value"); }
+export { validateValue } from "./validate-value.js";
 export class VersionedRecord<T extends Record<string, unknown>> {
   private value: T;
   version = 0;
