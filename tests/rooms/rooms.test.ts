@@ -1,4 +1,4 @@
-import { ConnectionTickets, RoomDirectory, authorizeRoomCommand, authorizedRoomSnapshot, canTransitionRoom, projectRoomID, roomRequest, validateMembership } from "../../plugins/rooms/index.js";
+import { ConnectionTickets, RoomDirectory, authorizeRoomCommand, authorizedRoomSnapshot, canTransitionRoom, initializeTicTacToe, projectRoomID, roomRequest, validateMembership } from "../../plugins/rooms/index.js";
 import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = roomRequest("dev", "rooms", "0.1.0", "rooms.create", "room-1", { maxPlayers: 2 });
@@ -35,3 +35,5 @@ rooms.leave("dev", "room-new", "user-1");
 if (rooms.events("dev", "room-new").map((event) => event.type).join(",") !== "player.joined,player.left") throw new Error("room events failed");
 if (rooms.eventsSince("dev", "room-new", 1).length !== 1 || rooms.eventsSince("dev", "room-new", 1)[0].type !== "player.left") throw new Error("missed events were not replayed");
 try { rooms.join("prod", "room-new", "user-2", 1); throw new Error("cross-project join accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "room not found") throw error; }
+const game = initializeTicTacToe("dev", "room-1", "user-1", "user-2");
+if (game.board.length !== 9 || game.turn !== "user-1" || game.projectId !== "dev") throw new Error("tic-tac-toe initialization failed");

@@ -112,6 +112,12 @@ export function validateMembership(projectId: string, roomId: string, slots: rea
     seen.add(player.slot);
   }
 }
+export type TicTacToeState = { projectId: string; roomId: string; players: readonly [string, string]; board: readonly ("X" | "O" | null)[]; turn: string; status: "active" };
+export function initializeTicTacToe(projectId: string, roomId: string, firstPlayer: string, secondPlayer: string): TicTacToeState {
+  projectRoomID(projectId, roomId);
+  if (!firstPlayer.trim() || !secondPlayer.trim() || firstPlayer === secondPlayer) throw new Error("invalid tic-tac-toe players");
+  return { projectId, roomId, players: [firstPlayer, secondPlayer], board: Array(9).fill(null), turn: firstPlayer, status: "active" };
+}
 
 export function roomRequest(projectId: string, pluginId: string, version: string, operation: "rooms.create" | "rooms.join" | "rooms.reconnect" | "rooms.result", roomId: string, payload: unknown = {}) {
   return request(`rooms-${operation}-${projectId}-${roomId}`, { protocol: 1, projectId, pluginId, version, operation, payload: { roomId, ...(payload as Record<string, unknown>) } });
