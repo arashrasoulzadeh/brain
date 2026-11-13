@@ -4,8 +4,8 @@ description: Trusted operator project and plugin administration.
 version: 0.1.0
 host_api: 1
 entrypoint: index.ts
-source_files: [index.ts]
-imports: [../sdk-typescript/src/index.js]
+source_files: [index.ts, types.ts, project-request.ts, admin-request.ts, auth-settings-page.ts, signup-settings-page.ts, record-browser-page.ts, record-edit-page.ts, table-management-page.ts, file-management-page.ts, audited-form-actions.ts, browser-quickstart.ts]
+imports: [../sdk-typescript/src/index.js, ./admin-request.js, ./audited-form-actions.js, ./auth-settings-page.js, ./browser-quickstart.js, ./file-management-page.js, ./project-request.js, ./record-browser-page.js, ./record-edit-page.js, ./signup-settings-page.js, ./table-management-page.js, ./types.js]
 plugin_imports: []
 dependencies: []
 capabilities:
