@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `37029d8` — 2026-11-13 12:19:09 +0330 — phase 04 mark malformed rule result rejection complete
+- `2d58f96` — 2026-11-13 08:49:03 +0000 — docs: update changelog [skip ci]
 - `12d891b` — 2026-11-13 12:18:50 +0330 — phase 04 reject malformed room rule results
 - `8ddce20` — 2026-11-13 08:28:00 +0000 — docs: update changelog [skip ci]
 - `58d1b75` — 2026-11-13 11:57:49 +0330 — phase 04 mark concurrent move handling complete
