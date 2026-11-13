@@ -132,6 +132,9 @@ export function ticTacToeWinner(state: TicTacToeState): string | undefined {
   for (const [a, b, c] of lines) if (state.board[a] && state.board[a] === state.board[b] && state.board[a] === state.board[c]) return state.players[state.board[a] === "X" ? 0 : 1];
   return undefined;
 }
+export function ticTacToeDraw(state: TicTacToeState): boolean {
+  return !ticTacToeWinner(state) && state.board.every((cell) => cell !== null);
+}
 
 export function roomRequest(projectId: string, pluginId: string, version: string, operation: "rooms.create" | "rooms.join" | "rooms.reconnect" | "rooms.result", roomId: string, payload: unknown = {}) {
   return request(`rooms-${operation}-${projectId}-${roomId}`, { protocol: 1, projectId, pluginId, version, operation, payload: { roomId, ...(payload as Record<string, unknown>) } });

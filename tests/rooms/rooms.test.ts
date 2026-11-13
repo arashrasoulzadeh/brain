@@ -1,4 +1,4 @@
-import { ConnectionTickets, RoomDirectory, authorizeRoomCommand, authorizedRoomSnapshot, canTransitionRoom, initializeTicTacToe, projectRoomID, roomRequest, ticTacToeWinner, validateMembership, validateTicTacToeMove } from "../../plugins/rooms/index.js";
+import { ConnectionTickets, RoomDirectory, authorizeRoomCommand, authorizedRoomSnapshot, canTransitionRoom, initializeTicTacToe, projectRoomID, roomRequest, ticTacToeDraw, ticTacToeWinner, validateMembership, validateTicTacToeMove } from "../../plugins/rooms/index.js";
 import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = roomRequest("dev", "rooms", "0.1.0", "rooms.create", "room-1", { maxPlayers: 2 });
@@ -46,3 +46,6 @@ winningGame = validateTicTacToeMove(winningGame, "user-1", 0); winningGame = val
 winningGame = validateTicTacToeMove(winningGame, "user-1", 1); winningGame = validateTicTacToeMove(winningGame, "user-2", 4);
 winningGame = validateTicTacToeMove(winningGame, "user-1", 2);
 if (ticTacToeWinner(winningGame) !== "user-1") throw new Error("tic-tac-toe win was not detected");
+let drawnGame = initializeTicTacToe("dev", "room-draw", "user-1", "user-2");
+for (const cell of [0, 1, 2, 4, 3, 5, 7, 6, 8]) drawnGame = validateTicTacToeMove(drawnGame, drawnGame.turn, cell);
+if (!ticTacToeDraw(drawnGame) || ticTacToeWinner(drawnGame)) throw new Error("tic-tac-toe draw was not detected");
