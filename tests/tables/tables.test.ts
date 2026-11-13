@@ -1,4 +1,4 @@
-import { ApiChangeCapture, IdempotentCreateStore, SchemaPublicationAudit, TableExposureRegistry, TransactionalChangeCapture, VersionedRecord, dataRequest, paginate, planSchemaChange, previewSchemaSQL, projectRoleName, projectSchemaName, projectRow, requirePrimaryKey, requireRecentSchemaAuth, RowPolicy, validateColumnTypes, validateFilter, validateIdentifier, validateValue } from "../../plugins/tables/index.js";
+import { ApiChangeCapture, DirectSQLChangeCapture, IdempotentCreateStore, SchemaPublicationAudit, TableExposureRegistry, TransactionalChangeCapture, VersionedRecord, dataRequest, paginate, planSchemaChange, previewSchemaSQL, projectRoleName, projectSchemaName, projectRow, requirePrimaryKey, requireRecentSchemaAuth, RowPolicy, validateColumnTypes, validateFilter, validateIdentifier, validateValue } from "../../plugins/tables/index.js";
 import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = dataRequest("dev", "tables", "0.1.0", "tables.read", "users", { filter: { active: true } });
@@ -54,3 +54,7 @@ try { capture.beginScoped("dev", "users", { id: "1" }, { id: "5" }, ["secret"], 
 const apiCapture = new ApiChangeCapture();
 apiCapture.begin("dev", "tables.write", { id: "1" }).commit();
 if (apiCapture.list("dev")[0].operation !== "tables.write") throw new Error("API change capture failed");
+const sqlCapture = new DirectSQLChangeCapture();
+sqlCapture.begin("dev", "users", "UPDATE").commit();
+if (sqlCapture.list("dev")[0].table !== "users") throw new Error("direct SQL capture failed");
+try { sqlCapture.begin("dev", "users;drop", "DELETE"); throw new Error("unsafe SQL table captured"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid identifier") throw error; }

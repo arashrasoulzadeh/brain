@@ -158,6 +158,24 @@ export class ApiChangeCapture {
   list(projectId: string): ApiChange[] { return this.changes.filter((change) => change.projectId === projectId).map((change) => ({ ...change })); }
 }
 
+export type DirectSQLChange = { projectId: string; table: string; statement: string };
+
+export class DirectSQLChangeCapture {
+  private readonly changes: DirectSQLChange[] = [];
+  begin(projectId: string, table: string, statement: string): { commit: () => void; rollback: () => void } {
+    validateIdentifier(table);
+    if (!projectId || !statement) throw new Error("invalid SQL change");
+    let finished = false;
+    const finish = (commit: boolean) => {
+      if (finished) throw new Error("transaction already finished");
+      finished = true;
+      if (commit) this.changes.push({ projectId, table, statement });
+    };
+    return { commit: () => finish(true), rollback: () => finish(false) };
+  }
+  list(projectId: string): DirectSQLChange[] { return this.changes.filter((change) => change.projectId === projectId).map((change) => ({ ...change })); }
+}
+
 export function dataRequest(projectId: string, pluginId: string, version: string, operation: "tables.read" | "tables.write" | "tables.schema", table: string, payload: unknown = {}) {
   return request(`tables-${operation}-${projectId}-${table}`, { protocol: 1, projectId, pluginId, version, operation, payload: { table, ...(payload as Record<string, unknown>) } });
 }
