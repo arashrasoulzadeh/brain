@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `6ef4174` — 2026-11-13 16:18:07 +0330 — docs: close phase 04 isolation gate
+  Files: docs/admins.md,docs/developers.md roadmap.md
+- `404352c` — 2026-11-13 12:43:43 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `01ab594` — 2026-11-13 16:13:23 +0330 — exclude vendored files from Go formatting check
   Files: .github/workflows/test.yml
 - `fdf4279` — 2026-11-13 12:42:43 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `03902e9` — 2026-11-13 14:31:30 +0330 — make plugin decomposition a permanent law
   Files: AGENTS.md,docs/admins.html docs/developers.md,roadmap.md
 - `fcacca7` — 2026-11-13 11:00:25 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `566016b` — 2026-11-13 14:30:05 +0330 — split matchmaking queue operations
-  Files: plugins/matchmaking/assignment-creator.ts,plugins/matchmaking/index.ts plugins/matchmaking/plugin.yaml,plugins/matchmaking/queue-runtime.ts plugins/matchmaking/queue.ts,plugins/matchmaking/ticket-enqueuer.ts plugins/matchmaking/ticket-expirer.ts,plugins/matchmaking/ticket-matcher.ts plugins/matchmaking/ticket-reader.ts,plugins/matchmaking/ticket-requeuer.ts tests/arena/phase02_gate.test.ts,tests/matchmaking/matchmaking.test.ts
-- `10fe316` — 2026-11-13 10:57:52 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
