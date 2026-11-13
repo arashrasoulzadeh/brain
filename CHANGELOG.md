@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `bbf272b` — 2026-11-13 14:37:01 +0330 — split API change capture operations
+- `a453106` — 2026-11-13 11:06:13 +0000 — docs: update changelog [skip ci]
 - `9908a14` — 2026-11-13 14:35:52 +0330 — split schema audit operations
 - `7c248fc` — 2026-11-13 11:02:53 +0000 — docs: update changelog [skip ci]
 - `740d4a8` — 2026-11-13 14:32:35 +0330 — split versioned record operations
