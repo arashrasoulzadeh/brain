@@ -46,3 +46,8 @@ if (capture.list("dev").length !== 0) throw new Error("rolled back change captur
 const committed = capture.begin("dev", "users", { id: "1" }, { id: "3" });
 committed.commit();
 if (capture.list("dev").length !== 1 || capture.list("dev")[0].newValue.id !== "3") throw new Error("committed change missing");
+const scoped = capture.beginScoped("dev", "users", { id: "1" }, { id: "4" }, ["public"], ["public", "member"]);
+scoped.commit();
+const scopedChange = capture.listScoped("dev")[0];
+if (scopedChange.oldScope.join(",") !== "public" || scopedChange.newScope.join(",") !== "public,member") throw new Error("authorization scopes missing");
+try { capture.beginScoped("dev", "users", { id: "1" }, { id: "5" }, ["secret"], []); throw new Error("unapproved scope captured"); } catch (error) { if (!(error instanceof Error) || error.message !== "unapproved authorization scope") throw error; }

@@ -110,9 +110,11 @@ export class SchemaPublicationAudit {
 }
 
 export type RowChange<T> = { projectId: string; table: string; oldValue: T; newValue: T };
+export type ScopedRowChange<T> = RowChange<T> & { oldScope: readonly string[]; newScope: readonly string[] };
 
 export class TransactionalChangeCapture<T> {
   private readonly changes: RowChange<T>[] = [];
+  private readonly scopedChanges: ScopedRowChange<T>[] = [];
   begin(projectId: string, table: string, oldValue: T, newValue: T): { commit: () => void; rollback: () => void } {
     if (!projectId || !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) throw new Error("invalid change target");
     let finished = false;
@@ -123,7 +125,20 @@ export class TransactionalChangeCapture<T> {
     };
     return { commit: () => finish(true), rollback: () => finish(false) };
   }
+  beginScoped(projectId: string, table: string, oldValue: T, newValue: T, oldScope: readonly string[], newScope: readonly string[], approvedScopes: readonly string[] = ["public", "member", "owner"]): { commit: () => void; rollback: () => void } {
+    const allowed = new Set(approvedScopes);
+    if (![...oldScope, ...newScope].every((scope) => scope && allowed.has(scope))) throw new Error("unapproved authorization scope");
+    if (!projectId || !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) throw new Error("invalid change target");
+    let finished = false;
+    const finish = (commit: boolean) => {
+      if (finished) throw new Error("transaction already finished");
+      finished = true;
+      if (commit) this.scopedChanges.push({ projectId, table, oldValue, newValue, oldScope: [...oldScope], newScope: [...newScope] });
+    };
+    return { commit: () => finish(true), rollback: () => finish(false) };
+  }
   list(projectId: string): RowChange<T>[] { return this.changes.filter((change) => change.projectId === projectId).map((change) => ({ ...change })); }
+  listScoped(projectId: string): ScopedRowChange<T>[] { return this.scopedChanges.filter((change) => change.projectId === projectId).map((change) => ({ ...change, oldScope: [...change.oldScope], newScope: [...change.newScope] })); }
 }
 
 export function dataRequest(projectId: string, pluginId: string, version: string, operation: "tables.read" | "tables.write" | "tables.schema", table: string, payload: unknown = {}) {
