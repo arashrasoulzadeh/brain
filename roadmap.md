@@ -527,7 +527,7 @@ Goal: safely promote, roll back, disable, drain, uninstall, and extend plugin-co
 
 - [x] Calculate transitive dependents.
 - [x] Add a disable preview revision.
-- [ ] Reject stale disable previews.
+- [x] Reject stale disable previews.
 - [ ] Disable one matchmaking scope independently.
 - [ ] Block new calls, jobs, subscriptions, and assignments.
 - [ ] Cancel affected queued matches.

@@ -320,6 +320,17 @@ func (r *Registry) PreviewDisable(projectID, id, version string) (DisablePreview
 	return DisablePreview{ProjectID: projectID, PluginID: id, Version: version, Revision: r.lifecycleRevision, Dependents: r.TransitiveDependents(id, version)}, nil
 }
 
+func (r *Registry) ApplyDisablePreview(preview DisablePreview) error {
+	if preview.Revision != r.lifecycleRevision {
+		return ErrStalePreview
+	}
+	if _, ok := r.installations[preview.ProjectID+":"+preview.PluginID+"@"+preview.Version]; !ok {
+		return ErrNotInstalled
+	}
+	r.lifecycleRevision++
+	return nil
+}
+
 func (r *Registry) SetReadiness(id, version string, ready bool) error {
 	key := id + "@" + version
 	if _, ok := r.registered[key]; !ok {
@@ -509,6 +520,7 @@ func (r *Registry) Promote(projectID, id, version string) error {
 		}
 	}
 	r.active[projectID+":"+id] = version
+	r.lifecycleRevision++
 	r.audit = append(r.audit, AuditEvent{Action: "promote", ProjectID: projectID, PluginID: id, Version: version})
 	return nil
 }
