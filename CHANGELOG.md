@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `5a8493e` — 2026-11-13 16:19:19 +0330 — feat: recheck plugin grants during promotion
+  Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
+- `ee51f53` — 2026-11-13 12:48:29 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `6ef4174` — 2026-11-13 16:18:07 +0330 — docs: close phase 04 isolation gate
   Files: docs/admins.md,docs/developers.md roadmap.md
 - `404352c` — 2026-11-13 12:43:43 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `740d4a8` — 2026-11-13 14:32:35 +0330 — split versioned record operations
   Files: plugins/tables/index.ts,plugins/tables/plugin.yaml plugins/tables/versioned-record-reader.ts,plugins/tables/versioned-record-state.ts plugins/tables/versioned-record-updater.ts,plugins/tables/versioned-record.ts tests/tables/tables.test.ts
 - `842e8b9` — 2026-11-13 11:01:53 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `03902e9` — 2026-11-13 14:31:30 +0330 — make plugin decomposition a permanent law
-  Files: AGENTS.md,docs/admins.html docs/developers.md,roadmap.md
-- `fcacca7` — 2026-11-13 11:00:25 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
