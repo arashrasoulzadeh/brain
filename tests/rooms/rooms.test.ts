@@ -1,4 +1,4 @@
-import { ConnectionTicketIssuer, ConnectionTicketConsumer, CommandDeduplicator, createRoomDirectory, createTicTacToeCoordinator, authorizeRoomCommand, authorizedRoomSnapshot, authorizeTicTacToeCommand, authorizedTicTacToeState, canTransitionRoom, expireTicTacToeTurn, hiddenTicTacToeView, initializeTicTacToe, pauseTicTacToeTurn, publishTicTacToeRules, projectRoomID, reconstructTicTacToeHistory, reconnectTicTacToe, roomRequest, serializeTicTacToeState, ticTacToeDraw, ticTacToeWinner, validateMembership, validateTicTacToeCommandPayload, validateTicTacToeMove, validateTicTacToeRuleResult } from "../../plugins/rooms/index.js";
+import { ConnectionTicketIssuer, ConnectionTicketConsumer, CommandDeduplicator, createRoomDirectory, createTicTacToeCoordinator, authorizeRoomCommand, authorizedRoomSnapshot, authorizeTicTacToeCommand, authorizedTicTacToeState, canTransitionRoom, expireTicTacToeTurn, hiddenTicTacToeView, initializeTicTacToe, pauseTicTacToeTurn, publishTicTacToeRules, projectRoomID, reconstructTicTacToeHistory, reconnectTicTacToe, resumePausedTicTacToeTurn, roomRequest, serializeTicTacToeState, ticTacToeDraw, ticTacToeWinner, validateMembership, validateTicTacToeCommandPayload, validateTicTacToeMove, validateTicTacToeRuleResult } from "../../plugins/rooms/index.js";
 import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = roomRequest("dev", "rooms", "0.1.0", "rooms.create", "room-1", { maxPlayers: 2 });
@@ -68,6 +68,8 @@ if (validateTicTacToeCommandPayload({ cell: 4 }).cell !== 4) throw new Error("va
 const pausedGame = pauseTicTacToeTurn(moved);
 if (pausedGame.status !== "paused" || pausedGame.board[0] !== "X") throw new Error("turn room did not pause at the committed move");
 try { validateTicTacToeMove(pausedGame, "user-2", 1); throw new Error("paused turn accepted a move"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid tic-tac-toe move") throw error; }
+if (resumePausedTicTacToeTurn(pausedGame, "1.0.0", "1.0.0").status !== "active") throw new Error("pinned paused room did not resume");
+try { resumePausedTicTacToeTurn(pausedGame, "2.0.0", "1.0.0"); throw new Error("room resumed with an unpinned version"); } catch (error) { if (!(error instanceof Error) || error.message !== "pinned room version required") throw error; }
 try { validateTicTacToeCommandPayload({ cell: 4, extra: true }); throw new Error("mismatched command payload accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "command payload mismatch") throw error; }
 const coordinator = createTicTacToeCoordinator(game);
 const revision = coordinator.revision();
