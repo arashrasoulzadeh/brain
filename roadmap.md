@@ -399,7 +399,7 @@ Goal: compile dashboard-authored Go to WASM, execute it safely, run durable trig
 - [ ] Add an entry-package fixture.
 - [x] Add a project-local helper fixture.
 - [x] Compile the fixture to `wasip1/wasm`.
-- [ ] Pin the Go toolchain.
+- [x] Pin the Go toolchain.
 - [ ] Generate platform module settings.
 - [ ] Vendor approved dependencies.
 - [ ] Reject missing imports.
