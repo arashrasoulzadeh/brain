@@ -3,6 +3,9 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `28609f7` — 2026-11-13 04:11:04 +0330 — phase 04 record typed invocation result
+- `1bd9228` — 2026-11-13 04:10:52 +0330 — phase 04 define typed wasm invocation result
+- `d2a2319` — 2026-11-13 00:40:40 +0000 — docs: update changelog [skip ci]
 - `229238b` — 2026-11-13 04:10:17 +0330 — phase 04 record typed invocation request
 - `2883d8f` — 2026-11-13 00:40:18 +0000 — docs: update changelog [skip ci]
 - `6979b0a` — 2026-11-13 04:10:05 +0330 — phase 04 define typed wasm invocation request
