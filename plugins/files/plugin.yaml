@@ -4,8 +4,8 @@ description: Project-scoped object storage functions.
 version: 0.1.0
 host_api: 1
 entrypoint: index.ts
-source_files: [index.ts]
-imports: [../sdk-typescript/src/index.js]
+source_files: [index.ts, types.ts, file-request.ts, bucket.ts, object-key.ts, upload-store.ts, quota.ts, upload-stream.ts, access-policy.ts, file-helpers.ts]
+imports: [../sdk-typescript/src/index.js, ./access-policy.js, ./bucket.js, ./file-helpers.js, ./file-request.js, ./object-key.js, ./quota.js, ./upload-stream.js, ./upload-store.js, ./types.js]
 plugin_imports: []
 dependencies: []
 capabilities:
