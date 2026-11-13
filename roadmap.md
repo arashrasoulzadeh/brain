@@ -534,7 +534,7 @@ Goal: safely promote, roll back, disable, drain, uninstall, and extend plugin-co
 - [x] Persist drain scope and deadline.
 - [x] Use a five-minute default drain window.
 - [x] Allow current participants to reconnect.
-- [ ] Reject new room admissions during drain.
+- [x] Reject new room admissions during drain.
 - [ ] Pause turn rooms at the last committed move.
 - [ ] Interrupt action rooms at expiry.
 - [ ] Add immediate stop for security revocation.

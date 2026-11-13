@@ -29,6 +29,8 @@ if (!authorizeRoomCommand(rooms.get("dev", "room-new"), "dev", "user-1", "room.a
 try { authorizeRoomCommand(rooms.get("dev", "room-new"), "dev", "user-2", "room.action"); throw new Error("unauthorized command accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "room membership required") throw error; }
 try { authorizedRoomSnapshot(rooms.get("dev", "room-new"), "dev", "user-2"); throw new Error("unauthorized snapshot accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "room membership required") throw error; }
 if (savedMembership.get("dev:room-new") !== 1) throw new Error("room membership was not persisted");
+const drainingRooms = createRoomDirectory(undefined, () => { throw new Error("room admissions disabled during drain"); });
+try { drainingRooms.create("dev", "blocked-room", 2); throw new Error("new room admission was not blocked during drain"); } catch (error) { if (!(error instanceof Error) || error.message !== "room admissions disabled during drain") throw error; }
 if (!rooms.isMember("dev", "room-new", "user-1") || rooms.isMember("dev", "room-new", "user-2")) throw new Error("room membership check failed");
 try { rooms.join("dev", "room-new", "user-1", 1); throw new Error("duplicate membership accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid membership") throw error; }
 rooms.leave("dev", "room-new", "user-1");
