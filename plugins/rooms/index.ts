@@ -163,6 +163,18 @@ export function validateTicTacToeCommandPayload(payload: unknown): { cell: numbe
   if (!payload || typeof payload !== "object" || Object.keys(payload).length !== 1 || typeof (payload as { cell?: unknown }).cell !== "number" || !Number.isInteger((payload as { cell: number }).cell) || (payload as { cell: number }).cell < 0 || (payload as { cell: number }).cell > 8) throw new Error("command payload mismatch");
   return { cell: (payload as { cell: number }).cell };
 }
+export class TicTacToeCoordinator {
+  private current: TicTacToeState;
+  private version = 0;
+  constructor(state: TicTacToeState) { this.current = { ...state, players: [...state.players] as [string, string], board: [...state.board] }; }
+  revision(): number { return this.version; }
+  move(playerId: string, cell: number, expectedRevision: number): TicTacToeState {
+    if (expectedRevision !== this.version) throw new Error("stale game revision");
+    this.current = validateTicTacToeMove(this.current, playerId, cell);
+    this.version++;
+    return { ...this.current, players: [...this.current.players] as [string, string], board: [...this.current.board] };
+  }
+}
 
 export function roomRequest(projectId: string, pluginId: string, version: string, operation: "rooms.create" | "rooms.join" | "rooms.reconnect" | "rooms.result", roomId: string, payload: unknown = {}) {
   return request(`rooms-${operation}-${projectId}-${roomId}`, { protocol: 1, projectId, pluginId, version, operation, payload: { roomId, ...(payload as Record<string, unknown>) } });
