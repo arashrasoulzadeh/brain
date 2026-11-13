@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `bb0c70a` — 2026-11-13 04:43:22 +0330 — phase 04 mark committed write triggers complete
+- `e501f82` — 2026-11-13 01:13:21 +0000 — docs: update changelog [skip ci]
 - `30e91f7` — 2026-11-13 04:43:09 +0330 — phase 04 trigger only committed writes
 - `d6d5e68` — 2026-11-13 01:12:46 +0000 — docs: update changelog [skip ci]
 - `29329e7` — 2026-11-13 04:42:34 +0330 — phase 04 mark record triggers complete
