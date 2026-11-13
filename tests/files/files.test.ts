@@ -1,4 +1,4 @@
-import { configurePrivateBucket, FileQuotaLedger, fileRequest, PendingUploadStore, projectObjectKey } from "../../plugins/files/index.js";
+import { AuthorizedUploadStream, configurePrivateBucket, FileQuotaLedger, fileRequest, PendingUploadStore, projectObjectKey } from "../../plugins/files/index.js";
 import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = fileRequest("dev", "files", "0.1.0", "files.upload", "avatar", { contentType: "image/png" });
@@ -13,3 +13,7 @@ if (uploads.create("dev", "avatar.png", "image/png", 12).status !== "pending" ||
 const quota = new FileQuotaLedger(new Map([["dev", 20]]));
 quota.reserve("dev", 12);
 try { quota.reserve("dev", 9); throw new Error("quota exceeded upload accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "file quota exceeded") throw error; }
+const stream = new AuthorizedUploadStream();
+stream.authorize("dev", "avatar.png", "user-1");
+if (stream.write("dev", "avatar.png", "user-1", new Uint8Array(3)) !== 3) throw new Error("authorized upload failed");
+try { stream.write("dev", "avatar.png", "user-2", new Uint8Array(1)); throw new Error("unauthorized upload accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "upload denied") throw error; }
