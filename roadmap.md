@@ -415,7 +415,7 @@ Goal: compile dashboard-authored Go to WASM, execute it safely, run durable trig
 
 - [x] Define the typed invocation request.
 - [x] Define the typed invocation result.
-- [ ] Reject malformed output.
+- [x] Reject malformed output.
 - [ ] Reject extra results.
 - [ ] Cap diagnostics.
 - [ ] Reject unexpected WASI imports.
