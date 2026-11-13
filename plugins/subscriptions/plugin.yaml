@@ -11,13 +11,15 @@ source_files:
   - ticket-store.ts
   - origin.ts
   - authorizer.ts
-  - buffers.ts
+  - initial-fetch-buffer.ts
+  - slow-consumer-queue.ts
   - replay.ts
 imports:
   - ../sdk-typescript/src/index.js
   - node:crypto
   - ./authorizer.js
-  - ./buffers.js
+  - ./initial-fetch-buffer.js
+  - ./slow-consumer-queue.js
   - ./origin.js
   - ./replay.js
   - ./subscription-request.js

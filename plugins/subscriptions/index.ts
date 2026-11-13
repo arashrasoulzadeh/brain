@@ -1,5 +1,6 @@
 export { SubscriptionAuthorizer } from "./authorizer.js";
-export { InitialFetchBuffer, SlowConsumerQueue } from "./buffers.js";
+export { InitialFetchBuffer } from "./initial-fetch-buffer.js";
+export { SlowConsumerQueue } from "./slow-consumer-queue.js";
 export { validateBrowserOrigin } from "./origin.js";
 export { SubscriptionReplay } from "./replay.js";
 export { subscriptionRequest } from "./subscription-request.js";
