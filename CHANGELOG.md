@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `0e677ac` — 2026-11-13 12:32:37 +0330 — enforce plugin YAML source and import boundaries
+- `45a08a7` — 2026-11-13 08:59:40 +0000 — docs: update changelog [skip ci]
 - `1b79b98` — 2026-11-13 12:29:27 +0330 — refactor plugins with SDK validation and TypeScript lint
 - `6daefcb` — 2026-11-13 08:56:08 +0000 — docs: update changelog [skip ci]
 - `638b93b` — 2026-11-13 12:25:56 +0330 — refactor shared plugin identity helpers
