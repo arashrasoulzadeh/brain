@@ -17,6 +17,10 @@ export function requireSDKImports(imports: readonly string[], required: readonly
 export function validateSourceProject(sourceProjectId: string, requestedProjectId: string): void {
   if (!sourceProjectId || sourceProjectId !== requestedProjectId) throw new Error("cross-project source access denied");
 }
+export function validateBuildOverrides(overrides: Readonly<Record<string, string>>): void {
+  const denied = new Set(["GOWORK", "GOTOOLCHAIN", "GOENV", "GOMOD", "GOPROXY", "GOFLAGS"]);
+  if (Object.keys(overrides).some((key) => denied.has(key) || key.toLowerCase().includes("workspace") || key.toLowerCase().includes("toolchain"))) throw new Error("build override denied");
+}
 
 export function functionRequest(projectId: string, pluginId: string, version: string, operation: "functions.invoke" | "functions.publish", payload: unknown = {}): RpcRequest {
   return request(`functions-${operation}-${projectId}`, { protocol: 1, projectId, pluginId, version, operation, payload });
