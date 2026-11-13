@@ -76,6 +76,15 @@ export async function invokeDirectHttps(endpoint: string, input: unknown, fetche
   if (!response.ok) throw new Error(`HTTPS invocation failed: ${response.status}`);
   return parseInvocationResult(await response.json());
 }
+export function loadDeclaredInputs(inputs: Readonly<Record<string, unknown>>, declarations: readonly string[]): Readonly<Record<string, unknown>> {
+  if (!inputs || typeof inputs !== "object" || declarations.some((name) => !/^[A-Za-z_][A-Za-z0-9_]*$/.test(name))) throw new Error("invalid input declaration");
+  const loaded: Record<string, unknown> = {};
+  for (const name of declarations) {
+    if (!Object.prototype.hasOwnProperty.call(inputs, name)) throw new Error("declared input missing");
+    loaded[name] = inputs[name];
+  }
+  return loaded;
+}
 export function capDiagnostics(lines: readonly string[], maxLines = 20, maxLineLength = 4096): string[] {
   if (!Number.isSafeInteger(maxLines) || maxLines < 1 || !Number.isSafeInteger(maxLineLength) || maxLineLength < 1 || lines.some((line) => line.length > maxLineLength)) throw new Error("diagnostic limit exceeded");
   return [...lines.slice(0, maxLines)];
