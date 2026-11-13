@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `e22425b` — 2026-11-13 17:05:55 +0330 — feat: protect referenced plugin versions from unregister
+  Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
+- `cc33511` — 2026-11-13 13:35:14 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `d8bdb9e` — 2026-11-13 17:04:32 +0330 — test: audit project uninstall
   Files: roadmap.md,tests/plugin/plugin_test.go
 - `f39e3bc` — 2026-11-13 13:32:29 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `fe9536b` — 2026-11-13 16:24:11 +0330 — test: enforce retained plugin rollback versions
   Files: roadmap.md,tests/plugin/plugin_test.go
 - `159698b` — 2026-11-13 12:53:09 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `84c528b` — 2026-11-13 16:22:48 +0330 — feat: cancel incompatible matchmaking tickets
-  Files: plugins/matchmaking/plugin.yaml,plugins/matchmaking/queue.ts plugins/matchmaking/ticket-canceller.ts,plugins/matchmaking/ticket-enqueuer.ts plugins/matchmaking/types.ts,roadmap.md tests/matchmaking/matchmaking.test.ts
-- `83fce3b` — 2026-11-13 12:51:06 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
