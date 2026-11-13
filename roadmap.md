@@ -559,7 +559,7 @@ Goal: safely promote, roll back, disable, drain, uninstall, and extend plugin-co
 - [x] Render a host-owned fixture view.
 - [x] Add two view contributions.
 - [x] Activate one replacement per named view and scope.
-- [ ] Reject a second replacement.
+- [x] Reject a second replacement.
 - [ ] Reject cross-project submissions.
 - [ ] Route actions through host authorization.
 - [ ] Add CSRF checks.
