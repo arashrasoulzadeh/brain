@@ -1,13 +1,9 @@
-import { validateProjectId } from "../sdk-typescript/src/index.js";
 import { randomUUID } from "node:crypto";
+import { projectRoomID } from "./project-room-id.js";
 
 export { roomRequest } from "./room-request.js";
 
-export function projectRoomID(projectId: string, roomId: string): string {
-  validateProjectId(projectId);
-  if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(roomId)) throw new Error("invalid project room id");
-  return `${projectId}:${roomId}`;
-}
+export { projectRoomID } from "./project-room-id.js";
 
 export type PlayerSlot = { playerId: string; slot: number };
 
@@ -102,19 +98,8 @@ export class RoomDirectory {
   }
 }
 
-export function canTransitionRoom(from: RoomState, to: RoomState): boolean {
-  return ({ waiting: ["matching", "closed"], matching: ["active", "waiting", "closed"], active: ["finished", "closed"], finished: ["closed"], closed: [] } as Record<RoomState, RoomState[]>)[from].includes(to);
-}
-
-export function validateMembership(projectId: string, roomId: string, slots: readonly PlayerSlot[], maxPlayers: number): void {
-  projectRoomID(projectId, roomId);
-  if (maxPlayers < 1 || maxPlayers > 64 || slots.length > maxPlayers) throw new Error("invalid player slots");
-  const seen = new Set<number>();
-  for (const player of slots) {
-    if (!player.playerId || player.slot < 0 || player.slot >= maxPlayers || seen.has(player.slot)) throw new Error("invalid player slots");
-    seen.add(player.slot);
-  }
-}
+export { canTransitionRoom } from "./room-transition.js";
+export { validateMembership } from "./validate-membership.js";
 export type TicTacToeState = { projectId: string; roomId: string; players: readonly [string, string]; board: readonly ("X" | "O" | null)[]; turn: string; status: "active"; turnDeadlineAt?: number };
 export function initializeTicTacToe(projectId: string, roomId: string, firstPlayer: string, secondPlayer: string): TicTacToeState {
   projectRoomID(projectId, roomId);

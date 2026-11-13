@@ -7,10 +7,17 @@ entrypoint: index.ts
 source_files:
   - index.ts
   - room-request.ts
+  - project-room-id.ts
+  - room-transition.ts
+  - validate-membership.ts
 imports:
   - ../sdk-typescript/src/index.js
   - node:crypto
   - ./room-request.js
+  - ./project-room-id.js
+  - ./room-transition.js
+  - ./validate-membership.js
+  - ./index.js
 plugin_imports:
 dependencies: []
 capabilities:
