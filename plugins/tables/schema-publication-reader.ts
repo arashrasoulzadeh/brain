@@ -1,0 +1,2 @@
+import type { SchemaAuditState } from "./schema-audit-state.js";
+export class SchemaPublicationReader { constructor(private readonly state: SchemaAuditState) {} list(projectId: string) { return this.state.entries.filter((entry) => entry.projectId === projectId).map((entry) => ({ ...entry, change: entry.change.kind === "create_index" ? { ...entry.change, columns: [...entry.change.columns] } : { ...entry.change } })); } }

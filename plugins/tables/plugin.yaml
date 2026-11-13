@@ -25,6 +25,9 @@ source_files:
   - versioned-record-reader.ts
   - versioned-record-updater.ts
   - idempotent-create-store.ts
+  - schema-audit-state.ts
+  - schema-publication-recorder.ts
+  - schema-publication-reader.ts
 imports:
   - ../sdk-typescript/src/index.js
   - ./data-request.js
@@ -46,6 +49,9 @@ imports:
   - ./versioned-record-reader.js
   - ./versioned-record-updater.js
   - ./idempotent-create-store.js
+  - ./schema-audit-state.js
+  - ./schema-publication-recorder.js
+  - ./schema-publication-reader.js
 plugin_imports:
 dependencies: []
 capabilities:

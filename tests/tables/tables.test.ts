@@ -1,4 +1,4 @@
-import { ApiChangeCapture, DirectSQLChangeCapture, IdempotentCreateStore, SchemaPublicationAudit, TableExposureWriter, TableExposureReader, TransactionalChangeCapture, createVersionedRecord, dataRequest, paginate, planSchemaChange, previewSchemaSQL, projectRoleName, projectSchemaName, projectRow, requirePrimaryKey, requireRecentSchemaAuth, RowPolicyGranter, RowPolicyChecker, validateColumnTypes, validateFilter, validateIdentifier, validateValue } from "../../plugins/tables/index.js";
+import { ApiChangeCapture, DirectSQLChangeCapture, IdempotentCreateStore, createSchemaPublicationAudit, TableExposureWriter, TableExposureReader, TransactionalChangeCapture, createVersionedRecord, dataRequest, paginate, planSchemaChange, previewSchemaSQL, projectRoleName, projectSchemaName, projectRow, requirePrimaryKey, requireRecentSchemaAuth, RowPolicyGranter, RowPolicyChecker, validateColumnTypes, validateFilter, validateIdentifier, validateValue } from "../../plugins/tables/index.js";
 import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = dataRequest("dev", "tables", "0.1.0", "tables.read", "users", { filter: { active: true } });
@@ -36,7 +36,7 @@ if (previewSchemaSQL(schemaPlan) !== 'ALTER TABLE "project_dev"."users" ADD COLU
 try { previewSchemaSQL({ ...schemaPlan, table: "users;drop" }); throw new Error("unsafe SQL preview accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid schema target") throw error; }
 requireRecentSchemaAuth(9_000, 10_000);
 try { requireRecentSchemaAuth(1_000, 301_001); throw new Error("stale schema auth accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "recent authentication required") throw error; }
-const audit = new SchemaPublicationAudit();
+const audit = createSchemaPublicationAudit();
 audit.record("dev", "operator-1", schemaPlan, 123);
 if (audit.list("dev").length !== 1 || audit.list("prod").length !== 0 || audit.list("dev")[0].actorId !== "operator-1") throw new Error("schema publication audit failed");
 const capture = new TransactionalChangeCapture<{ id: string }>();

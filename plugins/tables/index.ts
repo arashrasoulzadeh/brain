@@ -1,5 +1,8 @@
 import { validateIdentifier as validateSdkIdentifier, validateProjectId } from "../sdk-typescript/src/index.js";
 import { projectSchemaName } from "./project-schema-name.js";
+import { createSchemaAuditState } from "./schema-audit-state.js";
+import { SchemaPublicationRecorder } from "./schema-publication-recorder.js";
+import { SchemaPublicationReader } from "./schema-publication-reader.js";
 
 export { dataRequest } from "./data-request.js";
 export { projectSchemaName } from "./project-schema-name.js";
@@ -54,17 +57,7 @@ export function requireRecentSchemaAuth(lastAuthenticatedAt: number, now: number
 }
 
 export type SchemaPublication = SchemaChangePlan & { actorId: string; publishedAt: number };
-
-export class SchemaPublicationAudit {
-  private readonly entries: SchemaPublication[] = [];
-  record(projectId: string, actorId: string, plan: SchemaChangePlan, publishedAt: number): void {
-    if (!actorId || plan.projectId !== projectId || !Number.isFinite(publishedAt)) throw new Error("invalid schema publication audit");
-    this.entries.push({ ...plan, actorId, publishedAt, change: plan.change.kind === "create_index" ? { ...plan.change, columns: [...plan.change.columns] } : { ...plan.change } });
-  }
-  list(projectId: string): SchemaPublication[] {
-    return this.entries.filter((entry) => entry.projectId === projectId).map((entry) => ({ ...entry, change: entry.change.kind === "create_index" ? { ...entry.change, columns: [...entry.change.columns] } : { ...entry.change } }));
-  }
-}
+export function createSchemaPublicationAudit() { const state = createSchemaAuditState(); const recorder = new SchemaPublicationRecorder(state); const reader = new SchemaPublicationReader(state); return { record: recorder.record.bind(recorder), list: reader.list.bind(reader) }; }
 
 export type RowChange<T> = { projectId: string; table: string; oldValue: T; newValue: T };
 export type ScopedRowChange<T> = RowChange<T> & { oldScope: readonly string[]; newScope: readonly string[] };
