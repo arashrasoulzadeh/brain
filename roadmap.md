@@ -382,7 +382,7 @@ Goal: provide project-scoped identity, PostgreSQL APIs, files, subscriptions, an
 - [x] Add record browsing.
 - [x] Add record editing.
 - [x] Add table management.
-- [ ] Add file management.
+- [x] Add file management.
 - [ ] Add audited form actions.
 - [ ] Add the browser quickstart.
 - [ ] Run the full suite against local Compose.
