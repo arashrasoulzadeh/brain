@@ -241,6 +241,11 @@ export async function runCappedRetries<T>(task: () => T | Promise<T>, maxAttempt
   }
   throw lastError instanceof Error ? lastError : new Error("retry attempts exhausted");
 }
+export async function runIdempotentWorkflow<T>(store: InvocationCommitStore, idempotencyKey: string, task: () => T | Promise<T>, maxAttempts: number): Promise<T> {
+  if (store.has(idempotencyKey)) return store.result(idempotencyKey) as T;
+  const result = await runCappedRetries(task, maxAttempts);
+  return store.commit(idempotencyKey, [], result) as T;
+}
 export type WorkflowNode = { id: string; next: readonly string[] };
 export function validateWorkflowGraph(nodes: readonly WorkflowNode[]): void {
   const byId = new Map(nodes.map((node) => [node.id, node]));
