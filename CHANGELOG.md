@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `34da9ff` — 2026-11-13 12:20:06 +0330 — phase 04 reconnect tic tac toe after restart
+- `03e1be8` — 2026-11-13 08:49:22 +0000 — docs: update changelog [skip ci]
 - `37029d8` — 2026-11-13 12:19:09 +0330 — phase 04 mark malformed rule result rejection complete
 - `2d58f96` — 2026-11-13 08:49:03 +0000 — docs: update changelog [skip ci]
 - `12d891b` — 2026-11-13 12:18:50 +0330 — phase 04 reject malformed room rule results
