@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `2650731` — 2026-11-13 04:41:37 +0330 — phase 04 mark function version pinning complete
+- `51e47cc` — 2026-11-13 01:11:36 +0000 — docs: update changelog [skip ci]
 - `e39677a` — 2026-11-13 04:41:24 +0330 — phase 04 pin function version at enqueue
 - `83c3551` — 2026-11-13 01:10:58 +0000 — docs: update changelog [skip ci]
 - `ab85149` — 2026-11-13 04:40:47 +0330 — phase 04 mark missed occurrence enqueue complete
