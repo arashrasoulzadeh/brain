@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `c2b688b` — 2026-11-13 16:49:36 +0330 — feat: interrupt expired action rooms
+  Files: plugins/arena/index.ts,plugins/arena/interrupt-expired-action-room.ts plugins/arena/plugin.yaml,plugins/arena/types.ts roadmap.md,tests/arena/arena.test.ts
+- `9bae6ae` — 2026-11-13 13:18:58 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `26403c5` — 2026-11-13 16:48:32 +0330 — feat: pause turn rooms at committed state
   Files: plugins/rooms/index.ts,plugins/rooms/pause-tic-tac-toe-turn.ts plugins/rooms/plugin.yaml,plugins/rooms/validate-tic-tac-toe-rule-result.ts roadmap.md,tests/rooms/rooms.test.ts
 - `f78b1a4` — 2026-11-13 13:17:40 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `2df9268` — 2026-11-13 16:11:07 +0330 — verify function crash recovery and grant revocation
   Files: roadmap.md,tests/functions/phase04_recovery_gate.test.ts
 - `e23347b` — 2026-11-13 12:40:49 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `a0445a8` — 2026-11-13 16:10:19 +0330 — verify direct scheduled and record invocations
-  Files: roadmap.md,tests/functions/phase04_invocation_gate.test.ts
-- `99fef0e` — 2026-11-13 11:35:49 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
