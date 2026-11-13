@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `3d5feea` — 2026-11-13 04:59:24 +0330 — phase 04 mark room authorization complete
+- `105dcd5` — 2026-11-13 01:29:22 +0000 — docs: update changelog [skip ci]
 - `c56eed2` — 2026-11-13 04:59:11 +0330 — phase 04 authorize tic tac toe state and commands
 - `b653770` — 2026-11-13 01:28:37 +0000 — docs: update changelog [skip ci]
 - `4c5a663` — 2026-11-13 04:58:25 +0330 — phase 04 mark rules publication complete
