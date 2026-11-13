@@ -32,6 +32,11 @@ export class DisposableCompilerWorkspace {
   constructor(prefix = "brain-function-") { this.path = mkdtempSync(join(tmpdir(), prefix)); }
   dispose(): void { if (existsSync(this.path)) rmSync(this.path, { recursive: true, force: true }); }
 }
+export function compilerEnvironment(): Readonly<Record<string, string>> { return { GOOS: "wasip1", GOARCH: "wasm", CGO_ENABLED: "0", GOPROXY: "off", GOSUMDB: "off" }; }
+export function validateCompilerEnvironment(environment: Readonly<Record<string, string>>): void {
+  const forbidden = /TOKEN|SECRET|PASSWORD|CREDENTIAL|AWS_|HOME|HTTP_PROXY|HTTPS_PROXY|ALL_PROXY/i;
+  if (Object.keys(environment).some((key) => forbidden.test(key))) throw new Error("compiler credential or network environment denied");
+}
 
 export function functionRequest(projectId: string, pluginId: string, version: string, operation: "functions.invoke" | "functions.publish", payload: unknown = {}): RpcRequest {
   return request(`functions-${operation}-${projectId}`, { protocol: 1, projectId, pluginId, version, operation, payload });
