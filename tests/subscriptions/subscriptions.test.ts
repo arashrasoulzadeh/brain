@@ -1,4 +1,4 @@
-import { InitialFetchBuffer, SubscriptionAuthorizer, SubscriptionTicketStore, subscriptionRequest, validateBrowserOrigin } from "../../plugins/subscriptions/index.js";
+import { InitialFetchBuffer, SlowConsumerQueue, SubscriptionAuthorizer, SubscriptionTicketStore, subscriptionRequest, validateBrowserOrigin } from "../../plugins/subscriptions/index.js";
 import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = subscriptionRequest("dev", "subscriptions", "0.1.0", "subscriptions.open", "records.users");
@@ -22,3 +22,5 @@ try { authorizer.authorize("dev", "records.users", "user-1"); throw new Error("o
 const buffer = new InitialFetchBuffer<string>();
 buffer.push("write-during-fetch");
 if (buffer.complete(["snapshot"]).join(",") !== "snapshot,write-during-fetch") throw new Error("initial fetch write lost");
+const queue = new SlowConsumerQueue<string>(1);
+if (!queue.push("event-1") || queue.push("event-2") || queue.size !== 1 || queue.shift() !== "event-1") throw new Error("slow consumer queue failed");
