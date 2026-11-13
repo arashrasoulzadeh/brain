@@ -17,6 +17,9 @@ const matched = queue.match("dev", "ranked", 2);
 if (matched.length !== 2 || matched[0].playerId !== "user-1" || queue.peek("dev", "ranked").length !== 0) throw new Error("compatible FIFO matching failed");
 const disabledMap = new Map(); const disabledWriter = new MatchmakingConfigWriter(disabledMap); disabledWriter.set({ projectId: "dev", scope: "casual", matchSize: 2, ticketTtlSeconds: 60, enabled: false });
 try { createMatchmakingQueue({ reader: new MatchmakingConfigReader(disabledMap), status: new MatchmakingConfigStatus(disabledMap) }).enqueue("dev", "casual", "user-3"); throw new Error("disabled scope accepted ticket"); } catch (error) { if (!(error instanceof Error) || error.message !== "matchmaking scope disabled") throw error; }
+const independentScopeQueue = createMatchmakingQueue({ reader: new MatchmakingConfigReader(disabledMap), status: new MatchmakingConfigStatus(disabledMap) });
+disabledWriter.set({ projectId: "dev", scope: "ranked", matchSize: 2, ticketTtlSeconds: 60, enabled: true });
+if (independentScopeQueue.enqueue("dev", "ranked", "user-9").scope !== "ranked") throw new Error("enabled matchmaking scope was affected by another scope");
 const expiringQueue = createMatchmakingQueue();
 expiringQueue.enqueue("dev", "ranked", "user-4", 1000);
 expiringQueue.enqueue("dev", "ranked", "user-5", 2000);
