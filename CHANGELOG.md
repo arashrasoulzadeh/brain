@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `8517414` — 2026-11-13 04:33:11 +0330 — phase 04 mark declared inputs complete
+- `988688e` — 2026-11-13 01:03:08 +0000 — docs: update changelog [skip ci]
 - `4efb884` — 2026-11-13 04:32:57 +0330 — phase 04 load declared inputs only
 - `b63cfa1` — 2026-11-13 01:02:28 +0000 — docs: update changelog [skip ci]
 - `53c9dd6` — 2026-11-13 04:32:09 +0330 — phase 04 mark HTTPS invocation complete
