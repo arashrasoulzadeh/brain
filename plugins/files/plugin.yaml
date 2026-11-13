@@ -11,7 +11,9 @@ source_files:
   - bucket.ts
   - object-key.ts
   - upload-store.ts
-  - quota.ts
+  - quota-reserver.ts
+  - quota-releaser.ts
+  - quota-reader.ts
   - file-grant-store.ts
   - file-access-reader.ts
   - file-access-deleter.ts
@@ -30,7 +32,9 @@ imports:
   - ./require-explicit-publication.js
   - ./file-request.js
   - ./object-key.js
-  - ./quota.js
+  - ./quota-reserver.js
+  - ./quota-releaser.js
+  - ./quota-reader.js
   - ./file-grant-store.js
   - ./file-access-reader.js
   - ./file-access-deleter.js

@@ -1,4 +1,4 @@
-import { AuthorizedUploadWriter, UploadGrantStore, configurePrivateBucket, enforceUploadSize, FileGrantStore, FileAccessReader, FileAccessDeleter, FileQuotaLedger, fileRequest, PendingUploadStore, projectObjectKey, protectedDownloadHeaders, reconcileOrphanedObjects, requireExplicitPublication } from "../../plugins/files/index.js";
+import { AuthorizedUploadWriter, UploadGrantStore, configurePrivateBucket, enforceUploadSize, FileGrantStore, FileAccessReader, FileAccessDeleter, QuotaReserver, QuotaReleaser, QuotaReader, fileRequest, PendingUploadStore, projectObjectKey, protectedDownloadHeaders, reconcileOrphanedObjects, requireExplicitPublication } from "../../plugins/files/index.js";
 import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = fileRequest("dev", "files", "0.1.0", "files.upload", "avatar", { contentType: "image/png" });
@@ -20,9 +20,9 @@ const headers = protectedDownloadHeaders("avatar.png");
 if (headers["cache-control"] !== "private, no-store" || !headers["content-disposition"].startsWith("attachment")) throw new Error("protected download headers failed");
 requireExplicitPublication(true);
 try { requireExplicitPublication(false); throw new Error("implicit public publication accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "explicit publication required") throw error; }
-const quota = new FileQuotaLedger(new Map([["dev", 20]]));
-quota.reserve("dev", 12);
-try { quota.reserve("dev", 9); throw new Error("quota exceeded upload accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "file quota exceeded") throw error; }
+const reserved = new Map<string, number>(); const quota = new Map([["dev", 20]]); const reserver = new QuotaReserver(reserved, quota);
+reserver.reserve("dev", 12);
+try { reserver.reserve("dev", 9); throw new Error("quota exceeded upload accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "file quota exceeded") throw error; }
 const uploadGrants = new Set<string>(); const uploadBytes = new Map<string, number>();
 new UploadGrantStore(uploadGrants).authorize("dev", "avatar.png", "user-1");
 if (new AuthorizedUploadWriter(uploadGrants, uploadBytes).write("dev", "avatar.png", "user-1", new Uint8Array(3)) !== 3) throw new Error("authorized upload failed");
