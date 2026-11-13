@@ -78,3 +78,4 @@ export async function runWithTimeout<T>(task: Promise<T>, timeoutMs: number): Pr
   const timeout = new Promise<never>((_, reject) => { timer = setTimeout(() => reject(new Error("function invocation timed out")), timeoutMs); });
   try { return await Promise.race([task, timeout]); } finally { clearTimeout(timer!); }
 }
+export function validateLinearMemory(bytes: number, maxBytes: number): void { if (!Number.isSafeInteger(bytes) || !Number.isSafeInteger(maxBytes) || bytes < 0 || maxBytes < 1 || bytes > maxBytes) throw new Error("linear memory limit exceeded"); }

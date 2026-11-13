@@ -1,4 +1,4 @@
-import { APPROVED_SDK_IMPORTS, APPROVED_WASI_IMPORTS, capDiagnostics, compilerEnvironment, createInvocationRequest, DisposableCompilerWorkspace, ENTRY_PACKAGE_FIXTURE, functionRequest, parseInvocationResult, PROJECT_HELPER_FIXTURE, requireSDKImports, runWithTimeout, validateBuildOverrides, validateCompilerEnvironment, validateCompilerLimits, validateFunctionLimits, validateInvocationResult, validateSandboxCapabilities, validateSDKImports, validateSourceProject, validateWasiImports, wasmBuildSettings } from "../../plugins/functions/index.js";
+import { APPROVED_SDK_IMPORTS, APPROVED_WASI_IMPORTS, capDiagnostics, compilerEnvironment, createInvocationRequest, DisposableCompilerWorkspace, ENTRY_PACKAGE_FIXTURE, functionRequest, parseInvocationResult, PROJECT_HELPER_FIXTURE, requireSDKImports, runWithTimeout, validateBuildOverrides, validateCompilerEnvironment, validateCompilerLimits, validateFunctionLimits, validateInvocationResult, validateLinearMemory, validateSandboxCapabilities, validateSDKImports, validateSourceProject, validateWasiImports, wasmBuildSettings } from "../../plugins/functions/index.js";
 validateSDKImports(APPROVED_SDK_IMPORTS);
 const request = functionRequest("dev", "functions", "0.1.0", "functions.invoke", { name: "hello" });
 if (request.params.projectId !== "dev" || request.params.operation !== "functions.invoke") throw new Error("functions request contract failed");
@@ -38,3 +38,5 @@ validateSandboxCapabilities([]);
 try { validateSandboxCapabilities(["filesystem"]); throw new Error("filesystem capability accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "sandbox capability denied") throw error; }
 if (await runWithTimeout(Promise.resolve("ok"), 20) !== "ok") throw new Error("function timeout runner failed");
 try { await runWithTimeout(new Promise(() => {}), 5); throw new Error("infinite invocation was not timed out"); } catch (error) { if (!(error instanceof Error) || error.message !== "function invocation timed out") throw error; }
+validateLinearMemory(1024, 2048);
+try { validateLinearMemory(4096, 2048); throw new Error("linear memory limit ignored"); } catch (error) { if (!(error instanceof Error) || error.message !== "linear memory limit exceeded") throw error; }
