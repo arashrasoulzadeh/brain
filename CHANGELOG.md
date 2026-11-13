@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `3456128` — 2026-11-13 05:00:21 +0330 — phase 04 mark duplicate command protection complete
+- `7235ba0` — 2026-11-13 01:30:19 +0000 — docs: update changelog [skip ci]
 - `43baa4b` — 2026-11-13 05:00:07 +0330 — phase 04 protect duplicate room commands
 - `445f11f` — 2026-11-13 01:29:37 +0000 — docs: update changelog [skip ci]
 - `3d5feea` — 2026-11-13 04:59:24 +0330 — phase 04 mark room authorization complete
