@@ -463,7 +463,7 @@ Goal: compile dashboard-authored Go to WASM, execute it safely, run durable trig
 - [x] Add workflow graph validation.
 - [x] Add conditions.
 - [x] Add approvals.
-- [ ] Add workflow retries and idempotency.
+- [x] Add workflow retries and idempotency.
 - [ ] Hide secrets from run status.
 
 ### Turn-based rooms
