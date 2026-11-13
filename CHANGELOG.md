@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `c722204` — 2026-11-13 05:01:03 +0330 — phase 04 reject mismatched room command payloads
+- `e388c27` — 2026-11-13 01:30:32 +0000 — docs: update changelog [skip ci]
 - `3456128` — 2026-11-13 05:00:21 +0330 — phase 04 mark duplicate command protection complete
 - `7235ba0` — 2026-11-13 01:30:19 +0000 — docs: update changelog [skip ci]
 - `43baa4b` — 2026-11-13 05:00:07 +0330 — phase 04 protect duplicate room commands
