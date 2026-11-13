@@ -99,3 +99,8 @@ export class FunctionDraftStore {
   save(projectId: string, functionId: string, source: string, savedAt = Date.now()): FunctionDraft { if (!projectId || !functionId || !source || !Number.isFinite(savedAt)) throw new Error("invalid function draft"); const draft = { projectId, functionId, source, savedAt }; this.drafts.set(`${projectId}:${functionId}`, draft); return { ...draft }; }
   get(projectId: string, functionId: string): FunctionDraft | undefined { const draft = this.drafts.get(`${projectId}:${functionId}`); return draft ? { ...draft } : undefined; }
 }
+export class SharedPackageStore {
+  private readonly packages = new Map<string, string>();
+  save(projectId: string, packageId: string, source: string): void { if (!projectId || !packageId || !source) throw new Error("invalid shared package"); this.packages.set(`${projectId}:${packageId}`, source); }
+  load(projectId: string, packageId: string): string { const source = this.packages.get(`${projectId}:${packageId}`); if (!source) throw new Error("shared package not found"); return source; }
+}
