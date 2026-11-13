@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `26403c5` — 2026-11-13 16:48:32 +0330 — feat: pause turn rooms at committed state
+  Files: plugins/rooms/index.ts,plugins/rooms/pause-tic-tac-toe-turn.ts plugins/rooms/plugin.yaml,plugins/rooms/validate-tic-tac-toe-rule-result.ts roadmap.md,tests/rooms/rooms.test.ts
+- `f78b1a4` — 2026-11-13 13:17:40 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `e17db3a` — 2026-11-13 16:47:19 +0330 — feat: block room admissions during drain
   Files: plugins/rooms/index.ts,plugins/rooms/room-creator.ts plugins/rooms/room-runtime.ts,roadmap.md tests/rooms/rooms.test.ts
 - `2551ac5` — 2026-11-13 13:16:28 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `a0445a8` — 2026-11-13 16:10:19 +0330 — verify direct scheduled and record invocations
   Files: roadmap.md,tests/functions/phase04_invocation_gate.test.ts
 - `99fef0e` — 2026-11-13 11:35:49 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `5a50310` — 2026-11-13 15:05:28 +0330 — publish and roll back shared helper artifacts
-  Files: plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/shared-helper-publisher.ts,roadmap.md tests/functions/functions.test.ts
-- `3c69b38` — 2026-11-13 11:33:48 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
