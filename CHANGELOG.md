@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `bedc769` — 2026-11-13 04:34:09 +0330 — phase 04 mark write intent validation complete
+- `7f49f41` — 2026-11-13 01:04:09 +0000 — docs: update changelog [skip ci]
 - `1141400` — 2026-11-13 04:33:57 +0330 — phase 04 validate function write intents
 - `e0ecf9e` — 2026-11-13 01:03:25 +0000 — docs: update changelog [skip ci]
 - `8517414` — 2026-11-13 04:33:11 +0330 — phase 04 mark declared inputs complete
