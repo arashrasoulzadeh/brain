@@ -212,6 +212,23 @@ export class RecordChangeTriggerStore {
     return committed ? this.match(projectId, collection, operation).filter((trigger) => !ancestry.includes(trigger.target.functionId)) : [];
   }
 }
+export class JobLeaseStore {
+  private readonly leases = new Map<string, { workerId: string; expiresAt: number }>();
+  acquire(jobId: string, workerId: string, now: number, leaseMs: number): boolean {
+    if (!jobId || !workerId || !Number.isSafeInteger(now) || !Number.isSafeInteger(leaseMs) || leaseMs < 1) throw new Error("invalid job lease");
+    const current = this.leases.get(jobId);
+    if (current && current.expiresAt > now) return false;
+    this.leases.set(jobId, { workerId, expiresAt: now + leaseMs });
+    return true;
+  }
+  renew(jobId: string, workerId: string, now: number, leaseMs: number): boolean {
+    if (!Number.isSafeInteger(now) || !Number.isSafeInteger(leaseMs) || leaseMs < 1) throw new Error("invalid job lease");
+    const current = this.leases.get(jobId);
+    if (!current || current.workerId !== workerId || current.expiresAt <= now) return false;
+    current.expiresAt = now + leaseMs;
+    return true;
+  }
+}
 export type FunctionDraft = { projectId: string; functionId: string; source: string; savedAt: number };
 export class FunctionDraftStore {
   private readonly drafts = new Map<string, FunctionDraft>();
