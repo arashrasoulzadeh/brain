@@ -453,7 +453,7 @@ Goal: compile dashboard-authored Go to WASM, execute it safely, run durable trig
 - [x] Claim schedules safely under concurrency.
 - [x] Handle duplicate UTC occurrences.
 - [x] Enqueue the latest missed occurrence.
-- [ ] Pin the function version at enqueue.
+- [x] Pin the function version at enqueue.
 - [ ] Add record-change triggers.
 - [ ] Trigger only committed writes.
 - [ ] Suppress recursive worker writes.
