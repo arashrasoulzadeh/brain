@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `4f27451` — 2026-11-13 04:40:35 +0330 — phase 04 enqueue latest missed occurrence
+- `4214a92` — 2026-11-13 01:10:09 +0000 — docs: update changelog [skip ci]
 - `e8ca31f` — 2026-11-13 04:39:57 +0330 — phase 04 mark UTC occurrence deduplication complete
 - `d6e12cd` — 2026-11-13 01:09:57 +0000 — docs: update changelog [skip ci]
 - `e2adfd8` — 2026-11-13 04:39:44 +0330 — phase 04 deduplicate UTC schedule occurrences
