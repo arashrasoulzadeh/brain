@@ -12,6 +12,10 @@ source_files:
   - validate-membership.ts
   - initialize-tic-tac-toe.ts
   - validate-tic-tac-toe-move.ts
+  - expire-tic-tac-toe-turn.ts
+  - tic-tac-toe-winner.ts
+  - tic-tac-toe-draw.ts
+  - validate-tic-tac-toe-rule-result.ts
 imports:
   - ../sdk-typescript/src/index.js
   - node:crypto
@@ -21,6 +25,10 @@ imports:
   - ./validate-membership.js
   - ./initialize-tic-tac-toe.js
   - ./validate-tic-tac-toe-move.js
+  - ./expire-tic-tac-toe-turn.js
+  - ./tic-tac-toe-winner.js
+  - ./tic-tac-toe-draw.js
+  - ./validate-tic-tac-toe-rule-result.js
   - ./index.js
 plugin_imports:
 dependencies: []

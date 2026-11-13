@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { projectRoomID } from "./project-room-id.js";
 import { validateTicTacToeMove } from "./validate-tic-tac-toe-move.js";
+import { validateTicTacToeRuleResult } from "./validate-tic-tac-toe-rule-result.js";
 
 export { roomRequest } from "./room-request.js";
 
@@ -103,12 +104,11 @@ export { canTransitionRoom } from "./room-transition.js";
 export { validateMembership } from "./validate-membership.js";
 export { initializeTicTacToe } from "./initialize-tic-tac-toe.js";
 export { validateTicTacToeMove } from "./validate-tic-tac-toe-move.js";
+export { expireTicTacToeTurn } from "./expire-tic-tac-toe-turn.js";
+export { ticTacToeWinner } from "./tic-tac-toe-winner.js";
+export { ticTacToeDraw } from "./tic-tac-toe-draw.js";
+export { validateTicTacToeRuleResult } from "./validate-tic-tac-toe-rule-result.js";
 export type TicTacToeState = { projectId: string; roomId: string; players: readonly [string, string]; board: readonly ("X" | "O" | null)[]; turn: string; status: "active"; turnDeadlineAt?: number };
-export function expireTicTacToeTurn(state: TicTacToeState, now: number, nextDeadlineAt: number): TicTacToeState {
-  if (state.status !== "active" || !Number.isFinite(now) || !Number.isFinite(nextDeadlineAt) || nextDeadlineAt <= now) throw new Error("invalid tic-tac-toe timeout");
-  if (state.turnDeadlineAt === undefined || now < state.turnDeadlineAt) throw new Error("tic-tac-toe turn not expired");
-  return { ...state, turn: state.players.find((player) => player !== state.turn)!, turnDeadlineAt: nextDeadlineAt };
-}
 export type CommittedTicTacToeMove = { revision: number; playerId: string; cell: number };
 export function reconstructTicTacToeHistory(initialState: TicTacToeState, committedMoves: readonly CommittedTicTacToeMove[]): TicTacToeState {
   return committedMoves.reduce((state, outcome, expectedRevision) => {
@@ -119,14 +119,6 @@ export function reconstructTicTacToeHistory(initialState: TicTacToeState, commit
       throw new Error("invalid committed game history");
     }
   }, initialState);
-}
-export function ticTacToeWinner(state: TicTacToeState): string | undefined {
-  const lines = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
-  for (const [a, b, c] of lines) if (state.board[a] && state.board[a] === state.board[b] && state.board[a] === state.board[c]) return state.players[state.board[a] === "X" ? 0 : 1];
-  return undefined;
-}
-export function ticTacToeDraw(state: TicTacToeState): boolean {
-  return !ticTacToeWinner(state) && state.board.every((cell) => cell !== null);
 }
 export const TIC_TAC_TOE_RULES_SOURCE = "package main\n// Brain Tic-tac-toe rules\n";
 export function publishTicTacToeRules(compile: (source: string) => string): string {
@@ -167,12 +159,6 @@ export class TicTacToeCoordinator {
     this.version++;
     return { ...this.current, players: [...this.current.players] as [string, string], board: [...this.current.board] };
   }
-}
-export function validateTicTacToeRuleResult(value: unknown): { board: readonly ("X" | "O" | null)[]; turn: string; status: "active" | "finished" } {
-  if (!value || typeof value !== "object" || Object.keys(value).some((key) => !["board", "turn", "status"].includes(key))) throw new Error("malformed rule result");
-  const result = value as { board?: unknown; turn?: unknown; status?: unknown };
-  if (!Array.isArray(result.board) || result.board.length !== 9 || result.board.some((cell) => cell !== null && cell !== "X" && cell !== "O") || typeof result.turn !== "string" || !["active", "finished"].includes(String(result.status))) throw new Error("malformed rule result");
-  return { board: [...result.board] as ("X" | "O" | null)[], turn: result.turn, status: result.status as "active" | "finished" };
 }
 export function serializeTicTacToeState(state: TicTacToeState): string { return JSON.stringify(state); }
 export function reconnectTicTacToe(serialized: string, projectId: string, playerId: string): TicTacToeState {
