@@ -10,14 +10,18 @@ source_files:
   - subscription-request.ts
   - ticket-store.ts
   - origin.ts
-  - authorizer.ts
+  - subscription-grant-store.ts
+  - subscription-authorization.ts
+  - subscription-owner-invalidator.ts
   - initial-fetch-buffer.ts
   - slow-consumer-queue.ts
   - replay.ts
 imports:
   - ../sdk-typescript/src/index.js
   - node:crypto
-  - ./authorizer.js
+  - ./subscription-grant-store.js
+  - ./subscription-authorization.js
+  - ./subscription-owner-invalidator.js
   - ./initial-fetch-buffer.js
   - ./slow-consumer-queue.js
   - ./origin.js

@@ -22,7 +22,6 @@ imports:
   - ../sdk-typescript/src/index.js
   - ./access-policy.js
   - ./bucket.js
-  - ./file-helpers.js
   - ./enforce-upload-size.js
   - ./protected-download-headers.js
   - ./reconcile-orphaned-objects.js

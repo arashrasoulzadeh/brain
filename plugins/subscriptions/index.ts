@@ -1,4 +1,6 @@
-export { SubscriptionAuthorizer } from "./authorizer.js";
+export { SubscriptionGrantStore } from "./subscription-grant-store.js";
+export { SubscriptionAuthorization } from "./subscription-authorization.js";
+export { SubscriptionOwnerInvalidator } from "./subscription-owner-invalidator.js";
 export { InitialFetchBuffer } from "./initial-fetch-buffer.js";
 export { SlowConsumerQueue } from "./slow-consumer-queue.js";
 export { validateBrowserOrigin } from "./origin.js";

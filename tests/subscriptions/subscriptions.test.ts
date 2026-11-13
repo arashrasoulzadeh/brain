@@ -1,4 +1,4 @@
-import { InitialFetchBuffer, SlowConsumerQueue, SubscriptionAuthorizer, SubscriptionReplay, SubscriptionTicketStore, subscriptionRequest, validateBrowserOrigin } from "../../plugins/subscriptions/index.js";
+import { InitialFetchBuffer, SlowConsumerQueue, SubscriptionGrantStore, SubscriptionAuthorization, SubscriptionOwnerInvalidator, SubscriptionReplay, SubscriptionTicketStore, subscriptionRequest, validateBrowserOrigin } from "../../plugins/subscriptions/index.js";
 import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = subscriptionRequest("dev", "subscriptions", "0.1.0", "subscriptions.open", "records.users");
@@ -13,13 +13,13 @@ tickets.consume(oneUse.ticket, "dev", "records.orders", "subscriptions.open", 20
 try { tickets.consume(oneUse.ticket, "dev", "records.orders", "subscriptions.open", 2001); throw new Error("replayed subscription ticket accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid subscription ticket") throw error; }
 validateBrowserOrigin("https://app.example.com/", ["https://app.example.com/"]);
 try { validateBrowserOrigin("https://evil.example.com/", ["https://app.example.com/"]); throw new Error("browser origin accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "origin denied") throw error; }
-const authorizer = new SubscriptionAuthorizer();
-try { authorizer.grant("dev:other", "records.users", "user-1"); throw new Error("malformed project grant accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid subscription grant") throw error; }
-authorizer.grant("dev", "records.users", "user-1");
-authorizer.authorize("dev", "records.users", "user-1");
-try { authorizer.authorize("dev", "records.users", "user-2"); throw new Error("unauthorized subscription accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "subscription denied") throw error; }
-authorizer.invalidateOwner("dev", "user-1");
-try { authorizer.authorize("dev", "records.users", "user-1"); throw new Error("old owner subscription survived transfer"); } catch (error) { if (!(error instanceof Error) || error.message !== "subscription denied") throw error; }
+const grants = new Set<string>();
+try { new SubscriptionGrantStore(grants).grant("dev:other", "records.users", "user-1"); throw new Error("malformed project grant accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid subscription grant") throw error; }
+new SubscriptionGrantStore(grants).grant("dev", "records.users", "user-1");
+new SubscriptionAuthorization(grants).authorize("dev", "records.users", "user-1");
+try { new SubscriptionAuthorization(grants).authorize("dev", "records.users", "user-2"); throw new Error("unauthorized subscription accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "subscription denied") throw error; }
+new SubscriptionOwnerInvalidator(grants).invalidate("dev", "user-1");
+try { new SubscriptionAuthorization(grants).authorize("dev", "records.users", "user-1"); throw new Error("old owner subscription survived transfer"); } catch (error) { if (!(error instanceof Error) || error.message !== "subscription denied") throw error; }
 const buffer = new InitialFetchBuffer<string>();
 buffer.push("write-during-fetch");
 if (buffer.complete(["snapshot"]).join(",") !== "snapshot,write-during-fetch") throw new Error("initial fetch write lost");
