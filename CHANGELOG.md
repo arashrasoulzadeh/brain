@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `2d18d15` — 2026-11-13 17:11:42 +0330 — feat: render host-owned admin fixture
+  Files: plugins/dashboard/host-owned-admin-view.ts,plugins/dashboard/index.ts plugins/dashboard/plugin.yaml,roadmap.md tests/dashboard/dashboard.test.ts
+- `a5a3e1f` — 2026-11-13 13:41:19 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `2fcb1ce` — 2026-11-13 17:10:55 +0330 — feat: discover declarative admin extension points
   Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
 - `b059a1d` — 2026-11-13 13:40:34 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `9f3b4f8` — 2026-11-13 16:33:21 +0330 — feat: add plugin disable previews
   Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
 - `37774a0` — 2026-11-13 13:02:44 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `8bbfbb1` — 2026-11-13 16:31:50 +0330 — feat: calculate transitive plugin dependents
-  Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
-- `2c1f5a5` — 2026-11-13 13:00:51 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
