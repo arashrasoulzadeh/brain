@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `e4e916b` — 2026-11-13 16:52:38 +0330 — feat: recheck lifecycle at invocation commit
+  Files: plugins/functions/index.ts,plugins/functions/invocation-commit-state.ts plugins/functions/invocation-commit-writer.ts,roadmap.md tests/functions/functions.test.ts
+- `0851194` — 2026-11-13 13:21:55 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `fd0a32d` — 2026-11-13 16:51:34 +0330 — feat: recheck matchmaking lifecycle at assignment
   Files: plugins/matchmaking/assignment-creator.ts,plugins/matchmaking/queue-runtime.ts plugins/matchmaking/queue.ts,roadmap.md tests/matchmaking/matchmaking.test.ts
 - `d608ee7` — 2026-11-13 13:20:42 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `01ab594` — 2026-11-13 16:13:23 +0330 — exclude vendored files from Go formatting check
   Files: .github/workflows/test.yml
 - `fdf4279` — 2026-11-13 12:42:43 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `7bff8e7` — 2026-11-13 16:12:23 +0330 — record function and turn metrics
-  Files: roadmap.md,tests/functions/phase04_metrics_gate.test.ts
-- `b9bc625` — 2026-11-13 12:42:08 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
