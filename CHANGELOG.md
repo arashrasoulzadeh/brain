@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `edcbd8c` — 2026-11-13 04:30:19 +0330 — phase 04 mark failed draft behavior complete
+- `662110c` — 2026-11-13 01:00:17 +0000 — docs: update changelog [skip ci]
 - `b163782` — 2026-11-13 04:30:04 +0330 — phase 04 preserve active version on failed draft
 - `71c0de9` — 2026-11-13 00:59:38 +0000 — docs: update changelog [skip ci]
 - `3875908` — 2026-11-13 04:29:19 +0330 — phase 04 mark rollback complete
