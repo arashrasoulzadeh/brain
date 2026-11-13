@@ -46,7 +46,9 @@ Phase 01 verification: the dashboard is bootstrapped through the CLI; YAML route
 
 Realtime gameplay is covered by project-scoped WebSocket endpoint validation, exact origin allowlists, single-use connection tickets, heartbeat expiry, bounded frames, bounded FIFO send queues, authorized snapshots and commands, reconnect checks, and sequence-based event replay. The arena plugin now supports a validated start/action/result flow, idempotent completed-result storage, Eye event export, an eight-player fixture, and latency/memory measurement. The Phase 02 gate is in `tests/arena/phase02_gate.test.ts`. Run `npm run typecheck && npm run test:ts` and `GOCACHE=/tmp/brain-go-cache go test ./...`; do not run Docker locally.
 
-Phase 03 begins with project-scoped user IDs and authentication.
+## Phase 03 completed
+
+Phase 03 now covers project-scoped identity and sessions, invitations, OIDC/PKCE validation, OTP delivery and recovery, Argon2id passwords, PostgreSQL exposure contracts, versioned and idempotent records, guided schema previews, transactional/API/direct-SQL change capture, subscription tickets and replay, private project-namespaced files, quota and upload reconciliation, protected downloads, explicit public publication, and dashboard settings, record, table, file, audit, and browser-quickstart models. The gate fixtures prove API/direct-SQL isolation and rerun guest co-op. CI runs Go formatting/tests, the full TypeScript suite, image build, and Compose smoke verification. Locally run `GOCACHE=/tmp/brain-go-cache go test ./...`, `npm run typecheck`, and `npm run test:ts`; do not run Docker locally.
 
 Plugin communication follows [the plugin communication architecture](plugin-communication.md): JSON-RPC over Unix sockets locally, gRPC/mTLS externally, and the shared host authorization contract for both.
 
