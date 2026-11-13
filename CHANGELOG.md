@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `813fb10` — 2026-11-13 14:54:47 +0330 — split record trigger operations
+- `2616adf` — 2026-11-13 11:23:46 +0000 — docs: update changelog [skip ci]
 - `c53fac7` — 2026-11-13 14:53:26 +0330 — split invocation commit operations
 - `e4ab489` — 2026-11-13 11:22:29 +0000 — docs: update changelog [skip ci]
 - `0864716` — 2026-11-13 14:52:07 +0330 — split function publication operations
