@@ -3,6 +3,9 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `1342a66` — 2026-11-13 14:01:18 +0330 — update OIDC configuration tests
+- `633a922` — 2026-11-13 14:01:01 +0330 — fix auth manifest import gate
+- `587a157` — 2026-11-13 10:29:28 +0000 — docs: update changelog [skip ci]
 - `9439d14` — 2026-11-13 13:59:14 +0330 — split auth delivery classes
 - `09fe683` — 2026-11-13 10:27:12 +0000 — docs: update changelog [skip ci]
 - `470333e` — 2026-11-13 13:56:59 +0330 — split OIDC state classes
