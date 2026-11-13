@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `005d691` — 2026-11-13 03:37:39 +0330 — phase 03 make subscription tickets single use
+- `46fb65d` — 2026-11-13 00:07:28 +0000 — docs: update changelog [skip ci]
 - `985b208` — 2026-11-13 03:37:13 +0330 — phase 03 add subscription tickets
 - `ce7581e` — 2026-11-13 00:06:52 +0000 — docs: update changelog [skip ci]
 - `688bc7c` — 2026-11-13 03:36:37 +0330 — phase 03 verify rollback capture suppression
