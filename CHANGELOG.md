@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `bddf7cb` — 2026-11-13 04:18:45 +0330 — phase 04 enforce wasm startup timeout
+- `1c8a3ef` — 2026-11-13 00:48:34 +0000 — docs: update changelog [skip ci]
 - `7bc42f5` — 2026-11-13 04:18:12 +0330 — phase 04 record linear memory limit test
 - `a26b58b` — 2026-11-13 00:48:14 +0000 — docs: update changelog [skip ci]
 - `47c9f78` — 2026-11-13 04:16:49 +0330 — phase 04 enforce linear memory limits
