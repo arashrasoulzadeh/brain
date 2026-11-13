@@ -460,7 +460,7 @@ Goal: compile dashboard-authored Go to WASM, execute it safely, run durable trig
 - [x] Add short job leases.
 - [x] Recheck grants at job commit.
 - [x] Cap retries.
-- [ ] Add workflow graph validation.
+- [x] Add workflow graph validation.
 - [ ] Add conditions.
 - [ ] Add approvals.
 - [ ] Add workflow retries and idempotency.
