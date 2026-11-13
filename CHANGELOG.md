@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `638b93b` — 2026-11-13 12:25:56 +0330 — refactor shared plugin identity helpers
+- `d2d2033` — 2026-11-13 08:54:49 +0000 — docs: update changelog [skip ci]
 - `3091961` — 2026-11-13 12:24:36 +0330 — refactor plugins through shared SDK request builder
 - `8cb65e2` — 2026-11-13 08:52:18 +0000 — docs: update changelog [skip ci]
 - `9e30894` — 2026-11-13 12:21:56 +0330 — phase 04 mark hidden player views complete
