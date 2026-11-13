@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `43e16ae` — 2026-11-13 12:21:40 +0330 — phase 04 add hidden tic tac toe views
+- `621ef7a` — 2026-11-13 08:50:40 +0000 — docs: update changelog [skip ci]
 - `cf58e5f` — 2026-11-13 12:20:24 +0330 — phase 04 mark room reconnect complete
 - `1a835b2` — 2026-11-13 08:50:19 +0000 — docs: update changelog [skip ci]
 - `34da9ff` — 2026-11-13 12:20:06 +0330 — phase 04 reconnect tic tac toe after restart
