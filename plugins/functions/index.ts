@@ -104,3 +104,5 @@ export class SharedPackageStore {
   save(projectId: string, packageId: string, source: string): void { if (!projectId || !packageId || !source) throw new Error("invalid shared package"); this.packages.set(`${projectId}:${packageId}`, source); }
   load(projectId: string, packageId: string): string { const source = this.packages.get(`${projectId}:${packageId}`); if (!source) throw new Error("shared package not found"); return source; }
 }
+export type SourceDiagnostic = { line: number; message: string };
+export function diagnoseSource(source: string): SourceDiagnostic[] { const diagnostics: SourceDiagnostic[] = []; const lines = source.split("\n"); lines.forEach((line, index) => { if (/import\s+.*\"(os|net|syscall)\"/.test(line)) diagnostics.push({ line: index + 1, message: "unsupported import" }); }); if (!/package\s+main\b/.test(source)) diagnostics.push({ line: 1, message: "package main required" }); return diagnostics; }
