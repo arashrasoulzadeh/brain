@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `9b3d8f6` — 2026-11-13 04:24:53 +0330 — phase 04 record source diagnostics
+- `95e9733` — 2026-11-13 00:54:53 +0000 — docs: update changelog [skip ci]
 - `126560b` — 2026-11-13 04:24:40 +0330 — phase 04 add function source diagnostics
 - `6750f33` — 2026-11-13 00:54:26 +0000 — docs: update changelog [skip ci]
 - `bb939b7` — 2026-11-13 04:24:07 +0330 — phase 04 record shared package compilation
