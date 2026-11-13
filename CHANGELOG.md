@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `4dd61ea` — 2026-11-13 03:44:37 +0330 — phase 03 enforce upload size limits
+- `5d33dc2` — 2026-11-13 00:14:22 +0000 — docs: update changelog [skip ci]
 - `53ab1e2` — 2026-11-13 03:44:09 +0330 — phase 03 reject cross project file objects
 - `691c738` — 2026-11-13 00:14:02 +0000 — docs: update changelog [skip ci]
 - `c8106f3` — 2026-11-13 03:43:47 +0330 — phase 03 reject unauthorized file access
