@@ -7,11 +7,15 @@ entrypoint: index.ts
 source_files:
   - index.ts
   - types.ts
-  - invite-directory.ts
+  - invite-creator.ts
+  - invite-accepter.ts
+  - invite-code-accepter.ts
   - invite-request.ts
 imports:
   - ../sdk-typescript/src/index.js
-  - ./invite-directory.js
+  - ./invite-creator.js
+  - ./invite-accepter.js
+  - ./invite-code-accepter.js
   - ./invite-request.js
   - ./types.js
 plugin_imports:
