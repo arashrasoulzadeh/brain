@@ -1,4 +1,4 @@
-import { APPROVED_SDK_IMPORTS, APPROVED_WASI_IMPORTS, createApprovalStore, createSharedPackageStore, createFunctionDraftStore, createJobLeaseStore, createInvocationEffects, createFunctionPublicationStore, createInvocationCommitStore, createRecordChangeTriggerStore, capDiagnostics, commitWithGrant, compilerEnvironment, createInvocationRequest, diagnoseSource, DisposableCompilerWorkspace, ENTRY_PACKAGE_FIXTURE, evaluateCondition, executeFixture, functionRequest, invokeDirectHttps, loadDeclaredInputs, parseInvocationResult, PROJECT_HELPER_FIXTURE, redactRunStatus, rejectSandboxEscapeAttempt, requireSDKImports, retryInvocation, runCappedRetries, runIdempotentWorkflow, runWithTimeout, ScheduleStore, validateBuildOverrides, validateCompilerEnvironment, validateCompilerLimits, validateFunctionLimits, validateInvocationResult, validateLinearMemory, validateSandboxCapabilities, validateSDKImports, validateSourceProject, validateStaleInputVersions, validateStartupDuration, validateWasiImports, validateWorkflowGraph, validateWriteIntents, wasmBuildSettings } from "../../plugins/functions/index.js";
+import { APPROVED_SDK_IMPORTS, APPROVED_WASI_IMPORTS, createApprovalStore, createSharedPackageStore, createFunctionDraftStore, createJobLeaseStore, createInvocationEffects, createFunctionPublicationStore, createInvocationCommitStore, createRecordChangeTriggerStore, createScheduleStore, capDiagnostics, commitWithGrant, compilerEnvironment, createInvocationRequest, diagnoseSource, DisposableCompilerWorkspace, ENTRY_PACKAGE_FIXTURE, evaluateCondition, executeFixture, functionRequest, invokeDirectHttps, loadDeclaredInputs, parseInvocationResult, PROJECT_HELPER_FIXTURE, redactRunStatus, rejectSandboxEscapeAttempt, requireSDKImports, retryInvocation, runCappedRetries, runIdempotentWorkflow, runWithTimeout, validateBuildOverrides, validateCompilerEnvironment, validateCompilerLimits, validateFunctionLimits, validateInvocationResult, validateLinearMemory, validateSandboxCapabilities, validateSDKImports, validateSourceProject, validateStaleInputVersions, validateStartupDuration, validateWasiImports, validateWorkflowGraph, validateWriteIntents, wasmBuildSettings } from "../../plugins/functions/index.js";
 validateSDKImports(APPROVED_SDK_IMPORTS);
 const request = functionRequest("dev", "functions", "0.1.0", "functions.invoke", { name: "hello" });
 if (request.params.projectId !== "dev" || request.params.operation !== "functions.invoke") throw new Error("functions request contract failed");
@@ -96,7 +96,7 @@ let executions = 0;
 const firstResponse = await retryInvocation(commits, "lost-response", () => { executions++; return { ok: true }; }, [{ path: "profile/name", value: "ada" }]);
 const recoveredResponse = await retryInvocation(commits, "lost-response", () => { executions++; return { ok: false }; }, [{ path: "profile/name", value: "changed" }]);
 if (JSON.stringify(firstResponse) !== JSON.stringify(recoveredResponse) || executions !== 1) throw new Error("lost-response retry re-executed function");
-const schedules = new ScheduleStore();
+const schedules = createScheduleStore();
 try { schedules.add("bad/project", "hello", "* * * * *", 1000); throw new Error("invalid schedule project accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid project id") throw error; }
 schedules.add("dev", "hello", "0 * * * *", 1000);
 if (schedules.due(1000)[0]?.functionId !== "hello") throw new Error("scheduled function not due");
@@ -104,7 +104,7 @@ try { schedules.add("", "hello", "0 * * * *", 1000); throw new Error("invalid sc
 const claimed = schedules.claim("dev", "hello", "worker-a", 1000, 5000);
 if (!claimed || schedules.claim("dev", "hello", "worker-b", 1000, 5000)) throw new Error("schedule claimed concurrently");
 if (!schedules.recordOccurrence("dev", "hello", "2026-11-13T10:00:00.000Z") || schedules.recordOccurrence("dev", "hello", "2026-11-13T10:00:00.000Z")) throw new Error("duplicate UTC occurrence accepted");
-const missed = new ScheduleStore();
+const missed = createScheduleStore();
 missed.add("dev", "sync", "0 * * * *", 1000);
 missed.add("dev", "sync", "0 * * * *", 2000);
 if (missed.enqueueLatestMissed("dev", "sync", 3000)?.dueAt !== 2000 || missed.enqueueLatestMissed("dev", "sync", 3000) !== undefined) throw new Error("latest missed occurrence was not deduplicated");

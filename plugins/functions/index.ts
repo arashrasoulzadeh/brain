@@ -32,6 +32,13 @@ import { createRecordTriggerState } from "./record-trigger-state.js";
 import { RecordTriggerAdder } from "./record-trigger-adder.js";
 import { RecordTriggerMatcher } from "./record-trigger-matcher.js";
 import { RecordTriggerDispatcher } from "./record-trigger-dispatcher.js";
+import { createScheduleState } from "./schedule-state.js";
+import { ScheduleAdder } from "./schedule-adder.js";
+import { ScheduleReader } from "./schedule-reader.js";
+import { ScheduleClaimer } from "./schedule-claimer.js";
+import { ScheduleOccurrenceRecorder } from "./schedule-occurrence-recorder.js";
+import { MissedScheduleEnqueuer } from "./missed-schedule-enqueuer.js";
+import { FunctionVersionEnqueuer } from "./function-version-enqueuer.js";
 
 export { functionRequest } from "./function-request.js";
 
@@ -163,11 +170,9 @@ export async function retryInvocation<T>(store: ReturnType<typeof createInvocati
 }
 export type FunctionSchedule = { projectId: string; functionId: string; expression: string; dueAt: number };
 export type EnqueuedFunction = { projectId: string; functionId: string; functionVersion: number; enqueuedAt: number };
-export class ScheduleStore {
-  private readonly schedules: FunctionSchedule[] = [];
-  private readonly claims = new Map<string, { workerId: string; expiresAt: number }>();
-  private readonly occurrences = new Set<string>();
-  private readonly enqueued = new Set<string>();
+export function createScheduleStore() { const state = createScheduleState(); const adder = new ScheduleAdder(state); const reader = new ScheduleReader(state); const claimer = new ScheduleClaimer(state); const occurrence = new ScheduleOccurrenceRecorder(state); const missed = new MissedScheduleEnqueuer(state); const version = new FunctionVersionEnqueuer(); return { add: adder.add.bind(adder), due: reader.due.bind(reader), claim: claimer.claim.bind(claimer), recordOccurrence: occurrence.recordOccurrence.bind(occurrence), enqueueLatestMissed: missed.enqueueLatestMissed.bind(missed), enqueueVersion: version.enqueueVersion.bind(version) }; }
+/* legacy schedule operations are composed by createScheduleStore above. */
+/*
   add(projectId: string, functionId: string, expression: string, dueAt: number): FunctionSchedule {
     validateProjectId(projectId);
     if (!functionId || expression.trim().split(/\s+/).length !== 5 || !Number.isSafeInteger(dueAt) || dueAt < 0) throw new Error("invalid schedule");
@@ -210,7 +215,7 @@ export class ScheduleStore {
     if (!functionId || !Number.isSafeInteger(functionVersion) || functionVersion < 1 || !Number.isSafeInteger(enqueuedAt) || enqueuedAt < 0) throw new Error("invalid function enqueue");
     return { projectId, functionId, functionVersion, enqueuedAt };
   }
-}
+}*/
 export type RecordChangeTrigger = { projectId: string; collection: string; operation: string; target: { functionId: string; version: number } };
 export function createRecordChangeTriggerStore() { const state = createRecordTriggerState(); const adder = new RecordTriggerAdder(state); const matcher = new RecordTriggerMatcher(state); const dispatcher = new RecordTriggerDispatcher(state); return { add: adder.add.bind(adder), match: matcher.match.bind(matcher), dispatch: dispatcher.dispatch.bind(dispatcher) }; }
 export function createJobLeaseStore() { const state = createJobLeaseState(); const acquirer = new JobLeaseAcquirer(state); const renewer = new JobLeaseRenewer(state); return { acquire: acquirer.acquire.bind(acquirer), renew: renewer.renew.bind(renewer) }; }

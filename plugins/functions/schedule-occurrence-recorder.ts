@@ -1,0 +1,3 @@
+import { validateProjectId } from "../sdk-typescript/src/index.js";
+import type { ScheduleState } from "./schedule-state.js";
+export class ScheduleOccurrenceRecorder { constructor(private readonly state: ScheduleState) {} recordOccurrence(projectId: string, functionId: string, occurrenceUtc: string): boolean { validateProjectId(projectId); if (!functionId || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(occurrenceUtc) || Number.isNaN(Date.parse(occurrenceUtc))) throw new Error("invalid UTC occurrence"); const key = `${projectId}:${functionId}:${occurrenceUtc}`; if (this.state.occurrences.has(key)) return false; this.state.occurrences.add(key); return true; } }

@@ -32,6 +32,13 @@ source_files:
   - record-trigger-adder.ts
   - record-trigger-matcher.ts
   - record-trigger-dispatcher.ts
+  - schedule-state.ts
+  - schedule-adder.ts
+  - schedule-reader.ts
+  - schedule-claimer.ts
+  - schedule-occurrence-recorder.ts
+  - missed-schedule-enqueuer.ts
+  - function-version-enqueuer.ts
 imports:
   - ../sdk-typescript/src/index.js
   - node:fs
@@ -68,6 +75,13 @@ imports:
   - ./record-trigger-adder.js
   - ./record-trigger-matcher.js
   - ./record-trigger-dispatcher.js
+  - ./schedule-state.js
+  - ./schedule-adder.js
+  - ./schedule-reader.js
+  - ./schedule-claimer.js
+  - ./schedule-occurrence-recorder.js
+  - ./missed-schedule-enqueuer.js
+  - ./function-version-enqueuer.js
 plugin_imports:
 title: Functions
 description: Project-scoped serverless function compilation and invocation controls.
