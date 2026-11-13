@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `886665d` — 2026-11-13 12:46:13 +0330 — split invites into focused plugin modules
+- `0096769` — 2026-11-13 09:15:30 +0000 — docs: update changelog [skip ci]
 - `7d1dfde` — 2026-11-13 12:45:14 +0330 — split analytics into focused plugin functions
 - `d5b7f31` — 2026-11-13 09:08:46 +0000 — docs: update changelog [skip ci]
 - `a709ef2` — 2026-11-13 12:38:33 +0330 — validate plugin configuration before promotion
