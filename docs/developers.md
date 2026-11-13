@@ -66,3 +66,5 @@ The host also scans each declared source file and rejects missing files or impor
 Turn-based rooms expose deterministic timeout handling through `expireTicTacToeTurn(state, now, nextDeadlineAt)`; callers supply persisted clock values and must commit the resulting revision atomically.
 
 Committed Tic-tac-toe outcomes can be replayed with `reconstructTicTacToeHistory`; revisions must be contiguous from zero and every move is revalidated during replay.
+
+The host registry promotes only installed, enabled plugin versions and keeps active-work pins on their original version during promotion or rollback.

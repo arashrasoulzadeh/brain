@@ -504,7 +504,7 @@ Goal: safely promote, roll back, disable, drain, uninstall, and extend plugin-co
 
 ### Version lifecycle
 
-- [ ] Promote one plugin version for one project.
+- [x] Promote one plugin version for one project.
 - [ ] Validate config before promotion.
 - [ ] Validate readiness before promotion.
 - [ ] Validate requested grants.

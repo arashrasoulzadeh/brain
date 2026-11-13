@@ -50,3 +50,5 @@ Administrators can review project-scoped identity and session controls, OIDC/PKC
 Plugin releases are blocked unless TypeScript lint, typecheck, and the complete test suite pass. Shared SDK changes should be reviewed as platform dependencies because they can affect multiple plugins.
 
 Administrators can review `source_files`, `imports`, `plugin_imports`, and `dependencies` in each YAML manifest. Undeclared files, module imports, or plugin relationships are rejected before execution.
+
+Promotion is project-scoped and audited. Only an installed, enabled version can become active; pinned work remains on its pinned version during later promotion or rollback.
