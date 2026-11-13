@@ -175,6 +175,12 @@ export class TicTacToeCoordinator {
     return { ...this.current, players: [...this.current.players] as [string, string], board: [...this.current.board] };
   }
 }
+export function validateTicTacToeRuleResult(value: unknown): { board: readonly ("X" | "O" | null)[]; turn: string; status: "active" | "finished" } {
+  if (!value || typeof value !== "object" || Object.keys(value).some((key) => !["board", "turn", "status"].includes(key))) throw new Error("malformed rule result");
+  const result = value as { board?: unknown; turn?: unknown; status?: unknown };
+  if (!Array.isArray(result.board) || result.board.length !== 9 || result.board.some((cell) => cell !== null && cell !== "X" && cell !== "O") || typeof result.turn !== "string" || !["active", "finished"].includes(String(result.status))) throw new Error("malformed rule result");
+  return { board: [...result.board] as ("X" | "O" | null)[], turn: result.turn, status: result.status as "active" | "finished" };
+}
 
 export function roomRequest(projectId: string, pluginId: string, version: string, operation: "rooms.create" | "rooms.join" | "rooms.reconnect" | "rooms.result", roomId: string, payload: unknown = {}) {
   return request(`rooms-${operation}-${projectId}-${roomId}`, { protocol: 1, projectId, pluginId, version, operation, payload: { roomId, ...(payload as Record<string, unknown>) } });

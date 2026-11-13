@@ -1,4 +1,4 @@
-import { ConnectionTickets, CommandDeduplicator, RoomDirectory, TicTacToeCoordinator, authorizeRoomCommand, authorizedRoomSnapshot, authorizeTicTacToeCommand, authorizedTicTacToeState, canTransitionRoom, initializeTicTacToe, publishTicTacToeRules, projectRoomID, roomRequest, ticTacToeDraw, ticTacToeWinner, validateMembership, validateTicTacToeCommandPayload, validateTicTacToeMove } from "../../plugins/rooms/index.js";
+import { ConnectionTickets, CommandDeduplicator, RoomDirectory, TicTacToeCoordinator, authorizeRoomCommand, authorizedRoomSnapshot, authorizeTicTacToeCommand, authorizedTicTacToeState, canTransitionRoom, initializeTicTacToe, publishTicTacToeRules, projectRoomID, roomRequest, ticTacToeDraw, ticTacToeWinner, validateMembership, validateTicTacToeCommandPayload, validateTicTacToeMove, validateTicTacToeRuleResult } from "../../plugins/rooms/index.js";
 import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = roomRequest("dev", "rooms", "0.1.0", "rooms.create", "room-1", { maxPlayers: 2 });
@@ -62,3 +62,5 @@ const coordinator = new TicTacToeCoordinator(game);
 const revision = coordinator.revision();
 coordinator.move("user-1", 1, revision);
 try { coordinator.move("user-2", 2, revision); throw new Error("concurrent stale move accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "stale game revision") throw error; }
+if (!validateTicTacToeRuleResult({ board: game.board, turn: game.turn, status: "active" }).status) throw new Error("valid rule result rejected");
+try { validateTicTacToeRuleResult({ board: [], turn: "user-1", status: "active", extra: true }); throw new Error("malformed rule result accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "malformed rule result") throw error; }
