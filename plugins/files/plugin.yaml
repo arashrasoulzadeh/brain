@@ -12,15 +12,17 @@ source_files:
   - object-key.ts
   - upload-store.ts
   - quota.ts
-  - upload-stream.ts
-  - access-policy.ts
+  - file-grant-store.ts
+  - file-access-reader.ts
+  - file-access-deleter.ts
+  - upload-grant-store.ts
+  - authorized-upload-writer.ts
   - enforce-upload-size.ts
   - protected-download-headers.ts
   - reconcile-orphaned-objects.ts
   - require-explicit-publication.ts
 imports:
   - ../sdk-typescript/src/index.js
-  - ./access-policy.js
   - ./bucket.js
   - ./enforce-upload-size.js
   - ./protected-download-headers.js
@@ -29,7 +31,11 @@ imports:
   - ./file-request.js
   - ./object-key.js
   - ./quota.js
-  - ./upload-stream.js
+  - ./file-grant-store.js
+  - ./file-access-reader.js
+  - ./file-access-deleter.js
+  - ./upload-grant-store.js
+  - ./authorized-upload-writer.js
   - ./upload-store.js
   - ./types.js
 plugin_imports:

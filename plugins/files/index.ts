@@ -1,4 +1,6 @@
-export { FileAccessPolicy } from "./access-policy.js";
+export { FileGrantStore } from "./file-grant-store.js";
+export { FileAccessReader } from "./file-access-reader.js";
+export { FileAccessDeleter } from "./file-access-deleter.js";
 export { configurePrivateBucket } from "./bucket.js";
 export { fileRequest } from "./file-request.js";
 export { enforceUploadSize } from "./enforce-upload-size.js";
@@ -7,6 +9,7 @@ export { reconcileOrphanedObjects } from "./reconcile-orphaned-objects.js";
 export { requireExplicitPublication } from "./require-explicit-publication.js";
 export { projectObjectKey } from "./object-key.js";
 export { FileQuotaLedger } from "./quota.js";
-export { AuthorizedUploadStream } from "./upload-stream.js";
+export { UploadGrantStore } from "./upload-grant-store.js";
+export { AuthorizedUploadWriter } from "./authorized-upload-writer.js";
 export { PendingUploadStore } from "./upload-store.js";
 export type { PendingUpload, PrivateBucketConfig } from "./types.js";

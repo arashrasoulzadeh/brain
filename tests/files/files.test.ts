@@ -1,4 +1,4 @@
-import { AuthorizedUploadStream, configurePrivateBucket, enforceUploadSize, FileAccessPolicy, FileQuotaLedger, fileRequest, PendingUploadStore, projectObjectKey, protectedDownloadHeaders, reconcileOrphanedObjects, requireExplicitPublication } from "../../plugins/files/index.js";
+import { AuthorizedUploadWriter, UploadGrantStore, configurePrivateBucket, enforceUploadSize, FileGrantStore, FileAccessReader, FileAccessDeleter, FileQuotaLedger, fileRequest, PendingUploadStore, projectObjectKey, protectedDownloadHeaders, reconcileOrphanedObjects, requireExplicitPublication } from "../../plugins/files/index.js";
 import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = fileRequest("dev", "files", "0.1.0", "files.upload", "avatar", { contentType: "image/png" });
@@ -23,13 +23,13 @@ try { requireExplicitPublication(false); throw new Error("implicit public public
 const quota = new FileQuotaLedger(new Map([["dev", 20]]));
 quota.reserve("dev", 12);
 try { quota.reserve("dev", 9); throw new Error("quota exceeded upload accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "file quota exceeded") throw error; }
-const stream = new AuthorizedUploadStream();
-stream.authorize("dev", "avatar.png", "user-1");
-if (stream.write("dev", "avatar.png", "user-1", new Uint8Array(3)) !== 3) throw new Error("authorized upload failed");
-try { stream.write("dev", "avatar.png", "user-2", new Uint8Array(1)); throw new Error("unauthorized upload accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "upload denied") throw error; }
-const access = new FileAccessPolicy();
-access.grant("dev", "avatar.png", "user-1"); access.read("dev", "avatar.png", "user-1"); access.delete("dev", "avatar.png", "user-1");
-try { access.read("dev", "avatar.png", "user-2"); throw new Error("unauthorized file read accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "file access denied") throw error; }
-try { access.read("prod", "avatar.png", "user-1"); throw new Error("cross-project object read accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "file access denied") throw error; }
+const uploadGrants = new Set<string>(); const uploadBytes = new Map<string, number>();
+new UploadGrantStore(uploadGrants).authorize("dev", "avatar.png", "user-1");
+if (new AuthorizedUploadWriter(uploadGrants, uploadBytes).write("dev", "avatar.png", "user-1", new Uint8Array(3)) !== 3) throw new Error("authorized upload failed");
+try { new AuthorizedUploadWriter(uploadGrants, uploadBytes).write("dev", "avatar.png", "user-2", new Uint8Array(1)); throw new Error("unauthorized upload accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "upload denied") throw error; }
+const accessGrants = new Set<string>();
+new FileGrantStore(accessGrants).grant("dev", "avatar.png", "user-1"); new FileAccessReader(accessGrants).read("dev", "avatar.png", "user-1"); new FileAccessDeleter(accessGrants).delete("dev", "avatar.png", "user-1");
+try { new FileAccessReader(accessGrants).read("dev", "avatar.png", "user-2"); throw new Error("unauthorized file read accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "file access denied") throw error; }
+try { new FileAccessReader(accessGrants).read("prod", "avatar.png", "user-1"); throw new Error("cross-project object read accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "file access denied") throw error; }
 enforceUploadSize(10, 10);
 try { enforceUploadSize(11, 10); throw new Error("oversized upload accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "upload size exceeded") throw error; }
