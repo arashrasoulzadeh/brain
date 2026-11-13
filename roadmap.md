@@ -544,7 +544,7 @@ Goal: safely promote, roll back, disable, drain, uninstall, and extend plugin-co
 
 ### Uninstall and registry cleanup
 
-- [ ] Wait for active work before project uninstall.
+- [x] Wait for active work before project uninstall.
 - [ ] Revoke project grants.
 - [ ] Preserve durable plugin data.
 - [ ] Audit project uninstall.

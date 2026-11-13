@@ -31,6 +31,7 @@ var (
 	ErrVersionReferenced  = errors.New("plugin version still referenced")
 	ErrCapabilityApproval = errors.New("new plugin capability requires approval")
 	ErrStalePreview       = errors.New("plugin lifecycle preview is stale")
+	ErrActiveWork         = errors.New("project has active plugin work")
 )
 
 type Manifest struct {
@@ -648,6 +649,26 @@ func (r *Registry) Remove(projectID, id, version string) error {
 	}
 	delete(r.installations, key)
 	r.audit = append(r.audit, AuditEvent{Action: "remove", ProjectID: projectID, PluginID: id, Version: version})
+	return nil
+}
+
+func (r *Registry) UninstallProject(projectID string) error {
+	for _, pinnedVersion := range r.pins {
+		if strings.HasPrefix(pinnedVersion, projectID+":") {
+			return ErrActiveWork
+		}
+	}
+	for key := range r.active {
+		if strings.HasPrefix(key, projectID+":") {
+			return ErrActiveWork
+		}
+	}
+	for key, installation := range r.installations {
+		if installation.ProjectID == projectID {
+			delete(r.installations, key)
+		}
+	}
+	r.audit = append(r.audit, AuditEvent{Action: "uninstall_project", ProjectID: projectID})
 	return nil
 }
 
