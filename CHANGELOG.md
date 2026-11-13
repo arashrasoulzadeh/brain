@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `05a51ac` — 2026-11-13 13:52:49 +0330 — split pending upload classes
+- `4eb8c97` — 2026-11-13 10:20:38 +0000 — docs: update changelog [skip ci]
 - `77c2f46` — 2026-11-13 13:50:26 +0330 — split invite lifecycle classes
 - `ccc3ea0` — 2026-11-13 10:18:08 +0000 — docs: update changelog [skip ci]
 - `766c5e5` — 2026-11-13 13:47:54 +0330 — split table policy and exposure classes
