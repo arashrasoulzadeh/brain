@@ -14,6 +14,9 @@ export function requireSDKImports(imports: readonly string[], required: readonly
   validateSDKImports(imports);
   if (required.some((name) => !imports.includes(name))) throw new Error("required SDK import missing");
 }
+export function validateSourceProject(sourceProjectId: string, requestedProjectId: string): void {
+  if (!sourceProjectId || sourceProjectId !== requestedProjectId) throw new Error("cross-project source access denied");
+}
 
 export function functionRequest(projectId: string, pluginId: string, version: string, operation: "functions.invoke" | "functions.publish", payload: unknown = {}): RpcRequest {
   return request(`functions-${operation}-${projectId}`, { protocol: 1, projectId, pluginId, version, operation, payload });
