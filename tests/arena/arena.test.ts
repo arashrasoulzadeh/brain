@@ -1,4 +1,4 @@
-import { createArena, MatchResultReader, MatchResultSaver, arenaRequest, arenaStartCommand, exportEyeEvent, validateMatchResult } from "../../plugins/arena/index.js";
+import { createArena, MatchResultReader, MatchResultSaver, arenaRequest, arenaStartCommand, exportEyeEvent, interruptExpiredActionRoom, validateMatchResult } from "../../plugins/arena/index.js";
 import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = arenaRequest("dev", "arena", "0.1.0", "arena.start", "room-1", { players: ["user-1", "user-2"] });
@@ -9,6 +9,7 @@ const arena = createArena("dev", "room-1");
 if (arena.getState() !== "waiting") throw new Error("arena did not start waiting");
 arena.start(["user-1", "user-2"]);
 if (arena.getState() !== "active" || arena.players.length !== 2) throw new Error("arena did not become active");
+if (interruptExpiredActionRoom(arena.getState(), 1000, 1000) !== "interrupted") throw new Error("expired action room was not interrupted");
 try { arena.start(["user-1"]); throw new Error("active arena restarted"); } catch (error) { if (!(error instanceof Error) || error.message !== "arena already started") throw error; }
 const commandArena = createArena("dev", "room-2");
 if (arenaStartCommand(commandArena, "dev", "room-2", ["user-1", "user-2"]).getState() !== "active") throw new Error("start command failed");

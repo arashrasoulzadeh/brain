@@ -536,7 +536,7 @@ Goal: safely promote, roll back, disable, drain, uninstall, and extend plugin-co
 - [x] Allow current participants to reconnect.
 - [x] Reject new room admissions during drain.
 - [x] Pause turn rooms at the last committed move.
-- [ ] Interrupt action rooms at expiry.
+- [x] Interrupt action rooms at expiry.
 - [ ] Add immediate stop for security revocation.
 - [ ] Recheck lifecycle revision at assignment.
 - [ ] Recheck lifecycle revision at result commit.

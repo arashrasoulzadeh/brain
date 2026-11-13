@@ -9,5 +9,6 @@ export { ArenaStarter } from "./arena-starter.js";
 export { ArenaActionRecorder } from "./arena-action-recorder.js";
 export { ArenaMeasurer } from "./arena-measurer.js";
 export { ArenaFinisher } from "./arena-finisher.js";
+export { interruptExpiredActionRoom } from "./interrupt-expired-action-room.js";
 export { validateMatchResult } from "./validate-result.js";
 export type { ArenaMeasurement, ArenaState, DurableMatchResult, EyeEvent } from "./types.js";
