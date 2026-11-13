@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `8149403` — 2026-11-13 04:21:28 +0330 — phase 04 record fresh wazero runtimes
+- `88d1012` — 2026-11-13 00:51:30 +0000 — docs: update changelog [skip ci]
 - `bb22a47` — 2026-11-13 04:21:10 +0330 — phase 04 run wasm in fresh runtimes
 - `9062257` — 2026-11-13 00:50:05 +0000 — docs: update changelog [skip ci]
 - `18b2821` — 2026-11-13 04:19:43 +0330 — phase 04 record sandbox escape tests
