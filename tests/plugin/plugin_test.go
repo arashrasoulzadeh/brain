@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"reflect"
 	"testing"
 	"time"
 
@@ -530,5 +531,24 @@ func TestPromotionRequiresApprovalForNewCapabilities(t *testing.T) {
 	}
 	if err := r.Promote("dev", "approval", "2.0.0"); err != nil {
 		t.Fatalf("approved capability rejected: %v", err)
+	}
+}
+
+func TestTransitiveDependentsAreCalculated(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	manifests := []plugin.Manifest{
+		{ID: "base", Version: "1.0.0", HostAPI: 1},
+		{ID: "middle", Version: "1.0.0", HostAPI: 1, Dependencies: []string{"base@1.0.0"}},
+		{ID: "top", Version: "1.0.0", HostAPI: 1, Dependencies: []string{"middle@1.0.0"}},
+	}
+	for _, manifest := range manifests {
+		if err := r.Register(manifest); err != nil {
+			t.Fatal(err)
+		}
+	}
+	got := r.TransitiveDependents("base", "1.0.0")
+	want := []string{"middle@1.0.0", "top@1.0.0"}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("dependents = %#v, want %#v", got, want)
 	}
 }

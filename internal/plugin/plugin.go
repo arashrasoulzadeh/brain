@@ -8,6 +8,7 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 	"time"
 
@@ -273,6 +274,33 @@ func (r *Registry) Register(m Manifest) error {
 	r.readiness[key] = false
 	r.audit = append(r.audit, AuditEvent{Action: "register", PluginID: m.ID, Version: m.Version})
 	return nil
+}
+
+func (r *Registry) TransitiveDependents(id, version string) []string {
+	target := id + "@" + version
+	seen := map[string]bool{target: true}
+	dependents := make([]string, 0)
+	for {
+		changed := false
+		for key, registered := range r.registered {
+			if seen[key] {
+				continue
+			}
+			for _, dependency := range registered.Manifest.Dependencies {
+				if seen[dependency] {
+					seen[key] = true
+					dependents = append(dependents, key)
+					changed = true
+					break
+				}
+			}
+		}
+		if !changed {
+			break
+		}
+	}
+	sort.Strings(dependents)
+	return dependents
 }
 
 func (r *Registry) SetReadiness(id, version string, ready bool) error {
