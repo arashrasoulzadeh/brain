@@ -15,7 +15,8 @@ source_files:
   - subscription-owner-invalidator.ts
   - initial-fetch-buffer.ts
   - slow-consumer-queue.ts
-  - replay.ts
+  - subscription-event-appender.ts
+  - subscription-event-reader.ts
 imports:
   - ../sdk-typescript/src/index.js
   - node:crypto
@@ -25,7 +26,8 @@ imports:
   - ./initial-fetch-buffer.js
   - ./slow-consumer-queue.js
   - ./origin.js
-  - ./replay.js
+  - ./subscription-event-appender.js
+  - ./subscription-event-reader.js
   - ./subscription-request.js
   - ./ticket-store.js
   - ./types.js

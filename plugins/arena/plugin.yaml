@@ -9,7 +9,8 @@ source_files:
   - types.ts
   - validate-result.ts
   - eye-event.ts
-  - result-store.ts
+  - match-result-saver.ts
+  - match-result-reader.ts
   - state-machine.ts
   - arena-start.ts
   - arena-request.ts
@@ -18,7 +19,8 @@ imports:
   - ./arena-request.js
   - ./arena-start.js
   - ./eye-event.js
-  - ./result-store.js
+  - ./match-result-saver.js
+  - ./match-result-reader.js
   - ./state-machine.js
   - ./validate-result.js
   - ./types.js

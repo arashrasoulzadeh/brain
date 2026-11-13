@@ -4,7 +4,8 @@ export { SubscriptionOwnerInvalidator } from "./subscription-owner-invalidator.j
 export { InitialFetchBuffer } from "./initial-fetch-buffer.js";
 export { SlowConsumerQueue } from "./slow-consumer-queue.js";
 export { validateBrowserOrigin } from "./origin.js";
-export { SubscriptionReplay } from "./replay.js";
+export { SubscriptionEventAppender } from "./subscription-event-appender.js";
+export { SubscriptionEventReader } from "./subscription-event-reader.js";
 export { subscriptionRequest } from "./subscription-request.js";
 export { SubscriptionTicketStore } from "./ticket-store.js";
 export type { SubscriptionEvent, SubscriptionTicket } from "./types.js";

@@ -1,4 +1,4 @@
-import { ArenaStateMachine, MatchResultStore, arenaStartCommand } from "../../plugins/arena/index.js";
+import { ArenaStateMachine, MatchResultReader, MatchResultSaver, arenaStartCommand } from "../../plugins/arena/index.js";
 import { ConnectionTickets, RoomDirectory, authorizeRoomCommand } from "../../plugins/rooms/index.js";
 import { MatchmakingQueue } from "../../plugins/matchmaking/index.js";
 
@@ -15,9 +15,9 @@ const reconnectTicket = tickets.issue("dev", "gate-room", "user-1", 1000, 60);
 if (!rooms.reconnect("dev", "gate-room", "user-1") || !tickets.consume(reconnectTicket.token, "dev", "gate-room", "user-1", 1001)) throw new Error("dropped connection did not recover");
 try { authorizeRoomCommand(rooms.get("dev", "gate-room"), "dev", "user-9", "arena.input"); throw new Error("denied plugin action accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "room membership required") throw error; }
 const completed = browserOne.result(["user-1"], "2026-11-13T00:00:00.000Z");
-const store = new MatchResultStore();
-store.save(completed);
-if (store.get(completed.resultId)?.projectId !== "dev") throw new Error("durable result was not persisted");
+const resultMap = new Map();
+new MatchResultSaver(resultMap).save(completed);
+if (new MatchResultReader(resultMap).get(completed.resultId)?.projectId !== "dev") throw new Error("durable result was not persisted");
 try { rooms.get("prod", "gate-room"); throw new Error("private room crossed project boundary"); } catch (error) { if (!(error instanceof Error) || error.message !== "room not found") throw error; }
 if (rooms.isMember("dev", "gate-room", "user-1") !== true || rooms.isMember("dev", "gate-room", "user-9") !== false) throw new Error("private room membership gate failed");
 const queue = new MatchmakingQueue();
