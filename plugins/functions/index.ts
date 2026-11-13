@@ -106,6 +106,23 @@ export class FunctionDraftStore {
   save(projectId: string, functionId: string, source: string, savedAt = Date.now()): FunctionDraft { if (!projectId || !functionId || !source || !Number.isFinite(savedAt)) throw new Error("invalid function draft"); const draft = { projectId, functionId, source, savedAt }; this.drafts.set(`${projectId}:${functionId}`, draft); return { ...draft }; }
   get(projectId: string, functionId: string): FunctionDraft | undefined { const draft = this.drafts.get(`${projectId}:${functionId}`); return draft ? { ...draft } : undefined; }
 }
+export type FunctionPublication = FunctionDraft & { version: number; artifactDigest: string; publishedAt: number };
+export class FunctionPublicationStore {
+  private readonly publications = new Map<string, FunctionPublication>();
+  publish(draft: FunctionDraft, artifactDigest: string, publishedAt = Date.now()): FunctionPublication {
+    if (!draft.projectId || !draft.functionId || !draft.source || !/^sha256:[a-f0-9]+$/.test(artifactDigest) || !Number.isFinite(publishedAt)) throw new Error("invalid function publication");
+    const prefix = `${draft.projectId}:${draft.functionId}:`;
+    const versions = [...this.publications.keys()].filter((key) => key.startsWith(prefix)).map((key) => Number(key.slice(prefix.length)));
+    const version = versions.length ? Math.max(...versions) + 1 : 1;
+    const publication = { ...draft, version, artifactDigest, publishedAt };
+    this.publications.set(`${prefix}${version}`, publication);
+    return { ...publication };
+  }
+  get(projectId: string, functionId: string, version: number): FunctionPublication | undefined {
+    const publication = this.publications.get(`${projectId}:${functionId}:${version}`);
+    return publication ? { ...publication } : undefined;
+  }
+}
 export class SharedPackageStore {
   private readonly packages = new Map<string, string>();
   save(projectId: string, packageId: string, source: string): void { if (!projectId || !packageId || !source) throw new Error("invalid shared package"); this.packages.set(`${projectId}:${packageId}`, source); }

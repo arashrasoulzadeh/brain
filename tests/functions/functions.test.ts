@@ -1,4 +1,4 @@
-import { APPROVED_SDK_IMPORTS, APPROVED_WASI_IMPORTS, capDiagnostics, compilerEnvironment, createInvocationRequest, diagnoseSource, DisposableCompilerWorkspace, ENTRY_PACKAGE_FIXTURE, executeFixture, FunctionDraftStore, functionRequest, InvocationEffects, parseInvocationResult, PROJECT_HELPER_FIXTURE, rejectSandboxEscapeAttempt, requireSDKImports, runWithTimeout, SharedPackageStore, validateBuildOverrides, validateCompilerEnvironment, validateCompilerLimits, validateFunctionLimits, validateInvocationResult, validateLinearMemory, validateSandboxCapabilities, validateSDKImports, validateSourceProject, validateStartupDuration, validateWasiImports, wasmBuildSettings } from "../../plugins/functions/index.js";
+import { APPROVED_SDK_IMPORTS, APPROVED_WASI_IMPORTS, capDiagnostics, compilerEnvironment, createInvocationRequest, diagnoseSource, DisposableCompilerWorkspace, ENTRY_PACKAGE_FIXTURE, executeFixture, FunctionDraftStore, FunctionPublicationStore, functionRequest, InvocationEffects, parseInvocationResult, PROJECT_HELPER_FIXTURE, rejectSandboxEscapeAttempt, requireSDKImports, runWithTimeout, SharedPackageStore, validateBuildOverrides, validateCompilerEnvironment, validateCompilerLimits, validateFunctionLimits, validateInvocationResult, validateLinearMemory, validateSandboxCapabilities, validateSDKImports, validateSourceProject, validateStartupDuration, validateWasiImports, wasmBuildSettings } from "../../plugins/functions/index.js";
 validateSDKImports(APPROVED_SDK_IMPORTS);
 const request = functionRequest("dev", "functions", "0.1.0", "functions.invoke", { name: "hello" });
 if (request.params.projectId !== "dev" || request.params.operation !== "functions.invoke") throw new Error("functions request contract failed");
@@ -57,3 +57,8 @@ if (diagnoseSource("package main\nimport \"os\"").length !== 1 || diagnoseSource
 if (!executeFixture(() => ({ success: true, output: "ok", diagnostics: [] })).success) throw new Error("fixture execution failed");
 const fixtureFailure = executeFixture(() => { throw new Error("fixture boom"); });
 if (fixtureFailure.success || fixtureFailure.error !== "fixture boom") throw new Error("fixture failure handling failed");
+const publicationDrafts = new FunctionDraftStore();
+const publicationDraft = publicationDrafts.save("dev", "hello", "package main", 1000);
+const publications = new FunctionPublicationStore();
+const publication = publications.publish(publicationDraft, "sha256:abc", 2000);
+if (publication.version !== 1 || publication.artifactDigest !== "sha256:abc" || publications.get("dev", "hello", 1)?.source !== "package main") throw new Error("function publication failed");
