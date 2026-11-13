@@ -16,6 +16,9 @@ import { FunctionDraftReader } from "./function-draft-reader.js";
 import { createJobLeaseState } from "./job-lease-state.js";
 import { JobLeaseAcquirer } from "./job-lease-acquirer.js";
 import { JobLeaseRenewer } from "./job-lease-renewer.js";
+import { createInvocationEffectsState } from "./invocation-effects-state.js";
+import { InvocationEffectsWriter } from "./invocation-effects-writer.js";
+import { InvocationEffectsReader } from "./invocation-effects-reader.js";
 
 export { functionRequest } from "./function-request.js";
 
@@ -138,18 +141,7 @@ export async function runWithTimeout<T>(task: Promise<T>, timeoutMs: number): Pr
 export function validateLinearMemory(bytes: number, maxBytes: number): void { if (!Number.isSafeInteger(bytes) || !Number.isSafeInteger(maxBytes) || bytes < 0 || maxBytes < 1 || bytes > maxBytes) throw new Error("linear memory limit exceeded"); }
 export function validateStartupDuration(durationMs: number, maxDurationMs: number): void { if (!Number.isSafeInteger(durationMs) || !Number.isSafeInteger(maxDurationMs) || durationMs < 0 || maxDurationMs < 1 || durationMs > maxDurationMs) throw new Error("startup timeout exceeded"); }
 export function rejectSandboxEscapeAttempt(value: string): void { if (!value || value.includes("../") || value.includes("\\..\\") || /^https?:\/\//.test(value)) throw new Error("sandbox escape attempt rejected"); }
-export class InvocationEffects {
-  private readonly committed: unknown[] = [];
-  begin(): { write: (effect: unknown) => void; commit: (success: boolean) => void } {
-    const staged: unknown[] = [];
-    let finished = false;
-    return {
-      write: (effect) => { if (finished) throw new Error("invocation already finished"); staged.push(effect); },
-      commit: (success) => { if (finished) throw new Error("invocation already finished"); finished = true; if (success) this.committed.push(...staged); },
-    };
-  }
-  list(): unknown[] { return [...this.committed]; }
-}
+export function createInvocationEffects() { const state = createInvocationEffectsState(); const writer = new InvocationEffectsWriter(state); const reader = new InvocationEffectsReader(state); return { begin: writer.begin.bind(writer), list: reader.list.bind(reader) }; }
 export class InvocationCommitStore {
   private readonly records = new Map<string, unknown>();
   private readonly committedEffects: unknown[] = [];

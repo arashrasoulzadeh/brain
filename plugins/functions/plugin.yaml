@@ -16,6 +16,9 @@ source_files:
   - job-lease-state.ts
   - job-lease-acquirer.ts
   - job-lease-renewer.ts
+  - invocation-effects-state.ts
+  - invocation-effects-writer.ts
+  - invocation-effects-reader.ts
 imports:
   - ../sdk-typescript/src/index.js
   - node:fs
@@ -36,6 +39,9 @@ imports:
   - ./job-lease-state.js
   - ./job-lease-acquirer.js
   - ./job-lease-renewer.js
+  - ./invocation-effects-state.js
+  - ./invocation-effects-writer.js
+  - ./invocation-effects-reader.js
 plugin_imports:
 title: Functions
 description: Project-scoped serverless function compilation and invocation controls.
