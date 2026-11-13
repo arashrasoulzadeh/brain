@@ -3,6 +3,9 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `d48d24c` — 2026-11-13 04:37:16 +0330 — phase 04 mark lost response retry complete
+- `50be688` — 2026-11-13 04:37:04 +0330 — phase 04 retry idempotent invocation
+- `143e9b7` — 2026-11-13 01:06:28 +0000 — docs: update changelog [skip ci]
 - `683c5fd` — 2026-11-13 04:36:09 +0330 — phase 04 mark atomic effect commits complete
 - `10f94e3` — 2026-11-13 01:06:09 +0000 — docs: update changelog [skip ci]
 - `3653e36` — 2026-11-13 04:35:57 +0330 — phase 04 commit effects with idempotency
