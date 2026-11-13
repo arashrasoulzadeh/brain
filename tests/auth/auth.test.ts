@@ -7,7 +7,7 @@ const handler = createFunctionHandler(functions(serviceForHandler), [
   { operation: "auth.signin", function: "signin", capability: "auth.signin" },
   { operation: "auth.session", function: "session", capability: "auth.session" },
   { operation: "auth.guest", function: "guest", capability: "auth.guest" },
-]);
+], { projectId: "dev", invocationId: "auth-test" });
 const signup = signUpRequest("dev", "auth", "0.1.0", "guest", "correct horse battery");
 if (signup.params.pluginId !== "auth" || signup.params.operation !== "auth.signup") throw new Error("auth plugin contract failed");
 const signupResponse = await handler(signup) as { payload: Promise<unknown> };

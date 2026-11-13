@@ -33,6 +33,11 @@ export type HostInvoker = {
   invoke(projectId: string, operation: string, capability: string, payload: unknown): unknown;
 };
 
+export type HostExecutionContext = {
+  readonly projectId: string;
+  readonly invocationId: string;
+};
+
 export function createRouteHandler(routes: readonly PluginRoute[]): PluginHandler {
   return (rpc) => {
     const route = routes.find((candidate) => candidate.operation === rpc.params.operation);
@@ -41,8 +46,9 @@ export function createRouteHandler(routes: readonly PluginRoute[]): PluginHandle
   };
 }
 
-export function createHostHandler(host: HostInvoker, routes: readonly PluginRoute[]): PluginHandler {
+export function createHostHandler(host: HostInvoker, routes: readonly PluginRoute[], context: HostExecutionContext): PluginHandler {
   return (rpc) => {
+    if (!context.projectId || !context.invocationId || rpc.params.projectId !== context.projectId) throw new Error("host project context mismatch");
     const route = routes.find((candidate) => candidate.operation === rpc.params.operation);
     if (!route) throw new Error("operation not declared in plugin manifest");
     if (!route.function || !route.capability) throw new Error("invalid plugin route");
@@ -56,8 +62,9 @@ export function createHostHandler(host: HostInvoker, routes: readonly PluginRout
 
 export type PluginFunction = (request: RpcRequest) => unknown;
 
-export function createFunctionHandler(functions: Readonly<Record<string, PluginFunction>>, routes: readonly PluginRoute[]): PluginHandler {
+export function createFunctionHandler(functions: Readonly<Record<string, PluginFunction>>, routes: readonly PluginRoute[], context: HostExecutionContext): PluginHandler {
   return (rpc) => {
+    if (!context.projectId || !context.invocationId || rpc.params.projectId !== context.projectId) throw new Error("host project context mismatch");
     const route = routes.find((candidate) => candidate.operation === rpc.params.operation);
     if (!route) throw new Error("operation not declared in plugin manifest");
     if (!route.function || !route.capability) throw new Error("invalid plugin route");

@@ -53,6 +53,8 @@ Administrators can review `source_files`, `imports`, `plugin_imports`, and `depe
 
 Each handler file is independently versionable and replaceable, while `index.ts` remains the plugin export boundary. Review the YAML file list when approving a plugin update.
 
+Project isolation is enforced from the host execution context. A plugin or client cannot select a project by changing a request payload or constructor argument at runtime.
+
 Promotion is project-scoped and audited. Only an installed, enabled version can become active; pinned work remains on its pinned version during later promotion or rollback.
 
 Before promotion, all manifest-declared configuration fields must be present and match their declared types.

@@ -31,6 +31,7 @@ Every phase exit must also update:
 - [ ] Record the command and result when a step is complete.
 - [ ] Keep development and production project IDs separate.
 - [ ] Enforce project isolation at every request, job, socket, worker, and commit boundary.
+- [ ] Require host-authenticated execution context for every production plugin handler; reject project IDs supplied only by scripts, payloads, or request constructors.
 - [ ] Keep operator access separate from end-user access.
 - [ ] Treat destructive actions, migrations, releases, and permission changes as audited operations.
 

@@ -44,6 +44,8 @@ This split is intentional: a handler can be replaced, scaled, tested, and audite
 
 Keep manifest lists in block form with one `-` entry per line. Do not use inline YAML arrays for source files or imports.
 
+Request constructors accept project IDs only to serialize protocol fixtures. They are not authorization. Production `createHostHandler` and `createFunctionHandler` instances require a host-provided `HostExecutionContext` and reject cross-project requests before dispatch.
+
 Phase 01 verification: the dashboard is bootstrapped through the CLI; YAML routes are host-discovered and unauthorized operations are rejected; readiness is reported separately from enablement; auth supports project-scoped guest sessions; analytics events are validated against allowed fields and captured by an in-process sink. Run `go test ./...`, `npm run typecheck`, and `npm run test:ts` locally.
 
 ## Phase 02 completed
