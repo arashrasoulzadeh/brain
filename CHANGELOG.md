@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `44ada41` — 2026-11-13 04:52:42 +0330 — phase 04 mark run status redaction complete
+- `23cfb3e` — 2026-11-13 01:22:39 +0000 — docs: update changelog [skip ci]
 - `eecbd0e` — 2026-11-13 04:52:28 +0330 — phase 04 redact workflow run secrets
 - `0c3da3c` — 2026-11-13 01:21:52 +0000 — docs: update changelog [skip ci]
 - `e4d637d` — 2026-11-13 04:51:40 +0330 — phase 04 mark workflow retry idempotency complete
