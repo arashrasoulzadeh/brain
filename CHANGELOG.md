@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `b1b2d51` — 2026-11-13 04:45:13 +0330 — phase 04 mark short job leases complete
+- `d287aba` — 2026-11-13 01:15:10 +0000 — docs: update changelog [skip ci]
 - `32146a0` — 2026-11-13 04:44:57 +0330 — phase 04 add short job leases
 - `db5e514` — 2026-11-13 01:14:23 +0000 — docs: update changelog [skip ci]
 - `4129d35` — 2026-11-13 04:44:11 +0330 — phase 04 mark recursive write suppression complete
