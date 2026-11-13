@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `c7cd1f2` — 2026-11-13 03:48:34 +0330 — phase 03 add dashboard signup settings
+- `c91c1b8` — 2026-11-13 00:18:22 +0000 — docs: update changelog [skip ci]
 - `a7cbf7b` — 2026-11-13 03:48:09 +0330 — phase 03 add dashboard auth settings
 - `098efed` — 2026-11-13 00:17:51 +0000 — docs: update changelog [skip ci]
 - `8d37ef7` — 2026-11-13 03:47:39 +0330 — phase 03 require explicit public asset publication
