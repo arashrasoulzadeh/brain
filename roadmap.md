@@ -413,7 +413,7 @@ Goal: compile dashboard-authored Go to WASM, execute it safely, run durable trig
 
 ### WASM runner
 
-- [ ] Define the typed invocation request.
+- [x] Define the typed invocation request.
 - [ ] Define the typed invocation result.
 - [ ] Reject malformed output.
 - [ ] Reject extra results.
