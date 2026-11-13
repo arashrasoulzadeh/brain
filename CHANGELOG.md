@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `cb6daff` — 2026-11-13 12:35:36 +0330 — add deterministic timed-out room moves
+- `d17a462` — 2026-11-13 09:03:50 +0000 — docs: update changelog [skip ci]
 - `86b41b5` — 2026-11-13 12:33:36 +0330 — enforce declared plugin source imports
 - `f93461a` — 2026-11-13 09:02:52 +0000 — docs: update changelog [skip ci]
 - `0e677ac` — 2026-11-13 12:32:37 +0330 — enforce plugin YAML source and import boundaries
