@@ -300,6 +300,9 @@ func TestPromotionRoutesNewWorkWithoutChangingPinnedVersion(t *testing.T) {
 	if got, _ := r.ActiveVersion("dev", "rooms"); got != "1.0.0" {
 		t.Fatalf("rollback version = %q", got)
 	}
+	if err := r.Authorize("dev", "rooms", "1.0.0", "room.run"); err != nil {
+		t.Fatalf("rollback changed retained grants: %v", err)
+	}
 	deadline := time.Unix(200, 0)
 	if err := r.DrainUntil("dev", "rooms", "2.0.0", deadline); err != nil {
 		t.Fatal(err)
