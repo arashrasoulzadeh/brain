@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `188fef8` — 2026-11-13 16:30:30 +0330 — feat: require approval for new plugin capabilities
+  Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
+- `6e034ee` — 2026-11-13 12:59:33 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `1ec481e` — 2026-11-13 16:29:06 +0330 — test: preserve plugin grants during rollback
   Files: roadmap.md,tests/plugin/plugin_test.go
 - `d2bd281` — 2026-11-13 12:58:25 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `08ae2f6` — 2026-11-13 14:45:25 +0330 — split function draft operations
   Files: plugins/functions/function-draft-reader.ts,plugins/functions/function-draft-state.ts plugins/functions/function-draft-writer.ts,plugins/functions/index.ts plugins/functions/plugin.yaml,tests/functions/functions.test.ts
 - `7b7aa61` — 2026-11-13 11:14:28 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `bbe80a8` — 2026-11-13 14:44:07 +0330 — split shared package operations
-  Files: plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/shared-package-reader.ts,plugins/functions/shared-package-state.ts plugins/functions/shared-package-writer.ts,tests/functions/functions.test.ts
-- `b617972` — 2026-11-13 11:12:31 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
