@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `51297ae` — 2026-11-13 03:50:02 +0330 — phase 03 add dashboard table management
+- `ca568b1` — 2026-11-13 00:19:48 +0000 — docs: update changelog [skip ci]
 - `cacc8dc` — 2026-11-13 03:49:34 +0330 — phase 03 add dashboard record editing
 - `e8c45f7` — 2026-11-13 00:19:19 +0000 — docs: update changelog [skip ci]
 - `f86b704` — 2026-11-13 03:49:07 +0330 — phase 03 add dashboard record browsing
