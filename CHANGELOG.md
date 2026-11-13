@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `ae5f790` — 2026-11-13 03:35:43 +0330 — phase 03 capture API changes
+- `0464e15` — 2026-11-13 00:04:25 +0000 — docs: update changelog [skip ci]
 - `dd34509` — 2026-11-13 03:34:14 +0330 — phase 03 capture approved authorization scopes
 - `eb416d8` — 2026-11-13 00:03:39 +0000 — docs: update changelog [skip ci]
 - `732a899` — 2026-11-13 03:33:27 +0330 — phase 03 add transactional row capture
