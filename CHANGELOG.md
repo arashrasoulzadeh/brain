@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `e622a9f` — 2026-11-13 04:15:17 +0330 — phase 04 deny unsafe sandbox capabilities
+- `b0f4026` — 2026-11-13 00:45:01 +0000 — docs: update changelog [skip ci]
 - `7ceda71` — 2026-11-13 04:14:49 +0330 — phase 04 record WASI import rejection
 - `36e0494` — 2026-11-13 00:43:57 +0000 — docs: update changelog [skip ci]
 - `6c9c167` — 2026-11-13 04:13:45 +0330 — phase 04 reject unexpected WASI imports
