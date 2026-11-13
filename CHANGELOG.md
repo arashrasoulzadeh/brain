@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `9d2713a` — 2026-11-13 13:21:42 +0330 — enforce focused plugin file responsibilities
+- `e87472e` — 2026-11-13 09:49:43 +0000 — docs: update changelog [skip ci]
 - `8f26a23` — 2026-11-13 13:19:30 +0330 — harden functions plugin project boundaries
 - `2e4d87a` — 2026-11-13 09:48:00 +0000 — docs: update changelog [skip ci]
 - `7deb2b1` — 2026-11-13 13:17:45 +0330 — harden auth plugin project boundaries
