@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `50d080e` — 2026-11-13 14:06:33 +0330 — split operator session classes
+- `3f96007` — 2026-11-13 10:32:33 +0000 — docs: update changelog [skip ci]
 - `7d718bb` — 2026-11-13 14:02:20 +0330 — split authorization code classes
 - `6dd2610` — 2026-11-13 10:31:34 +0000 — docs: update changelog [skip ci]
 - `1342a66` — 2026-11-13 14:01:18 +0330 — update OIDC configuration tests
