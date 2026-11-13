@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `e215ba8` — 2026-11-13 04:06:48 +0330 — phase 04 record build override rejection
+- `c8a6774` — 2026-11-13 00:36:48 +0000 — docs: update changelog [skip ci]
 - `cbfd92c` — 2026-11-13 04:06:36 +0330 — phase 04 reject workspace and toolchain overrides
 - `91a13fa` — 2026-11-13 00:36:18 +0000 — docs: update changelog [skip ci]
 - `1cd892d` — 2026-11-13 04:06:05 +0330 — phase 04 record source project isolation
