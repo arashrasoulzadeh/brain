@@ -372,7 +372,7 @@ Goal: provide project-scoped identity, PostgreSQL APIs, files, subscriptions, an
 - [x] Add upload size limits.
 - [x] Reconcile interrupted uploads.
 - [x] Reconcile orphaned objects.
-- [ ] Serve protected downloads as attachments.
+- [x] Serve protected downloads as attachments.
 - [ ] Require explicit publication for public assets.
 
 ### Dashboard and gate
