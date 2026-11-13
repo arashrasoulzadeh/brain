@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `c5bc2db` — 2026-11-13 13:44:53 +0330 — split file quota classes
+- `3bbff44` — 2026-11-13 10:14:27 +0000 — docs: update changelog [skip ci]
 - `184df1b` — 2026-11-13 13:44:14 +0330 — split matchmaking configuration classes
 - `d186426` — 2026-11-13 10:13:05 +0000 — docs: update changelog [skip ci]
 - `b96c4fa` — 2026-11-13 13:42:50 +0330 — split subscription ticket classes
