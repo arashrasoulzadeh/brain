@@ -1,7 +1,7 @@
-import { pluginRequest } from "../sdk-typescript/src/index.js";
+import { pluginRequest, validateProjectId } from "../sdk-typescript/src/index.js";
 
 export function projectSchemaName(projectId: string): string {
-  if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(projectId)) throw new Error("invalid project id");
+  validateProjectId(projectId);
   return `project_${projectId}`;
 }
 export function projectRoleName(projectId: string): string { return `runtime_${projectSchemaName(projectId)}`; }

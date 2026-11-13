@@ -1,4 +1,4 @@
-import { pluginRequest } from "../sdk-typescript/src/index.js";
+import { pluginRequest, validateProjectId } from "../sdk-typescript/src/index.js";
 
 export function fileRequest(projectId: string, pluginId: string, version: string, operation: "files.upload" | "files.download" | "files.metadata" | "files.publish", objectId: string, payload: unknown = {}) {
   return pluginRequest("files", projectId, pluginId, version, operation, { objectId, ...(payload as Record<string, unknown>) }, objectId);
@@ -13,7 +13,8 @@ export function configurePrivateBucket(config: Omit<PrivateBucketConfig, "public
 }
 
 export function projectObjectKey(projectId: string, objectId: string): string {
-  if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(projectId) || !/^[a-zA-Z0-9][a-zA-Z0-9._-]*$/.test(objectId)) throw new Error("invalid object identity");
+  validateProjectId(projectId, "invalid object identity");
+  if (!/^[a-zA-Z0-9][a-zA-Z0-9._-]*$/.test(objectId)) throw new Error("invalid object identity");
   return `projects/${projectId}/objects/${objectId}`;
 }
 

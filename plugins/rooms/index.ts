@@ -1,8 +1,9 @@
-import { pluginRequest } from "../sdk-typescript/src/index.js";
+import { pluginRequest, validateProjectId } from "../sdk-typescript/src/index.js";
 import { randomUUID } from "node:crypto";
 
 export function projectRoomID(projectId: string, roomId: string): string {
-  if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(projectId) || !/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(roomId)) throw new Error("invalid project room id");
+  validateProjectId(projectId);
+  if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(roomId)) throw new Error("invalid project room id");
   return `${projectId}:${roomId}`;
 }
 

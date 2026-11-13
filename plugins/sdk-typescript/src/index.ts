@@ -77,3 +77,8 @@ export function request(id: string, params: WorkerParams): RpcRequest {
 export function pluginRequest(prefix: string, projectId: string, pluginId: string, version: string, operation: string, payload: unknown = {}, identity = ""): RpcRequest {
   return request(`${prefix}-${operation}-${projectId}${identity ? `-${identity}` : ""}`, { protocol: 1, projectId, pluginId, version, operation, payload });
 }
+
+export function validateProjectId(projectId: string, errorMessage = "invalid project id"): string {
+  if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(projectId)) throw new Error(errorMessage);
+  return projectId;
+}
