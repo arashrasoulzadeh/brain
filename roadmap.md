@@ -369,7 +369,7 @@ Goal: provide project-scoped identity, PostgreSQL APIs, files, subscriptions, an
 - [x] Publish metadata after object success.
 - [x] Reject unauthorized reads and deletes.
 - [x] Reject cross-project object IDs.
-- [ ] Add upload size limits.
+- [x] Add upload size limits.
 - [ ] Reconcile interrupted uploads.
 - [ ] Reconcile orphaned objects.
 - [ ] Serve protected downloads as attachments.

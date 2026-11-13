@@ -72,3 +72,7 @@ export class FileAccessPolicy {
   private check(projectId: string, objectId: string, actorId: string): void { if (!this.grants.has(`${projectId}:${objectId}:${actorId}`)) throw new Error("file access denied"); }
 }
 
+export function enforceUploadSize(size: number, maxSize: number): void {
+  if (!Number.isSafeInteger(size) || !Number.isSafeInteger(maxSize) || size < 0 || maxSize < 0 || size > maxSize) throw new Error("upload size exceeded");
+}
+

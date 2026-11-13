@@ -1,4 +1,4 @@
-import { AuthorizedUploadStream, configurePrivateBucket, FileAccessPolicy, FileQuotaLedger, fileRequest, PendingUploadStore, projectObjectKey } from "../../plugins/files/index.js";
+import { AuthorizedUploadStream, configurePrivateBucket, enforceUploadSize, FileAccessPolicy, FileQuotaLedger, fileRequest, PendingUploadStore, projectObjectKey } from "../../plugins/files/index.js";
 import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = fileRequest("dev", "files", "0.1.0", "files.upload", "avatar", { contentType: "image/png" });
@@ -23,3 +23,5 @@ const access = new FileAccessPolicy();
 access.grant("dev", "avatar.png", "user-1"); access.read("dev", "avatar.png", "user-1"); access.delete("dev", "avatar.png", "user-1");
 try { access.read("dev", "avatar.png", "user-2"); throw new Error("unauthorized file read accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "file access denied") throw error; }
 try { access.read("prod", "avatar.png", "user-1"); throw new Error("cross-project object read accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "file access denied") throw error; }
+enforceUploadSize(10, 10);
+try { enforceUploadSize(11, 10); throw new Error("oversized upload accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "upload size exceeded") throw error; }
