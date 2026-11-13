@@ -494,3 +494,41 @@ func TestRollbackRejectsIncompatibleRetainedVersion(t *testing.T) {
 		t.Fatal("rollback bypassed schema compatibility")
 	}
 }
+
+func TestPromotionRequiresApprovalForNewCapabilities(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	for _, manifest := range []plugin.Manifest{
+		{ID: "approval", Version: "1.0.0", HostAPI: 1, Capabilities: []string{"read"}},
+		{ID: "approval", Version: "2.0.0", HostAPI: 1, Capabilities: []string{"read", "write"}},
+	} {
+		if err := r.Register(manifest); err != nil {
+			t.Fatal(err)
+		}
+		if err := r.SetReadiness(manifest.ID, manifest.Version, true); err != nil {
+			t.Fatal(err)
+		}
+		if err := r.Install("dev", manifest.ID, manifest.Version); err != nil {
+			t.Fatal(err)
+		}
+		for _, capability := range manifest.Capabilities {
+			if err := r.Grant("dev", manifest.ID, manifest.Version, capability); err != nil {
+				t.Fatal(err)
+			}
+		}
+		if err := r.Enable("dev", manifest.ID, manifest.Version); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := r.Promote("dev", "approval", "1.0.0"); err != nil {
+		t.Fatal(err)
+	}
+	if !errors.Is(r.Promote("dev", "approval", "2.0.0"), plugin.ErrCapabilityApproval) {
+		t.Fatal("new capability was promoted without approval")
+	}
+	if err := r.ApproveCapability("dev", "approval", "2.0.0", "write"); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Promote("dev", "approval", "2.0.0"); err != nil {
+		t.Fatalf("approved capability rejected: %v", err)
+	}
+}

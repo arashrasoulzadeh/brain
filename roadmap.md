@@ -521,7 +521,7 @@ Goal: safely promote, roll back, disable, drain, uninstall, and extend plugin-co
 - [x] Roll back to a retained version.
 - [x] Reject missing or incompatible rollback versions.
 - [x] Keep current grants during rollback.
-- [ ] Require approval for new capabilities.
+- [x] Require approval for new capabilities.
 
 ### Disable and drain
 

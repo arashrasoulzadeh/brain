@@ -28,6 +28,7 @@ var (
 	ErrSchemaIncompatible = errors.New("plugin configuration schema incompatible")
 	ErrNotReady           = errors.New("plugin worker not ready")
 	ErrVersionReferenced  = errors.New("plugin version still referenced")
+	ErrCapabilityApproval = errors.New("new plugin capability requires approval")
 )
 
 type Manifest struct {
@@ -185,6 +186,7 @@ type Registry struct {
 	active        map[string]string
 	pins          map[string]string
 	artifacts     map[string]string
+	approvals     map[string]bool
 }
 
 type AuditEvent struct {
@@ -205,7 +207,19 @@ func (m Manifest) RequestedCapabilities() []CapabilityRequest {
 }
 
 func NewRegistry(hostAPI int) *Registry {
-	return &Registry{HostAPI: hostAPI, registered: map[string]Registered{}, installations: map[string]Installation{}, readiness: map[string]bool{}, active: map[string]string{}, pins: map[string]string{}, artifacts: map[string]string{}}
+	return &Registry{HostAPI: hostAPI, registered: map[string]Registered{}, installations: map[string]Installation{}, readiness: map[string]bool{}, active: map[string]string{}, pins: map[string]string{}, artifacts: map[string]string{}, approvals: map[string]bool{}}
+}
+
+func (r *Registry) ApproveCapability(projectID, id, version, capability string) error {
+	if projectID == "" || capability == "" {
+		return ErrProjectInvalid
+	}
+	if _, ok := r.installations[projectID+":"+id+"@"+version]; !ok {
+		return ErrNotInstalled
+	}
+	r.approvals[projectID+":"+id+"@"+version+":"+capability] = true
+	r.audit = append(r.audit, AuditEvent{Action: "approve_capability", ProjectID: projectID, PluginID: id, Version: version, Detail: capability})
+	return nil
 }
 
 func (r *Registry) Status(projectID, pluginID, version string) (InstallationStatus, error) {
@@ -423,6 +437,19 @@ func (r *Registry) Promote(projectID, id, version string) error {
 		}
 	}
 	if activeVersion, active := r.active[projectID+":"+id]; active && activeVersion != version {
+		previousManifest := r.registered[id+"@"+activeVersion].Manifest
+		for _, capability := range manifest.Capabilities {
+			known := false
+			for _, previousCapability := range previousManifest.Capabilities {
+				if capability == previousCapability {
+					known = true
+					break
+				}
+			}
+			if !known && !r.approvals[projectID+":"+id+"@"+version+":"+capability] {
+				return ErrCapabilityApproval
+			}
+		}
 		previous := r.registered[id+"@"+activeVersion].Manifest.ConfigSchema
 		for name, previousType := range previous {
 			if candidateType, exists := manifest.ConfigSchema[name]; !exists || candidateType != previousType {
