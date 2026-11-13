@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `740d4a8` — 2026-11-13 14:32:35 +0330 — split versioned record operations
+- `842e8b9` — 2026-11-13 11:01:53 +0000 — docs: update changelog [skip ci]
 - `03902e9` — 2026-11-13 14:31:30 +0330 — make plugin decomposition a permanent law
 - `fcacca7` — 2026-11-13 11:00:25 +0000 — docs: update changelog [skip ci]
 - `566016b` — 2026-11-13 14:30:05 +0330 — split matchmaking queue operations
