@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `b9a3a0f` — 2026-11-13 16:43:20 +0330 — feat: expose persisted plugin drain state
+  Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
+- `daf792b` — 2026-11-13 13:12:56 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `568fd29` — 2026-11-13 16:41:29 +0330 — feat: cancel queued matchmaking scope tickets
   Files: plugins/matchmaking/plugin.yaml,plugins/matchmaking/queue.ts plugins/matchmaking/scope-ticket-canceller.ts,roadmap.md tests/matchmaking/matchmaking.test.ts
 - `7fe36ac` — 2026-11-13 13:10:53 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `ffba1cc` — 2026-11-13 14:57:19 +0330 — limit changelog to latest detailed commits
   Files: .github/workflows/changelog.yml
 - `6d3eeda` — 2026-11-13 11:26:51 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `310de3d` — 2026-11-13 14:56:26 +0330 — split schedule operations
-  Files: plugins/functions/function-version-enqueuer.ts,plugins/functions/index.ts plugins/functions/missed-schedule-enqueuer.ts,plugins/functions/plugin.yaml plugins/functions/schedule-adder.ts,plugins/functions/schedule-claimer.ts plugins/functions/schedule-occurrence-recorder.ts,plugins/functions/schedule-reader.ts plugins/functions/schedule-state.ts,tests/functions/functions.test.ts
-- `c23aa85` — 2026-11-13 11:25:08 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
