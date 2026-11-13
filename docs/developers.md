@@ -69,6 +69,12 @@ Plugin communication follows [the plugin communication architecture](plugin-comm
 ## Security rules
 
 Never trust project IDs, plugin grants, room membership, or permissions supplied by clients. Recheck lifecycle, grants, versions, and idempotency at commit time. Keep secrets out of logs and tests. Authentication stores must validate project IDs at every public boundary, bind OTP/recovery/OIDC state and authorization codes to the project, enforce expiry and single use, and reject malformed token comparisons without throwing.
+
+## Phase 04 completed
+
+The functions phase is verified through the hosted Compose isolation gate. CI runs the compiler and runner isolation profile, including sandbox, timeout, memory, import, filesystem, network, credential, malformed-output, and no-write checks. Direct, scheduled, and record-change invocations, shared-helper publication and rollback, crash recovery, grant revocation, a complete two-client Tic-tac-toe match, and compiler/turn/memory metrics are covered by focused fixtures. Local development remains Docker-free; use `npm run lint:ts`, `npm run typecheck`, `npm run test:ts`, and `GOCACHE=/tmp/brain-go-cache go test ./...`, while Compose isolation is an explicit CI check.
+
+The Phase 04 Compose gate passed in CI run `43427610513`. Compiler and runner remain separate trust boundaries, and no plugin invocation may rely on client-selected project identity or stale grants.
 ## Plugin quality gate
 
 Plugin changes must pass `npm run lint:ts`, `npm run typecheck`, and `npm run test:ts`. Shared generic request, identity, and validation helpers belong in `plugins/sdk-typescript/src/`; plugin entrypoints should remain product-focused.
