@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `84c528b` — 2026-11-13 16:22:48 +0330 — feat: cancel incompatible matchmaking tickets
+  Files: plugins/matchmaking/plugin.yaml,plugins/matchmaking/queue.ts plugins/matchmaking/ticket-canceller.ts,plugins/matchmaking/ticket-enqueuer.ts plugins/matchmaking/types.ts,roadmap.md tests/matchmaking/matchmaking.test.ts
+- `83fce3b` — 2026-11-13 12:51:06 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `94c528a` — 2026-11-13 16:20:44 +0330 — test: verify pinned room versions survive promotion
   Files: roadmap.md
 - `515dc00` — 2026-11-13 12:50:39 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `967f65c` — 2026-11-13 14:38:22 +0330 — split SQL change capture operations
   Files: plugins/tables/index.ts,plugins/tables/plugin.yaml plugins/tables/sql-change-reader.ts,plugins/tables/sql-change-state.ts plugins/tables/sql-change-writer.ts,tests/tables/tables.test.ts
 - `0134c9b` — 2026-11-13 11:07:22 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `bbf272b` — 2026-11-13 14:37:01 +0330 — split API change capture operations
-  Files: plugins/tables/api-change-reader.ts,plugins/tables/api-change-state.ts plugins/tables/api-change-writer.ts,plugins/tables/index.ts plugins/tables/plugin.yaml,tests/tables/tables.test.ts
-- `a453106` — 2026-11-13 11:06:13 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
