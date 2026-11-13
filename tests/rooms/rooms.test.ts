@@ -1,4 +1,4 @@
-import { ConnectionTickets, CommandDeduplicator, RoomDirectory, authorizeRoomCommand, authorizedRoomSnapshot, authorizeTicTacToeCommand, authorizedTicTacToeState, canTransitionRoom, initializeTicTacToe, publishTicTacToeRules, projectRoomID, roomRequest, ticTacToeDraw, ticTacToeWinner, validateMembership, validateTicTacToeMove } from "../../plugins/rooms/index.js";
+import { ConnectionTickets, CommandDeduplicator, RoomDirectory, authorizeRoomCommand, authorizedRoomSnapshot, authorizeTicTacToeCommand, authorizedTicTacToeState, canTransitionRoom, initializeTicTacToe, publishTicTacToeRules, projectRoomID, roomRequest, ticTacToeDraw, ticTacToeWinner, validateMembership, validateTicTacToeCommandPayload, validateTicTacToeMove } from "../../plugins/rooms/index.js";
 import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = roomRequest("dev", "rooms", "0.1.0", "rooms.create", "room-1", { maxPlayers: 2 });
@@ -56,3 +56,5 @@ if (authorizedTicTacToeState(game, "dev", "user-1").roomId !== "room-1" || !auth
 try { authorizedTicTacToeState(game, "prod", "user-1"); throw new Error("cross-project game state exposed"); } catch (error) { if (!(error instanceof Error) || error.message !== "game authorization required") throw error; }
 const commands = new CommandDeduplicator();
 if (!commands.accept("cmd-1") || commands.accept("cmd-1")) throw new Error("duplicate room command accepted");
+if (validateTicTacToeCommandPayload({ cell: 4 }).cell !== 4) throw new Error("valid command payload rejected");
+try { validateTicTacToeCommandPayload({ cell: 4, extra: true }); throw new Error("mismatched command payload accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "command payload mismatch") throw error; }
