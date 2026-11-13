@@ -4,8 +4,8 @@ description: Project-scoped invitation functions.
 version: 0.1.0
 host_api: 1
 entrypoint: index.ts
-source_files: [index.ts]
-imports: [../sdk-typescript/src/index.js]
+source_files: [index.ts, types.ts, invite-directory.ts, invite-request.ts]
+imports: [../sdk-typescript/src/index.js, ./invite-directory.js, ./invite-request.js, ./types.js]
 plugin_imports: [rooms@0.1.0]
 dependencies:
   - rooms@0.1.0
