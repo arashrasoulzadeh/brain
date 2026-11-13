@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `bddf1c8` — 2026-11-13 12:37:40 +0330 — document and check plugin version promotion
+- `5a9a938` — 2026-11-13 09:06:45 +0000 — docs: update changelog [skip ci]
 - `877fef3` — 2026-11-13 12:36:33 +0330 — reconstruct room history from committed outcomes
 - `5a11e2f` — 2026-11-13 09:05:53 +0000 — docs: update changelog [skip ci]
 - `cb6daff` — 2026-11-13 12:35:36 +0330 — add deterministic timed-out room moves
