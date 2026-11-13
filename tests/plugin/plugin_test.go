@@ -367,6 +367,29 @@ func TestPromotionRequiresReadyPluginVersion(t *testing.T) {
 	}
 }
 
+func TestRollbackRejectsMissingRetainedVersion(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	m := plugin.Manifest{ID: "rollback", Version: "1.0.0", HostAPI: 1}
+	if err := r.Register(m); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.SetReadiness(m.ID, m.Version, true); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Install("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Enable("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Promote("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	if !errors.Is(r.Rollback("dev", m.ID, "0.9.0"), plugin.ErrNotInstalled) {
+		t.Fatal("rollback accepted a version that was not retained")
+	}
+}
+
 func TestPromotionRechecksRequestedGrants(t *testing.T) {
 	r := plugin.NewRegistry(1)
 	m := plugin.Manifest{ID: "grant-recheck", Version: "1.0.0", HostAPI: 1, Capabilities: []string{"records.read"}}

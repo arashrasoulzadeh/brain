@@ -518,7 +518,7 @@ Goal: safely promote, roll back, disable, drain, uninstall, and extend plugin-co
 - [x] Validate schema compatibility.
 - [x] Preserve versions pinned by active rooms.
 - [x] Cancel incompatible unmatched tickets.
-- [ ] Roll back to a retained version.
+- [x] Roll back to a retained version.
 - [ ] Reject missing or incompatible rollback versions.
 - [ ] Keep current grants during rollback.
 - [ ] Require approval for new capabilities.
