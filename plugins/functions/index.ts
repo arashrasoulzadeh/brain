@@ -152,6 +152,7 @@ export async function retryInvocation<T>(store: InvocationCommitStore, idempoten
   return store.commit(idempotencyKey, effects, result) as T;
 }
 export type FunctionSchedule = { projectId: string; functionId: string; expression: string; dueAt: number };
+export type EnqueuedFunction = { projectId: string; functionId: string; functionVersion: number; enqueuedAt: number };
 export class ScheduleStore {
   private readonly schedules: FunctionSchedule[] = [];
   private readonly claims = new Map<string, { workerId: string; expiresAt: number }>();
@@ -189,6 +190,10 @@ export class ScheduleStore {
     if (this.enqueued.has(key)) return undefined;
     this.enqueued.add(key);
     return { ...schedule };
+  }
+  enqueueVersion(projectId: string, functionId: string, functionVersion: number, enqueuedAt: number): EnqueuedFunction {
+    if (!projectId || !functionId || !Number.isSafeInteger(functionVersion) || functionVersion < 1 || !Number.isSafeInteger(enqueuedAt) || enqueuedAt < 0) throw new Error("invalid function enqueue");
+    return { projectId, functionId, functionVersion, enqueuedAt };
   }
 }
 export type FunctionDraft = { projectId: string; functionId: string; source: string; savedAt: number };

@@ -103,3 +103,5 @@ const missed = new ScheduleStore();
 missed.add("dev", "sync", "0 * * * *", 1000);
 missed.add("dev", "sync", "0 * * * *", 2000);
 if (missed.enqueueLatestMissed("dev", "sync", 3000)?.dueAt !== 2000 || missed.enqueueLatestMissed("dev", "sync", 3000) !== undefined) throw new Error("latest missed occurrence was not deduplicated");
+const pinned = missed.enqueueVersion("dev", "sync", 3, 4000);
+if (pinned.functionVersion !== 3 || pinned.functionId !== "sync") throw new Error("function version was not pinned at enqueue");
