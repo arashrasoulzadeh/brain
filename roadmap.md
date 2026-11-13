@@ -340,7 +340,7 @@ Goal: provide project-scoped identity, PostgreSQL APIs, files, subscriptions, an
 - [x] Make retried creates idempotent.
 - [x] Add guided schema changes.
 - [x] Add SQL migration preview.
-- [ ] Require recent authentication for destructive schema actions.
+- [x] Require recent authentication for destructive schema actions.
 - [ ] Audit schema publication.
 
 ### Change capture and subscriptions

@@ -1,4 +1,4 @@
-import { IdempotentCreateStore, TableExposureRegistry, VersionedRecord, dataRequest, paginate, planSchemaChange, previewSchemaSQL, projectRoleName, projectSchemaName, projectRow, requirePrimaryKey, RowPolicy, validateColumnTypes, validateFilter, validateIdentifier, validateValue } from "../../plugins/tables/index.js";
+import { IdempotentCreateStore, TableExposureRegistry, VersionedRecord, dataRequest, paginate, planSchemaChange, previewSchemaSQL, projectRoleName, projectSchemaName, projectRow, requirePrimaryKey, requireRecentSchemaAuth, RowPolicy, validateColumnTypes, validateFilter, validateIdentifier, validateValue } from "../../plugins/tables/index.js";
 import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = dataRequest("dev", "tables", "0.1.0", "tables.read", "users", { filter: { active: true } });
@@ -34,3 +34,5 @@ if (schemaPlan.projectId !== "dev" || schemaPlan.table !== "users" || schemaPlan
 try { planSchemaChange("dev", "users", { kind: "drop_table", name: "users" } as never); throw new Error("unsafe schema change accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "unsupported schema change") throw error; }
 if (previewSchemaSQL(schemaPlan) !== 'ALTER TABLE "project_dev"."users" ADD COLUMN "display_name" TEXT;') throw new Error("schema SQL preview failed");
 try { previewSchemaSQL({ ...schemaPlan, table: "users;drop" }); throw new Error("unsafe SQL preview accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid schema target") throw error; }
+requireRecentSchemaAuth(9_000, 10_000);
+try { requireRecentSchemaAuth(1_000, 301_001); throw new Error("stale schema auth accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "recent authentication required") throw error; }

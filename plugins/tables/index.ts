@@ -92,6 +92,10 @@ export function previewSchemaSQL(plan: SchemaChangePlan): string {
   return `CREATE INDEX "${checked.change.name}" ON "${schema}"."${checked.table}" (${checked.change.columns.map((column) => `"${column}"`).join(", ")});`;
 }
 
+export function requireRecentSchemaAuth(lastAuthenticatedAt: number, now: number, maxAgeMs = 5 * 60 * 1000): void {
+  if (!Number.isFinite(lastAuthenticatedAt) || !Number.isFinite(now) || now < lastAuthenticatedAt || now - lastAuthenticatedAt > maxAgeMs) throw new Error("recent authentication required");
+}
+
 export function dataRequest(projectId: string, pluginId: string, version: string, operation: "tables.read" | "tables.write" | "tables.schema", table: string, payload: unknown = {}) {
   return request(`tables-${operation}-${projectId}-${table}`, { protocol: 1, projectId, pluginId, version, operation, payload: { table, ...(payload as Record<string, unknown>) } });
 }
