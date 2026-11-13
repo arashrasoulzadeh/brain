@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `14fd770` — 2026-11-13 03:32:23 +0330 — phase 03 require recent schema authentication
+- `9ab89fe` — 2026-11-13 00:01:51 +0000 — docs: update changelog [skip ci]
 - `0ea2f86` — 2026-11-13 03:31:38 +0330 — phase 03 add SQL migration preview
 - `cca96b1` — 2026-11-13 00:01:20 +0000 — docs: update changelog [skip ci]
 - `bc03262` — 2026-11-13 03:31:08 +0330 — phase 03 add guided schema changes
