@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `3e52117` — 2026-11-13 03:52:26 +0330 — phase 03 record API and SQL isolation proof
+- `6897e6a` — 2026-11-13 00:22:20 +0000 — docs: update changelog [skip ci]
 - `970705f` — 2026-11-13 03:52:08 +0330 — phase 03 add API and SQL isolation gate
 - `d9e991c` — 2026-11-13 00:21:34 +0000 — docs: update changelog [skip ci]
 - `bb028fc` — 2026-11-13 03:51:22 +0330 — phase 03 add browser quickstart
