@@ -392,3 +392,42 @@ func TestPromotionRechecksRequestedGrants(t *testing.T) {
 		t.Fatal("promotion ignored a revoked requested grant")
 	}
 }
+
+func TestPromotionRejectsIncompatibleConfigurationSchema(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	for _, m := range []plugin.Manifest{
+		{ID: "schema", Version: "1.0.0", HostAPI: 1, ConfigSchema: map[string]string{"region": "string"}},
+		{ID: "schema", Version: "2.0.0", HostAPI: 1, ConfigSchema: map[string]string{"region": "bool"}},
+	} {
+		if err := r.Register(m); err != nil {
+			t.Fatal(err)
+		}
+		if err := r.SetReadiness(m.ID, m.Version, true); err != nil {
+			t.Fatal(err)
+		}
+		if err := r.Install("dev", m.ID, m.Version); err != nil {
+			t.Fatal(err)
+		}
+		if err := r.Grant("dev", m.ID, m.Version, ""); err != nil && !errors.Is(err, plugin.ErrGrantDenied) {
+			t.Fatal(err)
+		}
+	}
+	if err := r.Configure("dev", "schema", "1.0.0", map[string]any{"region": "eu"}); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Enable("dev", "schema", "1.0.0"); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Promote("dev", "schema", "1.0.0"); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Configure("dev", "schema", "2.0.0", map[string]any{"region": true}); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Enable("dev", "schema", "2.0.0"); err != nil {
+		t.Fatal(err)
+	}
+	if !errors.Is(r.Promote("dev", "schema", "2.0.0"), plugin.ErrSchemaIncompatible) {
+		t.Fatal("incompatible configuration schema was promoted")
+	}
+}

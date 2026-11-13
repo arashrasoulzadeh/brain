@@ -15,18 +15,19 @@ import (
 )
 
 var (
-	ErrDuplicate         = errors.New("plugin version already registered")
-	ErrIncompatible      = errors.New("plugin host API incompatible")
-	ErrNotRegistered     = errors.New("plugin version not registered")
-	ErrNotInstalled      = errors.New("plugin not installed for project")
-	ErrDisabled          = errors.New("plugin disabled")
-	ErrGrantDenied       = errors.New("plugin grant denied")
-	ErrProjectInvalid    = errors.New("project identity invalid")
-	ErrDependencyMissing = errors.New("plugin dependency missing")
-	ErrInvalidManifest   = errors.New("invalid plugin manifest")
-	ErrInvalidConfig     = errors.New("invalid plugin configuration")
-	ErrNotReady          = errors.New("plugin worker not ready")
-	ErrVersionReferenced = errors.New("plugin version still referenced")
+	ErrDuplicate          = errors.New("plugin version already registered")
+	ErrIncompatible       = errors.New("plugin host API incompatible")
+	ErrNotRegistered      = errors.New("plugin version not registered")
+	ErrNotInstalled       = errors.New("plugin not installed for project")
+	ErrDisabled           = errors.New("plugin disabled")
+	ErrGrantDenied        = errors.New("plugin grant denied")
+	ErrProjectInvalid     = errors.New("project identity invalid")
+	ErrDependencyMissing  = errors.New("plugin dependency missing")
+	ErrInvalidManifest    = errors.New("invalid plugin manifest")
+	ErrInvalidConfig      = errors.New("invalid plugin configuration")
+	ErrSchemaIncompatible = errors.New("plugin configuration schema incompatible")
+	ErrNotReady           = errors.New("plugin worker not ready")
+	ErrVersionReferenced  = errors.New("plugin version still referenced")
 )
 
 type Manifest struct {
@@ -419,6 +420,14 @@ func (r *Registry) Promote(projectID, id, version string) error {
 	for _, capability := range manifest.Capabilities {
 		if !i.Grants[capability] {
 			return ErrGrantDenied
+		}
+	}
+	if activeVersion, active := r.active[projectID+":"+id]; active && activeVersion != version {
+		previous := r.registered[id+"@"+activeVersion].Manifest.ConfigSchema
+		for name, previousType := range previous {
+			if candidateType, exists := manifest.ConfigSchema[name]; !exists || candidateType != previousType {
+				return fmt.Errorf("%w: %s", ErrSchemaIncompatible, name)
+			}
 		}
 	}
 	for name, expectedType := range manifest.ConfigSchema {
