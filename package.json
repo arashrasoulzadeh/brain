@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "test:ts": "tsx --test tests/**/*.test.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint:ts": "node scripts/lint-typescript.mjs"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

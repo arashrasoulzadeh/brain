@@ -13,6 +13,9 @@ This repository is building a Go multi-tenant mobile backend. The complete produ
 - Every plugin must have a manifest, implementation, focused tests, permissions, configuration schema, developer notes, and administrator notes.
 - Each plugin must contain only `plugins/<plugin-id>/index.ts` and `plugins/<plugin-id>/plugin.yaml` as its source contract; do not add plugin-local `src/`, `package.json`, or README files.
 - Plugin implementations must stay clean and readable: audit all plugins for repeated request builders, validation helpers, handlers, and contracts; move genuinely shared behavior into `plugins/sdk-typescript/src/` and keep plugin `index.ts` focused on product behavior.
+- TypeScript lint is mandatory: run `npm run lint:ts` with typecheck and tests; lint failures block a checkbox or phase gate.
+- Apply SOLID and DRY across plugins: one responsibility per service/helper, explicit boundary interfaces, and no duplicated generic validation, request, or handler logic.
+- In each TypeScript source file, keep imports, types, constants, and other file-level variables first; place classes next; place standalone functions after classes, with class fields before methods. Use descriptive domain names instead of ambiguous names.
 - `plugin.yaml` is authoritative for plugin title, description, version, routes, function names, capabilities, extension points, and configuration; TypeScript must not duplicate manifest metadata or route allowlists.
 - The host discovers YAML routes and denies undeclared operations or capability mismatches before invoking a plugin function. Documentation is generated from the YAML contract.
 - TypeScript plugins communicate with the Go host through the versioned RPC contract and may not bypass the permission broker or project boundary.

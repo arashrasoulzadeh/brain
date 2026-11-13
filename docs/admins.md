@@ -45,3 +45,6 @@ Administrators can now operate project-scoped realtime rooms with origin checks,
 ## Phase 03 completed
 
 Administrators can review project-scoped identity and session controls, OIDC/PKCE and recovery configuration, table exposure and schema-preview audits, subscription tickets/origin grants, private bucket and quota settings, upload reconciliation, protected downloads, explicit public-asset publication, and dashboard record/table/file actions. API and direct-SQL isolation plus the guest co-op rerun are covered by gate fixtures. CI verifies Go formatting/tests, the full TypeScript suite, image builds, and Compose smoke checks; local development remains Docker-free. Review plugin grants, recent-auth requirements, origin allowlists, and audit records before enabling destructive or realtime operations.
+## Plugin release gate
+
+Plugin releases are blocked unless TypeScript lint, typecheck, and the complete test suite pass. Shared SDK changes should be reviewed as platform dependencies because they can affect multiple plugins.

@@ -82,3 +82,8 @@ export function validateProjectId(projectId: string, errorMessage = "invalid pro
   if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(projectId)) throw new Error(errorMessage);
   return projectId;
 }
+
+export function validateIdentifier(identifier: string, errorMessage = "invalid identifier"): string {
+  if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(identifier)) throw new Error(errorMessage);
+  return identifier;
+}

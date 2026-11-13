@@ -1,4 +1,4 @@
-import { pluginRequest, validateProjectId } from "../sdk-typescript/src/index.js";
+import { pluginRequest, validateIdentifier as validateSdkIdentifier, validateProjectId } from "../sdk-typescript/src/index.js";
 
 export function projectSchemaName(projectId: string): string {
   validateProjectId(projectId);
@@ -41,7 +41,7 @@ export function paginate<T>(items: readonly T[], cursor: string | undefined, lim
   const page = [...items.slice(start, start + limit)];
   return { items: page, ...(start + page.length < items.length ? { nextCursor: Buffer.from(String(start + page.length)).toString("base64url") } : {}) };
 }
-export function validateIdentifier(value: string): void { if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(value)) throw new Error("invalid identifier"); }
+export const validateIdentifier = validateSdkIdentifier;
 export function validateValue(column: string, value: unknown): void { validateIdentifier(column); if (value === undefined || typeof value === "function" || (typeof value === "string" && value.length > 4096)) throw new Error("invalid value"); }
 export class VersionedRecord<T extends Record<string, unknown>> {
   private value: T;
@@ -76,7 +76,7 @@ export function planSchemaChange(projectId: string, table: string, change: Schem
   if (change.kind === "create_index") {
     validateIdentifier(change.name);
     if (!change.columns.length) throw new Error("index columns required");
-    change.columns.forEach(validateIdentifier);
+    change.columns.forEach((columnName) => validateIdentifier(columnName));
     return { projectId, table, change: { ...change, columns: [...change.columns] } };
   }
   throw new Error("unsupported schema change");

@@ -55,3 +55,6 @@ Plugin communication follows [the plugin communication architecture](plugin-comm
 ## Security rules
 
 Never trust project IDs, plugin grants, room membership, or permissions supplied by clients. Recheck lifecycle, grants, versions, and idempotency at commit time. Keep secrets out of logs and tests.
+## Plugin quality gate
+
+Plugin changes must pass `npm run lint:ts`, `npm run typecheck`, and `npm run test:ts`. Shared generic request, identity, and validation helpers belong in `plugins/sdk-typescript/src/`; plugin entrypoints should remain product-focused.

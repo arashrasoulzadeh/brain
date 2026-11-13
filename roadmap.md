@@ -42,6 +42,9 @@ Every phase exit must also update:
 - [ ] Make every plugin dynamically versionable, enableable, disableable, promotable, rollbackable, drainable, and removable.
 - [ ] Do not bypass the host permission broker or project boundary from plugin code.
 - [ ] Audit every plugin for duplicate helpers and move shared behavior into the TypeScript SDK; keep plugin entrypoints small, readable, and product-focused.
+- [ ] Enforce TypeScript lint with `npm run lint:ts`; lint, typecheck, and tests are required verification for every plugin change.
+- [ ] Keep plugin code SOLID and DRY: shared generic helpers belong in the SDK, plugin code has one clear responsibility, and duplicate handlers/request/validation code is prohibited.
+- [ ] Keep source declarations ordered: imports, types, constants, and file-level variables first; classes next; standalone functions after classes; class fields before methods. Use descriptive names.
 
 ## Test organization law
 
