@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `8586e00` — 2026-11-13 13:54:56 +0330 — split room connection ticket classes
+- `9906d7f` — 2026-11-13 10:23:03 +0000 — docs: update changelog [skip ci]
 - `05a51ac` — 2026-11-13 13:52:49 +0330 — split pending upload classes
 - `4eb8c97` — 2026-11-13 10:20:38 +0000 — docs: update changelog [skip ci]
 - `77c2f46` — 2026-11-13 13:50:26 +0330 — split invite lifecycle classes
