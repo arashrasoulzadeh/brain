@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `aafbdd7` — 2026-11-13 13:30:30 +0330 — split room game command helpers
+- `5a6f659` — 2026-11-13 09:59:11 +0000 — docs: update changelog [skip ci]
 - `aa8877b` — 2026-11-13 13:28:57 +0330 — split room identity helpers
 - `06e4fec` — 2026-11-13 09:57:43 +0000 — docs: update changelog [skip ci]
 - `9402d5b` — 2026-11-13 13:27:29 +0330 — split tables record stores
