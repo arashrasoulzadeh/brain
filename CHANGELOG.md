@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `46b76d5` — 2026-11-13 04:27:15 +0330 — phase 04 mark fixture execution complete
+- `3a8a9a5` — 2026-11-13 00:57:16 +0000 — docs: update changelog [skip ci]
 - `bf80f26` — 2026-11-13 04:26:57 +0330 — phase 04 execute function fixtures
 - `3a2c53d` — 2026-11-13 00:55:14 +0000 — docs: update changelog [skip ci]
 - `9b3d8f6` — 2026-11-13 04:24:53 +0330 — phase 04 record source diagnostics
