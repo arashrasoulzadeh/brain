@@ -20,6 +20,7 @@ source_files:
   - ticket-expirer.ts
   - ticket-requeuer.ts
   - assignment-creator.ts
+  - ticket-canceller.ts
 imports:
   - ../sdk-typescript/src/index.js
   - ./matchmaking-config-writer.js
@@ -34,6 +35,7 @@ imports:
   - ./ticket-expirer.js
   - ./ticket-requeuer.js
   - ./assignment-creator.js
+  - ./ticket-canceller.js
   - ./validate-config.js
   - ./types.js
 plugin_imports:

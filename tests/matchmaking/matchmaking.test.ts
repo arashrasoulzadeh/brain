@@ -31,3 +31,8 @@ assignmentQueue.enqueue("dev", "ranked", "user-7", 1000);
 assignmentQueue.enqueue("dev", "ranked", "user-8", 1100);
 const decision = assignmentQueue.assign("dev", "ranked", 2, 2000);
 if (!decision || decision.ticketIds.length !== 2 || !decision.id.startsWith("dev:ranked:assignment-")) throw new Error("assignment decision was not recorded");
+const versionQueue = createMatchmakingQueue();
+versionQueue.enqueue("dev", "ranked", "old-user", 1000, "1.0.0");
+versionQueue.enqueue("dev", "ranked", "new-user", 1100, "2.0.0");
+const cancelled = versionQueue.cancelIncompatible("dev", "ranked", "2.0.0");
+if (cancelled.length !== 1 || cancelled[0].playerId !== "old-user" || versionQueue.peek("dev", "ranked")[0].playerId !== "new-user") throw new Error("incompatible unmatched tickets were not cancelled");
