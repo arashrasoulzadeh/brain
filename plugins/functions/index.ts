@@ -257,6 +257,11 @@ export function validateWorkflowGraph(nodes: readonly WorkflowNode[]): void {
   };
   for (const node of nodes) visit(node.id);
 }
+export type WorkflowCondition = { field: string; operator: string; value: unknown };
+export function evaluateCondition(condition: WorkflowCondition, context: Readonly<Record<string, unknown>>): boolean {
+  if (!condition.field || condition.operator !== "equals") throw new Error("unsupported condition");
+  return Object.prototype.hasOwnProperty.call(context, condition.field) && Object.is(context[condition.field], condition.value);
+}
 export type FunctionDraft = { projectId: string; functionId: string; source: string; savedAt: number };
 export class FunctionDraftStore {
   private readonly drafts = new Map<string, FunctionDraft>();
