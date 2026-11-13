@@ -28,7 +28,10 @@ jobs:
             echo 'Automatically generated from commits on main.'
             echo
             echo '## Unreleased'
-            git log --date=iso --pretty='- `%h` — %ad — %s'
+            while IFS='|' read -r hash date subject; do
+              echo "- \`$hash\` — $date — $subject"
+              echo "  Files: $(git show --format= --name-only "$hash" | sed '/^$/d' | paste -sd ', ' -)"
+            done < <(git log -50 --date=iso --pretty='%h|%ad|%s')
           } > CHANGELOG.md
       - name: Commit changelog
         run: |
