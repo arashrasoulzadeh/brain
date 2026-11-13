@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `322d64c` — 2026-11-13 04:03:07 +0330 — phase 04 pin Go toolchain
+- `e9b300c` — 2026-11-13 00:32:59 +0000 — docs: update changelog [skip ci]
 - `314c199` — 2026-11-13 04:02:46 +0330 — phase 04 record wasm fixture compilation
 - `89ae406` — 2026-11-13 00:32:46 +0000 — docs: update changelog [skip ci]
 - `d0a9f5d` — 2026-11-13 04:02:34 +0330 — phase 04 compile function fixture to wasm
