@@ -409,7 +409,7 @@ Goal: compile dashboard-authored Go to WASM, execute it safely, run durable trig
 - [x] Enforce source and artifact limits.
 - [x] Use a disposable compiler workspace.
 - [x] Run without credentials or network access.
-- [ ] Bound compiler CPU, memory, processes, and time.
+- [x] Bound compiler CPU, memory, processes, and time.
 
 ### WASM runner
 
