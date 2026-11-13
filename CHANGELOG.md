@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `53c9dd6` — 2026-11-13 04:32:09 +0330 — phase 04 mark HTTPS invocation complete
+- `d9f3778` — 2026-11-13 01:02:09 +0000 — docs: update changelog [skip ci]
 - `87abb59` — 2026-11-13 04:31:56 +0330 — phase 04 add direct HTTPS invocation
 - `613d714` — 2026-11-13 01:01:24 +0000 — docs: update changelog [skip ci]
 - `edbfcde` — 2026-11-13 04:31:11 +0330 — phase 04 mark artifact pinning complete
