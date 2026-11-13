@@ -450,7 +450,7 @@ Goal: compile dashboard-authored Go to WASM, execute it safely, run durable trig
 ### Triggers and workflows
 
 - [x] Add scheduled functions.
-- [ ] Claim schedules safely under concurrency.
+- [x] Claim schedules safely under concurrency.
 - [ ] Handle duplicate UTC occurrences.
 - [ ] Enqueue the latest missed occurrence.
 - [ ] Pin the function version at enqueue.
