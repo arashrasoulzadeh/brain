@@ -23,6 +23,11 @@ import { createFunctionPublicationState } from "./function-publication-state.js"
 import { FunctionPublicationWriter } from "./function-publication-writer.js";
 import { FunctionPublicationReader } from "./function-publication-reader.js";
 import { FunctionPublicationRollback } from "./function-publication-rollback.js";
+import { createInvocationCommitState } from "./invocation-commit-state.js";
+import { InvocationCommitWriter } from "./invocation-commit-writer.js";
+import { InvocationCommitReader } from "./invocation-commit-reader.js";
+import { InvocationResultReader } from "./invocation-result-reader.js";
+import { InvocationExistenceReader } from "./invocation-existence-reader.js";
 
 export { functionRequest } from "./function-request.js";
 
@@ -146,23 +151,8 @@ export function validateLinearMemory(bytes: number, maxBytes: number): void { if
 export function validateStartupDuration(durationMs: number, maxDurationMs: number): void { if (!Number.isSafeInteger(durationMs) || !Number.isSafeInteger(maxDurationMs) || durationMs < 0 || maxDurationMs < 1 || durationMs > maxDurationMs) throw new Error("startup timeout exceeded"); }
 export function rejectSandboxEscapeAttempt(value: string): void { if (!value || value.includes("../") || value.includes("\\..\\") || /^https?:\/\//.test(value)) throw new Error("sandbox escape attempt rejected"); }
 export function createInvocationEffects() { const state = createInvocationEffectsState(); const writer = new InvocationEffectsWriter(state); const reader = new InvocationEffectsReader(state); return { begin: writer.begin.bind(writer), list: reader.list.bind(reader) }; }
-export class InvocationCommitStore {
-  private readonly records = new Map<string, unknown>();
-  private readonly committedEffects: unknown[] = [];
-  commit(idempotencyKey: string, effects: readonly unknown[], result: unknown, success = true): unknown {
-    if (!idempotencyKey) throw new Error("idempotency key required");
-    const existing = this.records.get(idempotencyKey);
-    if (existing !== undefined) return existing;
-    if (!success) throw new Error("invocation commit failed");
-    this.committedEffects.push(...effects);
-    this.records.set(idempotencyKey, result);
-    return result;
-  }
-  effects(): unknown[] { return [...this.committedEffects]; }
-  result(idempotencyKey: string): unknown { return this.records.get(idempotencyKey); }
-  has(idempotencyKey: string): boolean { return this.records.has(idempotencyKey); }
-}
-export async function retryInvocation<T>(store: InvocationCommitStore, idempotencyKey: string, execute: () => T | Promise<T>, effects: readonly unknown[] = []): Promise<T> {
+export function createInvocationCommitStore() { const state = createInvocationCommitState(); const writer = new InvocationCommitWriter(state); const effects = new InvocationCommitReader(state); const result = new InvocationResultReader(state); const existence = new InvocationExistenceReader(state); return { commit: writer.commit.bind(writer), effects: effects.effects.bind(effects), result: result.result.bind(result), has: existence.has.bind(existence) }; }
+export async function retryInvocation<T>(store: ReturnType<typeof createInvocationCommitStore>, idempotencyKey: string, execute: () => T | Promise<T>, effects: readonly unknown[] = []): Promise<T> {
   if (store.has(idempotencyKey)) return store.result(idempotencyKey) as T;
   const result = await execute();
   return store.commit(idempotencyKey, effects, result) as T;
@@ -247,7 +237,7 @@ export async function runCappedRetries<T>(task: () => T | Promise<T>, maxAttempt
   }
   throw lastError instanceof Error ? lastError : new Error("retry attempts exhausted");
 }
-export async function runIdempotentWorkflow<T>(store: InvocationCommitStore, idempotencyKey: string, task: () => T | Promise<T>, maxAttempts: number): Promise<T> {
+export async function runIdempotentWorkflow<T>(store: ReturnType<typeof createInvocationCommitStore>, idempotencyKey: string, task: () => T | Promise<T>, maxAttempts: number): Promise<T> {
   if (store.has(idempotencyKey)) return store.result(idempotencyKey) as T;
   const result = await runCappedRetries(task, maxAttempts);
   return store.commit(idempotencyKey, [], result) as T;

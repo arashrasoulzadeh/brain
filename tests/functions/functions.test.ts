@@ -1,4 +1,4 @@
-import { APPROVED_SDK_IMPORTS, APPROVED_WASI_IMPORTS, createApprovalStore, createSharedPackageStore, createFunctionDraftStore, createJobLeaseStore, createInvocationEffects, createFunctionPublicationStore, capDiagnostics, commitWithGrant, compilerEnvironment, createInvocationRequest, diagnoseSource, DisposableCompilerWorkspace, ENTRY_PACKAGE_FIXTURE, evaluateCondition, executeFixture, functionRequest, invokeDirectHttps, InvocationCommitStore, loadDeclaredInputs, parseInvocationResult, PROJECT_HELPER_FIXTURE, RecordChangeTriggerStore, redactRunStatus, rejectSandboxEscapeAttempt, requireSDKImports, retryInvocation, runCappedRetries, runIdempotentWorkflow, runWithTimeout, ScheduleStore, validateBuildOverrides, validateCompilerEnvironment, validateCompilerLimits, validateFunctionLimits, validateInvocationResult, validateLinearMemory, validateSandboxCapabilities, validateSDKImports, validateSourceProject, validateStaleInputVersions, validateStartupDuration, validateWasiImports, validateWorkflowGraph, validateWriteIntents, wasmBuildSettings } from "../../plugins/functions/index.js";
+import { APPROVED_SDK_IMPORTS, APPROVED_WASI_IMPORTS, createApprovalStore, createSharedPackageStore, createFunctionDraftStore, createJobLeaseStore, createInvocationEffects, createFunctionPublicationStore, createInvocationCommitStore, capDiagnostics, commitWithGrant, compilerEnvironment, createInvocationRequest, diagnoseSource, DisposableCompilerWorkspace, ENTRY_PACKAGE_FIXTURE, evaluateCondition, executeFixture, functionRequest, invokeDirectHttps, loadDeclaredInputs, parseInvocationResult, PROJECT_HELPER_FIXTURE, RecordChangeTriggerStore, redactRunStatus, rejectSandboxEscapeAttempt, requireSDKImports, retryInvocation, runCappedRetries, runIdempotentWorkflow, runWithTimeout, ScheduleStore, validateBuildOverrides, validateCompilerEnvironment, validateCompilerLimits, validateFunctionLimits, validateInvocationResult, validateLinearMemory, validateSandboxCapabilities, validateSDKImports, validateSourceProject, validateStaleInputVersions, validateStartupDuration, validateWasiImports, validateWorkflowGraph, validateWriteIntents, wasmBuildSettings } from "../../plugins/functions/index.js";
 validateSDKImports(APPROVED_SDK_IMPORTS);
 const request = functionRequest("dev", "functions", "0.1.0", "functions.invoke", { name: "hello" });
 if (request.params.projectId !== "dev" || request.params.operation !== "functions.invoke") throw new Error("functions request contract failed");
@@ -86,7 +86,7 @@ try { validateWriteIntents([{ operation: "set", path: "private/token", value: "s
 try { validateWriteIntents([{ operation: "set", path: "../escape", value: true }], ["../escape"]); throw new Error("escaping write accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid write intent") throw error; }
 validateStaleInputVersions({ profile: 3, inventory: 8 }, { profile: 3, inventory: 8 });
 try { validateStaleInputVersions({ profile: 2 }, { profile: 3 }); throw new Error("stale input accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "stale input version") throw error; }
-const commits = new InvocationCommitStore();
+const commits = createInvocationCommitStore();
 const firstCommit = commits.commit("request-1", [{ path: "profile/name", value: "ada" }], { ok: true });
 const retryCommit = commits.commit("request-1", [{ path: "profile/name", value: "changed" }], { ok: true });
 if (JSON.stringify(firstCommit) !== JSON.stringify(retryCommit) || commits.effects().length !== 1) throw new Error("idempotent effect commit failed");
@@ -132,7 +132,7 @@ const approvals = createApprovalStore();
 approvals.request("run-1", "admin");
 if (approvals.isApproved("run-1") || !approvals.approve("run-1", "operator") || !approvals.isApproved("run-1")) throw new Error("approval flow failed");
 if (approvals.approve("run-1", "operator")) throw new Error("duplicate approval accepted");
-const workflowCommits = new InvocationCommitStore();
+const workflowCommits = createInvocationCommitStore();
 let workflowAttempts = 0;
 const workflowResult = await runIdempotentWorkflow(workflowCommits, "workflow-1", async () => { workflowAttempts++; if (workflowAttempts < 2) throw new Error("retryable workflow failure"); return "done"; }, 3);
 const duplicateWorkflowResult = await runIdempotentWorkflow(workflowCommits, "workflow-1", async () => { workflowAttempts++; return "wrong"; }, 3);

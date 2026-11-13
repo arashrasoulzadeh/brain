@@ -23,6 +23,11 @@ source_files:
   - function-publication-writer.ts
   - function-publication-reader.ts
   - function-publication-rollback.ts
+  - invocation-commit-state.ts
+  - invocation-commit-writer.ts
+  - invocation-commit-reader.ts
+  - invocation-result-reader.ts
+  - invocation-existence-reader.ts
 imports:
   - ../sdk-typescript/src/index.js
   - node:fs
@@ -50,6 +55,11 @@ imports:
   - ./function-publication-writer.js
   - ./function-publication-reader.js
   - ./function-publication-rollback.js
+  - ./invocation-commit-state.js
+  - ./invocation-commit-writer.js
+  - ./invocation-commit-reader.js
+  - ./invocation-result-reader.js
+  - ./invocation-existence-reader.js
 plugin_imports:
 title: Functions
 description: Project-scoped serverless function compilation and invocation controls.
