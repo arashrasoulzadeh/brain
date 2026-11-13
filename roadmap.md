@@ -445,7 +445,7 @@ Goal: compile dashboard-authored Go to WASM, execute it safely, run durable trig
 - [x] Validate write intents.
 - [x] Validate stale input versions.
 - [x] Commit effects and idempotency records together.
-- [ ] Retry safely after a lost response.
+- [x] Retry safely after a lost response.
 
 ### Triggers and workflows
 
