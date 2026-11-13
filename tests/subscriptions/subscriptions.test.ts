@@ -1,4 +1,4 @@
-import { SubscriptionAuthorizer, SubscriptionTicketStore, subscriptionRequest, validateBrowserOrigin } from "../../plugins/subscriptions/index.js";
+import { InitialFetchBuffer, SubscriptionAuthorizer, SubscriptionTicketStore, subscriptionRequest, validateBrowserOrigin } from "../../plugins/subscriptions/index.js";
 import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = subscriptionRequest("dev", "subscriptions", "0.1.0", "subscriptions.open", "records.users");
@@ -19,3 +19,6 @@ authorizer.authorize("dev", "records.users", "user-1");
 try { authorizer.authorize("dev", "records.users", "user-2"); throw new Error("unauthorized subscription accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "subscription denied") throw error; }
 authorizer.invalidateOwner("dev", "user-1");
 try { authorizer.authorize("dev", "records.users", "user-1"); throw new Error("old owner subscription survived transfer"); } catch (error) { if (!(error instanceof Error) || error.message !== "subscription denied") throw error; }
+const buffer = new InitialFetchBuffer<string>();
+buffer.push("write-during-fetch");
+if (buffer.complete(["snapshot"]).join(",") !== "snapshot,write-during-fetch") throw new Error("initial fetch write lost");
