@@ -425,7 +425,7 @@ Goal: compile dashboard-authored Go to WASM, execute it safely, run durable trig
 - [x] Deny network access.
 - [x] Deny environment credentials.
 - [x] Test infinite-loop timeouts.
-- [ ] Test linear-memory limits.
+- [x] Test linear-memory limits.
 - [ ] Test startup timeouts.
 - [ ] Test sandbox escape attempts.
 - [ ] Confirm failed invocations produce no writes.
