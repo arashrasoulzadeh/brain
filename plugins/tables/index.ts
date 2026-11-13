@@ -176,5 +176,3 @@ export class DirectSQLChangeCapture {
   }
   list(projectId: string): DirectSQLChange[] { return this.changes.filter((change) => change.projectId === projectId).map((change) => ({ ...change })); }
 }
-
-
