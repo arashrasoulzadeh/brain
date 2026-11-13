@@ -108,3 +108,4 @@ if (pinned.functionVersion !== 3 || pinned.functionId !== "sync") throw new Erro
 const triggers = new RecordChangeTriggerStore();
 triggers.add("dev", "profiles", "profile.changed", { functionId: "sync", version: 3 });
 if (triggers.match("dev", "profiles", "profile.changed").length !== 1 || triggers.match("prod", "profiles", "profile.changed").length !== 0) throw new Error("record change trigger isolation failed");
+if (triggers.dispatch("dev", "profiles", "profile.changed", false).length !== 0 || triggers.dispatch("dev", "profiles", "profile.changed", true).length !== 1) throw new Error("uncommitted change triggered work");
