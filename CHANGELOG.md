@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `586ae6a` — 2026-11-13 03:58:53 +0330 — phase 03 verify Compose suite in CI
+- `2cabca7` — 2026-11-13 00:24:55 +0000 — docs: update changelog [skip ci]
 - `1b08e90` — 2026-11-13 03:54:42 +0330 — ci format plugin tests
 - `f823fd2` — 2026-11-13 00:24:26 +0000 — docs: update changelog [skip ci]
 - `0df7b86` — 2026-11-13 03:54:06 +0330 — ci pin Node runtime
