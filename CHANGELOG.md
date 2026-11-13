@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `f8de181` — 2026-11-13 04:00:07 +0330 — phase 04 define approved function SDK imports
+- `6f1ec6b` — 2026-11-13 00:29:32 +0000 — docs: update changelog [skip ci]
 - `2fefb68` — 2026-11-13 03:59:18 +0330 — docs complete phase 03 guides
 - `8372883` — 2026-11-13 00:29:05 +0000 — docs: update changelog [skip ci]
 - `586ae6a` — 2026-11-13 03:58:53 +0330 — phase 03 verify Compose suite in CI
