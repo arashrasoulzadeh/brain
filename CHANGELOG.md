@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `a0445a8` — 2026-11-13 16:10:19 +0330 — verify direct scheduled and record invocations
+  Files: roadmap.md,tests/functions/phase04_invocation_gate.test.ts
+- `99fef0e` — 2026-11-13 11:35:49 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `5a50310` — 2026-11-13 15:05:28 +0330 — publish and roll back shared helper artifacts
   Files: plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/shared-helper-publisher.ts,roadmap.md tests/functions/functions.test.ts
 - `3c69b38` — 2026-11-13 11:33:48 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `d4baf82` — 2026-11-13 14:15:02 +0330 — split auth account operations
   Files: plugins/auth/account-password-resetter.ts,plugins/auth/account-session-reader.ts plugins/auth/account-session-revoker.ts,plugins/auth/account-session-rotator.ts plugins/auth/account-signin.ts,plugins/auth/account-signup.ts plugins/auth/auth-state.ts,plugins/auth/guest-account-upgrader.ts plugins/auth/guest-session-issuer.ts,plugins/auth/index.ts plugins/auth/plugin.yaml,tests/auth/auth.test.ts tests/dashboard/phase03_guest_coop_gate.test.ts,tests/dashboard/phase03_isolation_gate.test.ts
 - `d07843c` — 2026-11-13 10:40:28 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `780ea98` — 2026-11-13 14:10:16 +0330 — split auth recovery classes
-  Files: plugins/auth/index.ts,plugins/auth/plugin.yaml plugins/auth/recovery-token-consumer.ts,plugins/auth/recovery-token-issuer.ts tests/auth/auth.test.ts
-- `c827b41` — 2026-11-13 10:38:45 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
