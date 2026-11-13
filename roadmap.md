@@ -469,7 +469,7 @@ Goal: compile dashboard-authored Go to WASM, execute it safely, run durable trig
 ### Turn-based rooms
 
 - [x] Add Tic-tac-toe initialization.
-- [ ] Add legal move validation.
+- [x] Add legal move validation.
 - [ ] Reject out-of-turn moves.
 - [ ] Detect wins.
 - [ ] Detect draws.
