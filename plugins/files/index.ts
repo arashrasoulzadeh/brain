@@ -17,3 +17,16 @@ export function projectObjectKey(projectId: string, objectId: string): string {
   return `projects/${projectId}/objects/${objectId}`;
 }
 
+export type PendingUpload = { projectId: string; objectId: string; contentType: string; size: number; status: "pending" };
+export class PendingUploadStore {
+  private readonly uploads = new Map<string, PendingUpload>();
+  create(projectId: string, objectId: string, contentType: string, size: number): PendingUpload {
+    projectObjectKey(projectId, objectId);
+    if (!contentType || !Number.isSafeInteger(size) || size < 0) throw new Error("invalid upload metadata");
+    const upload = { projectId, objectId, contentType, size, status: "pending" as const };
+    this.uploads.set(`${projectId}:${objectId}`, upload);
+    return { ...upload };
+  }
+  get(projectId: string, objectId: string): PendingUpload | undefined { const upload = this.uploads.get(`${projectId}:${objectId}`); return upload ? { ...upload } : undefined; }
+}
+
