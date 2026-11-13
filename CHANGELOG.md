@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `a3e47aa` — 2026-11-13 04:07:55 +0330 — phase 04 use disposable compiler workspaces
+- `a4d6c41` — 2026-11-13 00:37:43 +0000 — docs: update changelog [skip ci]
 - `6d9e923` — 2026-11-13 04:07:23 +0330 — phase 04 record function size limits
 - `6de58bc` — 2026-11-13 00:37:24 +0000 — docs: update changelog [skip ci]
 - `cd8b844` — 2026-11-13 04:07:11 +0330 — phase 04 enforce function source and artifact limits
