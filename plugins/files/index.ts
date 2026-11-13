@@ -17,7 +17,7 @@ export function projectObjectKey(projectId: string, objectId: string): string {
   return `projects/${projectId}/objects/${objectId}`;
 }
 
-export type PendingUpload = { projectId: string; objectId: string; contentType: string; size: number; status: "pending" };
+export type PendingUpload = { projectId: string; objectId: string; contentType: string; size: number; status: "pending" | "published"; etag?: string };
 export class PendingUploadStore {
   private readonly uploads = new Map<string, PendingUpload>();
   create(projectId: string, objectId: string, contentType: string, size: number): PendingUpload {
@@ -28,6 +28,13 @@ export class PendingUploadStore {
     return { ...upload };
   }
   get(projectId: string, objectId: string): PendingUpload | undefined { const upload = this.uploads.get(`${projectId}:${objectId}`); return upload ? { ...upload } : undefined; }
+  publish(projectId: string, objectId: string, etag: string): PendingUpload {
+    const upload = this.uploads.get(`${projectId}:${objectId}`);
+    if (!upload || upload.status !== "pending" || !etag) throw new Error("object upload not confirmed");
+    const published = { ...upload, status: "published" as const, etag };
+    this.uploads.set(`${projectId}:${objectId}`, published);
+    return { ...published };
+  }
 }
 
 export class FileQuotaLedger {

@@ -10,6 +10,8 @@ if (projectObjectKey("dev", "avatar.png") !== "projects/dev/objects/avatar.png" 
 try { projectObjectKey("dev/other", "avatar.png"); throw new Error("cross-project object key accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid object identity") throw error; }
 const uploads = new PendingUploadStore();
 if (uploads.create("dev", "avatar.png", "image/png", 12).status !== "pending" || uploads.get("prod", "avatar.png")) throw new Error("pending upload metadata isolation failed");
+if (uploads.publish("dev", "avatar.png", "etag-1").status !== "published" || uploads.get("dev", "avatar.png")?.etag !== "etag-1") throw new Error("published file metadata failed");
+try { uploads.publish("dev", "missing.png", "etag-2"); throw new Error("missing object published"); } catch (error) { if (!(error instanceof Error) || error.message !== "object upload not confirmed") throw error; }
 const quota = new FileQuotaLedger(new Map([["dev", 20]]));
 quota.reserve("dev", 12);
 try { quota.reserve("dev", 9); throw new Error("quota exceeded upload accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "file quota exceeded") throw error; }
