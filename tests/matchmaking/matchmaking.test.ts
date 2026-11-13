@@ -34,6 +34,11 @@ assignmentQueue.enqueue("dev", "ranked", "user-7", 1000);
 assignmentQueue.enqueue("dev", "ranked", "user-8", 1100);
 const decision = assignmentQueue.assign("dev", "ranked", 2, 2000);
 if (!decision || decision.ticketIds.length !== 2 || !decision.id.startsWith("dev:ranked:assignment-")) throw new Error("assignment decision was not recorded");
+const staleAssignmentQueue = createMatchmakingQueue();
+staleAssignmentQueue.enqueue("dev", "ranked", "user-12");
+staleAssignmentQueue.enqueue("dev", "ranked", "user-13");
+staleAssignmentQueue.setLifecycleRevision(2);
+try { staleAssignmentQueue.assign("dev", "ranked", 2, 2000, 1); throw new Error("stale assignment was accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "stale matchmaking lifecycle revision") throw error; }
 const versionQueue = createMatchmakingQueue();
 versionQueue.enqueue("dev", "ranked", "old-user", 1000, "1.0.0");
 versionQueue.enqueue("dev", "ranked", "new-user", 1100, "2.0.0");

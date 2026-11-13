@@ -538,7 +538,7 @@ Goal: safely promote, roll back, disable, drain, uninstall, and extend plugin-co
 - [x] Pause turn rooms at the last committed move.
 - [x] Interrupt action rooms at expiry.
 - [x] Add immediate stop for security revocation.
-- [ ] Recheck lifecycle revision at assignment.
+- [x] Recheck lifecycle revision at assignment.
 - [ ] Recheck lifecycle revision at result commit.
 - [ ] Resume paused rooms only with permitted pinned versions.
 
