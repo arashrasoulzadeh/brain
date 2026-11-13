@@ -1,4 +1,4 @@
-import { AccountRateLimiter, AuthService, AuthorizationCodeIssuer, AuthorizationCodeConsumer, DeliveryReader, DeliveryWriter, EmailOTPIssuer, EmailOTPVerifier, EmailRecoveryService, IdentityLinker, OIDCConfigWriter, OIDCConfigReader, OIDCStateIssuer, OIDCStateConsumer, OTPLimiter, OperatorSessionIssuer, OperatorSessionValidator, OperatorSessionRevoker, ProjectRateLimiter, SMSOTPIssuer, SMSOTPVerifier, createPKCEChallenge, functions, guestRequest, normalizePhoneNumber, projectUserID, publicAuthError, requireRecentAuthentication, sessionTokenDigest, signInRequest, signUpRequest, validateDeliveryConfig, validateOIDCToken, verifyPKCE } from "../../plugins/auth/index.js";
+import { AccountRateLimiter, AuthService, AuthorizationCodeIssuer, AuthorizationCodeConsumer, DeliveryReader, DeliveryWriter, EmailOTPIssuer, EmailOTPVerifier, RecoveryTokenIssuer, RecoveryTokenConsumer, IdentityLinker, OIDCConfigWriter, OIDCConfigReader, OIDCStateIssuer, OIDCStateConsumer, OTPLimiter, OperatorSessionIssuer, OperatorSessionValidator, OperatorSessionRevoker, ProjectRateLimiter, SMSOTPIssuer, SMSOTPVerifier, createPKCEChallenge, functions, guestRequest, normalizePhoneNumber, projectUserID, publicAuthError, requireRecentAuthentication, sessionTokenDigest, signInRequest, signUpRequest, validateDeliveryConfig, validateOIDCToken, verifyPKCE } from "../../plugins/auth/index.js";
 import { createFunctionHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const serviceForHandler = new AuthService();
@@ -55,11 +55,11 @@ if (!smsCode || !smsVerifier.verify("project-a", "+989121234567", "signin", smsC
 if (normalizePhoneNumber("0098 912-123-4567") !== "+989121234567") throw new Error("phone normalization failed");
 const otpLimiter = new OTPLimiter(2, 1000);
 if (!otpLimiter.allow("project-a", "alice@example.com", 100) || !otpLimiter.allow("project-a", "alice@example.com", 101) || otpLimiter.allow("project-a", "alice@example.com", 102)) throw new Error("OTP send limit failed");
-const recovery = new EmailRecoveryService("recovery-secret", delivery);
-try { recovery.issue("bad/project", "alice@example.com", 1000, 60); throw new Error("invalid recovery project accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid project id") throw error; }
-recovery.issue("project-a", "alice@example.com", 1000, 60);
+const recoveryMap = new Map(); const recoveryIssuer = new RecoveryTokenIssuer(recoveryMap, "recovery-secret", delivery); const recoveryConsumer = new RecoveryTokenConsumer(recoveryMap, "recovery-secret");
+try { recoveryIssuer.issue("bad/project", "alice@example.com", 1000, 60); throw new Error("invalid recovery project accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid project id") throw error; }
+recoveryIssuer.issue("project-a", "alice@example.com", 1000, 60);
 const recoveryCode = deliveryReader.read("alice@example.com");
-if (!recovery.consume("project-a", "alice@example.com", recoveryCode ?? "", 1001)) throw new Error("email recovery failed");
+if (!recoveryConsumer.consume("project-a", "alice@example.com", recoveryCode ?? "", 1001)) throw new Error("email recovery failed");
 const resetService = new AuthService();
 await resetService.signup("project-a", "erin", "old password");
 const resetSession = await resetService.signin("project-a", "erin", "old password", 1000);

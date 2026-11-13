@@ -49,25 +49,8 @@ export class OTPLimiter {
     return true;
   }
 }
-export class EmailRecoveryService {
-  private readonly tokens = new Map<string, { digest: string; expiresAt: number; used: boolean }>();
-  constructor(private readonly secret: string, private readonly inbox: { deliver(destination: string, body: string): void }) {}
-  issue(projectId: string, destination: string, now: number, ttlSeconds: number): void {
-    validateProjectId(projectId);
-    if (!destination.includes("@") || ttlSeconds <= 0) throw new Error("invalid recovery request");
-    const token = randomBytes(24).toString("base64url");
-    this.tokens.set(`${projectId}:${destination}`, { digest: createHmac("sha256", this.secret).update(token).digest("hex"), expiresAt: now + ttlSeconds * 1000, used: false });
-    this.inbox.deliver(destination, token);
-  }
-  consume(projectId: string, destination: string, token: string, now: number): boolean {
-    const record = this.tokens.get(`${projectId}:${destination}`);
-    if (!record || record.used || record.expiresAt <= now) return false;
-    const digest = createHmac("sha256", this.secret).update(token).digest("hex");
-    if (!timingSafeEqual(Buffer.from(record.digest), Buffer.from(digest))) return false;
-    record.used = true;
-    return true;
-  }
-}
+export { RecoveryTokenIssuer } from "./recovery-token-issuer.js";
+export { RecoveryTokenConsumer } from "./recovery-token-consumer.js";
 
 export class AccountRateLimiter {
   private readonly attempts = new Map<string, { startedAt: number; count: number }>();
