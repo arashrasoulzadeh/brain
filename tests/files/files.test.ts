@@ -1,4 +1,4 @@
-import { AuthorizedUploadStream, configurePrivateBucket, enforceUploadSize, FileAccessPolicy, FileQuotaLedger, fileRequest, PendingUploadStore, projectObjectKey, protectedDownloadHeaders, reconcileOrphanedObjects } from "../../plugins/files/index.js";
+import { AuthorizedUploadStream, configurePrivateBucket, enforceUploadSize, FileAccessPolicy, FileQuotaLedger, fileRequest, PendingUploadStore, projectObjectKey, protectedDownloadHeaders, reconcileOrphanedObjects, requireExplicitPublication } from "../../plugins/files/index.js";
 import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = fileRequest("dev", "files", "0.1.0", "files.upload", "avatar", { contentType: "image/png" });
@@ -18,6 +18,8 @@ if (interrupted.reconcile(40_000, 30_000) !== 1 || interrupted.get("dev", "broke
 if (reconcileOrphanedObjects("dev", [projectObjectKey("dev", "live.png"), projectObjectKey("dev", "orphan.png"), projectObjectKey("prod", "other.png")], ["live.png"]).join(",") !== "projects/dev/objects/orphan.png") throw new Error("orphaned object reconciliation failed");
 const headers = protectedDownloadHeaders("avatar.png");
 if (headers["cache-control"] !== "private, no-store" || !headers["content-disposition"].startsWith("attachment")) throw new Error("protected download headers failed");
+requireExplicitPublication(true);
+try { requireExplicitPublication(false); throw new Error("implicit public publication accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "explicit publication required") throw error; }
 const quota = new FileQuotaLedger(new Map([["dev", 20]]));
 quota.reserve("dev", 12);
 try { quota.reserve("dev", 9); throw new Error("quota exceeded upload accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "file quota exceeded") throw error; }

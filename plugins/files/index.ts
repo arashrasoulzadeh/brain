@@ -91,3 +91,5 @@ export function protectedDownloadHeaders(filename: string): Record<string, strin
   return { "content-disposition": `attachment; filename="${filename.replaceAll('"', "")}"`, "cache-control": "private, no-store" };
 }
 
+export function requireExplicitPublication(publish: boolean): void { if (publish !== true) throw new Error("explicit publication required"); }
+

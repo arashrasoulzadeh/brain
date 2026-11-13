@@ -373,7 +373,7 @@ Goal: provide project-scoped identity, PostgreSQL APIs, files, subscriptions, an
 - [x] Reconcile interrupted uploads.
 - [x] Reconcile orphaned objects.
 - [x] Serve protected downloads as attachments.
-- [ ] Require explicit publication for public assets.
+- [x] Require explicit publication for public assets.
 
 ### Dashboard and gate
 
