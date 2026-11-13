@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `a709ef2` — 2026-11-13 12:38:33 +0330 — validate plugin configuration before promotion
+- `4b94861` — 2026-11-13 09:07:53 +0000 — docs: update changelog [skip ci]
 - `bddf1c8` — 2026-11-13 12:37:40 +0330 — document and check plugin version promotion
 - `5a9a938` — 2026-11-13 09:06:45 +0000 — docs: update changelog [skip ci]
 - `877fef3` — 2026-11-13 12:36:33 +0330 — reconstruct room history from committed outcomes
