@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `3875908` — 2026-11-13 04:29:19 +0330 — phase 04 mark rollback complete
+- `abfdf04` — 2026-11-13 00:59:20 +0000 — docs: update changelog [skip ci]
 - `e491815` — 2026-11-13 04:29:04 +0330 — phase 04 add function rollback
 - `a28a468` — 2026-11-13 00:58:45 +0000 — docs: update changelog [skip ci]
 - `d2dc6ec` — 2026-11-13 04:28:24 +0330 — phase 04 mark publication complete
