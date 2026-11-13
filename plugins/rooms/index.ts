@@ -150,6 +150,15 @@ export function authorizeTicTacToeCommand(state: TicTacToeState, projectId: stri
   if (operation !== "move") throw new Error("game command not authorized");
   return true;
 }
+export class CommandDeduplicator {
+  private readonly commands = new Set<string>();
+  accept(commandId: string): boolean {
+    if (!commandId.trim()) throw new Error("command id required");
+    if (this.commands.has(commandId)) return false;
+    this.commands.add(commandId);
+    return true;
+  }
+}
 
 export function roomRequest(projectId: string, pluginId: string, version: string, operation: "rooms.create" | "rooms.join" | "rooms.reconnect" | "rooms.result", roomId: string, payload: unknown = {}) {
   return request(`rooms-${operation}-${projectId}-${roomId}`, { protocol: 1, projectId, pluginId, version, operation, payload: { roomId, ...(payload as Record<string, unknown>) } });

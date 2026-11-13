@@ -1,4 +1,4 @@
-import { ConnectionTickets, RoomDirectory, authorizeRoomCommand, authorizedRoomSnapshot, authorizeTicTacToeCommand, authorizedTicTacToeState, canTransitionRoom, initializeTicTacToe, publishTicTacToeRules, projectRoomID, roomRequest, ticTacToeDraw, ticTacToeWinner, validateMembership, validateTicTacToeMove } from "../../plugins/rooms/index.js";
+import { ConnectionTickets, CommandDeduplicator, RoomDirectory, authorizeRoomCommand, authorizedRoomSnapshot, authorizeTicTacToeCommand, authorizedTicTacToeState, canTransitionRoom, initializeTicTacToe, publishTicTacToeRules, projectRoomID, roomRequest, ticTacToeDraw, ticTacToeWinner, validateMembership, validateTicTacToeMove } from "../../plugins/rooms/index.js";
 import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = roomRequest("dev", "rooms", "0.1.0", "rooms.create", "room-1", { maxPlayers: 2 });
@@ -54,3 +54,5 @@ if (!rulesArtifact.startsWith("compiled:")) throw new Error("tic-tac-toe rules w
 try { publishTicTacToeRules(() => ""); throw new Error("empty rules artifact accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "rules compilation failed") throw error; }
 if (authorizedTicTacToeState(game, "dev", "user-1").roomId !== "room-1" || !authorizeTicTacToeCommand(game, "dev", "user-1", "move")) throw new Error("authorized tic-tac-toe access failed");
 try { authorizedTicTacToeState(game, "prod", "user-1"); throw new Error("cross-project game state exposed"); } catch (error) { if (!(error instanceof Error) || error.message !== "game authorization required") throw error; }
+const commands = new CommandDeduplicator();
+if (!commands.accept("cmd-1") || commands.accept("cmd-1")) throw new Error("duplicate room command accepted");
