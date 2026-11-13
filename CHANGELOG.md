@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `7c0d871` — 2026-11-13 04:50:19 +0330 — phase 04 add workflow approvals
+- `d53a52e` — 2026-11-13 01:19:35 +0000 — docs: update changelog [skip ci]
 - `256669b` — 2026-11-13 04:49:24 +0330 — phase 04 mark workflow conditions complete
 - `31ff23c` — 2026-11-13 01:19:22 +0000 — docs: update changelog [skip ci]
 - `b2a0009` — 2026-11-13 04:49:09 +0330 — phase 04 add workflow conditions
