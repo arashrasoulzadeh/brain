@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `d56a8e1` — 2026-11-13 04:48:01 +0330 — phase 04 validate workflow graphs
+- `bae9712` — 2026-11-13 01:17:24 +0000 — docs: update changelog [skip ci]
 - `04a4295` — 2026-11-13 04:47:05 +0330 — phase 04 mark retry cap complete
 - `80af68f` — 2026-11-13 01:17:04 +0000 — docs: update changelog [skip ci]
 - `d6c4618` — 2026-11-13 04:46:52 +0330 — phase 04 cap function retries
