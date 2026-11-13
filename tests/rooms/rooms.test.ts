@@ -1,16 +1,16 @@
-import { ConnectionTickets, CommandDeduplicator, RoomDirectory, TicTacToeCoordinator, authorizeRoomCommand, authorizedRoomSnapshot, authorizeTicTacToeCommand, authorizedTicTacToeState, canTransitionRoom, expireTicTacToeTurn, hiddenTicTacToeView, initializeTicTacToe, publishTicTacToeRules, projectRoomID, reconstructTicTacToeHistory, reconnectTicTacToe, roomRequest, serializeTicTacToeState, ticTacToeDraw, ticTacToeWinner, validateMembership, validateTicTacToeCommandPayload, validateTicTacToeMove, validateTicTacToeRuleResult } from "../../plugins/rooms/index.js";
+import { ConnectionTicketIssuer, ConnectionTicketConsumer, CommandDeduplicator, RoomDirectory, TicTacToeCoordinator, authorizeRoomCommand, authorizedRoomSnapshot, authorizeTicTacToeCommand, authorizedTicTacToeState, canTransitionRoom, expireTicTacToeTurn, hiddenTicTacToeView, initializeTicTacToe, publishTicTacToeRules, projectRoomID, reconstructTicTacToeHistory, reconnectTicTacToe, roomRequest, serializeTicTacToeState, ticTacToeDraw, ticTacToeWinner, validateMembership, validateTicTacToeCommandPayload, validateTicTacToeMove, validateTicTacToeRuleResult } from "../../plugins/rooms/index.js";
 import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = roomRequest("dev", "rooms", "0.1.0", "rooms.create", "room-1", { maxPlayers: 2 });
 if (request.params.pluginId !== "rooms" || request.params.operation !== "rooms.create") throw new Error("rooms plugin contract failed");
 if (typeof createRouteHandler([{ operation: "rooms.create", function: "create", capability: "rooms.create" }])(request) !== "object") throw new Error("rooms handler contract failed");
 
-const tickets = new ConnectionTickets();
-const ticket = tickets.issue("dev", "room-new", "user-1", 1000, 60);
-if (!tickets.consume(ticket.token, "dev", "room-new", "user-1", 1001)) throw new Error("connection ticket was not consumed");
-if (tickets.consume(ticket.token, "dev", "room-new", "user-1", 1002)) throw new Error("connection ticket was reusable");
-const wrongProject = tickets.issue("dev", "room-new", "user-2", 1000, 60);
-if (tickets.consume(wrongProject.token, "prod", "room-new", "user-2", 1001)) throw new Error("cross-project ticket accepted");
+const ticketMap = new Map(); const ticketIssuer = new ConnectionTicketIssuer(ticketMap); const ticketConsumer = new ConnectionTicketConsumer(ticketMap);
+const ticket = ticketIssuer.issue("dev", "room-new", "user-1", 1000, 60);
+if (!ticketConsumer.consume(ticket.token, "dev", "room-new", "user-1", 1001)) throw new Error("connection ticket was not consumed");
+if (ticketConsumer.consume(ticket.token, "dev", "room-new", "user-1", 1002)) throw new Error("connection ticket was reusable");
+const wrongProject = ticketIssuer.issue("dev", "room-new", "user-2", 1000, 60);
+if (ticketConsumer.consume(wrongProject.token, "prod", "room-new", "user-2", 1001)) throw new Error("cross-project ticket accepted");
 if (projectRoomID("dev", "room-1") !== "dev:room-1") throw new Error("project room id was not scoped");
 try { projectRoomID("dev", "prod:room"); throw new Error("invalid room id accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid project room id") throw error; }
 validateMembership("dev", "room-1", [{ playerId: "user-1", slot: 0 }, { playerId: "user-2", slot: 1 }], 2);

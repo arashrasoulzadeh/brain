@@ -16,6 +16,8 @@ source_files:
   - tic-tac-toe-winner.ts
   - tic-tac-toe-draw.ts
   - validate-tic-tac-toe-rule-result.ts
+  - connection-ticket-issuer.ts
+  - connection-ticket-consumer.ts
 imports:
   - ../sdk-typescript/src/index.js
   - node:crypto
@@ -29,6 +31,8 @@ imports:
   - ./tic-tac-toe-winner.js
   - ./tic-tac-toe-draw.js
   - ./validate-tic-tac-toe-rule-result.js
+  - ./connection-ticket-issuer.js
+  - ./connection-ticket-consumer.js
   - ./index.js
 plugin_imports:
 dependencies: []

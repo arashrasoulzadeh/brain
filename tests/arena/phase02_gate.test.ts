@@ -1,5 +1,5 @@
 import { ArenaStateMachine, MatchResultReader, MatchResultSaver, arenaStartCommand } from "../../plugins/arena/index.js";
-import { ConnectionTickets, RoomDirectory, authorizeRoomCommand } from "../../plugins/rooms/index.js";
+import { ConnectionTicketIssuer, ConnectionTicketConsumer, RoomDirectory, authorizeRoomCommand } from "../../plugins/rooms/index.js";
 import { MatchmakingQueue } from "../../plugins/matchmaking/index.js";
 
 const browserOne = new ArenaStateMachine("dev", "gate-room");
@@ -10,9 +10,9 @@ if (browserOne.getState() !== "active" || browserTwo.getState() !== "active") th
 const rooms = new RoomDirectory();
 rooms.create("dev", "gate-room", 2);
 rooms.join("dev", "gate-room", "user-1", 0);
-const tickets = new ConnectionTickets();
-const reconnectTicket = tickets.issue("dev", "gate-room", "user-1", 1000, 60);
-if (!rooms.reconnect("dev", "gate-room", "user-1") || !tickets.consume(reconnectTicket.token, "dev", "gate-room", "user-1", 1001)) throw new Error("dropped connection did not recover");
+const ticketMap = new Map(); const ticketIssuer = new ConnectionTicketIssuer(ticketMap); const ticketConsumer = new ConnectionTicketConsumer(ticketMap);
+const reconnectTicket = ticketIssuer.issue("dev", "gate-room", "user-1", 1000, 60);
+if (!rooms.reconnect("dev", "gate-room", "user-1") || !ticketConsumer.consume(reconnectTicket.token, "dev", "gate-room", "user-1", 1001)) throw new Error("dropped connection did not recover");
 try { authorizeRoomCommand(rooms.get("dev", "gate-room"), "dev", "user-9", "arena.input"); throw new Error("denied plugin action accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "room membership required") throw error; }
 const completed = browserOne.result(["user-1"], "2026-11-13T00:00:00.000Z");
 const resultMap = new Map();
