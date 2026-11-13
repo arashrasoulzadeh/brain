@@ -240,6 +240,15 @@ func (r *Registry) DurableData(projectID, pluginID, key string) ([]byte, bool) {
 	return append([]byte(nil), value...), ok
 }
 
+func (r *Registry) DeleteDurableData(projectID, pluginID, key string) error {
+	if projectID == "" || pluginID == "" || key == "" {
+		return ErrProjectInvalid
+	}
+	delete(r.durableData, projectID+":"+pluginID+":"+key)
+	r.audit = append(r.audit, AuditEvent{Action: "delete_durable_data", ProjectID: projectID, PluginID: pluginID, Detail: key})
+	return nil
+}
+
 func (r *Registry) ApproveCapability(projectID, id, version, capability string) error {
 	if projectID == "" || capability == "" {
 		return ErrProjectInvalid

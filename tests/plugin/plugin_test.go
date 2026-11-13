@@ -772,6 +772,12 @@ func TestProjectUninstallPreservesDurablePluginData(t *testing.T) {
 	if !found {
 		t.Fatal("project uninstall was not audited")
 	}
+	if err := r.DeleteDurableData("dev", "durable", "record-1"); err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := r.DurableData("dev", "durable", "record-1"); ok {
+		t.Fatal("durable data deletion did not remain explicit")
+	}
 }
 
 func TestUnregisterRejectsReferencedServerVersion(t *testing.T) {
