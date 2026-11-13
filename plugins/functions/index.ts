@@ -62,3 +62,7 @@ export function parseInvocationResult(value: unknown): FunctionInvocationResult 
   if (!Array.isArray(result.diagnostics)) throw new Error("malformed function output");
   return validateInvocationResult(result as FunctionInvocationResult);
 }
+export function capDiagnostics(lines: readonly string[], maxLines = 20, maxLineLength = 4096): string[] {
+  if (!Number.isSafeInteger(maxLines) || maxLines < 1 || !Number.isSafeInteger(maxLineLength) || maxLineLength < 1 || lines.some((line) => line.length > maxLineLength)) throw new Error("diagnostic limit exceeded");
+  return [...lines.slice(0, maxLines)];
+}
