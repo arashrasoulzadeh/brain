@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `e9ff1f1` — 2026-11-13 03:46:05 +0330 — phase 03 protect file download headers
+- `9a07f72` — 2026-11-13 00:15:50 +0000 — docs: update changelog [skip ci]
 - `07452b0` — 2026-11-13 03:45:39 +0330 — phase 03 reconcile orphaned file objects
 - `7ab0c8b` — 2026-11-13 00:15:22 +0000 — docs: update changelog [skip ci]
 - `517f274` — 2026-11-13 03:45:10 +0330 — phase 03 reconcile interrupted uploads
