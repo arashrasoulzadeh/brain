@@ -1,4 +1,4 @@
-import { ConnectionTickets, CommandDeduplicator, RoomDirectory, TicTacToeCoordinator, authorizeRoomCommand, authorizedRoomSnapshot, authorizeTicTacToeCommand, authorizedTicTacToeState, canTransitionRoom, expireTicTacToeTurn, hiddenTicTacToeView, initializeTicTacToe, publishTicTacToeRules, projectRoomID, reconnectTicTacToe, roomRequest, serializeTicTacToeState, ticTacToeDraw, ticTacToeWinner, validateMembership, validateTicTacToeCommandPayload, validateTicTacToeMove, validateTicTacToeRuleResult } from "../../plugins/rooms/index.js";
+import { ConnectionTickets, CommandDeduplicator, RoomDirectory, TicTacToeCoordinator, authorizeRoomCommand, authorizedRoomSnapshot, authorizeTicTacToeCommand, authorizedTicTacToeState, canTransitionRoom, expireTicTacToeTurn, hiddenTicTacToeView, initializeTicTacToe, publishTicTacToeRules, projectRoomID, reconstructTicTacToeHistory, reconnectTicTacToe, roomRequest, serializeTicTacToeState, ticTacToeDraw, ticTacToeWinner, validateMembership, validateTicTacToeCommandPayload, validateTicTacToeMove, validateTicTacToeRuleResult } from "../../plugins/rooms/index.js";
 import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = roomRequest("dev", "rooms", "0.1.0", "rooms.create", "room-1", { maxPlayers: 2 });
@@ -40,6 +40,9 @@ if (game.board.length !== 9 || game.turn !== "user-1" || game.projectId !== "dev
 const timedGame = { ...game, turnDeadlineAt: 1000 };
 if (expireTicTacToeTurn(timedGame, 1000, 2000).turn !== "user-2") throw new Error("expired turn did not advance");
 try { expireTicTacToeTurn(timedGame, 999, 2000); throw new Error("unexpired turn advanced"); } catch (error) { if (!(error instanceof Error) || error.message !== "tic-tac-toe turn not expired") throw error; }
+const reconstructed = reconstructTicTacToeHistory(game, [{ revision: 0, playerId: "user-1", cell: 0 }, { revision: 1, playerId: "user-2", cell: 4 }]);
+if (reconstructed.board[0] !== "X" || reconstructed.board[4] !== "O") throw new Error("committed game history was not reconstructed");
+try { reconstructTicTacToeHistory(game, [{ revision: 1, playerId: "user-1", cell: 0 }]); throw new Error("history revision gap accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid committed game history") throw error; }
 const moved = validateTicTacToeMove(game, "user-1", 0);
 if (moved.board[0] !== "X" || moved.turn !== "user-2") throw new Error("legal tic-tac-toe move failed");
 try { validateTicTacToeMove(moved, "user-1", 1); throw new Error("out-of-turn move accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "out-of-turn move") throw error; }

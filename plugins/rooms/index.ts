@@ -133,6 +133,17 @@ export function expireTicTacToeTurn(state: TicTacToeState, now: number, nextDead
   if (state.turnDeadlineAt === undefined || now < state.turnDeadlineAt) throw new Error("tic-tac-toe turn not expired");
   return { ...state, turn: state.players.find((player) => player !== state.turn)!, turnDeadlineAt: nextDeadlineAt };
 }
+export type CommittedTicTacToeMove = { revision: number; playerId: string; cell: number };
+export function reconstructTicTacToeHistory(initialState: TicTacToeState, committedMoves: readonly CommittedTicTacToeMove[]): TicTacToeState {
+  return committedMoves.reduce((state, outcome, expectedRevision) => {
+    if (outcome.revision !== expectedRevision || !outcome.playerId.trim()) throw new Error("invalid committed game history");
+    try {
+      return validateTicTacToeMove(state, outcome.playerId, outcome.cell);
+    } catch {
+      throw new Error("invalid committed game history");
+    }
+  }, initialState);
+}
 export function ticTacToeWinner(state: TicTacToeState): string | undefined {
   const lines = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
   for (const [a, b, c] of lines) if (state.board[a] && state.board[a] === state.board[b] && state.board[a] === state.board[c]) return state.players[state.board[a] === "X" ? 0 : 1];

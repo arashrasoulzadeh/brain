@@ -487,7 +487,7 @@ Goal: compile dashboard-authored Go to WASM, execute it safely, run durable trig
 - [x] Reconnect after restart.
 - [x] Add hidden-state player views.
 - [x] Add timed-out moves.
-- [ ] Reconstruct history from committed outcomes.
+- [x] Reconstruct history from committed outcomes.
 
 ### Phase 04 gate
 

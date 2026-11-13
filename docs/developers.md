@@ -64,3 +64,5 @@ Plugin changes must pass `npm run lint:ts`, `npm run typecheck`, and `npm run te
 The host also scans each declared source file and rejects missing files or import specifiers absent from the YAML allowlist via `ValidatePluginSources`.
 
 Turn-based rooms expose deterministic timeout handling through `expireTicTacToeTurn(state, now, nextDeadlineAt)`; callers supply persisted clock values and must commit the resulting revision atomically.
+
+Committed Tic-tac-toe outcomes can be replayed with `reconstructTicTacToeHistory`; revisions must be contiguous from zero and every move is revalidated during replay.
