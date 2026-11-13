@@ -352,3 +352,17 @@ func TestPromotionRequiresCompletePluginConfiguration(t *testing.T) {
 		t.Fatalf("complete configuration rejected: %v", err)
 	}
 }
+
+func TestPromotionRequiresReadyPluginVersion(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	m := plugin.Manifest{ID: "not-ready", Version: "1.0.0", HostAPI: 1}
+	if err := r.Register(m); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Install("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	if !errors.Is(r.Promote("dev", m.ID, m.Version), plugin.ErrNotReady) {
+		t.Fatal("unready version was promoted")
+	}
+}

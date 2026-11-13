@@ -72,3 +72,5 @@ Committed Tic-tac-toe outcomes can be replayed with `reconstructTicTacToeHistory
 The host registry promotes only installed, enabled plugin versions and keeps active-work pins on their original version during promotion or rollback.
 
 Promotion also validates every configured field against the manifest schema and rejects missing or incorrectly typed values before changing the active version.
+
+Readiness is now an explicit promotion precondition; an installed but not-ready version returns `ErrNotReady` before lifecycle activation is considered.

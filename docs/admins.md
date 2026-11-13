@@ -56,3 +56,5 @@ Each handler file is independently versionable and replaceable, while `index.ts`
 Promotion is project-scoped and audited. Only an installed, enabled version can become active; pinned work remains on its pinned version during later promotion or rollback.
 
 Before promotion, all manifest-declared configuration fields must be present and match their declared types.
+
+The worker readiness state is checked explicitly before promotion; an unready version cannot become active.

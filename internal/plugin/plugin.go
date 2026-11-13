@@ -409,6 +409,9 @@ func (r *Registry) Promote(projectID, id, version string) error {
 	if !ok {
 		return ErrNotInstalled
 	}
+	if !r.readiness[id+"@"+version] {
+		return ErrNotReady
+	}
 	if !i.Enabled {
 		return ErrDisabled
 	}
