@@ -347,7 +347,7 @@ Goal: provide project-scoped identity, PostgreSQL APIs, files, subscriptions, an
 
 - [x] Add transactional row capture.
 - [x] Capture approved old and new authorization scopes.
-- [ ] Capture API changes.
+- [x] Capture API changes.
 - [ ] Capture direct SQL changes.
 - [ ] Do not capture rolled-back changes.
 - [ ] Add subscription tickets.

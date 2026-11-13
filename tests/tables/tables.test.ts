@@ -1,4 +1,4 @@
-import { IdempotentCreateStore, SchemaPublicationAudit, TableExposureRegistry, TransactionalChangeCapture, VersionedRecord, dataRequest, paginate, planSchemaChange, previewSchemaSQL, projectRoleName, projectSchemaName, projectRow, requirePrimaryKey, requireRecentSchemaAuth, RowPolicy, validateColumnTypes, validateFilter, validateIdentifier, validateValue } from "../../plugins/tables/index.js";
+import { ApiChangeCapture, IdempotentCreateStore, SchemaPublicationAudit, TableExposureRegistry, TransactionalChangeCapture, VersionedRecord, dataRequest, paginate, planSchemaChange, previewSchemaSQL, projectRoleName, projectSchemaName, projectRow, requirePrimaryKey, requireRecentSchemaAuth, RowPolicy, validateColumnTypes, validateFilter, validateIdentifier, validateValue } from "../../plugins/tables/index.js";
 import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = dataRequest("dev", "tables", "0.1.0", "tables.read", "users", { filter: { active: true } });
@@ -51,3 +51,6 @@ scoped.commit();
 const scopedChange = capture.listScoped("dev")[0];
 if (scopedChange.oldScope.join(",") !== "public" || scopedChange.newScope.join(",") !== "public,member") throw new Error("authorization scopes missing");
 try { capture.beginScoped("dev", "users", { id: "1" }, { id: "5" }, ["secret"], []); throw new Error("unapproved scope captured"); } catch (error) { if (!(error instanceof Error) || error.message !== "unapproved authorization scope") throw error; }
+const apiCapture = new ApiChangeCapture();
+apiCapture.begin("dev", "tables.write", { id: "1" }).commit();
+if (apiCapture.list("dev")[0].operation !== "tables.write") throw new Error("API change capture failed");

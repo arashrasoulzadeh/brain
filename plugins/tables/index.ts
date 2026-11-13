@@ -141,6 +141,23 @@ export class TransactionalChangeCapture<T> {
   listScoped(projectId: string): ScopedRowChange<T>[] { return this.scopedChanges.filter((change) => change.projectId === projectId).map((change) => ({ ...change, oldScope: [...change.oldScope], newScope: [...change.newScope] })); }
 }
 
+export type ApiChange = { projectId: string; operation: string; payload: unknown };
+
+export class ApiChangeCapture {
+  private readonly changes: ApiChange[] = [];
+  begin(projectId: string, operation: string, payload: unknown): { commit: () => void; rollback: () => void } {
+    if (!projectId || !operation) throw new Error("invalid API change");
+    let finished = false;
+    const finish = (commit: boolean) => {
+      if (finished) throw new Error("transaction already finished");
+      finished = true;
+      if (commit) this.changes.push({ projectId, operation, payload });
+    };
+    return { commit: () => finish(true), rollback: () => finish(false) };
+  }
+  list(projectId: string): ApiChange[] { return this.changes.filter((change) => change.projectId === projectId).map((change) => ({ ...change })); }
+}
+
 export function dataRequest(projectId: string, pluginId: string, version: string, operation: "tables.read" | "tables.write" | "tables.schema", table: string, payload: unknown = {}) {
   return request(`tables-${operation}-${projectId}-${table}`, { protocol: 1, projectId, pluginId, version, operation, payload: { table, ...(payload as Record<string, unknown>) } });
 }
