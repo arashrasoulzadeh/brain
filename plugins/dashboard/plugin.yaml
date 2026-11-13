@@ -21,6 +21,7 @@ source_files:
   - view-replacement-registry.ts
   - validate-csrf-token.ts
   - custom-admin-view.ts
+  - custom-view-origin.ts
   - form-audit-recorder.ts
   - form-audit-reader.ts
   - browser-quickstart.ts
@@ -38,6 +39,7 @@ imports:
   - ./view-replacement-registry.js
   - ./validate-csrf-token.js
   - ./custom-admin-view.js
+  - ./custom-view-origin.js
   - ./project-request.js
   - ./record-browser-page.js
   - ./record-edit-page.js

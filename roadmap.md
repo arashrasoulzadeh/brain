@@ -565,7 +565,7 @@ Goal: safely promote, roll back, disable, drain, uninstall, and extend plugin-co
 - [x] Add CSRF checks.
 - [x] Audit view actions.
 - [x] Add one custom TypeScript view.
-- [ ] Serve it from a separate origin.
+- [x] Serve it from a separate origin.
 - [ ] Embed it in a restricted frame.
 - [ ] Validate typed bridge messages.
 - [ ] Reject malformed or unbound messages.
