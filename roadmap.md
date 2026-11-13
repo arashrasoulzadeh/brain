@@ -470,7 +470,7 @@ Goal: compile dashboard-authored Go to WASM, execute it safely, run durable trig
 
 - [x] Add Tic-tac-toe initialization.
 - [x] Add legal move validation.
-- [ ] Reject out-of-turn moves.
+- [x] Reject out-of-turn moves.
 - [ ] Detect wins.
 - [ ] Detect draws.
 - [ ] Publish the rules through the compiler.
