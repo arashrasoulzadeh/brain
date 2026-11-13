@@ -54,7 +54,11 @@ try { capture.beginScoped("dev", "users", { id: "1" }, { id: "5" }, ["secret"], 
 const apiCapture = new ApiChangeCapture();
 apiCapture.begin("dev", "tables.write", { id: "1" }).commit();
 if (apiCapture.list("dev")[0].operation !== "tables.write") throw new Error("API change capture failed");
+apiCapture.begin("dev", "tables.delete", { id: "2" }).rollback();
+if (apiCapture.list("dev").length !== 1) throw new Error("rolled back API change captured");
 const sqlCapture = new DirectSQLChangeCapture();
 sqlCapture.begin("dev", "users", "UPDATE").commit();
 if (sqlCapture.list("dev")[0].table !== "users") throw new Error("direct SQL capture failed");
+sqlCapture.begin("dev", "users", "DELETE").rollback();
+if (sqlCapture.list("dev").length !== 1) throw new Error("rolled back SQL change captured");
 try { sqlCapture.begin("dev", "users;drop", "DELETE"); throw new Error("unsafe SQL table captured"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid identifier") throw error; }
