@@ -85,6 +85,15 @@ export function loadDeclaredInputs(inputs: Readonly<Record<string, unknown>>, de
   }
   return loaded;
 }
+export type FunctionWriteIntent = { operation: "set" | "delete"; path: string; value?: unknown };
+export function validateWriteIntents(intents: readonly FunctionWriteIntent[], declaredPaths: readonly string[]): FunctionWriteIntent[] {
+  const declared = new Set(declaredPaths);
+  for (const intent of intents) {
+    if (!intent || !["set", "delete"].includes(intent.operation) || !intent.path || intent.path.includes("..") || intent.path.startsWith("/") || intent.path.endsWith("/") || intent.path.includes("//")) throw new Error("invalid write intent");
+    if (!declared.has(intent.path)) throw new Error("write intent not declared");
+  }
+  return intents.map((intent) => ({ ...intent }));
+}
 export function capDiagnostics(lines: readonly string[], maxLines = 20, maxLineLength = 4096): string[] {
   if (!Number.isSafeInteger(maxLines) || maxLines < 1 || !Number.isSafeInteger(maxLineLength) || maxLineLength < 1 || lines.some((line) => line.length > maxLineLength)) throw new Error("diagnostic limit exceeded");
   return [...lines.slice(0, maxLines)];
