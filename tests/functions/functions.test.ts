@@ -96,3 +96,5 @@ const schedules = new ScheduleStore();
 schedules.add("dev", "hello", "0 * * * *", 1000);
 if (schedules.due(1000)[0]?.functionId !== "hello") throw new Error("scheduled function not due");
 try { schedules.add("", "hello", "0 * * * *", 1000); throw new Error("invalid schedule accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid schedule") throw error; }
+const claimed = schedules.claim("dev", "hello", "worker-a", 1000, 5000);
+if (!claimed || schedules.claim("dev", "hello", "worker-b", 1000, 5000)) throw new Error("schedule claimed concurrently");

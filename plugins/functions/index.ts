@@ -154,6 +154,7 @@ export async function retryInvocation<T>(store: InvocationCommitStore, idempoten
 export type FunctionSchedule = { projectId: string; functionId: string; expression: string; dueAt: number };
 export class ScheduleStore {
   private readonly schedules: FunctionSchedule[] = [];
+  private readonly claims = new Map<string, { workerId: string; expiresAt: number }>();
   add(projectId: string, functionId: string, expression: string, dueAt: number): FunctionSchedule {
     if (!projectId || !functionId || expression.trim().split(/\s+/).length !== 5 || !Number.isSafeInteger(dueAt) || dueAt < 0) throw new Error("invalid schedule");
     const schedule = { projectId, functionId, expression: expression.trim(), dueAt };
@@ -161,6 +162,16 @@ export class ScheduleStore {
     return { ...schedule };
   }
   due(now: number): FunctionSchedule[] { return this.schedules.filter((schedule) => schedule.dueAt <= now).map((schedule) => ({ ...schedule })); }
+  claim(projectId: string, functionId: string, workerId: string, now: number, leaseMs: number): boolean {
+    if (!workerId || !Number.isSafeInteger(now) || !Number.isSafeInteger(leaseMs) || leaseMs < 1) throw new Error("invalid schedule claim");
+    const schedule = this.schedules.find((candidate) => candidate.projectId === projectId && candidate.functionId === functionId && candidate.dueAt <= now);
+    if (!schedule) return false;
+    const key = `${projectId}:${functionId}`;
+    const current = this.claims.get(key);
+    if (current && current.expiresAt > now) return false;
+    this.claims.set(key, { workerId, expiresAt: now + leaseMs });
+    return true;
+  }
 }
 export type FunctionDraft = { projectId: string; functionId: string; source: string; savedAt: number };
 export class FunctionDraftStore {
