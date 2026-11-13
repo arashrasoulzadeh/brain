@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `50faf07` — 2026-11-13 04:58:10 +0330 — phase 04 publish tic tac toe rules
+- `779f8fd` — 2026-11-13 01:27:40 +0000 — docs: update changelog [skip ci]
 - `3f38de3` — 2026-11-13 04:57:29 +0330 — phase 04 mark tic tac toe draws complete
 - `071981e` — 2026-11-13 01:27:27 +0000 — docs: update changelog [skip ci]
 - `816c355` — 2026-11-13 04:57:15 +0330 — phase 04 detect tic tac toe draws
