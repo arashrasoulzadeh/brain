@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `23a78e6` — 2026-11-13 04:12:10 +0330 — phase 04 reject extra wasm results
+- `4769ab7` — 2026-11-13 00:42:02 +0000 — docs: update changelog [skip ci]
 - `b088165` — 2026-11-13 04:11:40 +0330 — phase 04 record malformed output rejection
 - `03fdfa0` — 2026-11-13 00:41:41 +0000 — docs: update changelog [skip ci]
 - `63761a1` — 2026-11-13 04:11:28 +0330 — phase 04 reject malformed wasm output
