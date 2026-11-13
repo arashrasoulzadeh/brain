@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `90953c3` — 2026-11-13 17:00:28 +0330 — feat: preserve durable plugin data on uninstall
+  Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
+- `19b1114` — 2026-11-13 13:28:25 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `66f3202` — 2026-11-13 16:58:02 +0330 — feat: revoke project grants during uninstall
   Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
 - `b8e5533` — 2026-11-13 13:27:31 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `94c528a` — 2026-11-13 16:20:44 +0330 — test: verify pinned room versions survive promotion
   Files: roadmap.md
 - `515dc00` — 2026-11-13 12:50:39 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `aa0a4c7` — 2026-11-13 16:20:17 +0330 — feat: validate plugin schema compatibility
-  Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
-- `8a29624` — 2026-11-13 12:49:42 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
