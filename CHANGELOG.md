@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `2f43c06` — 2026-11-13 12:49:58 +0330 — split subscriptions into focused plugin modules
+- `da81915` — 2026-11-13 09:18:49 +0000 — docs: update changelog [skip ci]
 - `c884110` — 2026-11-13 12:48:34 +0330 — split matchmaking into focused plugin modules
 - `c9103e2` — 2026-11-13 09:16:32 +0000 — docs: update changelog [skip ci]
 - `886665d` — 2026-11-13 12:46:13 +0330 — split invites into focused plugin modules
