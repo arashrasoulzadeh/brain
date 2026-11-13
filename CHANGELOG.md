@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `e3adc78` — 2026-11-13 13:26:26 +0330 — split tables query helpers
+- `83d6afe` — 2026-11-13 09:55:47 +0000 — docs: update changelog [skip ci]
 - `c91c623` — 2026-11-13 13:25:32 +0330 — split tables identity and policy modules
 - `851e492` — 2026-11-13 09:54:16 +0000 — docs: update changelog [skip ci]
 - `9f31e2a` — 2026-11-13 13:24:01 +0330 — split subscription buffer responsibilities
