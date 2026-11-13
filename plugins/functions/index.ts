@@ -246,6 +246,17 @@ export async function runIdempotentWorkflow<T>(store: InvocationCommitStore, ide
   const result = await runCappedRetries(task, maxAttempts);
   return store.commit(idempotencyKey, [], result) as T;
 }
+export function redactRunStatus<T>(status: T): T {
+  const secret = /TOKEN|SECRET|PASSWORD|CREDENTIAL|API[_-]?KEY/i;
+  const visit = (value: unknown): unknown => {
+    if (Array.isArray(value)) return value.map(visit);
+    if (!value || typeof value !== "object") return value;
+    const result: Record<string, unknown> = {};
+    for (const [key, nested] of Object.entries(value)) result[key] = secret.test(key) ? "[redacted]" : visit(nested);
+    return result;
+  };
+  return visit(status) as T;
+}
 export type WorkflowNode = { id: string; next: readonly string[] };
 export function validateWorkflowGraph(nodes: readonly WorkflowNode[]): void {
   const byId = new Map(nodes.map((node) => [node.id, node]));
