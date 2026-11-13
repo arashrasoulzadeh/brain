@@ -436,7 +436,7 @@ Goal: compile dashboard-authored Go to WASM, execute it safely, run durable trig
 - [x] Add shared-package compilation.
 - [x] Add source diagnostics.
 - [x] Add fixture execution.
-- [ ] Add publication.
+- [x] Add publication.
 - [ ] Add rollback.
 - [ ] Keep the active version after a failed draft.
 - [ ] Pin artifact digest and toolchain.
