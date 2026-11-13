@@ -118,6 +118,14 @@ export function initializeTicTacToe(projectId: string, roomId: string, firstPlay
   if (!firstPlayer.trim() || !secondPlayer.trim() || firstPlayer === secondPlayer) throw new Error("invalid tic-tac-toe players");
   return { projectId, roomId, players: [firstPlayer, secondPlayer], board: Array(9).fill(null), turn: firstPlayer, status: "active" };
 }
+export function validateTicTacToeMove(state: TicTacToeState, playerId: string, cell: number): TicTacToeState {
+  if (state.status !== "active" || !state.players.includes(playerId) || !Number.isInteger(cell) || cell < 0 || cell >= 9) throw new Error("invalid tic-tac-toe move");
+  if (state.board[cell] !== null) throw new Error("cell occupied");
+  const mark = state.players[0] === playerId ? "X" : "O";
+  const board = [...state.board] as ("X" | "O" | null)[];
+  board[cell] = mark;
+  return { ...state, board, turn: state.players.find((player) => player !== playerId)! };
+}
 
 export function roomRequest(projectId: string, pluginId: string, version: string, operation: "rooms.create" | "rooms.join" | "rooms.reconnect" | "rooms.result", roomId: string, payload: unknown = {}) {
   return request(`rooms-${operation}-${projectId}-${roomId}`, { protocol: 1, projectId, pluginId, version, operation, payload: { roomId, ...(payload as Record<string, unknown>) } });

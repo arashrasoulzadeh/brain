@@ -1,4 +1,4 @@
-import { ConnectionTickets, RoomDirectory, authorizeRoomCommand, authorizedRoomSnapshot, canTransitionRoom, initializeTicTacToe, projectRoomID, roomRequest, validateMembership } from "../../plugins/rooms/index.js";
+import { ConnectionTickets, RoomDirectory, authorizeRoomCommand, authorizedRoomSnapshot, canTransitionRoom, initializeTicTacToe, projectRoomID, roomRequest, validateMembership, validateTicTacToeMove } from "../../plugins/rooms/index.js";
 import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = roomRequest("dev", "rooms", "0.1.0", "rooms.create", "room-1", { maxPlayers: 2 });
@@ -37,3 +37,6 @@ if (rooms.eventsSince("dev", "room-new", 1).length !== 1 || rooms.eventsSince("d
 try { rooms.join("prod", "room-new", "user-2", 1); throw new Error("cross-project join accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "room not found") throw error; }
 const game = initializeTicTacToe("dev", "room-1", "user-1", "user-2");
 if (game.board.length !== 9 || game.turn !== "user-1" || game.projectId !== "dev") throw new Error("tic-tac-toe initialization failed");
+const moved = validateTicTacToeMove(game, "user-1", 0);
+if (moved.board[0] !== "X" || moved.turn !== "user-2") throw new Error("legal tic-tac-toe move failed");
+try { validateTicTacToeMove(moved, "user-2", 0); throw new Error("occupied tic-tac-toe cell accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "cell occupied") throw error; }
