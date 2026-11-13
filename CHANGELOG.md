@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `94c528a` — 2026-11-13 16:20:44 +0330 — test: verify pinned room versions survive promotion
+  Files: roadmap.md
+- `515dc00` — 2026-11-13 12:50:39 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `aa0a4c7` — 2026-11-13 16:20:17 +0330 — feat: validate plugin schema compatibility
   Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
 - `8a29624` — 2026-11-13 12:49:42 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `bbf272b` — 2026-11-13 14:37:01 +0330 — split API change capture operations
   Files: plugins/tables/api-change-reader.ts,plugins/tables/api-change-state.ts plugins/tables/api-change-writer.ts,plugins/tables/index.ts plugins/tables/plugin.yaml,tests/tables/tables.test.ts
 - `a453106` — 2026-11-13 11:06:13 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `9908a14` — 2026-11-13 14:35:52 +0330 — split schema audit operations
-  Files: plugins/tables/index.ts,plugins/tables/plugin.yaml plugins/tables/schema-audit-state.ts,plugins/tables/schema-publication-reader.ts plugins/tables/schema-publication-recorder.ts,tests/tables/tables.test.ts
-- `7c248fc` — 2026-11-13 11:02:53 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
