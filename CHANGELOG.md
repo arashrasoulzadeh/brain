@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `a7860a8` — 2026-11-13 05:01:18 +0330 — phase 04 mark command payload validation complete
+- `3e664ee` — 2026-11-13 01:31:14 +0000 — docs: update changelog [skip ci]
 - `c722204` — 2026-11-13 05:01:03 +0330 — phase 04 reject mismatched room command payloads
 - `e388c27` — 2026-11-13 01:30:32 +0000 — docs: update changelog [skip ci]
 - `3456128` — 2026-11-13 05:00:21 +0330 — phase 04 mark duplicate command protection complete
