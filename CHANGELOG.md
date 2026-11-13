@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `3936e85` — 2026-11-13 15:00:44 +0330 — add entry package fixture
+  Files: plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/tables/plugin.yaml,roadmap.md tests/functions/functions.test.ts
+- `ec919b1` — 2026-11-13 11:27:43 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `ffba1cc` — 2026-11-13 14:57:19 +0330 — limit changelog to latest detailed commits
   Files: .github/workflows/changelog.yml
 - `6d3eeda` — 2026-11-13 11:26:51 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `50d080e` — 2026-11-13 14:06:33 +0330 — split operator session classes
   Files: plugins/auth/index.ts,plugins/auth/operator-session-issuer.ts plugins/auth/operator-session-revoker.ts,plugins/auth/operator-session-validator.ts plugins/auth/plugin.yaml,plugins/auth/session-token-digest.ts tests/auth/auth.test.ts
 - `3f96007` — 2026-11-13 10:32:33 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `7d718bb` — 2026-11-13 14:02:20 +0330 — split authorization code classes
-  Files: plugins/auth/authorization-code-consumer.ts,plugins/auth/authorization-code-issuer.ts plugins/auth/authorization-code-types.ts,plugins/auth/index.ts plugins/auth/plugin.yaml,tests/auth/auth.test.ts
-- `6dd2610` — 2026-11-13 10:31:34 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
