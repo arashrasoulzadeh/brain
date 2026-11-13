@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `12d891b` — 2026-11-13 12:18:50 +0330 — phase 04 reject malformed room rule results
+- `8ddce20` — 2026-11-13 08:28:00 +0000 — docs: update changelog [skip ci]
 - `58d1b75` — 2026-11-13 11:57:49 +0330 — phase 04 mark concurrent move handling complete
 - `8d0a520` — 2026-11-13 08:27:43 +0000 — docs: update changelog [skip ci]
 - `c0df4e9` — 2026-11-13 11:57:25 +0330 — phase 04 guard concurrent tic tac toe moves
