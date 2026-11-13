@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `d6c4618` — 2026-11-13 04:46:52 +0330 — phase 04 cap function retries
+- `b1fe6d9` — 2026-11-13 01:16:21 +0000 — docs: update changelog [skip ci]
 - `c7e58b8` — 2026-11-13 04:46:09 +0330 — phase 04 mark grant recheck complete
 - `47554f4` — 2026-11-13 01:16:07 +0000 — docs: update changelog [skip ci]
 - `9f6171e` — 2026-11-13 04:45:55 +0330 — phase 04 recheck grants at job commit
