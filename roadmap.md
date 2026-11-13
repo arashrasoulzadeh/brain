@@ -404,7 +404,7 @@ Goal: compile dashboard-authored Go to WASM, execute it safely, run durable trig
 - [x] Vendor approved dependencies.
 - [x] Reject missing imports.
 - [x] Reject unsupported imports.
-- [ ] Reject cross-project source access.
+- [x] Reject cross-project source access.
 - [ ] Reject workspace and toolchain overrides.
 - [ ] Enforce source and artifact limits.
 - [ ] Use a disposable compiler workspace.
