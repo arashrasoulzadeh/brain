@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `bb22a47` — 2026-11-13 04:21:10 +0330 — phase 04 run wasm in fresh runtimes
+- `9062257` — 2026-11-13 00:50:05 +0000 — docs: update changelog [skip ci]
 - `18b2821` — 2026-11-13 04:19:43 +0330 — phase 04 record sandbox escape tests
 - `f32334f` — 2026-11-13 00:49:44 +0000 — docs: update changelog [skip ci]
 - `ac159ef` — 2026-11-13 04:19:31 +0330 — phase 04 reject sandbox escape attempts
