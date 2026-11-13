@@ -19,6 +19,7 @@ source_files:
   - project-overview-contribution.ts
   - plugin-health-contribution.ts
   - view-replacement-registry.ts
+  - validate-csrf-token.ts
   - form-audit-recorder.ts
   - form-audit-reader.ts
   - browser-quickstart.ts
@@ -34,6 +35,7 @@ imports:
   - ./project-overview-contribution.js
   - ./plugin-health-contribution.js
   - ./view-replacement-registry.js
+  - ./validate-csrf-token.js
   - ./project-request.js
   - ./record-browser-page.js
   - ./record-edit-page.js

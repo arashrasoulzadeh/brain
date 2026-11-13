@@ -562,7 +562,7 @@ Goal: safely promote, roll back, disable, drain, uninstall, and extend plugin-co
 - [x] Reject a second replacement.
 - [x] Reject cross-project submissions.
 - [x] Route actions through host authorization.
-- [ ] Add CSRF checks.
+- [x] Add CSRF checks.
 - [ ] Audit view actions.
 - [ ] Add one custom TypeScript view.
 - [ ] Serve it from a separate origin.
