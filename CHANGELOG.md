@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `aa8877b` — 2026-11-13 13:28:57 +0330 — split room identity helpers
+- `06e4fec` — 2026-11-13 09:57:43 +0000 — docs: update changelog [skip ci]
 - `9402d5b` — 2026-11-13 13:27:29 +0330 — split tables record stores
 - `5b538b8` — 2026-11-13 09:56:40 +0000 — docs: update changelog [skip ci]
 - `e3adc78` — 2026-11-13 13:26:26 +0330 — split tables query helpers
