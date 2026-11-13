@@ -34,3 +34,14 @@ export function validateBrowserOrigin(origin: string, allowedOrigins: readonly s
   if (!['http:', 'https:'].includes(parsed.protocol) || parsed.username || parsed.password || parsed.pathname !== '/' || parsed.search || parsed.hash) throw new Error("origin denied");
 }
 
+export class SubscriptionAuthorizer {
+  private readonly grants = new Set<string>();
+  grant(projectId: string, channel: string, actorId: string): void {
+    if (!projectId || !channel || !actorId) throw new Error("invalid subscription grant");
+    this.grants.add(`${projectId}:${channel}:${actorId}`);
+  }
+  authorize(projectId: string, channel: string, actorId: string): void {
+    if (!this.grants.has(`${projectId}:${channel}:${actorId}`)) throw new Error("subscription denied");
+  }
+}
+

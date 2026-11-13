@@ -1,4 +1,4 @@
-import { SubscriptionTicketStore, subscriptionRequest, validateBrowserOrigin } from "../../plugins/subscriptions/index.js";
+import { SubscriptionAuthorizer, SubscriptionTicketStore, subscriptionRequest, validateBrowserOrigin } from "../../plugins/subscriptions/index.js";
 import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = subscriptionRequest("dev", "subscriptions", "0.1.0", "subscriptions.open", "records.users");
@@ -13,3 +13,7 @@ tickets.consume(oneUse.ticket, "dev", "records.orders", "subscriptions.open", 20
 try { tickets.consume(oneUse.ticket, "dev", "records.orders", "subscriptions.open", 2001); throw new Error("replayed subscription ticket accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid subscription ticket") throw error; }
 validateBrowserOrigin("https://app.example.com/", ["https://app.example.com/"]);
 try { validateBrowserOrigin("https://evil.example.com/", ["https://app.example.com/"]); throw new Error("browser origin accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "origin denied") throw error; }
+const authorizer = new SubscriptionAuthorizer();
+authorizer.grant("dev", "records.users", "user-1");
+authorizer.authorize("dev", "records.users", "user-1");
+try { authorizer.authorize("dev", "records.users", "user-2"); throw new Error("unauthorized subscription accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "subscription denied") throw error; }
