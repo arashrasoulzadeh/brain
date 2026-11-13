@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `732a899` — 2026-11-13 03:33:27 +0330 — phase 03 add transactional row capture
+- `afad659` — 2026-11-13 00:03:05 +0000 — docs: update changelog [skip ci]
 - `fc9c0c3` — 2026-11-13 03:32:54 +0330 — phase 03 audit schema publication
 - `b3b2370` — 2026-11-13 00:02:36 +0000 — docs: update changelog [skip ci]
 - `14fd770` — 2026-11-13 03:32:23 +0330 — phase 03 require recent schema authentication
