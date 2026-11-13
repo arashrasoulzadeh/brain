@@ -109,6 +109,23 @@ export class SchemaPublicationAudit {
   }
 }
 
+export type RowChange<T> = { projectId: string; table: string; oldValue: T; newValue: T };
+
+export class TransactionalChangeCapture<T> {
+  private readonly changes: RowChange<T>[] = [];
+  begin(projectId: string, table: string, oldValue: T, newValue: T): { commit: () => void; rollback: () => void } {
+    if (!projectId || !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) throw new Error("invalid change target");
+    let finished = false;
+    const finish = (commit: boolean) => {
+      if (finished) throw new Error("transaction already finished");
+      finished = true;
+      if (commit) this.changes.push({ projectId, table, oldValue, newValue });
+    };
+    return { commit: () => finish(true), rollback: () => finish(false) };
+  }
+  list(projectId: string): RowChange<T>[] { return this.changes.filter((change) => change.projectId === projectId).map((change) => ({ ...change })); }
+}
+
 export function dataRequest(projectId: string, pluginId: string, version: string, operation: "tables.read" | "tables.write" | "tables.schema", table: string, payload: unknown = {}) {
   return request(`tables-${operation}-${projectId}-${table}`, { protocol: 1, projectId, pluginId, version, operation, payload: { table, ...(payload as Record<string, unknown>) } });
 }

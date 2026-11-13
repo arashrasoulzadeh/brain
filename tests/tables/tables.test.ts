@@ -1,4 +1,4 @@
-import { IdempotentCreateStore, SchemaPublicationAudit, TableExposureRegistry, VersionedRecord, dataRequest, paginate, planSchemaChange, previewSchemaSQL, projectRoleName, projectSchemaName, projectRow, requirePrimaryKey, requireRecentSchemaAuth, RowPolicy, validateColumnTypes, validateFilter, validateIdentifier, validateValue } from "../../plugins/tables/index.js";
+import { IdempotentCreateStore, SchemaPublicationAudit, TableExposureRegistry, TransactionalChangeCapture, VersionedRecord, dataRequest, paginate, planSchemaChange, previewSchemaSQL, projectRoleName, projectSchemaName, projectRow, requirePrimaryKey, requireRecentSchemaAuth, RowPolicy, validateColumnTypes, validateFilter, validateIdentifier, validateValue } from "../../plugins/tables/index.js";
 import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = dataRequest("dev", "tables", "0.1.0", "tables.read", "users", { filter: { active: true } });
@@ -39,3 +39,10 @@ try { requireRecentSchemaAuth(1_000, 301_001); throw new Error("stale schema aut
 const audit = new SchemaPublicationAudit();
 audit.record("dev", "operator-1", schemaPlan, 123);
 if (audit.list("dev").length !== 1 || audit.list("prod").length !== 0 || audit.list("dev")[0].actorId !== "operator-1") throw new Error("schema publication audit failed");
+const capture = new TransactionalChangeCapture<{ id: string }>();
+const transaction = capture.begin("dev", "users", { id: "1" }, { id: "2" });
+transaction.rollback();
+if (capture.list("dev").length !== 0) throw new Error("rolled back change captured");
+const committed = capture.begin("dev", "users", { id: "1" }, { id: "3" });
+committed.commit();
+if (capture.list("dev").length !== 1 || capture.list("dev")[0].newValue.id !== "3") throw new Error("committed change missing");
