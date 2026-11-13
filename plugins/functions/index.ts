@@ -69,6 +69,13 @@ export function executeFixture(fixture: () => unknown): FunctionInvocationResult
     return { success: false, error: error instanceof Error ? error.message : "fixture execution failed", diagnostics: [] };
   }
 }
+export type HttpsFetcher = (input: string, init?: RequestInit) => Promise<Response>;
+export async function invokeDirectHttps(endpoint: string, input: unknown, fetcher: HttpsFetcher = fetch): Promise<FunctionInvocationResult> {
+  if (!endpoint.startsWith("https://")) throw new Error("HTTPS endpoint required");
+  const response = await fetcher(endpoint, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(input) });
+  if (!response.ok) throw new Error(`HTTPS invocation failed: ${response.status}`);
+  return parseInvocationResult(await response.json());
+}
 export function capDiagnostics(lines: readonly string[], maxLines = 20, maxLineLength = 4096): string[] {
   if (!Number.isSafeInteger(maxLines) || maxLines < 1 || !Number.isSafeInteger(maxLineLength) || maxLineLength < 1 || lines.some((line) => line.length > maxLineLength)) throw new Error("diagnostic limit exceeded");
   return [...lines.slice(0, maxLines)];
