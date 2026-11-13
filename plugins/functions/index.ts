@@ -72,3 +72,9 @@ export function validateSandboxCapabilities(capabilities: readonly string[]): vo
   const denied = new Set(["filesystem", "network", "environment-credentials"]);
   if (capabilities.some((capability) => denied.has(capability))) throw new Error("sandbox capability denied");
 }
+export async function runWithTimeout<T>(task: Promise<T>, timeoutMs: number): Promise<T> {
+  if (!Number.isSafeInteger(timeoutMs) || timeoutMs < 1) throw new Error("invalid invocation timeout");
+  let timer: ReturnType<typeof setTimeout>;
+  const timeout = new Promise<never>((_, reject) => { timer = setTimeout(() => reject(new Error("function invocation timed out")), timeoutMs); });
+  try { return await Promise.race([task, timeout]); } finally { clearTimeout(timer!); }
+}
