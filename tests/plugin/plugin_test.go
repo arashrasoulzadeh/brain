@@ -454,3 +454,40 @@ func TestPromotionRejectsIncompatibleConfigurationSchema(t *testing.T) {
 		t.Fatal("incompatible configuration schema was promoted")
 	}
 }
+
+func TestRollbackRejectsIncompatibleRetainedVersion(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	versions := []plugin.Manifest{
+		{ID: "rollback-schema", Version: "1.0.0", HostAPI: 1, ConfigSchema: map[string]string{"region": "string"}},
+		{ID: "rollback-schema", Version: "2.0.0", HostAPI: 1, ConfigSchema: map[string]string{"region": "bool"}},
+	}
+	for _, manifest := range versions {
+		if err := r.Register(manifest); err != nil {
+			t.Fatal(err)
+		}
+		if err := r.SetReadiness(manifest.ID, manifest.Version, true); err != nil {
+			t.Fatal(err)
+		}
+		if err := r.Install("dev", manifest.ID, manifest.Version); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := r.Configure("dev", "rollback-schema", "1.0.0", map[string]any{"region": "eu"}); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Configure("dev", "rollback-schema", "2.0.0", map[string]any{"region": true}); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Enable("dev", "rollback-schema", "1.0.0"); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Enable("dev", "rollback-schema", "2.0.0"); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Promote("dev", "rollback-schema", "1.0.0"); err != nil {
+		t.Fatal(err)
+	}
+	if !errors.Is(r.Rollback("dev", "rollback-schema", "2.0.0"), plugin.ErrSchemaIncompatible) {
+		t.Fatal("rollback bypassed schema compatibility")
+	}
+}
