@@ -531,7 +531,7 @@ Goal: safely promote, roll back, disable, drain, uninstall, and extend plugin-co
 - [x] Disable one matchmaking scope independently.
 - [x] Block new calls, jobs, subscriptions, and assignments.
 - [x] Cancel affected queued matches.
-- [ ] Persist drain scope and deadline.
+- [x] Persist drain scope and deadline.
 - [ ] Use a five-minute default drain window.
 - [ ] Allow current participants to reconnect.
 - [ ] Reject new room admissions during drain.

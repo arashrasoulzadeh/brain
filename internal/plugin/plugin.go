@@ -172,11 +172,13 @@ type Installation struct {
 }
 
 type InstallationStatus struct {
-	ProjectID string
-	PluginID  string
-	Version   string
-	Enabled   bool
-	Ready     bool
+	ProjectID  string
+	PluginID   string
+	Version    string
+	Enabled    bool
+	Ready      bool
+	Draining   bool
+	DrainUntil time.Time
 }
 
 type Registry struct {
@@ -238,7 +240,7 @@ func (r *Registry) Status(projectID, pluginID, version string) (InstallationStat
 	if !ok {
 		return InstallationStatus{}, ErrNotInstalled
 	}
-	return InstallationStatus{ProjectID: projectID, PluginID: pluginID, Version: version, Enabled: installation.Enabled, Ready: r.readiness[pluginID+"@"+version]}, nil
+	return InstallationStatus{ProjectID: projectID, PluginID: pluginID, Version: version, Enabled: installation.Enabled, Ready: r.readiness[pluginID+"@"+version], Draining: installation.Draining, DrainUntil: installation.DrainUntil}, nil
 }
 
 func (r *Registry) ApproveArtifact(id, version, endpoint string) error {
