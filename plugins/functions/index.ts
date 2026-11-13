@@ -208,8 +208,8 @@ export class RecordChangeTriggerStore {
   match(projectId: string, collection: string, operation: string): RecordChangeTrigger[] {
     return this.triggers.filter((trigger) => trigger.projectId === projectId && trigger.collection === collection && trigger.operation === operation).map((trigger) => ({ ...trigger, target: { ...trigger.target } }));
   }
-  dispatch(projectId: string, collection: string, operation: string, committed: boolean): RecordChangeTrigger[] {
-    return committed ? this.match(projectId, collection, operation) : [];
+  dispatch(projectId: string, collection: string, operation: string, committed: boolean, ancestry: readonly string[] = []): RecordChangeTrigger[] {
+    return committed ? this.match(projectId, collection, operation).filter((trigger) => !ancestry.includes(trigger.target.functionId)) : [];
   }
 }
 export type FunctionDraft = { projectId: string; functionId: string; source: string; savedAt: number };
