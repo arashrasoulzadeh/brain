@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `f2a77a6` — 2026-11-13 04:53:30 +0330 — phase 04 initialize tic tac toe rooms
+- `64af317` — 2026-11-13 01:22:54 +0000 — docs: update changelog [skip ci]
 - `44ada41` — 2026-11-13 04:52:42 +0330 — phase 04 mark run status redaction complete
 - `23cfb3e` — 2026-11-13 01:22:39 +0000 — docs: update changelog [skip ci]
 - `eecbd0e` — 2026-11-13 04:52:28 +0330 — phase 04 redact workflow run secrets
