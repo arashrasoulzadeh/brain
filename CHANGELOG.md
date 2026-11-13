@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `fd0a32d` — 2026-11-13 16:51:34 +0330 — feat: recheck matchmaking lifecycle at assignment
+  Files: plugins/matchmaking/assignment-creator.ts,plugins/matchmaking/queue-runtime.ts plugins/matchmaking/queue.ts,roadmap.md tests/matchmaking/matchmaking.test.ts
+- `d608ee7` — 2026-11-13 13:20:42 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `a19fe89` — 2026-11-13 16:50:19 +0330 — feat: add immediate plugin security stop
   Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
 - `6551be1` — 2026-11-13 13:19:57 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `7bff8e7` — 2026-11-13 16:12:23 +0330 — record function and turn metrics
   Files: roadmap.md,tests/functions/phase04_metrics_gate.test.ts
 - `b9bc625` — 2026-11-13 12:42:08 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `37a6b4c` — 2026-11-13 16:11:46 +0330 — verify two client tic tac toe match
-  Files: roadmap.md,tests/functions/phase04_tictactoe_gate.test.ts
-- `056ed1b` — 2026-11-13 12:41:31 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
