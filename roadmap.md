@@ -560,7 +560,7 @@ Goal: safely promote, roll back, disable, drain, uninstall, and extend plugin-co
 - [x] Add two view contributions.
 - [x] Activate one replacement per named view and scope.
 - [x] Reject a second replacement.
-- [ ] Reject cross-project submissions.
+- [x] Reject cross-project submissions.
 - [ ] Route actions through host authorization.
 - [ ] Add CSRF checks.
 - [ ] Audit view actions.

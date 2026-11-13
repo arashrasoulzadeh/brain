@@ -9,5 +9,9 @@ export function createViewReplacementRegistry() {
       return { projectId, view, pluginId };
     },
     active(projectId: string, view: string) { return replacements.get(`${projectId}:${view}`); },
+    submit(hostProjectId: string, projectId: string, view: string) {
+      if (!hostProjectId.trim() || hostProjectId !== projectId) throw new Error("host project context mismatch");
+      return { projectId, view, pluginId: replacements.get(`${projectId}:${view}`) };
+    },
   };
 }
