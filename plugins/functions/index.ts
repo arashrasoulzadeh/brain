@@ -1,4 +1,4 @@
-import { request, type RpcRequest } from "../sdk-typescript/src/index.js";
+import { pluginRequest, type RpcRequest } from "../sdk-typescript/src/index.js";
 import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -43,7 +43,7 @@ export function validateCompilerLimits(limits: CompilerLimits): void {
 }
 
 export function functionRequest(projectId: string, pluginId: string, version: string, operation: "functions.invoke" | "functions.publish", payload: unknown = {}): RpcRequest {
-  return request(`functions-${operation}-${projectId}`, { protocol: 1, projectId, pluginId, version, operation, payload });
+  return pluginRequest("functions", projectId, pluginId, version, operation, payload);
 }
 export type FunctionInvocationRequest = { projectId: string; functionId: string; version: string; inputs: Readonly<Record<string, unknown>>; idempotencyKey: string };
 export function createInvocationRequest(input: FunctionInvocationRequest): FunctionInvocationRequest {

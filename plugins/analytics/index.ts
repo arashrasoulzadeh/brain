@@ -1,4 +1,4 @@
-import { request } from "../sdk-typescript/src/index.js";
+import { pluginRequest } from "../sdk-typescript/src/index.js";
 
 export type AnalyticsEvent = {
   projectId: string;
@@ -16,7 +16,7 @@ export function capture(event: AnalyticsEvent, sink: EventSink, allowedFields: r
 
 export function captureRequest(projectId: string, pluginId: string, version: string, event: Omit<AnalyticsEvent, "projectId">) {
   validateEvent({ projectId, ...event });
-  return request(`analytics-capture-${projectId}-${event.name}`, { protocol: 1, projectId, pluginId, version, operation: "analytics.capture", payload: event });
+  return pluginRequest("analytics", projectId, pluginId, version, "analytics.capture", event, event.name);
 }
 
 export function validateEvent(event: AnalyticsEvent, allowedFields: readonly string[] = []): void {

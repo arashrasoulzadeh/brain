@@ -41,6 +41,7 @@ Every phase exit must also update:
 - [ ] Give every plugin a manifest, grants, config schema, tests, developer notes, and administrator notes.
 - [ ] Make every plugin dynamically versionable, enableable, disableable, promotable, rollbackable, drainable, and removable.
 - [ ] Do not bypass the host permission broker or project boundary from plugin code.
+- [ ] Audit every plugin for duplicate helpers and move shared behavior into the TypeScript SDK; keep plugin entrypoints small, readable, and product-focused.
 
 ## Test organization law
 

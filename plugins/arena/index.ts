@@ -1,4 +1,4 @@
-import { request } from "../sdk-typescript/src/index.js";
+import { pluginRequest } from "../sdk-typescript/src/index.js";
 
 export type DurableMatchResult = {
   resultId: string;
@@ -80,6 +80,6 @@ export function validateMatchResult(result: DurableMatchResult): void {
 }
 
 export function arenaRequest(projectId: string, pluginId: string, version: string, operation: "arena.start" | "arena.input" | "arena.snapshot" | "arena.result", roomId: string, payload: unknown = {}) {
-  return request(`arena-${operation}-${projectId}-${roomId}`, { protocol: 1, projectId, pluginId, version, operation, payload: { roomId, ...(payload as Record<string, unknown>) } });
+  return pluginRequest("arena", projectId, pluginId, version, operation, { roomId, ...(payload as Record<string, unknown>) }, roomId);
 }
 

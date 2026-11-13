@@ -1,8 +1,8 @@
-import { request } from "../sdk-typescript/src/index.js";
+import { pluginRequest } from "../sdk-typescript/src/index.js";
 import { randomUUID } from "node:crypto";
 
 export function subscriptionRequest(projectId: string, pluginId: string, version: string, operation: "subscriptions.open" | "subscriptions.receive" | "subscriptions.resync", channel: string, payload: unknown = {}) {
-  return request(`subscriptions-${operation}-${projectId}-${channel}`, { protocol: 1, projectId, pluginId, version, operation, payload: { channel, ...(payload as Record<string, unknown>) } });
+  return pluginRequest("subscriptions", projectId, pluginId, version, operation, { channel, ...(payload as Record<string, unknown>) }, channel);
 }
 
 export type SubscriptionTicket = { ticket: string; projectId: string; channel: string; operation: string; expiresAt: number };
