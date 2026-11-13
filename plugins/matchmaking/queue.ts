@@ -1,5 +1,6 @@
 import type { AssignmentDecision, MatchmakingTicket } from "./types.js";
 import type { MatchmakingConfigs } from "./config-store.js";
+import { validateProjectId } from "../sdk-typescript/src/index.js";
 
 export class MatchmakingQueue {
   private sequence = 0;
@@ -7,7 +8,8 @@ export class MatchmakingQueue {
   private readonly queues = new Map<string, MatchmakingTicket[]>();
   constructor(private readonly configs?: MatchmakingConfigs) {}
   enqueue(projectId: string, scope: string, playerId: string, now = Date.now()): MatchmakingTicket {
-    if (!projectId || !scope || !playerId) throw new Error("invalid matchmaking ticket");
+    validateProjectId(projectId);
+    if (!scope || !playerId) throw new Error("invalid matchmaking ticket");
     if (this.configs && !this.configs.isEnabled(projectId, scope)) throw new Error("matchmaking scope disabled");
     const key = `${projectId}:${scope}`;
     if ((this.queues.get(key) ?? []).some((ticket) => ticket.playerId === playerId)) throw new Error("active ticket already exists");
@@ -16,8 +18,9 @@ export class MatchmakingQueue {
     this.queues.set(key, [...(this.queues.get(key) ?? []), ticket]);
     return { ...ticket };
   }
-  peek(projectId: string, scope: string): readonly MatchmakingTicket[] { return [...(this.queues.get(`${projectId}:${scope}`) ?? [])]; }
+  peek(projectId: string, scope: string): readonly MatchmakingTicket[] { validateProjectId(projectId); return [...(this.queues.get(`${projectId}:${scope}`) ?? [])]; }
   match(projectId: string, scope: string, matchSize: number): MatchmakingTicket[] {
+    validateProjectId(projectId);
     const key = `${projectId}:${scope}`;
     const queue = this.queues.get(key) ?? [];
     if (matchSize < 1 || queue.length < matchSize) return [];
@@ -34,6 +37,7 @@ export class MatchmakingQueue {
     return expired;
   }
   requeue(ticket: MatchmakingTicket, now = Date.now()): void {
+    validateProjectId(ticket.projectId);
     if (ticket.expiresAt <= now) throw new Error("ticket expired");
     const key = `${ticket.projectId}:${ticket.scope}`;
     const queue = this.queues.get(key) ?? [];
@@ -41,6 +45,7 @@ export class MatchmakingQueue {
     this.queues.set(key, [...queue, { ...ticket }].sort((a, b) => a.createdAt - b.createdAt));
   }
   assign(projectId: string, scope: string, matchSize: number, now = Date.now()): AssignmentDecision | null {
+    validateProjectId(projectId);
     const tickets = this.match(projectId, scope, matchSize);
     if (tickets.length !== matchSize) return null;
     return { id: `${projectId}:${scope}:assignment-${++this.decisionSequence}`, projectId, scope, ticketIds: tickets.map((ticket) => ticket.id), createdAt: now };

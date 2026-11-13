@@ -9,14 +9,15 @@ export function projectSchemaName(projectId: string): string {
 export function projectRoleName(projectId: string): string { return `runtime_${projectSchemaName(projectId)}`; }
 export class RowPolicy {
   private readonly grants = new Set<string>();
-  grant(projectId: string, actorId: string): boolean { if (!projectId || !actorId) return false; this.grants.add(`${projectId}:${actorId}`); return true; }
-  allows(projectId: string, actorId: string): boolean { return this.grants.has(`${projectId}:${actorId}`); }
+  grant(projectId: string, actorId: string): boolean { validateProjectId(projectId); if (!actorId) return false; this.grants.add(`${projectId}:${actorId}`); return true; }
+  allows(projectId: string, actorId: string): boolean { validateProjectId(projectId); return this.grants.has(`${projectId}:${actorId}`); }
 }
 export type TableExposure = { projectId: string; table: string; columns: readonly string[] };
 export class TableExposureRegistry {
   private readonly records = new Map<string, TableExposure>();
   expose(projectId: string, table: string, columns: readonly string[]): void {
-    if (!projectId || !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table) || !columns.length) throw new Error("invalid table exposure");
+    validateProjectId(projectId);
+    if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table) || !columns.length) throw new Error("invalid table exposure");
     this.records.set(`${projectId}:${table}`, { projectId, table, columns: [...columns] });
   }
   get(projectId: string, table: string): TableExposure | undefined { const record = this.records.get(`${projectId}:${table}`); return record ? { ...record, columns: [...record.columns] } : undefined; }

@@ -34,6 +34,7 @@ Every phase exit must also update:
 - [ ] Require host-authenticated execution context for every production plugin handler; reject project IDs supplied only by scripts, payloads, or request constructors.
 - [ ] Bind every production commit to a single-use host-issued invocation credential; reject tampered or replayed credentials.
 - [ ] Run a deep security audit across every plugin for project binding, authorization, replay/idempotency, input/path validation, network targets, secret handling, and YAML boundaries; fix findings and add regression tests.
+- [ ] Refactor every legacy plugin source file to the one-callable-responsibility-per-file law; update manifests, imports, tests, developer docs, and admin docs.
 - [ ] Keep operator access separate from end-user access.
 - [ ] Treat destructive actions, migrations, releases, and permission changes as audited operations.
 

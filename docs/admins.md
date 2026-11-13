@@ -51,6 +51,8 @@ Plugin releases are blocked unless TypeScript lint, typecheck, and the complete 
 
 Administrators can review `source_files`, `imports`, `plugin_imports`, and `dependencies` in each YAML manifest. Undeclared files, module imports, or plugin relationships are rejected before execution.
 
+Plugin updates must preserve the one-callable-responsibility-per-file rule. The host review must reject undocumented legacy multi-responsibility modules and verify that all split files are declared in the plugin manifest.
+
 Each handler file is independently versionable and replaceable, while `index.ts` remains the plugin export boundary. Review the YAML file list when approving a plugin update.
 
 Project isolation is enforced from the host execution context. A plugin or client cannot select a project by changing a request payload or constructor argument at runtime.
