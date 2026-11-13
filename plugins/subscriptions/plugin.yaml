@@ -8,7 +8,9 @@ source_files:
   - index.ts
   - types.ts
   - subscription-request.ts
-  - ticket-store.ts
+  - subscription-ticket-issuer.ts
+  - subscription-ticket-validator.ts
+  - subscription-ticket-consumer.ts
   - origin.ts
   - subscription-grant-store.ts
   - subscription-authorization.ts
@@ -29,7 +31,9 @@ imports:
   - ./subscription-event-appender.js
   - ./subscription-event-reader.js
   - ./subscription-request.js
-  - ./ticket-store.js
+  - ./subscription-ticket-issuer.js
+  - ./subscription-ticket-validator.js
+  - ./subscription-ticket-consumer.js
   - ./types.js
 plugin_imports:
 dependencies: []

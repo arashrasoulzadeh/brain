@@ -7,5 +7,7 @@ export { validateBrowserOrigin } from "./origin.js";
 export { SubscriptionEventAppender } from "./subscription-event-appender.js";
 export { SubscriptionEventReader } from "./subscription-event-reader.js";
 export { subscriptionRequest } from "./subscription-request.js";
-export { SubscriptionTicketStore } from "./ticket-store.js";
+export { SubscriptionTicketIssuer } from "./subscription-ticket-issuer.js";
+export { SubscriptionTicketValidator } from "./subscription-ticket-validator.js";
+export { SubscriptionTicketConsumer } from "./subscription-ticket-consumer.js";
 export type { SubscriptionEvent, SubscriptionTicket } from "./types.js";
