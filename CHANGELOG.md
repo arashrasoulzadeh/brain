@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `07452b0` — 2026-11-13 03:45:39 +0330 — phase 03 reconcile orphaned file objects
+- `7ab0c8b` — 2026-11-13 00:15:22 +0000 — docs: update changelog [skip ci]
 - `517f274` — 2026-11-13 03:45:10 +0330 — phase 03 reconcile interrupted uploads
 - `0c1b4cf` — 2026-11-13 00:14:50 +0000 — docs: update changelog [skip ci]
 - `4dd61ea` — 2026-11-13 03:44:37 +0330 — phase 03 enforce upload size limits
