@@ -41,6 +41,7 @@ import { MissedScheduleEnqueuer } from "./missed-schedule-enqueuer.js";
 import { FunctionVersionEnqueuer } from "./function-version-enqueuer.js";
 
 export { functionRequest } from "./function-request.js";
+export { publishSharedHelperArtifact } from "./shared-helper-publisher.js";
 
 export const APPROVED_SDK_IMPORTS = ["brain/sdk", "brain/project", "brain/storage"] as const;
 export const ENTRY_PACKAGE_FIXTURE = "package main\n\nimport \"encoding/json\"\n\nfunc main() {\n\t_ = json.NewEncoder(nil)\n}\n";

@@ -499,7 +499,7 @@ Goal: compile dashboard-authored Go to WASM, execute it safely, run durable trig
 ### Phase 04 gate
 
 - [ ] Pass compiler and runner isolation tests in Compose.
-- [ ] Publish and roll back a shared-helper artifact.
+- [x] Publish and roll back a shared-helper artifact.
 - [ ] Run direct, scheduled, and record-change invocations.
 - [ ] Verify crash recovery and grant revocation.
 - [ ] Play a complete two-client Tic-tac-toe match.

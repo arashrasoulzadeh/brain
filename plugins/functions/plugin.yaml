@@ -39,6 +39,7 @@ source_files:
   - schedule-occurrence-recorder.ts
   - missed-schedule-enqueuer.ts
   - function-version-enqueuer.ts
+  - shared-helper-publisher.ts
 imports:
   - ../sdk-typescript/src/index.js
   - node:fs
@@ -82,6 +83,7 @@ imports:
   - ./schedule-occurrence-recorder.js
   - ./missed-schedule-enqueuer.js
   - ./function-version-enqueuer.js
+  - ./shared-helper-publisher.js
   - ./index.js
 plugin_imports:
 title: Functions
