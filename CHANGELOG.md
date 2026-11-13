@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `c2c6912` — 2026-11-13 04:54:27 +0330 — phase 04 validate tic tac toe moves
+- `77c2493` — 2026-11-13 01:23:55 +0000 — docs: update changelog [skip ci]
 - `7ed619d` — 2026-11-13 04:53:44 +0330 — phase 04 mark tic tac toe initialization complete
 - `2001faf` — 2026-11-13 01:23:42 +0000 — docs: update changelog [skip ci]
 - `f2a77a6` — 2026-11-13 04:53:30 +0330 — phase 04 initialize tic tac toe rooms
