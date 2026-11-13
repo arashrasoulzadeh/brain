@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `280dd2c` — 2026-11-13 03:40:56 +0330 — phase 03 configure private file bucket
+- `8a884de` — 2026-11-13 00:10:27 +0000 — docs: update changelog [skip ci]
 - `bf00f71` — 2026-11-13 03:40:14 +0330 — phase 03 replay missed subscription events
 - `9d8e456` — 2026-11-13 00:10:00 +0000 — docs: update changelog [skip ci]
 - `6546d6c` — 2026-11-13 03:39:47 +0330 — phase 03 bound slow subscription consumers
