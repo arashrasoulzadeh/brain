@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `0864716` — 2026-11-13 14:52:07 +0330 — split function publication operations
+- `dc905b6` — 2026-11-13 11:20:16 +0000 — docs: update changelog [skip ci]
 - `3517659` — 2026-11-13 14:49:53 +0330 — split invocation effect operations
 - `ea14df2` — 2026-11-13 11:18:23 +0000 — docs: update changelog [skip ci]
 - `ca2db40` — 2026-11-13 14:48:00 +0330 — split function lease operations
