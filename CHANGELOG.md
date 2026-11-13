@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `45fbd3f` — 2026-11-13 04:09:23 +0330 — phase 04 bound compiler resources
+- `25fcaa1` — 2026-11-13 00:39:11 +0000 — docs: update changelog [skip ci]
 - `12d6926` — 2026-11-13 04:08:51 +0330 — phase 04 record compiler environment isolation
 - `2b4af5c` — 2026-11-13 00:38:52 +0000 — docs: update changelog [skip ci]
 - `a6dc9de` — 2026-11-13 04:08:40 +0330 — phase 04 isolate compiler credentials and network
