@@ -93,3 +93,9 @@ export class InvocationEffects {
   }
   list(): unknown[] { return [...this.committed]; }
 }
+export type FunctionDraft = { projectId: string; functionId: string; source: string; savedAt: number };
+export class FunctionDraftStore {
+  private readonly drafts = new Map<string, FunctionDraft>();
+  save(projectId: string, functionId: string, source: string, savedAt = Date.now()): FunctionDraft { if (!projectId || !functionId || !source || !Number.isFinite(savedAt)) throw new Error("invalid function draft"); const draft = { projectId, functionId, source, savedAt }; this.drafts.set(`${projectId}:${functionId}`, draft); return { ...draft }; }
+  get(projectId: string, functionId: string): FunctionDraft | undefined { const draft = this.drafts.get(`${projectId}:${functionId}`); return draft ? { ...draft } : undefined; }
+}
