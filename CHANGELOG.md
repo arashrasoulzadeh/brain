@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `c7e58b8` — 2026-11-13 04:46:09 +0330 — phase 04 mark grant recheck complete
+- `47554f4` — 2026-11-13 01:16:07 +0000 — docs: update changelog [skip ci]
 - `9f6171e` — 2026-11-13 04:45:55 +0330 — phase 04 recheck grants at job commit
 - `736bc59` — 2026-11-13 01:15:24 +0000 — docs: update changelog [skip ci]
 - `b1b2d51` — 2026-11-13 04:45:13 +0330 — phase 04 mark short job leases complete
