@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `8bbfbb1` — 2026-11-13 16:31:50 +0330 — feat: calculate transitive plugin dependents
+  Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
+- `2c1f5a5` — 2026-11-13 13:00:51 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `188fef8` — 2026-11-13 16:30:30 +0330 — feat: require approval for new plugin capabilities
   Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
 - `6e034ee` — 2026-11-13 12:59:33 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `ca2db40` — 2026-11-13 14:48:00 +0330 — split function lease operations
   Files: plugins/functions/index.ts,plugins/functions/job-lease-acquirer.ts plugins/functions/job-lease-renewer.ts,plugins/functions/job-lease-state.ts plugins/functions/plugin.yaml,tests/functions/functions.test.ts
 - `2e6216c` — 2026-11-13 11:15:45 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `08ae2f6` — 2026-11-13 14:45:25 +0330 — split function draft operations
-  Files: plugins/functions/function-draft-reader.ts,plugins/functions/function-draft-state.ts plugins/functions/function-draft-writer.ts,plugins/functions/index.ts plugins/functions/plugin.yaml,tests/functions/functions.test.ts
-- `7b7aa61` — 2026-11-13 11:14:28 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
