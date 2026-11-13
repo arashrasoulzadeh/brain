@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `ba63107` — 2026-11-13 14:19:03 +0330 — split arena state operations
+- `47269da` — 2026-11-13 10:45:34 +0000 — docs: update changelog [skip ci]
 - `d4baf82` — 2026-11-13 14:15:02 +0330 — split auth account operations
 - `d07843c` — 2026-11-13 10:40:28 +0000 — docs: update changelog [skip ci]
 - `780ea98` — 2026-11-13 14:10:16 +0330 — split auth recovery classes
