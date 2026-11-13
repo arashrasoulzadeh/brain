@@ -1,4 +1,6 @@
-import { pluginRequest, validateIdentifier as validateSdkIdentifier, validateProjectId } from "../sdk-typescript/src/index.js";
+import { validateIdentifier as validateSdkIdentifier, validateProjectId } from "../sdk-typescript/src/index.js";
+
+export { dataRequest } from "./data-request.js";
 
 export function projectSchemaName(projectId: string): string {
   validateProjectId(projectId);
@@ -60,7 +62,6 @@ export class IdempotentCreateStore<T> {
     const value = factory(); this.results.set(id, value); return value;
   }
 }
-
 export type SchemaChange =
   | { kind: "add_column"; name: string; type: "string" | "number" | "boolean" | "date" }
   | { kind: "create_index"; name: string; columns: readonly string[] };
@@ -176,7 +177,4 @@ export class DirectSQLChangeCapture {
   list(projectId: string): DirectSQLChange[] { return this.changes.filter((change) => change.projectId === projectId).map((change) => ({ ...change })); }
 }
 
-export function dataRequest(projectId: string, pluginId: string, version: string, operation: "tables.read" | "tables.write" | "tables.schema", table: string, payload: unknown = {}) {
-  return pluginRequest("tables", projectId, pluginId, version, operation, { table, ...(payload as Record<string, unknown>) }, table);
-}
 
