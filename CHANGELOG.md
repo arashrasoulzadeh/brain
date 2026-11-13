@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `cd8b844` — 2026-11-13 04:07:11 +0330 — phase 04 enforce function source and artifact limits
+- `60859cd` — 2026-11-13 00:37:02 +0000 — docs: update changelog [skip ci]
 - `e215ba8` — 2026-11-13 04:06:48 +0330 — phase 04 record build override rejection
 - `c8a6774` — 2026-11-13 00:36:48 +0000 — docs: update changelog [skip ci]
 - `cbfd92c` — 2026-11-13 04:06:36 +0330 — phase 04 reject workspace and toolchain overrides
