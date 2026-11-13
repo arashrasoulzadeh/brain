@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `fe9536b` — 2026-11-13 16:24:11 +0330 — test: enforce retained plugin rollback versions
+  Files: roadmap.md,tests/plugin/plugin_test.go
+- `159698b` — 2026-11-13 12:53:09 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `84c528b` — 2026-11-13 16:22:48 +0330 — feat: cancel incompatible matchmaking tickets
   Files: plugins/matchmaking/plugin.yaml,plugins/matchmaking/queue.ts plugins/matchmaking/ticket-canceller.ts,plugins/matchmaking/ticket-enqueuer.ts plugins/matchmaking/types.ts,roadmap.md tests/matchmaking/matchmaking.test.ts
 - `83fce3b` — 2026-11-13 12:51:06 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `d0689ee` — 2026-11-13 14:40:10 +0330 — split transactional change capture operations
   Files: plugins/tables/index.ts,plugins/tables/plugin.yaml plugins/tables/scoped-transaction-change-reader.ts,plugins/tables/scoped-transaction-change-writer.ts plugins/tables/transaction-change-reader.ts,plugins/tables/transaction-change-state.ts plugins/tables/transaction-change-writer.ts,tests/tables/tables.test.ts
 - `08a44e8` — 2026-11-13 11:08:44 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `967f65c` — 2026-11-13 14:38:22 +0330 — split SQL change capture operations
-  Files: plugins/tables/index.ts,plugins/tables/plugin.yaml plugins/tables/sql-change-reader.ts,plugins/tables/sql-change-state.ts plugins/tables/sql-change-writer.ts,tests/tables/tables.test.ts
-- `0134c9b` — 2026-11-13 11:07:22 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
