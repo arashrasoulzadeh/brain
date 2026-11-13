@@ -9,6 +9,11 @@ import { ApiChangeReader } from "./api-change-reader.js";
 import { createSQLChangeState } from "./sql-change-state.js";
 import { SQLChangeWriter } from "./sql-change-writer.js";
 import { SQLChangeReader } from "./sql-change-reader.js";
+import { createTransactionChangeState } from "./transaction-change-state.js";
+import { TransactionChangeWriter } from "./transaction-change-writer.js";
+import { ScopedTransactionChangeWriter } from "./scoped-transaction-change-writer.js";
+import { TransactionChangeReader } from "./transaction-change-reader.js";
+import { ScopedTransactionChangeReader } from "./scoped-transaction-change-reader.js";
 
 export { dataRequest } from "./data-request.js";
 export { projectSchemaName } from "./project-schema-name.js";
@@ -68,34 +73,7 @@ export function createSchemaPublicationAudit() { const state = createSchemaAudit
 export type RowChange<T> = { projectId: string; table: string; oldValue: T; newValue: T };
 export type ScopedRowChange<T> = RowChange<T> & { oldScope: readonly string[]; newScope: readonly string[] };
 
-export class TransactionalChangeCapture<T> {
-  private readonly changes: RowChange<T>[] = [];
-  private readonly scopedChanges: ScopedRowChange<T>[] = [];
-  begin(projectId: string, table: string, oldValue: T, newValue: T): { commit: () => void; rollback: () => void } {
-    if (!projectId || !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) throw new Error("invalid change target");
-    let finished = false;
-    const finish = (commit: boolean) => {
-      if (finished) throw new Error("transaction already finished");
-      finished = true;
-      if (commit) this.changes.push({ projectId, table, oldValue, newValue });
-    };
-    return { commit: () => finish(true), rollback: () => finish(false) };
-  }
-  beginScoped(projectId: string, table: string, oldValue: T, newValue: T, oldScope: readonly string[], newScope: readonly string[], approvedScopes: readonly string[] = ["public", "member", "owner"]): { commit: () => void; rollback: () => void } {
-    const allowed = new Set(approvedScopes);
-    if (![...oldScope, ...newScope].every((scope) => scope && allowed.has(scope))) throw new Error("unapproved authorization scope");
-    if (!projectId || !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) throw new Error("invalid change target");
-    let finished = false;
-    const finish = (commit: boolean) => {
-      if (finished) throw new Error("transaction already finished");
-      finished = true;
-      if (commit) this.scopedChanges.push({ projectId, table, oldValue, newValue, oldScope: [...oldScope], newScope: [...newScope] });
-    };
-    return { commit: () => finish(true), rollback: () => finish(false) };
-  }
-  list(projectId: string): RowChange<T>[] { return this.changes.filter((change) => change.projectId === projectId).map((change) => ({ ...change })); }
-  listScoped(projectId: string): ScopedRowChange<T>[] { return this.scopedChanges.filter((change) => change.projectId === projectId).map((change) => ({ ...change, oldScope: [...change.oldScope], newScope: [...change.newScope] })); }
-}
+export function createTransactionalChangeCapture<T>() { const state = createTransactionChangeState<T>(); const writer = new TransactionChangeWriter(state); const scopedWriter = new ScopedTransactionChangeWriter(state); const reader = new TransactionChangeReader(state); const scopedReader = new ScopedTransactionChangeReader(state); return { begin: writer.begin.bind(writer), beginScoped: scopedWriter.beginScoped.bind(scopedWriter), list: reader.list.bind(reader), listScoped: scopedReader.listScoped.bind(scopedReader) }; }
 
 export type ApiChange = { projectId: string; operation: string; payload: unknown };
 
