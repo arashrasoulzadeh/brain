@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `29329e7` — 2026-11-13 04:42:34 +0330 — phase 04 mark record triggers complete
+- `3c3c2a1` — 2026-11-13 01:12:33 +0000 — docs: update changelog [skip ci]
 - `7bc1ffc` — 2026-11-13 04:42:21 +0330 — phase 04 add record change triggers
 - `2f3018e` — 2026-11-13 01:11:49 +0000 — docs: update changelog [skip ci]
 - `2650731` — 2026-11-13 04:41:37 +0330 — phase 04 mark function version pinning complete
