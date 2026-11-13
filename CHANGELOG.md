@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `37a6b4c` — 2026-11-13 16:11:46 +0330 — verify two client tic tac toe match
+  Files: roadmap.md,tests/functions/phase04_tictactoe_gate.test.ts
+- `056ed1b` — 2026-11-13 12:41:31 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `2df9268` — 2026-11-13 16:11:07 +0330 — verify function crash recovery and grant revocation
   Files: roadmap.md,tests/functions/phase04_recovery_gate.test.ts
 - `e23347b` — 2026-11-13 12:40:49 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `0d37bba` — 2026-11-13 14:21:03 +0330 — split room directory operations
   Files: plugins/rooms/index.ts,plugins/rooms/plugin.yaml plugins/rooms/room-creator.ts,plugins/rooms/room-event-reader.ts plugins/rooms/room-joiner.ts,plugins/rooms/room-leaver.ts plugins/rooms/room-membership-reader.ts,plugins/rooms/room-reader.ts plugins/rooms/room-runtime.ts,tests/arena/phase02_gate.test.ts tests/rooms/rooms.test.ts
 - `f10bb6b` — 2026-11-13 10:49:27 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `ba63107` — 2026-11-13 14:19:03 +0330 — split arena state operations
-  Files: plugins/arena/arena-action-recorder.ts,plugins/arena/arena-finisher.ts plugins/arena/arena-measurer.ts,plugins/arena/arena-start.ts plugins/arena/arena-starter.ts,plugins/arena/arena-state-reader.ts plugins/arena/arena-state.ts,plugins/arena/index.ts plugins/arena/plugin.yaml,plugins/arena/state-machine.ts tests/arena/arena.test.ts,tests/arena/phase02_gate.test.ts tests/dashboard/phase03_guest_coop_gate.test.ts
-- `47269da` — 2026-11-13 10:45:34 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
