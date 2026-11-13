@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `a6dc9de` — 2026-11-13 04:08:40 +0330 — phase 04 isolate compiler credentials and network
+- `4f5ded4` — 2026-11-13 00:38:30 +0000 — docs: update changelog [skip ci]
 - `6005f9d` — 2026-11-13 04:08:06 +0330 — phase 04 record disposable compiler workspace
 - `38b0443` — 2026-11-13 00:38:07 +0000 — docs: update changelog [skip ci]
 - `a3e47aa` — 2026-11-13 04:07:55 +0330 — phase 04 use disposable compiler workspaces
