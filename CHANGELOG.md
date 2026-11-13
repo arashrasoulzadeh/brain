@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `6932b19` — 2026-11-13 04:23:06 +0330 — phase 04 add function draft saving
+- `4317d9c` — 2026-11-13 00:52:53 +0000 — docs: update changelog [skip ci]
 - `dbea4da` — 2026-11-13 04:22:32 +0330 — phase 04 record failed invocation write isolation
 - `8370588` — 2026-11-13 00:52:34 +0000 — docs: update changelog [skip ci]
 - `0643e5f` — 2026-11-13 04:22:17 +0330 — phase 04 discard failed invocation writes
