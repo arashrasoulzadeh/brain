@@ -60,3 +60,5 @@ Never trust project IDs, plugin grants, room membership, or permissions supplied
 Plugin changes must pass `npm run lint:ts`, `npm run typecheck`, and `npm run test:ts`. Shared generic request, identity, and validation helpers belong in `plugins/sdk-typescript/src/`; plugin entrypoints should remain product-focused.
 
 `plugin.yaml` is the execution boundary. Declare all plugin files in `source_files`, all module/runtime imports in `imports`, and plugin-to-plugin calls in `plugin_imports` plus `dependencies`. The host validates these declarations before loading a plugin.
+
+The host also scans each declared source file and rejects missing files or import specifiers absent from the YAML allowlist via `ValidatePluginSources`.

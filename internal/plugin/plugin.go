@@ -6,6 +6,8 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 
@@ -104,6 +106,30 @@ func (m Manifest) EntryPoint() string {
 		return "index.ts"
 	}
 	return m.Entry
+}
+
+var sourceImportPattern = regexp.MustCompile(`(?:from\s+|import\s*)["']([^"']+)["']`)
+
+func ValidatePluginSources(directory string, manifest Manifest) error {
+	if err := ValidateManifestContract(manifest); err != nil {
+		return err
+	}
+	allowedImports := map[string]bool{}
+	for _, importPath := range manifest.Imports {
+		allowedImports[importPath] = true
+	}
+	for _, sourceFile := range manifest.SourceFiles {
+		data, err := os.ReadFile(filepath.Join(directory, sourceFile))
+		if err != nil {
+			return ErrInvalidManifest
+		}
+		for _, match := range sourceImportPattern.FindAllStringSubmatch(string(data), -1) {
+			if !allowedImports[match[1]] {
+				return ErrInvalidManifest
+			}
+		}
+	}
+	return nil
 }
 
 func (m Manifest) Route(operation string) (Route, bool) {

@@ -29,6 +29,23 @@ func TestLoadManifestRequiresAuthorizedSourcesAndImports(t *testing.T) {
 	}
 }
 
+func TestValidatePluginSourcesRejectsUndeclaredImports(t *testing.T) {
+	directory := t.TempDir()
+	if err := os.WriteFile(filepath.Join(directory, "index.ts"), []byte(`import "node:crypto"; import "node:net";`), 0600); err != nil {
+		t.Fatal(err)
+	}
+	manifest := plugin.Manifest{ID: "sample", Entry: "index.ts", Version: "1.0.0", HostAPI: 1, SourceFiles: []string{"index.ts"}, Imports: []string{"node:crypto"}}
+	if err := plugin.ValidatePluginSources(directory, manifest); !errors.Is(err, plugin.ErrInvalidManifest) {
+		t.Fatalf("undeclared import accepted: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(directory, "index.ts"), []byte(`import "node:crypto";`), 0600); err != nil {
+		t.Fatal(err)
+	}
+	if err := plugin.ValidatePluginSources(directory, manifest); err != nil {
+		t.Fatalf("declared import rejected: %v", err)
+	}
+}
+
 func TestPluginLifecycleAndScopedAuthorization(t *testing.T) {
 	r := plugin.NewRegistry(1)
 	m := plugin.Manifest{ID: "guest", Version: "1.0.0", HostAPI: 1, Capabilities: []string{"session.issue"}}
