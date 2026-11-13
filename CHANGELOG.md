@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `31b91fe` — 2026-11-13 04:55:32 +0330 — phase 04 mark out of turn rejection complete
+- `e119b9e` — 2026-11-13 01:25:29 +0000 — docs: update changelog [skip ci]
 - `67b7c66` — 2026-11-13 04:55:18 +0330 — phase 04 reject out of turn moves
 - `1cc1b51` — 2026-11-13 01:24:55 +0000 — docs: update changelog [skip ci]
 - `dbbfcfa` — 2026-11-13 04:54:42 +0330 — phase 04 mark legal move validation complete
