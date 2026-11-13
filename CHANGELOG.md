@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `42f12e5` — 2026-11-13 16:53:55 +0330 — feat: resume paused rooms on pinned versions
+  Files: plugins/rooms/index.ts,plugins/rooms/plugin.yaml plugins/rooms/resume-tic-tac-toe-turn.ts,roadmap.md tests/rooms/rooms.test.ts
+- `42f4c16` — 2026-11-13 13:23:14 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `e4e916b` — 2026-11-13 16:52:38 +0330 — feat: recheck lifecycle at invocation commit
   Files: plugins/functions/index.ts,plugins/functions/invocation-commit-state.ts plugins/functions/invocation-commit-writer.ts,roadmap.md tests/functions/functions.test.ts
 - `0851194` — 2026-11-13 13:21:55 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `6ef4174` — 2026-11-13 16:18:07 +0330 — docs: close phase 04 isolation gate
   Files: docs/admins.md,docs/developers.md roadmap.md
 - `404352c` — 2026-11-13 12:43:43 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `01ab594` — 2026-11-13 16:13:23 +0330 — exclude vendored files from Go formatting check
-  Files: .github/workflows/test.yml
-- `fdf4279` — 2026-11-13 12:42:43 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
