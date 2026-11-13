@@ -196,6 +196,19 @@ export class ScheduleStore {
     return { projectId, functionId, functionVersion, enqueuedAt };
   }
 }
+export type RecordChangeTrigger = { projectId: string; collection: string; operation: string; target: { functionId: string; version: number } };
+export class RecordChangeTriggerStore {
+  private readonly triggers: RecordChangeTrigger[] = [];
+  add(projectId: string, collection: string, operation: string, target: { functionId: string; version: number }): RecordChangeTrigger {
+    if (!projectId || !collection || !operation || !target.functionId || !Number.isSafeInteger(target.version) || target.version < 1) throw new Error("invalid record trigger");
+    const trigger = { projectId, collection, operation, target: { ...target } };
+    this.triggers.push(trigger);
+    return { ...trigger, target: { ...trigger.target } };
+  }
+  match(projectId: string, collection: string, operation: string): RecordChangeTrigger[] {
+    return this.triggers.filter((trigger) => trigger.projectId === projectId && trigger.collection === collection && trigger.operation === operation).map((trigger) => ({ ...trigger, target: { ...trigger.target } }));
+  }
+}
 export type FunctionDraft = { projectId: string; functionId: string; source: string; savedAt: number };
 export class FunctionDraftStore {
   private readonly drafts = new Map<string, FunctionDraft>();
