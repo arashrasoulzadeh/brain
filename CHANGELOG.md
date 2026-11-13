@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `14995e5` — 2026-11-13 04:04:32 +0330 — phase 04 record vendored dependencies
+- `e4b5fd7` — 2026-11-13 00:34:33 +0000 — docs: update changelog [skip ci]
 - `c2ca62e` — 2026-11-13 04:04:20 +0330 — phase 04 vendor approved Go dependencies
 - `2699586` — 2026-11-13 00:34:13 +0000 — docs: update changelog [skip ci]
 - `3e003da` — 2026-11-13 04:04:01 +0330 — phase 04 record wasm platform settings
