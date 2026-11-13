@@ -1,5 +1,7 @@
-import { pluginRequest, validateProjectId } from "../sdk-typescript/src/index.js";
+import { validateProjectId } from "../sdk-typescript/src/index.js";
 import { randomUUID } from "node:crypto";
+
+export { roomRequest } from "./room-request.js";
 
 export function projectRoomID(projectId: string, roomId: string): string {
   validateProjectId(projectId);
@@ -211,8 +213,3 @@ export function hiddenTicTacToeView<T>(state: TicTacToeState, playerId: string, 
   const view = { ...state, players: [...state.players] as [string, string], board: [...state.board] };
   return { ...view, privateState: state.players.includes(playerId) ? privateState[playerId] : undefined };
 }
-
-export function roomRequest(projectId: string, pluginId: string, version: string, operation: "rooms.create" | "rooms.join" | "rooms.reconnect" | "rooms.result", roomId: string, payload: unknown = {}) {
-  return pluginRequest("rooms", projectId, pluginId, version, operation, { roomId, ...(payload as Record<string, unknown>) }, roomId);
-}
-
