@@ -350,7 +350,7 @@ Goal: provide project-scoped identity, PostgreSQL APIs, files, subscriptions, an
 - [x] Capture API changes.
 - [x] Capture direct SQL changes.
 - [x] Do not capture rolled-back changes.
-- [ ] Add subscription tickets.
+- [x] Add subscription tickets.
 - [ ] Make tickets single-use.
 - [ ] Validate browser origins.
 - [ ] Authorize each subscription.
