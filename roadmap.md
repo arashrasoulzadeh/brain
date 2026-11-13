@@ -367,7 +367,7 @@ Goal: provide project-scoped identity, PostgreSQL APIs, files, subscriptions, an
 - [x] Reserve file quota.
 - [x] Stream authorized uploads.
 - [x] Publish metadata after object success.
-- [ ] Reject unauthorized reads and deletes.
+- [x] Reject unauthorized reads and deletes.
 - [ ] Reject cross-project object IDs.
 - [ ] Add upload size limits.
 - [ ] Reconcile interrupted uploads.

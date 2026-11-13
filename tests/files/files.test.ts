@@ -1,4 +1,4 @@
-import { AuthorizedUploadStream, configurePrivateBucket, FileQuotaLedger, fileRequest, PendingUploadStore, projectObjectKey } from "../../plugins/files/index.js";
+import { AuthorizedUploadStream, configurePrivateBucket, FileAccessPolicy, FileQuotaLedger, fileRequest, PendingUploadStore, projectObjectKey } from "../../plugins/files/index.js";
 import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = fileRequest("dev", "files", "0.1.0", "files.upload", "avatar", { contentType: "image/png" });
@@ -19,3 +19,6 @@ const stream = new AuthorizedUploadStream();
 stream.authorize("dev", "avatar.png", "user-1");
 if (stream.write("dev", "avatar.png", "user-1", new Uint8Array(3)) !== 3) throw new Error("authorized upload failed");
 try { stream.write("dev", "avatar.png", "user-2", new Uint8Array(1)); throw new Error("unauthorized upload accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "upload denied") throw error; }
+const access = new FileAccessPolicy();
+access.grant("dev", "avatar.png", "user-1"); access.read("dev", "avatar.png", "user-1"); access.delete("dev", "avatar.png", "user-1");
+try { access.read("dev", "avatar.png", "user-2"); throw new Error("unauthorized file read accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "file access denied") throw error; }
