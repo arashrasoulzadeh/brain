@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `d4baf82` — 2026-11-13 14:15:02 +0330 — split auth account operations
+- `d07843c` — 2026-11-13 10:40:28 +0000 — docs: update changelog [skip ci]
 - `780ea98` — 2026-11-13 14:10:16 +0330 — split auth recovery classes
 - `c827b41` — 2026-11-13 10:38:45 +0000 — docs: update changelog [skip ci]
 - `15a4169` — 2026-11-13 14:08:32 +0330 — split auth OTP classes
