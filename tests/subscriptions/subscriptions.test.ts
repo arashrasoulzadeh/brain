@@ -17,3 +17,5 @@ const authorizer = new SubscriptionAuthorizer();
 authorizer.grant("dev", "records.users", "user-1");
 authorizer.authorize("dev", "records.users", "user-1");
 try { authorizer.authorize("dev", "records.users", "user-2"); throw new Error("unauthorized subscription accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "subscription denied") throw error; }
+authorizer.invalidateOwner("dev", "user-1");
+try { authorizer.authorize("dev", "records.users", "user-1"); throw new Error("old owner subscription survived transfer"); } catch (error) { if (!(error instanceof Error) || error.message !== "subscription denied") throw error; }

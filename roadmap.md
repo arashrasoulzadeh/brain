@@ -354,7 +354,7 @@ Goal: provide project-scoped identity, PostgreSQL APIs, files, subscriptions, an
 - [x] Make tickets single-use.
 - [x] Validate browser origins.
 - [x] Authorize each subscription.
-- [ ] Handle owner-transfer invalidations.
+- [x] Handle owner-transfer invalidations.
 - [ ] Handle writes during initial fetch.
 - [ ] Handle slow consumers.
 - [ ] Reconnect with missed events.

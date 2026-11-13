@@ -43,5 +43,8 @@ export class SubscriptionAuthorizer {
   authorize(projectId: string, channel: string, actorId: string): void {
     if (!this.grants.has(`${projectId}:${channel}:${actorId}`)) throw new Error("subscription denied");
   }
+  invalidateOwner(projectId: string, oldOwnerId: string): void {
+    for (const grant of this.grants) if (grant.startsWith(`${projectId}:`) && grant.endsWith(`:${oldOwnerId}`)) this.grants.delete(grant);
+  }
 }
 
