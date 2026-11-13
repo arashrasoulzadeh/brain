@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `cbf1c65` — 2026-11-13 12:57:08 +0330 — require plugin readiness before promotion
+- `6ba360b` — 2026-11-13 09:26:04 +0000 — docs: update changelog [skip ci]
 - `4005ce0` — 2026-11-13 12:55:50 +0330 — split rooms request boundary
 - `d60add4` — 2026-11-13 09:24:48 +0000 — docs: update changelog [skip ci]
 - `df2547e` — 2026-11-13 12:54:34 +0330 — split dashboard into focused plugin modules
