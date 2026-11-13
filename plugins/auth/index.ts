@@ -1,18 +1,10 @@
 import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { hash as argon2Hash, verify as argon2Verify } from "@node-rs/argon2";
-import { pluginRequest, type PluginFunction, type RpcRequest } from "../sdk-typescript/src/index.js";
+import { type PluginFunction, type RpcRequest } from "../sdk-typescript/src/index.js";
 
-export function signInRequest(projectId: string, pluginId: string, version: string, provider: string, credential: unknown) {
-  return pluginRequest("auth", projectId, pluginId, version, "auth.signin", { provider, credential }, "signin");
-}
-
-export function signUpRequest(projectId: string, pluginId: string, version: string, username: string, password: string) {
-  return pluginRequest("auth", projectId, pluginId, version, "auth.signup", { username, password }, `signup-${username}`);
-}
-
-export function guestRequest(projectId: string, pluginId: string, version: string) {
-  return pluginRequest("auth", projectId, pluginId, version, "auth.guest", {}, "guest");
-}
+export { guestRequest } from "./guest-request.js";
+export { signInRequest } from "./sign-in-request.js";
+export { signUpRequest } from "./sign-up-request.js";
 
 type Account = { username: string; userId: string; passwordHash: string };
 

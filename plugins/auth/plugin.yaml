@@ -6,10 +6,16 @@ host_api: 1
 entrypoint: index.ts
 source_files:
   - index.ts
+  - sign-in-request.ts
+  - sign-up-request.ts
+  - guest-request.ts
 imports:
   - ../sdk-typescript/src/index.js
   - node:crypto
   - "@node-rs/argon2"
+  - ./guest-request.js
+  - ./sign-in-request.js
+  - ./sign-up-request.js
 plugin_imports:
 dependencies: []
 capabilities:
