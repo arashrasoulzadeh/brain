@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `5e45d87` — 2026-11-13 17:08:41 +0330 — feat: separate durable data deletion
+  Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
+- `a5471cf` — 2026-11-13 13:38:16 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `b855075` — 2026-11-13 17:07:46 +0330 — test: verify referenced server cleanup
   Files: roadmap.md
 - `3fd9d31` — 2026-11-13 13:37:29 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `1ec481e` — 2026-11-13 16:29:06 +0330 — test: preserve plugin grants during rollback
   Files: roadmap.md,tests/plugin/plugin_test.go
 - `d2bd281` — 2026-11-13 12:58:25 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `f7ecc1f` — 2026-11-13 16:26:33 +0330 — test: reject incompatible plugin rollbacks
-  Files: roadmap.md,tests/plugin/plugin_test.go
-- `3dea4f3` — 2026-11-13 12:55:10 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
