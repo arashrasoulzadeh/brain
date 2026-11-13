@@ -7,9 +7,17 @@ entrypoint: index.ts
 source_files:
   - index.ts
   - data-request.ts
+  - project-schema-name.ts
+  - project-role-name.ts
+  - row-policy.ts
+  - table-exposure.ts
 imports:
   - ../sdk-typescript/src/index.js
   - ./data-request.js
+  - ./project-schema-name.js
+  - ./project-role-name.js
+  - ./row-policy.js
+  - ./table-exposure.js
 plugin_imports:
 dependencies: []
 capabilities:

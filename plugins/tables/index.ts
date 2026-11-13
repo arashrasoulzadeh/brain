@@ -1,27 +1,12 @@
 import { validateIdentifier as validateSdkIdentifier, validateProjectId } from "../sdk-typescript/src/index.js";
+import { projectSchemaName } from "./project-schema-name.js";
 
 export { dataRequest } from "./data-request.js";
-
-export function projectSchemaName(projectId: string): string {
-  validateProjectId(projectId);
-  return `project_${projectId}`;
-}
-export function projectRoleName(projectId: string): string { return `runtime_${projectSchemaName(projectId)}`; }
-export class RowPolicy {
-  private readonly grants = new Set<string>();
-  grant(projectId: string, actorId: string): boolean { validateProjectId(projectId); if (!actorId) return false; this.grants.add(`${projectId}:${actorId}`); return true; }
-  allows(projectId: string, actorId: string): boolean { validateProjectId(projectId); return this.grants.has(`${projectId}:${actorId}`); }
-}
-export type TableExposure = { projectId: string; table: string; columns: readonly string[] };
-export class TableExposureRegistry {
-  private readonly records = new Map<string, TableExposure>();
-  expose(projectId: string, table: string, columns: readonly string[]): void {
-    validateProjectId(projectId);
-    if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table) || !columns.length) throw new Error("invalid table exposure");
-    this.records.set(`${projectId}:${table}`, { projectId, table, columns: [...columns] });
-  }
-  get(projectId: string, table: string): TableExposure | undefined { const record = this.records.get(`${projectId}:${table}`); return record ? { ...record, columns: [...record.columns] } : undefined; }
-}
+export { projectSchemaName } from "./project-schema-name.js";
+export { projectRoleName } from "./project-role-name.js";
+export { RowPolicy } from "./row-policy.js";
+export { TableExposureRegistry } from "./table-exposure.js";
+export type { TableExposure } from "./table-exposure.js";
 export function requirePrimaryKey(columns: readonly string[], primaryKey: string): void {
   if (!primaryKey || !columns.includes(primaryKey)) throw new Error("supported primary key required");
 }
