@@ -416,6 +416,11 @@ func (r *Registry) Promote(projectID, id, version string) error {
 		return ErrDisabled
 	}
 	manifest := r.registered[id+"@"+version].Manifest
+	for _, capability := range manifest.Capabilities {
+		if !i.Grants[capability] {
+			return ErrGrantDenied
+		}
+	}
 	for name, expectedType := range manifest.ConfigSchema {
 		value, configured := i.Config[name]
 		if !configured || !configTypeMatches(expectedType, value) {

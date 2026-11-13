@@ -514,7 +514,7 @@ Goal: safely promote, roll back, disable, drain, uninstall, and extend plugin-co
 - [x] Promote one plugin version for one project.
 - [x] Validate config before promotion.
 - [x] Validate readiness before promotion.
-- [ ] Validate requested grants.
+- [x] Validate requested grants.
 - [ ] Validate schema compatibility.
 - [ ] Preserve versions pinned by active rooms.
 - [ ] Cancel incompatible unmatched tickets.
