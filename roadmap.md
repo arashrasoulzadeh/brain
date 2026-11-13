@@ -503,7 +503,7 @@ Goal: compile dashboard-authored Go to WASM, execute it safely, run durable trig
 - [x] Run direct, scheduled, and record-change invocations.
 - [x] Verify crash recovery and grant revocation.
 - [x] Play a complete two-client Tic-tac-toe match.
-- [ ] Record compiler time, turn latency, and memory use.
+- [x] Record compiler time, turn latency, and memory use.
 
 ## Phase 05 — Plugin lifecycle, admin UI, and workflows
 
