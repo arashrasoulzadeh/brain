@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `66f3202` — 2026-11-13 16:58:02 +0330 — feat: revoke project grants during uninstall
+  Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
+- `b8e5533` — 2026-11-13 13:27:31 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `c423dd3` — 2026-11-13 16:56:42 +0330 — feat: wait for active work before uninstall
   Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
 - `712fe8d` — 2026-11-13 13:24:25 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `aa0a4c7` — 2026-11-13 16:20:17 +0330 — feat: validate plugin schema compatibility
   Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
 - `8a29624` — 2026-11-13 12:49:42 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `5a8493e` — 2026-11-13 16:19:19 +0330 — feat: recheck plugin grants during promotion
-  Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
-- `ee51f53` — 2026-11-13 12:48:29 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
