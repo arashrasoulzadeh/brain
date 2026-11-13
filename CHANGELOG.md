@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `683c5fd` — 2026-11-13 04:36:09 +0330 — phase 04 mark atomic effect commits complete
+- `10f94e3` — 2026-11-13 01:06:09 +0000 — docs: update changelog [skip ci]
 - `3653e36` — 2026-11-13 04:35:57 +0330 — phase 04 commit effects with idempotency
 - `59187ce` — 2026-11-13 01:05:21 +0000 — docs: update changelog [skip ci]
 - `b23cf4c` — 2026-11-13 04:35:10 +0330 — phase 04 mark stale version validation complete
