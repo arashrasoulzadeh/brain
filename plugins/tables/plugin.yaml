@@ -31,6 +31,9 @@ source_files:
   - api-change-state.ts
   - api-change-writer.ts
   - api-change-reader.ts
+  - sql-change-state.ts
+  - sql-change-writer.ts
+  - sql-change-reader.ts
 imports:
   - ../sdk-typescript/src/index.js
   - ./data-request.js
@@ -58,6 +61,9 @@ imports:
   - ./api-change-state.js
   - ./api-change-writer.js
   - ./api-change-reader.js
+  - ./sql-change-state.js
+  - ./sql-change-writer.js
+  - ./sql-change-reader.js
 plugin_imports:
 dependencies: []
 capabilities:

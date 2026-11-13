@@ -6,6 +6,9 @@ import { SchemaPublicationReader } from "./schema-publication-reader.js";
 import { createApiChangeState } from "./api-change-state.js";
 import { ApiChangeWriter } from "./api-change-writer.js";
 import { ApiChangeReader } from "./api-change-reader.js";
+import { createSQLChangeState } from "./sql-change-state.js";
+import { SQLChangeWriter } from "./sql-change-writer.js";
+import { SQLChangeReader } from "./sql-change-reader.js";
 
 export { dataRequest } from "./data-request.js";
 export { projectSchemaName } from "./project-schema-name.js";
@@ -100,18 +103,4 @@ export function createApiChangeCapture() { const state = createApiChangeState();
 
 export type DirectSQLChange = { projectId: string; table: string; statement: string };
 
-export class DirectSQLChangeCapture {
-  private readonly changes: DirectSQLChange[] = [];
-  begin(projectId: string, table: string, statement: string): { commit: () => void; rollback: () => void } {
-    validateIdentifier(table);
-    if (!projectId || !statement) throw new Error("invalid SQL change");
-    let finished = false;
-    const finish = (commit: boolean) => {
-      if (finished) throw new Error("transaction already finished");
-      finished = true;
-      if (commit) this.changes.push({ projectId, table, statement });
-    };
-    return { commit: () => finish(true), rollback: () => finish(false) };
-  }
-  list(projectId: string): DirectSQLChange[] { return this.changes.filter((change) => change.projectId === projectId).map((change) => ({ ...change })); }
-}
+export function createDirectSQLChangeCapture() { const state = createSQLChangeState(); const writer = new SQLChangeWriter(state); const reader = new SQLChangeReader(state); return { begin: writer.begin.bind(writer), list: reader.list.bind(reader) }; }

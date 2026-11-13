@@ -1,4 +1,4 @@
-import { createApiChangeCapture, DirectSQLChangeCapture, IdempotentCreateStore, createSchemaPublicationAudit, TableExposureWriter, TableExposureReader, TransactionalChangeCapture, createVersionedRecord, dataRequest, paginate, planSchemaChange, previewSchemaSQL, projectRoleName, projectSchemaName, projectRow, requirePrimaryKey, requireRecentSchemaAuth, RowPolicyGranter, RowPolicyChecker, validateColumnTypes, validateFilter, validateIdentifier, validateValue } from "../../plugins/tables/index.js";
+import { createApiChangeCapture, createDirectSQLChangeCapture, IdempotentCreateStore, createSchemaPublicationAudit, TableExposureWriter, TableExposureReader, TransactionalChangeCapture, createVersionedRecord, dataRequest, paginate, planSchemaChange, previewSchemaSQL, projectRoleName, projectSchemaName, projectRow, requirePrimaryKey, requireRecentSchemaAuth, RowPolicyGranter, RowPolicyChecker, validateColumnTypes, validateFilter, validateIdentifier, validateValue } from "../../plugins/tables/index.js";
 import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = dataRequest("dev", "tables", "0.1.0", "tables.read", "users", { filter: { active: true } });
@@ -56,7 +56,7 @@ apiCapture.begin("dev", "tables.write", { id: "1" }).commit();
 if (apiCapture.list("dev")[0].operation !== "tables.write") throw new Error("API change capture failed");
 apiCapture.begin("dev", "tables.delete", { id: "2" }).rollback();
 if (apiCapture.list("dev").length !== 1) throw new Error("rolled back API change captured");
-const sqlCapture = new DirectSQLChangeCapture();
+const sqlCapture = createDirectSQLChangeCapture();
 sqlCapture.begin("dev", "users", "UPDATE").commit();
 if (sqlCapture.list("dev")[0].table !== "users") throw new Error("direct SQL capture failed");
 sqlCapture.begin("dev", "users", "DELETE").rollback();
