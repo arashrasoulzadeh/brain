@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `e2adfd8` — 2026-11-13 04:39:44 +0330 — phase 04 deduplicate UTC schedule occurrences
+- `1de8c54` — 2026-11-13 01:09:19 +0000 — docs: update changelog [skip ci]
 - `2e0674c` — 2026-11-13 04:39:08 +0330 — phase 04 mark schedule claims complete
 - `ee25ae2` — 2026-11-13 01:09:04 +0000 — docs: update changelog [skip ci]
 - `d1ec716` — 2026-11-13 04:38:53 +0330 — phase 04 claim schedules safely
