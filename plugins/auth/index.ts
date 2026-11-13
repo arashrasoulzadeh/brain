@@ -21,21 +21,8 @@ export function verifyPKCE(verifier: string, challenge: string, method: string):
   const received = Buffer.from(challenge);
   return expected.length === received.length && timingSafeEqual(expected, received);
 }
-export class OIDCStateStore {
-  private readonly states = new Map<string, { projectId: string; clientId: string; redirectUri: string }>();
-  issue(projectId: string, clientId: string, redirectUri: string): string {
-    validateProjectId(projectId);
-    const state = randomBytes(24).toString("base64url");
-    this.states.set(state, { projectId, clientId, redirectUri });
-    return state;
-  }
-  consume(state: string, projectId: string, clientId: string, redirectUri: string): void {
-    validateProjectId(projectId);
-    const record = this.states.get(state);
-    if (!record || record.projectId !== projectId || record.clientId !== clientId || record.redirectUri !== redirectUri) throw new Error("callback state mismatch");
-    this.states.delete(state);
-  }
-}
+export { OIDCStateIssuer } from "./oidc-state-issuer.js";
+export { OIDCStateConsumer } from "./oidc-state-consumer.js";
 export class TestDeliveryInbox {
   private readonly messages = new Map<string, string[]>();
   deliver(destination: string, body: string): void {

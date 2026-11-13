@@ -1,4 +1,4 @@
-import { AccountRateLimiter, AuthService, AuthorizationCodeStore, EmailOTPService, EmailRecoveryService, IdentityLinker, OIDCConfigStore, OIDCStateStore, OTPLimiter, OperatorSessionRegistry, ProjectRateLimiter, SMSOTPService, TestDeliveryInbox, createPKCEChallenge, functions, guestRequest, normalizePhoneNumber, projectUserID, publicAuthError, requireRecentAuthentication, sessionTokenDigest, signInRequest, signUpRequest, validateDeliveryConfig, validateOIDCToken, verifyPKCE } from "../../plugins/auth/index.js";
+import { AccountRateLimiter, AuthService, AuthorizationCodeStore, EmailOTPService, EmailRecoveryService, IdentityLinker, OIDCConfigStore, OIDCStateIssuer, OIDCStateConsumer, OTPLimiter, OperatorSessionRegistry, ProjectRateLimiter, SMSOTPService, TestDeliveryInbox, createPKCEChallenge, functions, guestRequest, normalizePhoneNumber, projectUserID, publicAuthError, requireRecentAuthentication, sessionTokenDigest, signInRequest, signUpRequest, validateDeliveryConfig, validateOIDCToken, verifyPKCE } from "../../plugins/auth/index.js";
 import { createFunctionHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const serviceForHandler = new AuthService();
@@ -36,10 +36,10 @@ if (codes.consume(code, "project-a", "client-id", "https://app.example/callback"
 try { codes.consume(code, "project-a", "client-id", "https://app.example/callback", 1002); throw new Error("authorization code replay accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "authorization code unavailable") throw error; }
 if (!verifyPKCE("verifier", createPKCEChallenge("verifier"), "S256") || verifyPKCE("wrong", createPKCEChallenge("verifier"), "S256")) throw new Error("PKCE verification failed");
 if (verifyPKCE("verifier", "short", "S256")) throw new Error("malformed PKCE challenge accepted");
-const states = new OIDCStateStore();
-const state = states.issue("project-a", "client-id", "https://app.example/callback");
-states.consume(state, "project-a", "client-id", "https://app.example/callback");
-try { states.consume(state, "project-a", "client-id", "https://app.example/callback"); throw new Error("callback state replay accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "callback state mismatch") throw error; }
+const states = new Map(); const stateIssuer = new OIDCStateIssuer(states); const stateConsumer = new OIDCStateConsumer(states);
+const state = stateIssuer.issue("project-a", "client-id", "https://app.example/callback");
+stateConsumer.consume(state, "project-a", "client-id", "https://app.example/callback");
+try { stateConsumer.consume(state, "project-a", "client-id", "https://app.example/callback"); throw new Error("callback state replay accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "callback state mismatch") throw error; }
 const inbox = new TestDeliveryInbox();
 inbox.deliver("alice@example.com", "code-1");
 if (inbox.read("alice@example.com") !== "code-1") throw new Error("test delivery inbox failed");

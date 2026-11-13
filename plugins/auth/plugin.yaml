@@ -8,6 +8,8 @@ source_files:
   - index.ts
   - sign-in-request.ts
   - sign-up-request.ts
+  - oidc-state-issuer.ts
+  - oidc-state-consumer.ts
   - guest-request.ts
 imports:
   - ../sdk-typescript/src/index.js
@@ -16,6 +18,8 @@ imports:
   - ./guest-request.js
   - ./sign-in-request.js
   - ./sign-up-request.js
+  - ./oidc-state-issuer.js
+  - ./oidc-state-consumer.js
 plugin_imports:
 dependencies: []
 capabilities:
