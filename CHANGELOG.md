@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `566016b` — 2026-11-13 14:30:05 +0330 — split matchmaking queue operations
+- `10fe316` — 2026-11-13 10:57:52 +0000 — docs: update changelog [skip ci]
 - `cd51721` — 2026-11-13 14:27:26 +0330 — split tic tac toe coordinator
 - `971d6d1` — 2026-11-13 10:51:23 +0000 — docs: update changelog [skip ci]
 - `0d37bba` — 2026-11-13 14:21:03 +0330 — split room directory operations
