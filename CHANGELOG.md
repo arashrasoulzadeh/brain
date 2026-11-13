@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `6c9c167` — 2026-11-13 04:13:45 +0330 — phase 04 reject unexpected WASI imports
+- `5f73290` — 2026-11-13 00:43:33 +0000 — docs: update changelog [skip ci]
 - `a292b12` — 2026-11-13 04:13:13 +0330 — phase 04 record diagnostic caps
 - `0e666ff` — 2026-11-13 00:43:14 +0000 — docs: update changelog [skip ci]
 - `e5e064a` — 2026-11-13 04:13:01 +0330 — phase 04 cap wasm diagnostics
