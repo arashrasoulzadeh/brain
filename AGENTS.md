@@ -47,6 +47,7 @@ This repository is building a Go multi-tenant mobile backend. The complete produ
 - Production broker commits must use a single-use invocation credential bound to the originally authorized `HostCall`; raw host-call commits are test-only.
 - Every plugin security change requires a deep audit of project binding, authorization, replay/idempotency, input/path validation, network targets, secret handling, and manifest boundaries, with a regression test for each finding before the plugin is considered complete.
 - Every plugin source file has one focused callable responsibility: one exported function, or one class with one public business method. Additional responsibilities must be split into separate files, imported through `index.ts`, and declared in `plugin.yaml`.
+- Permanent plugin decomposition law: before implementing or extending any feature, decompose all affected plugin code into focused one-callable files and one-public-method classes; never add a new multi-responsibility plugin class, handler, helper, or facade.
 - Never trust project IDs, plugin grants, room membership, or caller permissions from client input.
 - Recheck lifecycle, grants, versions, and idempotency at commit time.
 - Keep operator sessions separate from end-user sessions.

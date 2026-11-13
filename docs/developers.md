@@ -40,6 +40,8 @@ Do not run Docker during normal development. Use in-process tests and isolated l
 
 Product features belong under `plugins/<plugin-id>/` as TypeScript serverless functions. Each handler has one focused product function; `index.ts` is only the public export/bootstrap boundary. Every source file and import is declared in YAML, which is authoritative for metadata, routes, functions, permissions, and configuration. The host supplies runtime dependencies and generates documentation. Go is reserved for the core host, and tests live under top-level `tests/`.
 
+Plugin decomposition is a permanent law: every plugin source file has one focused callable responsibility, every class has one public business method, and new or modified code must be decomposed before feature work proceeds. Shared behavior belongs in the SDK.
+
 This split is intentional: a handler can be replaced, scaled, tested, and audited independently. Analytics is the first migrated plugin; follow its `types.ts`, one-handler-file, and export-only `index.ts` pattern for the remaining plugins.
 
 Keep manifest lists in block form with one `-` entry per line. Do not use inline YAML arrays for source files or imports.

@@ -50,6 +50,7 @@ Every phase exit must also update:
 - [ ] Keep plugin code SOLID and DRY: shared generic helpers belong in the SDK, plugin code has one clear responsibility, and duplicate handlers/request/validation code is prohibited.
 - [ ] Keep source declarations ordered: imports, types, constants, and file-level variables first; classes next; standalone functions after classes; class fields before methods. Use descriptive names.
 - [ ] Split plugins into one focused product function per TypeScript handler file; keep `index.ts` as exports/bootstrap only, declare every file and import in YAML, and split multi-responsibility classes.
+- [ ] **Permanent plugin decomposition law:** no new or modified plugin may introduce a multi-responsibility file, handler, class, helper, or facade; decomposition is required before feature implementation and must be verified by lint/tests.
 - [ ] Gate every plugin source file, runtime import, and plugin-to-plugin import through `plugin.yaml`; the host must reject undeclared files, imports, and dependencies before execution.
 - [ ] Use block YAML lists for every plugin source/import/dependency declaration; inline flow lists are prohibited.
 
