@@ -750,3 +750,17 @@ func TestProjectUninstallRevokesProjectGrants(t *testing.T) {
 		t.Fatal("project grant revocation was not audited")
 	}
 }
+
+func TestProjectUninstallPreservesDurablePluginData(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	if err := r.SaveDurableData("dev", "durable", "record-1", []byte("keep-me")); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.UninstallProject("dev"); err != nil {
+		t.Fatal(err)
+	}
+	value, ok := r.DurableData("dev", "durable", "record-1")
+	if !ok || string(value) != "keep-me" {
+		t.Fatalf("durable data = %q, %t", value, ok)
+	}
+}

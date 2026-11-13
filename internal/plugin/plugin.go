@@ -193,6 +193,7 @@ type Registry struct {
 	artifacts         map[string]string
 	approvals         map[string]bool
 	lifecycleRevision uint64
+	durableData       map[string][]byte
 }
 
 type AuditEvent struct {
@@ -223,7 +224,20 @@ func (m Manifest) RequestedCapabilities() []CapabilityRequest {
 }
 
 func NewRegistry(hostAPI int) *Registry {
-	return &Registry{HostAPI: hostAPI, registered: map[string]Registered{}, installations: map[string]Installation{}, readiness: map[string]bool{}, active: map[string]string{}, pins: map[string]string{}, artifacts: map[string]string{}, approvals: map[string]bool{}}
+	return &Registry{HostAPI: hostAPI, registered: map[string]Registered{}, installations: map[string]Installation{}, readiness: map[string]bool{}, active: map[string]string{}, pins: map[string]string{}, artifacts: map[string]string{}, approvals: map[string]bool{}, durableData: map[string][]byte{}}
+}
+
+func (r *Registry) SaveDurableData(projectID, pluginID, key string, value []byte) error {
+	if projectID == "" || pluginID == "" || key == "" {
+		return ErrProjectInvalid
+	}
+	r.durableData[projectID+":"+pluginID+":"+key] = append([]byte(nil), value...)
+	return nil
+}
+
+func (r *Registry) DurableData(projectID, pluginID, key string) ([]byte, bool) {
+	value, ok := r.durableData[projectID+":"+pluginID+":"+key]
+	return append([]byte(nil), value...), ok
 }
 
 func (r *Registry) ApproveCapability(projectID, id, version, capability string) error {
