@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `bba0a09` — 2026-11-13 13:41:18 +0330 — split dashboard audit classes
+- `5dbd829` — 2026-11-13 10:09:24 +0000 — docs: update changelog [skip ci]
 - `30f6ab6` — 2026-11-13 13:39:11 +0330 — split arena and replay state classes
 - `f97104a` — 2026-11-13 10:07:45 +0000 — docs: update changelog [skip ci]
 - `f9a56fa` — 2026-11-13 13:37:31 +0330 — split file authorization classes
