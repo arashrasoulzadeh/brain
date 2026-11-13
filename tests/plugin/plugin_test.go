@@ -601,3 +601,24 @@ func TestDisablePreviewRejectsStaleRevision(t *testing.T) {
 		t.Fatal("stale disable preview was applied")
 	}
 }
+
+func TestDrainBlocksNewWorkButAllowsReconnectUntilDeadline(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	m := plugin.Manifest{ID: "drain-admission", Version: "1.0.0", HostAPI: 1}
+	if err := r.Register(m); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Install("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	deadline := time.Unix(500, 0)
+	if err := r.DrainUntil("dev", m.ID, m.Version, deadline); err != nil {
+		t.Fatal(err)
+	}
+	if !errors.Is(r.CanStartNew("dev", m.ID, m.Version), plugin.ErrDisabled) {
+		t.Fatal("new work entered a draining plugin")
+	}
+	if err := r.CanStart("dev", m.ID, m.Version, time.Unix(400, 0)); err != nil {
+		t.Fatalf("reconnect was blocked before deadline: %v", err)
+	}
+}

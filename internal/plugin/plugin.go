@@ -553,6 +553,17 @@ func (r *Registry) CanStart(projectID, id, version string, now time.Time) error 
 	return nil
 }
 
+func (r *Registry) CanStartNew(projectID, id, version string) error {
+	i, ok := r.installations[projectID+":"+id+"@"+version]
+	if !ok {
+		return ErrNotInstalled
+	}
+	if i.Draining {
+		return ErrDisabled
+	}
+	return nil
+}
+
 func (r *Registry) Rollback(projectID, id, version string) error {
 	if err := r.Promote(projectID, id, version); err != nil {
 		return err
