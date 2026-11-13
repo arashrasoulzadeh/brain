@@ -1,19 +1,20 @@
 import type { AssignmentDecision, MatchmakingTicket } from "./types.js";
-import type { MatchmakingConfigs } from "./config-store.js";
+import type { MatchmakingConfigReader } from "./matchmaking-config-reader.js";
+import type { MatchmakingConfigStatus } from "./matchmaking-config-status.js";
 import { validateProjectId } from "../sdk-typescript/src/index.js";
 
 export class MatchmakingQueue {
   private sequence = 0;
   private decisionSequence = 0;
   private readonly queues = new Map<string, MatchmakingTicket[]>();
-  constructor(private readonly configs?: MatchmakingConfigs) {}
+  constructor(private readonly configs?: { reader: MatchmakingConfigReader; status: MatchmakingConfigStatus }) {}
   enqueue(projectId: string, scope: string, playerId: string, now = Date.now()): MatchmakingTicket {
     validateProjectId(projectId);
     if (!scope || !playerId) throw new Error("invalid matchmaking ticket");
-    if (this.configs && !this.configs.isEnabled(projectId, scope)) throw new Error("matchmaking scope disabled");
+    if (this.configs && !this.configs.status.isEnabled(projectId, scope)) throw new Error("matchmaking scope disabled");
     const key = `${projectId}:${scope}`;
     if ((this.queues.get(key) ?? []).some((ticket) => ticket.playerId === playerId)) throw new Error("active ticket already exists");
-    const ttl = this.configs?.get(projectId, scope).ticketTtlSeconds ?? 60;
+    const ttl = this.configs?.reader.get(projectId, scope).ticketTtlSeconds ?? 60;
     const ticket = { id: `${key}:ticket-${++this.sequence}`, projectId, scope, playerId, createdAt: now, expiresAt: now + ttl * 1000 };
     this.queues.set(key, [...(this.queues.get(key) ?? []), ticket]);
     return { ...ticket };

@@ -8,12 +8,16 @@ source_files:
   - index.ts
   - types.ts
   - validate-config.ts
-  - config-store.ts
+  - matchmaking-config-writer.ts
+  - matchmaking-config-reader.ts
+  - matchmaking-config-status.ts
   - queue.ts
   - matchmaking-request.ts
 imports:
   - ../sdk-typescript/src/index.js
-  - ./config-store.js
+  - ./matchmaking-config-writer.js
+  - ./matchmaking-config-reader.js
+  - ./matchmaking-config-status.js
   - ./queue.js
   - ./matchmaking-request.js
   - ./validate-config.js
