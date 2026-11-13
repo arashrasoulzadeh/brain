@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `c0df4e9` — 2026-11-13 11:57:25 +0330 — phase 04 guard concurrent tic tac toe moves
+- `baf1318` — 2026-11-13 01:31:30 +0000 — docs: update changelog [skip ci]
 - `a7860a8` — 2026-11-13 05:01:18 +0330 — phase 04 mark command payload validation complete
 - `3e664ee` — 2026-11-13 01:31:14 +0000 — docs: update changelog [skip ci]
 - `c722204` — 2026-11-13 05:01:03 +0330 — phase 04 reject mismatched room command payloads
