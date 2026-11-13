@@ -12,6 +12,8 @@ source_files:
   - oidc-state-consumer.ts
   - delivery-writer.ts
   - delivery-reader.ts
+  - oidc-config-writer.ts
+  - oidc-config-reader.ts
   - guest-request.ts
 imports:
   - ../sdk-typescript/src/index.js
@@ -24,6 +26,9 @@ imports:
   - ./oidc-state-consumer.js
   - ./delivery-writer.js
   - ./delivery-reader.js
+  - ./oidc-config-writer.js
+  - ./oidc-config-reader.js
+  - ./index.js
 plugin_imports:
 dependencies: []
 capabilities:
