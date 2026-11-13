@@ -1,4 +1,4 @@
-import { AccountRateLimiter, AuthService, AuthorizationCodeStore, DeliveryReader, DeliveryWriter, EmailOTPService, EmailRecoveryService, IdentityLinker, OIDCConfigWriter, OIDCConfigReader, OIDCStateIssuer, OIDCStateConsumer, OTPLimiter, OperatorSessionRegistry, ProjectRateLimiter, SMSOTPService, createPKCEChallenge, functions, guestRequest, normalizePhoneNumber, projectUserID, publicAuthError, requireRecentAuthentication, sessionTokenDigest, signInRequest, signUpRequest, validateDeliveryConfig, validateOIDCToken, verifyPKCE } from "../../plugins/auth/index.js";
+import { AccountRateLimiter, AuthService, AuthorizationCodeIssuer, AuthorizationCodeConsumer, DeliveryReader, DeliveryWriter, EmailOTPService, EmailRecoveryService, IdentityLinker, OIDCConfigWriter, OIDCConfigReader, OIDCStateIssuer, OIDCStateConsumer, OTPLimiter, OperatorSessionRegistry, ProjectRateLimiter, SMSOTPService, createPKCEChallenge, functions, guestRequest, normalizePhoneNumber, projectUserID, publicAuthError, requireRecentAuthentication, sessionTokenDigest, signInRequest, signUpRequest, validateDeliveryConfig, validateOIDCToken, verifyPKCE } from "../../plugins/auth/index.js";
 import { createFunctionHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const serviceForHandler = new AuthService();
@@ -30,10 +30,10 @@ if (oidcReader.get("project-a").issuer !== "https://accounts.google.com") throw 
 validateOIDCToken({ issuer: "https://accounts.google.com", audience: "client-id", expiresAt: 2000, nonce: "nonce-1", signature: "sig" }, oidcReader.get("project-a"), "nonce-1", 1000, (signature) => signature === "sig");
 requireRecentAuthentication(1000, 1200, 300);
 try { requireRecentAuthentication(1000, 1301, 300); throw new Error("stale authentication accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "recent authentication required") throw error; }
-const codes = new AuthorizationCodeStore();
-const code = codes.issue("project-a", "client-id", "https://app.example/callback", "user-1", 1000, 60);
-if (codes.consume(code, "project-a", "client-id", "https://app.example/callback", 1001).userId !== "user-1") throw new Error("authorization code exchange failed");
-try { codes.consume(code, "project-a", "client-id", "https://app.example/callback", 1002); throw new Error("authorization code replay accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "authorization code unavailable") throw error; }
+const codeMap = new Map(); const codeIssuer = new AuthorizationCodeIssuer(codeMap); const codeConsumer = new AuthorizationCodeConsumer(codeMap);
+const code = codeIssuer.issue("project-a", "client-id", "https://app.example/callback", "user-1", 1000, 60);
+if (codeConsumer.consume(code, "project-a", "client-id", "https://app.example/callback", 1001).userId !== "user-1") throw new Error("authorization code exchange failed");
+try { codeConsumer.consume(code, "project-a", "client-id", "https://app.example/callback", 1002); throw new Error("authorization code replay accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "authorization code unavailable") throw error; }
 if (!verifyPKCE("verifier", createPKCEChallenge("verifier"), "S256") || verifyPKCE("wrong", createPKCEChallenge("verifier"), "S256")) throw new Error("PKCE verification failed");
 if (verifyPKCE("verifier", "short", "S256")) throw new Error("malformed PKCE challenge accepted");
 const states = new Map(); const stateIssuer = new OIDCStateIssuer(states); const stateConsumer = new OIDCStateConsumer(states);

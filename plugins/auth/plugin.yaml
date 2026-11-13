@@ -14,6 +14,9 @@ source_files:
   - delivery-reader.ts
   - oidc-config-writer.ts
   - oidc-config-reader.ts
+  - authorization-code-issuer.ts
+  - authorization-code-consumer.ts
+  - authorization-code-types.ts
   - guest-request.ts
 imports:
   - ../sdk-typescript/src/index.js
@@ -28,6 +31,9 @@ imports:
   - ./delivery-reader.js
   - ./oidc-config-writer.js
   - ./oidc-config-reader.js
+  - ./authorization-code-issuer.js
+  - ./authorization-code-consumer.js
+  - ./authorization-code-types.js
   - ./index.js
 plugin_imports:
 dependencies: []
