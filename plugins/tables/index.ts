@@ -61,6 +61,27 @@ export class IdempotentCreateStore<T> {
   }
 }
 
+export type SchemaChange =
+  | { kind: "add_column"; name: string; type: "string" | "number" | "boolean" | "date" }
+  | { kind: "create_index"; name: string; columns: readonly string[] };
+
+export type SchemaChangePlan = { projectId: string; table: string; change: SchemaChange };
+
+export function planSchemaChange(projectId: string, table: string, change: SchemaChange): SchemaChangePlan {
+  if (!projectId || !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) throw new Error("invalid schema target");
+  if (change.kind === "add_column") {
+    validateIdentifier(change.name);
+    return { projectId, table, change: { ...change } };
+  }
+  if (change.kind === "create_index") {
+    validateIdentifier(change.name);
+    if (!change.columns.length) throw new Error("index columns required");
+    change.columns.forEach(validateIdentifier);
+    return { projectId, table, change: { ...change, columns: [...change.columns] } };
+  }
+  throw new Error("unsupported schema change");
+}
+
 export function dataRequest(projectId: string, pluginId: string, version: string, operation: "tables.read" | "tables.write" | "tables.schema", table: string, payload: unknown = {}) {
   return request(`tables-${operation}-${projectId}-${table}`, { protocol: 1, projectId, pluginId, version, operation, payload: { table, ...(payload as Record<string, unknown>) } });
 }

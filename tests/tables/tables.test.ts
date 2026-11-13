@@ -1,4 +1,4 @@
-import { IdempotentCreateStore, TableExposureRegistry, VersionedRecord, dataRequest, paginate, projectRoleName, projectSchemaName, projectRow, requirePrimaryKey, RowPolicy, validateColumnTypes, validateFilter, validateIdentifier, validateValue } from "../../plugins/tables/index.js";
+import { IdempotentCreateStore, TableExposureRegistry, VersionedRecord, dataRequest, paginate, planSchemaChange, projectRoleName, projectSchemaName, projectRow, requirePrimaryKey, RowPolicy, validateColumnTypes, validateFilter, validateIdentifier, validateValue } from "../../plugins/tables/index.js";
 import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = dataRequest("dev", "tables", "0.1.0", "tables.read", "users", { filter: { active: true } });
@@ -29,3 +29,6 @@ const creates = new IdempotentCreateStore<{ id: string }>();
 let calls = 0;
 const created = creates.create("dev", "key-1", () => { calls += 1; return { id: "row-1" }; });
 if (creates.create("dev", "key-1", () => { calls += 1; return { id: "row-2" }; }).id !== created.id || calls !== 1) throw new Error("idempotent create failed");
+const schemaPlan = planSchemaChange("dev", "users", { kind: "add_column", name: "display_name", type: "string" });
+if (schemaPlan.projectId !== "dev" || schemaPlan.table !== "users" || schemaPlan.change.kind !== "add_column") throw new Error("guided schema plan failed");
+try { planSchemaChange("dev", "users", { kind: "drop_table", name: "users" } as never); throw new Error("unsafe schema change accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "unsupported schema change") throw error; }
