@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `df2547e` — 2026-11-13 12:54:34 +0330 — split dashboard into focused plugin modules
+- `d066939` — 2026-11-13 09:23:21 +0000 — docs: update changelog [skip ci]
 - `1b0ff64` — 2026-11-13 12:53:09 +0330 — split files into focused plugin modules
 - `1ea4cbb` — 2026-11-13 09:21:39 +0000 — docs: update changelog [skip ci]
 - `dcf7e3d` — 2026-11-13 12:51:25 +0330 — split arena into focused plugin modules
