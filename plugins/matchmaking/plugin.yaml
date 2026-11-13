@@ -13,6 +13,13 @@ source_files:
   - matchmaking-config-status.ts
   - queue.ts
   - matchmaking-request.ts
+  - queue-runtime.ts
+  - ticket-enqueuer.ts
+  - ticket-reader.ts
+  - ticket-matcher.ts
+  - ticket-expirer.ts
+  - ticket-requeuer.ts
+  - assignment-creator.ts
 imports:
   - ../sdk-typescript/src/index.js
   - ./matchmaking-config-writer.js
@@ -20,6 +27,13 @@ imports:
   - ./matchmaking-config-status.js
   - ./queue.js
   - ./matchmaking-request.js
+  - ./queue-runtime.js
+  - ./ticket-enqueuer.js
+  - ./ticket-reader.js
+  - ./ticket-matcher.js
+  - ./ticket-expirer.js
+  - ./ticket-requeuer.js
+  - ./assignment-creator.js
   - ./validate-config.js
   - ./types.js
 plugin_imports:

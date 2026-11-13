@@ -1,6 +1,6 @@
 import { createArena, MatchResultReader, MatchResultSaver, arenaStartCommand } from "../../plugins/arena/index.js";
 import { ConnectionTicketIssuer, ConnectionTicketConsumer, createRoomDirectory, authorizeRoomCommand } from "../../plugins/rooms/index.js";
-import { MatchmakingQueue } from "../../plugins/matchmaking/index.js";
+import { createMatchmakingQueue } from "../../plugins/matchmaking/index.js";
 
 const browserOne = createArena("dev", "gate-room");
 const browserTwo = createArena("dev", "gate-room");
@@ -20,7 +20,7 @@ new MatchResultSaver(resultMap).save(completed);
 if (new MatchResultReader(resultMap).get(completed.resultId)?.projectId !== "dev") throw new Error("durable result was not persisted");
 try { rooms.get("prod", "gate-room"); throw new Error("private room crossed project boundary"); } catch (error) { if (!(error instanceof Error) || error.message !== "room not found") throw error; }
 if (rooms.isMember("dev", "gate-room", "user-1") !== true || rooms.isMember("dev", "gate-room", "user-9") !== false) throw new Error("private room membership gate failed");
-const queue = new MatchmakingQueue();
+const queue = createMatchmakingQueue();
 const first = queue.enqueue("dev", "ranked", "user-1", 1000);
 queue.enqueue("dev", "ranked", "user-2", 1001);
 const decision = queue.assign("dev", "ranked", 2, 1002);
