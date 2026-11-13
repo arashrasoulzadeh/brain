@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `e062369` — 2026-11-13 04:16:17 +0330 — phase 04 record function timeout test
+- `b9c1092` — 2026-11-13 00:46:18 +0000 — docs: update changelog [skip ci]
 - `174c34f` — 2026-11-13 04:16:06 +0330 — phase 04 timeout long running functions
 - `7e8c0f9` — 2026-11-13 00:45:43 +0000 — docs: update changelog [skip ci]
 - `dce16d6` — 2026-11-13 04:15:31 +0330 — phase 04 record WASI sandbox denials
