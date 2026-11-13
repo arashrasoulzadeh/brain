@@ -20,5 +20,10 @@ export class SubscriptionTicketStore {
     if (!found || found.projectId !== projectId || found.channel !== channel || found.operation !== operation || now >= found.expiresAt) throw new Error("invalid subscription ticket");
     return { ...found };
   }
+  consume(ticket: string, projectId: string, channel: string, operation = "subscriptions.open", now = Date.now()): SubscriptionTicket {
+    const found = this.validate(ticket, projectId, channel, operation, now);
+    this.tickets.delete(ticket);
+    return found;
+  }
 }
 

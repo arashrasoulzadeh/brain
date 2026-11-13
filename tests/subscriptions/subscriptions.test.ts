@@ -8,3 +8,6 @@ const tickets = new SubscriptionTicketStore();
 const ticket = tickets.issue("dev", "records.users", "subscriptions.open", 1000, 30_000);
 if (tickets.validate(ticket.ticket, "dev", "records.users", "subscriptions.open", 2000).projectId !== "dev") throw new Error("subscription ticket validation failed");
 try { tickets.validate(ticket.ticket, "prod", "records.users", "subscriptions.open", 2000); throw new Error("cross-project ticket accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid subscription ticket") throw error; }
+const oneUse = tickets.issue("dev", "records.orders", "subscriptions.open", 1000);
+tickets.consume(oneUse.ticket, "dev", "records.orders", "subscriptions.open", 2000);
+try { tickets.consume(oneUse.ticket, "dev", "records.orders", "subscriptions.open", 2001); throw new Error("replayed subscription ticket accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid subscription ticket") throw error; }
