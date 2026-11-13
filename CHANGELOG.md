@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `3a7e7b3` — 2026-11-13 04:00:53 +0330 — phase 04 add function entry package fixture
+- `7d1456b` — 2026-11-13 00:30:21 +0000 — docs: update changelog [skip ci]
 - `f8de181` — 2026-11-13 04:00:07 +0330 — phase 04 define approved function SDK imports
 - `6f1ec6b` — 2026-11-13 00:29:32 +0000 — docs: update changelog [skip ci]
 - `2fefb68` — 2026-11-13 03:59:18 +0330 — docs complete phase 03 guides
