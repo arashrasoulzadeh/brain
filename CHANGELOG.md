@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `e75e2bf` — 2026-11-13 04:56:16 +0330 — phase 04 detect tic tac toe wins
+- `47e7ade` — 2026-11-13 01:25:43 +0000 — docs: update changelog [skip ci]
 - `31b91fe` — 2026-11-13 04:55:32 +0330 — phase 04 mark out of turn rejection complete
 - `e119b9e` — 2026-11-13 01:25:29 +0000 — docs: update changelog [skip ci]
 - `67b7c66` — 2026-11-13 04:55:18 +0330 — phase 04 reject out of turn moves
