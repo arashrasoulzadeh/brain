@@ -9,6 +9,9 @@ import { RoomMembershipReader } from "./room-membership-reader.js";
 import { RoomJoiner } from "./room-joiner.js";
 import { RoomLeaver } from "./room-leaver.js";
 import { RoomEventReader } from "./room-event-reader.js";
+import { createTicTacToeRuntime } from "./tic-tac-toe-runtime.js";
+import { TicTacToeRevisionReader } from "./tic-tac-toe-revision-reader.js";
+import { TicTacToeMover } from "./tic-tac-toe-mover.js";
 
 export { roomRequest } from "./room-request.js";
 
@@ -86,18 +89,9 @@ export function validateTicTacToeCommandPayload(payload: unknown): { cell: numbe
   if (!payload || typeof payload !== "object" || Object.keys(payload).length !== 1 || typeof (payload as { cell?: unknown }).cell !== "number" || !Number.isInteger((payload as { cell: number }).cell) || (payload as { cell: number }).cell < 0 || (payload as { cell: number }).cell > 8) throw new Error("command payload mismatch");
   return { cell: (payload as { cell: number }).cell };
 }
-export class TicTacToeCoordinator {
-  private current: TicTacToeState;
-  private version = 0;
-  constructor(state: TicTacToeState) { this.current = { ...state, players: [...state.players] as [string, string], board: [...state.board] }; }
-  revision(): number { return this.version; }
-  move(playerId: string, cell: number, expectedRevision: number): TicTacToeState {
-    if (expectedRevision !== this.version) throw new Error("stale game revision");
-    this.current = validateTicTacToeMove(this.current, playerId, cell);
-    this.version++;
-    return { ...this.current, players: [...this.current.players] as [string, string], board: [...this.current.board] };
-  }
-}
+export function createTicTacToeCoordinator(state: TicTacToeState) { const runtime = createTicTacToeRuntime(state); const revision = new TicTacToeRevisionReader(runtime); const mover = new TicTacToeMover(runtime); return { revision: revision.read.bind(revision), move: mover.move.bind(mover) }; }
+export { TicTacToeRevisionReader } from "./tic-tac-toe-revision-reader.js";
+export { TicTacToeMover } from "./tic-tac-toe-mover.js";
 export function serializeTicTacToeState(state: TicTacToeState): string { return JSON.stringify(state); }
 export function reconnectTicTacToe(serialized: string, projectId: string, playerId: string): TicTacToeState {
   let parsed: unknown;
