@@ -1,7 +1,7 @@
-import { AuthService } from "../../plugins/auth/index.js";
+import { createAuthOperations } from "../../plugins/auth/index.js";
 import { ArenaStateMachine, arenaStartCommand } from "../../plugins/arena/index.js";
 
-const auth = new AuthService();
+const auth = createAuthOperations();
 const first = auth.guest("dev");
 const second = auth.guest("dev");
 const room = new ArenaStateMachine("dev", "guest-coop");

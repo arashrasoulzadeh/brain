@@ -28,6 +28,15 @@ source_files:
   - sms-otp-verifier.ts
   - recovery-token-issuer.ts
   - recovery-token-consumer.ts
+  - auth-state.ts
+  - account-signup.ts
+  - account-signin.ts
+  - account-session-reader.ts
+  - account-session-rotator.ts
+  - account-session-revoker.ts
+  - account-password-resetter.ts
+  - guest-session-issuer.ts
+  - guest-account-upgrader.ts
   - guest-request.ts
 imports:
   - ../sdk-typescript/src/index.js
@@ -56,6 +65,15 @@ imports:
   - ./sms-otp-verifier.js
   - ./recovery-token-issuer.js
   - ./recovery-token-consumer.js
+  - ./auth-state.js
+  - ./account-signup.js
+  - ./account-signin.js
+  - ./account-session-reader.js
+  - ./account-session-rotator.js
+  - ./account-session-revoker.js
+  - ./account-password-resetter.js
+  - ./guest-session-issuer.js
+  - ./guest-account-upgrader.js
   - ./index.js
 plugin_imports:
 dependencies: []

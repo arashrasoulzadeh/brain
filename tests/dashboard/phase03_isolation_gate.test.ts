@@ -1,8 +1,8 @@
-import { AuthService } from "../../plugins/auth/index.js";
+import { createAuthOperations } from "../../plugins/auth/index.js";
 import { FileGrantStore, FileAccessReader } from "../../plugins/files/index.js";
 import { projectRow, RowPolicyGranter, RowPolicyChecker } from "../../plugins/tables/index.js";
 
-const auth = new AuthService();
+const auth = createAuthOperations();
 const dev = auth.guest("dev");
 try { auth.session("prod", dev.token); throw new Error("API crossed project boundary"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid session") throw error; }
 const policyGrants = new Set<string>(); new RowPolicyGranter(policyGrants).grant("dev", "user-1");

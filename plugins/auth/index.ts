@@ -1,13 +1,15 @@
-import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
-import { hash as argon2Hash, verify as argon2Verify } from "@node-rs/argon2";
+import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import { type PluginFunction, type RpcRequest, validateProjectId } from "../sdk-typescript/src/index.js";
 import { sessionTokenDigest } from "./session-token-digest.js";
+import { createAuthState, type AuthState } from "./auth-state.js";
+import { AccountSignup } from "./account-signup.js";
+import { AccountSignin } from "./account-signin.js";
+import { AccountSessionReader } from "./account-session-reader.js";
+import { GuestSessionIssuer } from "./guest-session-issuer.js";
 
 export { guestRequest } from "./guest-request.js";
 export { signInRequest } from "./sign-in-request.js";
 export { signUpRequest } from "./sign-up-request.js";
-
-type Account = { username: string; userId: string; passwordHash: string };
 
 export function projectUserID(projectId: string, userId: string): string {
   if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(projectId) || !/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(userId)) throw new Error("invalid project user id");
@@ -121,100 +123,22 @@ export { AuthorizationCodeIssuer } from "./authorization-code-issuer.js";
 export { AuthorizationCodeConsumer } from "./authorization-code-consumer.js";
 export type { AuthorizationCode } from "./authorization-code-types.js";
 
-export class AuthService {
-  private readonly accounts = new Map<string, Map<string, Account>>();
-  private readonly sessions = new Map<string, { projectId: string; username: string; expiresAt: number }>();
-  private readonly rotated = new Set<string>();
-  constructor(private readonly sessionTtlMs = 24 * 60 * 60 * 1000) {
-    if (sessionTtlMs <= 0) throw new Error("invalid session ttl");
-  }
-
-  async signup(projectId: string, username: string, password: string) {
-    this.validate(projectId, username, password);
-    const project = this.accounts.get(projectId) ?? new Map<string, Account>();
-    if (project.has(username)) throw new Error("account already exists");
-    const passwordHash = await this.hash(password);
-    project.set(username, { username, userId: projectUserID(projectId, username), passwordHash });
-    this.accounts.set(projectId, project);
-    return { username, userId: projectUserID(projectId, username) };
-  }
-
-  async signin(projectId: string, username: string, password: string, now = Date.now()) {
-    validateProjectId(projectId);
-    const account = this.accounts.get(projectId)?.get(username);
-    if (!account || !(await argon2Verify(account.passwordHash, password))) throw new Error("invalid credentials");
-    const token = randomBytes(32).toString("hex");
-    this.sessions.set(sessionTokenDigest(token), { projectId, username, expiresAt: now + this.sessionTtlMs });
-    return { token, username };
-  }
-
-  session(projectId: string, token: string, now = Date.now()) {
-    validateProjectId(projectId);
-    const session = this.sessions.get(sessionTokenDigest(token));
-    if (!session || session.projectId !== projectId || session.expiresAt <= now) throw new Error("invalid session");
-    return { username: session.username };
-  }
-
-  rotate(projectId: string, token: string, now = Date.now()): string {
-    validateProjectId(projectId);
-    const digest = sessionTokenDigest(token);
-    const session = this.sessions.get(digest);
-    if (!session && this.rotated.has(digest)) throw new Error("refresh token reuse detected");
-    if (!session || session.projectId !== projectId || session.expiresAt <= now) throw new Error("invalid session");
-    this.sessions.delete(digest);
-    this.rotated.add(digest);
-    const rotated = randomBytes(32).toString("hex");
-    this.sessions.set(sessionTokenDigest(rotated), { projectId, username: session.username, expiresAt: now + this.sessionTtlMs });
-    return rotated;
-  }
-
-  logout(projectId: string, token: string): void {
-    validateProjectId(projectId);
-    const digest = sessionTokenDigest(token);
-    const session = this.sessions.get(digest);
-    if (!session || session.projectId !== projectId) throw new Error("invalid session");
-    this.sessions.delete(digest);
-  }
-
-  async resetPassword(projectId: string, username: string, password: string): Promise<void> {
-    this.validate(projectId, username, password);
-    const account = this.accounts.get(projectId)?.get(username);
-    if (!account) throw new Error("account not found");
-    account.passwordHash = await this.hash(password);
-    for (const [digest, session] of this.sessions) if (session.projectId === projectId && session.username === username) this.sessions.delete(digest);
-  }
-
-  guest(projectId: string) {
-    validateProjectId(projectId);
-    const token = randomBytes(32).toString("hex");
-    const username = `guest-${randomBytes(8).toString("hex")}`;
-    this.sessions.set(sessionTokenDigest(token), { projectId, username, expiresAt: Date.now() + this.sessionTtlMs });
-    return { token, username, userId: projectUserID(projectId, username), guest: true };
-  }
-
-  async upgradeGuest(projectId: string, token: string, username: string, password: string) {
-    validateProjectId(projectId);
-    const session = this.sessions.get(sessionTokenDigest(token));
-    if (!session || session.projectId !== projectId || !session.username.startsWith("guest-")) throw new Error("guest session required");
-    const userId = projectUserID(projectId, session.username);
-    this.validate(projectId, username, password);
-    const project = this.accounts.get(projectId) ?? new Map<string, Account>();
-    if (project.has(username)) throw new Error("account already exists");
-    const salt = randomBytes(16);
-    project.set(username, { username, userId, passwordHash: await this.hash(password) });
-    this.accounts.set(projectId, project);
-    session.username = username;
-    return { username, userId };
-  }
-
-  private hash(password: string) { return argon2Hash(password, { memoryCost: 19456, timeCost: 2, parallelism: 1, outputLen: 32 }); }
-  private validate(projectId: string, username: string, password: string) {
-    validateProjectId(projectId);
-    if (!username || password.length < 8) throw new Error("invalid signup");
-  }
+export { createAuthState } from "./auth-state.js";
+export { AccountSignup } from "./account-signup.js";
+export { AccountSignin } from "./account-signin.js";
+export { AccountSessionReader } from "./account-session-reader.js";
+export { AccountSessionRotator } from "./account-session-rotator.js";
+export { AccountSessionRevoker } from "./account-session-revoker.js";
+export { AccountPasswordResetter } from "./account-password-resetter.js";
+export { GuestSessionIssuer } from "./guest-session-issuer.js";
+export { GuestAccountUpgrader } from "./guest-account-upgrader.js";
+export type AuthOperations = ReturnType<typeof createAuthOperations>;
+export function createAuthOperations(state: AuthState = createAuthState()) {
+  const signup = new AccountSignup(state); const signin = new AccountSignin(state); const session = new AccountSessionReader(state); const guest = new GuestSessionIssuer(state);
+  return { signup: signup.signup.bind(signup), signin: signin.signin.bind(signin), session: session.session.bind(session), guest: guest.guest.bind(guest) };
 }
 
-export function functions(service = new AuthService()): Readonly<Record<string, PluginFunction>> {
+export function functions(service = createAuthOperations()): Readonly<Record<string, PluginFunction>> {
   const payload = (rpc: RpcRequest) => rpc.params.payload as Record<string, string> | undefined;
   return {
     signup: (rpc) => { const p = payload(rpc); return service.signup(rpc.params.projectId, p?.username ?? "", p?.password ?? ""); },

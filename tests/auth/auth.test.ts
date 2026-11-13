@@ -1,13 +1,18 @@
-import { AccountRateLimiter, AuthService, AuthorizationCodeIssuer, AuthorizationCodeConsumer, DeliveryReader, DeliveryWriter, EmailOTPIssuer, EmailOTPVerifier, RecoveryTokenIssuer, RecoveryTokenConsumer, IdentityLinker, OIDCConfigWriter, OIDCConfigReader, OIDCStateIssuer, OIDCStateConsumer, OTPLimiter, OperatorSessionIssuer, OperatorSessionValidator, OperatorSessionRevoker, ProjectRateLimiter, SMSOTPIssuer, SMSOTPVerifier, createPKCEChallenge, functions, guestRequest, normalizePhoneNumber, projectUserID, publicAuthError, requireRecentAuthentication, sessionTokenDigest, signInRequest, signUpRequest, validateDeliveryConfig, validateOIDCToken, verifyPKCE } from "../../plugins/auth/index.js";
+import { AccountRateLimiter, AccountPasswordResetter, AccountSessionRevoker, AccountSessionRotator, AccountSignup, AccountSignin, AccountSessionReader, AuthorizationCodeIssuer, AuthorizationCodeConsumer, DeliveryReader, DeliveryWriter, EmailOTPIssuer, EmailOTPVerifier, RecoveryTokenIssuer, RecoveryTokenConsumer, IdentityLinker, OIDCConfigWriter, OIDCConfigReader, OIDCStateIssuer, OIDCStateConsumer, OTPLimiter, OperatorSessionIssuer, OperatorSessionValidator, OperatorSessionRevoker, ProjectRateLimiter, SMSOTPIssuer, SMSOTPVerifier, createAuthOperations, createAuthState, GuestAccountUpgrader, GuestSessionIssuer, createPKCEChallenge, functions, guestRequest, normalizePhoneNumber, projectUserID, publicAuthError, requireRecentAuthentication, sessionTokenDigest, signInRequest, signUpRequest, validateDeliveryConfig, validateOIDCToken, verifyPKCE } from "../../plugins/auth/index.js";
 import { createFunctionHandler } from "../../plugins/sdk-typescript/src/index.js";
 
-const serviceForHandler = new AuthService();
+const serviceForHandler = createAuthOperations();
 const handler = createFunctionHandler(functions(serviceForHandler), [
   { operation: "auth.signup", function: "signup", capability: "auth.signup" },
   { operation: "auth.signin", function: "signin", capability: "auth.signin" },
   { operation: "auth.session", function: "session", capability: "auth.session" },
   { operation: "auth.guest", function: "guest", capability: "auth.guest" },
 ], { projectId: "dev", invocationId: "auth-test" });
+function createTestAuth(sessionTtlMs?: number) {
+  const state = createAuthState(sessionTtlMs);
+  const signup = new AccountSignup(state); const signin = new AccountSignin(state); const session = new AccountSessionReader(state); const rotate = new AccountSessionRotator(state); const logout = new AccountSessionRevoker(state); const reset = new AccountPasswordResetter(state); const guest = new GuestSessionIssuer(state); const upgrade = new GuestAccountUpgrader(state);
+  return { signup: signup.signup.bind(signup), signin: signin.signin.bind(signin), session: session.session.bind(session), rotate: rotate.rotate.bind(rotate), logout: logout.logout.bind(logout), resetPassword: reset.resetPassword.bind(reset), guest: guest.guest.bind(guest), upgradeGuest: upgrade.upgradeGuest.bind(upgrade) };
+}
 const signup = signUpRequest("dev", "auth", "0.1.0", "guest", "correct horse battery");
 if (signup.params.pluginId !== "auth" || signup.params.operation !== "auth.signup") throw new Error("auth plugin contract failed");
 const signupResponse = await handler(signup) as { payload: Promise<unknown> };
@@ -17,7 +22,7 @@ const signinResponse = await handler(request) as { payload: Promise<unknown> };
 await signinResponse.payload;
 const guest = (handler(guestRequest("dev", "auth", "0.1.0")) as { payload: { token: string; username: string; guest: boolean } }).payload;
 if (!guest.token || !guest.username.startsWith("guest-") || !guest.guest) throw new Error("guest session failed");
-const guestService = new AuthService();
+const guestService = createTestAuth();
 const guestAccount = guestService.guest("project-a");
 const upgraded = await guestService.upgradeGuest("project-a", guestAccount.token, "dana", "correct horse battery");
 if (upgraded.userId !== guestAccount.userId || upgraded.username !== "dana") throw new Error("guest upgrade changed user id");
@@ -60,7 +65,7 @@ try { recoveryIssuer.issue("bad/project", "alice@example.com", 1000, 60); throw 
 recoveryIssuer.issue("project-a", "alice@example.com", 1000, 60);
 const recoveryCode = deliveryReader.read("alice@example.com");
 if (!recoveryConsumer.consume("project-a", "alice@example.com", recoveryCode ?? "", 1001)) throw new Error("email recovery failed");
-const resetService = new AuthService();
+const resetService = createTestAuth();
 await resetService.signup("project-a", "erin", "old password");
 const resetSession = await resetService.signin("project-a", "erin", "old password", 1000);
 await resetService.resetPassword("project-a", "erin", "new password");
@@ -69,7 +74,7 @@ if (publicAuthError(new Error("account already exists")) !== "invalid credential
 validateDeliveryConfig("test", "local");
 try { validateDeliveryConfig("production", "local"); throw new Error("fake production delivery accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "fake delivery forbidden in production") throw error; }
 
-const service = new AuthService();
+const service = createTestAuth();
 const registration = await service.signup("project-a", "alice", "correct horse battery");
 if (registration.username !== "alice" || "email" in registration) throw new Error("password registration attempted email delivery");
 if (!projectUserID("project-a", "user-1").startsWith("project-a:")) throw new Error("project-scoped user ID failed");
@@ -79,12 +84,12 @@ const session = await service.signin("project-a", "alice", "correct horse batter
 if (!session.token || session.username !== "alice") throw new Error("password sign-in failed");
 if (service.session("project-a", session.token).username !== "alice") throw new Error("session lookup failed");
 if (sessionTokenDigest(session.token) === session.token) throw new Error("session token was not digested");
-const expiring = new AuthService(1000);
+const expiring = createTestAuth(1000);
 await expiring.signup("project-a", "bob", "correct horse battery");
 const expiringSession = await expiring.signin("project-a", "bob", "correct horse battery", 100);
 if (expiring.session("project-a", expiringSession.token, 1099).username !== "bob") throw new Error("valid session expired early");
 try { expiring.session("project-a", expiringSession.token, 1100); throw new Error("expired session accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid session") throw error; }
-const rotating = new AuthService();
+const rotating = createTestAuth();
 await rotating.signup("project-a", "carol", "correct horse battery");
 const originalToken = (await rotating.signin("project-a", "carol", "correct horse battery", 200)).token;
 const rotatedToken = rotating.rotate("project-a", originalToken, 201);
