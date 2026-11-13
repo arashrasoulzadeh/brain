@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `bce1cf2` — 2026-11-13 16:46:03 +0330 — feat: allow participant reconnects during drain
+  Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
+- `34d4a22` — 2026-11-13 13:15:35 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `565f901` — 2026-11-13 16:44:52 +0330 — feat: default plugin drains to five minutes
   Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
 - `356bd20` — 2026-11-13 13:14:20 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `877c9cd` — 2026-11-13 15:03:25 +0330 — add CI compose plugin isolation profile
   Files: .github/workflows/test.yml,Dockerfile.test compose.test.yml,scripts/smoke-compose.sh
 - `89c2164` — 2026-11-13 11:31:10 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `3936e85` — 2026-11-13 15:00:44 +0330 — add entry package fixture
-  Files: plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/tables/plugin.yaml,roadmap.md tests/functions/functions.test.ts
-- `ec919b1` — 2026-11-13 11:27:43 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
