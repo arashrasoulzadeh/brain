@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `c29beb0` — 2026-11-13 17:10:00 +0330 — feat: preserve operator plugin recovery
+  Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
+- `bfad1d1` — 2026-11-13 13:39:17 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `5e45d87` — 2026-11-13 17:08:41 +0330 — feat: separate durable data deletion
   Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
 - `a5471cf` — 2026-11-13 13:38:16 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `188fef8` — 2026-11-13 16:30:30 +0330 — feat: require approval for new plugin capabilities
   Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
 - `6e034ee` — 2026-11-13 12:59:33 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `1ec481e` — 2026-11-13 16:29:06 +0330 — test: preserve plugin grants during rollback
-  Files: roadmap.md,tests/plugin/plugin_test.go
-- `d2bd281` — 2026-11-13 12:58:25 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
