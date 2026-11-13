@@ -141,6 +141,15 @@ export function publishTicTacToeRules(compile: (source: string) => string): stri
   if (!artifact) throw new Error("rules compilation failed");
   return artifact;
 }
+export function authorizedTicTacToeState(state: TicTacToeState, projectId: string, playerId: string): TicTacToeState {
+  if (state.projectId !== projectId || !state.players.includes(playerId)) throw new Error("game authorization required");
+  return { ...state, players: [...state.players] as [string, string], board: [...state.board] };
+}
+export function authorizeTicTacToeCommand(state: TicTacToeState, projectId: string, playerId: string, operation: string): boolean {
+  authorizedTicTacToeState(state, projectId, playerId);
+  if (operation !== "move") throw new Error("game command not authorized");
+  return true;
+}
 
 export function roomRequest(projectId: string, pluginId: string, version: string, operation: "rooms.create" | "rooms.join" | "rooms.reconnect" | "rooms.result", roomId: string, payload: unknown = {}) {
   return request(`rooms-${operation}-${projectId}-${roomId}`, { protocol: 1, projectId, pluginId, version, operation, payload: { roomId, ...(payload as Record<string, unknown>) } });
