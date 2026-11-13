@@ -155,6 +155,7 @@ export type FunctionSchedule = { projectId: string; functionId: string; expressi
 export class ScheduleStore {
   private readonly schedules: FunctionSchedule[] = [];
   private readonly claims = new Map<string, { workerId: string; expiresAt: number }>();
+  private readonly occurrences = new Set<string>();
   add(projectId: string, functionId: string, expression: string, dueAt: number): FunctionSchedule {
     if (!projectId || !functionId || expression.trim().split(/\s+/).length !== 5 || !Number.isSafeInteger(dueAt) || dueAt < 0) throw new Error("invalid schedule");
     const schedule = { projectId, functionId, expression: expression.trim(), dueAt };
@@ -170,6 +171,13 @@ export class ScheduleStore {
     const current = this.claims.get(key);
     if (current && current.expiresAt > now) return false;
     this.claims.set(key, { workerId, expiresAt: now + leaseMs });
+    return true;
+  }
+  recordOccurrence(projectId: string, functionId: string, occurrenceUtc: string): boolean {
+    if (!projectId || !functionId || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(occurrenceUtc) || Number.isNaN(Date.parse(occurrenceUtc))) throw new Error("invalid UTC occurrence");
+    const key = `${projectId}:${functionId}:${occurrenceUtc}`;
+    if (this.occurrences.has(key)) return false;
+    this.occurrences.add(key);
     return true;
   }
 }
