@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `cd51721` — 2026-11-13 14:27:26 +0330 — split tic tac toe coordinator
+- `971d6d1` — 2026-11-13 10:51:23 +0000 — docs: update changelog [skip ci]
 - `0d37bba` — 2026-11-13 14:21:03 +0330 — split room directory operations
 - `f10bb6b` — 2026-11-13 10:49:27 +0000 — docs: update changelog [skip ci]
 - `ba63107` — 2026-11-13 14:19:03 +0330 — split arena state operations
