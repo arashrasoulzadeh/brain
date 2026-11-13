@@ -19,6 +19,10 @@ source_files:
   - invocation-effects-state.ts
   - invocation-effects-writer.ts
   - invocation-effects-reader.ts
+  - function-publication-state.ts
+  - function-publication-writer.ts
+  - function-publication-reader.ts
+  - function-publication-rollback.ts
 imports:
   - ../sdk-typescript/src/index.js
   - node:fs
@@ -42,6 +46,10 @@ imports:
   - ./invocation-effects-state.js
   - ./invocation-effects-writer.js
   - ./invocation-effects-reader.js
+  - ./function-publication-state.js
+  - ./function-publication-writer.js
+  - ./function-publication-reader.js
+  - ./function-publication-rollback.js
 plugin_imports:
 title: Functions
 description: Project-scoped serverless function compilation and invocation controls.

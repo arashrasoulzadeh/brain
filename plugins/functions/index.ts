@@ -19,6 +19,10 @@ import { JobLeaseRenewer } from "./job-lease-renewer.js";
 import { createInvocationEffectsState } from "./invocation-effects-state.js";
 import { InvocationEffectsWriter } from "./invocation-effects-writer.js";
 import { InvocationEffectsReader } from "./invocation-effects-reader.js";
+import { createFunctionPublicationState } from "./function-publication-state.js";
+import { FunctionPublicationWriter } from "./function-publication-writer.js";
+import { FunctionPublicationReader } from "./function-publication-reader.js";
+import { FunctionPublicationRollback } from "./function-publication-rollback.js";
 
 export { functionRequest } from "./function-request.js";
 
@@ -284,35 +288,7 @@ export function createApprovalStore() { const state = createApprovalState(); con
 export type FunctionDraft = { projectId: string; functionId: string; source: string; savedAt: number };
 export function createFunctionDraftStore() { const state = createFunctionDraftState(); const writer = new FunctionDraftWriter(state); const reader = new FunctionDraftReader(state); return { save: writer.save.bind(writer), get: reader.get.bind(reader) }; }
 export type FunctionPublication = FunctionDraft & { version: number; artifactDigest: string; toolchain: string; publishedAt: number };
-export class FunctionPublicationStore {
-  private readonly publications = new Map<string, FunctionPublication>();
-  private readonly activeVersions = new Map<string, number>();
-  publish(draft: FunctionDraft, artifactDigest: string, toolchain: string, publishedAt = Date.now()): FunctionPublication {
-    validateProjectId(draft.projectId);
-    if (!draft.functionId || !draft.source || !/^sha256:[a-f0-9]+$/.test(artifactDigest) || !/^go[0-9]+\.[0-9]+(?:\.[0-9]+)?$/.test(toolchain) || !Number.isFinite(publishedAt)) throw new Error("invalid function publication");
-    const prefix = `${draft.projectId}:${draft.functionId}:`;
-    const versions = [...this.publications.keys()].filter((key) => key.startsWith(prefix)).map((key) => Number(key.slice(prefix.length)));
-    const version = versions.length ? Math.max(...versions) + 1 : 1;
-    const publication = { ...draft, version, artifactDigest, toolchain, publishedAt };
-    this.publications.set(`${prefix}${version}`, publication);
-    this.activeVersions.set(`${draft.projectId}:${draft.functionId}`, version);
-    return { ...publication };
-  }
-  get(projectId: string, functionId: string, version: number): FunctionPublication | undefined {
-    const publication = this.publications.get(`${projectId}:${functionId}:${version}`);
-    return publication ? { ...publication } : undefined;
-  }
-  active(projectId: string, functionId: string): FunctionPublication | undefined {
-    const version = this.activeVersions.get(`${projectId}:${functionId}`);
-    return version === undefined ? undefined : this.get(projectId, functionId, version);
-  }
-  rollback(projectId: string, functionId: string, version: number): FunctionPublication {
-    const publication = this.get(projectId, functionId, version);
-    if (!publication) throw new Error("function publication not found");
-    this.activeVersions.set(`${projectId}:${functionId}`, version);
-    return publication;
-  }
-}
+export function createFunctionPublicationStore() { const state = createFunctionPublicationState(); const writer = new FunctionPublicationWriter(state); const reader = new FunctionPublicationReader(state); const rollback = new FunctionPublicationRollback(state); return { publish: writer.publish.bind(writer), get: reader.get.bind(reader), active: (projectId: string, functionId: string) => { const version = state.activeVersions.get(`${projectId}:${functionId}`); return version === undefined ? undefined : reader.get(projectId, functionId, version); }, rollback: rollback.rollback.bind(rollback) }; }
 export function createSharedPackageStore() { const state = createSharedPackageState(); const writer = new SharedPackageWriter(state); const reader = new SharedPackageReader(state); return { save: writer.save.bind(writer), load: reader.load.bind(reader) }; }
 export type SourceDiagnostic = { line: number; message: string };
 export function diagnoseSource(source: string): SourceDiagnostic[] { const diagnostics: SourceDiagnostic[] = []; const lines = source.split("\n"); lines.forEach((line, index) => { if (/import\s+.*\"(os|net|syscall)\"/.test(line)) diagnostics.push({ line: index + 1, message: "unsupported import" }); }); if (!/package\s+main\b/.test(source)) diagnostics.push({ line: 1, message: "package main required" }); return diagnostics; }
