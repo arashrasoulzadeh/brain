@@ -55,3 +55,9 @@ export function validateInvocationResult(result: FunctionInvocationResult, maxDi
   if (typeof result.success !== "boolean" || result.diagnostics.length > maxDiagnostics || result.diagnostics.some((line) => line.length > 4096) || (result.success && result.error) || (!result.success && !result.error)) throw new Error("invalid function invocation result");
   return { ...result, diagnostics: [...result.diagnostics] };
 }
+export function parseInvocationResult(value: unknown): FunctionInvocationResult {
+  if (!value || typeof value !== "object") throw new Error("malformed function output");
+  const result = value as Partial<FunctionInvocationResult>;
+  if (!Array.isArray(result.diagnostics)) throw new Error("malformed function output");
+  return validateInvocationResult(result as FunctionInvocationResult);
+}

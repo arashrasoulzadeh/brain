@@ -1,4 +1,4 @@
-import { APPROVED_SDK_IMPORTS, compilerEnvironment, createInvocationRequest, DisposableCompilerWorkspace, ENTRY_PACKAGE_FIXTURE, functionRequest, PROJECT_HELPER_FIXTURE, requireSDKImports, validateBuildOverrides, validateCompilerEnvironment, validateCompilerLimits, validateFunctionLimits, validateInvocationResult, validateSDKImports, validateSourceProject, wasmBuildSettings } from "../../plugins/functions/index.js";
+import { APPROVED_SDK_IMPORTS, compilerEnvironment, createInvocationRequest, DisposableCompilerWorkspace, ENTRY_PACKAGE_FIXTURE, functionRequest, parseInvocationResult, PROJECT_HELPER_FIXTURE, requireSDKImports, validateBuildOverrides, validateCompilerEnvironment, validateCompilerLimits, validateFunctionLimits, validateInvocationResult, validateSDKImports, validateSourceProject, wasmBuildSettings } from "../../plugins/functions/index.js";
 validateSDKImports(APPROVED_SDK_IMPORTS);
 const request = functionRequest("dev", "functions", "0.1.0", "functions.invoke", { name: "hello" });
 if (request.params.projectId !== "dev" || request.params.operation !== "functions.invoke") throw new Error("functions request contract failed");
@@ -27,3 +27,5 @@ const invocation = createInvocationRequest({ projectId: "dev", functionId: "hell
 if (invocation.projectId !== "dev" || invocation.inputs.name !== "alice") throw new Error("typed invocation request failed");
 if (!validateInvocationResult({ success: true, output: { ok: true }, diagnostics: [] }).success) throw new Error("typed invocation result failed");
 try { validateInvocationResult({ success: true, error: "bad", diagnostics: [] }); throw new Error("invalid invocation result accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid function invocation result") throw error; }
+if (!parseInvocationResult({ success: false, error: "failed", diagnostics: [] }).error) throw new Error("parsed invocation result failed");
+try { parseInvocationResult(null); throw new Error("malformed function output accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "malformed function output") throw error; }
