@@ -1,4 +1,4 @@
-import { ConnectionTickets, RoomDirectory, authorizeRoomCommand, authorizedRoomSnapshot, canTransitionRoom, initializeTicTacToe, projectRoomID, roomRequest, validateMembership, validateTicTacToeMove } from "../../plugins/rooms/index.js";
+import { ConnectionTickets, RoomDirectory, authorizeRoomCommand, authorizedRoomSnapshot, canTransitionRoom, initializeTicTacToe, projectRoomID, roomRequest, ticTacToeWinner, validateMembership, validateTicTacToeMove } from "../../plugins/rooms/index.js";
 import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = roomRequest("dev", "rooms", "0.1.0", "rooms.create", "room-1", { maxPlayers: 2 });
@@ -41,3 +41,8 @@ const moved = validateTicTacToeMove(game, "user-1", 0);
 if (moved.board[0] !== "X" || moved.turn !== "user-2") throw new Error("legal tic-tac-toe move failed");
 try { validateTicTacToeMove(moved, "user-1", 1); throw new Error("out-of-turn move accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "out-of-turn move") throw error; }
 try { validateTicTacToeMove(moved, "user-2", 0); throw new Error("occupied tic-tac-toe cell accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "cell occupied") throw error; }
+let winningGame = initializeTicTacToe("dev", "room-win", "user-1", "user-2");
+winningGame = validateTicTacToeMove(winningGame, "user-1", 0); winningGame = validateTicTacToeMove(winningGame, "user-2", 3);
+winningGame = validateTicTacToeMove(winningGame, "user-1", 1); winningGame = validateTicTacToeMove(winningGame, "user-2", 4);
+winningGame = validateTicTacToeMove(winningGame, "user-1", 2);
+if (ticTacToeWinner(winningGame) !== "user-1") throw new Error("tic-tac-toe win was not detected");
