@@ -1,4 +1,4 @@
-import { AccountRateLimiter, AuthService, AuthorizationCodeIssuer, AuthorizationCodeConsumer, DeliveryReader, DeliveryWriter, EmailOTPService, EmailRecoveryService, IdentityLinker, OIDCConfigWriter, OIDCConfigReader, OIDCStateIssuer, OIDCStateConsumer, OTPLimiter, OperatorSessionIssuer, OperatorSessionValidator, OperatorSessionRevoker, ProjectRateLimiter, SMSOTPService, createPKCEChallenge, functions, guestRequest, normalizePhoneNumber, projectUserID, publicAuthError, requireRecentAuthentication, sessionTokenDigest, signInRequest, signUpRequest, validateDeliveryConfig, validateOIDCToken, verifyPKCE } from "../../plugins/auth/index.js";
+import { AccountRateLimiter, AuthService, AuthorizationCodeIssuer, AuthorizationCodeConsumer, DeliveryReader, DeliveryWriter, EmailOTPIssuer, EmailOTPVerifier, EmailRecoveryService, IdentityLinker, OIDCConfigWriter, OIDCConfigReader, OIDCStateIssuer, OIDCStateConsumer, OTPLimiter, OperatorSessionIssuer, OperatorSessionValidator, OperatorSessionRevoker, ProjectRateLimiter, SMSOTPIssuer, SMSOTPVerifier, createPKCEChallenge, functions, guestRequest, normalizePhoneNumber, projectUserID, publicAuthError, requireRecentAuthentication, sessionTokenDigest, signInRequest, signUpRequest, validateDeliveryConfig, validateOIDCToken, verifyPKCE } from "../../plugins/auth/index.js";
 import { createFunctionHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const serviceForHandler = new AuthService();
@@ -44,14 +44,14 @@ const inboxMessages = new Map<string, string[]>(); const deliveryWriter = new De
 deliveryWriter.deliver("alice@example.com", "code-1");
 if (deliveryReader.read("alice@example.com") !== "code-1") throw new Error("test delivery inbox failed");
 const delivery = { deliver: (destination: string, body: string) => deliveryWriter.deliver(destination, body) };
-const otp = new EmailOTPService("test-secret", delivery);
-otp.issue("project-a", "alice@example.com", "signin", 1000, 300);
+const emailChallenges = new Map(); const otpIssuer = new EmailOTPIssuer(emailChallenges, "test-secret", delivery); const otpVerifier = new EmailOTPVerifier(emailChallenges, "test-secret");
+otpIssuer.issue("project-a", "alice@example.com", "signin", 1000, 300);
 const emailCode = deliveryReader.read("alice@example.com");
-if (!emailCode || !otp.verify("project-a", "alice@example.com", "signin", emailCode, 1001)) throw new Error("email OTP failed");
-const sms = new SMSOTPService("test-secret", delivery);
-sms.issue("project-a", "+989121234567", "signin", 1000, 300);
+if (!emailCode || !otpVerifier.verify("project-a", "alice@example.com", "signin", emailCode, 1001)) throw new Error("email OTP failed");
+const smsChallenges = new Map(); const smsIssuer = new SMSOTPIssuer(smsChallenges, "test-secret", delivery); const smsVerifier = new SMSOTPVerifier(smsChallenges, "test-secret");
+smsIssuer.issue("project-a", "+989121234567", "signin", 1000, 300);
 const smsCode = deliveryReader.read("+989121234567");
-if (!smsCode || !sms.verify("project-a", "+989121234567", "signin", smsCode, 1001)) throw new Error("SMS OTP failed");
+if (!smsCode || !smsVerifier.verify("project-a", "+989121234567", "signin", smsCode, 1001)) throw new Error("SMS OTP failed");
 if (normalizePhoneNumber("0098 912-123-4567") !== "+989121234567") throw new Error("phone normalization failed");
 const otpLimiter = new OTPLimiter(2, 1000);
 if (!otpLimiter.allow("project-a", "alice@example.com", 100) || !otpLimiter.allow("project-a", "alice@example.com", 101) || otpLimiter.allow("project-a", "alice@example.com", 102)) throw new Error("OTP send limit failed");

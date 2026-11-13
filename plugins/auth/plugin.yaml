@@ -21,6 +21,11 @@ source_files:
   - operator-session-validator.ts
   - operator-session-revoker.ts
   - session-token-digest.ts
+  - otp-types.ts
+  - email-otp-issuer.ts
+  - email-otp-verifier.ts
+  - sms-otp-issuer.ts
+  - sms-otp-verifier.ts
   - guest-request.ts
 imports:
   - ../sdk-typescript/src/index.js
@@ -42,6 +47,11 @@ imports:
   - ./operator-session-validator.js
   - ./operator-session-revoker.js
   - ./session-token-digest.js
+  - ./otp-types.js
+  - ./email-otp-issuer.js
+  - ./email-otp-verifier.js
+  - ./sms-otp-issuer.js
+  - ./sms-otp-verifier.js
   - ./index.js
 plugin_imports:
 dependencies: []

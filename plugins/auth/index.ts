@@ -26,42 +26,10 @@ export { OIDCStateIssuer } from "./oidc-state-issuer.js";
 export { OIDCStateConsumer } from "./oidc-state-consumer.js";
 export { DeliveryWriter } from "./delivery-writer.js";
 export { DeliveryReader } from "./delivery-reader.js";
-export class EmailOTPService {
-  private readonly challenges = new Map<string, { digest: string; expiresAt: number; used: boolean }>();
-  constructor(private readonly secret: string, private readonly inbox: { deliver(destination: string, body: string): void }) {}
-  issue(projectId: string, destination: string, purpose: string, now: number, ttlSeconds: number): void {
-    validateProjectId(projectId);
-    if (!destination.includes("@") || !purpose || ttlSeconds <= 0) throw new Error("invalid email OTP");
-    const code = String(100000 + (randomBytes(4).readUInt32BE(0) % 900000));
-    this.challenges.set(`${projectId}:${destination}:${purpose}`, { digest: this.digest(code), expiresAt: now + ttlSeconds * 1000, used: false });
-    this.inbox.deliver(destination, code);
-  }
-  verify(projectId: string, destination: string, purpose: string, code: string, now: number): boolean {
-    const challenge = this.challenges.get(`${projectId}:${destination}:${purpose}`);
-    if (!challenge || challenge.used || challenge.expiresAt <= now || !timingSafeEqual(Buffer.from(challenge.digest), Buffer.from(this.digest(code)))) return false;
-    challenge.used = true;
-    return true;
-  }
-  private digest(code: string): string { return createHmac("sha256", this.secret).update(code).digest("hex"); }
-}
-export class SMSOTPService {
-  private readonly challenges = new Map<string, { digest: string; expiresAt: number; used: boolean }>();
-  constructor(private readonly secret: string, private readonly inbox: { deliver(destination: string, body: string): void }) {}
-  issue(projectId: string, destination: string, purpose: string, now: number, ttlSeconds: number): void {
-    validateProjectId(projectId);
-    if (!/^\+[1-9][0-9]{7,14}$/.test(destination) || !purpose || ttlSeconds <= 0) throw new Error("invalid SMS OTP");
-    const code = String(100000 + (randomBytes(4).readUInt32BE(0) % 900000));
-    this.challenges.set(`${projectId}:${destination}:${purpose}`, { digest: this.digest(code), expiresAt: now + ttlSeconds * 1000, used: false });
-    this.inbox.deliver(destination, code);
-  }
-  verify(projectId: string, destination: string, purpose: string, code: string, now: number): boolean {
-    const challenge = this.challenges.get(`${projectId}:${destination}:${purpose}`);
-    if (!challenge || challenge.used || challenge.expiresAt <= now || !timingSafeEqual(Buffer.from(challenge.digest), Buffer.from(this.digest(code)))) return false;
-    challenge.used = true;
-    return true;
-  }
-  private digest(code: string): string { return createHmac("sha256", this.secret).update(code).digest("hex"); }
-}
+export { EmailOTPIssuer } from "./email-otp-issuer.js";
+export { EmailOTPVerifier } from "./email-otp-verifier.js";
+export { SMSOTPIssuer } from "./sms-otp-issuer.js";
+export { SMSOTPVerifier } from "./sms-otp-verifier.js";
 export function normalizePhoneNumber(value: string): string {
   const compact = value.replace(/[\s().-]/g, "");
   const normalized = compact.startsWith("00") ? `+${compact.slice(2)}` : compact;
