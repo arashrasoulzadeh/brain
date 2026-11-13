@@ -12,6 +12,12 @@ source_files:
   - match-result-saver.ts
   - match-result-reader.ts
   - state-machine.ts
+  - arena-state.ts
+  - arena-state-reader.ts
+  - arena-starter.ts
+  - arena-action-recorder.ts
+  - arena-measurer.ts
+  - arena-finisher.ts
   - arena-start.ts
   - arena-request.ts
 imports:
@@ -22,6 +28,12 @@ imports:
   - ./match-result-saver.js
   - ./match-result-reader.js
   - ./state-machine.js
+  - ./arena-state.js
+  - ./arena-state-reader.js
+  - ./arena-starter.js
+  - ./arena-action-recorder.js
+  - ./arena-measurer.js
+  - ./arena-finisher.js
   - ./validate-result.js
   - ./types.js
 plugin_imports:

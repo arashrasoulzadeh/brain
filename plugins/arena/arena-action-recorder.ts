@@ -1,0 +1,2 @@
+import type { ArenaRuntime } from "./arena-state.js";
+export class ArenaActionRecorder { constructor(private readonly runtime: ArenaRuntime) {} record(playerId: string, sequence: number, payload: unknown): void { if (this.runtime.state !== "active") throw new Error("arena is not active"); if (!this.runtime.players.includes(playerId)) throw new Error("player not in arena"); if (!Number.isInteger(sequence) || sequence <= (this.runtime.sequences.get(playerId) ?? 0)) throw new Error("action sequence conflict"); void payload; this.runtime.sequences.set(playerId, sequence); } }
