@@ -568,6 +568,17 @@ func (r *Registry) CanStartNew(projectID, id, version string) error {
 	return nil
 }
 
+func (r *Registry) CanReconnect(projectID, id, version string, now time.Time) error {
+	i, ok := r.installations[projectID+":"+id+"@"+version]
+	if !ok {
+		return ErrNotInstalled
+	}
+	if i.Draining && !i.DrainUntil.IsZero() && !now.Before(i.DrainUntil) {
+		return ErrDisabled
+	}
+	return nil
+}
+
 func (r *Registry) Rollback(projectID, id, version string) error {
 	if err := r.Promote(projectID, id, version); err != nil {
 		return err

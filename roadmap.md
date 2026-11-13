@@ -533,7 +533,7 @@ Goal: safely promote, roll back, disable, drain, uninstall, and extend plugin-co
 - [x] Cancel affected queued matches.
 - [x] Persist drain scope and deadline.
 - [x] Use a five-minute default drain window.
-- [ ] Allow current participants to reconnect.
+- [x] Allow current participants to reconnect.
 - [ ] Reject new room admissions during drain.
 - [ ] Pause turn rooms at the last committed move.
 - [ ] Interrupt action rooms at expiry.

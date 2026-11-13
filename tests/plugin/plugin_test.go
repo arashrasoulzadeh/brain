@@ -618,8 +618,11 @@ func TestDrainBlocksNewWorkButAllowsReconnectUntilDeadline(t *testing.T) {
 	if !errors.Is(r.CanStartNew("dev", m.ID, m.Version), plugin.ErrDisabled) {
 		t.Fatal("new work entered a draining plugin")
 	}
-	if err := r.CanStart("dev", m.ID, m.Version, time.Unix(400, 0)); err != nil {
+	if err := r.CanReconnect("dev", m.ID, m.Version, time.Unix(400, 0)); err != nil {
 		t.Fatalf("reconnect was blocked before deadline: %v", err)
+	}
+	if !errors.Is(r.CanReconnect("dev", m.ID, m.Version, deadline), plugin.ErrDisabled) {
+		t.Fatal("reconnect was allowed after drain deadline")
 	}
 }
 
