@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `d8c608c` — 2026-11-13 04:38:02 +0330 — phase 04 add scheduled functions
+- `facb522` — 2026-11-13 01:07:29 +0000 — docs: update changelog [skip ci]
 - `d48d24c` — 2026-11-13 04:37:16 +0330 — phase 04 mark lost response retry complete
 - `50be688` — 2026-11-13 04:37:04 +0330 — phase 04 retry idempotent invocation
 - `143e9b7` — 2026-11-13 01:06:28 +0000 — docs: update changelog [skip ci]
