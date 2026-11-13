@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `b3643fa` — 2026-11-13 04:30:58 +0330 — phase 04 pin artifact toolchain
+- `0c61625` — 2026-11-13 01:00:31 +0000 — docs: update changelog [skip ci]
 - `edcbd8c` — 2026-11-13 04:30:19 +0330 — phase 04 mark failed draft behavior complete
 - `662110c` — 2026-11-13 01:00:17 +0000 — docs: update changelog [skip ci]
 - `b163782` — 2026-11-13 04:30:04 +0330 — phase 04 preserve active version on failed draft
