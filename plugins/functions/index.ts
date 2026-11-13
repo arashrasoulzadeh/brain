@@ -233,6 +233,14 @@ export function commitWithGrant<T>(hasGrant: () => boolean, commit: () => T, cap
   if (!capability || !hasGrant()) throw new Error("grant revoked before commit");
   return commit();
 }
+export async function runCappedRetries<T>(task: () => T | Promise<T>, maxAttempts: number): Promise<T> {
+  if (!Number.isSafeInteger(maxAttempts) || maxAttempts < 1) throw new Error("invalid retry cap");
+  let lastError: unknown;
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    try { return await task(); } catch (error) { lastError = error; }
+  }
+  throw lastError instanceof Error ? lastError : new Error("retry attempts exhausted");
+}
 export type FunctionDraft = { projectId: string; functionId: string; source: string; savedAt: number };
 export class FunctionDraftStore {
   private readonly drafts = new Map<string, FunctionDraft>();
