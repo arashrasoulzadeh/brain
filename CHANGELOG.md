@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `d8bdb9e` — 2026-11-13 17:04:32 +0330 — test: audit project uninstall
+  Files: roadmap.md,tests/plugin/plugin_test.go
+- `f39e3bc` — 2026-11-13 13:32:29 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `90953c3` — 2026-11-13 17:00:28 +0330 — feat: preserve durable plugin data on uninstall
   Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
 - `19b1114` — 2026-11-13 13:28:25 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `84c528b` — 2026-11-13 16:22:48 +0330 — feat: cancel incompatible matchmaking tickets
   Files: plugins/matchmaking/plugin.yaml,plugins/matchmaking/queue.ts plugins/matchmaking/ticket-canceller.ts,plugins/matchmaking/ticket-enqueuer.ts plugins/matchmaking/types.ts,roadmap.md tests/matchmaking/matchmaking.test.ts
 - `83fce3b` — 2026-11-13 12:51:06 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `94c528a` — 2026-11-13 16:20:44 +0330 — test: verify pinned room versions survive promotion
-  Files: roadmap.md
-- `515dc00` — 2026-11-13 12:50:39 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
