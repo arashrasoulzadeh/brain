@@ -381,7 +381,7 @@ Goal: provide project-scoped identity, PostgreSQL APIs, files, subscriptions, an
 - [x] Add signup settings.
 - [x] Add record browsing.
 - [x] Add record editing.
-- [ ] Add table management.
+- [x] Add table management.
 - [ ] Add file management.
 - [ ] Add audited form actions.
 - [ ] Add the browser quickstart.
