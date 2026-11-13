@@ -1,4 +1,4 @@
-import { adminRequest, authSettingsPage, projectCreateRequest } from "../../plugins/dashboard/index.js";
+import { adminRequest, authSettingsPage, projectCreateRequest, signupSettingsPage } from "../../plugins/dashboard/index.js";
 import { createHostHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = projectCreateRequest("dashboard", "0.1.0", "dev");
@@ -29,3 +29,4 @@ const readiness = adminRequest("dev", "dashboard", "0.1.0", "plugin.readiness", 
 if (typeof createHostHandler(host, routes)(readiness) !== "object") throw new Error("readiness request was not dispatched");
 try { createHostHandler(host, routes)(adminRequest("dev", "dashboard", "0.1.0", "plugin.unknown", {})); throw new Error("undeclared route was accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "operation not declared in plugin manifest") throw error; }
 if (authSettingsPage("dev", { passwordEnabled: true, oidcProviders: ["google"], emailRecoveryEnabled: true }).title !== "Authentication settings") throw new Error("auth settings page failed");
+if (signupSettingsPage("dev", { enabled: true, allowedDomains: ["example.com"], requireInvite: false }).title !== "Signup settings") throw new Error("signup settings page failed");

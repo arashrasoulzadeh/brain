@@ -36,4 +36,9 @@ export function authSettingsPage(projectId: string, settings: AuthSettings): { p
   if (!projectId || settings.oidcProviders.some((provider) => !provider)) throw new Error("invalid auth settings");
   return { projectId, title: "Authentication settings", settings: { ...settings, oidcProviders: [...settings.oidcProviders] } };
 }
+export type SignupSettings = { enabled: boolean; allowedDomains: readonly string[]; requireInvite: boolean };
+export function signupSettingsPage(projectId: string, settings: SignupSettings): { projectId: string; title: string; settings: SignupSettings } {
+  if (!projectId || settings.allowedDomains.some((domain) => !domain || domain.includes("/"))) throw new Error("invalid signup settings");
+  return { projectId, title: "Signup settings", settings: { ...settings, allowedDomains: [...settings.allowedDomains] } };
+}
 
