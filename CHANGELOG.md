@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `b464ccf` — 2026-11-13 04:23:55 +0330 — phase 04 add shared package compilation inputs
+- `f41a49b` — 2026-11-13 00:53:42 +0000 — docs: update changelog [skip ci]
 - `c488976` — 2026-11-13 04:23:17 +0330 — phase 04 record function draft saving
 - `42b556c` — 2026-11-13 00:53:18 +0000 — docs: update changelog [skip ci]
 - `6932b19` — 2026-11-13 04:23:06 +0330 — phase 04 add function draft saving
