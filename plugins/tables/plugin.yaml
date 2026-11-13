@@ -9,8 +9,11 @@ source_files:
   - data-request.ts
   - project-schema-name.ts
   - project-role-name.ts
-  - row-policy.ts
+  - row-policy-granter.ts
+  - row-policy-checker.ts
   - table-exposure.ts
+  - table-exposure-writer.ts
+  - table-exposure-reader.ts
   - require-primary-key.ts
   - validate-column-types.ts
   - project-row.ts
@@ -24,8 +27,11 @@ imports:
   - ./data-request.js
   - ./project-schema-name.js
   - ./project-role-name.js
-  - ./row-policy.js
+  - ./row-policy-granter.js
+  - ./row-policy-checker.js
   - ./table-exposure.js
+  - ./table-exposure-writer.js
+  - ./table-exposure-reader.js
   - ./require-primary-key.js
   - ./validate-column-types.js
   - ./project-row.js
