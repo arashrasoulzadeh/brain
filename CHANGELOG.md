@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `4abe251` — 2026-11-13 17:14:20 +0330 — test: verify duplicate view replacement rejection
+  Files: roadmap.md
+- `2cfe5ce` — 2026-11-13 13:43:48 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `7a1db4a` — 2026-11-13 17:13:25 +0330 — feat: activate scoped admin view replacements
   Files: plugins/dashboard/index.ts,plugins/dashboard/plugin.yaml plugins/dashboard/view-replacement-registry.ts,roadmap.md tests/dashboard/dashboard.test.ts
 - `1665987` — 2026-11-13 13:42:56 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `94f6982` — 2026-11-13 16:39:22 +0330 — feat: block new work during plugin drain
   Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
 - `f3216a4` — 2026-11-13 13:09:01 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `216353a` — 2026-11-13 16:37:17 +0330 — test: isolate matchmaking scope disable
-  Files: roadmap.md,tests/matchmaking/matchmaking.test.ts
-- `45c2e89` — 2026-11-13 13:06:51 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
