@@ -24,11 +24,13 @@ export function verifyPKCE(verifier: string, challenge: string, method: string):
 export class OIDCStateStore {
   private readonly states = new Map<string, { projectId: string; clientId: string; redirectUri: string }>();
   issue(projectId: string, clientId: string, redirectUri: string): string {
+    validateProjectId(projectId);
     const state = randomBytes(24).toString("base64url");
     this.states.set(state, { projectId, clientId, redirectUri });
     return state;
   }
   consume(state: string, projectId: string, clientId: string, redirectUri: string): void {
+    validateProjectId(projectId);
     const record = this.states.get(state);
     if (!record || record.projectId !== projectId || record.clientId !== clientId || record.redirectUri !== redirectUri) throw new Error("callback state mismatch");
     this.states.delete(state);
@@ -46,7 +48,8 @@ export class EmailOTPService {
   private readonly challenges = new Map<string, { digest: string; expiresAt: number; used: boolean }>();
   constructor(private readonly secret: string, private readonly inbox: TestDeliveryInbox) {}
   issue(projectId: string, destination: string, purpose: string, now: number, ttlSeconds: number): void {
-    if (!projectId || !destination.includes("@") || !purpose || ttlSeconds <= 0) throw new Error("invalid email OTP");
+    validateProjectId(projectId);
+    if (!destination.includes("@") || !purpose || ttlSeconds <= 0) throw new Error("invalid email OTP");
     const code = String(100000 + (randomBytes(4).readUInt32BE(0) % 900000));
     this.challenges.set(`${projectId}:${destination}:${purpose}`, { digest: this.digest(code), expiresAt: now + ttlSeconds * 1000, used: false });
     this.inbox.deliver(destination, code);
@@ -63,7 +66,8 @@ export class SMSOTPService {
   private readonly challenges = new Map<string, { digest: string; expiresAt: number; used: boolean }>();
   constructor(private readonly secret: string, private readonly inbox: TestDeliveryInbox) {}
   issue(projectId: string, destination: string, purpose: string, now: number, ttlSeconds: number): void {
-    if (!projectId || !/^\+[1-9][0-9]{7,14}$/.test(destination) || !purpose || ttlSeconds <= 0) throw new Error("invalid SMS OTP");
+    validateProjectId(projectId);
+    if (!/^\+[1-9][0-9]{7,14}$/.test(destination) || !purpose || ttlSeconds <= 0) throw new Error("invalid SMS OTP");
     const code = String(100000 + (randomBytes(4).readUInt32BE(0) % 900000));
     this.challenges.set(`${projectId}:${destination}:${purpose}`, { digest: this.digest(code), expiresAt: now + ttlSeconds * 1000, used: false });
     this.inbox.deliver(destination, code);
@@ -86,6 +90,7 @@ export class OTPLimiter {
   private readonly counts = new Map<string, { startedAt: number; count: number }>();
   constructor(private readonly limit: number, private readonly windowMs: number) {}
   allow(projectId: string, destination: string, now: number): boolean {
+    validateProjectId(projectId);
     const key = `${projectId}:${destination}`;
     const current = this.counts.get(key);
     if (!current || now - current.startedAt >= this.windowMs) { this.counts.set(key, { startedAt: now, count: 1 }); return true; }
@@ -98,6 +103,8 @@ export class EmailRecoveryService {
   private readonly tokens = new Map<string, { digest: string; expiresAt: number; used: boolean }>();
   constructor(private readonly secret: string, private readonly inbox: TestDeliveryInbox) {}
   issue(projectId: string, destination: string, now: number, ttlSeconds: number): void {
+    validateProjectId(projectId);
+    if (!destination.includes("@") || ttlSeconds <= 0) throw new Error("invalid recovery request");
     const token = randomBytes(24).toString("base64url");
     this.tokens.set(`${projectId}:${destination}`, { digest: createHmac("sha256", this.secret).update(token).digest("hex"), expiresAt: now + ttlSeconds * 1000, used: false });
     this.inbox.deliver(destination, token);
@@ -177,7 +184,8 @@ export type OIDCConfig = { issuer: string; audience: string; clientId: string; r
 export class OIDCConfigStore {
   private readonly configs = new Map<string, OIDCConfig>();
   set(projectId: string, config: OIDCConfig): void {
-    if (!projectId || !config.audience || !config.clientId || !/^https:\/\//.test(config.issuer) || !/^https:\/\//.test(config.redirectUri)) throw new Error("invalid OIDC configuration");
+    validateProjectId(projectId);
+    if (!config.audience || !config.clientId || !/^https:\/\//.test(config.issuer) || !/^https:\/\//.test(config.redirectUri)) throw new Error("invalid OIDC configuration");
     this.configs.set(projectId, { ...config });
   }
   get(projectId: string): OIDCConfig {
@@ -207,7 +215,8 @@ type AuthorizationCode = { projectId: string; clientId: string; redirectUri: str
 export class AuthorizationCodeStore {
   private readonly codes = new Map<string, AuthorizationCode>();
   issue(projectId: string, clientId: string, redirectUri: string, userId: string, now: number, ttlSeconds: number): string {
-    if (!projectId || !clientId || !redirectUri || !userId || ttlSeconds <= 0) throw new Error("invalid authorization code");
+    validateProjectId(projectId);
+    if (!clientId || !redirectUri || !userId || ttlSeconds <= 0) throw new Error("invalid authorization code");
     const code = randomBytes(24).toString("base64url");
     this.codes.set(code, { projectId, clientId, redirectUri, userId, expiresAt: now + ttlSeconds * 1000, used: false });
     return code;
@@ -239,6 +248,7 @@ export class AuthService {
   }
 
   async signin(projectId: string, username: string, password: string, now = Date.now()) {
+    validateProjectId(projectId);
     const account = this.accounts.get(projectId)?.get(username);
     if (!account || !(await argon2Verify(account.passwordHash, password))) throw new Error("invalid credentials");
     const token = randomBytes(32).toString("hex");
@@ -247,12 +257,14 @@ export class AuthService {
   }
 
   session(projectId: string, token: string, now = Date.now()) {
+    validateProjectId(projectId);
     const session = this.sessions.get(sessionTokenDigest(token));
     if (!session || session.projectId !== projectId || session.expiresAt <= now) throw new Error("invalid session");
     return { username: session.username };
   }
 
   rotate(projectId: string, token: string, now = Date.now()): string {
+    validateProjectId(projectId);
     const digest = sessionTokenDigest(token);
     const session = this.sessions.get(digest);
     if (!session && this.rotated.has(digest)) throw new Error("refresh token reuse detected");
@@ -265,6 +277,7 @@ export class AuthService {
   }
 
   logout(projectId: string, token: string): void {
+    validateProjectId(projectId);
     const digest = sessionTokenDigest(token);
     const session = this.sessions.get(digest);
     if (!session || session.projectId !== projectId) throw new Error("invalid session");
@@ -288,6 +301,7 @@ export class AuthService {
   }
 
   async upgradeGuest(projectId: string, token: string, username: string, password: string) {
+    validateProjectId(projectId);
     const session = this.sessions.get(sessionTokenDigest(token));
     if (!session || session.projectId !== projectId || !session.username.startsWith("guest-")) throw new Error("guest session required");
     const userId = projectUserID(projectId, session.username);
@@ -303,7 +317,8 @@ export class AuthService {
 
   private hash(password: string) { return argon2Hash(password, { memoryCost: 19456, timeCost: 2, parallelism: 1, outputLen: 32 }); }
   private validate(projectId: string, username: string, password: string) {
-    if (!projectId || !username || password.length < 8) throw new Error("invalid signup");
+    validateProjectId(projectId);
+    if (!username || password.length < 8) throw new Error("invalid signup");
   }
 }
 

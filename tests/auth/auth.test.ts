@@ -55,6 +55,7 @@ if (normalizePhoneNumber("0098 912-123-4567") !== "+989121234567") throw new Err
 const otpLimiter = new OTPLimiter(2, 1000);
 if (!otpLimiter.allow("project-a", "alice@example.com", 100) || !otpLimiter.allow("project-a", "alice@example.com", 101) || otpLimiter.allow("project-a", "alice@example.com", 102)) throw new Error("OTP send limit failed");
 const recovery = new EmailRecoveryService("recovery-secret", inbox);
+try { recovery.issue("bad/project", "alice@example.com", 1000, 60); throw new Error("invalid recovery project accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid project id") throw error; }
 recovery.issue("project-a", "alice@example.com", 1000, 60);
 const recoveryCode = inbox.read("alice@example.com");
 if (!recovery.consume("project-a", "alice@example.com", recoveryCode ?? "", 1001)) throw new Error("email recovery failed");
