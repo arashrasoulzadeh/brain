@@ -79,3 +79,4 @@ export async function runWithTimeout<T>(task: Promise<T>, timeoutMs: number): Pr
   try { return await Promise.race([task, timeout]); } finally { clearTimeout(timer!); }
 }
 export function validateLinearMemory(bytes: number, maxBytes: number): void { if (!Number.isSafeInteger(bytes) || !Number.isSafeInteger(maxBytes) || bytes < 0 || maxBytes < 1 || bytes > maxBytes) throw new Error("linear memory limit exceeded"); }
+export function validateStartupDuration(durationMs: number, maxDurationMs: number): void { if (!Number.isSafeInteger(durationMs) || !Number.isSafeInteger(maxDurationMs) || durationMs < 0 || maxDurationMs < 1 || durationMs > maxDurationMs) throw new Error("startup timeout exceeded"); }
