@@ -1,4 +1,4 @@
-import { APPROVED_SDK_IMPORTS, ENTRY_PACKAGE_FIXTURE, functionRequest, PROJECT_HELPER_FIXTURE, requireSDKImports, validateBuildOverrides, validateFunctionLimits, validateSDKImports, validateSourceProject, wasmBuildSettings } from "../../plugins/functions/index.js";
+import { APPROVED_SDK_IMPORTS, DisposableCompilerWorkspace, ENTRY_PACKAGE_FIXTURE, functionRequest, PROJECT_HELPER_FIXTURE, requireSDKImports, validateBuildOverrides, validateFunctionLimits, validateSDKImports, validateSourceProject, wasmBuildSettings } from "../../plugins/functions/index.js";
 validateSDKImports(APPROVED_SDK_IMPORTS);
 const request = functionRequest("dev", "functions", "0.1.0", "functions.invoke", { name: "hello" });
 if (request.params.projectId !== "dev" || request.params.operation !== "functions.invoke") throw new Error("functions request contract failed");
@@ -16,3 +16,6 @@ try { validateBuildOverrides({ GOWORK: "off" }); throw new Error("workspace over
 try { validateBuildOverrides({ toolchainPath: "/tmp/go" }); throw new Error("toolchain override accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "build override denied") throw error; }
 validateFunctionLimits(10, 20, 10, 20);
 try { validateFunctionLimits(11, 20, 10, 20); throw new Error("oversized function source accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "function size limit exceeded") throw error; }
+const workspace = new DisposableCompilerWorkspace();
+if (!workspace.path) throw new Error("compiler workspace was not created");
+workspace.dispose();

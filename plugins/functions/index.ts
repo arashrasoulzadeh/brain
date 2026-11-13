@@ -1,4 +1,7 @@
 import { request, type RpcRequest } from "../sdk-typescript/src/index.js";
+import { existsSync, mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 export const APPROVED_SDK_IMPORTS = ["brain/sdk", "brain/project", "brain/storage"] as const;
 export const ENTRY_PACKAGE_FIXTURE = "package main";
@@ -23,6 +26,11 @@ export function validateBuildOverrides(overrides: Readonly<Record<string, string
 }
 export function validateFunctionLimits(sourceBytes: number, artifactBytes: number, maxSourceBytes: number, maxArtifactBytes: number): void {
   if (![sourceBytes, artifactBytes, maxSourceBytes, maxArtifactBytes].every(Number.isSafeInteger) || sourceBytes < 0 || artifactBytes < 0 || maxSourceBytes < 0 || maxArtifactBytes < 0 || sourceBytes > maxSourceBytes || artifactBytes > maxArtifactBytes) throw new Error("function size limit exceeded");
+}
+export class DisposableCompilerWorkspace {
+  readonly path: string;
+  constructor(prefix = "brain-function-") { this.path = mkdtempSync(join(tmpdir(), prefix)); }
+  dispose(): void { if (existsSync(this.path)) rmSync(this.path, { recursive: true, force: true }); }
 }
 
 export function functionRequest(projectId: string, pluginId: string, version: string, operation: "functions.invoke" | "functions.publish", payload: unknown = {}): RpcRequest {
