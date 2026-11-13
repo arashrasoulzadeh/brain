@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `7bff8e7` — 2026-11-13 16:12:23 +0330 — record function and turn metrics
+  Files: roadmap.md,tests/functions/phase04_metrics_gate.test.ts
+- `b9bc625` — 2026-11-13 12:42:08 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `37a6b4c` — 2026-11-13 16:11:46 +0330 — verify two client tic tac toe match
   Files: roadmap.md,tests/functions/phase04_tictactoe_gate.test.ts
 - `056ed1b` — 2026-11-13 12:41:31 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `cd51721` — 2026-11-13 14:27:26 +0330 — split tic tac toe coordinator
   Files: plugins/rooms/index.ts,plugins/rooms/plugin.yaml plugins/rooms/tic-tac-toe-mover.ts,plugins/rooms/tic-tac-toe-revision-reader.ts plugins/rooms/tic-tac-toe-runtime.ts,tests/rooms/rooms.test.ts
 - `971d6d1` — 2026-11-13 10:51:23 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `0d37bba` — 2026-11-13 14:21:03 +0330 — split room directory operations
-  Files: plugins/rooms/index.ts,plugins/rooms/plugin.yaml plugins/rooms/room-creator.ts,plugins/rooms/room-event-reader.ts plugins/rooms/room-joiner.ts,plugins/rooms/room-leaver.ts plugins/rooms/room-membership-reader.ts,plugins/rooms/room-reader.ts plugins/rooms/room-runtime.ts,tests/arena/phase02_gate.test.ts tests/rooms/rooms.test.ts
-- `f10bb6b` — 2026-11-13 10:49:27 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
