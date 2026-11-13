@@ -385,7 +385,7 @@ Goal: provide project-scoped identity, PostgreSQL APIs, files, subscriptions, an
 - [x] Add file management.
 - [x] Add audited form actions.
 - [x] Add the browser quickstart.
-- [ ] Run the full suite against local Compose.
+- [x] Run the full suite against local Compose.
 - [x] Prove API and direct SQL isolation.
 - [x] Re-run the Phase 02 guest co-op flow.
 
