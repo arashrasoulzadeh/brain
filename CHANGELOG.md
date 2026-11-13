@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `766c5e5` — 2026-11-13 13:47:54 +0330 — split table policy and exposure classes
+- `f1f4731` — 2026-11-13 10:16:01 +0000 — docs: update changelog [skip ci]
 - `6a9bf7e` — 2026-11-13 13:45:49 +0330 — split subscription buffer and queue classes
 - `478c10b` — 2026-11-13 10:15:06 +0000 — docs: update changelog [skip ci]
 - `c5bc2db` — 2026-11-13 13:44:53 +0330 — split file quota classes
