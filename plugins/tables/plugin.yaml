@@ -74,6 +74,7 @@ imports:
   - ./scoped-transaction-change-writer.js
   - ./transaction-change-reader.js
   - ./scoped-transaction-change-reader.js
+  - ./index.js
 plugin_imports:
 dependencies: []
 capabilities:

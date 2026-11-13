@@ -408,7 +408,7 @@ Goal: compile dashboard-authored Go to WASM, execute it safely, run durable trig
 ### Offline compiler
 
 - [x] Define the approved SDK imports.
-- [ ] Add an entry-package fixture.
+- [x] Add an entry-package fixture.
 - [x] Add a project-local helper fixture.
 - [x] Compile the fixture to `wasip1/wasm`.
 - [x] Pin the Go toolchain.

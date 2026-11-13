@@ -82,6 +82,7 @@ imports:
   - ./schedule-occurrence-recorder.js
   - ./missed-schedule-enqueuer.js
   - ./function-version-enqueuer.js
+  - ./index.js
 plugin_imports:
 title: Functions
 description: Project-scoped serverless function compilation and invocation controls.
