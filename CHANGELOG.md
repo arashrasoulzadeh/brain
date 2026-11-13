@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `7bc42f5` — 2026-11-13 04:18:12 +0330 — phase 04 record linear memory limit test
+- `a26b58b` — 2026-11-13 00:48:14 +0000 — docs: update changelog [skip ci]
 - `47c9f78` — 2026-11-13 04:16:49 +0330 — phase 04 enforce linear memory limits
 - `1541334` — 2026-11-13 00:46:36 +0000 — docs: update changelog [skip ci]
 - `e062369` — 2026-11-13 04:16:17 +0330 — phase 04 record function timeout test
