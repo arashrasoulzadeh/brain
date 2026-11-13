@@ -10,6 +10,8 @@ source_files:
   - project-room-id.ts
   - room-transition.ts
   - validate-membership.ts
+  - initialize-tic-tac-toe.ts
+  - validate-tic-tac-toe-move.ts
 imports:
   - ../sdk-typescript/src/index.js
   - node:crypto
@@ -17,6 +19,8 @@ imports:
   - ./project-room-id.js
   - ./room-transition.js
   - ./validate-membership.js
+  - ./initialize-tic-tac-toe.js
+  - ./validate-tic-tac-toe-move.js
   - ./index.js
 plugin_imports:
 dependencies: []

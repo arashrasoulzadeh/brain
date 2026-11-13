@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { projectRoomID } from "./project-room-id.js";
+import { validateTicTacToeMove } from "./validate-tic-tac-toe-move.js";
 
 export { roomRequest } from "./room-request.js";
 
@@ -100,21 +101,9 @@ export class RoomDirectory {
 
 export { canTransitionRoom } from "./room-transition.js";
 export { validateMembership } from "./validate-membership.js";
+export { initializeTicTacToe } from "./initialize-tic-tac-toe.js";
+export { validateTicTacToeMove } from "./validate-tic-tac-toe-move.js";
 export type TicTacToeState = { projectId: string; roomId: string; players: readonly [string, string]; board: readonly ("X" | "O" | null)[]; turn: string; status: "active"; turnDeadlineAt?: number };
-export function initializeTicTacToe(projectId: string, roomId: string, firstPlayer: string, secondPlayer: string): TicTacToeState {
-  projectRoomID(projectId, roomId);
-  if (!firstPlayer.trim() || !secondPlayer.trim() || firstPlayer === secondPlayer) throw new Error("invalid tic-tac-toe players");
-  return { projectId, roomId, players: [firstPlayer, secondPlayer], board: Array(9).fill(null), turn: firstPlayer, status: "active" };
-}
-export function validateTicTacToeMove(state: TicTacToeState, playerId: string, cell: number): TicTacToeState {
-  if (state.status !== "active" || !state.players.includes(playerId) || !Number.isInteger(cell) || cell < 0 || cell >= 9) throw new Error("invalid tic-tac-toe move");
-  if (state.turn !== playerId) throw new Error("out-of-turn move");
-  if (state.board[cell] !== null) throw new Error("cell occupied");
-  const mark = state.players[0] === playerId ? "X" : "O";
-  const board = [...state.board] as ("X" | "O" | null)[];
-  board[cell] = mark;
-  return { ...state, board, turn: state.players.find((player) => player !== playerId)! };
-}
 export function expireTicTacToeTurn(state: TicTacToeState, now: number, nextDeadlineAt: number): TicTacToeState {
   if (state.status !== "active" || !Number.isFinite(now) || !Number.isFinite(nextDeadlineAt) || nextDeadlineAt <= now) throw new Error("invalid tic-tac-toe timeout");
   if (state.turnDeadlineAt === undefined || now < state.turnDeadlineAt) throw new Error("tic-tac-toe turn not expired");
