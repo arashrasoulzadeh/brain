@@ -28,6 +28,10 @@ import { InvocationCommitWriter } from "./invocation-commit-writer.js";
 import { InvocationCommitReader } from "./invocation-commit-reader.js";
 import { InvocationResultReader } from "./invocation-result-reader.js";
 import { InvocationExistenceReader } from "./invocation-existence-reader.js";
+import { createRecordTriggerState } from "./record-trigger-state.js";
+import { RecordTriggerAdder } from "./record-trigger-adder.js";
+import { RecordTriggerMatcher } from "./record-trigger-matcher.js";
+import { RecordTriggerDispatcher } from "./record-trigger-dispatcher.js";
 
 export { functionRequest } from "./function-request.js";
 
@@ -208,22 +212,7 @@ export class ScheduleStore {
   }
 }
 export type RecordChangeTrigger = { projectId: string; collection: string; operation: string; target: { functionId: string; version: number } };
-export class RecordChangeTriggerStore {
-  private readonly triggers: RecordChangeTrigger[] = [];
-  add(projectId: string, collection: string, operation: string, target: { functionId: string; version: number }): RecordChangeTrigger {
-    validateProjectId(projectId);
-    if (!collection || !operation || !target.functionId || !Number.isSafeInteger(target.version) || target.version < 1) throw new Error("invalid record trigger");
-    const trigger = { projectId, collection, operation, target: { ...target } };
-    this.triggers.push(trigger);
-    return { ...trigger, target: { ...trigger.target } };
-  }
-  match(projectId: string, collection: string, operation: string): RecordChangeTrigger[] {
-    return this.triggers.filter((trigger) => trigger.projectId === projectId && trigger.collection === collection && trigger.operation === operation).map((trigger) => ({ ...trigger, target: { ...trigger.target } }));
-  }
-  dispatch(projectId: string, collection: string, operation: string, committed: boolean, ancestry: readonly string[] = []): RecordChangeTrigger[] {
-    return committed ? this.match(projectId, collection, operation).filter((trigger) => !ancestry.includes(trigger.target.functionId)) : [];
-  }
-}
+export function createRecordChangeTriggerStore() { const state = createRecordTriggerState(); const adder = new RecordTriggerAdder(state); const matcher = new RecordTriggerMatcher(state); const dispatcher = new RecordTriggerDispatcher(state); return { add: adder.add.bind(adder), match: matcher.match.bind(matcher), dispatch: dispatcher.dispatch.bind(dispatcher) }; }
 export function createJobLeaseStore() { const state = createJobLeaseState(); const acquirer = new JobLeaseAcquirer(state); const renewer = new JobLeaseRenewer(state); return { acquire: acquirer.acquire.bind(acquirer), renew: renewer.renew.bind(renewer) }; }
 export function commitWithGrant<T>(hasGrant: () => boolean, commit: () => T, capability: string): T {
   if (!capability || !hasGrant()) throw new Error("grant revoked before commit");

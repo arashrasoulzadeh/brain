@@ -28,6 +28,10 @@ source_files:
   - invocation-commit-reader.ts
   - invocation-result-reader.ts
   - invocation-existence-reader.ts
+  - record-trigger-state.ts
+  - record-trigger-adder.ts
+  - record-trigger-matcher.ts
+  - record-trigger-dispatcher.ts
 imports:
   - ../sdk-typescript/src/index.js
   - node:fs
@@ -60,6 +64,10 @@ imports:
   - ./invocation-commit-reader.js
   - ./invocation-result-reader.js
   - ./invocation-existence-reader.js
+  - ./record-trigger-state.js
+  - ./record-trigger-adder.js
+  - ./record-trigger-matcher.js
+  - ./record-trigger-dispatcher.js
 plugin_imports:
 title: Functions
 description: Project-scoped serverless function compilation and invocation controls.
