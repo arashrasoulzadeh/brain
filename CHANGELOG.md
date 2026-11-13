@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `189ab12` — 2026-11-13 04:05:34 +0330 — phase 04 record unsupported import rejection
+- `14748fd` — 2026-11-13 00:35:32 +0000 — docs: update changelog [skip ci]
 - `f83380b` — 2026-11-13 04:05:12 +0330 — phase 04 record missing import rejection
 - `7e34244` — 2026-11-13 00:35:14 +0000 — docs: update changelog [skip ci]
 - `c55a777` — 2026-11-13 04:05:00 +0330 — phase 04 reject missing SDK imports
