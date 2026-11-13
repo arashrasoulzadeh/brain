@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `170e223` — 2026-11-13 13:09:55 +0330 — bind production commits to host credentials
+- `63420e8` — 2026-11-13 09:38:42 +0000 — docs: update changelog [skip ci]
 - `2fb8465` — 2026-11-13 13:08:28 +0330 — enforce host project context in plugin handlers
 - `cf47619` — 2026-11-13 09:36:13 +0000 — docs: update changelog [skip ci]
 - `30fd145` — 2026-11-13 13:06:00 +0330 — split functions request boundary
