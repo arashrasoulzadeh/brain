@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `1ec481e` — 2026-11-13 16:29:06 +0330 — test: preserve plugin grants during rollback
+  Files: roadmap.md,tests/plugin/plugin_test.go
+- `d2bd281` — 2026-11-13 12:58:25 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `f7ecc1f` — 2026-11-13 16:26:33 +0330 — test: reject incompatible plugin rollbacks
   Files: roadmap.md,tests/plugin/plugin_test.go
 - `3dea4f3` — 2026-11-13 12:55:10 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `bbe80a8` — 2026-11-13 14:44:07 +0330 — split shared package operations
   Files: plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/shared-package-reader.ts,plugins/functions/shared-package-state.ts plugins/functions/shared-package-writer.ts,tests/functions/functions.test.ts
 - `b617972` — 2026-11-13 11:12:31 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `00deca8` — 2026-11-13 14:42:10 +0330 — split function approval operations
-  Files: plugins/functions/approval-granter.ts,plugins/functions/approval-reader.ts plugins/functions/approval-requester.ts,plugins/functions/approval-state.ts plugins/functions/index.ts,plugins/functions/plugin.yaml tests/functions/functions.test.ts
-- `df8123b` — 2026-11-13 11:10:35 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
