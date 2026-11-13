@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `877c9cd` — 2026-11-13 15:03:25 +0330 — add CI compose plugin isolation profile
+  Files: .github/workflows/test.yml,Dockerfile.test compose.test.yml,scripts/smoke-compose.sh
+- `89c2164` — 2026-11-13 11:31:10 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `3936e85` — 2026-11-13 15:00:44 +0330 — add entry package fixture
   Files: plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/tables/plugin.yaml,roadmap.md tests/functions/functions.test.ts
 - `ec919b1` — 2026-11-13 11:27:43 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `15a4169` — 2026-11-13 14:08:32 +0330 — split auth OTP classes
   Files: plugins/auth/email-otp-issuer.ts,plugins/auth/email-otp-verifier.ts plugins/auth/index.ts,plugins/auth/otp-types.ts plugins/auth/plugin.yaml,plugins/auth/sms-otp-issuer.ts plugins/auth/sms-otp-verifier.ts,tests/auth/auth.test.ts
 - `5cb56d5` — 2026-11-13 10:36:47 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `50d080e` — 2026-11-13 14:06:33 +0330 — split operator session classes
-  Files: plugins/auth/index.ts,plugins/auth/operator-session-issuer.ts plugins/auth/operator-session-revoker.ts,plugins/auth/operator-session-validator.ts plugins/auth/plugin.yaml,plugins/auth/session-token-digest.ts tests/auth/auth.test.ts
-- `3f96007` — 2026-11-13 10:32:33 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
