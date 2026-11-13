@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `2df9268` — 2026-11-13 16:11:07 +0330 — verify function crash recovery and grant revocation
+  Files: roadmap.md,tests/functions/phase04_recovery_gate.test.ts
+- `e23347b` — 2026-11-13 12:40:49 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `a0445a8` — 2026-11-13 16:10:19 +0330 — verify direct scheduled and record invocations
   Files: roadmap.md,tests/functions/phase04_invocation_gate.test.ts
 - `99fef0e` — 2026-11-13 11:35:49 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `ba63107` — 2026-11-13 14:19:03 +0330 — split arena state operations
   Files: plugins/arena/arena-action-recorder.ts,plugins/arena/arena-finisher.ts plugins/arena/arena-measurer.ts,plugins/arena/arena-start.ts plugins/arena/arena-starter.ts,plugins/arena/arena-state-reader.ts plugins/arena/arena-state.ts,plugins/arena/index.ts plugins/arena/plugin.yaml,plugins/arena/state-machine.ts tests/arena/arena.test.ts,tests/arena/phase02_gate.test.ts tests/dashboard/phase03_guest_coop_gate.test.ts
 - `47269da` — 2026-11-13 10:45:34 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `d4baf82` — 2026-11-13 14:15:02 +0330 — split auth account operations
-  Files: plugins/auth/account-password-resetter.ts,plugins/auth/account-session-reader.ts plugins/auth/account-session-revoker.ts,plugins/auth/account-session-rotator.ts plugins/auth/account-signin.ts,plugins/auth/account-signup.ts plugins/auth/auth-state.ts,plugins/auth/guest-account-upgrader.ts plugins/auth/guest-session-issuer.ts,plugins/auth/index.ts plugins/auth/plugin.yaml,tests/auth/auth.test.ts tests/dashboard/phase03_guest_coop_gate.test.ts,tests/dashboard/phase03_isolation_gate.test.ts
-- `d07843c` — 2026-11-13 10:40:28 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
