@@ -403,7 +403,7 @@ Goal: compile dashboard-authored Go to WASM, execute it safely, run durable trig
 - [x] Generate platform module settings.
 - [x] Vendor approved dependencies.
 - [x] Reject missing imports.
-- [ ] Reject unsupported imports.
+- [x] Reject unsupported imports.
 - [ ] Reject cross-project source access.
 - [ ] Reject workspace and toolchain overrides.
 - [ ] Enforce source and artifact limits.
