@@ -3,6 +3,10 @@ entrypoint: index.ts
 source_files:
   - index.ts
   - function-request.ts
+  - approval-state.ts
+  - approval-requester.ts
+  - approval-granter.ts
+  - approval-reader.ts
 imports:
   - ../sdk-typescript/src/index.js
   - node:fs
@@ -10,6 +14,10 @@ imports:
   - node:path
   - node:net
   - ./function-request.js
+  - ./approval-state.js
+  - ./approval-requester.js
+  - ./approval-granter.js
+  - ./approval-reader.js
 plugin_imports:
 title: Functions
 description: Project-scoped serverless function compilation and invocation controls.
