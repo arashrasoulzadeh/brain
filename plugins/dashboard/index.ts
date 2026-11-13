@@ -58,4 +58,10 @@ export function fileManagementPage(projectId: string, files: readonly { objectId
   if (!projectId || files.some((file) => !file.objectId || !Number.isSafeInteger(file.size) || file.size < 0)) throw new Error("invalid file management");
   return { projectId, title: "File management", files: files.map((file) => ({ ...file })) };
 }
+export type FormAudit = { projectId: string; actorId: string; action: string; occurredAt: number };
+export class AuditedFormActions {
+  private readonly entries: FormAudit[] = [];
+  record(projectId: string, actorId: string, action: string, occurredAt: number): void { if (!projectId || !actorId || !action || !Number.isFinite(occurredAt)) throw new Error("invalid form audit"); this.entries.push({ projectId, actorId, action, occurredAt }); }
+  list(projectId: string): FormAudit[] { return this.entries.filter((entry) => entry.projectId === projectId).map((entry) => ({ ...entry })); }
+}
 

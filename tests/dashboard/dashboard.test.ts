@@ -1,4 +1,4 @@
-import { adminRequest, authSettingsPage, fileManagementPage, projectCreateRequest, recordBrowserPage, recordEditPage, signupSettingsPage, tableManagementPage } from "../../plugins/dashboard/index.js";
+import { adminRequest, AuditedFormActions, authSettingsPage, fileManagementPage, projectCreateRequest, recordBrowserPage, recordEditPage, signupSettingsPage, tableManagementPage } from "../../plugins/dashboard/index.js";
 import { createHostHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = projectCreateRequest("dashboard", "0.1.0", "dev");
@@ -36,3 +36,5 @@ const edit = recordEditPage("dev", "users", "1", 2, { name: "bob", secret: "nope
 if (edit.patch.name !== "bob" || edit.patch.secret !== undefined || edit.expectedVersion !== 2) throw new Error("record edit validation failed");
 if (tableManagementPage("dev", ["users", "orders"]).tables.length !== 2) throw new Error("table management page failed");
 if (fileManagementPage("dev", [{ objectId: "avatar.png", size: 12, status: "published" }]).files[0].objectId !== "avatar.png") throw new Error("file management page failed");
+const audits = new AuditedFormActions(); audits.record("dev", "operator-1", "signup.update", 1000);
+if (audits.list("dev").length !== 1 || audits.list("prod").length !== 0) throw new Error("form audit failed");

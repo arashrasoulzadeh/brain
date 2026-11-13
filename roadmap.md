@@ -383,7 +383,7 @@ Goal: provide project-scoped identity, PostgreSQL APIs, files, subscriptions, an
 - [x] Add record editing.
 - [x] Add table management.
 - [x] Add file management.
-- [ ] Add audited form actions.
+- [x] Add audited form actions.
 - [ ] Add the browser quickstart.
 - [ ] Run the full suite against local Compose.
 - [ ] Prove API and direct SQL isolation.
