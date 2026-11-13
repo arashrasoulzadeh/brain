@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `1cd892d` — 2026-11-13 04:06:05 +0330 — phase 04 record source project isolation
+- `0c3f87e` — 2026-11-13 00:36:06 +0000 — docs: update changelog [skip ci]
 - `e8070e8` — 2026-11-13 04:05:54 +0330 — phase 04 reject cross project function sources
 - `ab6f246` — 2026-11-13 00:35:46 +0000 — docs: update changelog [skip ci]
 - `189ab12` — 2026-11-13 04:05:34 +0330 — phase 04 record unsupported import rejection
