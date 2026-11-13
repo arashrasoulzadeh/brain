@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `c8106f3` — 2026-11-13 03:43:47 +0330 — phase 03 reject unauthorized file access
+- `00631af` — 2026-11-13 00:13:30 +0000 — docs: update changelog [skip ci]
 - `0e71577` — 2026-11-13 03:43:18 +0330 — phase 03 publish metadata after object success
 - `6624b12` — 2026-11-13 00:12:58 +0000 — docs: update changelog [skip ci]
 - `da1d86e` — 2026-11-13 03:42:46 +0330 — phase 03 authorize streamed uploads
