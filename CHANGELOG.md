@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `0643e5f` — 2026-11-13 04:22:17 +0330 — phase 04 discard failed invocation writes
+- `eb03910` — 2026-11-13 00:51:49 +0000 — docs: update changelog [skip ci]
 - `8149403` — 2026-11-13 04:21:28 +0330 — phase 04 record fresh wazero runtimes
 - `88d1012` — 2026-11-13 00:51:30 +0000 — docs: update changelog [skip ci]
 - `bb22a47` — 2026-11-13 04:21:10 +0330 — phase 04 run wasm in fresh runtimes
