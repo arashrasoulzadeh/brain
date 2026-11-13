@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `54829ba` — 2026-11-13 03:41:24 +0330 — phase 03 namespace file objects by project
+- `dc7a053` — 2026-11-13 00:11:17 +0000 — docs: update changelog [skip ci]
 - `280dd2c` — 2026-11-13 03:40:56 +0330 — phase 03 configure private file bucket
 - `8a884de` — 2026-11-13 00:10:27 +0000 — docs: update changelog [skip ci]
 - `bf00f71` — 2026-11-13 03:40:14 +0330 — phase 03 replay missed subscription events
