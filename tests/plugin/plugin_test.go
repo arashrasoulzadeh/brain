@@ -721,3 +721,32 @@ func TestProjectUninstallWaitsForActiveWork(t *testing.T) {
 		t.Fatal("active pinned installation was removed")
 	}
 }
+
+func TestProjectUninstallRevokesProjectGrants(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	m := plugin.Manifest{ID: "uninstall-grants", Version: "1.0.0", HostAPI: 1, Capabilities: []string{"records.read"}}
+	if err := r.Register(m); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Install("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Grant("dev", m.ID, m.Version, "records.read"); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.UninstallProject("dev"); err != nil {
+		t.Fatal(err)
+	}
+	if !errors.Is(r.Authorize("dev", m.ID, m.Version, "records.read"), plugin.ErrNotInstalled) {
+		t.Fatal("project grant survived uninstall")
+	}
+	found := false
+	for _, event := range r.Audit() {
+		if event.Action == "revoke_project_grant" && event.Detail == "records.read" {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatal("project grant revocation was not audited")
+	}
+}

@@ -665,6 +665,9 @@ func (r *Registry) UninstallProject(projectID string) error {
 	}
 	for key, installation := range r.installations {
 		if installation.ProjectID == projectID {
+			for capability := range installation.Grants {
+				r.audit = append(r.audit, AuditEvent{Action: "revoke_project_grant", ProjectID: projectID, PluginID: installation.PluginID, Version: installation.Version, Detail: capability})
+			}
 			delete(r.installations, key)
 		}
 	}
