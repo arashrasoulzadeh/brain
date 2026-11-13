@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `780ea98` — 2026-11-13 14:10:16 +0330 — split auth recovery classes
+- `c827b41` — 2026-11-13 10:38:45 +0000 — docs: update changelog [skip ci]
 - `15a4169` — 2026-11-13 14:08:32 +0330 — split auth OTP classes
 - `5cb56d5` — 2026-11-13 10:36:47 +0000 — docs: update changelog [skip ci]
 - `50d080e` — 2026-11-13 14:06:33 +0330 — split operator session classes
