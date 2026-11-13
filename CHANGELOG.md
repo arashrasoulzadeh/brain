@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `7751c55` — 2026-11-13 03:38:03 +0330 — phase 03 validate subscription browser origins
+- `7ca1010` — 2026-11-13 00:07:50 +0000 — docs: update changelog [skip ci]
 - `005d691` — 2026-11-13 03:37:39 +0330 — phase 03 make subscription tickets single use
 - `46fb65d` — 2026-11-13 00:07:28 +0000 — docs: update changelog [skip ci]
 - `985b208` — 2026-11-13 03:37:13 +0330 — phase 03 add subscription tickets
