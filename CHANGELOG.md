@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `7d718bb` — 2026-11-13 14:02:20 +0330 — split authorization code classes
+- `6dd2610` — 2026-11-13 10:31:34 +0000 — docs: update changelog [skip ci]
 - `1342a66` — 2026-11-13 14:01:18 +0330 — update OIDC configuration tests
 - `633a922` — 2026-11-13 14:01:01 +0330 — fix auth manifest import gate
 - `587a157` — 2026-11-13 10:29:28 +0000 — docs: update changelog [skip ci]
