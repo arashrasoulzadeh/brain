@@ -1,4 +1,4 @@
-import { AccountRateLimiter, AuthService, AuthorizationCodeStore, DeliveryReader, DeliveryWriter, EmailOTPService, EmailRecoveryService, IdentityLinker, OIDCConfigStore, OIDCStateIssuer, OIDCStateConsumer, OTPLimiter, OperatorSessionRegistry, ProjectRateLimiter, SMSOTPService, createPKCEChallenge, functions, guestRequest, normalizePhoneNumber, projectUserID, publicAuthError, requireRecentAuthentication, sessionTokenDigest, signInRequest, signUpRequest, validateDeliveryConfig, validateOIDCToken, verifyPKCE } from "../../plugins/auth/index.js";
+import { AccountRateLimiter, AuthService, AuthorizationCodeStore, DeliveryReader, DeliveryWriter, EmailOTPService, EmailRecoveryService, IdentityLinker, OIDCConfigWriter, OIDCConfigReader, OIDCStateIssuer, OIDCStateConsumer, OTPLimiter, OperatorSessionRegistry, ProjectRateLimiter, SMSOTPService, createPKCEChallenge, functions, guestRequest, normalizePhoneNumber, projectUserID, publicAuthError, requireRecentAuthentication, sessionTokenDigest, signInRequest, signUpRequest, validateDeliveryConfig, validateOIDCToken, verifyPKCE } from "../../plugins/auth/index.js";
 import { createFunctionHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const serviceForHandler = new AuthService();
@@ -24,10 +24,10 @@ if (upgraded.userId !== guestAccount.userId || upgraded.username !== "dana") thr
 const links = new IdentityLinker();
 links.link("project-a:user-1", "google", "subject-1");
 try { links.link("project-a:user-2", "google", "subject-1"); throw new Error("identity-link conflict accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "identity already linked") throw error; }
-const oidc = new OIDCConfigStore();
-oidc.set("project-a", { issuer: "https://accounts.google.com", audience: "client-id", clientId: "client-id", redirectUri: "https://app.example/callback" });
-if (oidc.get("project-a").issuer !== "https://accounts.google.com") throw new Error("OIDC configuration failed");
-validateOIDCToken({ issuer: "https://accounts.google.com", audience: "client-id", expiresAt: 2000, nonce: "nonce-1", signature: "sig" }, oidc.get("project-a"), "nonce-1", 1000, (signature) => signature === "sig");
+const oidcMap = new Map(); const oidcWriter = new OIDCConfigWriter(oidcMap); const oidcReader = new OIDCConfigReader(oidcMap);
+oidcWriter.set("project-a", { issuer: "https://accounts.google.com", audience: "client-id", clientId: "client-id", redirectUri: "https://app.example/callback" });
+if (oidcReader.get("project-a").issuer !== "https://accounts.google.com") throw new Error("OIDC configuration failed");
+validateOIDCToken({ issuer: "https://accounts.google.com", audience: "client-id", expiresAt: 2000, nonce: "nonce-1", signature: "sig" }, oidcReader.get("project-a"), "nonce-1", 1000, (signature) => signature === "sig");
 requireRecentAuthentication(1000, 1200, 300);
 try { requireRecentAuthentication(1000, 1301, 300); throw new Error("stale authentication accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "recent authentication required") throw error; }
 const codes = new AuthorizationCodeStore();
