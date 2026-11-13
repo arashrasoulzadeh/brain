@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `470333e` — 2026-11-13 13:56:59 +0330 — split OIDC state classes
+- `d45ec9d` — 2026-11-13 10:25:09 +0000 — docs: update changelog [skip ci]
 - `8586e00` — 2026-11-13 13:54:56 +0330 — split room connection ticket classes
 - `9906d7f` — 2026-11-13 10:23:03 +0000 — docs: update changelog [skip ci]
 - `05a51ac` — 2026-11-13 13:52:49 +0330 — split pending upload classes
