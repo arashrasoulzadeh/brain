@@ -81,3 +81,8 @@ export function enforceUploadSize(size: number, maxSize: number): void {
   if (!Number.isSafeInteger(size) || !Number.isSafeInteger(maxSize) || size < 0 || maxSize < 0 || size > maxSize) throw new Error("upload size exceeded");
 }
 
+export function reconcileOrphanedObjects(projectId: string, storageKeys: readonly string[], publishedObjectIds: readonly string[]): string[] {
+  const published = new Set(publishedObjectIds.map((objectId) => projectObjectKey(projectId, objectId)));
+  return storageKeys.filter((key) => key.startsWith(`projects/${projectId}/objects/`) && !published.has(key));
+}
+

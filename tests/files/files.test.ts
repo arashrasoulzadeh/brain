@@ -1,4 +1,4 @@
-import { AuthorizedUploadStream, configurePrivateBucket, enforceUploadSize, FileAccessPolicy, FileQuotaLedger, fileRequest, PendingUploadStore, projectObjectKey } from "../../plugins/files/index.js";
+import { AuthorizedUploadStream, configurePrivateBucket, enforceUploadSize, FileAccessPolicy, FileQuotaLedger, fileRequest, PendingUploadStore, projectObjectKey, reconcileOrphanedObjects } from "../../plugins/files/index.js";
 import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = fileRequest("dev", "files", "0.1.0", "files.upload", "avatar", { contentType: "image/png" });
@@ -15,6 +15,7 @@ try { uploads.publish("dev", "missing.png", "etag-2"); throw new Error("missing 
 if (uploads.reconcile(40_000, 30_000) !== 0 || uploads.get("dev", "avatar.png")?.status !== "published") throw new Error("published upload reconciled incorrectly");
 const interrupted = new PendingUploadStore(); interrupted.create("dev", "broken.bin", "application/octet-stream", 2, 1000);
 if (interrupted.reconcile(40_000, 30_000) !== 1 || interrupted.get("dev", "broken.bin")?.status !== "aborted") throw new Error("interrupted upload not reconciled");
+if (reconcileOrphanedObjects("dev", [projectObjectKey("dev", "live.png"), projectObjectKey("dev", "orphan.png"), projectObjectKey("prod", "other.png")], ["live.png"]).join(",") !== "projects/dev/objects/orphan.png") throw new Error("orphaned object reconciliation failed");
 const quota = new FileQuotaLedger(new Map([["dev", 20]]));
 quota.reserve("dev", 12);
 try { quota.reserve("dev", 9); throw new Error("quota exceeded upload accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "file quota exceeded") throw error; }
