@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `f9a56fa` — 2026-11-13 13:37:31 +0330 — split file authorization classes
+- `4e160cb` — 2026-11-13 10:06:22 +0000 — docs: update changelog [skip ci]
 - `0c7390b` — 2026-11-13 13:36:01 +0330 — split subscription authorization classes
 - `63e5fdc` — 2026-11-13 10:03:36 +0000 — docs: update changelog [skip ci]
 - `0a22d37` — 2026-11-13 13:33:19 +0330 — split remaining room rule helpers
