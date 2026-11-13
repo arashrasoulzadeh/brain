@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `da1d86e` — 2026-11-13 03:42:46 +0330 — phase 03 authorize streamed uploads
+- `c38eb20` — 2026-11-13 00:12:30 +0000 — docs: update changelog [skip ci]
 - `e443a3c` — 2026-11-13 03:42:19 +0330 — phase 03 reserve file quota
 - `94370e1` — 2026-11-13 00:12:03 +0000 — docs: update changelog [skip ci]
 - `f6b74d5` — 2026-11-13 03:41:51 +0330 — phase 03 add pending upload metadata
