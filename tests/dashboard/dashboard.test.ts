@@ -1,4 +1,4 @@
-import { adminRequest, AuditedFormActions, authSettingsPage, fileManagementPage, projectCreateRequest, recordBrowserPage, recordEditPage, signupSettingsPage, tableManagementPage } from "../../plugins/dashboard/index.js";
+import { adminRequest, AuditedFormActions, authSettingsPage, browserQuickstart, fileManagementPage, projectCreateRequest, recordBrowserPage, recordEditPage, signupSettingsPage, tableManagementPage } from "../../plugins/dashboard/index.js";
 import { createHostHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = projectCreateRequest("dashboard", "0.1.0", "dev");
@@ -38,3 +38,4 @@ if (tableManagementPage("dev", ["users", "orders"]).tables.length !== 2) throw n
 if (fileManagementPage("dev", [{ objectId: "avatar.png", size: 12, status: "published" }]).files[0].objectId !== "avatar.png") throw new Error("file management page failed");
 const audits = new AuditedFormActions(); audits.record("dev", "operator-1", "signup.update", 1000);
 if (audits.list("dev").length !== 1 || audits.list("prod").length !== 0) throw new Error("form audit failed");
+if (browserQuickstart("dev", "http://localhost:8080/api").steps.length !== 3) throw new Error("browser quickstart failed");

@@ -64,4 +64,9 @@ export class AuditedFormActions {
   record(projectId: string, actorId: string, action: string, occurredAt: number): void { if (!projectId || !actorId || !action || !Number.isFinite(occurredAt)) throw new Error("invalid form audit"); this.entries.push({ projectId, actorId, action, occurredAt }); }
   list(projectId: string): FormAudit[] { return this.entries.filter((entry) => entry.projectId === projectId).map((entry) => ({ ...entry })); }
 }
+export function browserQuickstart(projectId: string, apiOrigin: string): { projectId: string; apiOrigin: string; steps: readonly string[] } {
+  const origin = new URL(apiOrigin);
+  if (!projectId || !["http:", "https:"].includes(origin.protocol)) throw new Error("invalid browser quickstart");
+  return { projectId, apiOrigin: origin.origin, steps: ["create-session", "load-project", "open-dashboard"] };
+}
 
