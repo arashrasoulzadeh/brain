@@ -55,6 +55,8 @@ Each handler file is independently versionable and replaceable, while `index.ts`
 
 Project isolation is enforced from the host execution context. A plugin or client cannot select a project by changing a request payload or constructor argument at runtime.
 
+Invocation credentials are single-use and project-bound. Tampered or replayed credentials are rejected at commit time.
+
 Promotion is project-scoped and audited. Only an installed, enabled version can become active; pinned work remains on its pinned version during later promotion or rollback.
 
 Before promotion, all manifest-declared configuration fields must be present and match their declared types.

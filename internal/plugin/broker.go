@@ -29,6 +29,7 @@ type Broker struct {
 	ActorAllows       func(actorID, capability, resource string) bool
 	WorkerAvailable   func(pluginID, version string) bool
 	MatchmakingAllows func(projectID, scope string) bool
+	issuedTokens      map[string]HostCall
 }
 
 type InvocationCredential struct {
@@ -36,7 +37,7 @@ type InvocationCredential struct {
 	Call  HostCall
 }
 
-func (b Broker) Issue(call HostCall, now time.Time, lifetime time.Duration) (InvocationCredential, error) {
+func (b *Broker) Issue(call HostCall, now time.Time, lifetime time.Duration) (InvocationCredential, error) {
 	if lifetime <= 0 {
 		return InvocationCredential{}, ErrInvocationExpired
 	}
@@ -48,7 +49,12 @@ func (b Broker) Issue(call HostCall, now time.Time, lifetime time.Duration) (Inv
 	if _, err := rand.Read(raw[:]); err != nil {
 		return InvocationCredential{}, err
 	}
-	return InvocationCredential{Token: base64.RawURLEncoding.EncodeToString(raw[:]), Call: call}, nil
+	token := base64.RawURLEncoding.EncodeToString(raw[:])
+	if b.issuedTokens == nil {
+		b.issuedTokens = map[string]HostCall{}
+	}
+	b.issuedTokens[token] = call
+	return InvocationCredential{Token: token, Call: call}, nil
 }
 
 func (b Broker) Authorize(call HostCall, now time.Time) error {
@@ -83,6 +89,19 @@ func (b Broker) Authorize(call HostCall, now time.Time) error {
 	return b.Registry.Authorize(call.ProjectID, call.PluginID, call.Version, call.Capability)
 }
 
+// Commit authorizes a raw call for low-level broker tests. Production code must use CommitCredential.
 func (b Broker) Commit(call HostCall, now time.Time) error {
 	return b.Authorize(call, now)
+}
+
+func (b *Broker) CommitCredential(credential InvocationCredential, now time.Time) error {
+	if credential.Token == "" || b.issuedTokens == nil {
+		return ErrInvocationExpired
+	}
+	issued, ok := b.issuedTokens[credential.Token]
+	if !ok || issued != credential.Call {
+		return ErrInvocationExpired
+	}
+	delete(b.issuedTokens, credential.Token)
+	return b.Authorize(issued, now)
 }

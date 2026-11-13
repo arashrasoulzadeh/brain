@@ -44,6 +44,7 @@ This repository is building a Go multi-tenant mobile backend. The complete produ
 - Every request, job, socket, worker, file, function, and database operation carries a project identity.
 - Project identity is host-authenticated execution context, never authorization data supplied by a plugin, script, or client. Request builders may serialize fixture input, but production handlers must receive and enforce the host context before invoking business functions.
 - Never authorize from a request builder's project ID, payload, route parameter, or object key; rebind identity from the host context and reject mismatches.
+- Production broker commits must use a single-use invocation credential bound to the originally authorized `HostCall`; raw host-call commits are test-only.
 - Never trust project IDs, plugin grants, room membership, or caller permissions from client input.
 - Recheck lifecycle, grants, versions, and idempotency at commit time.
 - Keep operator sessions separate from end-user sessions.
