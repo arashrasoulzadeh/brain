@@ -15,3 +15,4 @@ export { projectOverviewContribution } from "./project-overview-contribution.js"
 export { pluginHealthContribution } from "./plugin-health-contribution.js";
 export { createViewReplacementRegistry } from "./view-replacement-registry.js";
 export { validateCsrfToken } from "./validate-csrf-token.js";
+export { customAdminView } from "./custom-admin-view.js";

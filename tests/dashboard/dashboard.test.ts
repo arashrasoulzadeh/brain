@@ -1,4 +1,4 @@
-import { adminRequest, FormAuditRecorder, FormAuditReader, authSettingsPage, browserQuickstart, createViewReplacementRegistry, fileManagementPage, hostOwnedAdminView, pluginHealthContribution, projectCreateRequest, projectOverviewContribution, recordBrowserPage, recordEditPage, signupSettingsPage, tableManagementPage, validateCsrfToken } from "../../plugins/dashboard/index.js";
+import { adminRequest, FormAuditRecorder, FormAuditReader, authSettingsPage, browserQuickstart, createViewReplacementRegistry, customAdminView, fileManagementPage, hostOwnedAdminView, pluginHealthContribution, projectCreateRequest, projectOverviewContribution, recordBrowserPage, recordEditPage, signupSettingsPage, tableManagementPage, validateCsrfToken } from "../../plugins/dashboard/index.js";
 import { createHostHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = projectCreateRequest("dashboard", "0.1.0", "dev");
@@ -37,6 +37,7 @@ if (views.submit("dev", "dev", "project.overview", () => true, (project, view, p
 try { views.submit("dev", "dev", "project.overview", () => false, () => {}); throw new Error("unauthorized view action accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "admin view authorization denied") throw error; }
 validateCsrfToken("csrf-123", "csrf-123");
 try { validateCsrfToken("csrf-123", "csrf-124"); throw new Error("invalid csrf token accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "csrf validation failed") throw error; }
+if (customAdminView("dev").contentType !== "text/html") throw new Error("custom TypeScript view was not rendered");
 if (typeof createHostHandler(host, routes, { projectId: "dev", invocationId: "test-readiness" })(readiness) !== "object") throw new Error("readiness request was not dispatched");
 try { createHostHandler(host, routes, { projectId: "dev", invocationId: "test-unknown" })(adminRequest("dev", "dashboard", "0.1.0", "plugin.unknown", {})); throw new Error("undeclared route was accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "operation not declared in plugin manifest") throw error; }
 try { createHostHandler(host, routes, { projectId: "dev", invocationId: "test-cross-project" })(adminRequest("prod", "dashboard", "0.1.0", "plugin.enable", {})); throw new Error("cross-project host request accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "host project context mismatch") throw error; }
