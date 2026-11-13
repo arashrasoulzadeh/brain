@@ -14,12 +14,19 @@ source_files:
   - quota.ts
   - upload-stream.ts
   - access-policy.ts
-  - file-helpers.ts
+  - enforce-upload-size.ts
+  - protected-download-headers.ts
+  - reconcile-orphaned-objects.ts
+  - require-explicit-publication.ts
 imports:
   - ../sdk-typescript/src/index.js
   - ./access-policy.js
   - ./bucket.js
   - ./file-helpers.js
+  - ./enforce-upload-size.js
+  - ./protected-download-headers.js
+  - ./reconcile-orphaned-objects.js
+  - ./require-explicit-publication.js
   - ./file-request.js
   - ./object-key.js
   - ./quota.js

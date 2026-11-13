@@ -1,7 +1,10 @@
 export { FileAccessPolicy } from "./access-policy.js";
 export { configurePrivateBucket } from "./bucket.js";
 export { fileRequest } from "./file-request.js";
-export { enforceUploadSize, protectedDownloadHeaders, reconcileOrphanedObjects, requireExplicitPublication } from "./file-helpers.js";
+export { enforceUploadSize } from "./enforce-upload-size.js";
+export { protectedDownloadHeaders } from "./protected-download-headers.js";
+export { reconcileOrphanedObjects } from "./reconcile-orphaned-objects.js";
+export { requireExplicitPublication } from "./require-explicit-publication.js";
 export { projectObjectKey } from "./object-key.js";
 export { FileQuotaLedger } from "./quota.js";
 export { AuthorizedUploadStream } from "./upload-stream.js";
