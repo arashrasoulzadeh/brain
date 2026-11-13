@@ -806,3 +806,10 @@ func TestUnregisterRejectsReferencedServerVersion(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestManifestDeclaresAdminExtensionPoint(t *testing.T) {
+	m := plugin.Manifest{ID: "admin", Version: "1.0.0", HostAPI: 1, ExtensionPoints: []string{"admin.navigation"}}
+	if !m.SupportsExtensionPoint("admin.navigation") || m.SupportsExtensionPoint("admin.unknown") {
+		t.Fatal("manifest extension point discovery failed")
+	}
+}

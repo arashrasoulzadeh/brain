@@ -555,7 +555,7 @@ Goal: safely promote, roll back, disable, drain, uninstall, and extend plugin-co
 
 ### Admin UI extensions
 
-- [ ] Add one declarative admin extension point.
+- [x] Add one declarative admin extension point.
 - [ ] Render a host-owned fixture view.
 - [ ] Add two view contributions.
 - [ ] Activate one replacement per named view and scope.

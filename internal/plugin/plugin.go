@@ -149,6 +149,15 @@ func (m Manifest) Route(operation string) (Route, bool) {
 	return Route{}, false
 }
 
+func (m Manifest) SupportsExtensionPoint(point string) bool {
+	for _, declared := range m.ExtensionPoints {
+		if declared == point {
+			return true
+		}
+	}
+	return false
+}
+
 func Documentation(m Manifest) string {
 	var b strings.Builder
 	fmt.Fprintf(&b, "# %s\n\n%s\n\n## Routes\n\n", m.Title, m.Description)
