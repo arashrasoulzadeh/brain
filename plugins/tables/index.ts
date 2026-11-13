@@ -82,6 +82,16 @@ export function planSchemaChange(projectId: string, table: string, change: Schem
   throw new Error("unsupported schema change");
 }
 
+export function previewSchemaSQL(plan: SchemaChangePlan): string {
+  const checked = planSchemaChange(plan.projectId, plan.table, plan.change);
+  const schema = projectSchemaName(checked.projectId);
+  if (checked.change.kind === "add_column") {
+    const type = { string: "TEXT", number: "DOUBLE PRECISION", boolean: "BOOLEAN", date: "TIMESTAMPTZ" }[checked.change.type];
+    return `ALTER TABLE "${schema}"."${checked.table}" ADD COLUMN "${checked.change.name}" ${type};`;
+  }
+  return `CREATE INDEX "${checked.change.name}" ON "${schema}"."${checked.table}" (${checked.change.columns.map((column) => `"${column}"`).join(", ")});`;
+}
+
 export function dataRequest(projectId: string, pluginId: string, version: string, operation: "tables.read" | "tables.write" | "tables.schema", table: string, payload: unknown = {}) {
   return request(`tables-${operation}-${projectId}-${table}`, { protocol: 1, projectId, pluginId, version, operation, payload: { table, ...(payload as Record<string, unknown>) } });
 }
