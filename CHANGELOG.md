@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `01ab594` — 2026-11-13 16:13:23 +0330 — exclude vendored files from Go formatting check
+  Files: .github/workflows/test.yml
+- `fdf4279` — 2026-11-13 12:42:43 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `7bff8e7` — 2026-11-13 16:12:23 +0330 — record function and turn metrics
   Files: roadmap.md,tests/functions/phase04_metrics_gate.test.ts
 - `b9bc625` — 2026-11-13 12:42:08 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `566016b` — 2026-11-13 14:30:05 +0330 — split matchmaking queue operations
   Files: plugins/matchmaking/assignment-creator.ts,plugins/matchmaking/index.ts plugins/matchmaking/plugin.yaml,plugins/matchmaking/queue-runtime.ts plugins/matchmaking/queue.ts,plugins/matchmaking/ticket-enqueuer.ts plugins/matchmaking/ticket-expirer.ts,plugins/matchmaking/ticket-matcher.ts plugins/matchmaking/ticket-reader.ts,plugins/matchmaking/ticket-requeuer.ts tests/arena/phase02_gate.test.ts,tests/matchmaking/matchmaking.test.ts
 - `10fe316` — 2026-11-13 10:57:52 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `cd51721` — 2026-11-13 14:27:26 +0330 — split tic tac toe coordinator
-  Files: plugins/rooms/index.ts,plugins/rooms/plugin.yaml plugins/rooms/tic-tac-toe-mover.ts,plugins/rooms/tic-tac-toe-revision-reader.ts plugins/rooms/tic-tac-toe-runtime.ts,tests/rooms/rooms.test.ts
-- `971d6d1` — 2026-11-13 10:51:23 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
