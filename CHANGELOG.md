@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `f1d69b0` — 2026-11-13 13:23:05 +0330 — split files helper responsibilities
+- `9aafc13` — 2026-11-13 09:51:56 +0000 — docs: update changelog [skip ci]
 - `9d2713a` — 2026-11-13 13:21:42 +0330 — enforce focused plugin file responsibilities
 - `e87472e` — 2026-11-13 09:49:43 +0000 — docs: update changelog [skip ci]
 - `8f26a23` — 2026-11-13 13:19:30 +0330 — harden functions plugin project boundaries
