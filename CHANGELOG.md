@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `0df7b86` — 2026-11-13 03:54:06 +0330 — ci pin Node runtime
+- `5b7fed6` — 2026-11-13 00:23:59 +0000 — docs: update changelog [skip ci]
 - `2839ee1` — 2026-11-13 03:53:47 +0330 — ci run full TypeScript suite
 - `197533b` — 2026-11-13 00:23:23 +0000 — docs: update changelog [skip ci]
 - `2def1a4` — 2026-11-13 03:52:56 +0330 — phase 03 record guest co-op gate
