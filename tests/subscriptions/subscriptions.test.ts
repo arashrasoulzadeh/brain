@@ -14,6 +14,7 @@ try { tickets.consume(oneUse.ticket, "dev", "records.orders", "subscriptions.ope
 validateBrowserOrigin("https://app.example.com/", ["https://app.example.com/"]);
 try { validateBrowserOrigin("https://evil.example.com/", ["https://app.example.com/"]); throw new Error("browser origin accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "origin denied") throw error; }
 const authorizer = new SubscriptionAuthorizer();
+try { authorizer.grant("dev:other", "records.users", "user-1"); throw new Error("malformed project grant accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid subscription grant") throw error; }
 authorizer.grant("dev", "records.users", "user-1");
 authorizer.authorize("dev", "records.users", "user-1");
 try { authorizer.authorize("dev", "records.users", "user-2"); throw new Error("unauthorized subscription accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "subscription denied") throw error; }

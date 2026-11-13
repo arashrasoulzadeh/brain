@@ -50,6 +50,8 @@ Go broker commits must use `CommitCredential`; credentials are bound to the orig
 
 The plugin security baseline also denies SSRF targets in direct HTTPS invocation and treats malformed PKCE challenges as ordinary verification failures rather than exceptions.
 
+Stateful plugin stores must validate project identifiers before constructing scoped keys; malformed delimiter-containing identities are rejected to prevent namespace collisions.
+
 Phase 01 verification: the dashboard is bootstrapped through the CLI; YAML routes are host-discovered and unauthorized operations are rejected; readiness is reported separately from enablement; auth supports project-scoped guest sessions; analytics events are validated against allowed fields and captured by an in-process sink. Run `go test ./...`, `npm run typecheck`, and `npm run test:ts` locally.
 
 ## Phase 02 completed

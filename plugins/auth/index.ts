@@ -1,6 +1,6 @@
 import { createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { hash as argon2Hash, verify as argon2Verify } from "@node-rs/argon2";
-import { type PluginFunction, type RpcRequest } from "../sdk-typescript/src/index.js";
+import { type PluginFunction, type RpcRequest, validateProjectId } from "../sdk-typescript/src/index.js";
 
 export { guestRequest } from "./guest-request.js";
 export { signInRequest } from "./sign-in-request.js";
@@ -280,7 +280,7 @@ export class AuthService {
   }
 
   guest(projectId: string) {
-    if (!projectId) throw new Error("project id required");
+    validateProjectId(projectId);
     const token = randomBytes(32).toString("hex");
     const username = `guest-${randomBytes(8).toString("hex")}`;
     this.sessions.set(sessionTokenDigest(token), { projectId, username, expiresAt: Date.now() + this.sessionTtlMs });

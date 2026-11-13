@@ -5,6 +5,7 @@ const request = inviteRequest("dev", "invites", "0.1.0", "invites.create", "room
 if (request.params.pluginId !== "invites" || request.params.operation !== "invites.create") throw new Error("invites plugin contract failed");
 if (typeof createRouteHandler([{ operation: "invites.create", function: "create", capability: "invites.create" }])(request) !== "object") throw new Error("invites handler contract failed");
 const invites = new InviteDirectory();
+try { invites.create("dev:other", "room-1", "user-2", 60, 1000); throw new Error("malformed invite project accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid invite") throw error; }
 const invite = invites.create("dev", "room-1", "user-2", 60, 1000);
 if (!invite.id.startsWith("dev:") || !invite.code.startsWith("INVITE-") || invite.expiresAt !== 61000 || invite.used) throw new Error("invite creation failed");
 if (!invites.accept(invite.id, "dev", "user-2", 2000).used) throw new Error("invite was not consumed");

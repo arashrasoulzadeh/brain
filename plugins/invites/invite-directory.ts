@@ -1,3 +1,4 @@
+import { validateProjectId } from "../sdk-typescript/src/index.js";
 import type { Invite } from "./types.js";
 
 export class InviteDirectory {
@@ -5,7 +6,8 @@ export class InviteDirectory {
   private readonly invites = new Map<string, Invite>();
 
   create(projectId: string, roomId: string, targetPlayerId: string, ttlSeconds: number, now = Date.now()): Invite {
-    if (!projectId || !roomId || !targetPlayerId || ttlSeconds <= 0) throw new Error("invalid invite");
+    validateProjectId(projectId, "invalid invite");
+    if (!roomId || !targetPlayerId || ttlSeconds <= 0) throw new Error("invalid invite");
     const id = `${projectId}:invite-${++this.counter}`;
     const invite = { id, code: `INVITE-${projectId}-${++this.counter}`, projectId, roomId, targetPlayerId, expiresAt: now + ttlSeconds * 1000, used: false };
     this.invites.set(id, invite);
