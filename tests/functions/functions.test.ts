@@ -29,3 +29,4 @@ if (!validateInvocationResult({ success: true, output: { ok: true }, diagnostics
 try { validateInvocationResult({ success: true, error: "bad", diagnostics: [] }); throw new Error("invalid invocation result accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid function invocation result") throw error; }
 if (!parseInvocationResult({ success: false, error: "failed", diagnostics: [] }).error) throw new Error("parsed invocation result failed");
 try { parseInvocationResult(null); throw new Error("malformed function output accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "malformed function output") throw error; }
+try { parseInvocationResult({ success: true, diagnostics: [], extra: 1 }); throw new Error("extra invocation result accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "extra function result rejected") throw error; }
