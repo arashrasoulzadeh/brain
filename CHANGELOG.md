@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `565f901` — 2026-11-13 16:44:52 +0330 — feat: default plugin drains to five minutes
+  Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
+- `356bd20` — 2026-11-13 13:14:20 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `b9a3a0f` — 2026-11-13 16:43:20 +0330 — feat: expose persisted plugin drain state
   Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
 - `daf792b` — 2026-11-13 13:12:56 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `3936e85` — 2026-11-13 15:00:44 +0330 — add entry package fixture
   Files: plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/tables/plugin.yaml,roadmap.md tests/functions/functions.test.ts
 - `ec919b1` — 2026-11-13 11:27:43 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `ffba1cc` — 2026-11-13 14:57:19 +0330 — limit changelog to latest detailed commits
-  Files: .github/workflows/changelog.yml
-- `6d3eeda` — 2026-11-13 11:26:51 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
