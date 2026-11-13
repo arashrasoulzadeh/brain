@@ -472,7 +472,7 @@ Goal: compile dashboard-authored Go to WASM, execute it safely, run durable trig
 - [x] Add legal move validation.
 - [x] Reject out-of-turn moves.
 - [x] Detect wins.
-- [ ] Detect draws.
+- [x] Detect draws.
 - [ ] Publish the rules through the compiler.
 - [ ] Give rules only authorized state and commands.
 - [ ] Add duplicate command protection.
