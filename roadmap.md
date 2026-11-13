@@ -443,7 +443,7 @@ Goal: compile dashboard-authored Go to WASM, execute it safely, run durable trig
 - [x] Add direct HTTPS invocation.
 - [x] Load only declared inputs.
 - [x] Validate write intents.
-- [ ] Validate stale input versions.
+- [x] Validate stale input versions.
 - [ ] Commit effects and idempotency records together.
 - [ ] Retry safely after a lost response.
 
