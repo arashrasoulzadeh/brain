@@ -480,7 +480,7 @@ Goal: compile dashboard-authored Go to WASM, execute it safely, run durable trig
 - [x] Handle concurrent moves.
 - [x] Reject malformed rule results.
 - [x] Reconnect after restart.
-- [ ] Add hidden-state player views.
+- [x] Add hidden-state player views.
 - [ ] Add timed-out moves.
 - [ ] Reconstruct history from committed outcomes.
 
