@@ -763,4 +763,13 @@ func TestProjectUninstallPreservesDurablePluginData(t *testing.T) {
 	if !ok || string(value) != "keep-me" {
 		t.Fatalf("durable data = %q, %t", value, ok)
 	}
+	found := false
+	for _, event := range r.Audit() {
+		if event.Action == "uninstall_project" && event.ProjectID == "dev" {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatal("project uninstall was not audited")
+	}
 }

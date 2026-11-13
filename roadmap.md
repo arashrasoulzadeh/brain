@@ -547,7 +547,7 @@ Goal: safely promote, roll back, disable, drain, uninstall, and extend plugin-co
 - [x] Wait for active work before project uninstall.
 - [x] Revoke project grants.
 - [x] Preserve durable plugin data.
-- [ ] Audit project uninstall.
+- [x] Audit project uninstall.
 - [ ] Reject server unregister while references remain.
 - [ ] Remove a server version only after all references are gone.
 - [ ] Keep data deletion as a separate action.
