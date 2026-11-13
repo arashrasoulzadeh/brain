@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `2fb8465` — 2026-11-13 13:08:28 +0330 — enforce host project context in plugin handlers
+- `cf47619` — 2026-11-13 09:36:13 +0000 — docs: update changelog [skip ci]
 - `30fd145` — 2026-11-13 13:06:00 +0330 — split functions request boundary
 - `b84af8e` — 2026-11-13 09:35:38 +0000 — docs: update changelog [skip ci]
 - `6506d28` — 2026-11-13 13:05:24 +0330 — split auth request boundaries
