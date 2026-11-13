@@ -1,0 +1,20 @@
+id: functions
+entrypoint: index.ts
+title: Functions
+description: Project-scoped serverless function compilation and invocation controls.
+version: 0.1.0
+host_api: 1
+dependencies: []
+capabilities:
+  - functions.invoke
+  - functions.publish
+extension_points: []
+config_schema:
+  maxSourceBytes: int
+routes:
+  - operation: functions.invoke
+    function: invoke
+    capability: functions.invoke
+  - operation: functions.publish
+    function: publish
+    capability: functions.publish

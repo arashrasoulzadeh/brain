@@ -395,7 +395,7 @@ Goal: compile dashboard-authored Go to WASM, execute it safely, run durable trig
 
 ### Offline compiler
 
-- [ ] Define the approved SDK imports.
+- [x] Define the approved SDK imports.
 - [ ] Add an entry-package fixture.
 - [ ] Add a project-local helper fixture.
 - [ ] Compile the fixture to `wasip1/wasm`.
