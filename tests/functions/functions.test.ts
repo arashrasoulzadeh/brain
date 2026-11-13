@@ -60,10 +60,10 @@ if (fixtureFailure.success || fixtureFailure.error !== "fixture boom") throw new
 const publicationDrafts = new FunctionDraftStore();
 const publicationDraft = publicationDrafts.save("dev", "hello", "package main", 1000);
 const publications = new FunctionPublicationStore();
-const publication = publications.publish(publicationDraft, "sha256:abc", 2000);
-if (publication.version !== 1 || publication.artifactDigest !== "sha256:abc" || publications.get("dev", "hello", 1)?.source !== "package main") throw new Error("function publication failed");
-const secondPublication = publications.publish({ ...publicationDraft, source: "package main\n// v2" }, "sha256:def", 3000);
+const publication = publications.publish(publicationDraft, "sha256:abc", "go1.23.0", 2000);
+if (publication.version !== 1 || publication.artifactDigest !== "sha256:abc" || publication.toolchain !== "go1.23.0" || publications.get("dev", "hello", 1)?.source !== "package main") throw new Error("function publication failed");
+const secondPublication = publications.publish({ ...publicationDraft, source: "package main\n// v2" }, "sha256:def", "go1.23.0", 3000);
 if (publications.active("dev", "hello")?.version !== secondPublication.version) throw new Error("latest publication was not active");
 if (publications.rollback("dev", "hello", 1).version !== 1 || publications.active("dev", "hello")?.artifactDigest !== "sha256:abc") throw new Error("function rollback failed");
-try { publications.publish({ ...publicationDraft, source: "package main\n// broken" }, "bad-digest", 4000); throw new Error("invalid draft was published"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid function publication") throw error; }
+try { publications.publish({ ...publicationDraft, source: "package main\n// broken" }, "bad-digest", "go1.23.0", 4000); throw new Error("invalid draft was published"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid function publication") throw error; }
 if (publications.active("dev", "hello")?.version !== 1) throw new Error("failed draft changed active version");

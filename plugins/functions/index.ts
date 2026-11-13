@@ -106,16 +106,16 @@ export class FunctionDraftStore {
   save(projectId: string, functionId: string, source: string, savedAt = Date.now()): FunctionDraft { if (!projectId || !functionId || !source || !Number.isFinite(savedAt)) throw new Error("invalid function draft"); const draft = { projectId, functionId, source, savedAt }; this.drafts.set(`${projectId}:${functionId}`, draft); return { ...draft }; }
   get(projectId: string, functionId: string): FunctionDraft | undefined { const draft = this.drafts.get(`${projectId}:${functionId}`); return draft ? { ...draft } : undefined; }
 }
-export type FunctionPublication = FunctionDraft & { version: number; artifactDigest: string; publishedAt: number };
+export type FunctionPublication = FunctionDraft & { version: number; artifactDigest: string; toolchain: string; publishedAt: number };
 export class FunctionPublicationStore {
   private readonly publications = new Map<string, FunctionPublication>();
   private readonly activeVersions = new Map<string, number>();
-  publish(draft: FunctionDraft, artifactDigest: string, publishedAt = Date.now()): FunctionPublication {
-    if (!draft.projectId || !draft.functionId || !draft.source || !/^sha256:[a-f0-9]+$/.test(artifactDigest) || !Number.isFinite(publishedAt)) throw new Error("invalid function publication");
+  publish(draft: FunctionDraft, artifactDigest: string, toolchain: string, publishedAt = Date.now()): FunctionPublication {
+    if (!draft.projectId || !draft.functionId || !draft.source || !/^sha256:[a-f0-9]+$/.test(artifactDigest) || !/^go[0-9]+\.[0-9]+(?:\.[0-9]+)?$/.test(toolchain) || !Number.isFinite(publishedAt)) throw new Error("invalid function publication");
     const prefix = `${draft.projectId}:${draft.functionId}:`;
     const versions = [...this.publications.keys()].filter((key) => key.startsWith(prefix)).map((key) => Number(key.slice(prefix.length)));
     const version = versions.length ? Math.max(...versions) + 1 : 1;
-    const publication = { ...draft, version, artifactDigest, publishedAt };
+    const publication = { ...draft, version, artifactDigest, toolchain, publishedAt };
     this.publications.set(`${prefix}${version}`, publication);
     this.activeVersions.set(`${draft.projectId}:${draft.functionId}`, version);
     return { ...publication };
