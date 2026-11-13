@@ -24,6 +24,7 @@ try { validateCompilerEnvironment({ API_TOKEN: "secret" }); throw new Error("com
 validateCompilerLimits({ cpuMs: 1000, memoryBytes: 64 * 1024 * 1024, processes: 4, wallMs: 5000 });
 try { validateCompilerLimits({ cpuMs: 0, memoryBytes: 1, processes: 1, wallMs: 1 }); throw new Error("invalid compiler limits accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid compiler limits") throw error; }
 const invocation = createInvocationRequest({ projectId: "dev", functionId: "hello", version: "1.0.0", inputs: { name: "alice" }, idempotencyKey: "invoke-1" });
+try { createInvocationRequest({ projectId: "bad/project", functionId: "hello", version: "1.0.0", inputs: {}, idempotencyKey: "invoke-2" }); throw new Error("invalid invocation project accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid project id") throw error; }
 if (invocation.projectId !== "dev" || invocation.inputs.name !== "alice") throw new Error("typed invocation request failed");
 if (!validateInvocationResult({ success: true, output: { ok: true }, diagnostics: [] }).success) throw new Error("typed invocation result failed");
 try { validateInvocationResult({ success: true, error: "bad", diagnostics: [] }); throw new Error("invalid invocation result accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid function invocation result") throw error; }
@@ -96,9 +97,10 @@ const firstResponse = await retryInvocation(commits, "lost-response", () => { ex
 const recoveredResponse = await retryInvocation(commits, "lost-response", () => { executions++; return { ok: false }; }, [{ path: "profile/name", value: "changed" }]);
 if (JSON.stringify(firstResponse) !== JSON.stringify(recoveredResponse) || executions !== 1) throw new Error("lost-response retry re-executed function");
 const schedules = new ScheduleStore();
+try { schedules.add("bad/project", "hello", "* * * * *", 1000); throw new Error("invalid schedule project accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid project id") throw error; }
 schedules.add("dev", "hello", "0 * * * *", 1000);
 if (schedules.due(1000)[0]?.functionId !== "hello") throw new Error("scheduled function not due");
-try { schedules.add("", "hello", "0 * * * *", 1000); throw new Error("invalid schedule accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid schedule") throw error; }
+try { schedules.add("", "hello", "0 * * * *", 1000); throw new Error("invalid schedule accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid project id") throw error; }
 const claimed = schedules.claim("dev", "hello", "worker-a", 1000, 5000);
 if (!claimed || schedules.claim("dev", "hello", "worker-b", 1000, 5000)) throw new Error("schedule claimed concurrently");
 if (!schedules.recordOccurrence("dev", "hello", "2026-11-13T10:00:00.000Z") || schedules.recordOccurrence("dev", "hello", "2026-11-13T10:00:00.000Z")) throw new Error("duplicate UTC occurrence accepted");

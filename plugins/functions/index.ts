@@ -1,4 +1,4 @@
-import { type RpcRequest } from "../sdk-typescript/src/index.js";
+import { type RpcRequest, validateProjectId } from "../sdk-typescript/src/index.js";
 import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -47,7 +47,8 @@ export function validateCompilerLimits(limits: CompilerLimits): void {
 
 export type FunctionInvocationRequest = { projectId: string; functionId: string; version: string; inputs: Readonly<Record<string, unknown>>; idempotencyKey: string };
 export function createInvocationRequest(input: FunctionInvocationRequest): FunctionInvocationRequest {
-  if (!input.projectId || !input.functionId || !input.version || !input.idempotencyKey || !input.inputs || typeof input.inputs !== "object") throw new Error("invalid function invocation request");
+  validateProjectId(input.projectId);
+  if (!input.functionId || !input.version || !input.idempotencyKey || !input.inputs || typeof input.inputs !== "object") throw new Error("invalid function invocation request");
   return { ...input, inputs: { ...input.inputs } };
 }
 export type FunctionInvocationResult = { success: boolean; output?: unknown; error?: string; diagnostics: readonly string[] };
@@ -165,13 +166,15 @@ export class ScheduleStore {
   private readonly occurrences = new Set<string>();
   private readonly enqueued = new Set<string>();
   add(projectId: string, functionId: string, expression: string, dueAt: number): FunctionSchedule {
-    if (!projectId || !functionId || expression.trim().split(/\s+/).length !== 5 || !Number.isSafeInteger(dueAt) || dueAt < 0) throw new Error("invalid schedule");
+    validateProjectId(projectId);
+    if (!functionId || expression.trim().split(/\s+/).length !== 5 || !Number.isSafeInteger(dueAt) || dueAt < 0) throw new Error("invalid schedule");
     const schedule = { projectId, functionId, expression: expression.trim(), dueAt };
     this.schedules.push(schedule);
     return { ...schedule };
   }
   due(now: number): FunctionSchedule[] { return this.schedules.filter((schedule) => schedule.dueAt <= now).map((schedule) => ({ ...schedule })); }
   claim(projectId: string, functionId: string, workerId: string, now: number, leaseMs: number): boolean {
+    validateProjectId(projectId);
     if (!workerId || !Number.isSafeInteger(now) || !Number.isSafeInteger(leaseMs) || leaseMs < 1) throw new Error("invalid schedule claim");
     const schedule = this.schedules.find((candidate) => candidate.projectId === projectId && candidate.functionId === functionId && candidate.dueAt <= now);
     if (!schedule) return false;
@@ -182,13 +185,15 @@ export class ScheduleStore {
     return true;
   }
   recordOccurrence(projectId: string, functionId: string, occurrenceUtc: string): boolean {
-    if (!projectId || !functionId || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(occurrenceUtc) || Number.isNaN(Date.parse(occurrenceUtc))) throw new Error("invalid UTC occurrence");
+    validateProjectId(projectId);
+    if (!functionId || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(occurrenceUtc) || Number.isNaN(Date.parse(occurrenceUtc))) throw new Error("invalid UTC occurrence");
     const key = `${projectId}:${functionId}:${occurrenceUtc}`;
     if (this.occurrences.has(key)) return false;
     this.occurrences.add(key);
     return true;
   }
   enqueueLatestMissed(projectId: string, functionId: string, now: number): FunctionSchedule | undefined {
+    validateProjectId(projectId);
     if (!Number.isSafeInteger(now) || now < 0) throw new Error("invalid schedule time");
     const schedule = this.schedules.filter((candidate) => candidate.projectId === projectId && candidate.functionId === functionId && candidate.dueAt <= now).sort((left, right) => right.dueAt - left.dueAt)[0];
     if (!schedule) return undefined;
@@ -198,7 +203,8 @@ export class ScheduleStore {
     return { ...schedule };
   }
   enqueueVersion(projectId: string, functionId: string, functionVersion: number, enqueuedAt: number): EnqueuedFunction {
-    if (!projectId || !functionId || !Number.isSafeInteger(functionVersion) || functionVersion < 1 || !Number.isSafeInteger(enqueuedAt) || enqueuedAt < 0) throw new Error("invalid function enqueue");
+    validateProjectId(projectId);
+    if (!functionId || !Number.isSafeInteger(functionVersion) || functionVersion < 1 || !Number.isSafeInteger(enqueuedAt) || enqueuedAt < 0) throw new Error("invalid function enqueue");
     return { projectId, functionId, functionVersion, enqueuedAt };
   }
 }
@@ -206,7 +212,8 @@ export type RecordChangeTrigger = { projectId: string; collection: string; opera
 export class RecordChangeTriggerStore {
   private readonly triggers: RecordChangeTrigger[] = [];
   add(projectId: string, collection: string, operation: string, target: { functionId: string; version: number }): RecordChangeTrigger {
-    if (!projectId || !collection || !operation || !target.functionId || !Number.isSafeInteger(target.version) || target.version < 1) throw new Error("invalid record trigger");
+    validateProjectId(projectId);
+    if (!collection || !operation || !target.functionId || !Number.isSafeInteger(target.version) || target.version < 1) throw new Error("invalid record trigger");
     const trigger = { projectId, collection, operation, target: { ...target } };
     this.triggers.push(trigger);
     return { ...trigger, target: { ...trigger.target } };
@@ -301,7 +308,7 @@ export class ApprovalStore {
 export type FunctionDraft = { projectId: string; functionId: string; source: string; savedAt: number };
 export class FunctionDraftStore {
   private readonly drafts = new Map<string, FunctionDraft>();
-  save(projectId: string, functionId: string, source: string, savedAt = Date.now()): FunctionDraft { if (!projectId || !functionId || !source || !Number.isFinite(savedAt)) throw new Error("invalid function draft"); const draft = { projectId, functionId, source, savedAt }; this.drafts.set(`${projectId}:${functionId}`, draft); return { ...draft }; }
+  save(projectId: string, functionId: string, source: string, savedAt = Date.now()): FunctionDraft { validateProjectId(projectId); if (!functionId || !source || !Number.isFinite(savedAt)) throw new Error("invalid function draft"); const draft = { projectId, functionId, source, savedAt }; this.drafts.set(`${projectId}:${functionId}`, draft); return { ...draft }; }
   get(projectId: string, functionId: string): FunctionDraft | undefined { const draft = this.drafts.get(`${projectId}:${functionId}`); return draft ? { ...draft } : undefined; }
 }
 export type FunctionPublication = FunctionDraft & { version: number; artifactDigest: string; toolchain: string; publishedAt: number };
@@ -309,7 +316,8 @@ export class FunctionPublicationStore {
   private readonly publications = new Map<string, FunctionPublication>();
   private readonly activeVersions = new Map<string, number>();
   publish(draft: FunctionDraft, artifactDigest: string, toolchain: string, publishedAt = Date.now()): FunctionPublication {
-    if (!draft.projectId || !draft.functionId || !draft.source || !/^sha256:[a-f0-9]+$/.test(artifactDigest) || !/^go[0-9]+\.[0-9]+(?:\.[0-9]+)?$/.test(toolchain) || !Number.isFinite(publishedAt)) throw new Error("invalid function publication");
+    validateProjectId(draft.projectId);
+    if (!draft.functionId || !draft.source || !/^sha256:[a-f0-9]+$/.test(artifactDigest) || !/^go[0-9]+\.[0-9]+(?:\.[0-9]+)?$/.test(toolchain) || !Number.isFinite(publishedAt)) throw new Error("invalid function publication");
     const prefix = `${draft.projectId}:${draft.functionId}:`;
     const versions = [...this.publications.keys()].filter((key) => key.startsWith(prefix)).map((key) => Number(key.slice(prefix.length)));
     const version = versions.length ? Math.max(...versions) + 1 : 1;
@@ -335,7 +343,7 @@ export class FunctionPublicationStore {
 }
 export class SharedPackageStore {
   private readonly packages = new Map<string, string>();
-  save(projectId: string, packageId: string, source: string): void { if (!projectId || !packageId || !source) throw new Error("invalid shared package"); this.packages.set(`${projectId}:${packageId}`, source); }
+  save(projectId: string, packageId: string, source: string): void { validateProjectId(projectId); if (!packageId || !source) throw new Error("invalid shared package"); this.packages.set(`${projectId}:${packageId}`, source); }
   load(projectId: string, packageId: string): string { const source = this.packages.get(`${projectId}:${packageId}`); if (!source) throw new Error("shared package not found"); return source; }
 }
 export type SourceDiagnostic = { line: number; message: string };
