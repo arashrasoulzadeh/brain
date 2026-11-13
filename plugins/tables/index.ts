@@ -96,6 +96,19 @@ export function requireRecentSchemaAuth(lastAuthenticatedAt: number, now: number
   if (!Number.isFinite(lastAuthenticatedAt) || !Number.isFinite(now) || now < lastAuthenticatedAt || now - lastAuthenticatedAt > maxAgeMs) throw new Error("recent authentication required");
 }
 
+export type SchemaPublication = SchemaChangePlan & { actorId: string; publishedAt: number };
+
+export class SchemaPublicationAudit {
+  private readonly entries: SchemaPublication[] = [];
+  record(projectId: string, actorId: string, plan: SchemaChangePlan, publishedAt: number): void {
+    if (!actorId || plan.projectId !== projectId || !Number.isFinite(publishedAt)) throw new Error("invalid schema publication audit");
+    this.entries.push({ ...plan, actorId, publishedAt, change: plan.change.kind === "create_index" ? { ...plan.change, columns: [...plan.change.columns] } : { ...plan.change } });
+  }
+  list(projectId: string): SchemaPublication[] {
+    return this.entries.filter((entry) => entry.projectId === projectId).map((entry) => ({ ...entry, change: entry.change.kind === "create_index" ? { ...entry.change, columns: [...entry.change.columns] } : { ...entry.change } }));
+  }
+}
+
 export function dataRequest(projectId: string, pluginId: string, version: string, operation: "tables.read" | "tables.write" | "tables.schema", table: string, payload: unknown = {}) {
   return request(`tables-${operation}-${projectId}-${table}`, { protocol: 1, projectId, pluginId, version, operation, payload: { table, ...(payload as Record<string, unknown>) } });
 }

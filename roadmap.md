@@ -341,7 +341,7 @@ Goal: provide project-scoped identity, PostgreSQL APIs, files, subscriptions, an
 - [x] Add guided schema changes.
 - [x] Add SQL migration preview.
 - [x] Require recent authentication for destructive schema actions.
-- [ ] Audit schema publication.
+- [x] Audit schema publication.
 
 ### Change capture and subscriptions
 
