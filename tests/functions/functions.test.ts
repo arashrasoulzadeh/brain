@@ -1,4 +1,4 @@
-import { APPROVED_SDK_IMPORTS, APPROVED_WASI_IMPORTS, capDiagnostics, compilerEnvironment, createInvocationRequest, DisposableCompilerWorkspace, ENTRY_PACKAGE_FIXTURE, functionRequest, parseInvocationResult, PROJECT_HELPER_FIXTURE, requireSDKImports, validateBuildOverrides, validateCompilerEnvironment, validateCompilerLimits, validateFunctionLimits, validateInvocationResult, validateSDKImports, validateSourceProject, validateWasiImports, wasmBuildSettings } from "../../plugins/functions/index.js";
+import { APPROVED_SDK_IMPORTS, APPROVED_WASI_IMPORTS, capDiagnostics, compilerEnvironment, createInvocationRequest, DisposableCompilerWorkspace, ENTRY_PACKAGE_FIXTURE, functionRequest, parseInvocationResult, PROJECT_HELPER_FIXTURE, requireSDKImports, validateBuildOverrides, validateCompilerEnvironment, validateCompilerLimits, validateFunctionLimits, validateInvocationResult, validateSandboxCapabilities, validateSDKImports, validateSourceProject, validateWasiImports, wasmBuildSettings } from "../../plugins/functions/index.js";
 validateSDKImports(APPROVED_SDK_IMPORTS);
 const request = functionRequest("dev", "functions", "0.1.0", "functions.invoke", { name: "hello" });
 if (request.params.projectId !== "dev" || request.params.operation !== "functions.invoke") throw new Error("functions request contract failed");
@@ -34,3 +34,5 @@ if (capDiagnostics(["a", "b", "c"], 2).length !== 2) throw new Error("diagnostic
 try { capDiagnostics(["x".repeat(5)], 2, 4); throw new Error("oversized diagnostic accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "diagnostic limit exceeded") throw error; }
 validateWasiImports(APPROVED_WASI_IMPORTS);
 try { validateWasiImports(["wasi_snapshot_preview1", "sock"]); throw new Error("unexpected WASI import accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "unexpected WASI import") throw error; }
+validateSandboxCapabilities([]);
+try { validateSandboxCapabilities(["filesystem"]); throw new Error("filesystem capability accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "sandbox capability denied") throw error; }
