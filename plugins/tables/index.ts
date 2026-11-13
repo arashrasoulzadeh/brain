@@ -3,6 +3,9 @@ import { projectSchemaName } from "./project-schema-name.js";
 import { createSchemaAuditState } from "./schema-audit-state.js";
 import { SchemaPublicationRecorder } from "./schema-publication-recorder.js";
 import { SchemaPublicationReader } from "./schema-publication-reader.js";
+import { createApiChangeState } from "./api-change-state.js";
+import { ApiChangeWriter } from "./api-change-writer.js";
+import { ApiChangeReader } from "./api-change-reader.js";
 
 export { dataRequest } from "./data-request.js";
 export { projectSchemaName } from "./project-schema-name.js";
@@ -93,20 +96,7 @@ export class TransactionalChangeCapture<T> {
 
 export type ApiChange = { projectId: string; operation: string; payload: unknown };
 
-export class ApiChangeCapture {
-  private readonly changes: ApiChange[] = [];
-  begin(projectId: string, operation: string, payload: unknown): { commit: () => void; rollback: () => void } {
-    if (!projectId || !operation) throw new Error("invalid API change");
-    let finished = false;
-    const finish = (commit: boolean) => {
-      if (finished) throw new Error("transaction already finished");
-      finished = true;
-      if (commit) this.changes.push({ projectId, operation, payload });
-    };
-    return { commit: () => finish(true), rollback: () => finish(false) };
-  }
-  list(projectId: string): ApiChange[] { return this.changes.filter((change) => change.projectId === projectId).map((change) => ({ ...change })); }
-}
+export function createApiChangeCapture() { const state = createApiChangeState(); const writer = new ApiChangeWriter(state); const reader = new ApiChangeReader(state); return { begin: writer.begin.bind(writer), list: reader.list.bind(reader) }; }
 
 export type DirectSQLChange = { projectId: string; table: string; statement: string };
 

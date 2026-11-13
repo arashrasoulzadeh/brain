@@ -28,6 +28,9 @@ source_files:
   - schema-audit-state.ts
   - schema-publication-recorder.ts
   - schema-publication-reader.ts
+  - api-change-state.ts
+  - api-change-writer.ts
+  - api-change-reader.ts
 imports:
   - ../sdk-typescript/src/index.js
   - ./data-request.js
@@ -52,6 +55,9 @@ imports:
   - ./schema-audit-state.js
   - ./schema-publication-recorder.js
   - ./schema-publication-reader.js
+  - ./api-change-state.js
+  - ./api-change-writer.js
+  - ./api-change-reader.js
 plugin_imports:
 dependencies: []
 capabilities:
