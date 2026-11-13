@@ -1,5 +1,8 @@
 id: example.plugin
 entrypoint: index.ts
+source_files: [index.ts]
+imports: [../sdk-typescript/src/index.js]
+plugin_imports: []
 title: Example plugin
 description: Minimal host-discovered TypeScript plugin template.
 version: 0.1.0

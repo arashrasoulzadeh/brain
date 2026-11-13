@@ -4,6 +4,9 @@ description: Project-scoped room and membership functions.
 version: 0.1.0
 host_api: 1
 entrypoint: index.ts
+source_files: [index.ts]
+imports: [../sdk-typescript/src/index.js, node:crypto]
+plugin_imports: []
 dependencies: []
 capabilities:
   - rooms.create

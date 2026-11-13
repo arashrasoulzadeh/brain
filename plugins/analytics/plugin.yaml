@@ -1,5 +1,8 @@
 id: analytics
 entrypoint: index.ts
+source_files: [index.ts]
+imports: [../sdk-typescript/src/index.js]
+plugin_imports: []
 title: Analytics
 description: Project-scoped validated event capture.
 version: 0.1.0

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"path"
 	"strings"
 	"time"
 
@@ -30,6 +31,7 @@ type Manifest struct {
 	Title           string            `yaml:"title"`
 	Description     string            `yaml:"description"`
 	ID              string            `yaml:"id"`
+	Entry           string            `yaml:"entrypoint"`
 	Version         string            `yaml:"version"`
 	HostAPI         int               `yaml:"host_api"`
 	Dependencies    []string          `yaml:"dependencies"`
@@ -37,6 +39,9 @@ type Manifest struct {
 	ExtensionPoints []string          `yaml:"extension_points"`
 	ConfigSchema    map[string]string `yaml:"config_schema"`
 	Routes          []Route           `yaml:"routes"`
+	SourceFiles     []string          `yaml:"source_files"`
+	Imports         []string          `yaml:"imports"`
+	PluginImports   []string          `yaml:"plugin_imports"`
 }
 
 type Route struct {
@@ -54,7 +59,51 @@ func LoadManifest(path string) (Manifest, error) {
 	if err := yaml.Unmarshal(data, &manifest); err != nil {
 		return Manifest{}, err
 	}
+	if err := ValidateManifestContract(manifest); err != nil {
+		return Manifest{}, err
+	}
 	return manifest, nil
+}
+
+func ValidateManifestContract(manifest Manifest) error {
+	if manifest.EntryPoint() == "" {
+		return ErrInvalidManifest
+	}
+	seenFiles := map[string]bool{}
+	for _, file := range manifest.SourceFiles {
+		if file == "" || strings.HasPrefix(file, "/") || path.Clean(file) != file || strings.ContainsAny(file, "\\\x00") {
+			return ErrInvalidManifest
+		}
+		seenFiles[file] = true
+	}
+	if !seenFiles[manifest.EntryPoint()] {
+		return ErrInvalidManifest
+	}
+	seenImports := map[string]bool{}
+	for _, importPath := range manifest.Imports {
+		if importPath == "" || strings.HasPrefix(importPath, "/") || path.Clean(importPath) != importPath || strings.HasPrefix(path.Clean(importPath), "../../") || path.Clean(importPath) == ".." {
+			return ErrInvalidManifest
+		}
+		if seenImports[importPath] {
+			return ErrInvalidManifest
+		}
+		seenImports[importPath] = true
+	}
+	seenPlugins := map[string]bool{}
+	for _, pluginID := range manifest.PluginImports {
+		if pluginID == "" || seenPlugins[pluginID] {
+			return ErrInvalidManifest
+		}
+		seenPlugins[pluginID] = true
+	}
+	return nil
+}
+
+func (m Manifest) EntryPoint() string {
+	if m.Entry == "" {
+		return "index.ts"
+	}
+	return m.Entry
 }
 
 func (m Manifest) Route(operation string) (Route, bool) {

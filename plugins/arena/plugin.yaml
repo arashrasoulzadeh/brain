@@ -4,6 +4,9 @@ description: Project-scoped cooperative match functions.
 version: 0.1.0
 host_api: 1
 entrypoint: index.ts
+source_files: [index.ts]
+imports: [../sdk-typescript/src/index.js]
+plugin_imports: [rooms@0.1.0, matchmaking@0.1.0]
 dependencies:
   - rooms@0.1.0
   - matchmaking@0.1.0

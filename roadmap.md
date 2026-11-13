@@ -45,6 +45,7 @@ Every phase exit must also update:
 - [ ] Enforce TypeScript lint with `npm run lint:ts`; lint, typecheck, and tests are required verification for every plugin change.
 - [ ] Keep plugin code SOLID and DRY: shared generic helpers belong in the SDK, plugin code has one clear responsibility, and duplicate handlers/request/validation code is prohibited.
 - [ ] Keep source declarations ordered: imports, types, constants, and file-level variables first; classes next; standalone functions after classes; class fields before methods. Use descriptive names.
+- [ ] Gate every plugin source file, runtime import, and plugin-to-plugin import through `plugin.yaml`; the host must reject undeclared files, imports, and dependencies before execution.
 
 ## Test organization law
 

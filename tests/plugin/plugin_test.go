@@ -2,11 +2,32 @@ package plugin_test
 
 import (
 	"errors"
+	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
 	"brain/internal/plugin"
 )
+
+func TestLoadManifestRequiresAuthorizedSourcesAndImports(t *testing.T) {
+	directory := t.TempDir()
+	manifestPath := filepath.Join(directory, "plugin.yaml")
+	valid := []byte("id: sample\nentrypoint: index.ts\nversion: 1.0.0\nhost_api: 1\nsource_files:\n  - index.ts\nimports:\n  - ../sdk-typescript/src/index.js\nplugin_imports:\n  - rooms@0.1.0\n")
+	if err := os.WriteFile(manifestPath, valid, 0600); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := plugin.LoadManifest(manifestPath); err != nil {
+		t.Fatalf("valid manifest rejected: %v", err)
+	}
+	invalid := []byte("id: sample\nentrypoint: index.ts\nversion: 1.0.0\nhost_api: 1\nsource_files:\n  - index.ts\nimports:\n  - ../../secret.ts\n")
+	if err := os.WriteFile(manifestPath, invalid, 0600); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := plugin.LoadManifest(manifestPath); !errors.Is(err, plugin.ErrInvalidManifest) {
+		t.Fatalf("unsafe import accepted: %v", err)
+	}
+}
 
 func TestPluginLifecycleAndScopedAuthorization(t *testing.T) {
 	r := plugin.NewRegistry(1)

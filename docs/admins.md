@@ -48,3 +48,5 @@ Administrators can review project-scoped identity and session controls, OIDC/PKC
 ## Plugin release gate
 
 Plugin releases are blocked unless TypeScript lint, typecheck, and the complete test suite pass. Shared SDK changes should be reviewed as platform dependencies because they can affect multiple plugins.
+
+Administrators can review `source_files`, `imports`, `plugin_imports`, and `dependencies` in each YAML manifest. Undeclared files, module imports, or plugin relationships are rejected before execution.

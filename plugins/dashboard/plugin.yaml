@@ -4,6 +4,9 @@ description: Trusted operator project and plugin administration.
 version: 0.1.0
 host_api: 1
 entrypoint: index.ts
+source_files: [index.ts]
+imports: [../sdk-typescript/src/index.js]
+plugin_imports: []
 dependencies: []
 capabilities:
   - project.manage
