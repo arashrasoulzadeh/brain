@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `67b7c66` — 2026-11-13 04:55:18 +0330 — phase 04 reject out of turn moves
+- `1cc1b51` — 2026-11-13 01:24:55 +0000 — docs: update changelog [skip ci]
 - `dbbfcfa` — 2026-11-13 04:54:42 +0330 — phase 04 mark legal move validation complete
 - `60a9aa9` — 2026-11-13 01:24:40 +0000 — docs: update changelog [skip ci]
 - `c2c6912` — 2026-11-13 04:54:27 +0330 — phase 04 validate tic tac toe moves
