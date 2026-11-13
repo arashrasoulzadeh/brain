@@ -546,6 +546,20 @@ func (r *Registry) DrainUntil(projectID, id, version string, deadline time.Time)
 	return nil
 }
 
+func (r *Registry) StopImmediately(projectID, id, version string) error {
+	key := projectID + ":" + id + "@" + version
+	i, ok := r.installations[key]
+	if !ok {
+		return ErrNotInstalled
+	}
+	i.Draining = true
+	i.DrainUntil = time.Unix(0, 0)
+	r.installations[key] = i
+	r.lifecycleRevision++
+	r.audit = append(r.audit, AuditEvent{Action: "stop_immediate", ProjectID: projectID, PluginID: id, Version: version})
+	return nil
+}
+
 func (r *Registry) CanStart(projectID, id, version string, now time.Time) error {
 	i, ok := r.installations[projectID+":"+id+"@"+version]
 	if !ok {

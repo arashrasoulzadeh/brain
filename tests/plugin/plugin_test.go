@@ -669,3 +669,23 @@ func TestDrainUsesFiveMinuteDefaultWindow(t *testing.T) {
 		t.Fatalf("default drain deadline = %v", status.DrainUntil)
 	}
 }
+
+func TestImmediateStopBlocksNewWorkAndReconnects(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	m := plugin.Manifest{ID: "immediate-stop", Version: "1.0.0", HostAPI: 1}
+	if err := r.Register(m); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Install("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.StopImmediately("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	if !errors.Is(r.CanStartNew("dev", m.ID, m.Version), plugin.ErrDisabled) {
+		t.Fatal("immediate stop admitted new work")
+	}
+	if !errors.Is(r.CanReconnect("dev", m.ID, m.Version, time.Unix(1, 0)), plugin.ErrDisabled) {
+		t.Fatal("immediate stop admitted reconnect")
+	}
+}
