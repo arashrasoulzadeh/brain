@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `c1ed766` — 2026-11-13 16:34:07 +0330 — feat: reject stale plugin disable previews
+  Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
+- `8fd0204` — 2026-11-13 13:03:45 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `9f3b4f8` — 2026-11-13 16:33:21 +0330 — feat: add plugin disable previews
   Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
 - `37774a0` — 2026-11-13 13:02:44 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `0864716` — 2026-11-13 14:52:07 +0330 — split function publication operations
   Files: plugins/functions/function-publication-reader.ts,plugins/functions/function-publication-rollback.ts plugins/functions/function-publication-state.ts,plugins/functions/function-publication-writer.ts plugins/functions/index.ts,plugins/functions/plugin.yaml tests/functions/functions.test.ts
 - `dc905b6` — 2026-11-13 11:20:16 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `3517659` — 2026-11-13 14:49:53 +0330 — split invocation effect operations
-  Files: plugins/functions/index.ts,plugins/functions/invocation-effects-reader.ts plugins/functions/invocation-effects-state.ts,plugins/functions/invocation-effects-writer.ts plugins/functions/plugin.yaml,tests/functions/functions.test.ts
-- `ea14df2` — 2026-11-13 11:18:23 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
