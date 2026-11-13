@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `30fd145` — 2026-11-13 13:06:00 +0330 — split functions request boundary
+- `b84af8e` — 2026-11-13 09:35:38 +0000 — docs: update changelog [skip ci]
 - `6506d28` — 2026-11-13 13:05:24 +0330 — split auth request boundaries
 - `d0d044a` — 2026-11-13 09:34:40 +0000 — docs: update changelog [skip ci]
 - `831150a` — 2026-11-13 13:04:27 +0330 — fix tables module whitespace
