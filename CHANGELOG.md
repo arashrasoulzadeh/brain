@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `568fd29` — 2026-11-13 16:41:29 +0330 — feat: cancel queued matchmaking scope tickets
+  Files: plugins/matchmaking/plugin.yaml,plugins/matchmaking/queue.ts plugins/matchmaking/scope-ticket-canceller.ts,roadmap.md tests/matchmaking/matchmaking.test.ts
+- `7fe36ac` — 2026-11-13 13:10:53 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `94f6982` — 2026-11-13 16:39:22 +0330 — feat: block new work during plugin drain
   Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
 - `f3216a4` — 2026-11-13 13:09:01 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `310de3d` — 2026-11-13 14:56:26 +0330 — split schedule operations
   Files: plugins/functions/function-version-enqueuer.ts,plugins/functions/index.ts plugins/functions/missed-schedule-enqueuer.ts,plugins/functions/plugin.yaml plugins/functions/schedule-adder.ts,plugins/functions/schedule-claimer.ts plugins/functions/schedule-occurrence-recorder.ts,plugins/functions/schedule-reader.ts plugins/functions/schedule-state.ts,tests/functions/functions.test.ts
 - `c23aa85` — 2026-11-13 11:25:08 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `813fb10` — 2026-11-13 14:54:47 +0330 — split record trigger operations
-  Files: plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/record-trigger-adder.ts,plugins/functions/record-trigger-dispatcher.ts plugins/functions/record-trigger-matcher.ts,plugins/functions/record-trigger-state.ts tests/functions/functions.test.ts
-- `2616adf` — 2026-11-13 11:23:46 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
