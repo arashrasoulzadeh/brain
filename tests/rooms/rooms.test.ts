@@ -1,4 +1,4 @@
-import { ConnectionTickets, RoomDirectory, authorizeRoomCommand, authorizedRoomSnapshot, canTransitionRoom, initializeTicTacToe, projectRoomID, roomRequest, ticTacToeDraw, ticTacToeWinner, validateMembership, validateTicTacToeMove } from "../../plugins/rooms/index.js";
+import { ConnectionTickets, RoomDirectory, authorizeRoomCommand, authorizedRoomSnapshot, canTransitionRoom, initializeTicTacToe, publishTicTacToeRules, projectRoomID, roomRequest, ticTacToeDraw, ticTacToeWinner, validateMembership, validateTicTacToeMove } from "../../plugins/rooms/index.js";
 import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = roomRequest("dev", "rooms", "0.1.0", "rooms.create", "room-1", { maxPlayers: 2 });
@@ -49,3 +49,6 @@ if (ticTacToeWinner(winningGame) !== "user-1") throw new Error("tic-tac-toe win 
 let drawnGame = initializeTicTacToe("dev", "room-draw", "user-1", "user-2");
 for (const cell of [0, 1, 2, 4, 3, 5, 7, 6, 8]) drawnGame = validateTicTacToeMove(drawnGame, drawnGame.turn, cell);
 if (!ticTacToeDraw(drawnGame) || ticTacToeWinner(drawnGame)) throw new Error("tic-tac-toe draw was not detected");
+const rulesArtifact = publishTicTacToeRules((source) => `compiled:${source.length}`);
+if (!rulesArtifact.startsWith("compiled:")) throw new Error("tic-tac-toe rules were not compiled");
+try { publishTicTacToeRules(() => ""); throw new Error("empty rules artifact accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "rules compilation failed") throw error; }
