@@ -420,10 +420,10 @@ Goal: compile dashboard-authored Go to WASM, execute it safely, run durable trig
 - [x] Cap diagnostics.
 - [x] Reject unexpected WASI imports.
 - [ ] Run each invocation in a fresh wazero instance.
-- [ ] Allow only approved WASI interfaces.
-- [ ] Deny filesystem access.
-- [ ] Deny network access.
-- [ ] Deny environment credentials.
+- [x] Allow only approved WASI interfaces.
+- [x] Deny filesystem access.
+- [x] Deny network access.
+- [x] Deny environment credentials.
 - [ ] Test infinite-loop timeouts.
 - [ ] Test linear-memory limits.
 - [ ] Test startup timeouts.
