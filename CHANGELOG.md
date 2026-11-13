@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `86b41b5` — 2026-11-13 12:33:36 +0330 — enforce declared plugin source imports
+- `f93461a` — 2026-11-13 09:02:52 +0000 — docs: update changelog [skip ci]
 - `0e677ac` — 2026-11-13 12:32:37 +0330 — enforce plugin YAML source and import boundaries
 - `45a08a7` — 2026-11-13 08:59:40 +0000 — docs: update changelog [skip ci]
 - `1b79b98` — 2026-11-13 12:29:27 +0330 — refactor plugins with SDK validation and TypeScript lint
