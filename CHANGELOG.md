@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `7deb2b1` — 2026-11-13 13:17:45 +0330 — harden auth plugin project boundaries
+- `51f88a3` — 2026-11-13 09:44:42 +0000 — docs: update changelog [skip ci]
 - `8c1cf91` — 2026-11-13 13:14:29 +0330 — harden plugin project namespaces and SSRF
 - `721bc6e` — 2026-11-13 09:43:02 +0000 — docs: update changelog [skip ci]
 - `d65df16` — 2026-11-13 13:11:24 +0330 — harden plugin network and credential security
