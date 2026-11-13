@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `9439d14` — 2026-11-13 13:59:14 +0330 — split auth delivery classes
+- `09fe683` — 2026-11-13 10:27:12 +0000 — docs: update changelog [skip ci]
 - `470333e` — 2026-11-13 13:56:59 +0330 — split OIDC state classes
 - `d45ec9d` — 2026-11-13 10:25:09 +0000 — docs: update changelog [skip ci]
 - `8586e00` — 2026-11-13 13:54:56 +0330 — split room connection ticket classes
