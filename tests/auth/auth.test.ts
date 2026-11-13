@@ -1,4 +1,4 @@
-import { AccountRateLimiter, AuthService, AuthorizationCodeStore, EmailOTPService, EmailRecoveryService, IdentityLinker, OIDCConfigStore, OIDCStateIssuer, OIDCStateConsumer, OTPLimiter, OperatorSessionRegistry, ProjectRateLimiter, SMSOTPService, TestDeliveryInbox, createPKCEChallenge, functions, guestRequest, normalizePhoneNumber, projectUserID, publicAuthError, requireRecentAuthentication, sessionTokenDigest, signInRequest, signUpRequest, validateDeliveryConfig, validateOIDCToken, verifyPKCE } from "../../plugins/auth/index.js";
+import { AccountRateLimiter, AuthService, AuthorizationCodeStore, DeliveryReader, DeliveryWriter, EmailOTPService, EmailRecoveryService, IdentityLinker, OIDCConfigStore, OIDCStateIssuer, OIDCStateConsumer, OTPLimiter, OperatorSessionRegistry, ProjectRateLimiter, SMSOTPService, createPKCEChallenge, functions, guestRequest, normalizePhoneNumber, projectUserID, publicAuthError, requireRecentAuthentication, sessionTokenDigest, signInRequest, signUpRequest, validateDeliveryConfig, validateOIDCToken, verifyPKCE } from "../../plugins/auth/index.js";
 import { createFunctionHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const serviceForHandler = new AuthService();
@@ -40,24 +40,25 @@ const states = new Map(); const stateIssuer = new OIDCStateIssuer(states); const
 const state = stateIssuer.issue("project-a", "client-id", "https://app.example/callback");
 stateConsumer.consume(state, "project-a", "client-id", "https://app.example/callback");
 try { stateConsumer.consume(state, "project-a", "client-id", "https://app.example/callback"); throw new Error("callback state replay accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "callback state mismatch") throw error; }
-const inbox = new TestDeliveryInbox();
-inbox.deliver("alice@example.com", "code-1");
-if (inbox.read("alice@example.com") !== "code-1") throw new Error("test delivery inbox failed");
-const otp = new EmailOTPService("test-secret", inbox);
+const inboxMessages = new Map<string, string[]>(); const deliveryWriter = new DeliveryWriter(inboxMessages); const deliveryReader = new DeliveryReader(inboxMessages);
+deliveryWriter.deliver("alice@example.com", "code-1");
+if (deliveryReader.read("alice@example.com") !== "code-1") throw new Error("test delivery inbox failed");
+const delivery = { deliver: (destination: string, body: string) => deliveryWriter.deliver(destination, body) };
+const otp = new EmailOTPService("test-secret", delivery);
 otp.issue("project-a", "alice@example.com", "signin", 1000, 300);
-const emailCode = inbox.read("alice@example.com");
+const emailCode = deliveryReader.read("alice@example.com");
 if (!emailCode || !otp.verify("project-a", "alice@example.com", "signin", emailCode, 1001)) throw new Error("email OTP failed");
-const sms = new SMSOTPService("test-secret", inbox);
+const sms = new SMSOTPService("test-secret", delivery);
 sms.issue("project-a", "+989121234567", "signin", 1000, 300);
-const smsCode = inbox.read("+989121234567");
+const smsCode = deliveryReader.read("+989121234567");
 if (!smsCode || !sms.verify("project-a", "+989121234567", "signin", smsCode, 1001)) throw new Error("SMS OTP failed");
 if (normalizePhoneNumber("0098 912-123-4567") !== "+989121234567") throw new Error("phone normalization failed");
 const otpLimiter = new OTPLimiter(2, 1000);
 if (!otpLimiter.allow("project-a", "alice@example.com", 100) || !otpLimiter.allow("project-a", "alice@example.com", 101) || otpLimiter.allow("project-a", "alice@example.com", 102)) throw new Error("OTP send limit failed");
-const recovery = new EmailRecoveryService("recovery-secret", inbox);
+const recovery = new EmailRecoveryService("recovery-secret", delivery);
 try { recovery.issue("bad/project", "alice@example.com", 1000, 60); throw new Error("invalid recovery project accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid project id") throw error; }
 recovery.issue("project-a", "alice@example.com", 1000, 60);
-const recoveryCode = inbox.read("alice@example.com");
+const recoveryCode = deliveryReader.read("alice@example.com");
 if (!recovery.consume("project-a", "alice@example.com", recoveryCode ?? "", 1001)) throw new Error("email recovery failed");
 const resetService = new AuthService();
 await resetService.signup("project-a", "erin", "old password");

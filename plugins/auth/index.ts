@@ -23,17 +23,11 @@ export function verifyPKCE(verifier: string, challenge: string, method: string):
 }
 export { OIDCStateIssuer } from "./oidc-state-issuer.js";
 export { OIDCStateConsumer } from "./oidc-state-consumer.js";
-export class TestDeliveryInbox {
-  private readonly messages = new Map<string, string[]>();
-  deliver(destination: string, body: string): void {
-    if (!destination.trim() || !body.trim()) throw new Error("invalid test delivery");
-    this.messages.set(destination, [...(this.messages.get(destination) ?? []), body]);
-  }
-  read(destination: string): string | undefined { return this.messages.get(destination)?.at(-1); }
-}
+export { DeliveryWriter } from "./delivery-writer.js";
+export { DeliveryReader } from "./delivery-reader.js";
 export class EmailOTPService {
   private readonly challenges = new Map<string, { digest: string; expiresAt: number; used: boolean }>();
-  constructor(private readonly secret: string, private readonly inbox: TestDeliveryInbox) {}
+  constructor(private readonly secret: string, private readonly inbox: { deliver(destination: string, body: string): void }) {}
   issue(projectId: string, destination: string, purpose: string, now: number, ttlSeconds: number): void {
     validateProjectId(projectId);
     if (!destination.includes("@") || !purpose || ttlSeconds <= 0) throw new Error("invalid email OTP");
@@ -51,7 +45,7 @@ export class EmailOTPService {
 }
 export class SMSOTPService {
   private readonly challenges = new Map<string, { digest: string; expiresAt: number; used: boolean }>();
-  constructor(private readonly secret: string, private readonly inbox: TestDeliveryInbox) {}
+  constructor(private readonly secret: string, private readonly inbox: { deliver(destination: string, body: string): void }) {}
   issue(projectId: string, destination: string, purpose: string, now: number, ttlSeconds: number): void {
     validateProjectId(projectId);
     if (!/^\+[1-9][0-9]{7,14}$/.test(destination) || !purpose || ttlSeconds <= 0) throw new Error("invalid SMS OTP");
@@ -88,7 +82,7 @@ export class OTPLimiter {
 }
 export class EmailRecoveryService {
   private readonly tokens = new Map<string, { digest: string; expiresAt: number; used: boolean }>();
-  constructor(private readonly secret: string, private readonly inbox: TestDeliveryInbox) {}
+  constructor(private readonly secret: string, private readonly inbox: { deliver(destination: string, body: string): void }) {}
   issue(projectId: string, destination: string, now: number, ttlSeconds: number): void {
     validateProjectId(projectId);
     if (!destination.includes("@") || ttlSeconds <= 0) throw new Error("invalid recovery request");

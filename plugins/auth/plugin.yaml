@@ -10,6 +10,8 @@ source_files:
   - sign-up-request.ts
   - oidc-state-issuer.ts
   - oidc-state-consumer.ts
+  - delivery-writer.ts
+  - delivery-reader.ts
   - guest-request.ts
 imports:
   - ../sdk-typescript/src/index.js
@@ -20,6 +22,8 @@ imports:
   - ./sign-up-request.js
   - ./oidc-state-issuer.js
   - ./oidc-state-consumer.js
+  - ./delivery-writer.js
+  - ./delivery-reader.js
 plugin_imports:
 dependencies: []
 capabilities:
