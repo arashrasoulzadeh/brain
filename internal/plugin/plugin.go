@@ -666,6 +666,43 @@ func (r *Registry) Remove(projectID, id, version string) error {
 	return nil
 }
 
+func (r *Registry) Unregister(id, version string) error {
+	key := id + "@" + version
+	if _, ok := r.registered[key]; !ok {
+		return ErrNotRegistered
+	}
+	for _, installation := range r.installations {
+		if installation.PluginID == id && installation.Version == version {
+			return ErrVersionReferenced
+		}
+	}
+	for activeKey, activeVersion := range r.active {
+		if strings.HasSuffix(activeKey, ":"+id) && activeVersion == version {
+			return ErrVersionReferenced
+		}
+	}
+	for _, pinned := range r.pins {
+		if pinned == "" {
+			continue
+		}
+		if strings.HasSuffix(pinned, ":"+key) {
+			return ErrVersionReferenced
+		}
+	}
+	for _, registered := range r.registered {
+		for _, dependency := range registered.Manifest.Dependencies {
+			if dependency == key {
+				return ErrVersionReferenced
+			}
+		}
+	}
+	delete(r.registered, key)
+	delete(r.readiness, key)
+	delete(r.artifacts, key)
+	r.audit = append(r.audit, AuditEvent{Action: "unregister", PluginID: id, Version: version})
+	return nil
+}
+
 func (r *Registry) UninstallProject(projectID string) error {
 	for _, pinnedVersion := range r.pins {
 		if strings.HasPrefix(pinnedVersion, projectID+":") {

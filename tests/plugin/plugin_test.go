@@ -773,3 +773,24 @@ func TestProjectUninstallPreservesDurablePluginData(t *testing.T) {
 		t.Fatal("project uninstall was not audited")
 	}
 }
+
+func TestUnregisterRejectsReferencedServerVersion(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	base := plugin.Manifest{ID: "server-base", Version: "1.0.0", HostAPI: 1}
+	dependent := plugin.Manifest{ID: "server-dependent", Version: "1.0.0", HostAPI: 1, Dependencies: []string{"server-base@1.0.0"}}
+	if err := r.Register(base); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Register(dependent); err != nil {
+		t.Fatal(err)
+	}
+	if !errors.Is(r.Unregister(base.ID, base.Version), plugin.ErrVersionReferenced) {
+		t.Fatal("referenced server version was unregistered")
+	}
+	if err := r.Unregister(dependent.ID, dependent.Version); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Unregister(base.ID, base.Version); err != nil {
+		t.Fatal(err)
+	}
+}
