@@ -49,7 +49,8 @@ export { expireTicTacToeTurn } from "./expire-tic-tac-toe-turn.js";
 export { ticTacToeWinner } from "./tic-tac-toe-winner.js";
 export { ticTacToeDraw } from "./tic-tac-toe-draw.js";
 export { validateTicTacToeRuleResult } from "./validate-tic-tac-toe-rule-result.js";
-export type TicTacToeState = { projectId: string; roomId: string; players: readonly [string, string]; board: readonly ("X" | "O" | null)[]; turn: string; status: "active"; turnDeadlineAt?: number };
+export type TicTacToeState = { projectId: string; roomId: string; players: readonly [string, string]; board: readonly ("X" | "O" | null)[]; turn: string; status: "active" | "paused"; turnDeadlineAt?: number };
+export { pauseTicTacToeTurn } from "./pause-tic-tac-toe-turn.js";
 export type CommittedTicTacToeMove = { revision: number; playerId: string; cell: number };
 export function reconstructTicTacToeHistory(initialState: TicTacToeState, committedMoves: readonly CommittedTicTacToeMove[]): TicTacToeState {
   return committedMoves.reduce((state, outcome, expectedRevision) => {

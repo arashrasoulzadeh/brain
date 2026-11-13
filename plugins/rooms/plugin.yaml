@@ -25,6 +25,7 @@ source_files:
   - room-joiner.ts
   - room-leaver.ts
   - room-event-reader.ts
+  - pause-tic-tac-toe-turn.ts
   - tic-tac-toe-runtime.ts
   - tic-tac-toe-revision-reader.ts
   - tic-tac-toe-mover.ts
@@ -50,6 +51,7 @@ imports:
   - ./room-joiner.js
   - ./room-leaver.js
   - ./room-event-reader.js
+  - ./pause-tic-tac-toe-turn.js
   - ./tic-tac-toe-runtime.js
   - ./tic-tac-toe-revision-reader.js
   - ./tic-tac-toe-mover.js
