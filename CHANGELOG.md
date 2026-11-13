@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `831150a` — 2026-11-13 13:04:27 +0330 — fix tables module whitespace
+- `2e877ac` — 2026-11-13 09:34:12 +0000 — docs: update changelog [skip ci]
 - `0e85660` — 2026-11-13 13:03:59 +0330 — split tables request boundary
 - `0259539` — 2026-11-13 09:30:50 +0000 — docs: update changelog [skip ci]
 - `3134afb` — 2026-11-13 13:00:31 +0330 — standardize plugin manifest block lists
