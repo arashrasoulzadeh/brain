@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `229238b` — 2026-11-13 04:10:17 +0330 — phase 04 record typed invocation request
+- `2883d8f` — 2026-11-13 00:40:18 +0000 — docs: update changelog [skip ci]
 - `6979b0a` — 2026-11-13 04:10:05 +0330 — phase 04 define typed wasm invocation request
 - `3974ee3` — 2026-11-13 00:39:41 +0000 — docs: update changelog [skip ci]
 - `06843e4` — 2026-11-13 04:09:34 +0330 — phase 04 record compiler resource limits
