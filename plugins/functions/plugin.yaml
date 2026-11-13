@@ -10,6 +10,9 @@ source_files:
   - shared-package-state.ts
   - shared-package-writer.ts
   - shared-package-reader.ts
+  - function-draft-state.ts
+  - function-draft-writer.ts
+  - function-draft-reader.ts
 imports:
   - ../sdk-typescript/src/index.js
   - node:fs
@@ -24,6 +27,9 @@ imports:
   - ./shared-package-state.js
   - ./shared-package-writer.js
   - ./shared-package-reader.js
+  - ./function-draft-state.js
+  - ./function-draft-writer.js
+  - ./function-draft-reader.js
 plugin_imports:
 title: Functions
 description: Project-scoped serverless function compilation and invocation controls.

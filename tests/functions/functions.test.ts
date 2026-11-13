@@ -1,4 +1,4 @@
-import { APPROVED_SDK_IMPORTS, APPROVED_WASI_IMPORTS, createApprovalStore, createSharedPackageStore, capDiagnostics, commitWithGrant, compilerEnvironment, createInvocationRequest, diagnoseSource, DisposableCompilerWorkspace, ENTRY_PACKAGE_FIXTURE, evaluateCondition, executeFixture, FunctionDraftStore, FunctionPublicationStore, functionRequest, invokeDirectHttps, InvocationCommitStore, InvocationEffects, JobLeaseStore, loadDeclaredInputs, parseInvocationResult, PROJECT_HELPER_FIXTURE, RecordChangeTriggerStore, redactRunStatus, rejectSandboxEscapeAttempt, requireSDKImports, retryInvocation, runCappedRetries, runIdempotentWorkflow, runWithTimeout, ScheduleStore, validateBuildOverrides, validateCompilerEnvironment, validateCompilerLimits, validateFunctionLimits, validateInvocationResult, validateLinearMemory, validateSandboxCapabilities, validateSDKImports, validateSourceProject, validateStaleInputVersions, validateStartupDuration, validateWasiImports, validateWorkflowGraph, validateWriteIntents, wasmBuildSettings } from "../../plugins/functions/index.js";
+import { APPROVED_SDK_IMPORTS, APPROVED_WASI_IMPORTS, createApprovalStore, createSharedPackageStore, createFunctionDraftStore, capDiagnostics, commitWithGrant, compilerEnvironment, createInvocationRequest, diagnoseSource, DisposableCompilerWorkspace, ENTRY_PACKAGE_FIXTURE, evaluateCondition, executeFixture, FunctionPublicationStore, functionRequest, invokeDirectHttps, InvocationCommitStore, InvocationEffects, JobLeaseStore, loadDeclaredInputs, parseInvocationResult, PROJECT_HELPER_FIXTURE, RecordChangeTriggerStore, redactRunStatus, rejectSandboxEscapeAttempt, requireSDKImports, retryInvocation, runCappedRetries, runIdempotentWorkflow, runWithTimeout, ScheduleStore, validateBuildOverrides, validateCompilerEnvironment, validateCompilerLimits, validateFunctionLimits, validateInvocationResult, validateLinearMemory, validateSandboxCapabilities, validateSDKImports, validateSourceProject, validateStaleInputVersions, validateStartupDuration, validateWasiImports, validateWorkflowGraph, validateWriteIntents, wasmBuildSettings } from "../../plugins/functions/index.js";
 validateSDKImports(APPROVED_SDK_IMPORTS);
 const request = functionRequest("dev", "functions", "0.1.0", "functions.invoke", { name: "hello" });
 if (request.params.projectId !== "dev" || request.params.operation !== "functions.invoke") throw new Error("functions request contract failed");
@@ -49,7 +49,7 @@ const effects = new InvocationEffects(); const failed = effects.begin(); failed.
 if (effects.list().length !== 0) throw new Error("failed invocation wrote effects");
 const succeeded = effects.begin(); succeeded.write({ id: "ok" }); succeeded.commit(true);
 if (effects.list().length !== 1) throw new Error("successful invocation effects missing");
-const drafts = new FunctionDraftStore(); drafts.save("dev", "hello", "package main", 1000);
+const drafts = createFunctionDraftStore(); drafts.save("dev", "hello", "package main", 1000);
 if (drafts.get("dev", "hello")?.source !== "package main" || drafts.get("prod", "hello")) throw new Error("function draft isolation failed");
 const packages = createSharedPackageStore(); packages.save("dev", "helper", "package helper");
 if (packages.load("dev", "helper") !== "package helper") throw new Error("shared package load failed");
@@ -58,7 +58,7 @@ if (diagnoseSource("package main\nimport \"os\"").length !== 1 || diagnoseSource
 if (!executeFixture(() => ({ success: true, output: "ok", diagnostics: [] })).success) throw new Error("fixture execution failed");
 const fixtureFailure = executeFixture(() => { throw new Error("fixture boom"); });
 if (fixtureFailure.success || fixtureFailure.error !== "fixture boom") throw new Error("fixture failure handling failed");
-const publicationDrafts = new FunctionDraftStore();
+const publicationDrafts = createFunctionDraftStore();
 const publicationDraft = publicationDrafts.save("dev", "hello", "package main", 1000);
 const publications = new FunctionPublicationStore();
 const publication = publications.publish(publicationDraft, "sha256:abc", "go1.23.0", 2000);

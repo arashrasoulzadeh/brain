@@ -10,6 +10,9 @@ import { ApprovalReader } from "./approval-reader.js";
 import { createSharedPackageState } from "./shared-package-state.js";
 import { SharedPackageWriter } from "./shared-package-writer.js";
 import { SharedPackageReader } from "./shared-package-reader.js";
+import { createFunctionDraftState } from "./function-draft-state.js";
+import { FunctionDraftWriter } from "./function-draft-writer.js";
+import { FunctionDraftReader } from "./function-draft-reader.js";
 
 export { functionRequest } from "./function-request.js";
 
@@ -300,11 +303,7 @@ export function evaluateCondition(condition: WorkflowCondition, context: Readonl
 }
 export function createApprovalStore() { const state = createApprovalState(); const requester = new ApprovalRequester(state); const granter = new ApprovalGranter(state); const reader = new ApprovalReader(state); return { request: requester.request.bind(requester), approve: granter.approve.bind(granter), isApproved: reader.isApproved.bind(reader) }; }
 export type FunctionDraft = { projectId: string; functionId: string; source: string; savedAt: number };
-export class FunctionDraftStore {
-  private readonly drafts = new Map<string, FunctionDraft>();
-  save(projectId: string, functionId: string, source: string, savedAt = Date.now()): FunctionDraft { validateProjectId(projectId); if (!functionId || !source || !Number.isFinite(savedAt)) throw new Error("invalid function draft"); const draft = { projectId, functionId, source, savedAt }; this.drafts.set(`${projectId}:${functionId}`, draft); return { ...draft }; }
-  get(projectId: string, functionId: string): FunctionDraft | undefined { const draft = this.drafts.get(`${projectId}:${functionId}`); return draft ? { ...draft } : undefined; }
-}
+export function createFunctionDraftStore() { const state = createFunctionDraftState(); const writer = new FunctionDraftWriter(state); const reader = new FunctionDraftReader(state); return { save: writer.save.bind(writer), get: reader.get.bind(reader) }; }
 export type FunctionPublication = FunctionDraft & { version: number; artifactDigest: string; toolchain: string; publishedAt: number };
 export class FunctionPublicationStore {
   private readonly publications = new Map<string, FunctionPublication>();
