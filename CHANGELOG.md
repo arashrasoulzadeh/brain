@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `0d37bba` — 2026-11-13 14:21:03 +0330 — split room directory operations
+- `f10bb6b` — 2026-11-13 10:49:27 +0000 — docs: update changelog [skip ci]
 - `ba63107` — 2026-11-13 14:19:03 +0330 — split arena state operations
 - `47269da` — 2026-11-13 10:45:34 +0000 — docs: update changelog [skip ci]
 - `d4baf82` — 2026-11-13 14:15:02 +0330 — split auth account operations
