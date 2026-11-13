@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `1730e10` — 2026-11-13 17:17:56 +0330 — feat: audit dashboard view actions
+  Files: plugins/dashboard/view-replacement-registry.ts,roadmap.md tests/dashboard/dashboard.test.ts
+- `39b996c` — 2026-11-13 13:47:18 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `12a7072` — 2026-11-13 17:16:49 +0330 — feat: add dashboard csrf validation
   Files: plugins/dashboard/index.ts,plugins/dashboard/plugin.yaml plugins/dashboard/validate-csrf-token.ts,roadmap.md tests/dashboard/dashboard.test.ts
 - `454a309` — 2026-11-13 13:46:21 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `bce1cf2` — 2026-11-13 16:46:03 +0330 — feat: allow participant reconnects during drain
   Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
 - `34d4a22` — 2026-11-13 13:15:35 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `565f901` — 2026-11-13 16:44:52 +0330 — feat: default plugin drains to five minutes
-  Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
-- `356bd20` — 2026-11-13 13:14:20 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
