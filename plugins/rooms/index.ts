@@ -181,6 +181,15 @@ export function validateTicTacToeRuleResult(value: unknown): { board: readonly (
   if (!Array.isArray(result.board) || result.board.length !== 9 || result.board.some((cell) => cell !== null && cell !== "X" && cell !== "O") || typeof result.turn !== "string" || !["active", "finished"].includes(String(result.status))) throw new Error("malformed rule result");
   return { board: [...result.board] as ("X" | "O" | null)[], turn: result.turn, status: result.status as "active" | "finished" };
 }
+export function serializeTicTacToeState(state: TicTacToeState): string { return JSON.stringify(state); }
+export function reconnectTicTacToe(serialized: string, projectId: string, playerId: string): TicTacToeState {
+  let parsed: unknown;
+  try { parsed = JSON.parse(serialized); } catch { throw new Error("invalid persisted game"); }
+  const state = parsed as Partial<TicTacToeState>;
+  if (state.projectId !== projectId || !Array.isArray(state.players) || !state.players.includes(playerId)) throw new Error("game authorization required");
+  validateTicTacToeRuleResult({ board: state.board, turn: state.turn, status: state.status });
+  return { projectId: state.projectId, roomId: state.roomId!, players: [...state.players] as [string, string], board: [...state.board!] as ("X" | "O" | null)[], turn: state.turn!, status: state.status! };
+}
 
 export function roomRequest(projectId: string, pluginId: string, version: string, operation: "rooms.create" | "rooms.join" | "rooms.reconnect" | "rooms.result", roomId: string, payload: unknown = {}) {
   return request(`rooms-${operation}-${projectId}-${roomId}`, { protocol: 1, projectId, pluginId, version, operation, payload: { roomId, ...(payload as Record<string, unknown>) } });
