@@ -156,6 +156,7 @@ export class ScheduleStore {
   private readonly schedules: FunctionSchedule[] = [];
   private readonly claims = new Map<string, { workerId: string; expiresAt: number }>();
   private readonly occurrences = new Set<string>();
+  private readonly enqueued = new Set<string>();
   add(projectId: string, functionId: string, expression: string, dueAt: number): FunctionSchedule {
     if (!projectId || !functionId || expression.trim().split(/\s+/).length !== 5 || !Number.isSafeInteger(dueAt) || dueAt < 0) throw new Error("invalid schedule");
     const schedule = { projectId, functionId, expression: expression.trim(), dueAt };
@@ -179,6 +180,15 @@ export class ScheduleStore {
     if (this.occurrences.has(key)) return false;
     this.occurrences.add(key);
     return true;
+  }
+  enqueueLatestMissed(projectId: string, functionId: string, now: number): FunctionSchedule | undefined {
+    if (!Number.isSafeInteger(now) || now < 0) throw new Error("invalid schedule time");
+    const schedule = this.schedules.filter((candidate) => candidate.projectId === projectId && candidate.functionId === functionId && candidate.dueAt <= now).sort((left, right) => right.dueAt - left.dueAt)[0];
+    if (!schedule) return undefined;
+    const key = `${projectId}:${functionId}:${schedule.dueAt}`;
+    if (this.enqueued.has(key)) return undefined;
+    this.enqueued.add(key);
+    return { ...schedule };
   }
 }
 export type FunctionDraft = { projectId: string; functionId: string; source: string; savedAt: number };

@@ -99,3 +99,7 @@ try { schedules.add("", "hello", "0 * * * *", 1000); throw new Error("invalid sc
 const claimed = schedules.claim("dev", "hello", "worker-a", 1000, 5000);
 if (!claimed || schedules.claim("dev", "hello", "worker-b", 1000, 5000)) throw new Error("schedule claimed concurrently");
 if (!schedules.recordOccurrence("dev", "hello", "2026-11-13T10:00:00.000Z") || schedules.recordOccurrence("dev", "hello", "2026-11-13T10:00:00.000Z")) throw new Error("duplicate UTC occurrence accepted");
+const missed = new ScheduleStore();
+missed.add("dev", "sync", "0 * * * *", 1000);
+missed.add("dev", "sync", "0 * * * *", 2000);
+if (missed.enqueueLatestMissed("dev", "sync", 3000)?.dueAt !== 2000 || missed.enqueueLatestMissed("dev", "sync", 3000) !== undefined) throw new Error("latest missed occurrence was not deduplicated");
