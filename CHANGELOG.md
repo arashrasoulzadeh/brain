@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `216353a` — 2026-11-13 16:37:17 +0330 — test: isolate matchmaking scope disable
+  Files: roadmap.md,tests/matchmaking/matchmaking.test.ts
+- `45c2e89` — 2026-11-13 13:06:51 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `c1ed766` — 2026-11-13 16:34:07 +0330 — feat: reject stale plugin disable previews
   Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
 - `8fd0204` — 2026-11-13 13:03:45 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `c53fac7` — 2026-11-13 14:53:26 +0330 — split invocation commit operations
   Files: plugins/functions/index.ts,plugins/functions/invocation-commit-reader.ts plugins/functions/invocation-commit-state.ts,plugins/functions/invocation-commit-writer.ts plugins/functions/invocation-existence-reader.ts,plugins/functions/invocation-result-reader.ts plugins/functions/plugin.yaml,tests/functions/functions.test.ts
 - `e4ab489` — 2026-11-13 11:22:29 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `0864716` — 2026-11-13 14:52:07 +0330 — split function publication operations
-  Files: plugins/functions/function-publication-reader.ts,plugins/functions/function-publication-rollback.ts plugins/functions/function-publication-state.ts,plugins/functions/function-publication-writer.ts plugins/functions/index.ts,plugins/functions/plugin.yaml tests/functions/functions.test.ts
-- `dc905b6` — 2026-11-13 11:20:16 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
