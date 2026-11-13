@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `7a1db4a` — 2026-11-13 17:13:25 +0330 — feat: activate scoped admin view replacements
+  Files: plugins/dashboard/index.ts,plugins/dashboard/plugin.yaml plugins/dashboard/view-replacement-registry.ts,roadmap.md tests/dashboard/dashboard.test.ts
+- `1665987` — 2026-11-13 13:42:56 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `f8d1805` — 2026-11-13 17:12:35 +0330 — feat: add declarative dashboard view contributions
   Files: plugins/dashboard/index.ts,plugins/dashboard/plugin-health-contribution.ts plugins/dashboard/plugin.yaml,plugins/dashboard/project-overview-contribution.ts roadmap.md,tests/dashboard/dashboard.test.ts
 - `7e0c0b3` — 2026-11-13 13:42:07 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `216353a` — 2026-11-13 16:37:17 +0330 — test: isolate matchmaking scope disable
   Files: roadmap.md,tests/matchmaking/matchmaking.test.ts
 - `45c2e89` — 2026-11-13 13:06:51 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `c1ed766` — 2026-11-13 16:34:07 +0330 — feat: reject stale plugin disable previews
-  Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
-- `8fd0204` — 2026-11-13 13:03:45 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
