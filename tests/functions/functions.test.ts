@@ -1,4 +1,4 @@
-import { APPROVED_SDK_IMPORTS, APPROVED_WASI_IMPORTS, capDiagnostics, compilerEnvironment, createInvocationRequest, DisposableCompilerWorkspace, ENTRY_PACKAGE_FIXTURE, functionRequest, parseInvocationResult, PROJECT_HELPER_FIXTURE, rejectSandboxEscapeAttempt, requireSDKImports, runWithTimeout, validateBuildOverrides, validateCompilerEnvironment, validateCompilerLimits, validateFunctionLimits, validateInvocationResult, validateLinearMemory, validateSandboxCapabilities, validateSDKImports, validateSourceProject, validateStartupDuration, validateWasiImports, wasmBuildSettings } from "../../plugins/functions/index.js";
+import { APPROVED_SDK_IMPORTS, APPROVED_WASI_IMPORTS, capDiagnostics, compilerEnvironment, createInvocationRequest, DisposableCompilerWorkspace, ENTRY_PACKAGE_FIXTURE, functionRequest, InvocationEffects, parseInvocationResult, PROJECT_HELPER_FIXTURE, rejectSandboxEscapeAttempt, requireSDKImports, runWithTimeout, validateBuildOverrides, validateCompilerEnvironment, validateCompilerLimits, validateFunctionLimits, validateInvocationResult, validateLinearMemory, validateSandboxCapabilities, validateSDKImports, validateSourceProject, validateStartupDuration, validateWasiImports, wasmBuildSettings } from "../../plugins/functions/index.js";
 validateSDKImports(APPROVED_SDK_IMPORTS);
 const request = functionRequest("dev", "functions", "0.1.0", "functions.invoke", { name: "hello" });
 if (request.params.projectId !== "dev" || request.params.operation !== "functions.invoke") throw new Error("functions request contract failed");
@@ -44,3 +44,7 @@ validateStartupDuration(10, 20);
 try { validateStartupDuration(21, 20); throw new Error("startup timeout ignored"); } catch (error) { if (!(error instanceof Error) || error.message !== "startup timeout exceeded") throw error; }
 rejectSandboxEscapeAttempt("brain/input");
 try { rejectSandboxEscapeAttempt("../secret"); throw new Error("sandbox escape accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "sandbox escape attempt rejected") throw error; }
+const effects = new InvocationEffects(); const failed = effects.begin(); failed.write({ id: "failed" }); failed.commit(false);
+if (effects.list().length !== 0) throw new Error("failed invocation wrote effects");
+const succeeded = effects.begin(); succeeded.write({ id: "ok" }); succeeded.commit(true);
+if (effects.list().length !== 1) throw new Error("successful invocation effects missing");
