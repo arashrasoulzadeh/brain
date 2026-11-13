@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `e17db3a` — 2026-11-13 16:47:19 +0330 — feat: block room admissions during drain
+  Files: plugins/rooms/index.ts,plugins/rooms/room-creator.ts plugins/rooms/room-runtime.ts,roadmap.md tests/rooms/rooms.test.ts
+- `2551ac5` — 2026-11-13 13:16:28 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `bce1cf2` — 2026-11-13 16:46:03 +0330 — feat: allow participant reconnects during drain
   Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
 - `34d4a22` — 2026-11-13 13:15:35 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `5a50310` — 2026-11-13 15:05:28 +0330 — publish and roll back shared helper artifacts
   Files: plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/shared-helper-publisher.ts,roadmap.md tests/functions/functions.test.ts
 - `3c69b38` — 2026-11-13 11:33:48 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `877c9cd` — 2026-11-13 15:03:25 +0330 — add CI compose plugin isolation profile
-  Files: .github/workflows/test.yml,Dockerfile.test compose.test.yml,scripts/smoke-compose.sh
-- `89c2164` — 2026-11-13 11:31:10 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
