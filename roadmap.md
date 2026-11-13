@@ -478,7 +478,7 @@ Goal: compile dashboard-authored Go to WASM, execute it safely, run durable trig
 - [x] Add duplicate command protection.
 - [x] Reject command payload mismatches.
 - [x] Handle concurrent moves.
-- [ ] Reject malformed rule results.
+- [x] Reject malformed rule results.
 - [ ] Reconnect after restart.
 - [ ] Add hidden-state player views.
 - [ ] Add timed-out moves.
