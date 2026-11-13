@@ -1,4 +1,4 @@
-import { ConnectionTickets, CommandDeduplicator, RoomDirectory, TicTacToeCoordinator, authorizeRoomCommand, authorizedRoomSnapshot, authorizeTicTacToeCommand, authorizedTicTacToeState, canTransitionRoom, initializeTicTacToe, publishTicTacToeRules, projectRoomID, reconnectTicTacToe, roomRequest, serializeTicTacToeState, ticTacToeDraw, ticTacToeWinner, validateMembership, validateTicTacToeCommandPayload, validateTicTacToeMove, validateTicTacToeRuleResult } from "../../plugins/rooms/index.js";
+import { ConnectionTickets, CommandDeduplicator, RoomDirectory, TicTacToeCoordinator, authorizeRoomCommand, authorizedRoomSnapshot, authorizeTicTacToeCommand, authorizedTicTacToeState, canTransitionRoom, hiddenTicTacToeView, initializeTicTacToe, publishTicTacToeRules, projectRoomID, reconnectTicTacToe, roomRequest, serializeTicTacToeState, ticTacToeDraw, ticTacToeWinner, validateMembership, validateTicTacToeCommandPayload, validateTicTacToeMove, validateTicTacToeRuleResult } from "../../plugins/rooms/index.js";
 import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = roomRequest("dev", "rooms", "0.1.0", "rooms.create", "room-1", { maxPlayers: 2 });
@@ -67,3 +67,5 @@ try { validateTicTacToeRuleResult({ board: [], turn: "user-1", status: "active",
 const persistedGame = serializeTicTacToeState(moved);
 const restoredGame = reconnectTicTacToe(persistedGame, "dev", "user-2");
 if (restoredGame.roomId !== moved.roomId || restoredGame.board[0] !== "X") throw new Error("tic-tac-toe state did not reconnect after restart");
+const hiddenView = hiddenTicTacToeView(game, "user-1", { "user-1": { card: "secret-1" }, "user-2": { card: "secret-2" } });
+if (hiddenView.privateState?.card !== "secret-1" || hiddenTicTacToeView(game, "spectator", { "user-1": { card: "secret-1" } }).privateState !== undefined) throw new Error("hidden player state leaked");

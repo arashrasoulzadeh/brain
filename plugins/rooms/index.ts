@@ -190,6 +190,10 @@ export function reconnectTicTacToe(serialized: string, projectId: string, player
   validateTicTacToeRuleResult({ board: state.board, turn: state.turn, status: state.status });
   return { projectId: state.projectId, roomId: state.roomId!, players: [...state.players] as [string, string], board: [...state.board!] as ("X" | "O" | null)[], turn: state.turn!, status: state.status! };
 }
+export function hiddenTicTacToeView<T>(state: TicTacToeState, playerId: string, privateState: Readonly<Record<string, T>>): TicTacToeState & { privateState?: T } {
+  const view = { ...state, players: [...state.players] as [string, string], board: [...state.board] };
+  return { ...view, privateState: state.players.includes(playerId) ? privateState[playerId] : undefined };
+}
 
 export function roomRequest(projectId: string, pluginId: string, version: string, operation: "rooms.create" | "rooms.join" | "rooms.reconnect" | "rooms.result", roomId: string, payload: unknown = {}) {
   return request(`rooms-${operation}-${projectId}-${roomId}`, { protocol: 1, projectId, pluginId, version, operation, payload: { roomId, ...(payload as Record<string, unknown>) } });
