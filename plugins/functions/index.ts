@@ -13,6 +13,9 @@ import { SharedPackageReader } from "./shared-package-reader.js";
 import { createFunctionDraftState } from "./function-draft-state.js";
 import { FunctionDraftWriter } from "./function-draft-writer.js";
 import { FunctionDraftReader } from "./function-draft-reader.js";
+import { createJobLeaseState } from "./job-lease-state.js";
+import { JobLeaseAcquirer } from "./job-lease-acquirer.js";
+import { JobLeaseRenewer } from "./job-lease-renewer.js";
 
 export { functionRequest } from "./function-request.js";
 
@@ -235,23 +238,7 @@ export class RecordChangeTriggerStore {
     return committed ? this.match(projectId, collection, operation).filter((trigger) => !ancestry.includes(trigger.target.functionId)) : [];
   }
 }
-export class JobLeaseStore {
-  private readonly leases = new Map<string, { workerId: string; expiresAt: number }>();
-  acquire(jobId: string, workerId: string, now: number, leaseMs: number): boolean {
-    if (!jobId || !workerId || !Number.isSafeInteger(now) || !Number.isSafeInteger(leaseMs) || leaseMs < 1) throw new Error("invalid job lease");
-    const current = this.leases.get(jobId);
-    if (current && current.expiresAt > now) return false;
-    this.leases.set(jobId, { workerId, expiresAt: now + leaseMs });
-    return true;
-  }
-  renew(jobId: string, workerId: string, now: number, leaseMs: number): boolean {
-    if (!Number.isSafeInteger(now) || !Number.isSafeInteger(leaseMs) || leaseMs < 1) throw new Error("invalid job lease");
-    const current = this.leases.get(jobId);
-    if (!current || current.workerId !== workerId || current.expiresAt <= now) return false;
-    current.expiresAt = now + leaseMs;
-    return true;
-  }
-}
+export function createJobLeaseStore() { const state = createJobLeaseState(); const acquirer = new JobLeaseAcquirer(state); const renewer = new JobLeaseRenewer(state); return { acquire: acquirer.acquire.bind(acquirer), renew: renewer.renew.bind(renewer) }; }
 export function commitWithGrant<T>(hasGrant: () => boolean, commit: () => T, capability: string): T {
   if (!capability || !hasGrant()) throw new Error("grant revoked before commit");
   return commit();

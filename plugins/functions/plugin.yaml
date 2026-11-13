@@ -13,6 +13,9 @@ source_files:
   - function-draft-state.ts
   - function-draft-writer.ts
   - function-draft-reader.ts
+  - job-lease-state.ts
+  - job-lease-acquirer.ts
+  - job-lease-renewer.ts
 imports:
   - ../sdk-typescript/src/index.js
   - node:fs
@@ -30,6 +33,9 @@ imports:
   - ./function-draft-state.js
   - ./function-draft-writer.js
   - ./function-draft-reader.js
+  - ./job-lease-state.js
+  - ./job-lease-acquirer.js
+  - ./job-lease-renewer.js
 plugin_imports:
 title: Functions
 description: Project-scoped serverless function compilation and invocation controls.
