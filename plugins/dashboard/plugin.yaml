@@ -15,6 +15,7 @@ source_files:
   - record-edit-page.ts
   - table-management-page.ts
   - file-management-page.ts
+  - host-owned-admin-view.ts
   - form-audit-recorder.ts
   - form-audit-reader.ts
   - browser-quickstart.ts
@@ -26,6 +27,7 @@ imports:
   - ./auth-settings-page.js
   - ./browser-quickstart.js
   - ./file-management-page.js
+  - ./host-owned-admin-view.js
   - ./project-request.js
   - ./record-browser-page.js
   - ./record-edit-page.js

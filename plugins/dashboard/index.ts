@@ -10,3 +10,4 @@ export { recordEditPage } from "./record-edit-page.js";
 export { signupSettingsPage } from "./signup-settings-page.js";
 export { tableManagementPage } from "./table-management-page.js";
 export type { AuthSettings, FormAudit, SignupSettings } from "./types.js";
+export { hostOwnedAdminView } from "./host-owned-admin-view.js";
