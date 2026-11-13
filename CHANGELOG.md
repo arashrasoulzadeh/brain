@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `d0a9f5d` — 2026-11-13 04:02:34 +0330 — phase 04 compile function fixture to wasm
+- `c57839c` — 2026-11-13 00:31:57 +0000 — docs: update changelog [skip ci]
 - `4185b13` — 2026-11-13 04:01:34 +0330 — phase 04 record project helper fixture
 - `bec7f84` — 2026-11-13 00:31:36 +0000 — docs: update changelog [skip ci]
 - `89336e1` — 2026-11-13 04:01:22 +0330 — phase 04 add project helper fixture
