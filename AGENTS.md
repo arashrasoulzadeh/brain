@@ -11,7 +11,8 @@ This repository is building a Go multi-tenant mobile backend. The complete produ
 - Go is reserved for the host infrastructure; no plugin implementation may be written in Go.
 - Do not add auth, files, tables, subscriptions, rooms, matchmaking, analytics, workflows, dashboard features, or client-facing product behavior directly to the core host.
 - Every plugin must have a manifest, implementation, focused tests, permissions, configuration schema, developer notes, and administrator notes.
-- Each plugin must contain only `plugins/<plugin-id>/index.ts` and `plugins/<plugin-id>/plugin.yaml` as its source contract; do not add plugin-local `src/`, `package.json`, or README files.
+- Each plugin may contain multiple TypeScript files, but every file must be listed in `plugin.yaml` `source_files`; do not add plugin-local `package.json` or README files. `index.ts` is only the public export/bootstrap boundary.
+- Each handler/function file must expose one product function and one responsibility. Classes with multiple unrelated responsibilities are prohibited; split them into focused modules. Shared logic must be imported from the SDK or an explicitly declared plugin-local shared file.
 - Plugin implementations must stay clean and readable: audit all plugins for repeated request builders, validation helpers, handlers, and contracts; move genuinely shared behavior into `plugins/sdk-typescript/src/` and keep plugin `index.ts` focused on product behavior.
 - TypeScript lint is mandatory: run `npm run lint:ts` with typecheck and tests; lint failures block a checkbox or phase gate.
 - Apply SOLID and DRY across plugins: one responsibility per service/helper, explicit boundary interfaces, and no duplicated generic validation, request, or handler logic.

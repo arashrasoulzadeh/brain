@@ -54,5 +54,8 @@ func TestRepositoryPluginManifestsDeclareSourceAndImportGates(t *testing.T) {
 		if len(manifest.SourceFiles) == 0 || len(manifest.Imports) == 0 {
 			t.Fatalf("manifest %s does not declare source and import gates", manifestPath)
 		}
+		if err := plugin.ValidatePluginSources(filepath.Dir(manifestPath), manifest); err != nil {
+			t.Fatalf("ValidatePluginSources(%s) = %v", manifestPath, err)
+		}
 	}
 }

@@ -38,7 +38,9 @@ Do not run Docker during normal development. Use in-process tests and isolated l
 
 ## Plugin-first feature development
 
-Product features belong under `plugins/<plugin-id>/` as TypeScript serverless functions. Each plugin contains only `index.ts` and `plugin.yaml`; the YAML is authoritative for metadata, routes, functions, permissions, and configuration. The host supplies runtime dependencies and generates documentation. Go is reserved for the core host, and tests live under top-level `tests/`.
+Product features belong under `plugins/<plugin-id>/` as TypeScript serverless functions. Each handler has one focused product function; `index.ts` is only the public export/bootstrap boundary. Every source file and import is declared in YAML, which is authoritative for metadata, routes, functions, permissions, and configuration. The host supplies runtime dependencies and generates documentation. Go is reserved for the core host, and tests live under top-level `tests/`.
+
+This split is intentional: a handler can be replaced, scaled, tested, and audited independently. Analytics is the first migrated plugin; follow its `types.ts`, one-handler-file, and export-only `index.ts` pattern for the remaining plugins.
 
 Phase 01 verification: the dashboard is bootstrapped through the CLI; YAML routes are host-discovered and unauthorized operations are rejected; readiness is reported separately from enablement; auth supports project-scoped guest sessions; analytics events are validated against allowed fields and captured by an in-process sink. Run `go test ./...`, `npm run typecheck`, and `npm run test:ts` locally.
 

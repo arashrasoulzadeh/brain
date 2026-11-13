@@ -83,7 +83,8 @@ func ValidateManifestContract(manifest Manifest) error {
 	}
 	seenImports := map[string]bool{}
 	for _, importPath := range manifest.Imports {
-		if importPath == "" || strings.HasPrefix(importPath, "/") || path.Clean(importPath) != importPath || strings.HasPrefix(path.Clean(importPath), "../../") || path.Clean(importPath) == ".." {
+		cleanImportPath := path.Clean(importPath)
+		if importPath == "" || strings.HasPrefix(importPath, "/") || strings.HasPrefix(cleanImportPath, "../../") || cleanImportPath == ".." {
 			return ErrInvalidManifest
 		}
 		if seenImports[importPath] {
@@ -108,7 +109,8 @@ func (m Manifest) EntryPoint() string {
 	return m.Entry
 }
 
-var sourceImportPattern = regexp.MustCompile(`(?:from\s+|import\s*)["']([^"']+)["']`)
+var sourceImportPattern = regexp.MustCompile(`(?m)^\s*import[^\n"']*(?:from\s*)?["']([^"']+)["']`)
+var sourceExportPattern = regexp.MustCompile(`(?m)^\s*export[^\n"']*from\s*["']([^"']+)["']`)
 
 func ValidatePluginSources(directory string, manifest Manifest) error {
 	if err := ValidateManifestContract(manifest); err != nil {
@@ -123,9 +125,10 @@ func ValidatePluginSources(directory string, manifest Manifest) error {
 		if err != nil {
 			return ErrInvalidManifest
 		}
-		for _, match := range sourceImportPattern.FindAllStringSubmatch(string(data), -1) {
+		matches := append(sourceImportPattern.FindAllStringSubmatch(string(data), -1), sourceExportPattern.FindAllStringSubmatch(string(data), -1)...)
+		for _, match := range matches {
 			if !allowedImports[match[1]] {
-				return ErrInvalidManifest
+				return fmt.Errorf("%w: %s imports %s", ErrInvalidManifest, sourceFile, match[1])
 			}
 		}
 	}
