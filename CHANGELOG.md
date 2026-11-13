@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `970705f` — 2026-11-13 03:52:08 +0330 — phase 03 add API and SQL isolation gate
+- `d9e991c` — 2026-11-13 00:21:34 +0000 — docs: update changelog [skip ci]
 - `bb028fc` — 2026-11-13 03:51:22 +0330 — phase 03 add browser quickstart
 - `1ad2b5b` — 2026-11-13 00:21:07 +0000 — docs: update changelog [skip ci]
 - `5a9d18b` — 2026-11-13 03:50:56 +0330 — phase 03 audit dashboard form actions
