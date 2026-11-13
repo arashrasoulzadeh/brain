@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `6546d6c` — 2026-11-13 03:39:47 +0330 — phase 03 bound slow subscription consumers
+- `3bd09fa` — 2026-11-13 00:09:36 +0000 — docs: update changelog [skip ci]
 - `4971f7f` — 2026-11-13 03:39:22 +0330 — phase 03 buffer writes during subscription fetch
 - `df803d1` — 2026-11-13 00:09:10 +0000 — docs: update changelog [skip ci]
 - `2666974` — 2026-11-13 03:38:58 +0330 — phase 03 invalidate owner subscription grants
