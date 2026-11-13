@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `0714be7` — 2026-11-13 17:18:44 +0330 — feat: add custom typescript admin view
+  Files: plugins/dashboard/custom-admin-view.ts,plugins/dashboard/index.ts plugins/dashboard/plugin.yaml,roadmap.md tests/dashboard/dashboard.test.ts
+- `5902a49` — 2026-11-13 13:48:28 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `1730e10` — 2026-11-13 17:17:56 +0330 — feat: audit dashboard view actions
   Files: plugins/dashboard/view-replacement-registry.ts,roadmap.md tests/dashboard/dashboard.test.ts
 - `39b996c` — 2026-11-13 13:47:18 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `e17db3a` — 2026-11-13 16:47:19 +0330 — feat: block room admissions during drain
   Files: plugins/rooms/index.ts,plugins/rooms/room-creator.ts plugins/rooms/room-runtime.ts,roadmap.md tests/rooms/rooms.test.ts
 - `2551ac5` — 2026-11-13 13:16:28 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `bce1cf2` — 2026-11-13 16:46:03 +0330 — feat: allow participant reconnects during drain
-  Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
-- `34d4a22` — 2026-11-13 13:15:35 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
