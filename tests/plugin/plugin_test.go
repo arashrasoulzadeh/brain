@@ -552,3 +552,25 @@ func TestTransitiveDependentsAreCalculated(t *testing.T) {
 		t.Fatalf("dependents = %#v, want %#v", got, want)
 	}
 }
+
+func TestDisablePreviewCapturesLifecycleRevisionAndDependents(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	base := plugin.Manifest{ID: "preview-base", Version: "1.0.0", HostAPI: 1}
+	dependent := plugin.Manifest{ID: "preview-dependent", Version: "1.0.0", HostAPI: 1, Dependencies: []string{"preview-base@1.0.0"}}
+	if err := r.Register(base); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Register(dependent); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Install("dev", base.ID, base.Version); err != nil {
+		t.Fatal(err)
+	}
+	preview, err := r.PreviewDisable("dev", base.ID, base.Version)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if preview.Revision != 0 || !reflect.DeepEqual(preview.Dependents, []string{"preview-dependent@1.0.0"}) {
+		t.Fatalf("preview = %#v", preview)
+	}
+}

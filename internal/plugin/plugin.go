@@ -30,6 +30,7 @@ var (
 	ErrNotReady           = errors.New("plugin worker not ready")
 	ErrVersionReferenced  = errors.New("plugin version still referenced")
 	ErrCapabilityApproval = errors.New("new plugin capability requires approval")
+	ErrStalePreview       = errors.New("plugin lifecycle preview is stale")
 )
 
 type Manifest struct {
@@ -179,19 +180,28 @@ type InstallationStatus struct {
 }
 
 type Registry struct {
-	HostAPI       int
-	registered    map[string]Registered
-	installations map[string]Installation
-	readiness     map[string]bool
-	audit         []AuditEvent
-	active        map[string]string
-	pins          map[string]string
-	artifacts     map[string]string
-	approvals     map[string]bool
+	HostAPI           int
+	registered        map[string]Registered
+	installations     map[string]Installation
+	readiness         map[string]bool
+	audit             []AuditEvent
+	active            map[string]string
+	pins              map[string]string
+	artifacts         map[string]string
+	approvals         map[string]bool
+	lifecycleRevision uint64
 }
 
 type AuditEvent struct {
 	Action, ProjectID, PluginID, Version, Detail string
+}
+
+type DisablePreview struct {
+	ProjectID  string
+	PluginID   string
+	Version    string
+	Revision   uint64
+	Dependents []string
 }
 
 type CapabilityRequest struct {
@@ -301,6 +311,13 @@ func (r *Registry) TransitiveDependents(id, version string) []string {
 	}
 	sort.Strings(dependents)
 	return dependents
+}
+
+func (r *Registry) PreviewDisable(projectID, id, version string) (DisablePreview, error) {
+	if _, ok := r.installations[projectID+":"+id+"@"+version]; !ok {
+		return DisablePreview{}, ErrNotInstalled
+	}
+	return DisablePreview{ProjectID: projectID, PluginID: id, Version: version, Revision: r.lifecycleRevision, Dependents: r.TransitiveDependents(id, version)}, nil
 }
 
 func (r *Registry) SetReadiness(id, version string, ready bool) error {
