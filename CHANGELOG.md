@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `3e003da` — 2026-11-13 04:04:01 +0330 — phase 04 record wasm platform settings
+- `8cc7d91` — 2026-11-13 00:34:01 +0000 — docs: update changelog [skip ci]
 - `9e68e1a` — 2026-11-13 04:03:48 +0330 — phase 04 define wasm platform settings
 - `22105c8` — 2026-11-13 00:33:37 +0000 — docs: update changelog [skip ci]
 - `36dae0c` — 2026-11-13 04:03:18 +0330 — phase 04 record pinned Go toolchain
