@@ -130,6 +130,21 @@ export class InvocationEffects {
   }
   list(): unknown[] { return [...this.committed]; }
 }
+export class InvocationCommitStore {
+  private readonly records = new Map<string, unknown>();
+  private readonly committedEffects: unknown[] = [];
+  commit(idempotencyKey: string, effects: readonly unknown[], result: unknown, success = true): unknown {
+    if (!idempotencyKey) throw new Error("idempotency key required");
+    const existing = this.records.get(idempotencyKey);
+    if (existing !== undefined) return existing;
+    if (!success) throw new Error("invocation commit failed");
+    this.committedEffects.push(...effects);
+    this.records.set(idempotencyKey, result);
+    return result;
+  }
+  effects(): unknown[] { return [...this.committedEffects]; }
+  result(idempotencyKey: string): unknown { return this.records.get(idempotencyKey); }
+}
 export type FunctionDraft = { projectId: string; functionId: string; source: string; savedAt: number };
 export class FunctionDraftStore {
   private readonly drafts = new Map<string, FunctionDraft>();
