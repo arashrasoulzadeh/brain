@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `5a50310` — 2026-11-13 15:05:28 +0330 — publish and roll back shared helper artifacts
+  Files: plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/shared-helper-publisher.ts,roadmap.md tests/functions/functions.test.ts
+- `3c69b38` — 2026-11-13 11:33:48 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `877c9cd` — 2026-11-13 15:03:25 +0330 — add CI compose plugin isolation profile
   Files: .github/workflows/test.yml,Dockerfile.test compose.test.yml,scripts/smoke-compose.sh
 - `89c2164` — 2026-11-13 11:31:10 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `780ea98` — 2026-11-13 14:10:16 +0330 — split auth recovery classes
   Files: plugins/auth/index.ts,plugins/auth/plugin.yaml plugins/auth/recovery-token-consumer.ts,plugins/auth/recovery-token-issuer.ts tests/auth/auth.test.ts
 - `c827b41` — 2026-11-13 10:38:45 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `15a4169` — 2026-11-13 14:08:32 +0330 — split auth OTP classes
-  Files: plugins/auth/email-otp-issuer.ts,plugins/auth/email-otp-verifier.ts plugins/auth/index.ts,plugins/auth/otp-types.ts plugins/auth/plugin.yaml,plugins/auth/sms-otp-issuer.ts plugins/auth/sms-otp-verifier.ts,tests/auth/auth.test.ts
-- `5cb56d5` — 2026-11-13 10:36:47 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
