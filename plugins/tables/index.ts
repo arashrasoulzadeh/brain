@@ -14,23 +14,8 @@ export { validateFilter } from "./validate-filter.js";
 export { paginate } from "./paginate.js";
 export const validateIdentifier = validateSdkIdentifier;
 export { validateValue } from "./validate-value.js";
-export class VersionedRecord<T extends Record<string, unknown>> {
-  private value: T;
-  version = 0;
-  constructor(value: T) { this.value = { ...value }; }
-  update(expectedVersion: number, next: T): void { if (expectedVersion !== this.version) throw new Error("stale record version"); this.value = { ...next }; this.version += 1; }
-  read(): { value: T; version: number } { return { value: { ...this.value }, version: this.version }; }
-}
-export class IdempotentCreateStore<T> {
-  private readonly results = new Map<string, T>();
-  create(projectId: string, key: string, factory: () => T): T {
-    if (!projectId || !key) throw new Error("idempotency key required");
-    const id = `${projectId}:${key}`;
-    const existing = this.results.get(id);
-    if (existing) return existing;
-    const value = factory(); this.results.set(id, value); return value;
-  }
-}
+export { VersionedRecord } from "./versioned-record.js";
+export { IdempotentCreateStore } from "./idempotent-create-store.js";
 export type SchemaChange =
   | { kind: "add_column"; name: string; type: "string" | "number" | "boolean" | "date" }
   | { kind: "create_index"; name: string; columns: readonly string[] };

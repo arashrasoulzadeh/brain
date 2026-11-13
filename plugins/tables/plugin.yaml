@@ -17,6 +17,8 @@ source_files:
   - validate-filter.ts
   - paginate.ts
   - validate-value.ts
+  - versioned-record.ts
+  - idempotent-create-store.ts
 imports:
   - ../sdk-typescript/src/index.js
   - ./data-request.js
@@ -30,6 +32,8 @@ imports:
   - ./validate-filter.js
   - ./paginate.js
   - ./validate-value.js
+  - ./versioned-record.js
+  - ./idempotent-create-store.js
 plugin_imports:
 dependencies: []
 capabilities:
