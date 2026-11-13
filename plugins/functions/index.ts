@@ -151,6 +151,17 @@ export async function retryInvocation<T>(store: InvocationCommitStore, idempoten
   const result = await execute();
   return store.commit(idempotencyKey, effects, result) as T;
 }
+export type FunctionSchedule = { projectId: string; functionId: string; expression: string; dueAt: number };
+export class ScheduleStore {
+  private readonly schedules: FunctionSchedule[] = [];
+  add(projectId: string, functionId: string, expression: string, dueAt: number): FunctionSchedule {
+    if (!projectId || !functionId || expression.trim().split(/\s+/).length !== 5 || !Number.isSafeInteger(dueAt) || dueAt < 0) throw new Error("invalid schedule");
+    const schedule = { projectId, functionId, expression: expression.trim(), dueAt };
+    this.schedules.push(schedule);
+    return { ...schedule };
+  }
+  due(now: number): FunctionSchedule[] { return this.schedules.filter((schedule) => schedule.dueAt <= now).map((schedule) => ({ ...schedule })); }
+}
 export type FunctionDraft = { projectId: string; functionId: string; source: string; savedAt: number };
 export class FunctionDraftStore {
   private readonly drafts = new Map<string, FunctionDraft>();
