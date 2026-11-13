@@ -39,4 +39,5 @@ const game = initializeTicTacToe("dev", "room-1", "user-1", "user-2");
 if (game.board.length !== 9 || game.turn !== "user-1" || game.projectId !== "dev") throw new Error("tic-tac-toe initialization failed");
 const moved = validateTicTacToeMove(game, "user-1", 0);
 if (moved.board[0] !== "X" || moved.turn !== "user-2") throw new Error("legal tic-tac-toe move failed");
+try { validateTicTacToeMove(moved, "user-1", 1); throw new Error("out-of-turn move accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "out-of-turn move") throw error; }
 try { validateTicTacToeMove(moved, "user-2", 0); throw new Error("occupied tic-tac-toe cell accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "cell occupied") throw error; }
