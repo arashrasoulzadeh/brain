@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `8c1cf91` — 2026-11-13 13:14:29 +0330 — harden plugin project namespaces and SSRF
+- `721bc6e` — 2026-11-13 09:43:02 +0000 — docs: update changelog [skip ci]
 - `d65df16` — 2026-11-13 13:11:24 +0330 — harden plugin network and credential security
 - `1d73e8b` — 2026-11-13 09:40:10 +0000 — docs: update changelog [skip ci]
 - `170e223` — 2026-11-13 13:09:55 +0330 — bind production commits to host credentials
