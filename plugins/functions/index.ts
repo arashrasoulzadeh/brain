@@ -144,6 +144,12 @@ export class InvocationCommitStore {
   }
   effects(): unknown[] { return [...this.committedEffects]; }
   result(idempotencyKey: string): unknown { return this.records.get(idempotencyKey); }
+  has(idempotencyKey: string): boolean { return this.records.has(idempotencyKey); }
+}
+export async function retryInvocation<T>(store: InvocationCommitStore, idempotencyKey: string, execute: () => T | Promise<T>, effects: readonly unknown[] = []): Promise<T> {
+  if (store.has(idempotencyKey)) return store.result(idempotencyKey) as T;
+  const result = await execute();
+  return store.commit(idempotencyKey, effects, result) as T;
 }
 export type FunctionDraft = { projectId: string; functionId: string; source: string; savedAt: number };
 export class FunctionDraftStore {
