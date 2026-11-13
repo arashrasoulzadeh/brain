@@ -3,6 +3,8 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `f6b74d5` — 2026-11-13 03:41:51 +0330 — phase 03 add pending upload metadata
+- `01c4158` — 2026-11-13 00:11:38 +0000 — docs: update changelog [skip ci]
 - `54829ba` — 2026-11-13 03:41:24 +0330 — phase 03 namespace file objects by project
 - `dc7a053` — 2026-11-13 00:11:17 +0000 — docs: update changelog [skip ci]
 - `280dd2c` — 2026-11-13 03:40:56 +0330 — phase 03 configure private file bucket
