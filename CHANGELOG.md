@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `c423dd3` — 2026-11-13 16:56:42 +0330 — feat: wait for active work before uninstall
+  Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
+- `712fe8d` — 2026-11-13 13:24:25 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `42f12e5` — 2026-11-13 16:53:55 +0330 — feat: resume paused rooms on pinned versions
   Files: plugins/rooms/index.ts,plugins/rooms/plugin.yaml plugins/rooms/resume-tic-tac-toe-turn.ts,roadmap.md tests/rooms/rooms.test.ts
 - `42f4c16` — 2026-11-13 13:23:14 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `5a8493e` — 2026-11-13 16:19:19 +0330 — feat: recheck plugin grants during promotion
   Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
 - `ee51f53` — 2026-11-13 12:48:29 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `6ef4174` — 2026-11-13 16:18:07 +0330 — docs: close phase 04 isolation gate
-  Files: docs/admins.md,docs/developers.md roadmap.md
-- `404352c` — 2026-11-13 12:43:43 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
