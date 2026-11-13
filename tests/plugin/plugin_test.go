@@ -326,3 +326,29 @@ func TestPromotionRoutesNewWorkWithoutChangingPinnedVersion(t *testing.T) {
 		t.Fatal("active version was removed")
 	}
 }
+
+func TestPromotionRequiresCompletePluginConfiguration(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	m := plugin.Manifest{ID: "configured", Version: "1.0.0", HostAPI: 1, ConfigSchema: map[string]string{"region": "string"}}
+	if err := r.Register(m); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.SetReadiness(m.ID, m.Version, true); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Install("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Enable("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	if !errors.Is(r.Promote("dev", m.ID, m.Version), plugin.ErrInvalidConfig) {
+		t.Fatal("incomplete configuration was promoted")
+	}
+	if err := r.Configure("dev", m.ID, m.Version, map[string]any{"region": "eu"}); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Promote("dev", m.ID, m.Version); err != nil {
+		t.Fatalf("complete configuration rejected: %v", err)
+	}
+}

@@ -68,3 +68,5 @@ Turn-based rooms expose deterministic timeout handling through `expireTicTacToeT
 Committed Tic-tac-toe outcomes can be replayed with `reconstructTicTacToeHistory`; revisions must be contiguous from zero and every move is revalidated during replay.
 
 The host registry promotes only installed, enabled plugin versions and keeps active-work pins on their original version during promotion or rollback.
+
+Promotion also validates every configured field against the manifest schema and rejects missing or incorrectly typed values before changing the active version.

@@ -409,6 +409,13 @@ func (r *Registry) Promote(projectID, id, version string) error {
 	if !i.Enabled {
 		return ErrDisabled
 	}
+	manifest := r.registered[id+"@"+version].Manifest
+	for name, expectedType := range manifest.ConfigSchema {
+		value, configured := i.Config[name]
+		if !configured || !configTypeMatches(expectedType, value) {
+			return fmt.Errorf("%w: %s", ErrInvalidConfig, name)
+		}
+	}
 	r.active[projectID+":"+id] = version
 	r.audit = append(r.audit, AuditEvent{Action: "promote", ProjectID: projectID, PluginID: id, Version: version})
 	return nil
