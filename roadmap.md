@@ -402,7 +402,7 @@ Goal: compile dashboard-authored Go to WASM, execute it safely, run durable trig
 - [x] Pin the Go toolchain.
 - [x] Generate platform module settings.
 - [x] Vendor approved dependencies.
-- [ ] Reject missing imports.
+- [x] Reject missing imports.
 - [ ] Reject unsupported imports.
 - [ ] Reject cross-project source access.
 - [ ] Reject workspace and toolchain overrides.
