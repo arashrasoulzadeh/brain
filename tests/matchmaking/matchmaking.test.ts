@@ -39,3 +39,7 @@ versionQueue.enqueue("dev", "ranked", "old-user", 1000, "1.0.0");
 versionQueue.enqueue("dev", "ranked", "new-user", 1100, "2.0.0");
 const cancelled = versionQueue.cancelIncompatible("dev", "ranked", "2.0.0");
 if (cancelled.length !== 1 || cancelled[0].playerId !== "old-user" || versionQueue.peek("dev", "ranked")[0].playerId !== "new-user") throw new Error("incompatible unmatched tickets were not cancelled");
+const drainedQueue = createMatchmakingQueue();
+drainedQueue.enqueue("dev", "casual", "user-10");
+drainedQueue.enqueue("dev", "casual", "user-11");
+if (drainedQueue.cancelScope("dev", "casual").length !== 2 || drainedQueue.peek("dev", "casual").length !== 0) throw new Error("queued matches were not cancelled for the disabled scope");

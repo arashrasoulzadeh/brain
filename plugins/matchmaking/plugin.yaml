@@ -21,6 +21,7 @@ source_files:
   - ticket-requeuer.ts
   - assignment-creator.ts
   - ticket-canceller.ts
+  - scope-ticket-canceller.ts
 imports:
   - ../sdk-typescript/src/index.js
   - ./matchmaking-config-writer.js
@@ -36,6 +37,7 @@ imports:
   - ./ticket-requeuer.js
   - ./assignment-creator.js
   - ./ticket-canceller.js
+  - ./scope-ticket-canceller.js
   - ./validate-config.js
   - ./types.js
 plugin_imports:
