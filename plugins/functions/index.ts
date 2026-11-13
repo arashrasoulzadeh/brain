@@ -1,7 +1,9 @@
-import { pluginRequest, type RpcRequest } from "../sdk-typescript/src/index.js";
+import { type RpcRequest } from "../sdk-typescript/src/index.js";
 import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+
+export { functionRequest } from "./function-request.js";
 
 export const APPROVED_SDK_IMPORTS = ["brain/sdk", "brain/project", "brain/storage"] as const;
 export const ENTRY_PACKAGE_FIXTURE = "package main";
@@ -42,9 +44,6 @@ export function validateCompilerLimits(limits: CompilerLimits): void {
   if (![limits.cpuMs, limits.memoryBytes, limits.processes, limits.wallMs].every(Number.isSafeInteger) || limits.cpuMs < 1 || limits.memoryBytes < 1 || limits.processes < 1 || limits.wallMs < 1) throw new Error("invalid compiler limits");
 }
 
-export function functionRequest(projectId: string, pluginId: string, version: string, operation: "functions.invoke" | "functions.publish", payload: unknown = {}): RpcRequest {
-  return pluginRequest("functions", projectId, pluginId, version, operation, payload);
-}
 export type FunctionInvocationRequest = { projectId: string; functionId: string; version: string; inputs: Readonly<Record<string, unknown>>; idempotencyKey: string };
 export function createInvocationRequest(input: FunctionInvocationRequest): FunctionInvocationRequest {
   if (!input.projectId || !input.functionId || !input.version || !input.idempotencyKey || !input.inputs || typeof input.inputs !== "object") throw new Error("invalid function invocation request");
