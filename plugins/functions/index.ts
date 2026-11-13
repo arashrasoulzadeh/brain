@@ -45,3 +45,8 @@ export function validateCompilerLimits(limits: CompilerLimits): void {
 export function functionRequest(projectId: string, pluginId: string, version: string, operation: "functions.invoke" | "functions.publish", payload: unknown = {}): RpcRequest {
   return request(`functions-${operation}-${projectId}`, { protocol: 1, projectId, pluginId, version, operation, payload });
 }
+export type FunctionInvocationRequest = { projectId: string; functionId: string; version: string; inputs: Readonly<Record<string, unknown>>; idempotencyKey: string };
+export function createInvocationRequest(input: FunctionInvocationRequest): FunctionInvocationRequest {
+  if (!input.projectId || !input.functionId || !input.version || !input.idempotencyKey || !input.inputs || typeof input.inputs !== "object") throw new Error("invalid function invocation request");
+  return { ...input, inputs: { ...input.inputs } };
+}
