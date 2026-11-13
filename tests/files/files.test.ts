@@ -1,4 +1,4 @@
-import { configurePrivateBucket, fileRequest, PendingUploadStore, projectObjectKey } from "../../plugins/files/index.js";
+import { configurePrivateBucket, FileQuotaLedger, fileRequest, PendingUploadStore, projectObjectKey } from "../../plugins/files/index.js";
 import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = fileRequest("dev", "files", "0.1.0", "files.upload", "avatar", { contentType: "image/png" });
@@ -10,3 +10,6 @@ if (projectObjectKey("dev", "avatar.png") !== "projects/dev/objects/avatar.png" 
 try { projectObjectKey("dev/other", "avatar.png"); throw new Error("cross-project object key accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid object identity") throw error; }
 const uploads = new PendingUploadStore();
 if (uploads.create("dev", "avatar.png", "image/png", 12).status !== "pending" || uploads.get("prod", "avatar.png")) throw new Error("pending upload metadata isolation failed");
+const quota = new FileQuotaLedger(new Map([["dev", 20]]));
+quota.reserve("dev", 12);
+try { quota.reserve("dev", 9); throw new Error("quota exceeded upload accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "file quota exceeded") throw error; }
