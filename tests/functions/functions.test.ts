@@ -1,4 +1,4 @@
-import { APPROVED_SDK_IMPORTS, compilerEnvironment, createInvocationRequest, DisposableCompilerWorkspace, ENTRY_PACKAGE_FIXTURE, functionRequest, PROJECT_HELPER_FIXTURE, requireSDKImports, validateBuildOverrides, validateCompilerEnvironment, validateCompilerLimits, validateFunctionLimits, validateSDKImports, validateSourceProject, wasmBuildSettings } from "../../plugins/functions/index.js";
+import { APPROVED_SDK_IMPORTS, compilerEnvironment, createInvocationRequest, DisposableCompilerWorkspace, ENTRY_PACKAGE_FIXTURE, functionRequest, PROJECT_HELPER_FIXTURE, requireSDKImports, validateBuildOverrides, validateCompilerEnvironment, validateCompilerLimits, validateFunctionLimits, validateInvocationResult, validateSDKImports, validateSourceProject, wasmBuildSettings } from "../../plugins/functions/index.js";
 validateSDKImports(APPROVED_SDK_IMPORTS);
 const request = functionRequest("dev", "functions", "0.1.0", "functions.invoke", { name: "hello" });
 if (request.params.projectId !== "dev" || request.params.operation !== "functions.invoke") throw new Error("functions request contract failed");
@@ -25,3 +25,5 @@ validateCompilerLimits({ cpuMs: 1000, memoryBytes: 64 * 1024 * 1024, processes: 
 try { validateCompilerLimits({ cpuMs: 0, memoryBytes: 1, processes: 1, wallMs: 1 }); throw new Error("invalid compiler limits accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid compiler limits") throw error; }
 const invocation = createInvocationRequest({ projectId: "dev", functionId: "hello", version: "1.0.0", inputs: { name: "alice" }, idempotencyKey: "invoke-1" });
 if (invocation.projectId !== "dev" || invocation.inputs.name !== "alice") throw new Error("typed invocation request failed");
+if (!validateInvocationResult({ success: true, output: { ok: true }, diagnostics: [] }).success) throw new Error("typed invocation result failed");
+try { validateInvocationResult({ success: true, error: "bad", diagnostics: [] }); throw new Error("invalid invocation result accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid function invocation result") throw error; }
