@@ -370,7 +370,7 @@ Goal: provide project-scoped identity, PostgreSQL APIs, files, subscriptions, an
 - [x] Reject unauthorized reads and deletes.
 - [x] Reject cross-project object IDs.
 - [x] Add upload size limits.
-- [ ] Reconcile interrupted uploads.
+- [x] Reconcile interrupted uploads.
 - [ ] Reconcile orphaned objects.
 - [ ] Serve protected downloads as attachments.
 - [ ] Require explicit publication for public assets.

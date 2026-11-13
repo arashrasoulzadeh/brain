@@ -17,13 +17,13 @@ export function projectObjectKey(projectId: string, objectId: string): string {
   return `projects/${projectId}/objects/${objectId}`;
 }
 
-export type PendingUpload = { projectId: string; objectId: string; contentType: string; size: number; status: "pending" | "published"; etag?: string };
+export type PendingUpload = { projectId: string; objectId: string; contentType: string; size: number; status: "pending" | "published" | "aborted"; createdAt?: number; etag?: string };
 export class PendingUploadStore {
   private readonly uploads = new Map<string, PendingUpload>();
-  create(projectId: string, objectId: string, contentType: string, size: number): PendingUpload {
+  create(projectId: string, objectId: string, contentType: string, size: number, createdAt = Date.now()): PendingUpload {
     projectObjectKey(projectId, objectId);
-    if (!contentType || !Number.isSafeInteger(size) || size < 0) throw new Error("invalid upload metadata");
-    const upload = { projectId, objectId, contentType, size, status: "pending" as const };
+    if (!contentType || !Number.isSafeInteger(size) || size < 0 || !Number.isFinite(createdAt)) throw new Error("invalid upload metadata");
+    const upload = { projectId, objectId, contentType, size, status: "pending" as const, createdAt };
     this.uploads.set(`${projectId}:${objectId}`, upload);
     return { ...upload };
   }
@@ -34,6 +34,11 @@ export class PendingUploadStore {
     const published = { ...upload, status: "published" as const, etag };
     this.uploads.set(`${projectId}:${objectId}`, published);
     return { ...published };
+  }
+  reconcile(now: number, maxAgeMs: number): number {
+    let count = 0;
+    for (const [key, upload] of this.uploads) if (upload.status === "pending" && now - (upload.createdAt ?? now) > maxAgeMs) { this.uploads.set(key, { ...upload, status: "aborted" }); count += 1; }
+    return count;
   }
 }
 
