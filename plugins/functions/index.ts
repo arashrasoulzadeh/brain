@@ -7,6 +7,9 @@ import { createApprovalState } from "./approval-state.js";
 import { ApprovalRequester } from "./approval-requester.js";
 import { ApprovalGranter } from "./approval-granter.js";
 import { ApprovalReader } from "./approval-reader.js";
+import { createSharedPackageState } from "./shared-package-state.js";
+import { SharedPackageWriter } from "./shared-package-writer.js";
+import { SharedPackageReader } from "./shared-package-reader.js";
 
 export { functionRequest } from "./function-request.js";
 
@@ -332,10 +335,6 @@ export class FunctionPublicationStore {
     return publication;
   }
 }
-export class SharedPackageStore {
-  private readonly packages = new Map<string, string>();
-  save(projectId: string, packageId: string, source: string): void { validateProjectId(projectId); if (!packageId || !source) throw new Error("invalid shared package"); this.packages.set(`${projectId}:${packageId}`, source); }
-  load(projectId: string, packageId: string): string { const source = this.packages.get(`${projectId}:${packageId}`); if (!source) throw new Error("shared package not found"); return source; }
-}
+export function createSharedPackageStore() { const state = createSharedPackageState(); const writer = new SharedPackageWriter(state); const reader = new SharedPackageReader(state); return { save: writer.save.bind(writer), load: reader.load.bind(reader) }; }
 export type SourceDiagnostic = { line: number; message: string };
 export function diagnoseSource(source: string): SourceDiagnostic[] { const diagnostics: SourceDiagnostic[] = []; const lines = source.split("\n"); lines.forEach((line, index) => { if (/import\s+.*\"(os|net|syscall)\"/.test(line)) diagnostics.push({ line: index + 1, message: "unsupported import" }); }); if (!/package\s+main\b/.test(source)) diagnostics.push({ line: 1, message: "package main required" }); return diagnostics; }

@@ -7,6 +7,9 @@ source_files:
   - approval-requester.ts
   - approval-granter.ts
   - approval-reader.ts
+  - shared-package-state.ts
+  - shared-package-writer.ts
+  - shared-package-reader.ts
 imports:
   - ../sdk-typescript/src/index.js
   - node:fs
@@ -18,6 +21,9 @@ imports:
   - ./approval-requester.js
   - ./approval-granter.js
   - ./approval-reader.js
+  - ./shared-package-state.js
+  - ./shared-package-writer.js
+  - ./shared-package-reader.js
 plugin_imports:
 title: Functions
 description: Project-scoped serverless function compilation and invocation controls.
