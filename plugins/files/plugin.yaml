@@ -10,7 +10,10 @@ source_files:
   - file-request.ts
   - bucket.ts
   - object-key.ts
-  - upload-store.ts
+  - pending-upload-creator.ts
+  - pending-upload-reader.ts
+  - pending-upload-publisher.ts
+  - pending-upload-reconciler.ts
   - quota-reserver.ts
   - quota-releaser.ts
   - quota-reader.ts
@@ -40,7 +43,10 @@ imports:
   - ./file-access-deleter.js
   - ./upload-grant-store.js
   - ./authorized-upload-writer.js
-  - ./upload-store.js
+  - ./pending-upload-creator.js
+  - ./pending-upload-reader.js
+  - ./pending-upload-publisher.js
+  - ./pending-upload-reconciler.js
   - ./types.js
 plugin_imports:
 dependencies: []

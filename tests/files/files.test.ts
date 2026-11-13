@@ -1,4 +1,4 @@
-import { AuthorizedUploadWriter, UploadGrantStore, configurePrivateBucket, enforceUploadSize, FileGrantStore, FileAccessReader, FileAccessDeleter, QuotaReserver, QuotaReleaser, QuotaReader, fileRequest, PendingUploadStore, projectObjectKey, protectedDownloadHeaders, reconcileOrphanedObjects, requireExplicitPublication } from "../../plugins/files/index.js";
+import { AuthorizedUploadWriter, UploadGrantStore, configurePrivateBucket, enforceUploadSize, FileGrantStore, FileAccessReader, FileAccessDeleter, QuotaReserver, QuotaReleaser, QuotaReader, fileRequest, PendingUploadCreator, PendingUploadReader, PendingUploadPublisher, PendingUploadReconciler, projectObjectKey, protectedDownloadHeaders, reconcileOrphanedObjects, requireExplicitPublication } from "../../plugins/files/index.js";
 import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = fileRequest("dev", "files", "0.1.0", "files.upload", "avatar", { contentType: "image/png" });
@@ -8,13 +8,13 @@ if (configurePrivateBucket({ endpoint: "https://s3.example.com", bucket: "brain"
 try { configurePrivateBucket({ endpoint: "http://s3.example.com", bucket: "brain", region: "us-east-1" }); throw new Error("insecure bucket accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "private bucket requires HTTPS") throw error; }
 if (projectObjectKey("dev", "avatar.png") !== "projects/dev/objects/avatar.png" || projectObjectKey("prod", "avatar.png") === projectObjectKey("dev", "avatar.png")) throw new Error("project object namespace failed");
 try { projectObjectKey("dev/other", "avatar.png"); throw new Error("cross-project object key accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid object identity") throw error; }
-const uploads = new PendingUploadStore();
-if (uploads.create("dev", "avatar.png", "image/png", 12, 1000).status !== "pending" || uploads.get("prod", "avatar.png")) throw new Error("pending upload metadata isolation failed");
-if (uploads.publish("dev", "avatar.png", "etag-1").status !== "published" || uploads.get("dev", "avatar.png")?.etag !== "etag-1") throw new Error("published file metadata failed");
-try { uploads.publish("dev", "missing.png", "etag-2"); throw new Error("missing object published"); } catch (error) { if (!(error instanceof Error) || error.message !== "object upload not confirmed") throw error; }
-if (uploads.reconcile(40_000, 30_000) !== 0 || uploads.get("dev", "avatar.png")?.status !== "published") throw new Error("published upload reconciled incorrectly");
-const interrupted = new PendingUploadStore(); interrupted.create("dev", "broken.bin", "application/octet-stream", 2, 1000);
-if (interrupted.reconcile(40_000, 30_000) !== 1 || interrupted.get("dev", "broken.bin")?.status !== "aborted") throw new Error("interrupted upload not reconciled");
+const uploadMap = new Map(); const uploadCreator = new PendingUploadCreator(uploadMap); const uploadReader = new PendingUploadReader(uploadMap); const uploadPublisher = new PendingUploadPublisher(uploadMap); const uploadReconciler = new PendingUploadReconciler(uploadMap);
+if (uploadCreator.create("dev", "avatar.png", "image/png", 12, 1000).status !== "pending" || uploadReader.get("prod", "avatar.png")) throw new Error("pending upload metadata isolation failed");
+if (uploadPublisher.publish("dev", "avatar.png", "etag-1").status !== "published" || uploadReader.get("dev", "avatar.png")?.etag !== "etag-1") throw new Error("published file metadata failed");
+try { uploadPublisher.publish("dev", "missing.png", "etag-2"); throw new Error("missing object published"); } catch (error) { if (!(error instanceof Error) || error.message !== "object upload not confirmed") throw error; }
+if (uploadReconciler.reconcile(40_000, 30_000) !== 0 || uploadReader.get("dev", "avatar.png")?.status !== "published") throw new Error("published upload reconciled incorrectly");
+const interruptedMap = new Map(); const interruptedCreator = new PendingUploadCreator(interruptedMap); interruptedCreator.create("dev", "broken.bin", "application/octet-stream", 2, 1000);
+if (new PendingUploadReconciler(interruptedMap).reconcile(40_000, 30_000) !== 1 || new PendingUploadReader(interruptedMap).get("dev", "broken.bin")?.status !== "aborted") throw new Error("interrupted upload not reconciled");
 if (reconcileOrphanedObjects("dev", [projectObjectKey("dev", "live.png"), projectObjectKey("dev", "orphan.png"), projectObjectKey("prod", "other.png")], ["live.png"]).join(",") !== "projects/dev/objects/orphan.png") throw new Error("orphaned object reconciliation failed");
 const headers = protectedDownloadHeaders("avatar.png");
 if (headers["cache-control"] !== "private, no-store" || !headers["content-disposition"].startsWith("attachment")) throw new Error("protected download headers failed");
