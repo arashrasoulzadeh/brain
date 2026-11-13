@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `543830d` — 2026-11-13 17:15:59 +0330 — feat: authorize dashboard view actions
+  Files: plugins/dashboard/view-replacement-registry.ts,roadmap.md tests/dashboard/dashboard.test.ts
+- `51f4aff` — 2026-11-13 13:45:40 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `bf450ed` — 2026-11-13 17:15:20 +0330 — feat: isolate dashboard view submissions
   Files: plugins/dashboard/view-replacement-registry.ts,roadmap.md tests/dashboard/dashboard.test.ts
 - `412d004` — 2026-11-13 13:44:57 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `b9a3a0f` — 2026-11-13 16:43:20 +0330 — feat: expose persisted plugin drain state
   Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
 - `daf792b` — 2026-11-13 13:12:56 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `568fd29` — 2026-11-13 16:41:29 +0330 — feat: cancel queued matchmaking scope tickets
-  Files: plugins/matchmaking/plugin.yaml,plugins/matchmaking/queue.ts plugins/matchmaking/scope-ticket-canceller.ts,roadmap.md tests/matchmaking/matchmaking.test.ts
-- `7fe36ac` — 2026-11-13 13:10:53 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
