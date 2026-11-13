@@ -473,7 +473,7 @@ Goal: compile dashboard-authored Go to WASM, execute it safely, run durable trig
 - [x] Reject out-of-turn moves.
 - [x] Detect wins.
 - [x] Detect draws.
-- [ ] Publish the rules through the compiler.
+- [x] Publish the rules through the compiler.
 - [ ] Give rules only authorized state and commands.
 - [ ] Add duplicate command protection.
 - [ ] Reject command payload mismatches.
