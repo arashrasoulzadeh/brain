@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `017c178` — 2026-11-13 17:19:34 +0330 — feat: isolate custom admin view origin
+  Files: plugins/dashboard/custom-view-origin.ts,plugins/dashboard/index.ts plugins/dashboard/plugin.yaml,roadmap.md tests/dashboard/dashboard.test.ts
+- `093dac3` — 2026-11-13 13:49:07 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `0714be7` — 2026-11-13 17:18:44 +0330 — feat: add custom typescript admin view
   Files: plugins/dashboard/custom-admin-view.ts,plugins/dashboard/index.ts plugins/dashboard/plugin.yaml,roadmap.md tests/dashboard/dashboard.test.ts
 - `5902a49` — 2026-11-13 13:48:28 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `26403c5` — 2026-11-13 16:48:32 +0330 — feat: pause turn rooms at committed state
   Files: plugins/rooms/index.ts,plugins/rooms/pause-tic-tac-toe-turn.ts plugins/rooms/plugin.yaml,plugins/rooms/validate-tic-tac-toe-rule-result.ts roadmap.md,tests/rooms/rooms.test.ts
 - `f78b1a4` — 2026-11-13 13:17:40 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `e17db3a` — 2026-11-13 16:47:19 +0330 — feat: block room admissions during drain
-  Files: plugins/rooms/index.ts,plugins/rooms/room-creator.ts plugins/rooms/room-runtime.ts,roadmap.md tests/rooms/rooms.test.ts
-- `2551ac5` — 2026-11-13 13:16:28 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
