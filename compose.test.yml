@@ -24,3 +24,15 @@ services:
       interval: 2s
       timeout: 2s
       retries: 15
+  plugin-isolation-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    profiles: [plugin-isolation]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      BRAIN_COMPOSE_TEST: "1"
+      RUNTIME_DSN: "postgres://brain_runtime:runtime_password@postgres:5432/brain"
+      MIGRATION_DSN: "postgres://brain_migrator:migration_password@postgres:5432/brain"

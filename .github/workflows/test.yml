@@ -30,6 +30,8 @@ jobs:
           tags: brain:test
       - name: Compose smoke test
         run: sh scripts/smoke-compose.sh
+      - name: Compose compiler and runner isolation tests
+        run: RUN_PLUGIN_ISOLATION_TESTS=1 sh scripts/smoke-compose.sh
   typescript:
     runs-on: ubuntu-latest
     steps:
