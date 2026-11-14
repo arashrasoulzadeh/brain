@@ -17,3 +17,13 @@ func TestHTTPEnvelopeRequiresVersionedProjectScopedFields(t *testing.T) {
 		t.Fatal("wrong protocol accepted")
 	}
 }
+
+func TestHTTPEnvelopeRejectsHostProjectMismatch(t *testing.T) {
+	envelope := plugin.HTTPRequestEnvelope{Protocol: 1, RequestID: "req-1", ProjectID: "dev", PluginID: "rooms", Version: "1.0.0", Operation: "rooms.create"}
+	if err := envelope.ValidateForProject(1, "prod"); !errors.Is(err, plugin.ErrInvalidHTTPEnvelope) {
+		t.Fatalf("cross-project envelope accepted: %v", err)
+	}
+	if err := envelope.ValidateForProject(1, "dev"); err != nil {
+		t.Fatal(err)
+	}
+}

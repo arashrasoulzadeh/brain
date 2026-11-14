@@ -20,3 +20,13 @@ func (e HTTPRequestEnvelope) Validate(protocol int) error {
 	}
 	return nil
 }
+
+func (e HTTPRequestEnvelope) ValidateForProject(protocol int, projectID string) error {
+	if err := e.Validate(protocol); err != nil {
+		return err
+	}
+	if projectID == "" || e.ProjectID != projectID {
+		return ErrInvalidHTTPEnvelope
+	}
+	return nil
+}

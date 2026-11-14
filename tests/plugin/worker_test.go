@@ -29,3 +29,13 @@ func TestWorkerRequestRejectsWrongProtocolAndOversizedPayload(t *testing.T) {
 		t.Fatal("oversized payload accepted")
 	}
 }
+
+func TestWorkerRequestRejectsHostProjectMismatch(t *testing.T) {
+	request := plugin.WorkerRequest{Protocol: 1, ProjectID: "dev", PluginID: "rooms", Version: "1.0.0", Operation: "rooms.create"}
+	if err := plugin.ValidateWorkerRequestForProject(request, 1, "prod"); !errors.Is(err, plugin.ErrInvalidWorkerRequest) {
+		t.Fatalf("cross-project worker request accepted: %v", err)
+	}
+	if err := plugin.ValidateWorkerRequestForProject(request, 1, "dev"); err != nil {
+		t.Fatal(err)
+	}
+}

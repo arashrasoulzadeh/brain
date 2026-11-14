@@ -42,3 +42,13 @@ func ValidateWorkerRequest(request WorkerRequest, hostProtocol int) error {
 	}
 	return nil
 }
+
+func ValidateWorkerRequestForProject(request WorkerRequest, hostProtocol int, projectID string) error {
+	if err := ValidateWorkerRequest(request, hostProtocol); err != nil {
+		return err
+	}
+	if projectID == "" || request.ProjectID != projectID {
+		return ErrInvalidWorkerRequest
+	}
+	return nil
+}
