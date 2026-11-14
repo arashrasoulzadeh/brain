@@ -651,6 +651,9 @@ func (r *Registry) Revoke(projectID, id, version, capability string) error {
 	if !ok {
 		return ErrNotInstalled
 	}
+	if !i.Grants[capability] {
+		return ErrGrantDenied
+	}
 	delete(i.Grants, capability)
 	delete(i.Resources, capability)
 	r.installations[key] = i
