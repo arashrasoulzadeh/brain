@@ -154,6 +154,9 @@ func TestSupervisorRejectsProjectlessStop(t *testing.T) {
 	if !errors.Is(s.StopProjectPlugin("", "rooms", "1.0.0"), plugin.ErrWorkerNotRunning) {
 		t.Fatal("projectless stop was accepted")
 	}
+	if !errors.Is(s.StopProjectPlugin("dev:other", "rooms", "1.0.0"), plugin.ErrWorkerNotRunning) {
+		t.Fatal("malformed project stop was accepted")
+	}
 }
 
 func TestSupervisorRejectsNilWorker(t *testing.T) {
