@@ -798,6 +798,8 @@ func (r *Registry) ActiveVersion(projectID, id string) (string, bool) {
 }
 
 func (r *Registry) PinWork(workID, projectID, id, version string) error {
+	r.lifecycleMu.Lock()
+	defer r.lifecycleMu.Unlock()
 	if workID == "" || projectID == "" {
 		return ErrProjectInvalid
 	}
@@ -812,6 +814,8 @@ func (r *Registry) PinWork(workID, projectID, id, version string) error {
 }
 
 func (r *Registry) PinnedVersion(workID string) (string, bool) {
+	r.lifecycleMu.RLock()
+	defer r.lifecycleMu.RUnlock()
 	key, ok := r.pins[workID]
 	if !ok {
 		return "", false

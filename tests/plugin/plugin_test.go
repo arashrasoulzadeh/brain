@@ -419,6 +419,37 @@ func TestRegistryActiveVersionSupportsConcurrentPromotionAndReads(t *testing.T) 
 	group.Wait()
 }
 
+func TestRegistryPinsSupportConcurrentWritesAndReads(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	manifest := plugin.Manifest{ID: "pin-concurrency", Version: "1.0.0", HostAPI: 1}
+	if err := r.Register(manifest); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Install("dev", manifest.ID, manifest.Version); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.SetReadiness(manifest.ID, manifest.Version, true); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Enable("dev", manifest.ID, manifest.Version); err != nil {
+		t.Fatal(err)
+	}
+
+	var group sync.WaitGroup
+	for index := 0; index < 32; index++ {
+		group.Add(1)
+		go func(index int) {
+			defer group.Done()
+			if index%2 == 0 {
+				_ = r.PinWork("work", "dev", manifest.ID, manifest.Version)
+				return
+			}
+			_, _ = r.PinnedVersion("work")
+		}(index)
+	}
+	group.Wait()
+}
+
 func TestRevokeStopsTheProjectWorker(t *testing.T) {
 	r := plugin.NewRegistry(1)
 	m := plugin.Manifest{ID: "guest", Version: "1.0.0", HostAPI: 1, Capabilities: []string{"session.issue"}}
