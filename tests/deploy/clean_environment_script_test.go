@@ -12,7 +12,7 @@ func TestCleanEnvironmentRehearsalRequiresDeployRollbackAndRestore(t *testing.T)
 		t.Fatal(err)
 	}
 	script := string(content)
-	for _, required := range []string{"up -d --build", "start-compose-no-build.sh", "restore-compose.sh", "BACKUP_INPUT", "OBJECT_MANIFEST"} {
+	for _, required := range []string{"up -d --build", "start-compose-no-build.sh", "rollback-compose.sh", "ROLLBACK_COMPOSE_FILE", "restore-compose.sh", "BACKUP_INPUT", "OBJECT_MANIFEST"} {
 		if !strings.Contains(script, required) {
 			t.Fatalf("rehearsal script missing %q", required)
 		}
