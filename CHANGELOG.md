@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `9e81357` — 2026-11-15 01:36:57 +0330 — reject projectless worker stops
+  Files: internal/plugin/supervisor.go,tests/plugin/supervisor_test.go
+- `01a4011` — 2026-11-14 22:06:23 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `c3faacf` — 2026-11-15 01:36:10 +0330 — fail closed without project store
   Files: internal/project/http.go,tests/project/http_test.go
 - `b06e300` — 2026-11-14 22:05:32 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `f86e2a0` — 2026-11-15 01:14:59 +0330 — reject projectless plugin removal
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `7c67478` — 2026-11-14 21:44:37 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `74a7306` — 2026-11-15 01:14:15 +0330 — serialize plugin readiness unregistration
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `d44cff9` — 2026-11-14 21:43:51 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
