@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `324637a` — 2026-11-15 00:31:39 +0330 — bind operator actions to authenticated sessions
+  Files: internal/operator/operator.go,tests/operator/operator_test.go
+- `e2065c0` — 2026-11-14 20:58:07 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `816bb46` — 2026-11-15 00:27:50 +0330 — add complete clean environment rehearsal
   Files: docs/deployment-runbook.md,scripts/clean-environment-rehearsal.sh tests/deploy/clean_environment_script_test.go
 - `33b66a5` — 2026-11-14 20:56:58 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `0dd6679` — 2026-11-14 23:06:18 +0330 — mount node runtime modules in sandbox
   Files: scripts/run-sandboxed-typescript-worker.sh
 - `5fdbef1` — 2026-11-14 19:34:37 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `da26143` — 2026-11-14 23:04:22 +0330 — allow node snapshot address space in sandbox
-  Files: scripts/test-sandboxed-typescript-worker.sh
-- `63a82e5` — 2026-11-14 19:33:05 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
