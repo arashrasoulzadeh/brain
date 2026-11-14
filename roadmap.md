@@ -632,9 +632,9 @@ Goal: finish the supported clients, publish the protocol, and rehearse productio
 - [x] Hide platform storage behind adapters.
 - [x] Complete sign-in on a native target.
 - [x] Complete sign-in on Flutter Web.
-- [ ] Complete one app flow.
-- [ ] Complete one match flow.
-- [ ] Document both setup paths.
+- [x] Complete one app flow.
+- [x] Complete one match flow.
+- [x] Document both setup paths.
 
 ### Android client
 
