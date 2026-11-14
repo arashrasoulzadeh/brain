@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `0bb6e66` — 2026-11-15 01:53:47 +0330 — require plugin resource identifiers
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `2f99655` — 2026-11-14 22:23:28 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `9b009d1` — 2026-11-15 01:53:14 +0330 — validate plugin capability approvals
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `18bf5bf` — 2026-11-14 22:22:53 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `c3faacf` — 2026-11-15 01:36:10 +0330 — fail closed without project store
   Files: internal/project/http.go,tests/project/http_test.go
 - `b06e300` — 2026-11-14 22:05:32 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `01638f9` — 2026-11-15 01:35:18 +0330 — fail closed when plugin registry unavailable
-  Files: internal/plugin/broker.go,tests/plugin/broker_test.go
-- `7d494af` — 2026-11-14 22:04:08 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
