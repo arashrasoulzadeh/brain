@@ -51,6 +51,10 @@ source_files:
   - require-recent-authentication.ts
   - public-auth-error.ts
   - validate-delivery-config.ts
+  - otp-limiter.ts
+  - account-rate-limiter.ts
+  - project-rate-limiter.ts
+  - identity-linker.ts
   - guest-request.ts
 imports:
   - ../sdk-typescript/src/index.js
@@ -102,6 +106,10 @@ imports:
   - ./require-recent-authentication.js
   - ./public-auth-error.js
   - ./validate-delivery-config.js
+  - ./otp-limiter.js
+  - ./account-rate-limiter.js
+  - ./project-rate-limiter.js
+  - ./identity-linker.js
   - ./index.js
 plugin_imports:
 dependencies: []

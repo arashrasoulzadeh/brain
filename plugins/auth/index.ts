@@ -1,11 +1,10 @@
-import { type PluginFunction, type RpcRequest, validateProjectId } from "../sdk-typescript/src/index.js";
+import { type PluginFunction, type RpcRequest } from "../sdk-typescript/src/index.js";
 import { sessionTokenDigest } from "./session-token-digest.js";
 import { createAuthState, type AuthState } from "./auth-state.js";
 import { AccountSignup } from "./account-signup.js";
 import { AccountSignin } from "./account-signin.js";
 import { AccountSessionReader } from "./account-session-reader.js";
 import { GuestSessionIssuer } from "./guest-session-issuer.js";
-import { projectUserID } from "./project-user-id.js";
 
 export { guestRequest } from "./guest-request.js";
 export { signInRequest } from "./sign-in-request.js";
@@ -25,66 +24,19 @@ export { EmailOTPVerifier } from "./email-otp-verifier.js";
 export { SMSOTPIssuer } from "./sms-otp-issuer.js";
 export { SMSOTPVerifier } from "./sms-otp-verifier.js";
 export { normalizePhoneNumber } from "./normalize-phone-number.js";
-export class OTPLimiter {
-  private readonly counts = new Map<string, { startedAt: number; count: number }>();
-  constructor(private readonly limit: number, private readonly windowMs: number) {}
-  allow(projectId: string, destination: string, now: number): boolean {
-    validateProjectId(projectId);
-    const key = `${projectId}:${destination}`;
-    const current = this.counts.get(key);
-    if (!current || now - current.startedAt >= this.windowMs) { this.counts.set(key, { startedAt: now, count: 1 }); return true; }
-    if (current.count >= this.limit) return false;
-    current.count += 1;
-    return true;
-  }
-}
+export { OTPLimiter } from "./otp-limiter.js";
 export { RecoveryTokenIssuer } from "./recovery-token-issuer.js";
 export { RecoveryTokenConsumer } from "./recovery-token-consumer.js";
 
-export class AccountRateLimiter {
-  private readonly attempts = new Map<string, { startedAt: number; count: number }>();
-  constructor(private readonly limit: number, private readonly windowMs: number) {
-    if (!Number.isInteger(limit) || limit < 1 || windowMs <= 0) throw new Error("invalid account rate limit");
-  }
-  allow(projectId: string, username: string, now: number): boolean {
-    const key = projectUserID(projectId, username);
-    const current = this.attempts.get(key);
-    if (!current || now - current.startedAt >= this.windowMs) { this.attempts.set(key, { startedAt: now, count: 1 }); return true; }
-    if (current.count >= this.limit) return false;
-    current.count += 1;
-    return true;
-  }
-}
+export { AccountRateLimiter } from "./account-rate-limiter.js";
 
-export class ProjectRateLimiter {
-  private readonly attempts = new Map<string, { startedAt: number; count: number }>();
-  constructor(private readonly limit: number, private readonly windowMs: number) {
-    if (!Number.isInteger(limit) || limit < 1 || windowMs <= 0) throw new Error("invalid project rate limit");
-  }
-  allow(projectId: string, now: number): boolean {
-    if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(projectId)) throw new Error("invalid project id");
-    const current = this.attempts.get(projectId);
-    if (!current || now - current.startedAt >= this.windowMs) { this.attempts.set(projectId, { startedAt: now, count: 1 }); return true; }
-    if (current.count >= this.limit) return false;
-    current.count += 1;
-    return true;
-  }
-}
+export { ProjectRateLimiter } from "./project-rate-limiter.js";
 
 export { OperatorSessionIssuer } from "./operator-session-issuer.js";
 export { OperatorSessionValidator } from "./operator-session-validator.js";
 export { OperatorSessionRevoker } from "./operator-session-revoker.js";
 
-export class IdentityLinker {
-  private readonly links = new Map<string, string>();
-  link(userId: string, provider: string, subject: string): void {
-    if (!userId.trim() || !provider.trim() || !subject.trim()) throw new Error("invalid identity link");
-    const key = `${provider}:${subject}`;
-    const existing = this.links.get(key);
-    if (existing && existing !== userId) throw new Error("identity already linked");
-    this.links.set(key, userId);
-  }
-}
+export { IdentityLinker } from "./identity-linker.js";
 
 export type { OIDCConfig, OIDCTokenClaims } from "./oidc-types.js";
 export { OIDCConfigWriter } from "./oidc-config-writer.js";
