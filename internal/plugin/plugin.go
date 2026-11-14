@@ -259,7 +259,9 @@ type Registry struct {
 	readiness         map[string]bool
 	readinessMu       sync.RWMutex
 	grantMu           sync.RWMutex
+	approvalMu        sync.RWMutex
 	audit             []AuditEvent
+	artifactMu        sync.RWMutex
 	auditMu           sync.RWMutex
 	active            map[string]string
 	pins              map[string]string
@@ -336,6 +338,8 @@ func (r *Registry) DeleteDurableData(projectID, pluginID, key string) error {
 }
 
 func (r *Registry) ApproveCapability(projectID, id, version, capability string) error {
+	r.approvalMu.Lock()
+	defer r.approvalMu.Unlock()
 	if projectID == "" || capability == "" {
 		return ErrProjectInvalid
 	}
@@ -361,6 +365,8 @@ func (r *Registry) Status(projectID, pluginID, version string) (InstallationStat
 }
 
 func (r *Registry) ApproveArtifact(id, version, endpoint string) error {
+	r.artifactMu.Lock()
+	defer r.artifactMu.Unlock()
 	if _, ok := r.registered[id+"@"+version]; !ok {
 		return ErrNotRegistered
 	}
@@ -374,6 +380,8 @@ func (r *Registry) ApproveArtifact(id, version, endpoint string) error {
 }
 
 func (r *Registry) ApprovedArtifact(id, version string) (string, bool) {
+	r.artifactMu.RLock()
+	defer r.artifactMu.RUnlock()
 	endpoint, ok := r.artifacts[id+"@"+version]
 	return endpoint, ok
 }
@@ -645,6 +653,8 @@ func (r *Registry) Promote(projectID, id, version string) error {
 		return ErrDisabled
 	}
 	manifest := r.registered[id+"@"+version].Manifest
+	r.approvalMu.RLock()
+	defer r.approvalMu.RUnlock()
 	for _, capability := range manifest.Capabilities {
 		if !i.Grants[capability] {
 			return ErrGrantDenied
