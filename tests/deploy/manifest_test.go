@@ -10,11 +10,12 @@ import (
 
 func TestValidateReleaseManifestRequiresAllImages(t *testing.T) {
 	manifest := deploy.ReleaseManifest{
-		CommitSHA:                 "0123456789abcdef0123456789abcdef01234567",
-		Backend:                   "ghcr.io/example/backend@sha256:backend",
-		Compiler:                  "ghcr.io/example/compiler@sha256:compiler",
-		Runner:                    "ghcr.io/example/runner@sha256:runner",
-		PackagedIsolationVerified: true,
+		CommitSHA:                  "0123456789abcdef0123456789abcdef01234567",
+		Backend:                    "ghcr.io/example/backend@sha256:backend",
+		Compiler:                   "ghcr.io/example/compiler@sha256:compiler",
+		Runner:                     "ghcr.io/example/runner@sha256:runner",
+		PackagedIsolationVerified:  true,
+		PackagedRevocationVerified: true,
 	}
 	if err := deploy.ValidateReleaseManifest(manifest); err != nil {
 		t.Fatal(err)
@@ -31,6 +32,10 @@ func TestValidateReleaseManifestRequiresPackagedIsolationVerification(t *testing
 		t.Fatal("release manifest accepted without packaged isolation verification")
 	}
 	manifest.PackagedIsolationVerified = true
+	if err := deploy.ValidateReleaseManifest(manifest); !errors.Is(err, deploy.ErrInvalidReleaseManifest) {
+		t.Fatal("release manifest accepted without packaged revocation verification")
+	}
+	manifest.PackagedRevocationVerified = true
 	if err := deploy.ValidateReleaseManifest(manifest); err != nil {
 		t.Fatal(err)
 	}
