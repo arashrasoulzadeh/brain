@@ -34,6 +34,9 @@ func InvokeForProject(worker ContractWorker, request WorkerRequest, protocol int
 	if err := ValidateWorkerRequestForProject(request, protocol, projectID); err != nil {
 		return WorkerResponse{}, err
 	}
+	if worker == nil {
+		return WorkerResponse{}, ErrWorkerNotReady
+	}
 	if !worker.Ready() {
 		return WorkerResponse{}, ErrWorkerNotReady
 	}

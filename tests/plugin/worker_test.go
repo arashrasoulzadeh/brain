@@ -97,6 +97,13 @@ func TestInvokeForProjectBindsExecutionToHostContext(t *testing.T) {
 	}
 }
 
+func TestInvokeForProjectFailsClosedWithoutWorker(t *testing.T) {
+	request := plugin.WorkerRequest{Protocol: 1, ProjectID: "dev", PluginID: "sample", Version: "1.0.0", Operation: "health"}
+	if _, err := plugin.InvokeForProject(nil, request, 1, "dev"); !errors.Is(err, plugin.ErrWorkerNotReady) {
+		t.Fatalf("nil worker error = %v", err)
+	}
+}
+
 type readyWorker struct{}
 
 func (readyWorker) Start() error { return nil }
