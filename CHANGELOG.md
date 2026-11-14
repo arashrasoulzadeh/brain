@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `1d644fd` — 2026-11-15 00:32:14 +0330 — publish multi-architecture backend images
+  Files: .github/workflows/release-backend.yml,tests/deploy/release_workflow_test.go
+- `7f77e43` — 2026-11-14 21:02:52 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `9e88566` — 2026-11-15 00:32:05 +0330 — gate packaged cross-project isolation
   Files: tests/deploy/packaged_isolation_test.go,tests/deploy/testdata/packaged-isolation-probe/main.go
 - `1da1c17` — 2026-11-14 21:02:36 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `6633594` — 2026-11-14 23:11:46 +0330 — bind worker invocation to host project
   Files: internal/plugin/worker.go,tests/plugin/worker_test.go
 - `c1e0000` — 2026-11-14 19:40:58 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `8fdadc2` — 2026-11-14 23:10:43 +0330 — bind typescript workers to plugin manifests
-  Files: internal/plugin/typescript_worker.go,tests/plugin/bubblewrap_worker_test.go
-- `9649c33` — 2026-11-14 19:38:03 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
