@@ -816,6 +816,11 @@ func (r *Registry) Recover(projectID, id, version string) error {
 	if !ok {
 		return ErrNotInstalled
 	}
+	if r.supervisor != nil {
+		if err := r.supervisor.Recover(key); err != nil && !errors.Is(err, ErrWorkerNotRunning) && !errors.Is(err, ErrWorkerRecoveryUnavailable) {
+			return err
+		}
+	}
 	i.Draining = false
 	i.DrainUntil = time.Time{}
 	r.installations[key] = i

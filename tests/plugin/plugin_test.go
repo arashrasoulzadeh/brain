@@ -1021,6 +1021,38 @@ func TestProjectUninstallStopsWorkersAndClosesSockets(t *testing.T) {
 	}
 }
 
+func TestRegistryRecoveryRestartsCrashedProjectWorker(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	m := plugin.Manifest{ID: "recover-runtime", Version: "1.0.0", HostAPI: 1}
+	if err := r.Register(m); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Install("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	supervisor := plugin.NewSupervisor()
+	created := 0
+	initialWorker := &supervisorTestWorker{}
+	if err := supervisor.StartRecovering("dev:"+m.ID+"@"+m.Version, func() plugin.Worker {
+		created++
+		if created == 1 {
+			return initialWorker
+		}
+		return &supervisorTestWorker{}
+	}, plugin.RecoveryPolicy{MaxRestarts: 1}); err != nil {
+		t.Fatal(err)
+	}
+	workerKey := "dev:" + m.ID + "@" + m.Version
+	initialWorker.stopped = true
+	r.BindSupervisor(supervisor)
+	if err := r.Recover("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	if created != 2 || !supervisor.Ready(workerKey) {
+		t.Fatalf("recovery state = created:%d ready:%v", created, supervisor.Ready(workerKey))
+	}
+}
+
 func TestApplyDisablePreviewStopsTheProjectWorker(t *testing.T) {
 	r := plugin.NewRegistry(1)
 	m := plugin.Manifest{ID: "rooms", Version: "1.0.0", HostAPI: 1}
