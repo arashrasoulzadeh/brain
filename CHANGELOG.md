@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `fdab3cb` — 2026-11-14 22:35:21 +0330 — wire sandbox launcher into plugin host
+  Files: internal/plugin/typescript_worker.go,tests/plugin/bubblewrap_worker_test.go
+- `867c433` — 2026-11-14 19:04:42 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `ec2f8d2` — 2026-11-14 22:34:27 +0330 — add fail-closed typescript sandbox launcher
   Files: scripts/run-sandboxed-typescript-worker.sh,tests/plugin/sandbox_launcher_test.go
 - `fae6164` — 2026-11-14 14:11:57 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `acfeebf` — 2026-11-14 17:22:24 +0330 — add PostgreSQL deployment access check
   Files: roadmap_backend.md,scripts/check-postgres-access.sh tests/deploy/postgres_script_test.go
 - `d3be563` — 2026-11-14 13:51:59 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `104c589` — 2026-11-14 17:21:45 +0330 — add bounded API readiness check
-  Files: roadmap_backend.md,scripts/check-api-readiness.sh tests/deploy/readiness_script_test.go
-- `6c97588` — 2026-11-14 13:51:07 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
