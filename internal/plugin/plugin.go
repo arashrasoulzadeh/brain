@@ -704,6 +704,10 @@ func (r *Registry) Drain(projectID, id, version string) error {
 }
 
 func (r *Registry) DrainUntil(projectID, id, version string, deadline time.Time) error {
+	r.lifecycleMu.Lock()
+	defer r.lifecycleMu.Unlock()
+	r.installationMu.Lock()
+	defer r.installationMu.Unlock()
 	if projectID == "" {
 		return ErrProjectInvalid
 	}
@@ -720,6 +724,10 @@ func (r *Registry) DrainUntil(projectID, id, version string, deadline time.Time)
 }
 
 func (r *Registry) StopImmediately(projectID, id, version string) error {
+	r.lifecycleMu.Lock()
+	defer r.lifecycleMu.Unlock()
+	r.installationMu.Lock()
+	defer r.installationMu.Unlock()
 	if projectID == "" {
 		return ErrProjectInvalid
 	}
@@ -737,6 +745,10 @@ func (r *Registry) StopImmediately(projectID, id, version string) error {
 }
 
 func (r *Registry) Recover(projectID, id, version string) error {
+	r.lifecycleMu.Lock()
+	defer r.lifecycleMu.Unlock()
+	r.installationMu.Lock()
+	defer r.installationMu.Unlock()
 	if projectID == "" {
 		return ErrProjectInvalid
 	}
@@ -754,6 +766,8 @@ func (r *Registry) Recover(projectID, id, version string) error {
 }
 
 func (r *Registry) CanStart(projectID, id, version string, now time.Time) error {
+	r.installationMu.RLock()
+	defer r.installationMu.RUnlock()
 	if projectID == "" {
 		return ErrProjectInvalid
 	}
@@ -768,6 +782,8 @@ func (r *Registry) CanStart(projectID, id, version string, now time.Time) error 
 }
 
 func (r *Registry) CanStartNew(projectID, id, version string) error {
+	r.installationMu.RLock()
+	defer r.installationMu.RUnlock()
 	if projectID == "" {
 		return ErrProjectInvalid
 	}
@@ -782,6 +798,8 @@ func (r *Registry) CanStartNew(projectID, id, version string) error {
 }
 
 func (r *Registry) CanReconnect(projectID, id, version string, now time.Time) error {
+	r.installationMu.RLock()
+	defer r.installationMu.RUnlock()
 	if projectID == "" {
 		return ErrProjectInvalid
 	}
