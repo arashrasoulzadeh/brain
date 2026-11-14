@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `5ca2610` — 2026-11-15 00:26:12 +0330 — guard clean environment runbook gate
+  Files: tests/deploy/runbook_test.go
+- `b1b0951` — 2026-11-14 20:55:46 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `478118b` — 2026-11-15 00:25:33 +0330 — publish restore runbook
   Files: docs/admins.md,docs/developers.md docs/restore-runbook.md
 - `7345ece` — 2026-11-14 20:55:17 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `b020f41` — 2026-11-14 23:00:57 +0330 — bound sandbox ci duration
   Files: .github/workflows/test.yml
 - `c2d091c` — 2026-11-14 19:29:39 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `0cf1f85` — 2026-11-14 22:59:26 +0330 — bound sandbox network probe
-  Files: scripts/test-sandboxed-typescript-worker.sh
-- `d91d110` — 2026-11-14 19:28:03 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
