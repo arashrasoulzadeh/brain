@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `d31f7c9` — 2026-11-15 01:52:08 +0330 — validate plugin revocation capability
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `8ec5743` — 2026-11-14 22:21:33 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `ba89d08` — 2026-11-15 01:51:21 +0330 — stop runtime on immediate stop
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `ef6cec1` — 2026-11-14 22:20:56 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `fd94528` — 2026-11-15 01:33:01 +0330 — protect plugin disable previews
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `8d27d6f` — 2026-11-14 22:02:37 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `4741525` — 2026-11-15 01:32:24 +0330 — enforce plugin project boundaries
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `87c5a5b` — 2026-11-14 22:01:40 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
