@@ -3,6 +3,8 @@ package plugin
 import (
 	"net/http"
 	"strings"
+
+	"brain/internal/project"
 )
 
 // WebSocketEndpoint exposes the project-scoped transport boundary. The actual
@@ -15,6 +17,11 @@ func WebSocketEndpoint() http.Handler {
 			return
 		}
 		if projectID == "" || r.Header.Get("X-Project-ID") != projectID {
+			http.Error(w, "project boundary denied", http.StatusForbidden)
+			return
+		}
+		hostProject, ok := project.FromContext(r.Context())
+		if !ok || !hostProject.Active || hostProject.ID != projectID {
 			http.Error(w, "project boundary denied", http.StatusForbidden)
 			return
 		}
