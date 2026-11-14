@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `8046ba0` — 2026-11-15 00:41:32 +0330 — reject traversal in websocket project paths
+  Files: internal/plugin/websocket_endpoint.go,tests/plugin/websocket_endpoint_test.go
+- `3b13d37` — 2026-11-14 21:10:58 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `895d229` — 2026-11-15 00:40:45 +0330 — make assignment gate concurrency safe
   Files: internal/deploy/assignments.go,tests/deploy/assignments_test.go
 - `e42fa25` — 2026-11-14 21:10:19 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `917b06f` — 2026-11-14 20:48:04 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
 - `ce3d564` — 2026-11-15 00:17:51 +0330 — bound packet loss capacity simulation
-  Files: internal/deploy/capacity_profile.go,tests/deploy/capacity_profile_test.go
-- `f62fe0e` — 2026-11-14 20:47:32 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `e2fbc55` — 2026-11-15 00:17:19 +0330 — add eye export capacity workload
   Files: internal/deploy/capacity_profile.go,tests/deploy/capacity_profile_test.go
