@@ -6,15 +6,13 @@ import { AccountSignup } from "./account-signup.js";
 import { AccountSignin } from "./account-signin.js";
 import { AccountSessionReader } from "./account-session-reader.js";
 import { GuestSessionIssuer } from "./guest-session-issuer.js";
+import { projectUserID } from "./project-user-id.js";
 
 export { guestRequest } from "./guest-request.js";
 export { signInRequest } from "./sign-in-request.js";
 export { signUpRequest } from "./sign-up-request.js";
 
-export function projectUserID(projectId: string, userId: string): string {
-  if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(projectId) || !/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(userId)) throw new Error("invalid project user id");
-  return `${projectId}:${userId}`;
-}
+export { projectUserID } from "./project-user-id.js";
 
 export { sessionTokenDigest } from "./session-token-digest.js";
 export function createPKCEChallenge(verifier: string): string { return createHash("sha256").update(verifier).digest("base64url"); }

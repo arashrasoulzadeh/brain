@@ -29,6 +29,12 @@ source_files:
   - recovery-token-issuer.ts
   - recovery-token-consumer.ts
   - auth-state.ts
+  - create-auth-state.ts
+  - validate-account.ts
+  - password-hash.ts
+  - new-session.ts
+  - account-project.ts
+  - project-user-id.ts
   - account-signup.ts
   - account-signin.ts
   - account-session-reader.ts
@@ -66,6 +72,12 @@ imports:
   - ./recovery-token-issuer.js
   - ./recovery-token-consumer.js
   - ./auth-state.js
+  - ./create-auth-state.js
+  - ./validate-account.js
+  - ./password-hash.js
+  - ./new-session.js
+  - ./account-project.js
+  - ./project-user-id.js
   - ./account-signup.js
   - ./account-signin.js
   - ./account-session-reader.js
