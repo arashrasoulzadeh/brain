@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `e2fbc55` — 2026-11-15 00:17:19 +0330 — add eye export capacity workload
+  Files: internal/deploy/capacity_profile.go,tests/deploy/capacity_profile_test.go
+- `2db493b` — 2026-11-14 20:47:00 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `858302f` — 2026-11-15 00:16:43 +0330 — add upload and job capacity workload
   Files: internal/deploy/capacity_profile.go,tests/deploy/capacity_profile_test.go
 - `b15892d` — 2026-11-14 20:46:22 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `b14ff0e` — 2026-11-14 22:46:42 +0330 — preserve node runtime mount in sandbox
   Files: scripts/run-sandboxed-typescript-worker.sh
 - `72a7447` — 2026-11-14 19:15:41 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `2aa22bb` — 2026-11-14 22:45:28 +0330 — preserve sandbox mounts under isolated tmp
-  Files: scripts/run-sandboxed-typescript-worker.sh
-- `51fc3a4` — 2026-11-14 19:14:20 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
