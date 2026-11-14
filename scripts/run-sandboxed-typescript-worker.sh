@@ -35,6 +35,7 @@ ulimit -u "$process_limit"
 exec "$bwrap_bin" \
   --die-with-parent \
   --unshare-net \
+  --tmpfs /tmp \
   --ro-bind "$node_path" "$node_path" \
   --ro-bind "$node_dir" "$node_dir" \
   --ro-bind /usr /usr \
@@ -44,7 +45,6 @@ exec "$bwrap_bin" \
   --ro-bind "$plugin_root" "$plugin_root" \
   --proc /proc \
   --dev /dev \
-  --tmpfs /tmp \
   --chdir "$plugin_root" \
   --clearenv \
   --setenv PATH "$node_dir" \
