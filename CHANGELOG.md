@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `697474f` — 2026-11-15 02:19:37 +0330 — validate function publication rollback inputs
+  Files: plugins/functions/function-publication-rollback.ts,tests/functions/functions.test.ts
+- `c76cd21` — 2026-11-14 22:49:18 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `781d419` — 2026-11-15 02:19:00 +0330 — close numeric direct https SSRF bypasses
   Files: plugins/functions/invoke-direct-https.ts,tests/functions/functions.test.ts
 - `864ee7f` — 2026-11-14 22:48:19 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `e51070f` — 2026-11-15 01:50:43 +0330 — stop runtime on plugin removal
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `5fe8a5b` — 2026-11-14 22:20:18 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `74c953b` — 2026-11-15 01:50:06 +0330 — surface failed project recovery
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `170c90e` — 2026-11-14 22:19:22 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
