@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `6ffa6ed` — 2026-11-15 02:07:11 +0330 — verify single use commit credentials
+  Files: roadmap_backend.md
+- `063afca` — 2026-11-14 22:37:09 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `f479cbe` — 2026-11-15 02:06:53 +0330 — verify host authenticated plugin execution
   Files: roadmap_backend.md
 - `def42f1` — 2026-11-14 22:36:48 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `b40c59d` — 2026-11-15 01:44:07 +0330 — close project sockets on revocation
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `c375b09` — 2026-11-14 22:13:29 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `6ca3489` — 2026-11-15 01:43:14 +0330 — add project scoped websocket cleanup
-  Files: internal/plugin/websocket_registry.go,tests/plugin/websocket_registry_test.go
-- `6f4abd2` — 2026-11-14 22:11:57 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
