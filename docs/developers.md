@@ -1,107 +1,79 @@
 # Developer guide
 
-## Workflow
+## Quickstart
 
-1. Read `AGENTS.md` and the relevant `.agents/phase-XX.md`.
-2. Select the first unchecked item in `roadmap.md`.
-3. Add one focused failing test.
+```bash
+GOCACHE=/tmp/brain-go-cache go test ./...
+go vet ./...
+npm run lint:ts
+npm run typecheck
+npm run test:ts
+```
+
+These commands do not start Docker. Use Docker/Compose only for an explicit PostgreSQL or release integration check.
+
+## Plugin contract
+
+Every product capability is a TypeScript plugin:
+
+```text
+plugins/<plugin-id>/
+  index.ts
+  plugin.yaml
+```
+
+`plugin.yaml` is authoritative for title, description, version, routes, functions, capabilities, source files, imports, and plugin dependencies. Every source and runtime import must be declared. `index.ts` is the public boundary; focused files own one callable responsibility.
+
+Example:
+
+```yaml
+id: notes
+version: 1.0.0
+host_api: 1
+entrypoint: index.ts
+source_files:
+  - index.ts
+imports:
+  - ../sdk-typescript/src/index.js
+capabilities:
+  - notes.read
+routes:
+  - operation: notes.list
+    function: listNotes
+    capability: notes.read
+```
+
+## Request flow
+
+```mermaid
+sequenceDiagram
+  participant C as Client
+  participant H as Go host
+  participant B as Permission broker
+  participant W as Plugin worker
+  C->>H: project-scoped request
+  H->>H: bind trusted project context
+  H->>B: authorize route and capability
+  B->>W: invoke declared operation
+  W-->>B: result
+  B->>H: recheck grant, lifecycle, version, credential
+  H-->>C: scoped response
+```
+
+## TDD workflow
+
+1. Read `AGENTS.md` and the active `.agents/phase-XX.md` guide.
+2. Decompose affected plugin code before extending it.
+3. Add one focused failing test under `tests/`.
 4. Implement the smallest passing change.
-5. Run `test -z "$(gofmt -l .)"` and `GOCACHE=/tmp/brain-go-cache go test ./...`.
-6. Update only the verified roadmap item.
-7. Commit and push before starting the next item.
+5. Run focused tests, affected package tests, race tests, lint, and the full suite.
+6. Update the relevant roadmap checkbox only after verification.
+7. Update developer/admin docs and the newest-first per-commit changelog.
+8. Commit one focused checkbox and push it.
 
-At the end of every phase, update this guide with the implementation notes, test commands, compatibility changes, and the next phase before committing the phase result.
+## Safety boundaries
 
-Keep changelog entries newest first, with one entry per commit containing the short commit hash and subject.
-
-Deployment rollback must validate schema compatibility. The operator recovery procedure for incompatible migrations is documented in [`incompatible-migration-recovery.md`](incompatible-migration-recovery.md); code must not perform destructive down-migrations as an automatic fallback.
-
-The operator deployment sequence is documented in [`deployment-runbook.md`](deployment-runbook.md); keep pause/drain ordering and release verification aligned with `internal/deploy`.
-The restore procedure is documented in [`restore-runbook.md`](restore-runbook.md); keep database and object-manifest verification aligned with `internal/deploy` recovery contracts.
-
-Backup scheduling uses the deployment backup policy: a minimum 12-hour interval and an 18-hour stale-backup alert threshold. Keep backup execution adapters separate from policy validation so storage providers can be replaced and tested independently.
-
-## Tests
-
-All tests live under the top-level `tests/` directory. Keep tests grouped by area, preserve external package boundaries, and run `GOCACHE=/tmp/brain-go-cache go test ./...` after every test move or implementation change.
-
-## Phase 00 completed
-
-The foundation phase now has a Go host, validated configuration, an injectable database owner, bounded readiness retry, migration orchestration, runtime DDL protection, isolated local settings, an opt-in Compose smoke test, and CI checks for formatting, tests, and amd64/arm64 image builds. The local verification command is `GOCACHE=/tmp/brain-go-cache go test ./...`. Phase 01 begins with project and plugin-host operations.
-
-## Local development
-
-Do not run Docker during normal development. Use in-process tests and isolated local settings. Use real PostgreSQL integration tests when behavior depends on roles, row-level security, migrations, locks, or PostgreSQL transactions.
-
-## Package boundaries
-
-- `cmd/brain`: process startup and wiring.
-- `internal/app`: HTTP routing.
-- `internal/config`: validated runtime configuration.
-- `internal/db`: database ownership, readiness, and role policy.
-- `internal/migrate`: migration orchestration.
-- `internal/project`: project resolution.
-- `internal/plugin`: plugin registration and scoped authorization.
-
-## Plugin-first feature development
-
-Product features belong under `plugins/<plugin-id>/` as TypeScript serverless functions. Each handler has one focused product function; `index.ts` is only the public export/bootstrap boundary. Every source file and import is declared in YAML, which is authoritative for metadata, routes, functions, permissions, and configuration. The host supplies runtime dependencies and generates documentation. Go is reserved for the core host, and tests live under top-level `tests/`.
-
-Plugin decomposition is a permanent law: every plugin source file has one focused callable responsibility, every class has one public business method, and new or modified code must be decomposed before feature work proceeds. Shared behavior belongs in the SDK.
-
-This split is intentional: a handler can be replaced, scaled, tested, and audited independently. Analytics is the first migrated plugin; follow its `types.ts`, one-handler-file, and export-only `index.ts` pattern for the remaining plugins.
-
-Keep manifest lists in block form with one `-` entry per line. Do not use inline YAML arrays for source files or imports.
-
-Request constructors accept project IDs only to serialize protocol fixtures. They are not authorization. Production `createHostHandler` and `createFunctionHandler` instances require a host-provided `HostExecutionContext` and reject cross-project requests before dispatch.
-
-Go broker commits must use `CommitCredential`; credentials are bound to the originally authorized call and consumed once. The raw `Commit` method exists only for low-level tests.
-
-The plugin security baseline also denies SSRF targets in direct HTTPS invocation and treats malformed PKCE challenges as ordinary verification failures rather than exceptions.
-
-Stateful plugin stores must validate project identifiers before constructing scoped keys; malformed delimiter-containing identities are rejected to prevent namespace collisions.
-
-Phase 01 verification: the dashboard is bootstrapped through the CLI; YAML routes are host-discovered and unauthorized operations are rejected; readiness is reported separately from enablement; auth supports project-scoped guest sessions; analytics events are validated against allowed fields and captured by an in-process sink. Run `go test ./...`, `npm run typecheck`, and `npm run test:ts` locally.
-
-## Phase 02 completed
-
-Realtime gameplay is covered by project-scoped WebSocket endpoint validation, exact origin allowlists, single-use connection tickets, heartbeat expiry, bounded frames, bounded FIFO send queues, authorized snapshots and commands, reconnect checks, and sequence-based event replay. The arena plugin now supports a validated start/action/result flow, idempotent completed-result storage, Eye event export, an eight-player fixture, and latency/memory measurement. The Phase 02 gate is in `tests/arena/phase02_gate.test.ts`. Run `npm run typecheck && npm run test:ts` and `GOCACHE=/tmp/brain-go-cache go test ./...`; do not run Docker locally.
-
-## Phase 03 completed
-
-Phase 03 now covers project-scoped identity and sessions, invitations, OIDC/PKCE validation, OTP delivery and recovery, Argon2id passwords, PostgreSQL exposure contracts, versioned and idempotent records, guided schema previews, transactional/API/direct-SQL change capture, subscription tickets and replay, private project-namespaced files, quota and upload reconciliation, protected downloads, explicit public publication, and dashboard settings, record, table, file, audit, and browser-quickstart models. The gate fixtures prove API/direct-SQL isolation and rerun guest co-op. CI runs Go formatting/tests, the full TypeScript suite, image build, and Compose smoke verification. Locally run `GOCACHE=/tmp/brain-go-cache go test ./...`, `npm run typecheck`, and `npm run test:ts`; do not run Docker locally.
-
-Plugin communication follows [the plugin communication architecture](plugin-communication.md): JSON-RPC over Unix sockets locally, gRPC/mTLS externally, and the shared host authorization contract for both.
-
-## Security rules
-
-Never trust project IDs, plugin grants, room membership, or permissions supplied by clients. Recheck lifecycle, grants, versions, and idempotency at commit time. Keep secrets out of logs and tests. Authentication stores must validate project IDs at every public boundary, bind OTP/recovery/OIDC state and authorization codes to the project, enforce expiry and single use, and reject malformed token comparisons without throwing.
-
-## Phase 04 completed
-
-The functions phase is verified through the hosted Compose isolation gate. CI runs the compiler and runner isolation profile, including sandbox, timeout, memory, import, filesystem, network, credential, malformed-output, and no-write checks. Direct, scheduled, and record-change invocations, shared-helper publication and rollback, crash recovery, grant revocation, a complete two-client Tic-tac-toe match, and compiler/turn/memory metrics are covered by focused fixtures. Local development remains Docker-free; use `npm run lint:ts`, `npm run typecheck`, `npm run test:ts`, and `GOCACHE=/tmp/brain-go-cache go test ./...`, while Compose isolation is an explicit CI check.
-
-The Phase 04 Compose gate passed in CI run `43427610513`. Compiler and runner remain separate trust boundaries, and no plugin invocation may rely on client-selected project identity or stale grants.
-## Plugin quality gate
-
-Plugin changes must pass `npm run lint:ts`, `npm run typecheck`, and `npm run test:ts`. Shared generic request, identity, and validation helpers belong in `plugins/sdk-typescript/src/`; plugin entrypoints should remain product-focused.
-
-Each plugin source file must contain one focused callable responsibility: one exported function, or one class with one public business method. Split legacy multi-responsibility files into focused modules, import them from `index.ts`, and declare every new file and import in `plugin.yaml`.
-
-`plugin.yaml` is the execution boundary. Declare all plugin files in `source_files`, all module/runtime imports in `imports`, and plugin-to-plugin calls in `plugin_imports` plus `dependencies`. The host validates these declarations before loading a plugin.
-
-The host also scans each declared source file and rejects missing files or import specifiers absent from the YAML allowlist via `ValidatePluginSources`.
-
-Turn-based rooms expose deterministic timeout handling through `expireTicTacToeTurn(state, now, nextDeadlineAt)`; callers supply persisted clock values and must commit the resulting revision atomically.
-
-Committed Tic-tac-toe outcomes can be replayed with `reconstructTicTacToeHistory`; revisions must be contiguous from zero and every move is revalidated during replay.
-
-The host registry promotes only installed, enabled plugin versions and keeps active-work pins on their original version during promotion or rollback.
-
-Promotion also validates every configured field against the manifest schema and rejects missing or incorrectly typed values before changing the active version.
-
-Readiness is now an explicit promotion precondition; an installed but not-ready version returns `ErrNotReady` before lifecycle activation is considered.
-
-## Phase 05 completed
-
-Workflow extensions and dashboard lifecycle controls are exposed through manifest-declared TypeScript plugin routes. Project actions recheck grants, reject invalid graphs and release steps, commit retried effects once, and require explicit deployment grants. Deployment hooks require test, build, preflight, deploy, and post-deploy stages; publish credentials and host resources remain outside plugin processes. Dashboard contracts cover promotion, rollback, dependency-disable preview/apply, drain/resume/stop, and uninstall. Run `npm run lint:ts`, `npm run typecheck`, and `npm run test:ts`; Docker remains CI/release-only.
+- Never authorize from client payloads, route parameters, object keys, or plugin-supplied project IDs.
+- Keep all tests under top-level `tests/`.
+- Keep secrets out of logs, fixtures, screenshots, and diagnostics.
+- Use parameterized SQL and validated identifiers.

@@ -1,22 +1,31 @@
-# Brain mBaaS documentation
+# Brain documentation
 
-Brain is a project-isolated Go backend for apps, websites, and games.
+Brain is a project-isolated Go backend host with replaceable TypeScript plugins.
 
-## Start here
+## Choose a path
 
-- [Developer guide](developers.md)
-- [Administrator guide](admins.md)
-- [Phase options and decisions](phase-options.md)
-- [Roadmap](https://github.com/arashrasoulzadeh/brain/blob/main/roadmap.md)
-- [Changelog](https://github.com/arashrasoulzadeh/brain/blob/main/CHANGELOG.md)
+- [Developers](developers.md): local setup, plugin contracts, TDD, and verification.
+- [Administrators](admins.md): lifecycle, security, recovery, and operating rules.
+- [Plugin communication](plugin-communication.md): versioned host/worker flow.
+- [Deployment runbook](deployment-runbook.md): release checks and rollback evidence.
+- [Restore runbook](restore-runbook.md): recovery procedures.
+- [Phase options](phase-options.md): decisions and alternatives.
 
-## Current status
+## System flow
 
-Phase 00 is in progress. Local tests use an in-process host and isolated test settings. Docker is reserved for explicit integration and release checks.
+```mermaid
+flowchart LR
+  C[Client] --> T[Go transport]
+  T --> P[Host-authenticated project context]
+  P --> B[Permission broker]
+  B --> W[TypeScript plugin worker]
+  W --> S[Scoped storage / service]
+  B --> A[Audit and lifecycle state]
+  W --> R[Scoped response]
+```
 
-## Design principles
+The plugin never supplies the authoritative project identity. The host binds it before authorization and rechecks lifecycle, grants, versions, and single-use invocation credentials at commit time.
 
-- Project identity is carried through every protected operation.
-- Authorization is checked by the host, not trusted to workers or clients.
-- Runtime and migration database credentials are separate.
-- Each verified slice is tested, committed, and pushed before the next slice.
+## Local rule
+
+Do not run Docker during ordinary local development. Use in-process tests and SQLite-compatible local checks. PostgreSQL and Compose checks are explicit integration or release work.

@@ -1,7 +1,40 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Developer guide · Brain</title><style>body{max-width:850px;margin:2rem auto;padding:0 1rem;font:16px system-ui,sans-serif;line-height:1.6}code{background:#eee;padding:.15rem .3rem}a{color:#06c}</style></head><body>
-<p><a href="index.html">← Documentation home</a></p><h1>Developer guide</h1>
-<h2>Workflow</h2><ol><li>Read <code>AGENTS.md</code> and the relevant phase guide.</li><li>Select the first unchecked roadmap item.</li><li>Write one failing test.</li><li>Implement the smallest passing change.</li><li>Run formatting and <code>GOCACHE=/tmp/brain-go-cache go test ./...</code>.</li><li>Update the verified checkbox.</li><li>Commit and push before the next item.</li></ol>
-<h2>Local development</h2><p>Do not run Docker during normal development. Use in-process tests and isolated local settings. Use PostgreSQL integration tests for roles, row-level security, migrations, locks, and PostgreSQL-specific transactions.</p>
-<h2>Package boundaries</h2><ul><li><code>cmd/brain</code>: startup and wiring</li><li><code>internal/app</code>: HTTP routing</li><li><code>internal/config</code>: configuration</li><li><code>internal/db</code>: database ownership and readiness</li><li><code>internal/migrate</code>: migrations</li><li><code>internal/project</code>: project isolation</li><li><code>internal/plugin</code>: plugin registration and authorization</li></ul>
-<h2>Security</h2><p>Never trust project IDs, grants, membership, or permissions supplied by clients. Recheck lifecycle, grants, versions, and idempotency at commit time. Keep secrets out of logs and tests.</p>
-</body></html>
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Developers · Brain</title><link rel="stylesheet" href="site.css"></head>
+<body><header class="topbar"><div class="shell nav"><a class="brand" href="index.html">Brain / docs</a><nav class="nav-links"><a href="developers.html">Developers</a><a href="admins.html">Admins</a><a href="plugin-communication.md">Architecture</a></nav></div></header><main class="shell">
+<section class="hero"><div class="eyebrow">Developer guide</div><h1>Make one small, verified change at a time.</h1><p class="lede">Every backend change follows failing test → smallest implementation → focused verification → commit and push.</p></section>
+<section id="quickstart"><h2>Quickstart</h2><pre><code># no Docker required for ordinary local work
+GOCACHE=/tmp/brain-go-cache go test ./...
+go vet ./...
+npm run lint:ts
+npm run typecheck
+npm run test:ts</code></pre><p class="muted">Use Docker or Compose only for an explicit PostgreSQL/release integration check. Document the command before running it.</p></section>
+<section><h2>Plugin shape</h2><div class="split"><div><h3>Required boundary</h3><pre><code>plugins/&lt;plugin-id&gt;/
+  index.ts
+  plugin.yaml</code></pre></div><div><h3>Manifest owns policy</h3><p>Declare title, description, version, routes, functions, capabilities, source files, imports, and plugin dependencies in <code>plugin.yaml</code>. The host rejects undeclared operations and imports.</p></div></div></section>
+<section><h2>Minimal plugin example</h2><pre><code># plugins/notes/plugin.yaml
+id: notes
+version: 1.0.0
+host_api: 1
+entrypoint: index.ts
+source_files:
+  - index.ts
+imports:
+  - ../sdk-typescript/src/index.js
+capabilities:
+  - notes.read
+routes:
+  - operation: notes.list
+    function: listNotes
+    capability: notes.read</code></pre><pre><code>// plugins/notes/index.ts
+import { createHostHandler } from "../sdk-typescript/src/index.js";
+
+export const listNotes = createHostHandler("notes.list");</code></pre></section>
+<section><h2>Execution flow</h2><pre><code>1. Load and validate plugin.yaml
+2. Verify source_files, imports, and dependencies
+3. Register version and readiness state
+4. Install for a project and grant declared capabilities
+5. Host authenticates project context and issues scoped invocation
+6. Worker executes the declared route
+7. Commit rechecks lifecycle, grant, version, and single-use credential</code></pre></section>
+<section><h2>Contribution checklist</h2><ol><li>Read <code>AGENTS.md</code> and the active phase guide.</li><li>Decompose affected plugin code before adding behavior.</li><li>Write one focused failing test under <code>tests/</code>.</li><li>Implement the smallest passing change.</li><li>Run focused, package, race, lint, and full checks.</li><li>Update the roadmap checkbox only after verification.</li><li>Update developer/admin docs and newest-first changelog.</li><li>Commit one focused checkbox and push it.</li></ol></section></main><footer><div class="shell"><a href="index.html">← Documentation home</a> · <a href="../roadmap_backend.md">Backend roadmap</a></div></footer></body></html>

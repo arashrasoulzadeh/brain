@@ -1,22 +1,17 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Brain mBaaS documentation</title>
-  <style>body{max-width:800px;margin:3rem auto;padding:0 1rem;font:16px system-ui,sans-serif;line-height:1.6}a{color:#06c}</style>
-</head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Brain · project-isolated backend</title><link rel="stylesheet" href="site.css"></head>
 <body>
-  <h1>Brain mBaaS documentation</h1>
-  <p>Project-isolated Go backend for apps, websites, and games.</p>
-  <h2>Guides</h2>
-  <ul>
-    <li><a href="developers.html">Developer guide</a></li>
-    <li><a href="admins.html">Administrator guide</a></li>
-    <li><a href="phase-options.html">Phase options and decisions</a></li>
-    <li><a href="https://github.com/arashrasoulzadeh/brain/blob/main/roadmap.md">Roadmap</a></li>
-    <li><a href="https://github.com/arashrasoulzadeh/brain/blob/main/CHANGELOG.md">Changelog</a></li>
-  </ul>
-  <p>See the repository README for local setup and current implementation status.</p>
-</body>
-</html>
+<header class="topbar"><div class="shell nav"><a class="brand" href="index.html">Brain / docs</a><nav class="nav-links" aria-label="Primary"><a href="developers.html">Developers</a><a href="admins.html">Admins</a><a href="plugin-communication.md">Architecture</a><a href="../CHANGELOG.md">Changelog</a></nav></div></header>
+<main class="shell">
+<section class="hero"><div class="eyebrow">Go host · TypeScript plugins · project isolation</div><h1>Build app backends that keep boundaries explicit.</h1><p class="lede">Brain is a multi-tenant backend foundation for apps, websites, and games. The Go host owns transport, isolation, lifecycle, permissions, and workers. Product capabilities live in replaceable TypeScript plugins.</p><div class="actions"><a class="button primary" href="developers.html">Start building</a><a class="button" href="admins.html">Operate safely</a></div></section>
+<section class="grid" aria-label="Documentation paths"><article class="card"><span class="status">Local-first</span><h3>Developers</h3><p>Use in-process tests and SQLite-compatible local workflows. Learn plugin contracts, RPC, TDD, and project-scoped execution.</p><a href="developers.html">Developer guide →</a></article><article class="card"><span class="status">Auditable</span><h3>Administrators</h3><p>Understand installation, grants, readiness, promotion, draining, recovery, backups, and operator boundaries.</p><a href="admins.html">Administrator guide →</a></article><article class="card"><span class="status">Living</span><h3>Release truth</h3><p>Roadmaps, phase options, runbooks, and the newest-first per-commit changelog document what is verified.</p><a href="../roadmap_backend.md">Backend roadmap →</a></article></section>
+<section><h2>How a request moves</h2><p class="muted">The host authenticates the project context before a plugin can run. A plugin never chooses its own authorization boundary.</p><pre><code>Client → host transport → project context → permission broker → plugin worker
+                                           ↓
+                                  lifecycle + grants + audit
+                                           ↓
+                                  scoped response / commit</code></pre></section>
+<section class="split"><div><h2>Current backend focus</h2><ul><li>Project-scoped plugin installation and authorization</li><li>Manifest-driven routes, capabilities, and imports</li><li>Worker supervision and external worker handshakes</li><li>Lifecycle preview, drain, stop, recover, remove, and uninstall</li><li>Race-tested permission and lifecycle transitions</li></ul></div><div><h2>Local rules</h2><div class="callout">Do not run Docker during ordinary development. Use in-process tests and SQLite for fast local checks. PostgreSQL/Compose checks remain explicit integration or release checks.</div><p><a href="developers.html#quickstart">Run the quickstart →</a></p></div></section>
+</main>
+<footer><div class="shell">Brain documentation · static and GitHub Pages compatible · <a href="../README.md">repository README</a></div></footer>
+</body></html>
