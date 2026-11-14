@@ -651,7 +651,7 @@ Goal: finish the supported clients, publish the protocol, and rehearse productio
 ### Zarvan protocol
 
 - [x] Define transport-neutral login fixtures.
-- [ ] Define room-admission fixtures.
+- [x] Define room-admission fixtures.
 - [ ] Define assignment fixtures.
 - [ ] Define player-input fixtures.
 - [ ] Define authorized-snapshot fixtures.

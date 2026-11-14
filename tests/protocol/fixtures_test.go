@@ -33,3 +33,26 @@ func TestLoginFixtureIsTransportNeutral(t *testing.T) {
 		t.Fatalf("invalid login fixture: %+v", fixture)
 	}
 }
+
+func TestRoomAdmissionFixtureIsTransportNeutral(t *testing.T) {
+	fixturePath := filepath.Join("..", "..", "protocol", "fixtures", "room-admission.json")
+	raw, err := os.ReadFile(fixturePath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var fixture struct {
+		Protocol         int    `json:"protocol"`
+		Fixture          string `json:"fixture"`
+		ProjectID        string `json:"projectId"`
+		RoomID           string `json:"roomId"`
+		PlayerID         string `json:"playerId"`
+		ConnectionTicket string `json:"connectionTicket"`
+	}
+	if err := json.Unmarshal(raw, &fixture); err != nil {
+		t.Fatal(err)
+	}
+	if fixture.Protocol != 1 || fixture.Fixture != "room-admission" || fixture.ProjectID == "" ||
+		fixture.RoomID == "" || fixture.PlayerID == "" || fixture.ConnectionTicket == "" {
+		t.Fatalf("invalid room admission fixture: %+v", fixture)
+	}
+}

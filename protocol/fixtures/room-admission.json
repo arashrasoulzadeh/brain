@@ -1,0 +1,8 @@
+{
+  "protocol": 1,
+  "fixture": "room-admission",
+  "projectId": "dev",
+  "roomId": "fixture-room",
+  "playerId": "fixture-player-a",
+  "connectionTicket": "fixture-connection-ticket"
+}
