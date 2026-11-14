@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `a16ca7c` — 2026-11-15 01:26:07 +0330 — protect plugin installation cleanup
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `e061bf3` — 2026-11-14 21:55:45 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `aa5c8d4` — 2026-11-15 01:25:29 +0330 — serialize plugin registration lifecycle
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `d176f97` — 2026-11-14 21:55:08 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `6b97bb5` — 2026-11-15 01:03:45 +0330 — verify release images by digest
   Files: .github/workflows/release-backend.yml,tests/deploy/release_image_verification_test.go tests/deploy/release_workflow_test.go
 - `0da2616` — 2026-11-14 21:32:53 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `5d49433` — 2026-11-15 01:02:40 +0330 — reject symlinked plugin source directories
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `439b8e7` — 2026-11-14 21:32:20 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
