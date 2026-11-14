@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `6b97bb5` — 2026-11-15 01:03:45 +0330 — verify release images by digest
+  Files: .github/workflows/release-backend.yml,tests/deploy/release_image_verification_test.go tests/deploy/release_workflow_test.go
+- `0da2616` — 2026-11-14 21:32:53 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `5d49433` — 2026-11-15 01:02:40 +0330 — reject symlinked plugin source directories
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `439b8e7` — 2026-11-14 21:32:20 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `895d229` — 2026-11-15 00:40:45 +0330 — make assignment gate concurrency safe
   Files: internal/deploy/assignments.go,tests/deploy/assignments_test.go
 - `e42fa25` — 2026-11-14 21:10:19 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `c389b41` — 2026-11-15 00:40:05 +0330 — bind database and object restores to release
-  Files: internal/deploy/restore_pair.go,roadmap_backend.md tests/deploy/restore_pair_test.go
-- `5b79130` — 2026-11-14 21:09:27 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
