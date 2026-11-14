@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `5f52439` — 2026-11-14 16:45:02 +0330 — add shared subscription fixture
+  Files: roadmap.md,tests/fixtures/subscription-fixture.test.ts tests/fixtures/subscription-fixture.ts
+- `3624038` — 2026-11-14 13:14:33 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `f0b4284` — 2026-11-14 16:44:15 +0330 — add shared function fixture
   Files: roadmap.md,tests/fixtures/function-fixture.test.ts tests/fixtures/function-fixture.ts
 - `4425ecc` — 2026-11-14 13:13:46 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `41dc73e` — 2026-11-14 16:26:08 +0330 — test: reject malformed dashboard bridge messages
   Files: roadmap.md,tests/dashboard/bridge-messages.test.ts
 - `b4bcf10` — 2026-11-14 12:55:52 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `66b1b16` — 2026-11-14 16:25:38 +0330 — feat: validate typed dashboard bridge messages
-  Files: plugins/dashboard/index.ts,plugins/dashboard/plugin.yaml plugins/dashboard/validate-bridge-message.ts,roadmap.md tests/dashboard/bridge-messages.test.ts
-- `a6b2206` — 2026-11-14 12:53:30 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
