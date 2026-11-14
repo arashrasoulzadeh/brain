@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `a453c74` — 2026-11-15 00:15:16 +0330 — require assignment pause before room drain
+  Files: internal/deploy/sequence.go,tests/deploy/sequence_test.go
+- `f94118b` — 2026-11-14 19:45:31 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `4aa27f7` — 2026-11-14 23:15:16 +0330 — stop workers when disable applies
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `e4477c9` — 2026-11-14 19:44:53 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `56fb77e` — 2026-11-14 22:43:05 +0330 — run sandbox verification in privileged ci container
   Files: .github/workflows/test.yml
 - `287c439` — 2026-11-14 19:12:08 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `40cbedd` — 2026-11-14 22:41:50 +0330 — pin sandbox ci to namespace capable runner
-  Files: .github/workflows/test.yml
-- `efd818b` — 2026-11-14 19:10:15 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
