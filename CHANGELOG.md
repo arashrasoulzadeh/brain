@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `163a7d2` — 2026-11-15 01:54:24 +0330 — order plugin approval locks
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `a39cc10` — 2026-11-14 22:24:01 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `0bb6e66` — 2026-11-15 01:53:47 +0330 — require plugin resource identifiers
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `2f99655` — 2026-11-14 22:23:28 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `9e81357` — 2026-11-15 01:36:57 +0330 — reject projectless worker stops
   Files: internal/plugin/supervisor.go,tests/plugin/supervisor_test.go
 - `01a4011` — 2026-11-14 22:06:23 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `c3faacf` — 2026-11-15 01:36:10 +0330 — fail closed without project store
-  Files: internal/project/http.go,tests/project/http_test.go
-- `b06e300` — 2026-11-14 22:05:32 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
