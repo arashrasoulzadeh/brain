@@ -1,0 +1,11 @@
+{
+  "protocol": 1,
+  "fixture": "login",
+  "projectId": "dev",
+  "username": "fixture-user@example.test",
+  "password": "fixture-password-123",
+  "expected": {
+    "authenticated": true,
+    "sessionCookie": "__Host-brain_session"
+  }
+}
