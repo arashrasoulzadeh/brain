@@ -102,6 +102,33 @@ func TestRevokeStopsTheProjectWorker(t *testing.T) {
 	}
 }
 
+func TestApplyDisablePreviewStopsTheProjectWorker(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	m := plugin.Manifest{ID: "rooms", Version: "1.0.0", HostAPI: 1}
+	if err := r.Register(m); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Install("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	s := plugin.NewSupervisor()
+	w := &supervisorTestWorker{}
+	if err := s.Start("dev:rooms@1.0.0", w); err != nil {
+		t.Fatal(err)
+	}
+	r.BindSupervisor(s)
+	preview, err := r.PreviewDisable("dev", m.ID, m.Version)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := r.ApplyDisablePreview(preview); err != nil {
+		t.Fatal(err)
+	}
+	if !w.stopped || s.Ready("dev:rooms@1.0.0") {
+		t.Fatal("disable left project worker running")
+	}
+}
+
 type supervisorTestWorker struct{ stopped bool }
 
 func (w *supervisorTestWorker) Start() error { return nil }

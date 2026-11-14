@@ -369,6 +369,11 @@ func (r *Registry) ApplyDisablePreview(preview DisablePreview) error {
 	if _, ok := r.installations[preview.ProjectID+":"+preview.PluginID+"@"+preview.Version]; !ok {
 		return ErrNotInstalled
 	}
+	if r.supervisor != nil {
+		if err := r.supervisor.StopProjectPlugin(preview.ProjectID, preview.PluginID, preview.Version); err != nil && !errors.Is(err, ErrWorkerNotRunning) {
+			return err
+		}
+	}
 	r.lifecycleRevision++
 	return nil
 }
