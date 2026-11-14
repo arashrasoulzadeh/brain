@@ -5,10 +5,10 @@ import "errors"
 var ErrInvalidReleaseManifest = errors.New("invalid release manifest")
 
 type ReleaseManifest struct {
-	CommitSHA string
-	Backend   string
-	Compiler  string
-	Runner    string
+	CommitSHA string `json:"commit_sha"`
+	Backend   string `json:"backend"`
+	Compiler  string `json:"compiler"`
+	Runner    string `json:"runner"`
 }
 
 func ValidateReleaseManifest(manifest ReleaseManifest) error {
