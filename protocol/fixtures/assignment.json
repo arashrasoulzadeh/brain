@@ -1,0 +1,8 @@
+{
+  "protocol": 1,
+  "fixture": "assignment",
+  "projectId": "dev",
+  "matchId": "fixture-match",
+  "roomId": "fixture-room",
+  "players": ["fixture-player-a", "fixture-player-b"]
+}
