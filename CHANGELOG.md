@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `7cf3533` — 2026-11-14 16:35:51 +0330 — add deployment lifecycle hooks
+  Files: plugins/functions/create-deployment-hook-set.ts,plugins/functions/index.ts plugins/functions/plugin.yaml,roadmap.md tests/functions/deployment-hooks.test.ts
+- `fbc5388` — 2026-11-14 13:05:13 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `ed74c03` — 2026-11-14 16:34:59 +0330 — require explicit deployment plugin grants
   Files: plugins/functions/authorize-deployment-plugin.ts,plugins/functions/index.ts plugins/functions/plugin.yaml,roadmap.md tests/functions/workflow-components.test.ts
 - `7ba30d7` — 2026-11-14 13:04:29 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `eac7662` — 2026-11-14 16:07:44 +0330 — refactor: split invocation validation helpers
   Files: plugins/functions/execute-fixture.ts,plugins/functions/index.ts plugins/functions/invocation-types.ts,plugins/functions/invoke-direct-https.ts plugins/functions/parse-invocation-result.ts,plugins/functions/plugin.yaml plugins/functions/validate-invocation-result.ts
 - `d225da5` — 2026-11-14 12:36:42 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `2a8c8c6` — 2026-11-14 16:06:25 +0330 — refactor: split function compiler validation
-  Files: plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/validate-build-overrides.ts,plugins/functions/validate-function-limits.ts plugins/functions/validate-sdk-imports.ts,plugins/functions/validate-source-project.ts plugins/functions/wasm-build-settings.ts
-- `716e06e` — 2026-11-14 12:35:43 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
