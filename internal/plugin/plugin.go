@@ -473,6 +473,9 @@ func (r *Registry) PreviewDisable(projectID, id, version string) (DisablePreview
 	defer r.lifecycleMu.Unlock()
 	r.installationMu.RLock()
 	defer r.installationMu.RUnlock()
+	if projectID == "" {
+		return DisablePreview{}, ErrProjectInvalid
+	}
 	if _, ok := r.installations[projectID+":"+id+"@"+version]; !ok {
 		return DisablePreview{}, ErrNotInstalled
 	}
@@ -484,6 +487,9 @@ func (r *Registry) ApplyDisablePreview(preview DisablePreview) error {
 	defer r.lifecycleMu.Unlock()
 	r.installationMu.RLock()
 	defer r.installationMu.RUnlock()
+	if preview.ProjectID == "" {
+		return ErrProjectInvalid
+	}
 	if preview.Revision != r.lifecycleRevision {
 		return ErrStalePreview
 	}

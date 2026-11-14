@@ -754,6 +754,20 @@ func TestRegistryInstallRejectsDuplicateInstallation(t *testing.T) {
 	}
 }
 
+func TestRegistryDisablePreviewRejectsEmptyProject(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	manifest := plugin.Manifest{ID: "preview-project-boundary", Version: "1.0.0", HostAPI: 1}
+	if err := r.Register(manifest); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := r.PreviewDisable("", manifest.ID, manifest.Version); !errors.Is(err, plugin.ErrProjectInvalid) {
+		t.Fatalf("empty preview project error = %v, want %v", err, plugin.ErrProjectInvalid)
+	}
+	if err := r.ApplyDisablePreview(plugin.DisablePreview{PluginID: manifest.ID, Version: manifest.Version}); !errors.Is(err, plugin.ErrProjectInvalid) {
+		t.Fatalf("empty applied preview project error = %v, want %v", err, plugin.ErrProjectInvalid)
+	}
+}
+
 func TestRegistryLifecycleAndRemovalAreConcurrentSafe(t *testing.T) {
 	registry := plugin.NewRegistry(1)
 	manifest := plugin.Manifest{ID: "lifecycle-removal-concurrency", Version: "1.0.0", HostAPI: 1}
