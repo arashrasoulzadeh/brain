@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `acfeebf` — 2026-11-14 17:22:24 +0330 — add PostgreSQL deployment access check
+  Files: roadmap_backend.md,scripts/check-postgres-access.sh tests/deploy/postgres_script_test.go
+- `d3be563` — 2026-11-14 13:51:59 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `104c589` — 2026-11-14 17:21:45 +0330 — add bounded API readiness check
   Files: roadmap_backend.md,scripts/check-api-readiness.sh tests/deploy/readiness_script_test.go
 - `6c97588` — 2026-11-14 13:51:07 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `3980d5f` — 2026-11-14 16:58:14 +0330 — define player input fixture
   Files: protocol/fixtures/player-input.json,roadmap.md tests/protocol/fixtures_test.go
 - `f42f7ab` — 2026-11-14 13:28:03 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `4a48adf` — 2026-11-14 16:57:50 +0330 — define assignment fixture
-  Files: protocol/fixtures/assignment.json,roadmap.md tests/protocol/fixtures_test.go
-- `0618c1d` — 2026-11-14 13:27:41 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
