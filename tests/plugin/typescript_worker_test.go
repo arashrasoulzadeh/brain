@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"brain/internal/plugin"
 )
@@ -25,5 +26,24 @@ func TestTypeScriptWorkerExecutesThroughHostProcess(t *testing.T) {
 	}
 	if !response.Success || response.Protocol != 1 {
 		t.Fatalf("unexpected worker response: %+v", response)
+	}
+}
+
+func TestTypeScriptWorkerStopsHungInvocation(t *testing.T) {
+	directory := t.TempDir()
+	script := filepath.Join(directory, "worker.sh")
+	if err := os.WriteFile(script, []byte("#!/bin/sh\nsleep 2\n"), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	worker := plugin.NewTypeScriptWorkerWithOptions(plugin.TypeScriptWorkerOptions{InvocationTimeout: 10 * time.Millisecond}, script)
+	if err := worker.Start(); err != nil {
+		t.Fatal(err)
+	}
+	response, err := plugin.Invoke(worker, plugin.WorkerRequest{Protocol: 1, ProjectID: "project", PluginID: "sample", Version: "1.0.0", Operation: "health"}, 1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if response.ErrorCode != "typescript worker invocation timed out" || worker.Ready() {
+		t.Fatalf("hung worker was not stopped: %+v", response)
 	}
 }

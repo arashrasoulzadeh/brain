@@ -2,26 +2,38 @@ package plugin
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"errors"
 	"io"
 	"os/exec"
 	"sync"
+	"time"
 )
 
 var ErrTypeScriptWorkerStarted = errors.New("typescript worker already started")
 var ErrTypeScriptWorkerStopped = errors.New("typescript worker stopped")
+var ErrTypeScriptWorkerTimedOut = errors.New("typescript worker invocation timed out")
+
+type TypeScriptWorkerOptions struct {
+	InvocationTimeout time.Duration
+}
 
 type TypeScriptWorker struct {
 	command *exec.Cmd
 	stdin   io.WriteCloser
 	reader  *bufio.Reader
+	options TypeScriptWorkerOptions
 	mutex   sync.Mutex
 	ready   bool
 }
 
 func NewTypeScriptWorker(command string, arguments ...string) *TypeScriptWorker {
-	return &TypeScriptWorker{command: exec.Command(command, arguments...)}
+	return NewTypeScriptWorkerWithOptions(TypeScriptWorkerOptions{}, command, arguments...)
+}
+
+func NewTypeScriptWorkerWithOptions(options TypeScriptWorkerOptions, command string, arguments ...string) *TypeScriptWorker {
+	return &TypeScriptWorker{command: exec.Command(command, arguments...), options: options}
 }
 
 func (w *TypeScriptWorker) Start() error {
@@ -81,10 +93,38 @@ func (w *TypeScriptWorker) Handle(request WorkerRequest) WorkerResponse {
 		w.ready = false
 		return WorkerResponse{Protocol: request.Protocol, ErrorCode: err.Error()}
 	}
-	line, err := w.reader.ReadBytes('\n')
-	if err != nil {
+	responseLine := make(chan []byte, 1)
+	readError := make(chan error, 1)
+	go func() {
+		line, err := w.reader.ReadBytes('\n')
+		if err != nil {
+			readError <- err
+			return
+		}
+		responseLine <- line
+	}()
+	var line []byte
+	var readErr error
+	if w.options.InvocationTimeout > 0 {
+		ctx, cancel := context.WithTimeout(context.Background(), w.options.InvocationTimeout)
+		defer cancel()
+		select {
+		case line = <-responseLine:
+		case readErr = <-readError:
+		case <-ctx.Done():
+			w.ready = false
+			_ = w.command.Process.Kill()
+			return WorkerResponse{Protocol: request.Protocol, ErrorCode: ErrTypeScriptWorkerTimedOut.Error()}
+		}
+	} else {
+		select {
+		case line = <-responseLine:
+		case readErr = <-readError:
+		}
+	}
+	if readErr != nil {
 		w.ready = false
-		return WorkerResponse{Protocol: request.Protocol, ErrorCode: err.Error()}
+		return WorkerResponse{Protocol: request.Protocol, ErrorCode: readErr.Error()}
 	}
 	var response RPCResponse
 	if err := json.Unmarshal(line, &response); err != nil {
