@@ -169,6 +169,18 @@ try {
 } catch (error) {
   if (!(error instanceof Error) || error.message !== "file access denied") throw error;
 }
+try {
+  new FileAccessReader(accessGrants).read("dev", "../secret", "user-1");
+  throw new Error("path traversal object read accepted");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "invalid object identity") throw error;
+}
+try {
+  new PendingUploadReader(uploadMap).get("dev", "../secret");
+  throw new Error("path traversal upload lookup accepted");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "invalid object identity") throw error;
+}
 enforceUploadSize(10, 10);
 try {
   enforceUploadSize(11, 10);
