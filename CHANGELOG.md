@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `ebf0e13` — 2026-11-15 01:07:18 +0330 — make websocket send queue concurrency safe
+  Files: internal/plugin/websocket_queue.go,tests/plugin/websocket_queue_test.go
+- `8b77ff4` — 2026-11-14 21:36:39 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `543ea63` — 2026-11-15 01:06:25 +0330 — make caller leases single use under concurrency
   Files: internal/project/transaction_context.go,tests/project/transaction_context_test.go
 - `ed20fc6` — 2026-11-14 21:35:50 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `0ea8b29` — 2026-11-15 00:44:13 +0330 — scope function job leases by project
   Files: plugins/functions/job-lease-acquirer.ts,plugins/functions/job-lease-renewer.ts tests/functions/functions.test.ts
 - `3924c1a` — 2026-11-14 21:13:14 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `6d8b8c9` — 2026-11-15 00:43:02 +0330 — require project context for runtime SQL
-  Files: internal/db/db.go,tests/db/db_test.go
-- `ff8cabd` — 2026-11-14 21:12:23 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
