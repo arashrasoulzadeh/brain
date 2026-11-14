@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `66b1b16` — 2026-11-14 16:25:38 +0330 — feat: validate typed dashboard bridge messages
+  Files: plugins/dashboard/index.ts,plugins/dashboard/plugin.yaml plugins/dashboard/validate-bridge-message.ts,roadmap.md tests/dashboard/bridge-messages.test.ts
+- `a6b2206` — 2026-11-14 12:53:30 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `28c430a` — 2026-11-14 16:23:06 +0330 — refactor: enforce one callable per auth file
   Files: plugins/auth/auth-functions.ts,plugins/auth/auth-guest-function.ts plugins/auth/auth-session-function.ts,plugins/auth/auth-signin-function.ts plugins/auth/auth-signup-function.ts,plugins/auth/index.ts plugins/auth/plugin.yaml
 - `df0ebcb` — 2026-11-14 12:51:21 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `454a309` — 2026-11-13 13:46:21 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
 - `543830d` — 2026-11-13 17:15:59 +0330 — feat: authorize dashboard view actions
-  Files: plugins/dashboard/view-replacement-registry.ts,roadmap.md tests/dashboard/dashboard.test.ts
-- `51f4aff` — 2026-11-13 13:45:40 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `bf450ed` — 2026-11-13 17:15:20 +0330 — feat: isolate dashboard view submissions
   Files: plugins/dashboard/view-replacement-registry.ts,roadmap.md tests/dashboard/dashboard.test.ts
