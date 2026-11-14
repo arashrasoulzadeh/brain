@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `7bed196` — 2026-11-14 16:09:31 +0330 — refactor: isolate sandbox boundary checks
+  Files: plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/reject-sandbox-escape.ts,plugins/functions/run-with-timeout.ts plugins/functions/validate-execution-limits.ts,plugins/functions/validate-sandbox-capabilities.ts plugins/functions/validate-wasi-imports.ts
+- `d8d665f` — 2026-11-14 12:38:51 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `c4c0f1b` — 2026-11-14 16:08:37 +0330 — refactor: split function boundary validators
   Files: plugins/functions/diagnostic-cap.ts,plugins/functions/function-input-validation.ts plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/write-intent-validation.ts
 - `5f2241a` — 2026-11-14 12:37:59 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `e22425b` — 2026-11-13 17:05:55 +0330 — feat: protect referenced plugin versions from unregister
   Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
-- `cc33511` — 2026-11-13 13:35:14 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `d8bdb9e` — 2026-11-13 17:04:32 +0330 — test: audit project uninstall
-  Files: roadmap.md,tests/plugin/plugin_test.go
