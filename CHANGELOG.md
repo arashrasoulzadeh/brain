@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `9fe666d` — 2026-11-14 22:48:09 +0330 — bind node executable after runtime directory
+  Files: scripts/run-sandboxed-typescript-worker.sh
+- `a3ba68c` — 2026-11-14 19:16:59 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `b14ff0e` — 2026-11-14 22:46:42 +0330 — preserve node runtime mount in sandbox
   Files: scripts/run-sandboxed-typescript-worker.sh
 - `72a7447` — 2026-11-14 19:15:41 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `7eb2eee` — 2026-11-14 17:29:19 +0330 — verify PostgreSQL backup artifacts
   Files: roadmap_backend.md,scripts/verify-postgres-backup.sh tests/deploy/postgres_backup_verify_test.go
 - `a920cfe` — 2026-11-14 13:59:01 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `7443223` — 2026-11-14 17:28:46 +0330 — record referenced object versions
-  Files: internal/deploy/object_manifest.go,roadmap_backend.md tests/deploy/object_manifest_test.go
-- `1487dde` — 2026-11-14 13:58:13 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
