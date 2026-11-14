@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `da26143` — 2026-11-14 23:04:22 +0330 — allow node snapshot address space in sandbox
+  Files: scripts/test-sandboxed-typescript-worker.sh
+- `63a82e5` — 2026-11-14 19:33:05 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `bb3122e` — 2026-11-14 23:02:47 +0330 — allow node startup memory in sandbox fixture
   Files: scripts/test-sandboxed-typescript-worker.sh
 - `414b866` — 2026-11-14 19:31:14 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `f904063` — 2026-11-14 17:39:40 +0330 — gate typescript worker execution context
   Files: scripts/typescript-worker.mjs,tests/plugin/typescript-worker.test.ts
 - `a402693` — 2026-11-14 14:08:55 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `c4e20fb` — 2026-11-14 17:38:41 +0330 — add typescript worker process
-  Files: scripts/typescript-worker.mjs,tests/plugin/typescript-worker.test.ts
-- `6d4b51c` — 2026-11-14 14:06:56 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
