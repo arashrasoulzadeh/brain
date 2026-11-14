@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `7d94ffb` — 2026-11-14 16:12:03 +0330 — refactor: isolate function lifecycle stores
+  Files: plugins/functions/create-job-lease-store.ts,plugins/functions/create-record-change-trigger-store.ts plugins/functions/create-schedule-store.ts,plugins/functions/index.ts plugins/functions/plugin.yaml
+- `415b273` — 2026-11-14 12:41:28 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `4af8671` — 2026-11-14 16:11:15 +0330 — refactor: isolate invocation stores
   Files: plugins/functions/create-invocation-commit-store.ts,plugins/functions/create-invocation-effects.ts plugins/functions/index.ts,plugins/functions/plugin.yaml
 - `1dc3601` — 2026-11-14 12:40:34 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `b059a1d` — 2026-11-13 13:40:34 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
 - `c29beb0` — 2026-11-13 17:10:00 +0330 — feat: preserve operator plugin recovery
-  Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
-- `bfad1d1` — 2026-11-13 13:39:17 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `5e45d87` — 2026-11-13 17:08:41 +0330 — feat: separate durable data deletion
   Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
