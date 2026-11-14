@@ -14,7 +14,7 @@ func TestBubblewrapWorkerUsesExplicitSandboxEnvironment(t *testing.T) {
 	if err := os.WriteFile(launcher, []byte("#!/bin/sh\nif [ -n \"$SECRET\" ]; then exit 1; fi\nprintf '%s\\n' '{\"jsonrpc\":\"2.0\",\"id\":\"health\",\"result\":{\"protocol\":1,\"success\":true}}'\n"), 0o700); err != nil {
 		t.Fatal(err)
 	}
-	worker := plugin.NewBubblewrapTypeScriptWorker(launcher, "/plugin/worker.mjs", "/plugin/execution.json", "/plugin", 0)
+	worker := plugin.NewBubblewrapTypeScriptWorker(launcher, "/plugin/worker.mjs", "/plugin/execution.json", "/plugin", plugin.IsolationPolicy{FilesystemReadOnly: true, CPUMillis: 1000, MemoryBytes: 64 << 20, ProcessLimit: 8})
 	if err := worker.Start(); err != nil {
 		t.Fatal(err)
 	}

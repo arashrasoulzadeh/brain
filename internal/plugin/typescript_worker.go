@@ -7,6 +7,7 @@ import (
 	"errors"
 	"io"
 	"os/exec"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -37,7 +38,7 @@ func NewTypeScriptWorkerWithOptions(options TypeScriptWorkerOptions, command str
 	return &TypeScriptWorker{command: exec.Command(command, arguments...), options: options}
 }
 
-func NewBubblewrapTypeScriptWorker(launcher, workerScript, descriptor, pluginRoot string, timeout time.Duration) *TypeScriptWorker {
+func NewBubblewrapTypeScriptWorker(launcher, workerScript, descriptor, pluginRoot string, policy IsolationPolicy) *TypeScriptWorker {
 	return &TypeScriptWorker{
 		command: exec.Command(launcher),
 		env: []string{
@@ -45,8 +46,11 @@ func NewBubblewrapTypeScriptWorker(launcher, workerScript, descriptor, pluginRoo
 			"WORKER_SCRIPT=" + workerScript,
 			"EXECUTION_DESCRIPTOR=" + descriptor,
 			"PLUGIN_ROOT=" + pluginRoot,
+			"CPU_MILLIS=" + strconv.Itoa(policy.CPUMillis),
+			"MEMORY_BYTES=" + strconv.FormatInt(policy.MemoryBytes, 10),
+			"PROCESS_LIMIT=" + strconv.Itoa(policy.ProcessLimit),
 		},
-		options: TypeScriptWorkerOptions{InvocationTimeout: timeout},
+		options: TypeScriptWorkerOptions{InvocationTimeout: policy.WallTime},
 	}
 }
 

@@ -6,6 +6,9 @@ node_bin="${NODE_BIN:-node}"
 worker_script="${WORKER_SCRIPT:?WORKER_SCRIPT is required}"
 descriptor="${EXECUTION_DESCRIPTOR:?EXECUTION_DESCRIPTOR is required}"
 plugin_root="${PLUGIN_ROOT:?PLUGIN_ROOT is required}"
+cpu_millis="${CPU_MILLIS:?CPU_MILLIS is required}"
+memory_bytes="${MEMORY_BYTES:?MEMORY_BYTES is required}"
+process_limit="${PROCESS_LIMIT:?PROCESS_LIMIT is required}"
 
 if ! command -v "$bwrap_bin" >/dev/null 2>&1; then
   echo "sandbox launcher requires bubblewrap (set BWRAP_BIN)" >&2
@@ -20,6 +23,14 @@ node_path=$(command -v "$node_bin")
 node_dir=$(dirname "$node_path")
 worker_dir=$(dirname "$worker_script")
 descriptor_dir=$(dirname "$descriptor")
+case "$cpu_millis:$memory_bytes:$process_limit" in
+  *[!0-9:]*|0:*|*:0:*|*::*) echo "sandbox limits must be positive integers" >&2; exit 64 ;;
+esac
+cpu_seconds=$(( (cpu_millis + 999) / 1000 ))
+memory_kb=$(( (memory_bytes + 1023) / 1024 ))
+ulimit -t "$cpu_seconds"
+ulimit -v "$memory_kb"
+ulimit -u "$process_limit"
 
 exec "$bwrap_bin" \
   --die-with-parent \
