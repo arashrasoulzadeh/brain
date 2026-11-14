@@ -25,4 +25,10 @@ func TestBackupPolicyRequiresTwelveHourCadenceAndEighteenHourAlert(t *testing.T)
 	if policy.IsStale(time.Unix(0, 0), time.Unix(0, 0).Add(17*time.Hour)) {
 		t.Fatal("fresh verified backup was marked stale")
 	}
+	if !policy.MeetsDataLossTarget(time.Unix(0, 0), time.Unix(0, 0).Add(24*time.Hour)) {
+		t.Fatal("backup at the 24-hour target was rejected")
+	}
+	if policy.MeetsDataLossTarget(time.Unix(0, 0), time.Unix(0, 0).Add(25*time.Hour)) {
+		t.Fatal("backup beyond the 24-hour target was accepted")
+	}
 }

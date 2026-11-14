@@ -26,3 +26,7 @@ func (p BackupPolicy) NextDue(lastVerified time.Time) time.Time {
 func (p BackupPolicy) IsStale(lastVerified time.Time, now time.Time) bool {
 	return now.Sub(lastVerified) > p.AlertAfter
 }
+
+func (p BackupPolicy) MeetsDataLossTarget(lastVerified time.Time, now time.Time) bool {
+	return now.Sub(lastVerified) <= 24*time.Hour
+}

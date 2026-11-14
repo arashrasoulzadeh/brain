@@ -55,7 +55,7 @@ Backend infrastructure, release, deployment, backup, capacity, and security work
 - [x] Detect and test a missing object version.
 - [x] Define and test restore into a fresh Compose instance.
 - [x] Record recovery time and retention.
-- [ ] Check the 24-hour data-loss target.
+- [x] Check the 24-hour data-loss target.
 
 ## Capacity and backend release gate
 
