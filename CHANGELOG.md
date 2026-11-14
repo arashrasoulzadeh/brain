@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `858302f` — 2026-11-15 00:16:43 +0330 — add upload and job capacity workload
+  Files: internal/deploy/capacity_profile.go,tests/deploy/capacity_profile_test.go
+- `b15892d` — 2026-11-14 20:46:22 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `d928172` — 2026-11-15 00:16:08 +0330 — add representative app request capacity workload
   Files: internal/deploy/capacity_profile.go,tests/deploy/capacity_profile_test.go
 - `265f342` — 2026-11-14 20:45:36 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `2aa22bb` — 2026-11-14 22:45:28 +0330 — preserve sandbox mounts under isolated tmp
   Files: scripts/run-sandboxed-typescript-worker.sh
 - `51fc3a4` — 2026-11-14 19:14:20 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `ba30916` — 2026-11-14 22:44:06 +0330 — stabilize sandbox worker host test
-  Files: tests/plugin/bubblewrap_worker_test.go
-- `dbcf3e7` — 2026-11-14 19:13:19 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
