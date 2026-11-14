@@ -29,38 +29,14 @@ Backend infrastructure, release, deployment, backup, capacity, and security work
 
 ## Manual Compose deployment
 
-- [x] Enforce pulling all pinned images before draining.
 - [ ] Pause new match assignments.
 - [ ] Drain active rooms for the configured window.
-- [x] Close remaining sockets explicitly.
-- [x] Run the one-shot migration when required.
-- [x] Start with Compose `--no-build`.
-- [x] Check API readiness.
-- [x] Check PostgreSQL access.
-- [x] Check enabled worker health.
-- [x] Record the deployed version.
-- [x] Keep the last healthy image set.
-- [x] Test rollback with a compatible schema.
-- [x] Document incompatible-migration recovery.
 
 ## Backup and restore
 
-- [x] Define the 12-hour off-host backup schedule policy.
-- [x] Snapshot PostgreSQL consistently.
-- [x] Record referenced object versions.
-- [x] Verify the database backup.
-- [x] Verify the object manifest.
-- [x] Alert when the latest verified backup is over 18 hours old.
-- [x] Define and test a fresh restore rehearsal.
-- [x] Detect and test a missing object version.
-- [x] Define and test restore into a fresh Compose instance.
-- [x] Record recovery time and retention.
-- [x] Check the 24-hour data-loss target.
 
 ## Capacity and backend release gate
 
-- [x] Record the reference test profile.
-- [x] Start with one eight-player room.
 - [ ] Add representative app requests.
 - [ ] Add uploads and background jobs.
 - [ ] Add Eye export activity.
