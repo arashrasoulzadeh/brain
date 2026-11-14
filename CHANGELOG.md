@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `f86e2a0` — 2026-11-15 01:14:59 +0330 — reject projectless plugin removal
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `7c67478` — 2026-11-14 21:44:37 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `74a7306` — 2026-11-15 01:14:15 +0330 — serialize plugin readiness unregistration
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `d44cff9` — 2026-11-14 21:43:51 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `13f042c` — 2026-11-15 00:50:17 +0330 — wire full recovery rehearsal in CI
   Files: .github/workflows/test.yml,tests/deploy/clean_environment_script_test.go
 - `450efb4` — 2026-11-14 21:19:50 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `5063d62` — 2026-11-15 00:49:36 +0330 — rehearse explicit compose rollback
-  Files: scripts/clean-environment-rehearsal.sh,tests/deploy/clean_environment_script_test.go
-- `002176b` — 2026-11-14 21:19:19 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
