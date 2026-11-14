@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `a8f8efe` — 2026-11-15 01:30:45 +0330 — protect plugin dependency metadata
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `2e2105f` — 2026-11-14 22:00:06 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `446e983` — 2026-11-15 01:29:53 +0330 — serialize plugin grant state
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `bf216da` — 2026-11-14 21:59:29 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `17803ab` — 2026-11-15 01:08:06 +0330 — make plugin durable data concurrency safe
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `9981393` — 2026-11-14 21:37:30 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `ebf0e13` — 2026-11-15 01:07:18 +0330 — make websocket send queue concurrency safe
-  Files: internal/plugin/websocket_queue.go,tests/plugin/websocket_queue_test.go
-- `8b77ff4` — 2026-11-14 21:36:39 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
