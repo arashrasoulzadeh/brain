@@ -18,7 +18,6 @@ Backend infrastructure, release, deployment, backup, capacity, and security work
 ## Final backend gates
 
 - [ ] Project isolation holds across APIs, SQL, workers, jobs, sockets, and WASM.
-- [ ] Permission revocation affects new work and in-flight commits.
 - [ ] Recovery works after connection, worker, and deployment failures.
 - [ ] Multi-architecture images are digest-pinned.
 - [ ] Compose deployment and rollback are rehearsed.
