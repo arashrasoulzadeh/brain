@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `9146582` — 2026-11-14 16:13:56 +0330 — refactor: split workflow policy helpers
+  Files: plugins/functions/diagnose-source.ts,plugins/functions/evaluate-workflow-condition.ts plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/redact-run-status.ts,plugins/functions/run-idempotent-workflow.ts plugins/functions/validate-workflow-graph.ts
+- `9a1018e` — 2026-11-14 12:43:09 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `b6ef221` — 2026-11-14 16:12:54 +0330 — refactor: isolate function publication stores
   Files: plugins/functions/create-approval-store.ts,plugins/functions/create-function-draft-store.ts plugins/functions/create-function-publication-store.ts,plugins/functions/create-shared-package-store.ts plugins/functions/index.ts,plugins/functions/plugin.yaml
 - `2cbd143` — 2026-11-14 12:42:16 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `2d18d15` — 2026-11-13 17:11:42 +0330 — feat: render host-owned admin fixture
   Files: plugins/dashboard/host-owned-admin-view.ts,plugins/dashboard/index.ts plugins/dashboard/plugin.yaml,roadmap.md tests/dashboard/dashboard.test.ts
-- `a5a3e1f` — 2026-11-13 13:41:19 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `2fcb1ce` — 2026-11-13 17:10:55 +0330 — feat: discover declarative admin extension points
-  Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
