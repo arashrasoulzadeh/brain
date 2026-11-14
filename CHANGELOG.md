@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `7f77480` — 2026-11-14 17:07:19 +0330 — validate deployment compose configuration
+  Files: internal/deploy/compose.go,roadmap.md tests/deploy/compose_test.go
+- `2b73bf2` — 2026-11-14 13:36:05 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `2e8f689` — 2026-11-14 17:05:46 +0330 — validate release image manifest
   Files: internal/deploy/manifest.go,roadmap.md tests/deploy/manifest_test.go
 - `945c957` — 2026-11-14 13:35:31 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `9bc342b` — 2026-11-14 16:52:54 +0330 — verify native browser auth callback
   Files: clients/flutter/lib/auth_callback.dart,roadmap.md tests/flutter/auth_callback_test.dart
 - `57a473e` — 2026-11-14 13:22:36 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `a133ef4` — 2026-11-14 16:52:22 +0330 — verify flutter shared fixtures
-  Files: .gitignore,clients/flutter/pubspec.lock roadmap.md
-- `e09d58e` — 2026-11-14 13:21:34 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
