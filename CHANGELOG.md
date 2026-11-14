@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `4913227` — 2026-11-14 17:25:35 +0330 — guard rollback by schema compatibility
+  Files: internal/deploy/rollback.go,roadmap_backend.md tests/deploy/rollback_test.go
+- `62adf62` — 2026-11-14 13:55:13 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `660be6c` — 2026-11-14 17:24:58 +0330 — retain last healthy release manifest
   Files: internal/deploy/healthy_manifest.go,internal/deploy/manifest.go roadmap_backend.md,tests/deploy/healthy_manifest_test.go
 - `e508729` — 2026-11-14 13:54:20 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `ea2d311` — 2026-11-14 16:59:59 +0330 — publish versioned protocol fixtures
   Files: protocol/README.md,roadmap.md
 - `8202ec5` — 2026-11-14 13:29:55 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `1419fc3` — 2026-11-14 16:59:42 +0330 — validate protocol fixtures with dart
-  Files: clients/flutter/lib/protocol_fixtures.dart,roadmap.md tests/flutter/protocol_fixture_consumer_test.dart
-- `534efb2` — 2026-11-14 13:29:16 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
