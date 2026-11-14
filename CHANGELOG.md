@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `b60dba0` — 2026-11-15 00:44:57 +0330 — bind wasm execution to host project
+  Files: internal/plugin/wasm_runner.go,tests/plugin/wasm_runner_test.go
+- `450c51e` — 2026-11-14 21:14:27 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `0ea8b29` — 2026-11-15 00:44:13 +0330 — scope function job leases by project
   Files: plugins/functions/job-lease-acquirer.ts,plugins/functions/job-lease-renewer.ts tests/functions/functions.test.ts
 - `3924c1a` — 2026-11-14 21:13:14 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `ab313ca` — 2026-11-14 20:53:19 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
 - `810fe8a` — 2026-11-15 00:23:00 +0330 — set conservative capacity room cap
-  Files: internal/deploy/capacity_profile.go,tests/deploy/capacity_profile_test.go
-- `6e3b6fb` — 2026-11-14 20:51:58 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `fdaeb7e` — 2026-11-15 00:21:45 +0330 — require capacity resource and traffic measurements
   Files: internal/deploy/capacity_profile.go,tests/deploy/capacity_profile_test.go
