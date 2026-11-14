@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `784d958` — 2026-11-15 00:57:11 +0330 — reject ambiguous plugin routes
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `a811db5` — 2026-11-14 21:26:49 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `b41dfeb` — 2026-11-15 00:55:19 +0330 — bind websocket endpoint to host project
   Files: internal/plugin/websocket_endpoint.go,tests/plugin/websocket_endpoint_test.go
 - `7044e28` — 2026-11-14 21:24:39 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `1d644fd` — 2026-11-15 00:32:14 +0330 — publish multi-architecture backend images
   Files: .github/workflows/release-backend.yml,tests/deploy/release_workflow_test.go
-- `7f77e43` — 2026-11-14 21:02:52 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `9e88566` — 2026-11-15 00:32:05 +0330 — gate packaged cross-project isolation
-  Files: tests/deploy/packaged_isolation_test.go,tests/deploy/testdata/packaged-isolation-probe/main.go
