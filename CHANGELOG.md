@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `49d1eb2` — 2026-11-14 16:36:24 +0330 — keep publish credentials host owned
+  Files: plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/reject-plugin-credentials.ts,roadmap.md tests/functions/publish-credential-boundary.test.ts
+- `531cfa6` — 2026-11-14 13:06:03 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `7cf3533` — 2026-11-14 16:35:51 +0330 — add deployment lifecycle hooks
   Files: plugins/functions/create-deployment-hook-set.ts,plugins/functions/index.ts plugins/functions/plugin.yaml,roadmap.md tests/functions/deployment-hooks.test.ts
 - `fbc5388` — 2026-11-14 13:05:13 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `c4c0f1b` — 2026-11-14 16:08:37 +0330 — refactor: split function boundary validators
   Files: plugins/functions/diagnostic-cap.ts,plugins/functions/function-input-validation.ts plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/write-intent-validation.ts
 - `5f2241a` — 2026-11-14 12:37:59 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `eac7662` — 2026-11-14 16:07:44 +0330 — refactor: split invocation validation helpers
-  Files: plugins/functions/execute-fixture.ts,plugins/functions/index.ts plugins/functions/invocation-types.ts,plugins/functions/invoke-direct-https.ts plugins/functions/parse-invocation-result.ts,plugins/functions/plugin.yaml plugins/functions/validate-invocation-result.ts
-- `d225da5` — 2026-11-14 12:36:42 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
