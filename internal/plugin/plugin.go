@@ -340,6 +340,8 @@ func (r *Registry) DeleteDurableData(projectID, pluginID, key string) error {
 func (r *Registry) ApproveCapability(projectID, id, version, capability string) error {
 	r.approvalMu.Lock()
 	defer r.approvalMu.Unlock()
+	r.installationMu.RLock()
+	defer r.installationMu.RUnlock()
 	if projectID == "" || capability == "" {
 		return ErrProjectInvalid
 	}
@@ -504,6 +506,8 @@ func (r *Registry) Install(projectID, id, version string) error {
 func (r *Registry) GrantResource(projectID, id, version, capability, resource string) error {
 	r.grantMu.Lock()
 	defer r.grantMu.Unlock()
+	r.installationMu.Lock()
+	defer r.installationMu.Unlock()
 	if resource == "" {
 		return ErrGrantDenied
 	}
@@ -533,6 +537,8 @@ func (r *Registry) GrantResource(projectID, id, version, capability, resource st
 func (r *Registry) AuthorizeResource(projectID, id, version, capability, resource string) error {
 	r.grantMu.RLock()
 	defer r.grantMu.RUnlock()
+	r.installationMu.RLock()
+	defer r.installationMu.RUnlock()
 	if err := r.authorizeGrant(projectID, id, version, capability); err != nil {
 		return err
 	}
@@ -544,6 +550,8 @@ func (r *Registry) AuthorizeResource(projectID, id, version, capability, resourc
 }
 
 func (r *Registry) Configure(projectID, id, version string, values map[string]any) error {
+	r.installationMu.Lock()
+	defer r.installationMu.Unlock()
 	key := projectID + ":" + id + "@" + version
 	i, ok := r.installations[key]
 	if !ok {
@@ -581,6 +589,8 @@ func configTypeMatches(want string, value any) bool {
 func (r *Registry) Grant(projectID, id, version, capability string) error {
 	r.grantMu.Lock()
 	defer r.grantMu.Unlock()
+	r.installationMu.Lock()
+	defer r.installationMu.Unlock()
 	i, ok := r.installations[projectID+":"+id+"@"+version]
 	if !ok {
 		return ErrNotInstalled
@@ -599,6 +609,8 @@ func (r *Registry) Grant(projectID, id, version, capability string) error {
 func (r *Registry) Revoke(projectID, id, version, capability string) error {
 	r.grantMu.Lock()
 	defer r.grantMu.Unlock()
+	r.installationMu.Lock()
+	defer r.installationMu.Unlock()
 	key := projectID + ":" + id + "@" + version
 	i, ok := r.installations[key]
 	if !ok {
@@ -619,6 +631,8 @@ func (r *Registry) Revoke(projectID, id, version, capability string) error {
 func (r *Registry) Enable(projectID, id, version string) error {
 	r.grantMu.Lock()
 	defer r.grantMu.Unlock()
+	r.installationMu.Lock()
+	defer r.installationMu.Unlock()
 	if projectID == "" {
 		return ErrProjectInvalid
 	}
