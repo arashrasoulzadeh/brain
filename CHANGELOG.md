@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `405c065` — 2026-11-15 01:18:03 +0330 — protect plugin audit history
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `1955f5a` — 2026-11-14 21:46:07 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `46b2e24` — 2026-11-15 01:15:51 +0330 — reject projectless plugin lifecycle checks
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `6259576` — 2026-11-14 21:45:16 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `2388a95` — 2026-11-15 00:54:26 +0330 — reject duplicate manifest sources
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `ca2a89f` — 2026-11-14 21:24:15 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `0c1f923` — 2026-11-15 00:53:53 +0330 — reject manifest source traversal at load time
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `82f2747` — 2026-11-14 21:20:31 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
