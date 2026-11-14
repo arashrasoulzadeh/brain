@@ -658,7 +658,7 @@ Goal: finish the supported clients, publish the protocol, and rehearse productio
 - [x] Define reconnect fixtures.
 - [x] Validate fixtures with a Dart consumer.
 - [x] Publish fixtures with the protocol version.
-- [ ] Document compatibility and error behavior.
+- [x] Document compatibility and error behavior.
 
 ### Release images and CI
 
