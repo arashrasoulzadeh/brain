@@ -26,7 +26,10 @@ jobs:
           ref: ${{ inputs.release_sha }}
           fetch-depth: 0
       - name: Verify requested commit is on protected main
-        run: git merge-base --is-ancestor "${{ inputs.release_sha }}" refs/remotes/origin/main
+        run: |
+          set -euo pipefail
+          printf '%s\n' "${{ inputs.release_sha }}" | grep -Eq '^[0-9a-f]{40}$'
+          git merge-base --is-ancestor "${{ inputs.release_sha }}" refs/remotes/origin/main
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
@@ -40,11 +43,18 @@ jobs:
       - run: npm run lint:ts
       - run: npm run test:ts
 
-  publish:
+  publish-images:
     needs: verify
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: release
+    strategy:
+      fail-fast: false
+      matrix:
+        image:
+          - backend
+          - compiler
+          - runner
     steps:
       - uses: actions/checkout@v4
         with:
@@ -61,4 +71,41 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/brain-backend:${{ inputs.release_sha }}
+          tags: ghcr.io/${{ github.repository_owner }}/brain-${{ matrix.image }}:${{ inputs.release_sha }}
+
+  publish-manifest:
+    needs: publish-images
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: release
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.release_sha }}
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - name: Collect digest manifest
+        env:
+          IMAGE_OWNER: ${{ github.repository_owner }}
+          RELEASE_SHA: ${{ inputs.release_sha }}
+        run: |
+          set -euo pipefail
+          manifest='{"commit_sha":"'"${RELEASE_SHA}"'","images":{'
+          separator=''
+          for image in backend compiler runner; do
+            digest="$(docker buildx imagetools inspect "ghcr.io/${IMAGE_OWNER}/brain-${image}:${RELEASE_SHA}" --format '{{json .Manifest.Digest}}' | tr -d '"')"
+            test -n "${digest}"
+            manifest="${manifest}${separator}\"${image}\":\"ghcr.io/${IMAGE_OWNER}/brain-${image}@${digest}\""
+            separator=','
+          done
+          printf '%s}}\n' "${manifest}" > release-manifest.json
+          cat release-manifest.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: backend-release-manifest-${{ inputs.release_sha }}
+          path: release-manifest.json
