@@ -1138,6 +1138,28 @@ func TestAuthorizeResourceRejectsEmptyResource(t *testing.T) {
 	}
 }
 
+func TestCapabilityApprovalAndUnregistrationAreConcurrentSafe(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	m := plugin.Manifest{ID: "approval-unregister", Version: "1.0.0", HostAPI: 1, Capabilities: []string{"records.read"}}
+	if err := r.Register(m); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Install("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	var group sync.WaitGroup
+	group.Add(2)
+	go func() {
+		defer group.Done()
+		_ = r.ApproveCapability("dev", m.ID, m.Version, "records.read")
+	}()
+	go func() {
+		defer group.Done()
+		_ = r.Unregister(m.ID, m.Version)
+	}()
+	group.Wait()
+}
+
 func TestRegistryRecoveryRestartsCrashedProjectWorker(t *testing.T) {
 	r := plugin.NewRegistry(1)
 	m := plugin.Manifest{ID: "recover-runtime", Version: "1.0.0", HostAPI: 1}

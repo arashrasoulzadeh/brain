@@ -343,6 +343,8 @@ func (r *Registry) DeleteDurableData(projectID, pluginID, key string) error {
 }
 
 func (r *Registry) ApproveCapability(projectID, id, version, capability string) error {
+	r.readinessMu.RLock()
+	defer r.readinessMu.RUnlock()
 	r.approvalMu.Lock()
 	defer r.approvalMu.Unlock()
 	r.installationMu.RLock()
