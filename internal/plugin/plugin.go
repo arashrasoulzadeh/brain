@@ -81,6 +81,9 @@ func ValidateManifestContract(manifest Manifest) error {
 		if !validRelativeManifestPath(file) {
 			return ErrInvalidManifest
 		}
+		if seenFiles[file] {
+			return ErrInvalidManifest
+		}
 		seenFiles[file] = true
 	}
 	if !seenFiles[manifest.EntryPoint()] {
