@@ -38,3 +38,10 @@ func TestExternalHandshakeAuthenticatesSignature(t *testing.T) {
 		t.Fatal("invalid signature accepted")
 	}
 }
+
+func TestExternalHandshakeAuthenticationRejectsMissingIdentity(t *testing.T) {
+	h := plugin.Handshake{Protocol: 1, PluginID: "arena", Version: "1", ServiceID: "arena-dev", Signature: "signed"}
+	if plugin.AuthenticateHandshake(h, "secret") {
+		t.Fatal("handshake without project identity authenticated")
+	}
+}

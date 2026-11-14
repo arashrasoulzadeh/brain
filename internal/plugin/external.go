@@ -21,7 +21,7 @@ type Handshake struct {
 }
 
 func AuthenticateHandshake(h Handshake, secret string) bool {
-	if secret == "" || h.Signature == "" {
+	if secret == "" || h.Signature == "" || h.Protocol <= 0 || h.ProjectID == "" || h.PluginID == "" || h.Version == "" || h.ServiceID == "" {
 		return false
 	}
 	message := strings.Join([]string{strconv.Itoa(h.Protocol), h.ProjectID, h.PluginID, h.Version, h.ServiceID}, "|")
