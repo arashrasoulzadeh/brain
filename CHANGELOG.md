@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `9b009d1` — 2026-11-15 01:53:14 +0330 — validate plugin capability approvals
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `18bf5bf` — 2026-11-14 22:22:53 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `47c24bc` — 2026-11-15 01:52:42 +0330 — reject ungranted plugin revocations
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `3e10e2d` — 2026-11-14 22:22:21 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `01638f9` — 2026-11-15 01:35:18 +0330 — fail closed when plugin registry unavailable
   Files: internal/plugin/broker.go,tests/plugin/broker_test.go
 - `7d494af` — 2026-11-14 22:04:08 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `a795ca9` — 2026-11-15 01:33:49 +0330 — protect broker manifest authorization
-  Files: internal/plugin/broker.go,tests/plugin/plugin_test.go
-- `c972917` — 2026-11-14 22:03:15 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
