@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `b68fd4f` — 2026-11-15 02:06:07 +0330 — verify plugin-first host boundary
+  Files: docs/admins.md,docs/developers.md roadmap_backend.md
+- `3956b5c` — 2026-11-14 22:35:11 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `3dd11a5` — 2026-11-15 02:04:52 +0330 — refresh developer and administrator documentation
   Files: docs/admins.html,docs/admins.md docs/developers.html,docs/developers.md docs/index.html,docs/index.md docs/site.css
 - `b0d6cb2` — 2026-11-14 22:30:16 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `a48d2c9` — 2026-11-15 01:40:46 +0330 — require plugin worker keys
   Files: internal/plugin/supervisor.go,tests/plugin/supervisor_test.go
 - `c57ac11` — 2026-11-14 22:10:25 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `8e4019b` — 2026-11-15 01:40:10 +0330 — fail closed for nil caller context
-  Files: internal/project/transaction_context.go,tests/project/transaction_context_test.go
-- `351cb47` — 2026-11-14 22:09:32 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
