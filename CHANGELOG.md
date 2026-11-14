@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `0b92e4c` — 2026-11-14 17:19:14 +0330 — close tracked sockets during deploy
+  Files: internal/plugin/websocket_registry.go,roadmap_backend.md tests/plugin/websocket_registry_test.go
+- `ef4c55b` — 2026-11-14 13:48:33 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `e25b42a` — 2026-11-14 17:18:18 +0330 — drain room admissions during deploy
   Files: plugins/rooms/create-room-directory.ts,plugins/rooms/is-room-draining.ts plugins/rooms/plugin.yaml,plugins/rooms/room-creator.ts plugins/rooms/room-runtime.ts,plugins/rooms/start-room-drain.ts plugins/rooms/stop-room-drain.ts,tests/rooms/rooms.test.ts
 - `6385163` — 2026-11-14 13:47:00 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `2b2084c` — 2026-11-14 16:56:20 +0330 — complete flutter app and match flows
   Files: docs/flutter-quickstart.md,roadmap.md tests/flutter/app_match_flow_test.dart
 - `57250cc` — 2026-11-14 13:26:05 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `e53176e` — 2026-11-14 16:55:51 +0330 — complete flutter sign in flows
-  Files: clients/flutter/lib/auth_client.dart,roadmap.md tests/flutter/auth_client_test.dart
-- `cc63347` — 2026-11-14 13:25:34 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
