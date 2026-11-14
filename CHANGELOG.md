@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `e35f8eb` — 2026-11-14 16:29:55 +0330 — feat: replace project workflow steps
+  Files: plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/replace-project-workflow-step.ts,roadmap.md tests/functions/project-workflow-action.test.ts
+- `c424620` — 2026-11-14 12:59:02 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `a21eb97` — 2026-11-14 16:28:49 +0330 — feat: register project workflow actions
   Files: plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/register-project-workflow-action.ts,roadmap.md tests/functions/project-workflow-action.test.ts
 - `6d2dac9` — 2026-11-14 12:57:36 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: plugins/auth/account-project.ts,plugins/auth/auth-state.ts plugins/auth/create-auth-state.ts,plugins/auth/index.ts plugins/auth/new-session.ts,plugins/auth/password-hash.ts plugins/auth/plugin.yaml,plugins/auth/project-user-id.ts plugins/auth/validate-account.ts
 - `e2c3198` — 2026-11-14 15:50:53 +0330 — feat: embed custom views in restricted frames
   Files: plugins/dashboard/index.ts,plugins/dashboard/plugin.yaml plugins/dashboard/restricted-frame.ts,roadmap.md tests/dashboard/dashboard.test.ts
-- `b927fb1` — 2026-11-13 13:49:57 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `017c178` — 2026-11-13 17:19:34 +0330 — feat: isolate custom admin view origin
-  Files: plugins/dashboard/custom-view-origin.ts,plugins/dashboard/index.ts plugins/dashboard/plugin.yaml,roadmap.md tests/dashboard/dashboard.test.ts
