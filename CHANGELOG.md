@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `c383e15` — 2026-11-15 01:46:13 +0330 — finish socket cleanup after stop errors
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `9235e5d` — 2026-11-14 22:15:29 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `a926504` — 2026-11-15 01:45:15 +0330 — close all project sockets after errors
   Files: internal/plugin/websocket_registry.go,tests/plugin/websocket_registry_test.go
 - `f9ea4df` — 2026-11-14 22:14:54 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `a16ca7c` — 2026-11-15 01:26:07 +0330 — protect plugin installation cleanup
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `e061bf3` — 2026-11-14 21:55:45 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `aa5c8d4` — 2026-11-15 01:25:29 +0330 — serialize plugin registration lifecycle
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `d176f97` — 2026-11-14 21:55:08 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
