@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `8e4019b` — 2026-11-15 01:40:10 +0330 — fail closed for nil caller context
+  Files: internal/project/transaction_context.go,tests/project/transaction_context_test.go
+- `351cb47` — 2026-11-14 22:09:32 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `554707a` — 2026-11-15 01:39:19 +0330 — reject nil plugin workers
   Files: internal/plugin/supervisor.go,tests/plugin/supervisor_test.go
 - `0ea39c0` — 2026-11-14 22:09:03 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `301d035` — 2026-11-15 01:20:23 +0330 — protect active plugin version state
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `8a207dd` — 2026-11-14 21:50:02 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `0a90c9c` — 2026-11-15 01:19:45 +0330 — protect plugin installation state
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `1bd54af` — 2026-11-14 21:49:22 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
