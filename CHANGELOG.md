@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `b40c59d` — 2026-11-15 01:44:07 +0330 — close project sockets on revocation
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `c375b09` — 2026-11-14 22:13:29 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `6ca3489` — 2026-11-15 01:43:14 +0330 — add project scoped websocket cleanup
   Files: internal/plugin/websocket_registry.go,tests/plugin/websocket_registry_test.go
 - `6f4abd2` — 2026-11-14 22:11:57 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `430b413` — 2026-11-15 01:23:29 +0330 — serialize plugin uninstall lifecycle
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `fd08c9d` — 2026-11-14 21:53:09 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `497ba7b` — 2026-11-15 01:22:50 +0330 — serialize plugin removal and pinning
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `52f7dfc` — 2026-11-14 21:52:14 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
