@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `e51070f` — 2026-11-15 01:50:43 +0330 — stop runtime on plugin removal
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `5fe8a5b` — 2026-11-14 22:20:18 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `74c953b` — 2026-11-15 01:50:06 +0330 — surface failed project recovery
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `170c90e` — 2026-11-14 22:19:22 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `360fb3b` — 2026-11-15 01:31:27 +0330 — serialize plugin unregistration state
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `ef39714` — 2026-11-14 22:00:59 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `a8f8efe` — 2026-11-15 01:30:45 +0330 — protect plugin dependency metadata
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `2e2105f` — 2026-11-14 22:00:06 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
