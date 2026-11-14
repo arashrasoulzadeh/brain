@@ -129,6 +129,21 @@ func TestValidatePluginSourcesRejectsSymlinkedSource(t *testing.T) {
 	}
 }
 
+func TestValidatePluginSourcesRejectsSymlinkedSourceDirectory(t *testing.T) {
+	directory := t.TempDir()
+	outside := t.TempDir()
+	if err := os.WriteFile(filepath.Join(outside, "index.ts"), []byte("export const secret = true;\n"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(outside, filepath.Join(directory, "src")); err != nil {
+		t.Fatal(err)
+	}
+	manifest := plugin.Manifest{ID: "sample", Entry: "src/index.ts", Version: "1.0.0", HostAPI: 1, SourceFiles: []string{"src/index.ts"}}
+	if err := plugin.ValidatePluginSources(directory, manifest); !errors.Is(err, plugin.ErrInvalidManifest) {
+		t.Fatalf("symlinked source directory accepted: %v", err)
+	}
+}
+
 func TestPluginLifecycleAndScopedAuthorization(t *testing.T) {
 	r := plugin.NewRegistry(1)
 	m := plugin.Manifest{ID: "guest", Version: "1.0.0", HostAPI: 1, Capabilities: []string{"session.issue"}}

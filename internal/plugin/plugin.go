@@ -147,6 +147,21 @@ func validRelativeManifestPath(candidate string) bool {
 	return clean == candidate
 }
 
+func containsSymlink(root, relativePath string) bool {
+	current := root
+	for _, component := range strings.Split(relativePath, string(filepath.Separator)) {
+		current = filepath.Join(current, component)
+		info, err := os.Lstat(current)
+		if err != nil {
+			return false
+		}
+		if info.Mode()&os.ModeSymlink != 0 {
+			return true
+		}
+	}
+	return false
+}
+
 func ValidatePluginSources(directory string, manifest Manifest) error {
 	if err := ValidateManifestContract(manifest); err != nil {
 		return err
@@ -160,6 +175,9 @@ func ValidatePluginSources(directory string, manifest Manifest) error {
 			return ErrInvalidManifest
 		}
 		path := filepath.Join(directory, sourceFile)
+		if containsSymlink(directory, sourceFile) {
+			return ErrInvalidManifest
+		}
 		info, err := os.Lstat(path)
 		if err != nil || !info.Mode().IsRegular() {
 			return ErrInvalidManifest
