@@ -3,11 +3,12 @@ set -eu
 
 compose_file="${COMPOSE_FILE:?COMPOSE_FILE is required for restore}"
 restore_project="${RESTORE_PROJECT:?RESTORE_PROJECT is required for restore}"
-restore_project=$(printf '%s' "$restore_project" | tr -cd 'A-Za-z0-9_-')
-if [ -z "$restore_project" ]; then
+case "$restore_project" in
+  ''|*[!A-Za-z0-9_-]*)
   echo "RESTORE_PROJECT must contain a valid Compose project name" >&2
   exit 1
-fi
+  ;;
+esac
 
 docker compose -p "$restore_project" -f "$compose_file" up -d --no-build
 scripts/restore-postgres-backup.sh
