@@ -1,0 +1,9 @@
+{
+  "protocol": 1,
+  "fixture": "authorized-snapshot",
+  "projectId": "dev",
+  "roomId": "fixture-room",
+  "viewerId": "fixture-player-a",
+  "revision": 1,
+  "state": { "visibleCells": ["x", null, null, null, null, null, null, null, null] }
+}

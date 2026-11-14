@@ -654,7 +654,7 @@ Goal: finish the supported clients, publish the protocol, and rehearse productio
 - [x] Define room-admission fixtures.
 - [x] Define assignment fixtures.
 - [x] Define player-input fixtures.
-- [ ] Define authorized-snapshot fixtures.
+- [x] Define authorized-snapshot fixtures.
 - [ ] Define reconnect fixtures.
 - [ ] Validate fixtures with a Dart consumer.
 - [ ] Publish fixtures with the protocol version.

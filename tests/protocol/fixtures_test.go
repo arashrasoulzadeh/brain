@@ -107,3 +107,30 @@ func TestPlayerInputFixtureIsTransportNeutral(t *testing.T) {
 		t.Fatalf("invalid player input fixture: %+v", fixture)
 	}
 }
+
+func TestAuthorizedSnapshotFixtureIsTransportNeutral(t *testing.T) {
+	fixturePath := filepath.Join("..", "..", "protocol", "fixtures", "authorized-snapshot.json")
+	raw, err := os.ReadFile(fixturePath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var fixture struct {
+		Protocol  int    `json:"protocol"`
+		Fixture   string `json:"fixture"`
+		ProjectID string `json:"projectId"`
+		RoomID    string `json:"roomId"`
+		ViewerID  string `json:"viewerId"`
+		Revision  int    `json:"revision"`
+		State     struct {
+			VisibleCells []any `json:"visibleCells"`
+		} `json:"state"`
+	}
+	if err := json.Unmarshal(raw, &fixture); err != nil {
+		t.Fatal(err)
+	}
+	if fixture.Protocol != 1 || fixture.Fixture != "authorized-snapshot" || fixture.ProjectID == "" ||
+		fixture.RoomID == "" || fixture.ViewerID == "" || fixture.Revision != 1 ||
+		len(fixture.State.VisibleCells) != 9 {
+		t.Fatalf("invalid authorized snapshot fixture: %+v", fixture)
+	}
+}
