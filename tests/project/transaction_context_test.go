@@ -25,6 +25,24 @@ func TestCallerFromNilContextFailsClosed(t *testing.T) {
 	}
 }
 
+func TestCallerContextRejectsMalformedProjectIdentity(t *testing.T) {
+	defer func() {
+		if recover() == nil {
+			t.Fatal("malformed caller project was accepted")
+		}
+	}()
+	_ = project.WithCaller(context.Background(), "dev:other", "actor")
+}
+
+func TestCallerLeaseRejectsMalformedProjectIdentity(t *testing.T) {
+	defer func() {
+		if recover() == nil {
+			t.Fatal("malformed caller lease project was accepted")
+		}
+	}()
+	_ = project.NewCallerLease("dev:other", "actor")
+}
+
 func TestCallerLeaseCanBeConsumedOnlyOnceConcurrently(t *testing.T) {
 	lease := project.NewCallerLease("dev", "actor")
 	var group sync.WaitGroup

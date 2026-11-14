@@ -12,7 +12,7 @@ type Caller struct {
 type callerContextKey struct{}
 
 func WithCaller(ctx context.Context, projectID, actorID string) context.Context {
-	if projectID == "" || actorID == "" {
+	if ValidateID(projectID) != nil || actorID == "" {
 		panic("caller context requires project and actor")
 	}
 	return context.WithValue(ctx, callerContextKey{}, Caller{ProjectID: projectID, ActorID: actorID})
@@ -33,6 +33,9 @@ type CallerLease struct {
 }
 
 func NewCallerLease(projectID, actorID string) *CallerLease {
+	if ValidateID(projectID) != nil || actorID == "" {
+		panic("caller lease requires valid project and actor")
+	}
 	return &CallerLease{caller: Caller{ProjectID: projectID, ActorID: actorID}}
 }
 
