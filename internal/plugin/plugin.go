@@ -795,12 +795,18 @@ func (r *Registry) StopImmediately(projectID, id, version string) error {
 	r.installations[key] = i
 	r.lifecycleRevision++
 	r.appendAudit(AuditEvent{Action: "stop_immediate", ProjectID: projectID, PluginID: id, Version: version})
-	if r.webSockets != nil {
-		if err := r.webSockets.CloseProject(projectID); err != nil {
-			return err
+	var stopError error
+	if r.supervisor != nil {
+		if err := r.supervisor.StopProjectPlugin(projectID, id, version); err != nil && !errors.Is(err, ErrWorkerNotRunning) {
+			stopError = err
 		}
 	}
-	return nil
+	if r.webSockets != nil {
+		if err := r.webSockets.CloseProject(projectID); err != nil && stopError == nil {
+			stopError = err
+		}
+	}
+	return stopError
 }
 
 func (r *Registry) Recover(projectID, id, version string) error {
