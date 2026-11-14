@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `4a48adf` — 2026-11-14 16:57:50 +0330 — define assignment fixture
+  Files: protocol/fixtures/assignment.json,roadmap.md tests/protocol/fixtures_test.go
+- `0618c1d` — 2026-11-14 13:27:41 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `2f3117a` — 2026-11-14 16:57:27 +0330 — define room admission fixture
   Files: protocol/fixtures/room-admission.json,roadmap.md tests/protocol/fixtures_test.go
 - `bec31f5` — 2026-11-14 13:27:16 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `5f52439` — 2026-11-14 16:45:02 +0330 — add shared subscription fixture
   Files: roadmap.md,tests/fixtures/subscription-fixture.test.ts tests/fixtures/subscription-fixture.ts
 - `3624038` — 2026-11-14 13:14:33 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `f0b4284` — 2026-11-14 16:44:15 +0330 — add shared function fixture
-  Files: roadmap.md,tests/fixtures/function-fixture.test.ts tests/fixtures/function-fixture.ts
-- `4425ecc` — 2026-11-14 13:13:46 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
