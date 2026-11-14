@@ -220,6 +220,20 @@ try {
 } catch (error) {
   if (!(error instanceof Error) || error.message !== "sandbox escape attempt rejected") throw error;
 }
+for (const unsafePath of [
+  "%2e%2e/secret",
+  "/etc/passwd",
+  "C:\\\\Windows\\\\system.ini",
+  "safe\u0000path",
+]) {
+  try {
+    rejectSandboxEscapeAttempt(unsafePath);
+    throw new Error("encoded or absolute sandbox escape accepted");
+  } catch (error) {
+    if (!(error instanceof Error) || error.message !== "sandbox escape attempt rejected")
+      throw error;
+  }
+}
 const effects = createInvocationEffects();
 const failed = effects.begin();
 failed.write({ id: "failed" });
