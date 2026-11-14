@@ -126,3 +126,7 @@ export type FunctionPublication = FunctionDraft & {
 export { createFunctionPublicationStore } from "./create-function-publication-store.js";
 export { createSharedPackageStore } from "./create-shared-package-store.js";
 export { type SourceDiagnostic, diagnoseSource } from "./diagnose-source.js";
+export {
+  registerProjectWorkflowAction,
+  type ProjectWorkflowAction,
+} from "./register-project-workflow-action.js";
