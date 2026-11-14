@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `07c316b` — 2026-11-14 17:00:15 +0330 — document protocol compatibility rules
+  Files: protocol/README.md,roadmap.md
+- `5620009` — 2026-11-14 13:30:15 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `ea2d311` — 2026-11-14 16:59:59 +0330 — publish versioned protocol fixtures
   Files: protocol/README.md,roadmap.md
 - `8202ec5` — 2026-11-14 13:29:55 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `1de68b9` — 2026-11-14 16:47:45 +0330 — verify session invalidation gate
   Files: roadmap.md
 - `deaf7cb` — 2026-11-14 13:17:36 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `1d2eccd` — 2026-11-14 16:47:21 +0330 — verify csrf protection gate
-  Files: roadmap.md
-- `8f731cd` — 2026-11-14 13:17:07 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
