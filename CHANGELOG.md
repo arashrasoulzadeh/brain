@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `52d292f` — 2026-11-15 01:57:23 +0330 — reject duplicate plugin installations
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `cc88191` — 2026-11-14 22:26:54 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `e7472cb` — 2026-11-15 01:56:29 +0330 — lock permission transitions during registry changes
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `e83fb51` — 2026-11-14 22:24:38 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `a2bc42c` — 2026-11-15 01:38:09 +0330 — reject trailing handshake data
   Files: internal/plugin/external_http.go,tests/plugin/external_http_test.go
 - `1fddf06` — 2026-11-14 22:07:44 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `2f1188f` — 2026-11-15 01:37:31 +0330 — bind external handshake authentication
-  Files: internal/plugin/external.go,tests/plugin/external_test.go
-- `2efbc61` — 2026-11-14 22:07:10 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
