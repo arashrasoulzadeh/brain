@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `56fb77e` — 2026-11-14 22:43:05 +0330 — run sandbox verification in privileged ci container
+  Files: .github/workflows/test.yml
+- `287c439` — 2026-11-14 19:12:08 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `40cbedd` — 2026-11-14 22:41:50 +0330 — pin sandbox ci to namespace capable runner
   Files: .github/workflows/test.yml
 - `efd818b` — 2026-11-14 19:10:15 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `820173f` — 2026-11-14 17:26:18 +0330 — document incompatible migration recovery
   Files: docs/admins.md,docs/developers.md docs/incompatible-migration-recovery.md,roadmap_backend.md tests/deploy/recovery_doc_test.go
 - `98f4266` — 2026-11-14 13:55:49 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `4913227` — 2026-11-14 17:25:35 +0330 — guard rollback by schema compatibility
-  Files: internal/deploy/rollback.go,roadmap_backend.md tests/deploy/rollback_test.go
-- `62adf62` — 2026-11-14 13:55:13 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
