@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `0cf1f85` — 2026-11-14 22:59:26 +0330 — bound sandbox network probe
+  Files: scripts/test-sandboxed-typescript-worker.sh
+- `d91d110` — 2026-11-14 19:28:03 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `6cbde4f` — 2026-11-14 22:57:50 +0330 — mount linux loader for sandbox node
   Files: scripts/run-sandboxed-typescript-worker.sh
 - `b295124` — 2026-11-14 19:26:43 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `0063cf9` — 2026-11-14 17:36:03 +0330 — define capacity reference profile
   Files: internal/deploy/capacity_profile.go,roadmap_backend.md tests/deploy/capacity_profile_test.go
 - `42a69a2` — 2026-11-14 14:05:41 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `ff6c182` — 2026-11-14 17:35:27 +0330 — check backup data loss target
-  Files: internal/deploy/backup_policy.go,roadmap_backend.md scripts/check-data-loss-target.sh,tests/deploy/backup_policy_test.go tests/deploy/data_loss_target_script_test.go
-- `91019d6` — 2026-11-14 14:04:52 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
