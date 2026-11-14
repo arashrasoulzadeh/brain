@@ -272,10 +272,15 @@ type Registry struct {
 	durableData       map[string][]byte
 	durableMu         sync.RWMutex
 	supervisor        *Supervisor
+	webSockets        *WebSocketRegistry
 }
 
 func (r *Registry) BindSupervisor(supervisor *Supervisor) {
 	r.supervisor = supervisor
+}
+
+func (r *Registry) BindWebSocketRegistry(webSockets *WebSocketRegistry) {
+	r.webSockets = webSockets
 }
 
 type AuditEvent struct {
@@ -646,6 +651,11 @@ func (r *Registry) Revoke(projectID, id, version, capability string) error {
 			return err
 		}
 	}
+	if r.webSockets != nil {
+		if err := r.webSockets.CloseProject(projectID); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -778,6 +788,11 @@ func (r *Registry) StopImmediately(projectID, id, version string) error {
 	r.installations[key] = i
 	r.lifecycleRevision++
 	r.appendAudit(AuditEvent{Action: "stop_immediate", ProjectID: projectID, PluginID: id, Version: version})
+	if r.webSockets != nil {
+		if err := r.webSockets.CloseProject(projectID); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
