@@ -36,6 +36,14 @@ func TestBrokerAuthorizesTypedHostCall(t *testing.T) {
 	}
 }
 
+func TestBrokerRejectsMalformedProjectIdentity(t *testing.T) {
+	b := plugin.Broker{ActorAllows: func(string, string, string) bool { return true }}
+	call := plugin.HostCall{ProjectID: "dev:other", ActorID: "alice", ExpiresAt: time.Unix(100, 0)}
+	if !errors.Is(b.Authorize(call, time.Unix(99, 0)), plugin.ErrProjectInvalid) {
+		t.Fatal("malformed project identity was authorized")
+	}
+}
+
 func TestBrokerChecksMatchmakingScopeWhenPresent(t *testing.T) {
 	b := plugin.Broker{
 		ActorAllows:       func(string, string, string) bool { return true },

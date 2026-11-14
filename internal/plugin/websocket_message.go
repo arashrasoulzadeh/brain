@@ -15,7 +15,7 @@ type WebSocketMessage struct {
 }
 
 func (m WebSocketMessage) Validate(protocol int) error {
-	if m.Protocol != protocol || m.RequestID == "" || m.ProjectID == "" || m.RoomID == "" || m.Type == "" || len(m.Payload) > 1<<20 {
+	if m.Protocol != protocol || m.RequestID == "" || !isValidProjectID(m.ProjectID) || m.RoomID == "" || m.Type == "" || len(m.Payload) > 1<<20 {
 		return ErrInvalidWebSocketMessage
 	}
 	return nil
@@ -25,7 +25,7 @@ func (m WebSocketMessage) ValidateForProject(protocol int, projectID string) err
 	if err := m.Validate(protocol); err != nil {
 		return err
 	}
-	if projectID == "" || m.ProjectID != projectID {
+	if !isValidProjectID(projectID) || m.ProjectID != projectID {
 		return ErrInvalidWebSocketMessage
 	}
 	return nil

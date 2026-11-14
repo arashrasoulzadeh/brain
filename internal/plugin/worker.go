@@ -59,7 +59,7 @@ func InvokeWithCredential(broker *Broker, credential InvocationCredential, worke
 }
 
 func ValidateWorkerRequest(request WorkerRequest, hostProtocol int) error {
-	if request.Protocol != hostProtocol || request.ProjectID == "" || request.PluginID == "" || request.Version == "" || request.Operation == "" || len(request.Payload) > 1<<20 {
+	if request.Protocol != hostProtocol || !isValidProjectID(request.ProjectID) || request.PluginID == "" || request.Version == "" || request.Operation == "" || len(request.Payload) > 1<<20 {
 		return ErrInvalidWorkerRequest
 	}
 	return nil
@@ -69,7 +69,7 @@ func ValidateWorkerRequestForProject(request WorkerRequest, hostProtocol int, pr
 	if err := ValidateWorkerRequest(request, hostProtocol); err != nil {
 		return err
 	}
-	if projectID == "" || request.ProjectID != projectID {
+	if !isValidProjectID(projectID) || request.ProjectID != projectID {
 		return ErrInvalidWorkerRequest
 	}
 	return nil

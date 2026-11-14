@@ -21,7 +21,7 @@ type Handshake struct {
 }
 
 func AuthenticateHandshake(h Handshake, secret string) bool {
-	if secret == "" || h.Signature == "" || h.Protocol <= 0 || h.ProjectID == "" || h.PluginID == "" || h.Version == "" || h.ServiceID == "" {
+	if secret == "" || h.Signature == "" || h.Protocol <= 0 || !isValidProjectID(h.ProjectID) || h.PluginID == "" || h.Version == "" || h.ServiceID == "" {
 		return false
 	}
 	message := strings.Join([]string{strconv.Itoa(h.Protocol), h.ProjectID, h.PluginID, h.Version, h.ServiceID}, "|")
@@ -32,7 +32,7 @@ func AuthenticateHandshake(h Handshake, secret string) bool {
 }
 
 func ValidateHandshake(h Handshake, hostProtocol int, expectedService string) error {
-	if h.Protocol != hostProtocol || h.ProjectID == "" || h.PluginID == "" || h.Version == "" || h.ServiceID == "" || h.ServiceID != expectedService {
+	if h.Protocol != hostProtocol || !isValidProjectID(h.ProjectID) || h.PluginID == "" || h.Version == "" || h.ServiceID == "" || h.ServiceID != expectedService {
 		return ErrInvalidHandshake
 	}
 	return nil
@@ -42,7 +42,7 @@ func ValidateHandshakeForProject(h Handshake, hostProtocol int, expectedService,
 	if err := ValidateHandshake(h, hostProtocol, expectedService); err != nil {
 		return err
 	}
-	if expectedProject == "" || h.ProjectID != expectedProject {
+	if !isValidProjectID(expectedProject) || h.ProjectID != expectedProject {
 		return ErrInvalidHandshake
 	}
 	return nil
