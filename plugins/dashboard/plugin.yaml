@@ -22,6 +22,7 @@ source_files:
   - validate-csrf-token.ts
   - custom-admin-view.ts
   - custom-view-origin.ts
+  - restricted-frame.ts
   - form-audit-recorder.ts
   - form-audit-reader.ts
   - browser-quickstart.ts
@@ -40,6 +41,7 @@ imports:
   - ./validate-csrf-token.js
   - ./custom-admin-view.js
   - ./custom-view-origin.js
+  - ./restricted-frame.js
   - ./project-request.js
   - ./record-browser-page.js
   - ./record-edit-page.js
