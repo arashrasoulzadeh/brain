@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `a877763` — 2026-11-14 17:02:31 +0330 — add protected backend release workflow
+  Files: .github/workflows/release-backend.yml,roadmap.md
+- `37e1143` — 2026-11-14 13:31:56 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `3689372` — 2026-11-14 17:01:44 +0330 — align plugin enable test with grant policy
   Files: tests/plugin/plugin_test.go
 - `61f53c6` — 2026-11-14 13:31:03 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `e7f1ecf` — 2026-11-14 16:49:13 +0330 — publish browser quickstart
   Files: docs/browser-quickstart.md,roadmap.md
 - `54ad682` — 2026-11-14 13:18:59 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `b742092` — 2026-11-14 16:48:45 +0330 — add typed javascript client
-  Files: clients/javascript/src/client.ts,clients/javascript/src/index.ts roadmap.md,tests/client/javascript-client.test.ts
-- `cb54ba0` — 2026-11-14 13:18:22 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
