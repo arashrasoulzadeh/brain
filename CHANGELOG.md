@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `c389b41` — 2026-11-15 00:40:05 +0330 — bind database and object restores to release
+  Files: internal/deploy/restore_pair.go,roadmap_backend.md tests/deploy/restore_pair_test.go
+- `5b79130` — 2026-11-14 21:09:27 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `647fa51` — 2026-11-15 00:39:13 +0330 — remove completed backend roadmap items
   Files: roadmap_backend.md
 - `d38d3f6` — 2026-11-14 21:08:32 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `2db493b` — 2026-11-14 20:47:00 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
 - `858302f` — 2026-11-15 00:16:43 +0330 — add upload and job capacity workload
-  Files: internal/deploy/capacity_profile.go,tests/deploy/capacity_profile_test.go
-- `b15892d` — 2026-11-14 20:46:22 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `d928172` — 2026-11-15 00:16:08 +0330 — add representative app request capacity workload
   Files: internal/deploy/capacity_profile.go,tests/deploy/capacity_profile_test.go
