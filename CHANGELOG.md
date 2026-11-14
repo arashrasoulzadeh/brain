@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `74a7306` — 2026-11-15 01:14:15 +0330 — serialize plugin readiness unregistration
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `d44cff9` — 2026-11-14 21:43:51 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `1979883` — 2026-11-15 01:13:33 +0330 — serialize plugin lifecycle previews
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `1f182c7` — 2026-11-14 21:43:07 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `5063d62` — 2026-11-15 00:49:36 +0330 — rehearse explicit compose rollback
   Files: scripts/clean-environment-rehearsal.sh,tests/deploy/clean_environment_script_test.go
 - `002176b` — 2026-11-14 21:19:19 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `2f37359` — 2026-11-15 00:49:04 +0330 — add explicit compose rollback script
-  Files: scripts/rollback-compose.sh,tests/deploy/rollback_compose_test.go
-- `13b1c4c` — 2026-11-14 21:18:41 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
