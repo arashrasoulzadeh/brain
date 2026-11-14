@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `7fff3e1` — 2026-11-15 00:47:48 +0330 — cover revoked in-flight credentials
+  Files: tests/plugin/broker_test.go
+- `0ef8193` — 2026-11-14 21:16:59 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `0bb0413` — 2026-11-15 00:46:42 +0330 — bind external worker handshakes to project
   Files: internal/plugin/external.go,internal/plugin/external_http.go tests/plugin/external_http_test.go,tests/plugin/external_test.go
 - `f33e44a` — 2026-11-14 21:15:52 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `fce1623` — 2026-11-15 00:25:03 +0330 — publish deployment runbook
   Files: docs/admins.md,docs/deployment-runbook.md docs/developers.md
-- `033edc9` — 2026-11-14 20:54:43 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `7020298` — 2026-11-15 00:24:29 +0330 — gate releases on packaged revocation
-  Files: internal/deploy/manifest.go,tests/deploy/healthy_manifest_test.go tests/deploy/manifest_test.go,tests/deploy/rollback_test.go
