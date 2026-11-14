@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `bde06ca` — 2026-11-14 16:32:23 +0330 — validate workflow graph inputs
+  Files: plugins/functions/validate-workflow-graph.ts,roadmap.md tests/functions/functions.test.ts
+- `6397e71` — 2026-11-14 13:01:46 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `af054c2` — 2026-11-14 16:31:32 +0330 — security: recheck project workflow grants
   Files: plugins/functions/authorize-project-workflow-action.ts,plugins/functions/index.ts plugins/functions/plugin.yaml,roadmap.md tests/functions/project-workflow-action.test.ts
 - `8306354` — 2026-11-14 13:00:16 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `0e86dbc` — 2026-11-14 15:54:01 +0330 — refactor: split room authorization boundaries
   Files: plugins/rooms/authorize-room-command.ts,plugins/rooms/authorized-room-snapshot.ts plugins/rooms/create-room-directory.ts,plugins/rooms/index.ts plugins/rooms/plugin.yaml
 - `d53136a` — 2026-11-14 12:23:11 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `9152603` — 2026-11-14 15:52:50 +0330 — refactor: split tables index responsibilities
-  Files: plugins/tables/create-api-change-capture.ts,plugins/tables/create-direct-sql-change-capture.ts plugins/tables/create-schema-publication-audit.ts,plugins/tables/create-transactional-change-capture.ts plugins/tables/index.ts,plugins/tables/plan-schema-change.ts plugins/tables/plugin.yaml,plugins/tables/preview-schema-sql.ts plugins/tables/require-recent-schema-auth.ts,plugins/tables/schema-types.ts
-- `fb6503f` — 2026-11-14 12:21:06 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
