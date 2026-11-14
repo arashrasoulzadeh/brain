@@ -740,6 +740,20 @@ func TestRegistryPermissionTransitionsAndUnregistrationAreConcurrentSafe(t *test
 	group.Wait()
 }
 
+func TestRegistryInstallRejectsDuplicateInstallation(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	manifest := plugin.Manifest{ID: "duplicate-install", Version: "1.0.0", HostAPI: 1}
+	if err := r.Register(manifest); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Install("dev", manifest.ID, manifest.Version); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Install("dev", manifest.ID, manifest.Version); !errors.Is(err, plugin.ErrDuplicate) {
+		t.Fatalf("duplicate installation error = %v, want %v", err, plugin.ErrDuplicate)
+	}
+}
+
 func TestRegistryLifecycleAndRemovalAreConcurrentSafe(t *testing.T) {
 	registry := plugin.NewRegistry(1)
 	manifest := plugin.Manifest{ID: "lifecycle-removal-concurrency", Version: "1.0.0", HostAPI: 1}

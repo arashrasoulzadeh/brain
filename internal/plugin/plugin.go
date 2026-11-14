@@ -530,6 +530,9 @@ func (r *Registry) Install(projectID, id, version string) error {
 		return ErrNotRegistered
 	}
 	installKey := projectID + ":" + key
+	if _, exists := r.installations[installKey]; exists {
+		return ErrDuplicate
+	}
 	r.installations[installKey] = Installation{ProjectID: projectID, PluginID: id, Version: version, Grants: map[string]bool{}, Resources: map[string]map[string]bool{}, Config: map[string]any{}}
 	r.appendAudit(AuditEvent{Action: "install", ProjectID: projectID, PluginID: id, Version: version})
 	return nil
