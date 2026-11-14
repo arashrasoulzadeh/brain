@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `74c75b3` — 2026-11-14 16:26:54 +0330 — security: keep operator tokens out of dashboard bridges
+  Files: plugins/dashboard/plugin.yaml,plugins/dashboard/reject-sensitive-bridge-data.ts plugins/dashboard/validate-bridge-message.ts,roadmap.md tests/dashboard/bridge-messages.test.ts
+- `8478c35` — 2026-11-14 12:56:22 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `41dc73e` — 2026-11-14 16:26:08 +0330 — test: reject malformed dashboard bridge messages
   Files: roadmap.md,tests/dashboard/bridge-messages.test.ts
 - `b4bcf10` — 2026-11-14 12:55:52 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `1730e10` — 2026-11-13 17:17:56 +0330 — feat: audit dashboard view actions
   Files: plugins/dashboard/view-replacement-registry.ts,roadmap.md tests/dashboard/dashboard.test.ts
-- `39b996c` — 2026-11-13 13:47:18 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `12a7072` — 2026-11-13 17:16:49 +0330 — feat: add dashboard csrf validation
-  Files: plugins/dashboard/index.ts,plugins/dashboard/plugin.yaml plugins/dashboard/validate-csrf-token.ts,roadmap.md tests/dashboard/dashboard.test.ts
