@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `b9a8b6f` — 2026-11-14 17:23:19 +0330 — check enabled worker health before release
+  Files: internal/plugin/supervisor.go,roadmap_backend.md tests/plugin/supervisor_test.go
+- `49e553f` — 2026-11-14 13:52:40 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `acfeebf` — 2026-11-14 17:22:24 +0330 — add PostgreSQL deployment access check
   Files: roadmap_backend.md,scripts/check-postgres-access.sh tests/deploy/postgres_script_test.go
 - `d3be563` — 2026-11-14 13:51:59 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `6ebad02` — 2026-11-14 16:58:38 +0330 — define authorized snapshot fixture
   Files: protocol/fixtures/authorized-snapshot.json,roadmap.md tests/protocol/fixtures_test.go
 - `b056235` — 2026-11-14 13:28:27 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `3980d5f` — 2026-11-14 16:58:14 +0330 — define player input fixture
-  Files: protocol/fixtures/player-input.json,roadmap.md tests/protocol/fixtures_test.go
-- `f42f7ab` — 2026-11-14 13:28:03 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
