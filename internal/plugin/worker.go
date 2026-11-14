@@ -30,16 +30,6 @@ type ContractWorker interface {
 	Handle(WorkerRequest) WorkerResponse
 }
 
-func Invoke(worker ContractWorker, request WorkerRequest, protocol int) (WorkerResponse, error) {
-	if err := ValidateWorkerRequest(request, protocol); err != nil {
-		return WorkerResponse{}, err
-	}
-	if !worker.Ready() {
-		return WorkerResponse{}, ErrWorkerNotReady
-	}
-	return worker.Handle(request), nil
-}
-
 func InvokeForProject(worker ContractWorker, request WorkerRequest, protocol int, projectID string) (WorkerResponse, error) {
 	if err := ValidateWorkerRequestForProject(request, protocol, projectID); err != nil {
 		return WorkerResponse{}, err

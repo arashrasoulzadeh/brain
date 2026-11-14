@@ -19,12 +19,12 @@ func (w *contractWorker) Handle(request plugin.WorkerRequest) plugin.WorkerRespo
 func TestBundledWorkerRunsSharedContractFixture(t *testing.T) {
 	w := &contractWorker{ready: true}
 	request := plugin.WorkerRequest{Protocol: 1, ProjectID: "dev", PluginID: "arena", Version: "1", Operation: "fixture", Payload: []byte(`{"ok":true}`)}
-	response, err := plugin.Invoke(w, request, 1)
+	response, err := plugin.InvokeForProject(w, request, 1, request.ProjectID)
 	if err != nil || !response.Success || string(response.Payload) != `{"ok":true}` {
 		t.Fatalf("Invoke() = %#v, %v", response, err)
 	}
 	w.ready = false
-	if !errors.Is(func() error { _, err := plugin.Invoke(w, request, 1); return err }(), plugin.ErrWorkerNotReady) {
+	if !errors.Is(func() error { _, err := plugin.InvokeForProject(w, request, 1, request.ProjectID); return err }(), plugin.ErrWorkerNotReady) {
 		t.Fatal("unready worker accepted invocation")
 	}
 }

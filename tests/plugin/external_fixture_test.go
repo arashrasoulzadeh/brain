@@ -13,7 +13,7 @@ func TestExternalWorkerUsesSameContractFixture(t *testing.T) {
 	}
 	worker := &contractWorker{ready: true}
 	request := plugin.WorkerRequest{Protocol: 1, ProjectID: handshake.ProjectID, PluginID: handshake.PluginID, Version: handshake.Version, Operation: "fixture", Payload: []byte(`{"ok":true}`)}
-	response, err := plugin.Invoke(worker, request, handshake.Protocol)
+	response, err := plugin.InvokeForProject(worker, request, handshake.Protocol, handshake.ProjectID)
 	if err != nil || !response.Success {
 		t.Fatalf("external fixture response = %#v, %v", response, err)
 	}

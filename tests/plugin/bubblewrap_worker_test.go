@@ -33,7 +33,7 @@ func TestBubblewrapWorkerUsesExplicitSandboxEnvironment(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer func() { _ = worker.Stop() }()
-	response, err := plugin.Invoke(worker, plugin.WorkerRequest{Protocol: 1, ProjectID: "project", PluginID: "sample", Version: "1.0.0", Operation: "health"}, 1)
+	response, err := plugin.InvokeForProject(worker, plugin.WorkerRequest{Protocol: 1, ProjectID: "project", PluginID: "sample", Version: "1.0.0", Operation: "health"}, 1, "project")
 	if err != nil {
 		t.Fatal(err)
 	}
