@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `41dc73e` — 2026-11-14 16:26:08 +0330 — test: reject malformed dashboard bridge messages
+  Files: roadmap.md,tests/dashboard/bridge-messages.test.ts
+- `b4bcf10` — 2026-11-14 12:55:52 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `66b1b16` — 2026-11-14 16:25:38 +0330 — feat: validate typed dashboard bridge messages
   Files: plugins/dashboard/index.ts,plugins/dashboard/plugin.yaml plugins/dashboard/validate-bridge-message.ts,roadmap.md tests/dashboard/bridge-messages.test.ts
 - `a6b2206` — 2026-11-14 12:53:30 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `12a7072` — 2026-11-13 17:16:49 +0330 — feat: add dashboard csrf validation
   Files: plugins/dashboard/index.ts,plugins/dashboard/plugin.yaml plugins/dashboard/validate-csrf-token.ts,roadmap.md tests/dashboard/dashboard.test.ts
-- `454a309` — 2026-11-13 13:46:21 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `543830d` — 2026-11-13 17:15:59 +0330 — feat: authorize dashboard view actions
-  Files: plugins/dashboard/view-replacement-registry.ts,roadmap.md tests/dashboard/dashboard.test.ts
