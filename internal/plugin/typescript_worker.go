@@ -130,7 +130,18 @@ func (w *TypeScriptWorker) Stop() error {
 	}
 	w.ready = false
 	_ = w.stdin.Close()
-	return w.command.Process.Kill()
+	killErr := w.command.Process.Kill()
+	w.reapProcess()
+	if killErr != nil && !errors.Is(killErr, os.ErrProcessDone) {
+		return killErr
+	}
+	return nil
+}
+
+func (w *TypeScriptWorker) reapProcess() {
+	if w.command.Process != nil {
+		_ = w.command.Wait()
+	}
 }
 
 func (w *TypeScriptWorker) Ready() bool {
@@ -155,6 +166,7 @@ func (w *TypeScriptWorker) Handle(request WorkerRequest) WorkerResponse {
 	}
 	if _, err := w.stdin.Write(append(data, '\n')); err != nil {
 		w.ready = false
+		w.reapProcess()
 		return WorkerResponse{Protocol: request.Protocol, ErrorCode: err.Error()}
 	}
 	responseLine := make(chan []byte, 1)
@@ -178,6 +190,7 @@ func (w *TypeScriptWorker) Handle(request WorkerRequest) WorkerResponse {
 		case <-ctx.Done():
 			w.ready = false
 			_ = w.command.Process.Kill()
+			w.reapProcess()
 			return WorkerResponse{Protocol: request.Protocol, ErrorCode: ErrTypeScriptWorkerTimedOut.Error()}
 		}
 	} else {
@@ -188,6 +201,7 @@ func (w *TypeScriptWorker) Handle(request WorkerRequest) WorkerResponse {
 	}
 	if readErr != nil {
 		w.ready = false
+		w.reapProcess()
 		return WorkerResponse{Protocol: request.Protocol, ErrorCode: readErr.Error()}
 	}
 	var response RPCResponse

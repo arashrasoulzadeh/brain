@@ -46,6 +46,9 @@ func TestTypeScriptWorkerStopsHungInvocation(t *testing.T) {
 	if response.ErrorCode != "typescript worker invocation timed out" || worker.Ready() {
 		t.Fatalf("hung worker was not stopped: %+v", response)
 	}
+	if err := worker.Stop(); err != plugin.ErrTypeScriptWorkerStopped {
+		t.Fatalf("timed-out worker remained stoppable: %v", err)
+	}
 }
 
 func TestTypeScriptWorkerRejectsRequestOutsideHostProject(t *testing.T) {
