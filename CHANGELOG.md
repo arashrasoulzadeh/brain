@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `820173f` — 2026-11-14 17:26:18 +0330 — document incompatible migration recovery
+  Files: docs/admins.md,docs/developers.md docs/incompatible-migration-recovery.md,roadmap_backend.md tests/deploy/recovery_doc_test.go
+- `98f4266` — 2026-11-14 13:55:49 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `4913227` — 2026-11-14 17:25:35 +0330 — guard rollback by schema compatibility
   Files: internal/deploy/rollback.go,roadmap_backend.md tests/deploy/rollback_test.go
 - `62adf62` — 2026-11-14 13:55:13 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `07c316b` — 2026-11-14 17:00:15 +0330 — document protocol compatibility rules
   Files: protocol/README.md,roadmap.md
 - `5620009` — 2026-11-14 13:30:15 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `ea2d311` — 2026-11-14 16:59:59 +0330 — publish versioned protocol fixtures
-  Files: protocol/README.md,roadmap.md
-- `8202ec5` — 2026-11-14 13:29:55 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
