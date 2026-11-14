@@ -352,15 +352,15 @@ func (r *Registry) ApproveCapability(projectID, id, version, capability string) 
 }
 
 func (r *Registry) Status(projectID, pluginID, version string) (InstallationStatus, error) {
+	r.readinessMu.RLock()
+	defer r.readinessMu.RUnlock()
 	r.installationMu.RLock()
 	defer r.installationMu.RUnlock()
 	installation, ok := r.installations[projectID+":"+pluginID+"@"+version]
 	if !ok {
 		return InstallationStatus{}, ErrNotInstalled
 	}
-	r.readinessMu.RLock()
 	ready := r.readiness[pluginID+"@"+version]
-	r.readinessMu.RUnlock()
 	return InstallationStatus{ProjectID: projectID, PluginID: pluginID, Version: version, Enabled: installation.Enabled, Ready: ready, Draining: installation.Draining, DrainUntil: installation.DrainUntil}, nil
 }
 
@@ -484,6 +484,8 @@ func (r *Registry) SetReadiness(id, version string, ready bool) error {
 }
 
 func (r *Registry) Install(projectID, id, version string) error {
+	r.readinessMu.RLock()
+	defer r.readinessMu.RUnlock()
 	r.installationMu.Lock()
 	defer r.installationMu.Unlock()
 	if projectID == "" {
