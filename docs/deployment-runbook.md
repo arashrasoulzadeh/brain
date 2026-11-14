@@ -23,6 +23,8 @@ This runbook is for an operator deploying a validated release with Compose. Do n
 9. Check API readiness, PostgreSQL access, and every enabled worker.
 10. Record the deployed release SHA and retain the last healthy image set.
 
+For a complete clean-environment rehearsal with verified recovery artifacts, run `scripts/clean-environment-rehearsal.sh` with `COMPOSE_FILE`, `BACKUP_INPUT`, `RESTORE_DSN`, `OBJECT_MANIFEST`, and `BRAIN_BIN` configured.
+
 ## Rollback
 
 Use the last healthy, schema-compatible image set. Re-run readiness, database, worker-health, and version checks after rollback. Never perform an automatic destructive down-migration. For an incompatible schema, follow [`incompatible-migration-recovery.md`](incompatible-migration-recovery.md).
