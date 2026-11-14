@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `66345a9` — 2026-11-15 01:01:00 +0330 — require declared route capabilities
+  Files: internal/plugin/plugin.go,plugins/auth/plugin.yaml tests/plugin/discovery_test.go,tests/plugin/plugin_test.go
+- `5c92d2d` — 2026-11-14 21:29:35 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `9368677` — 2026-11-15 00:59:23 +0330 — require trusted caller for project middleware
   Files: internal/project/http.go,tests/project/http_test.go
 - `25b0285` — 2026-11-14 21:28:46 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: tests/plugin/worker_test.go
 - `7e69e83` — 2026-11-15 00:37:57 +0330 — harden worker credentials and deployment controls
   Files: go.mod,internal/deploy/assignments.go internal/deploy/room_drain.go,internal/plugin/worker.go tests/plugin/worker_test.go
-- `76926b0` — 2026-11-14 21:07:30 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `0b9cd72` — 2026-11-15 00:36:59 +0330 — verify multi-architecture release images
-  Files: .github/workflows/release-backend.yml,tests/deploy/assignments_test.go tests/deploy/release_image_verification_test.go,tests/deploy/release_workflow_test.go tests/deploy/room_drain_test.go,tests/plugin/worker_test.go
