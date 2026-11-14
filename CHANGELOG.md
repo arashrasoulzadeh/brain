@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `af2e8c4` — 2026-11-15 00:45:37 +0330 — remove unscoped worker invocation
+  Files: internal/plugin/worker.go,tests/plugin/bubblewrap_worker_test.go tests/plugin/external_fixture_test.go,tests/plugin/typescript_worker_test.go tests/plugin/worker_fixture_test.go
+- `28b1301` — 2026-11-14 21:15:10 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `b60dba0` — 2026-11-15 00:44:57 +0330 — bind wasm execution to host project
   Files: internal/plugin/wasm_runner.go,tests/plugin/wasm_runner_test.go
 - `450c51e` — 2026-11-14 21:14:27 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `63933fa` — 2026-11-15 00:23:50 +0330 — gate releases on packaged isolation
   Files: internal/deploy/manifest.go,tests/deploy/healthy_manifest_test.go tests/deploy/manifest_test.go,tests/deploy/rollback_test.go
-- `ab313ca` — 2026-11-14 20:53:19 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `810fe8a` — 2026-11-15 00:23:00 +0330 — set conservative capacity room cap
-  Files: internal/deploy/capacity_profile.go,tests/deploy/capacity_profile_test.go
