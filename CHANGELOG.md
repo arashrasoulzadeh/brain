@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `abe7af7` — 2026-11-15 02:28:26 +0330 — validate supervisor project teardown
+  Files: internal/plugin/supervisor.go,tests/plugin/supervisor_test.go
+- `cf64875` — 2026-11-14 22:58:07 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `958cd76` — 2026-11-15 02:27:51 +0330 — harden websocket project boundaries
   Files: internal/plugin/websocket_endpoint.go,internal/plugin/websocket_registry.go tests/plugin/websocket_endpoint_test.go,tests/plugin/websocket_registry_test.go
 - `f2cbb2b` — 2026-11-14 22:57:28 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `3dd11a5` — 2026-11-15 02:04:52 +0330 — refresh developer and administrator documentation
   Files: docs/admins.html,docs/admins.md docs/developers.html,docs/developers.md docs/index.html,docs/index.md docs/site.css
 - `b0d6cb2` — 2026-11-14 22:30:16 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `036e53f` — 2026-11-15 01:59:57 +0330 — validate manifests at registry registration
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `d1ddf96` — 2026-11-14 22:28:24 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
