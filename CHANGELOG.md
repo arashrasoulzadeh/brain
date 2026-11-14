@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `2c53022` — 2026-11-15 01:12:09 +0330 — reject projectless plugin installation
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `182a7ae` — 2026-11-14 21:41:43 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `55aa276` — 2026-11-15 01:11:26 +0330 — make invocation credentials concurrency safe
   Files: internal/plugin/broker.go,tests/plugin/broker_test.go
 - `03e8724` — 2026-11-14 21:40:05 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `7fff3e1` — 2026-11-15 00:47:48 +0330 — cover revoked in-flight credentials
   Files: tests/plugin/broker_test.go
 - `0ef8193` — 2026-11-14 21:16:59 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `0bb0413` — 2026-11-15 00:46:42 +0330 — bind external worker handshakes to project
-  Files: internal/plugin/external.go,internal/plugin/external_http.go tests/plugin/external_http_test.go,tests/plugin/external_test.go
-- `f33e44a` — 2026-11-14 21:15:52 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
