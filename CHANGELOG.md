@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `2f3117a` — 2026-11-14 16:57:27 +0330 — define room admission fixture
+  Files: protocol/fixtures/room-admission.json,roadmap.md tests/protocol/fixtures_test.go
+- `bec31f5` — 2026-11-14 13:27:16 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `0db3271` — 2026-11-14 16:57:01 +0330 — define transport neutral login fixture
   Files: protocol/fixtures/login.json,roadmap.md tests/protocol/fixtures_test.go
 - `df8d826` — 2026-11-14 13:26:34 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `f0b4284` — 2026-11-14 16:44:15 +0330 — add shared function fixture
   Files: roadmap.md,tests/fixtures/function-fixture.test.ts tests/fixtures/function-fixture.ts
 - `4425ecc` — 2026-11-14 13:13:46 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `7932761` — 2026-11-14 16:43:32 +0330 — add shared file fixture
-  Files: roadmap.md,tests/fixtures/file-fixture.test.ts tests/fixtures/file-fixture.ts
-- `6c95546` — 2026-11-14 13:13:22 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
