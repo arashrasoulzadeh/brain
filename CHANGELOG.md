@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `4af8671` — 2026-11-14 16:11:15 +0330 — refactor: isolate invocation stores
+  Files: plugins/functions/create-invocation-commit-store.ts,plugins/functions/create-invocation-effects.ts plugins/functions/index.ts,plugins/functions/plugin.yaml
+- `1dc3601` — 2026-11-14 12:40:34 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `1e381c5` — 2026-11-14 16:10:20 +0330 — refactor: isolate function retry policies
   Files: plugins/functions/commit-with-grant.ts,plugins/functions/index.ts plugins/functions/plugin.yaml,plugins/functions/run-capped-retries.ts
 - `4324839` — 2026-11-14 12:39:45 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `5e45d87` — 2026-11-13 17:08:41 +0330 — feat: separate durable data deletion
   Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
-- `a5471cf` — 2026-11-13 13:38:16 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `b855075` — 2026-11-13 17:07:46 +0330 — test: verify referenced server cleanup
-  Files: roadmap.md
