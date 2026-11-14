@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `778f6dd` — 2026-11-15 01:41:41 +0330 — bound plugin transport payloads
+  Files: internal/plugin/http_envelope.go,internal/plugin/websocket_message.go tests/plugin/http_envelope_test.go,tests/plugin/websocket_message_test.go
+- `e0206bf` — 2026-11-14 22:10:58 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `a48d2c9` — 2026-11-15 01:40:46 +0330 — require plugin worker keys
   Files: internal/plugin/supervisor.go,tests/plugin/supervisor_test.go
 - `c57ac11` — 2026-11-14 22:10:25 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `e9f2ba3` — 2026-11-15 01:21:51 +0330 — protect plugin approval and artifact state
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `60dde13` — 2026-11-14 21:51:19 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `a95a7fa` — 2026-11-15 01:21:02 +0330 — protect plugin pin state
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `7c9b68f` — 2026-11-14 21:50:42 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
