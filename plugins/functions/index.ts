@@ -133,3 +133,8 @@ export {
 export { replaceProjectWorkflowStep } from "./replace-project-workflow-step.js";
 export { authorizeProjectWorkflowAction } from "./authorize-project-workflow-action.js";
 export { authorizeDeploymentPlugin } from "./authorize-deployment-plugin.js";
+export {
+  type DeploymentHook,
+  type DeploymentHookSet,
+  createDeploymentHookSet,
+} from "./create-deployment-hook-set.js";
