@@ -19,10 +19,24 @@ func TestMiddlewareResolvesProjectAtEntryPoint(t *testing.T) {
 	}))
 	req := httptest.NewRequest(http.MethodGet, "/protected", nil)
 	req.Header.Set("X-Project-ID", "dev")
+	req = req.WithContext(project.WithCaller(req.Context(), "dev", "actor-1"))
 	res := httptest.NewRecorder()
 	handler.ServeHTTP(res, req)
 	if res.Code != http.StatusNoContent {
 		t.Fatalf("status = %d", res.Code)
+	}
+}
+
+func TestMiddlewareRejectsProjectHeaderWithoutTrustedCaller(t *testing.T) {
+	handler := project.Resolver{Store: project.NewStore(project.Project{ID: "dev", Active: true})}.Middleware(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
+		t.Fatal("handler reached without trusted caller")
+	}))
+	req := httptest.NewRequest(http.MethodGet, "/protected", nil)
+	req.Header.Set("X-Project-ID", "dev")
+	res := httptest.NewRecorder()
+	handler.ServeHTTP(res, req)
+	if res.Code != http.StatusForbidden {
+		t.Fatalf("status = %d, want %d", res.Code, http.StatusForbidden)
 	}
 }
 
@@ -34,6 +48,7 @@ func TestMiddlewareRejectsUnknownAndInactiveProjects(t *testing.T) {
 	}{{"missing", http.StatusNotFound}, {"off", http.StatusForbidden}} {
 		req := httptest.NewRequest(http.MethodGet, "/protected", nil)
 		req.Header.Set("X-Project-ID", test.id)
+		req = req.WithContext(project.WithCaller(req.Context(), test.id, "actor-1"))
 		res := httptest.NewRecorder()
 		handler.ServeHTTP(res, req)
 		if res.Code != test.want {

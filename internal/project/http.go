@@ -9,6 +9,11 @@ type Resolver struct {
 func (r Resolver) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		id := req.Header.Get("X-Project-ID")
+		caller, trusted := CallerFromContext(req.Context())
+		if !trusted || caller.ProjectID != id {
+			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+			return
+		}
 		p, err := r.Store.Resolve(id)
 		if err != nil {
 			status := http.StatusNotFound
