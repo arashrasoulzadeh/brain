@@ -196,6 +196,31 @@ func TestRegistryDurableDataSupportsConcurrentAccess(t *testing.T) {
 	group.Wait()
 }
 
+func TestRegistryReadinessSupportsConcurrentStatusReads(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	manifest := plugin.Manifest{ID: "sample", Version: "1.0.0", HostAPI: 1}
+	if err := r.Register(manifest); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Install("dev", manifest.ID, manifest.Version); err != nil {
+		t.Fatal(err)
+	}
+	var group sync.WaitGroup
+	for index := 0; index < 32; index++ {
+		group.Add(1)
+		go func(index int) {
+			defer group.Done()
+			if err := r.SetReadiness(manifest.ID, manifest.Version, index%2 == 0); err != nil {
+				t.Errorf("SetReadiness() = %v", err)
+			}
+			if _, err := r.Status("dev", manifest.ID, manifest.Version); err != nil {
+				t.Errorf("Status() = %v", err)
+			}
+		}(index)
+	}
+	group.Wait()
+}
+
 func TestRevokeStopsTheProjectWorker(t *testing.T) {
 	r := plugin.NewRegistry(1)
 	m := plugin.Manifest{ID: "guest", Version: "1.0.0", HostAPI: 1, Capabilities: []string{"session.issue"}}

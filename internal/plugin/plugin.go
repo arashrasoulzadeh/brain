@@ -256,6 +256,7 @@ type Registry struct {
 	registered        map[string]Registered
 	installations     map[string]Installation
 	readiness         map[string]bool
+	readinessMu       sync.RWMutex
 	audit             []AuditEvent
 	active            map[string]string
 	pins              map[string]string
@@ -347,7 +348,10 @@ func (r *Registry) Status(projectID, pluginID, version string) (InstallationStat
 	if !ok {
 		return InstallationStatus{}, ErrNotInstalled
 	}
-	return InstallationStatus{ProjectID: projectID, PluginID: pluginID, Version: version, Enabled: installation.Enabled, Ready: r.readiness[pluginID+"@"+version], Draining: installation.Draining, DrainUntil: installation.DrainUntil}, nil
+	r.readinessMu.RLock()
+	ready := r.readiness[pluginID+"@"+version]
+	r.readinessMu.RUnlock()
+	return InstallationStatus{ProjectID: projectID, PluginID: pluginID, Version: version, Enabled: installation.Enabled, Ready: ready, Draining: installation.Draining, DrainUntil: installation.DrainUntil}, nil
 }
 
 func (r *Registry) ApproveArtifact(id, version, endpoint string) error {
@@ -450,6 +454,8 @@ func (r *Registry) SetReadiness(id, version string, ready bool) error {
 	if _, ok := r.registered[key]; !ok {
 		return ErrNotRegistered
 	}
+	r.readinessMu.Lock()
+	defer r.readinessMu.Unlock()
 	r.readiness[key] = ready
 	r.audit = append(r.audit, AuditEvent{Action: "readiness", PluginID: id, Version: version, Detail: fmt.Sprintf("ready=%t", ready)})
 	return nil
