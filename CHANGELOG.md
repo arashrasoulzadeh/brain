@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `781d419` — 2026-11-15 02:19:00 +0330 — close numeric direct https SSRF bypasses
+  Files: plugins/functions/invoke-direct-https.ts,tests/functions/functions.test.ts
+- `864ee7f` — 2026-11-14 22:48:19 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `ab8f75f` — 2026-11-15 02:18:03 +0330 — serialize concurrent idempotent workflows
   Files: plugins/functions/run-idempotent-workflow.ts,tests/functions/functions.test.ts
 - `913c0b0` — 2026-11-14 22:47:19 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `74c953b` — 2026-11-15 01:50:06 +0330 — surface failed project recovery
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `170c90e` — 2026-11-14 22:19:22 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `9a3d085` — 2026-11-15 01:49:09 +0330 — close sockets during project recovery
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `038867f` — 2026-11-14 22:18:47 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
