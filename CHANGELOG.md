@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `3491651` — 2026-11-14 16:48:07 +0330 — verify safe reconnect retry
+  Files: roadmap.md
+- `715e5c3` — 2026-11-14 13:17:59 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `1de68b9` — 2026-11-14 16:47:45 +0330 — verify session invalidation gate
   Files: roadmap.md
 - `deaf7cb` — 2026-11-14 13:17:36 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `9aa9728` — 2026-11-14 16:33:05 +0330 — test workflow effect idempotency
   Files: roadmap.md,tests/functions/functions.test.ts
 - `294bf43` — 2026-11-14 13:02:37 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `bde06ca` — 2026-11-14 16:32:23 +0330 — validate workflow graph inputs
-  Files: plugins/functions/validate-workflow-graph.ts,roadmap.md tests/functions/functions.test.ts
-- `6397e71` — 2026-11-14 13:01:46 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
