@@ -1,0 +1,9 @@
+name: brain_flutter_client
+description: Typed Flutter contract consumer for shared Brain fixtures.
+publish_to: none
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.0.0"
+dependencies:
+  flutter:
+    sdk: flutter
