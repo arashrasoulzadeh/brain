@@ -8,6 +8,10 @@ type Resolver struct {
 
 func (r Resolver) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		if r.Store == nil {
+			http.Error(w, http.StatusText(http.StatusServiceUnavailable), http.StatusServiceUnavailable)
+			return
+		}
 		id := req.Header.Get("X-Project-ID")
 		caller, trusted := CallerFromContext(req.Context())
 		if !trusted || caller.ProjectID != id {

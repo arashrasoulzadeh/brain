@@ -56,3 +56,15 @@ func TestMiddlewareRejectsUnknownAndInactiveProjects(t *testing.T) {
 		}
 	}
 }
+
+func TestMiddlewareFailsClosedWithoutProjectStore(t *testing.T) {
+	handler := (project.Resolver{}).Middleware(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
+		t.Fatal("handler reached without project store")
+	}))
+	req := httptest.NewRequest(http.MethodGet, "/protected", nil)
+	res := httptest.NewRecorder()
+	handler.ServeHTTP(res, req)
+	if res.Code != http.StatusServiceUnavailable {
+		t.Fatalf("status = %d, want %d", res.Code, http.StatusServiceUnavailable)
+	}
+}
