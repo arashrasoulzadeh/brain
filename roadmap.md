@@ -592,7 +592,7 @@ Goal: safely promote, roll back, disable, drain, uninstall, and extend plugin-co
 - [x] Promote and roll back a plugin from the dashboard.
 - [x] Preview and apply a dependency disable.
 - [x] Demonstrate drain, resume, and immediate stop.
-- [ ] Uninstall a plugin while preserving durable records.
+- [x] Uninstall a plugin while preserving durable records.
 - [ ] Replace one admin view declaratively.
 - [ ] Replace one admin view with a custom frame.
 - [ ] Run one project workflow extension.

@@ -63,6 +63,7 @@ capabilities:
   - plugin.rollback
   - plugin.disable
   - plugin.lifecycle
+  - plugin.uninstall
   - plugin.readiness
 extension_points:
   - admin.navigation
@@ -103,6 +104,9 @@ routes:
   - operation: plugin.stop
     function: stopPlugin
     capability: plugin.lifecycle
+  - operation: plugin.uninstall
+    function: uninstallPlugin
+    capability: plugin.uninstall
   - operation: plugin.readiness
     function: showReadiness
     capability: plugin.readiness

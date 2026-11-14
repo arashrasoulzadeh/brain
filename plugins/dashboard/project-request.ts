@@ -53,6 +53,14 @@ export function pluginLifecycleRequest(
   return adminRequest(projectId, operation, pluginId, version);
 }
 
+export function pluginUninstallRequest(
+  projectId: string,
+  pluginId: string,
+  version: string,
+): RpcRequest {
+  return adminRequest(projectId, "plugin.uninstall", pluginId, version);
+}
+
 function adminRequest(
   projectId: string,
   operation: string,

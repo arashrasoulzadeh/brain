@@ -10,6 +10,7 @@ export {
   pluginDisableApplyRequest,
   pluginDisablePreviewRequest,
   pluginLifecycleRequest,
+  pluginUninstallRequest,
   projectCreateRequest,
 } from "./project-request.js";
 export { recordBrowserPage } from "./record-browser-page.js";
