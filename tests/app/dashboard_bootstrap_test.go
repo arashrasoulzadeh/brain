@@ -11,7 +11,7 @@ func TestBootstrapDashboardReturnsPinnedPluginContract(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if bootstrap.PluginID != "dashboard" || bootstrap.Version == "" || bootstrap.EntryPoint == "" {
+	if bootstrap.PluginID != "dashboard" || bootstrap.Version == "" || bootstrap.EntryPoint != "plugins/dashboard/index.ts" {
 		t.Fatalf("dashboard bootstrap = %#v", bootstrap)
 	}
 }

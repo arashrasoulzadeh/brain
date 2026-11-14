@@ -12,6 +12,6 @@ func BootstrapDashboard() (DashboardBootstrap, error) {
 	return DashboardBootstrap{
 		PluginID:   "dashboard",
 		Version:    "0.1.0",
-		EntryPoint: "plugins/dashboard/src/index.ts",
+		EntryPoint: "plugins/dashboard/index.ts",
 	}, nil
 }
