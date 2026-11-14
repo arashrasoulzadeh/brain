@@ -257,6 +257,7 @@ type Registry struct {
 	installations     map[string]Installation
 	readiness         map[string]bool
 	readinessMu       sync.RWMutex
+	grantMu           sync.RWMutex
 	audit             []AuditEvent
 	auditMu           sync.RWMutex
 	active            map[string]string
@@ -482,6 +483,8 @@ func (r *Registry) Install(projectID, id, version string) error {
 }
 
 func (r *Registry) GrantResource(projectID, id, version, capability, resource string) error {
+	r.grantMu.Lock()
+	defer r.grantMu.Unlock()
 	if resource == "" {
 		return ErrGrantDenied
 	}
@@ -509,7 +512,9 @@ func (r *Registry) GrantResource(projectID, id, version, capability, resource st
 }
 
 func (r *Registry) AuthorizeResource(projectID, id, version, capability, resource string) error {
-	if err := r.Authorize(projectID, id, version, capability); err != nil {
+	r.grantMu.RLock()
+	defer r.grantMu.RUnlock()
+	if err := r.authorizeGrant(projectID, id, version, capability); err != nil {
 		return err
 	}
 	i := r.installations[projectID+":"+id+"@"+version]
@@ -555,6 +560,8 @@ func configTypeMatches(want string, value any) bool {
 }
 
 func (r *Registry) Grant(projectID, id, version, capability string) error {
+	r.grantMu.Lock()
+	defer r.grantMu.Unlock()
 	i, ok := r.installations[projectID+":"+id+"@"+version]
 	if !ok {
 		return ErrNotInstalled
@@ -571,6 +578,8 @@ func (r *Registry) Grant(projectID, id, version, capability string) error {
 }
 
 func (r *Registry) Revoke(projectID, id, version, capability string) error {
+	r.grantMu.Lock()
+	defer r.grantMu.Unlock()
 	key := projectID + ":" + id + "@" + version
 	i, ok := r.installations[key]
 	if !ok {
@@ -589,6 +598,8 @@ func (r *Registry) Revoke(projectID, id, version, capability string) error {
 }
 
 func (r *Registry) Enable(projectID, id, version string) error {
+	r.grantMu.Lock()
+	defer r.grantMu.Unlock()
 	if projectID == "" {
 		return ErrProjectInvalid
 	}
@@ -903,6 +914,12 @@ func (r *Registry) Audit() []AuditEvent {
 }
 
 func (r *Registry) Authorize(projectID, id, version, capability string) error {
+	r.grantMu.RLock()
+	defer r.grantMu.RUnlock()
+	return r.authorizeGrant(projectID, id, version, capability)
+}
+
+func (r *Registry) authorizeGrant(projectID, id, version, capability string) error {
 	if projectID == "" {
 		return ErrProjectInvalid
 	}

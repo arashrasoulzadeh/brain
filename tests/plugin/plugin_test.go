@@ -329,6 +329,43 @@ func TestRegistryAuditSupportsConcurrentLifecycleWritesAndReads(t *testing.T) {
 	group.Wait()
 }
 
+func TestRegistryAuthorizationStateSupportsConcurrentGrantChanges(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	manifest := plugin.Manifest{ID: "grant-concurrency", Version: "1.0.0", HostAPI: 1, Capabilities: []string{"read"}}
+	if err := r.Register(manifest); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Install("dev", manifest.ID, manifest.Version); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Grant("dev", manifest.ID, manifest.Version, "read"); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.SetReadiness(manifest.ID, manifest.Version, true); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Enable("dev", manifest.ID, manifest.Version); err != nil {
+		t.Fatal(err)
+	}
+
+	var group sync.WaitGroup
+	for index := 0; index < 32; index++ {
+		group.Add(1)
+		go func(index int) {
+			defer group.Done()
+			switch index % 3 {
+			case 0:
+				_ = r.Grant("dev", manifest.ID, manifest.Version, "read")
+			case 1:
+				_ = r.Revoke("dev", manifest.ID, manifest.Version, "read")
+			default:
+				_ = r.Authorize("dev", manifest.ID, manifest.Version, "read")
+			}
+		}(index)
+	}
+	group.Wait()
+}
+
 func TestRevokeStopsTheProjectWorker(t *testing.T) {
 	r := plugin.NewRegistry(1)
 	m := plugin.Manifest{ID: "guest", Version: "1.0.0", HostAPI: 1, Capabilities: []string{"session.issue"}}
