@@ -32,3 +32,21 @@ func TestRunnerStopsBeforeMarkingFailedMigration(t *testing.T) {
 		t.Fatalf("marked=%d, want zero", marked)
 	}
 }
+
+func TestRunOneShotRunsTheMigrationSetOnce(t *testing.T) {
+	applications := 0
+	err := migrate.RunOneShot(context.Background(), []migrate.Migration{{
+		Version: 1,
+		Name:    "platform",
+		Apply: func(context.Context) error {
+			applications++
+			return nil
+		},
+	}}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if applications != 1 {
+		t.Fatalf("applications = %d, want 1", applications)
+	}
+}
