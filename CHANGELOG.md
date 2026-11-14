@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `497ba7b` — 2026-11-15 01:22:50 +0330 — serialize plugin removal and pinning
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `52f7dfc` — 2026-11-14 21:52:14 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `e9f2ba3` — 2026-11-15 01:21:51 +0330 — protect plugin approval and artifact state
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `60dde13` — 2026-11-14 21:51:19 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `9368677` — 2026-11-15 00:59:23 +0330 — require trusted caller for project middleware
   Files: internal/project/http.go,tests/project/http_test.go
 - `25b0285` — 2026-11-14 21:28:46 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `362ae3b` — 2026-11-15 00:58:32 +0330 — align dashboard bootstrap with plugin manifest
-  Files: internal/app/dashboard.go,tests/app/dashboard_bootstrap_test.go
-- `d168679` — 2026-11-14 21:28:16 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
