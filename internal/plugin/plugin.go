@@ -455,12 +455,12 @@ func (r *Registry) ApplyDisablePreview(preview DisablePreview) error {
 }
 
 func (r *Registry) SetReadiness(id, version string, ready bool) error {
+	r.readinessMu.Lock()
+	defer r.readinessMu.Unlock()
 	key := id + "@" + version
 	if _, ok := r.registered[key]; !ok {
 		return ErrNotRegistered
 	}
-	r.readinessMu.Lock()
-	defer r.readinessMu.Unlock()
 	r.readiness[key] = ready
 	r.audit = append(r.audit, AuditEvent{Action: "readiness", PluginID: id, Version: version, Detail: fmt.Sprintf("ready=%t", ready)})
 	return nil
@@ -795,6 +795,8 @@ func (r *Registry) Remove(projectID, id, version string) error {
 }
 
 func (r *Registry) Unregister(id, version string) error {
+	r.readinessMu.Lock()
+	defer r.readinessMu.Unlock()
 	key := id + "@" + version
 	if _, ok := r.registered[key]; !ok {
 		return ErrNotRegistered
