@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `ea2d311` — 2026-11-14 16:59:59 +0330 — publish versioned protocol fixtures
+  Files: protocol/README.md,roadmap.md
+- `8202ec5` — 2026-11-14 13:29:55 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `1419fc3` — 2026-11-14 16:59:42 +0330 — validate protocol fixtures with dart
   Files: clients/flutter/lib/protocol_fixtures.dart,roadmap.md tests/flutter/protocol_fixture_consumer_test.dart
 - `534efb2` — 2026-11-14 13:29:16 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `1d2eccd` — 2026-11-14 16:47:21 +0330 — verify csrf protection gate
   Files: roadmap.md
 - `8f731cd` — 2026-11-14 13:17:07 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `30f915a` — 2026-11-14 16:46:54 +0330 — add first party session cookie
-  Files: plugins/auth/first-party-session-cookie.ts,plugins/auth/index.ts plugins/auth/plugin.yaml,roadmap.md tests/auth/first-party-cookie.test.ts
-- `4a52869` — 2026-11-14 13:16:27 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
