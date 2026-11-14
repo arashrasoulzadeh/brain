@@ -5,10 +5,14 @@ import (
 	"database/sql"
 	"errors"
 	"time"
+
+	"brain/internal/project"
 )
 
 var ErrNotReady = errors.New("database not ready")
 var ErrDDLForbidden = errors.New("runtime role cannot execute DDL")
+var ErrProjectContextRequired = errors.New("project context required for runtime SQL")
+var ErrProjectContextMismatch = errors.New("runtime SQL project context mismatch")
 
 type Role string
 
@@ -75,4 +79,38 @@ func (o *Owner) Close() error {
 		return nil
 	}
 	return o.db.Close()
+}
+
+func (o *Owner) ExecProjectContext(ctx context.Context, projectID, query string, args ...any) (sql.Result, error) {
+	if err := validateProjectContext(ctx, projectID); err != nil {
+		return nil, err
+	}
+	if o == nil || o.db == nil {
+		return nil, ErrNotReady
+	}
+	return o.db.ExecContext(ctx, query, args...)
+}
+
+func (o *Owner) QueryProjectContext(ctx context.Context, projectID, query string, args ...any) (*sql.Rows, error) {
+	if err := validateProjectContext(ctx, projectID); err != nil {
+		return nil, err
+	}
+	if o == nil || o.db == nil {
+		return nil, ErrNotReady
+	}
+	return o.db.QueryContext(ctx, query, args...)
+}
+
+func validateProjectContext(ctx context.Context, projectID string) error {
+	if ctx == nil {
+		return ErrProjectContextRequired
+	}
+	caller, ok := project.FromContext(ctx)
+	if !ok || caller.ID == "" {
+		return ErrProjectContextRequired
+	}
+	if projectID == "" || caller.ID != projectID {
+		return ErrProjectContextMismatch
+	}
+	return nil
 }
