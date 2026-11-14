@@ -33,6 +33,16 @@ source_files:
   - tic-tac-toe-runtime.ts
   - tic-tac-toe-revision-reader.ts
   - tic-tac-toe-mover.ts
+  - reconstruct-tic-tac-toe-history.ts
+  - publish-tic-tac-toe-rules.ts
+  - authorized-tic-tac-toe-state.ts
+  - authorize-tic-tac-toe-command.ts
+  - command-deduplicator.ts
+  - validate-tic-tac-toe-command-payload.ts
+  - create-tic-tac-toe-coordinator.ts
+  - serialize-tic-tac-toe-state.ts
+  - reconnect-tic-tac-toe.ts
+  - hidden-tic-tac-toe-view.ts
 imports:
   - ../sdk-typescript/src/index.js
   - node:crypto
@@ -63,6 +73,16 @@ imports:
   - ./tic-tac-toe-runtime.js
   - ./tic-tac-toe-revision-reader.js
   - ./tic-tac-toe-mover.js
+  - ./reconstruct-tic-tac-toe-history.js
+  - ./publish-tic-tac-toe-rules.js
+  - ./authorized-tic-tac-toe-state.js
+  - ./authorize-tic-tac-toe-command.js
+  - ./command-deduplicator.js
+  - ./validate-tic-tac-toe-command-payload.js
+  - ./create-tic-tac-toe-coordinator.js
+  - ./serialize-tic-tac-toe-state.js
+  - ./reconnect-tic-tac-toe.js
+  - ./hidden-tic-tac-toe-view.js
   - ./index.js
 plugin_imports:
 dependencies: []
