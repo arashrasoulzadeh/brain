@@ -164,6 +164,37 @@ func TestBrokerCommitCredentialBindsProjectAndIsSingleUse(t *testing.T) {
 	}
 }
 
+func TestBrokerCommitCredentialRechecksRevokedGrant(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	m := plugin.Manifest{ID: "revocable", Version: "1.0.0", HostAPI: 1, Capabilities: []string{"write"}}
+	if err := r.Register(m); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Install("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Grant("dev", m.ID, m.Version, "write"); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.SetReadiness(m.ID, m.Version, true); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Enable("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	b := plugin.Broker{Registry: r, ActorAllows: func(string, string, string) bool { return true }}
+	credential, err := b.Issue(plugin.HostCall{ProjectID: "dev", ActorID: "actor", PluginID: m.ID, Version: m.Version, Capability: "write"}, time.Unix(99, 0), time.Minute)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Revoke("dev", m.ID, m.Version, "write"); err != nil {
+		t.Fatal(err)
+	}
+	if !errors.Is(b.CommitCredential(credential, time.Unix(99, 0)), plugin.ErrGrantDenied) {
+		t.Fatal("revoked in-flight credential committed")
+	}
+}
+
 func TestBrokerReturnsBoundedWorkerUnavailableError(t *testing.T) {
 	b := plugin.Broker{WorkerAvailable: func(string, string) bool { return false }, ActorAllows: func(string, string, string) bool { return true }}
 	err := b.Authorize(plugin.HostCall{ProjectID: "dev", ActorID: "a", PluginID: "p", Version: "1", ExpiresAt: time.Unix(100, 0)}, time.Unix(99, 0))
