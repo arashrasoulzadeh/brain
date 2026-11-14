@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `29104c7` — 2026-11-14 17:40:39 +0330 — connect typescript worker to host supervisor
+  Files: internal/plugin/typescript_worker.go,tests/plugin/typescript_worker_test.go
+- `c84ba77` — 2026-11-14 14:09:53 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `f904063` — 2026-11-14 17:39:40 +0330 — gate typescript worker execution context
   Files: scripts/typescript-worker.mjs,tests/plugin/typescript-worker.test.ts
 - `a402693` — 2026-11-14 14:08:55 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `eed37f9` — 2026-11-14 17:20:02 +0330 — add one-shot deployment migration runner
   Files: internal/migrate/oneshot.go,roadmap_backend.md tests/migrate/migrate_test.go
 - `cd03169` — 2026-11-14 13:49:28 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `0b92e4c` — 2026-11-14 17:19:14 +0330 — close tracked sockets during deploy
-  Files: internal/plugin/websocket_registry.go,roadmap_backend.md tests/plugin/websocket_registry_test.go
-- `ef4c55b` — 2026-11-14 13:48:33 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
