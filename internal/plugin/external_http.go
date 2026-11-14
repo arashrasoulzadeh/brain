@@ -2,6 +2,7 @@ package plugin
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
 )
 
@@ -23,6 +24,11 @@ func handshakeHandler(hostProtocol int, expectedService, expectedProject, secret
 		var handshake Handshake
 		decoder := json.NewDecoder(http.MaxBytesReader(w, r.Body, 4096))
 		if err := decoder.Decode(&handshake); err != nil || ValidateHandshakeForProject(handshake, hostProtocol, expectedService, expectedProject) != nil || (secret != "" && !AuthenticateHandshake(handshake, secret)) {
+			http.Error(w, "invalid handshake", http.StatusUnauthorized)
+			return
+		}
+		var trailing any
+		if err := decoder.Decode(&trailing); err != io.EOF {
 			http.Error(w, "invalid handshake", http.StatusUnauthorized)
 			return
 		}

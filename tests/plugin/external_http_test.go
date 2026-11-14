@@ -29,3 +29,14 @@ func TestExternalHandshakeEndpointRejectsInvalidHandshake(t *testing.T) {
 		t.Fatalf("status = %d", res.Code)
 	}
 }
+
+func TestExternalHandshakeEndpointRejectsTrailingJSON(t *testing.T) {
+	handler := plugin.HandshakeHandlerForProject(1, "arena-dev", "dev")
+	body := `{"protocol":1,"projectID":"dev","pluginID":"arena","version":"1","serviceID":"arena-dev"}{"extra":true}`
+	req := httptest.NewRequest(http.MethodPost, "/handshake", strings.NewReader(body))
+	res := httptest.NewRecorder()
+	handler.ServeHTTP(res, req)
+	if res.Code != http.StatusUnauthorized {
+		t.Fatalf("status = %d, want %d", res.Code, http.StatusUnauthorized)
+	}
+}
