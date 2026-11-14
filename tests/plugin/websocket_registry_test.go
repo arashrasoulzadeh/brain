@@ -36,3 +36,30 @@ func TestWebSocketRegistryClosesAndRemovesConnections(t *testing.T) {
 		t.Fatal("closed connections remained tracked")
 	}
 }
+
+func TestWebSocketRegistryClosesOnlyProjectConnections(t *testing.T) {
+	registry := plugin.NewWebSocketRegistry()
+	dev := &trackedConnection{}
+	prod := &trackedConnection{}
+	if err := registry.RegisterProject("dev-1", "dev", dev); err != nil {
+		t.Fatal(err)
+	}
+	if err := registry.RegisterProject("prod-1", "prod", prod); err != nil {
+		t.Fatal(err)
+	}
+	if err := registry.CloseProject("dev"); err != nil {
+		t.Fatal(err)
+	}
+	if !dev.closed || prod.closed {
+		t.Fatalf("project close state = dev:%v prod:%v", dev.closed, prod.closed)
+	}
+	if registry.Count() != 1 {
+		t.Fatalf("connection count = %d, want 1", registry.Count())
+	}
+}
+
+func TestWebSocketRegistryRejectsProjectlessRegistration(t *testing.T) {
+	if err := plugin.NewWebSocketRegistry().RegisterProject("connection", "", &trackedConnection{}); !errors.Is(err, plugin.ErrWebSocketProjectRequired) {
+		t.Fatalf("projectless registration error = %v", err)
+	}
+}
