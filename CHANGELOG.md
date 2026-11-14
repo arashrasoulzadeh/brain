@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `b29c103` — 2026-11-14 22:49:38 +0330 — bind node runtime trees without overlap
+  Files: scripts/run-sandboxed-typescript-worker.sh
+- `26f21a9` — 2026-11-14 19:18:22 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `9fe666d` — 2026-11-14 22:48:09 +0330 — bind node executable after runtime directory
   Files: scripts/run-sandboxed-typescript-worker.sh
 - `a3ba68c` — 2026-11-14 19:16:59 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `d09d401` — 2026-11-14 17:31:01 +0330 — verify object version manifests
   Files: cmd/brain/main.go,roadmap_backend.md scripts/verify-object-manifest.sh,tests/deploy/object_manifest_script_test.go
 - `c07d666` — 2026-11-14 13:59:35 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `7eb2eee` — 2026-11-14 17:29:19 +0330 — verify PostgreSQL backup artifacts
-  Files: roadmap_backend.md,scripts/verify-postgres-backup.sh tests/deploy/postgres_backup_verify_test.go
-- `a920cfe` — 2026-11-14 13:59:01 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
