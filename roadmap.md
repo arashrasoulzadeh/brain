@@ -584,7 +584,7 @@ Goal: safely promote, roll back, disable, drain, uninstall, and extend plugin-co
 - [x] Add explicitly granted deployment plugins.
 - [x] Add test, build, preflight, and post-deploy hooks.
 - [x] Keep publish credentials outside plugin processes.
-- [ ] Keep the Docker socket outside plugin processes.
+- [x] Keep the Docker socket outside plugin processes.
 - [ ] Audit deployment workflow steps.
 
 ### Phase 05 gate
