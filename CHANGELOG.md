@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `33a5162` — 2026-11-15 02:11:52 +0330 — validate dashboard project ids before html rendering
+  Files: docs/admins.md,docs/developers.md plugins/dashboard/custom-admin-view.ts,plugins/dashboard/plugin.yaml tests/dashboard/dashboard.test.ts
+- `d26605e` — 2026-11-14 22:37:26 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `6ffa6ed` — 2026-11-15 02:07:11 +0330 — verify single use commit credentials
   Files: roadmap_backend.md
 - `063afca` — 2026-11-14 22:37:09 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `3ad9f9b` — 2026-11-15 01:44:41 +0330 — close project sockets on disable
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `b0cefc8` — 2026-11-14 22:14:19 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `b40c59d` — 2026-11-15 01:44:07 +0330 — close project sockets on revocation
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `c375b09` — 2026-11-14 22:13:29 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
