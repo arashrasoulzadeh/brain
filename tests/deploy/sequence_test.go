@@ -26,3 +26,10 @@ func TestValidateDeploymentSequencePullsBeforeDrain(t *testing.T) {
 		t.Fatal("accepted image pull after drain")
 	}
 }
+
+func TestValidateDeploymentSequenceRequiresPauseBeforeDrain(t *testing.T) {
+	steps := []deploy.DeploymentStep{deploy.StepAcquireLock, deploy.StepValidateRelease, deploy.StepValidateCompose, deploy.StepPullImages, deploy.StepDrainRooms}
+	if err := deploy.ValidateDeploymentSequence(steps); !errors.Is(err, deploy.ErrDeploymentOrder) {
+		t.Fatalf("drain without pausing assignments accepted: %v", err)
+	}
+}

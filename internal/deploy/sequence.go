@@ -27,6 +27,12 @@ func ValidateDeploymentSequence(steps []DeploymentStep) error {
 	if drainIndex >= 0 && pullIndex > drainIndex {
 		return ErrImagesPulledAfterDrain
 	}
+	if drainIndex >= 0 {
+		pauseIndex := indexOfDeploymentStep(steps, StepPauseAssignments)
+		if pauseIndex < 0 || pauseIndex > drainIndex {
+			return ErrDeploymentOrder
+		}
+	}
 	for _, required := range []DeploymentStep{StepAcquireLock, StepValidateRelease, StepValidateCompose} {
 		if indexOfDeploymentStep(steps, required) < 0 {
 			return ErrDeploymentOrder
