@@ -39,3 +39,20 @@ func TestWorkerRequestRejectsHostProjectMismatch(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestInvokeForProjectBindsExecutionToHostContext(t *testing.T) {
+	worker := &readyWorker{}
+	request := plugin.WorkerRequest{Protocol: 1, ProjectID: "client-project", PluginID: "sample", Version: "1.0.0", Operation: "health"}
+	if _, err := plugin.InvokeForProject(worker, request, 1, "host-project"); !errors.Is(err, plugin.ErrInvalidWorkerRequest) {
+		t.Fatalf("client project identity was trusted: %v", err)
+	}
+}
+
+type readyWorker struct{}
+
+func (readyWorker) Start() error { return nil }
+func (readyWorker) Stop() error  { return nil }
+func (readyWorker) Ready() bool  { return true }
+func (readyWorker) Handle(request plugin.WorkerRequest) plugin.WorkerResponse {
+	return plugin.WorkerResponse{Protocol: request.Protocol, Success: true}
+}

@@ -36,6 +36,16 @@ func Invoke(worker ContractWorker, request WorkerRequest, protocol int) (WorkerR
 	return worker.Handle(request), nil
 }
 
+func InvokeForProject(worker ContractWorker, request WorkerRequest, protocol int, projectID string) (WorkerResponse, error) {
+	if err := ValidateWorkerRequestForProject(request, protocol, projectID); err != nil {
+		return WorkerResponse{}, err
+	}
+	if !worker.Ready() {
+		return WorkerResponse{}, ErrWorkerNotReady
+	}
+	return worker.Handle(request), nil
+}
+
 func ValidateWorkerRequest(request WorkerRequest, hostProtocol int) error {
 	if request.Protocol != hostProtocol || request.ProjectID == "" || request.PluginID == "" || request.Version == "" || request.Operation == "" || len(request.Payload) > 1<<20 {
 		return ErrInvalidWorkerRequest
