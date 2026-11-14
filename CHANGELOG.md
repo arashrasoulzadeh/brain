@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `9368677` — 2026-11-15 00:59:23 +0330 — require trusted caller for project middleware
+  Files: internal/project/http.go,tests/project/http_test.go
+- `25b0285` — 2026-11-14 21:28:46 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `362ae3b` — 2026-11-15 00:58:32 +0330 — align dashboard bootstrap with plugin manifest
   Files: internal/app/dashboard.go,tests/app/dashboard_bootstrap_test.go
 - `d168679` — 2026-11-14 21:28:16 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `0b9cd72` — 2026-11-15 00:36:59 +0330 — verify multi-architecture release images
   Files: .github/workflows/release-backend.yml,tests/deploy/assignments_test.go tests/deploy/release_image_verification_test.go,tests/deploy/release_workflow_test.go tests/deploy/room_drain_test.go,tests/plugin/worker_test.go
-- `e85471a` — 2026-11-14 21:07:07 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `e03cbf4` — 2026-11-15 00:36:56 +0330 — add manual assignment pause contract
-  Files: internal/deploy/sequence.go,internal/plugin/plugin.go tests/deploy/sequence_test.go,tests/plugin/plugin_test.go
