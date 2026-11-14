@@ -48,7 +48,7 @@ Backend infrastructure, release, deployment, backup, capacity, and security work
 - [x] Define the 12-hour off-host backup schedule policy.
 - [x] Snapshot PostgreSQL consistently.
 - [x] Record referenced object versions.
-- [ ] Verify the database backup.
+- [x] Verify the database backup.
 - [ ] Verify the object manifest.
 - [ ] Alert when the latest verified backup is over 18 hours old.
 - [ ] Test a fresh restore.
