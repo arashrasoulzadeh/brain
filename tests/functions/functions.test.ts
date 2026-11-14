@@ -351,6 +351,8 @@ try {
 }
 for (const endpoint of [
   "https://127.0.0.1/invoke",
+  "https://[::ffff:127.0.0.1]/invoke",
+  "https://2130706433/invoke",
   "https://169.254.169.254/latest/meta-data",
   "https://localhost/invoke",
   "https://user:pass@functions.example.test/invoke",

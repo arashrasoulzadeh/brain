@@ -10,23 +10,26 @@ export async function invokeDirectHttps(
   if (target.protocol !== "https:" || target.username || target.password)
     throw new Error("HTTPS endpoint required");
   const hostname = target.hostname.toLowerCase();
-  const addressType = isIP(hostname);
+  const normalizedIPv6Host = hostname.replace(/^\[|\]$/g, "");
+  const addressType = isIP(normalizedIPv6Host);
   const privateIPv4 =
     addressType === 4 &&
-    (/^(10|127)\./.test(hostname) ||
-      /^192\.168\./.test(hostname) ||
-      /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(hostname) ||
-      hostname === "169.254.169.254");
+    (/^(10|127)\./.test(normalizedIPv6Host) ||
+      /^192\.168\./.test(normalizedIPv6Host) ||
+      /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(normalizedIPv6Host) ||
+      normalizedIPv6Host === "169.254.169.254");
   const privateIPv6 =
     addressType === 6 &&
-    (hostname === "::1" ||
-      hostname.startsWith("fc") ||
-      hostname.startsWith("fd") ||
-      hostname.startsWith("fe8") ||
-      hostname.startsWith("fe9") ||
-      hostname.startsWith("fea") ||
-      hostname.startsWith("feb"));
-  if (!hostname || hostname === "localhost" || privateIPv4 || privateIPv6)
+    (normalizedIPv6Host === "::1" ||
+      normalizedIPv6Host.startsWith("::ffff:") ||
+      normalizedIPv6Host.startsWith("fc") ||
+      normalizedIPv6Host.startsWith("fd") ||
+      normalizedIPv6Host.startsWith("fe8") ||
+      normalizedIPv6Host.startsWith("fe9") ||
+      normalizedIPv6Host.startsWith("fea") ||
+      normalizedIPv6Host.startsWith("feb"));
+  const ambiguousNumericHost = addressType === 0 && /^[0-9.]+$/.test(hostname);
+  if (!hostname || hostname === "localhost" || privateIPv4 || privateIPv6 || ambiguousNumericHost)
     throw new Error("HTTPS endpoint target denied");
   const response = await fetcher(target.toString(), {
     method: "POST",
