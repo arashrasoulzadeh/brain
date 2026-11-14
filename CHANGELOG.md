@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `5905fc9` — 2026-11-14 16:15:04 +0330 — refactor: split sdk request and handler boundaries
+  Files: plugins/sdk-typescript/src/create-function-handler.ts,plugins/sdk-typescript/src/create-host-handler.ts plugins/sdk-typescript/src/create-route-handler.ts,plugins/sdk-typescript/src/index.ts plugins/sdk-typescript/src/plugin-request.ts,plugins/sdk-typescript/src/request.ts plugins/sdk-typescript/src/validate-identifier.ts,plugins/sdk-typescript/src/validate-project-id.ts
+- `1a68188` — 2026-11-14 12:44:09 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `9146582` — 2026-11-14 16:13:56 +0330 — refactor: split workflow policy helpers
   Files: plugins/functions/diagnose-source.ts,plugins/functions/evaluate-workflow-condition.ts plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/redact-run-status.ts,plugins/functions/run-idempotent-workflow.ts plugins/functions/validate-workflow-graph.ts
 - `9a1018e` — 2026-11-14 12:43:09 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `f8d1805` — 2026-11-13 17:12:35 +0330 — feat: add declarative dashboard view contributions
   Files: plugins/dashboard/index.ts,plugins/dashboard/plugin-health-contribution.ts plugins/dashboard/plugin.yaml,plugins/dashboard/project-overview-contribution.ts roadmap.md,tests/dashboard/dashboard.test.ts
-- `7e0c0b3` — 2026-11-13 13:42:07 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `2d18d15` — 2026-11-13 17:11:42 +0330 — feat: render host-owned admin fixture
-  Files: plugins/dashboard/host-owned-admin-view.ts,plugins/dashboard/index.ts plugins/dashboard/plugin.yaml,roadmap.md tests/dashboard/dashboard.test.ts
