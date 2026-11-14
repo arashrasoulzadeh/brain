@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `d928172` — 2026-11-15 00:16:08 +0330 — add representative app request capacity workload
+  Files: internal/deploy/capacity_profile.go,tests/deploy/capacity_profile_test.go
+- `265f342` — 2026-11-14 20:45:36 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `a453c74` — 2026-11-15 00:15:16 +0330 — require assignment pause before room drain
   Files: internal/deploy/sequence.go,tests/deploy/sequence_test.go
 - `f94118b` — 2026-11-14 19:45:31 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `ba30916` — 2026-11-14 22:44:06 +0330 — stabilize sandbox worker host test
   Files: tests/plugin/bubblewrap_worker_test.go
 - `dbcf3e7` — 2026-11-14 19:13:19 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `56fb77e` — 2026-11-14 22:43:05 +0330 — run sandbox verification in privileged ci container
-  Files: .github/workflows/test.yml
-- `287c439` — 2026-11-14 19:12:08 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
