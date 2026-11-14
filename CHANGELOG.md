@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `1e381c5` — 2026-11-14 16:10:20 +0330 — refactor: isolate function retry policies
+  Files: plugins/functions/commit-with-grant.ts,plugins/functions/index.ts plugins/functions/plugin.yaml,plugins/functions/run-capped-retries.ts
+- `4324839` — 2026-11-14 12:39:45 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `7bed196` — 2026-11-14 16:09:31 +0330 — refactor: isolate sandbox boundary checks
   Files: plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/reject-sandbox-escape.ts,plugins/functions/run-with-timeout.ts plugins/functions/validate-execution-limits.ts,plugins/functions/validate-sandbox-capabilities.ts plugins/functions/validate-wasi-imports.ts
 - `d8d665f` — 2026-11-14 12:38:51 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `b855075` — 2026-11-13 17:07:46 +0330 — test: verify referenced server cleanup
   Files: roadmap.md
-- `3fd9d31` — 2026-11-13 13:37:29 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `e22425b` — 2026-11-13 17:05:55 +0330 — feat: protect referenced plugin versions from unregister
-  Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
