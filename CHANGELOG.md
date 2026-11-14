@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `ba89d08` — 2026-11-15 01:51:21 +0330 — stop runtime on immediate stop
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `ef6cec1` — 2026-11-14 22:20:56 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `e51070f` — 2026-11-15 01:50:43 +0330 — stop runtime on plugin removal
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `5fe8a5b` — 2026-11-14 22:20:18 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `4741525` — 2026-11-15 01:32:24 +0330 — enforce plugin project boundaries
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `87c5a5b` — 2026-11-14 22:01:40 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `360fb3b` — 2026-11-15 01:31:27 +0330 — serialize plugin unregistration state
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `ef39714` — 2026-11-14 22:00:59 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
