@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `5ca7c96` — 2026-11-14 22:36:57 +0330 — enforce sandbox resource limits
+  Files: internal/plugin/typescript_worker.go,scripts/run-sandboxed-typescript-worker.sh tests/plugin/bubblewrap_worker_test.go,tests/plugin/sandbox_launcher_test.go
+- `b370d18` — 2026-11-14 19:05:43 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `fdab3cb` — 2026-11-14 22:35:21 +0330 — wire sandbox launcher into plugin host
   Files: internal/plugin/typescript_worker.go,tests/plugin/bubblewrap_worker_test.go
 - `867c433` — 2026-11-14 19:04:42 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `b9a8b6f` — 2026-11-14 17:23:19 +0330 — check enabled worker health before release
   Files: internal/plugin/supervisor.go,roadmap_backend.md tests/plugin/supervisor_test.go
 - `49e553f` — 2026-11-14 13:52:40 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `acfeebf` — 2026-11-14 17:22:24 +0330 — add PostgreSQL deployment access check
-  Files: roadmap_backend.md,scripts/check-postgres-access.sh tests/deploy/postgres_script_test.go
-- `d3be563` — 2026-11-14 13:51:59 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
