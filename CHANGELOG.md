@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `0063cf9` — 2026-11-14 17:36:03 +0330 — define capacity reference profile
+  Files: internal/deploy/capacity_profile.go,roadmap_backend.md tests/deploy/capacity_profile_test.go
+- `42a69a2` — 2026-11-14 14:05:41 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `ff6c182` — 2026-11-14 17:35:27 +0330 — check backup data loss target
   Files: internal/deploy/backup_policy.go,roadmap_backend.md scripts/check-data-loss-target.sh,tests/deploy/backup_policy_test.go tests/deploy/data_loss_target_script_test.go
 - `91019d6` — 2026-11-14 14:04:52 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `15805d7` — 2026-11-14 17:15:13 +0330 — enforce image pull before deployment drain
   Files: internal/deploy/sequence.go,roadmap_backend.md tests/deploy/sequence_test.go
 - `452556c` — 2026-11-14 13:44:17 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `ed03dc6` — 2026-11-14 17:13:57 +0330 — make backend roadmap the active checklist
-  Files: AGENTS.md
-- `b4be8d3` — 2026-11-14 13:43:01 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
