@@ -491,13 +491,15 @@ if (
   throw new Error("recursive worker write was not suppressed");
 const leases = createJobLeaseStore();
 if (
-  !leases.acquire("job-1", "worker-a", 1000, 500) ||
-  leases.acquire("job-1", "worker-b", 1100, 500) ||
-  !leases.renew("job-1", "worker-a", 1200, 500) ||
-  leases.acquire("job-1", "worker-b", 1500, 500)
+  !leases.acquire("dev", "job-1", "worker-a", 1000, 500) ||
+  leases.acquire("dev", "job-1", "worker-b", 1100, 500) ||
+  !leases.renew("dev", "job-1", "worker-a", 1200, 500) ||
+  leases.acquire("dev", "job-1", "worker-b", 1500, 500)
 )
   throw new Error("short job lease failed");
-if (!leases.acquire("job-1", "worker-b", 1800, 500))
+if (!leases.acquire("prod", "job-1", "worker-b", 1500, 500))
+  throw new Error("job lease was not isolated by project");
+if (!leases.acquire("dev", "job-1", "worker-b", 1800, 500))
   throw new Error("expired job lease was not reclaimable");
 let grantActive = true;
 if (
