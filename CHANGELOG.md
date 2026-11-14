@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `1bf39fa` — 2026-11-14 16:37:06 +0330 — keep host resources outside plugins
+  Files: plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/reject-plugin-host-resources.ts,roadmap.md tests/functions/host-resource-boundary.test.ts
+- `047c0c2` — 2026-11-14 13:06:37 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `49d1eb2` — 2026-11-14 16:36:24 +0330 — keep publish credentials host owned
   Files: plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/reject-plugin-credentials.ts,roadmap.md tests/functions/publish-credential-boundary.test.ts
 - `531cfa6` — 2026-11-14 13:06:03 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `7bed196` — 2026-11-14 16:09:31 +0330 — refactor: isolate sandbox boundary checks
   Files: plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/reject-sandbox-escape.ts,plugins/functions/run-with-timeout.ts plugins/functions/validate-execution-limits.ts,plugins/functions/validate-sandbox-capabilities.ts plugins/functions/validate-wasi-imports.ts
 - `d8d665f` — 2026-11-14 12:38:51 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `c4c0f1b` — 2026-11-14 16:08:37 +0330 — refactor: split function boundary validators
-  Files: plugins/functions/diagnostic-cap.ts,plugins/functions/function-input-validation.ts plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/write-intent-validation.ts
-- `5f2241a` — 2026-11-14 12:37:59 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
