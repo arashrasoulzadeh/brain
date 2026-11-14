@@ -10,7 +10,6 @@ on:
 
 permissions:
   contents: read
-  packages: write
 
 concurrency:
   group: release-backend-main
@@ -48,6 +47,9 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: release
+    permissions:
+      contents: read
+      packages: write
     strategy:
       fail-fast: false
       matrix:
@@ -82,6 +84,9 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: release
+    permissions:
+      contents: read
+      packages: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -113,3 +118,35 @@ jobs:
         with:
           name: backend-release-manifest-${{ inputs.release_sha }}
           path: release-manifest.json
+
+  verify-images:
+    needs: publish-images
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        architecture: [linux/amd64, linux/arm64]
+    steps:
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Pull and smoke-test published images
+        env:
+          IMAGE_OWNER: ${{ github.repository_owner }}
+          RELEASE_SHA: ${{ inputs.release_sha }}
+          TARGET_PLATFORM: ${{ matrix.architecture }}
+        run: |
+          set -euo pipefail
+          for image in backend compiler runner; do
+            reference="ghcr.io/${IMAGE_OWNER}/brain-${image}:${RELEASE_SHA}"
+            docker pull --platform "${TARGET_PLATFORM}" "${reference}"
+            docker buildx imagetools inspect "${reference}" --format '{{json .Manifest.Manifests}}' \
+              | grep -Fq '"architecture":"'"${TARGET_PLATFORM##*/}"'"'
+          done
+          docker run --rm --platform "${TARGET_PLATFORM}" \
+            --entrypoint node "ghcr.io/${IMAGE_OWNER}/brain-compiler:${RELEASE_SHA}" --version
+          docker run --rm --platform "${TARGET_PLATFORM}" \
+            --entrypoint node "ghcr.io/${IMAGE_OWNER}/brain-runner:${RELEASE_SHA}" --version

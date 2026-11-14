@@ -44,3 +44,47 @@ func TestBackendReleaseWorkflowPublishesAllImagesAndDigestManifest(t *testing.T)
 		}
 	}
 }
+
+func TestBackendReleaseWorkflowScopesGHCRCredentialsToPublishJobs(t *testing.T) {
+	workflow, err := os.ReadFile("../../.github/workflows/release-backend.yml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	content := string(workflow)
+	if strings.Contains(content, "permissions:\n  contents: read\n  packages: write") {
+		t.Fatal("release workflow grants GHCR write permission at workflow scope")
+	}
+	verify := workflowJob(content, "verify")
+	if strings.Contains(verify, "GITHUB_TOKEN") || strings.Contains(verify, "docker/login-action") {
+		t.Fatal("verify job can access GHCR credentials")
+	}
+	for _, job := range []string{"publish-images", "publish-manifest"} {
+		section := workflowJob(content, job)
+		if !strings.Contains(section, "permissions:\n      contents: read\n      packages: write") {
+			t.Fatalf("%s job does not declare scoped GHCR write permission", job)
+		}
+	}
+}
+
+func workflowJob(workflow, jobName string) string {
+	lines := strings.Split(workflow, "\n")
+	marker := "  " + jobName + ":"
+	start := -1
+	for index, line := range lines {
+		if line == marker {
+			start = index
+			break
+		}
+	}
+	if start < 0 {
+		return ""
+	}
+	end := len(lines)
+	for index := start + 1; index < len(lines); index++ {
+		if strings.HasPrefix(lines[index], "  ") && !strings.HasPrefix(lines[index], "    ") {
+			end = index
+			break
+		}
+	}
+	return strings.Join(lines[start:end], "\n")
+}
