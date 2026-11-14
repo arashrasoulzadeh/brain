@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `fce1623` — 2026-11-15 00:25:03 +0330 — publish deployment runbook
+  Files: docs/admins.md,docs/deployment-runbook.md docs/developers.md
+- `033edc9` — 2026-11-14 20:54:43 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `7020298` — 2026-11-15 00:24:29 +0330 — gate releases on packaged revocation
   Files: internal/deploy/manifest.go,tests/deploy/healthy_manifest_test.go tests/deploy/manifest_test.go,tests/deploy/rollback_test.go
 - `a346e1c` — 2026-11-14 20:54:02 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `6cbde4f` — 2026-11-14 22:57:50 +0330 — mount linux loader for sandbox node
   Files: scripts/run-sandboxed-typescript-worker.sh
 - `b295124` — 2026-11-14 19:26:43 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `7b73658` — 2026-11-14 22:56:30 +0330 — launch nodejs path without symlink resolution
-  Files: scripts/run-sandboxed-typescript-worker.sh
-- `8958429` — 2026-11-14 19:25:28 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
