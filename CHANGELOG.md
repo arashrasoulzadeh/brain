@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `4799692` — 2026-11-15 00:34:24 +0330 — remove completed backend roadmap items
+  Files: roadmap_backend.md
+- `319ddd9` — 2026-11-14 21:04:16 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `b36f5a7` — 2026-11-15 00:34:02 +0330 — use dedicated compiler and runner images
   Files: .github/workflows/release-backend.yml,Dockerfile.compiler Dockerfile.runner,tests/deploy/release_workflow_test.go
 - `74f2af8` — 2026-11-14 21:03:08 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `c3a1d91` — 2026-11-14 23:13:52 +0330 — stop revoked plugin worker versions
   Files: internal/plugin/supervisor.go,tests/plugin/supervisor_test.go
 - `c664b18` — 2026-11-14 19:43:13 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `340c867` — 2026-11-14 23:12:54 +0330 — enforce project context in typescript workers
-  Files: internal/plugin/typescript_worker.go,tests/plugin/typescript_worker_test.go
-- `953ae02` — 2026-11-14 19:42:00 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
