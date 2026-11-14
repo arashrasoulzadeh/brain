@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `4741525` — 2026-11-15 01:32:24 +0330 — enforce plugin project boundaries
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `87c5a5b` — 2026-11-14 22:01:40 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `360fb3b` — 2026-11-15 01:31:27 +0330 — serialize plugin unregistration state
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `ef39714` — 2026-11-14 22:00:59 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `55aa276` — 2026-11-15 01:11:26 +0330 — make invocation credentials concurrency safe
   Files: internal/plugin/broker.go,tests/plugin/broker_test.go
 - `03e8724` — 2026-11-14 21:40:05 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `5011e16` — 2026-11-15 01:09:46 +0330 — make plugin readiness concurrency safe
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `c74b214` — 2026-11-14 21:38:22 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
