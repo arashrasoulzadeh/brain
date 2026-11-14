@@ -1107,6 +1107,20 @@ func TestRevokeRejectsUngGrantedCapabilityBeforeRuntimeStop(t *testing.T) {
 	}
 }
 
+func TestApproveCapabilityRejectsUndeclaredCapability(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	m := plugin.Manifest{ID: "approval-validation", Version: "1.0.0", HostAPI: 1, Capabilities: []string{"records.read"}}
+	if err := r.Register(m); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Install("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.ApproveCapability("dev", m.ID, m.Version, "records.write"); !errors.Is(err, plugin.ErrGrantDenied) {
+		t.Fatalf("undeclared approval error = %v", err)
+	}
+}
+
 func TestRegistryRecoveryRestartsCrashedProjectWorker(t *testing.T) {
 	r := plugin.NewRegistry(1)
 	m := plugin.Manifest{ID: "recover-runtime", Version: "1.0.0", HostAPI: 1}

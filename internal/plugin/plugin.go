@@ -353,6 +353,16 @@ func (r *Registry) ApproveCapability(projectID, id, version, capability string) 
 	if _, ok := r.installations[projectID+":"+id+"@"+version]; !ok {
 		return ErrNotInstalled
 	}
+	declared := false
+	for _, requested := range r.registered[id+"@"+version].Manifest.Capabilities {
+		if requested == capability {
+			declared = true
+			break
+		}
+	}
+	if !declared {
+		return ErrGrantDenied
+	}
 	r.approvals[projectID+":"+id+"@"+version+":"+capability] = true
 	r.appendAudit(AuditEvent{Action: "approve_capability", ProjectID: projectID, PluginID: id, Version: version, Detail: capability})
 	return nil
