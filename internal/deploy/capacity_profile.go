@@ -8,6 +8,7 @@ type CapacityProfile struct {
 	CPUCores                  int `json:"cpu_cores"`
 	MemoryBytes               int `json:"memory_bytes"`
 	PlayersPerRoom            int `json:"players_per_room"`
+	ConservativeRoomCap       int `json:"conservative_room_cap"`
 	RepresentativeAppRequests int `json:"representative_app_requests"`
 	UploadRequests            int `json:"upload_requests"`
 	BackgroundJobs            int `json:"background_jobs"`
@@ -24,7 +25,7 @@ type CapacityProfile struct {
 }
 
 func (p CapacityProfile) Validate() error {
-	if p.CPUCores <= 0 || p.MemoryBytes <= 0 || p.PlayersPerRoom < 1 || p.PlayersPerRoom > 8 || p.RepresentativeAppRequests <= 0 || p.UploadRequests <= 0 || p.BackgroundJobs <= 0 || p.EyeExportJobs <= 0 || p.SimulatedRTTMs < 0 || p.PacketLossPercent < 0 || p.PacketLossPercent > 100 || p.P95InputSnapshotLatencyMs <= 0 || p.TickDelayMs <= 0 || p.MeasuredCPUPercent <= 0 || p.MeasuredCPUPercent > 100 || p.MeasuredMemoryBytes <= 0 || p.QueueDepth < 0 || p.Disconnects < 0 || p.TrafficBytes <= 0 {
+	if p.CPUCores <= 0 || p.MemoryBytes <= 0 || p.PlayersPerRoom < 1 || p.PlayersPerRoom > 8 || p.ConservativeRoomCap < 1 || p.ConservativeRoomCap > p.PlayersPerRoom || p.RepresentativeAppRequests <= 0 || p.UploadRequests <= 0 || p.BackgroundJobs <= 0 || p.EyeExportJobs <= 0 || p.SimulatedRTTMs < 0 || p.PacketLossPercent < 0 || p.PacketLossPercent > 100 || p.P95InputSnapshotLatencyMs <= 0 || p.TickDelayMs <= 0 || p.MeasuredCPUPercent <= 0 || p.MeasuredCPUPercent > 100 || p.MeasuredMemoryBytes <= 0 || p.QueueDepth < 0 || p.Disconnects < 0 || p.TrafficBytes <= 0 {
 		return ErrInvalidCapacityProfile
 	}
 	return nil

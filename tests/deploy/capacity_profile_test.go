@@ -12,6 +12,7 @@ func TestCapacityProfileRequiresReferenceWorkload(t *testing.T) {
 		CPUCores:                  4,
 		MemoryBytes:               8 << 30,
 		PlayersPerRoom:            8,
+		ConservativeRoomCap:       6,
 		RepresentativeAppRequests: 100,
 		UploadRequests:            10,
 		BackgroundJobs:            10,
@@ -34,8 +35,20 @@ func TestCapacityProfileRequiresReferenceWorkload(t *testing.T) {
 	}
 }
 
+func TestCapacityProfileBoundsConservativeRoomCap(t *testing.T) {
+	profile := deploy.CapacityProfile{CPUCores: 4, MemoryBytes: 1 << 30, PlayersPerRoom: 8, ConservativeRoomCap: 6, RepresentativeAppRequests: 100, UploadRequests: 10, BackgroundJobs: 10, EyeExportJobs: 5, SimulatedRTTMs: 40, PacketLossPercent: 1, P95InputSnapshotLatencyMs: 120, TickDelayMs: 20, MeasuredCPUPercent: 45, MeasuredMemoryBytes: 512 << 20, TrafficBytes: 1 << 20}
+	if err := profile.Validate(); err != nil {
+		t.Fatal(err)
+	}
+	profile.ConservativeRoomCap = 9
+	if !errors.Is(profile.Validate(), deploy.ErrInvalidCapacityProfile) {
+		t.Fatal("room cap exceeded measured players")
+	}
+}
+
 func TestCapacityProfileRequiresRepresentativeAppRequests(t *testing.T) {
 	profile := deploy.CapacityProfile{CPUCores: 4, MemoryBytes: 1 << 30, PlayersPerRoom: 8, RepresentativeAppRequests: 100, SimulatedRTTMs: 40}
+	profile.ConservativeRoomCap = 6
 	profile.UploadRequests = 10
 	profile.BackgroundJobs = 10
 	profile.EyeExportJobs = 5
@@ -56,6 +69,7 @@ func TestCapacityProfileRequiresRepresentativeAppRequests(t *testing.T) {
 
 func TestCapacityProfileRequiresUploadsAndBackgroundJobs(t *testing.T) {
 	profile := deploy.CapacityProfile{CPUCores: 4, MemoryBytes: 1 << 30, PlayersPerRoom: 8, RepresentativeAppRequests: 100, UploadRequests: 10, BackgroundJobs: 10, EyeExportJobs: 5, SimulatedRTTMs: 40, PacketLossPercent: 1, P95InputSnapshotLatencyMs: 120, TickDelayMs: 20, MeasuredCPUPercent: 45, MeasuredMemoryBytes: 512 << 20, TrafficBytes: 1 << 20}
+	profile.ConservativeRoomCap = 6
 	if err := profile.Validate(); err != nil {
 		t.Fatal(err)
 	}
@@ -72,6 +86,7 @@ func TestCapacityProfileRequiresUploadsAndBackgroundJobs(t *testing.T) {
 
 func TestCapacityProfileRequiresResourceAndTrafficMeasurements(t *testing.T) {
 	profile := deploy.CapacityProfile{CPUCores: 4, MemoryBytes: 1 << 30, PlayersPerRoom: 8, RepresentativeAppRequests: 100, UploadRequests: 10, BackgroundJobs: 10, EyeExportJobs: 5, SimulatedRTTMs: 40, PacketLossPercent: 1, P95InputSnapshotLatencyMs: 120, TickDelayMs: 20, MeasuredCPUPercent: 45, MeasuredMemoryBytes: 512 << 20, TrafficBytes: 1 << 20}
+	profile.ConservativeRoomCap = 6
 	if err := profile.Validate(); err != nil {
 		t.Fatal(err)
 	}
@@ -88,6 +103,7 @@ func TestCapacityProfileRequiresResourceAndTrafficMeasurements(t *testing.T) {
 
 func TestCapacityProfileRequiresEyeExportActivity(t *testing.T) {
 	profile := deploy.CapacityProfile{CPUCores: 4, MemoryBytes: 1 << 30, PlayersPerRoom: 8, RepresentativeAppRequests: 100, UploadRequests: 10, BackgroundJobs: 10, EyeExportJobs: 5, SimulatedRTTMs: 40, PacketLossPercent: 1, P95InputSnapshotLatencyMs: 120, TickDelayMs: 20, MeasuredCPUPercent: 45, MeasuredMemoryBytes: 512 << 20, TrafficBytes: 1 << 20}
+	profile.ConservativeRoomCap = 6
 	if err := profile.Validate(); err != nil {
 		t.Fatal(err)
 	}
@@ -99,6 +115,7 @@ func TestCapacityProfileRequiresEyeExportActivity(t *testing.T) {
 
 func TestCapacityProfileBoundsPacketLoss(t *testing.T) {
 	profile := deploy.CapacityProfile{CPUCores: 4, MemoryBytes: 1 << 30, PlayersPerRoom: 8, RepresentativeAppRequests: 100, UploadRequests: 10, BackgroundJobs: 10, EyeExportJobs: 5, SimulatedRTTMs: 40, PacketLossPercent: 101, P95InputSnapshotLatencyMs: 120, TickDelayMs: 20, MeasuredCPUPercent: 45, MeasuredMemoryBytes: 512 << 20, TrafficBytes: 1 << 20}
+	profile.ConservativeRoomCap = 6
 	if !errors.Is(profile.Validate(), deploy.ErrInvalidCapacityProfile) {
 		t.Fatal("capacity profile accepted packet loss above 100 percent")
 	}
@@ -106,6 +123,7 @@ func TestCapacityProfileBoundsPacketLoss(t *testing.T) {
 
 func TestCapacityProfileRequiresP95InputSnapshotLatency(t *testing.T) {
 	profile := deploy.CapacityProfile{CPUCores: 4, MemoryBytes: 1 << 30, PlayersPerRoom: 8, RepresentativeAppRequests: 100, UploadRequests: 10, BackgroundJobs: 10, EyeExportJobs: 5, SimulatedRTTMs: 40, PacketLossPercent: 1, P95InputSnapshotLatencyMs: 120, TickDelayMs: 20, MeasuredCPUPercent: 45, MeasuredMemoryBytes: 512 << 20, TrafficBytes: 1 << 20}
+	profile.ConservativeRoomCap = 6
 	if err := profile.Validate(); err != nil {
 		t.Fatal(err)
 	}
@@ -117,6 +135,7 @@ func TestCapacityProfileRequiresP95InputSnapshotLatency(t *testing.T) {
 
 func TestCapacityProfileRequiresTickDelayMeasurement(t *testing.T) {
 	profile := deploy.CapacityProfile{CPUCores: 4, MemoryBytes: 1 << 30, PlayersPerRoom: 8, RepresentativeAppRequests: 100, UploadRequests: 10, BackgroundJobs: 10, EyeExportJobs: 5, SimulatedRTTMs: 40, PacketLossPercent: 1, P95InputSnapshotLatencyMs: 120, TickDelayMs: 20, MeasuredCPUPercent: 45, MeasuredMemoryBytes: 512 << 20, TrafficBytes: 1 << 20}
+	profile.ConservativeRoomCap = 6
 	if err := profile.Validate(); err != nil {
 		t.Fatal(err)
 	}
