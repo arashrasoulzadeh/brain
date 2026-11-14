@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `fdaeb7e` — 2026-11-15 00:21:45 +0330 — require capacity resource and traffic measurements
+  Files: internal/deploy/capacity_profile.go,tests/deploy/capacity_profile_test.go
+- `cb0bda6` — 2026-11-14 20:50:31 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `4d35e91` — 2026-11-15 00:20:19 +0330 — require tick delay capacity measurement
   Files: internal/deploy/capacity_profile.go,tests/deploy/capacity_profile_test.go
 - `5381577` — 2026-11-14 20:48:52 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `00f88bd` — 2026-11-14 22:52:34 +0330 — use explicit debian node in sandbox ci
   Files: .github/workflows/test.yml,scripts/run-sandboxed-typescript-worker.sh
 - `96a5b3c` — 2026-11-14 19:21:30 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `d9cad6a` — 2026-11-14 22:51:16 +0330 — bind sandbox node executable explicitly
-  Files: scripts/run-sandboxed-typescript-worker.sh
-- `636007d` — 2026-11-14 19:19:55 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
