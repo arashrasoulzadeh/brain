@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `aa5c8d4` — 2026-11-15 01:25:29 +0330 — serialize plugin registration lifecycle
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `d176f97` — 2026-11-14 21:55:08 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `ddca07e` — 2026-11-15 01:24:51 +0330 — clear project plugin approvals on unregister
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `d15f461` — 2026-11-14 21:53:46 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `5d49433` — 2026-11-15 01:02:40 +0330 — reject symlinked plugin source directories
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `439b8e7` — 2026-11-14 21:32:20 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `d299283` — 2026-11-15 01:01:59 +0330 — reject symlinked plugin sources
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `26693dd` — 2026-11-14 21:31:15 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
