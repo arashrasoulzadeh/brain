@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `3980d5f` — 2026-11-14 16:58:14 +0330 — define player input fixture
+  Files: protocol/fixtures/player-input.json,roadmap.md tests/protocol/fixtures_test.go
+- `f42f7ab` — 2026-11-14 13:28:03 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `4a48adf` — 2026-11-14 16:57:50 +0330 — define assignment fixture
   Files: protocol/fixtures/assignment.json,roadmap.md tests/protocol/fixtures_test.go
 - `0618c1d` — 2026-11-14 13:27:41 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `919dd2b` — 2026-11-14 16:45:26 +0330 — add shared matchmaking fixture
   Files: roadmap.md,tests/fixtures/matchmaking-fixture.test.ts tests/fixtures/matchmaking-fixture.ts
 - `49a8f4b` — 2026-11-14 13:15:17 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `5f52439` — 2026-11-14 16:45:02 +0330 — add shared subscription fixture
-  Files: roadmap.md,tests/fixtures/subscription-fixture.test.ts tests/fixtures/subscription-fixture.ts
-- `3624038` — 2026-11-14 13:14:33 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
