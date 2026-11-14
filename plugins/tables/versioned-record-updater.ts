@@ -1,2 +1,9 @@
 import type { VersionedRecordState } from "./versioned-record-state.js";
-export class VersionedRecordUpdater<T extends Record<string, unknown>> { constructor(private readonly state: VersionedRecordState<T>) {} update(expectedVersion: number, next: T): void { if (expectedVersion !== this.state.version) throw new Error("stale record version"); this.state.value = { ...next }; this.state.version += 1; } }
+export class VersionedRecordUpdater<T extends Record<string, unknown>> {
+  constructor(private readonly state: VersionedRecordState<T>) {}
+  update(expectedVersion: number, next: T): void {
+    if (expectedVersion !== this.state.version) throw new Error("stale record version");
+    this.state.value = { ...next };
+    this.state.version += 1;
+  }
+}

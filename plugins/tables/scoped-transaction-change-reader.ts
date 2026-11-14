@@ -1,2 +1,13 @@
 import type { TransactionChangeState } from "./transaction-change-state.js";
-export class ScopedTransactionChangeReader<T> { constructor(private readonly state: TransactionChangeState<T>) {} listScoped(projectId: string) { return this.state.scopedChanges.filter((change) => change.projectId === projectId).map((change) => ({ ...change, oldScope: [...change.oldScope], newScope: [...change.newScope] })); } }
+export class ScopedTransactionChangeReader<T> {
+  constructor(private readonly state: TransactionChangeState<T>) {}
+  listScoped(projectId: string) {
+    return this.state.scopedChanges
+      .filter((change) => change.projectId === projectId)
+      .map((change) => ({
+        ...change,
+        oldScope: [...change.oldScope],
+        newScope: [...change.newScope],
+      }));
+  }
+}

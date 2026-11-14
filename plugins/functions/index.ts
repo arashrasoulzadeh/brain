@@ -4,7 +4,8 @@ import { runCappedRetries } from "./run-capped-retries.js";
 export { functionRequest } from "./function-request.js";
 export { publishSharedHelperArtifact } from "./shared-helper-publisher.js";
 
-export const ENTRY_PACKAGE_FIXTURE = "package main\n\nimport \"encoding/json\"\n\nfunc main() {\n\t_ = json.NewEncoder(nil)\n}\n";
+export const ENTRY_PACKAGE_FIXTURE =
+  'package main\n\nimport "encoding/json"\n\nfunc main() {\n\t_ = json.NewEncoder(nil)\n}\n';
 export const PROJECT_HELPER_FIXTURE = "package helper";
 export { wasmBuildSettings } from "./wasm-build-settings.js";
 export { APPROVED_SDK_IMPORTS, validateSDKImports } from "./validate-sdk-imports.js";
@@ -36,8 +37,18 @@ export { rejectSandboxEscapeAttempt } from "./reject-sandbox-escape.js";
 export { createInvocationEffects } from "./create-invocation-effects.js";
 export { createInvocationCommitStore } from "./create-invocation-commit-store.js";
 export { retryInvocation } from "./retry-invocation.js";
-export type FunctionSchedule = { projectId: string; functionId: string; expression: string; dueAt: number };
-export type EnqueuedFunction = { projectId: string; functionId: string; functionVersion: number; enqueuedAt: number };
+export type FunctionSchedule = {
+  projectId: string;
+  functionId: string;
+  expression: string;
+  dueAt: number;
+};
+export type EnqueuedFunction = {
+  projectId: string;
+  functionId: string;
+  functionVersion: number;
+  enqueuedAt: number;
+};
 export { createScheduleStore } from "./create-schedule-store.js";
 /* legacy schedule operations are composed by createScheduleStore above. */
 /*
@@ -84,7 +95,12 @@ export { createScheduleStore } from "./create-schedule-store.js";
     return { projectId, functionId, functionVersion, enqueuedAt };
   }
 }*/
-export type RecordChangeTrigger = { projectId: string; collection: string; operation: string; target: { functionId: string; version: number } };
+export type RecordChangeTrigger = {
+  projectId: string;
+  collection: string;
+  operation: string;
+  target: { functionId: string; version: number };
+};
 export { createRecordChangeTriggerStore } from "./create-record-change-trigger-store.js";
 export { createJobLeaseStore } from "./create-job-lease-store.js";
 export { commitWithGrant } from "./commit-with-grant.js";
@@ -94,9 +110,19 @@ export { redactRunStatus } from "./redact-run-status.js";
 export { type WorkflowNode, validateWorkflowGraph } from "./validate-workflow-graph.js";
 export { type WorkflowCondition, evaluateCondition } from "./evaluate-workflow-condition.js";
 export { createApprovalStore } from "./create-approval-store.js";
-export type FunctionDraft = { projectId: string; functionId: string; source: string; savedAt: number };
+export type FunctionDraft = {
+  projectId: string;
+  functionId: string;
+  source: string;
+  savedAt: number;
+};
 export { createFunctionDraftStore } from "./create-function-draft-store.js";
-export type FunctionPublication = FunctionDraft & { version: number; artifactDigest: string; toolchain: string; publishedAt: number };
+export type FunctionPublication = FunctionDraft & {
+  version: number;
+  artifactDigest: string;
+  toolchain: string;
+  publishedAt: number;
+};
 export { createFunctionPublicationStore } from "./create-function-publication-store.js";
 export { createSharedPackageStore } from "./create-shared-package-store.js";
 export { type SourceDiagnostic, diagnoseSource } from "./diagnose-source.js";

@@ -55,5 +55,7 @@ export { AccountPasswordResetter } from "./account-password-resetter.js";
 export { GuestSessionIssuer } from "./guest-session-issuer.js";
 export { GuestAccountUpgrader } from "./guest-account-upgrader.js";
 export { createAuthOperations } from "./create-auth-operations.js";
-export type AuthOperations = ReturnType<typeof import("./create-auth-operations.js").createAuthOperations>;
+export type AuthOperations = ReturnType<
+  typeof import("./create-auth-operations.js").createAuthOperations
+>;
 export { functions } from "./auth-functions.js";

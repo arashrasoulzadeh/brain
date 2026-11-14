@@ -1,3 +1,12 @@
 import type { FunctionInvocationResult } from "./invocation-types.js";
 import { validateInvocationResult } from "./validate-invocation-result.js";
-export function parseInvocationResult(value: unknown): FunctionInvocationResult { if (!value || typeof value !== "object") throw new Error("malformed function output"); const result = value as Partial<FunctionInvocationResult>; if (Object.keys(value).some((key) => !["success", "output", "error", "diagnostics"].includes(key))) throw new Error("extra function result rejected"); if (!Array.isArray(result.diagnostics)) throw new Error("malformed function output"); return validateInvocationResult(result as FunctionInvocationResult); }
+export function parseInvocationResult(value: unknown): FunctionInvocationResult {
+  if (!value || typeof value !== "object") throw new Error("malformed function output");
+  const result = value as Partial<FunctionInvocationResult>;
+  if (
+    Object.keys(value).some((key) => !["success", "output", "error", "diagnostics"].includes(key))
+  )
+    throw new Error("extra function result rejected");
+  if (!Array.isArray(result.diagnostics)) throw new Error("malformed function output");
+  return validateInvocationResult(result as FunctionInvocationResult);
+}

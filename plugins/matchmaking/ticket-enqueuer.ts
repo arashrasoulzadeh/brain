@@ -1,3 +1,33 @@
 import { validateProjectId } from "../sdk-typescript/src/index.js";
 import type { QueueRuntime } from "./queue-runtime.js";
-export class TicketEnqueuer { constructor(private readonly runtime: QueueRuntime) {} enqueue(projectId: string, scope: string, playerId: string, now = Date.now(), pluginVersion = "unknown") { validateProjectId(projectId); if (!scope || !playerId || !pluginVersion) throw new Error("invalid matchmaking ticket"); if (this.runtime.configs && !this.runtime.configs.status.isEnabled(projectId, scope)) throw new Error("matchmaking scope disabled"); const key = `${projectId}:${scope}`; const queue = this.runtime.queues.get(key) ?? []; if (queue.some((ticket) => ticket.playerId === playerId)) throw new Error("active ticket already exists"); const ttl = this.runtime.configs?.reader.get(projectId, scope).ticketTtlSeconds ?? 60; const ticket = { id: `${key}:ticket-${++this.runtime.sequence}`, projectId, scope, playerId, pluginVersion, createdAt: now, expiresAt: now + ttl * 1000 }; this.runtime.queues.set(key, [...queue, ticket]); return { ...ticket }; } }
+export class TicketEnqueuer {
+  constructor(private readonly runtime: QueueRuntime) {}
+  enqueue(
+    projectId: string,
+    scope: string,
+    playerId: string,
+    now = Date.now(),
+    pluginVersion = "unknown",
+  ) {
+    validateProjectId(projectId);
+    if (!scope || !playerId || !pluginVersion) throw new Error("invalid matchmaking ticket");
+    if (this.runtime.configs && !this.runtime.configs.status.isEnabled(projectId, scope))
+      throw new Error("matchmaking scope disabled");
+    const key = `${projectId}:${scope}`;
+    const queue = this.runtime.queues.get(key) ?? [];
+    if (queue.some((ticket) => ticket.playerId === playerId))
+      throw new Error("active ticket already exists");
+    const ttl = this.runtime.configs?.reader.get(projectId, scope).ticketTtlSeconds ?? 60;
+    const ticket = {
+      id: `${key}:ticket-${++this.runtime.sequence}`,
+      projectId,
+      scope,
+      playerId,
+      pluginVersion,
+      createdAt: now,
+      expiresAt: now + ttl * 1000,
+    };
+    this.runtime.queues.set(key, [...queue, ticket]);
+    return { ...ticket };
+  }
+}

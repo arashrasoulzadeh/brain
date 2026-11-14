@@ -1,2 +1,22 @@
 import { projectUserID } from "./project-user-id.js";
-export class AccountRateLimiter { private readonly attempts = new Map<string, { startedAt: number; count: number }>(); constructor(private readonly limit: number, private readonly windowMs: number) { if (!Number.isInteger(limit) || limit < 1 || windowMs <= 0) throw new Error("invalid account rate limit"); } allow(projectId: string, username: string, now: number): boolean { const key = projectUserID(projectId, username); const current = this.attempts.get(key); if (!current || now - current.startedAt >= this.windowMs) { this.attempts.set(key, { startedAt: now, count: 1 }); return true; } if (current.count >= this.limit) return false; current.count += 1; return true; } }
+export class AccountRateLimiter {
+  private readonly attempts = new Map<string, { startedAt: number; count: number }>();
+  constructor(
+    private readonly limit: number,
+    private readonly windowMs: number,
+  ) {
+    if (!Number.isInteger(limit) || limit < 1 || windowMs <= 0)
+      throw new Error("invalid account rate limit");
+  }
+  allow(projectId: string, username: string, now: number): boolean {
+    const key = projectUserID(projectId, username);
+    const current = this.attempts.get(key);
+    if (!current || now - current.startedAt >= this.windowMs) {
+      this.attempts.set(key, { startedAt: now, count: 1 });
+      return true;
+    }
+    if (current.count >= this.limit) return false;
+    current.count += 1;
+    return true;
+  }
+}

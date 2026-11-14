@@ -1,7 +1,10 @@
 import { validateProjectId } from "../sdk-typescript/src/index.js";
 
 export class QuotaReserver {
-  constructor(private readonly reserved: Map<string, number>, private readonly quotaByProject: ReadonlyMap<string, number>) {}
+  constructor(
+    private readonly reserved: Map<string, number>,
+    private readonly quotaByProject: ReadonlyMap<string, number>,
+  ) {}
   reserve(projectId: string, size: number): void {
     validateProjectId(projectId);
     if (!Number.isSafeInteger(size) || size < 0) throw new Error("invalid quota amount");

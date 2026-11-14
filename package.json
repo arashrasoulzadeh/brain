@@ -5,10 +5,13 @@
   "scripts": {
     "test:ts": "tsx --test tests/**/*.test.ts",
     "typecheck": "tsc --noEmit",
-    "lint:ts": "node scripts/lint-typescript.mjs"
+    "lint:ts": "node scripts/lint-typescript.mjs",
+    "format:ts": "node scripts/format-typescript.mjs",
+    "prepare": "git config core.hooksPath .githooks"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
+    "prettier": "^3.10.1",
     "tsx": "^4.19.0",
     "typescript": "^5.6.0"
   },

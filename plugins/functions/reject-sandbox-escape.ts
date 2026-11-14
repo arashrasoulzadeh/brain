@@ -1,1 +1,4 @@
-export function rejectSandboxEscapeAttempt(value: string): void { if (!value || value.includes("../") || value.includes("\\..\\") || /^https?:\/\//.test(value)) throw new Error("sandbox escape attempt rejected"); }
+export function rejectSandboxEscapeAttempt(value: string): void {
+  if (!value || value.includes("../") || value.includes("\\..\\") || /^https?:\/\//.test(value))
+    throw new Error("sandbox escape attempt rejected");
+}

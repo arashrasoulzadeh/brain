@@ -1,35 +1,178 @@
-import { AuthorizedUploadWriter, UploadGrantStore, configurePrivateBucket, enforceUploadSize, FileGrantStore, FileAccessReader, FileAccessDeleter, QuotaReserver, QuotaReleaser, QuotaReader, fileRequest, PendingUploadCreator, PendingUploadReader, PendingUploadPublisher, PendingUploadReconciler, projectObjectKey, protectedDownloadHeaders, reconcileOrphanedObjects, requireExplicitPublication } from "../../plugins/files/index.js";
+import {
+  AuthorizedUploadWriter,
+  UploadGrantStore,
+  configurePrivateBucket,
+  enforceUploadSize,
+  FileGrantStore,
+  FileAccessReader,
+  FileAccessDeleter,
+  QuotaReserver,
+  QuotaReleaser,
+  QuotaReader,
+  fileRequest,
+  PendingUploadCreator,
+  PendingUploadReader,
+  PendingUploadPublisher,
+  PendingUploadReconciler,
+  projectObjectKey,
+  protectedDownloadHeaders,
+  reconcileOrphanedObjects,
+  requireExplicitPublication,
+} from "../../plugins/files/index.js";
 import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 
-const request = fileRequest("dev", "files", "0.1.0", "files.upload", "avatar", { contentType: "image/png" });
-if (request.params.pluginId !== "files" || request.params.operation !== "files.upload") throw new Error("files plugin contract failed");
-if (typeof createRouteHandler([{ operation: "files.upload", function: "upload", capability: "files.upload" }])(request) !== "object") throw new Error("files handler contract failed");
-if (configurePrivateBucket({ endpoint: "https://s3.example.com", bucket: "brain", region: "us-east-1" }).publicAccess) throw new Error("private bucket exposed");
-try { configurePrivateBucket({ endpoint: "http://s3.example.com", bucket: "brain", region: "us-east-1" }); throw new Error("insecure bucket accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "private bucket requires HTTPS") throw error; }
-if (projectObjectKey("dev", "avatar.png") !== "projects/dev/objects/avatar.png" || projectObjectKey("prod", "avatar.png") === projectObjectKey("dev", "avatar.png")) throw new Error("project object namespace failed");
-try { projectObjectKey("dev/other", "avatar.png"); throw new Error("cross-project object key accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "invalid object identity") throw error; }
-const uploadMap = new Map(); const uploadCreator = new PendingUploadCreator(uploadMap); const uploadReader = new PendingUploadReader(uploadMap); const uploadPublisher = new PendingUploadPublisher(uploadMap); const uploadReconciler = new PendingUploadReconciler(uploadMap);
-if (uploadCreator.create("dev", "avatar.png", "image/png", 12, 1000).status !== "pending" || uploadReader.get("prod", "avatar.png")) throw new Error("pending upload metadata isolation failed");
-if (uploadPublisher.publish("dev", "avatar.png", "etag-1").status !== "published" || uploadReader.get("dev", "avatar.png")?.etag !== "etag-1") throw new Error("published file metadata failed");
-try { uploadPublisher.publish("dev", "missing.png", "etag-2"); throw new Error("missing object published"); } catch (error) { if (!(error instanceof Error) || error.message !== "object upload not confirmed") throw error; }
-if (uploadReconciler.reconcile(40_000, 30_000) !== 0 || uploadReader.get("dev", "avatar.png")?.status !== "published") throw new Error("published upload reconciled incorrectly");
-const interruptedMap = new Map(); const interruptedCreator = new PendingUploadCreator(interruptedMap); interruptedCreator.create("dev", "broken.bin", "application/octet-stream", 2, 1000);
-if (new PendingUploadReconciler(interruptedMap).reconcile(40_000, 30_000) !== 1 || new PendingUploadReader(interruptedMap).get("dev", "broken.bin")?.status !== "aborted") throw new Error("interrupted upload not reconciled");
-if (reconcileOrphanedObjects("dev", [projectObjectKey("dev", "live.png"), projectObjectKey("dev", "orphan.png"), projectObjectKey("prod", "other.png")], ["live.png"]).join(",") !== "projects/dev/objects/orphan.png") throw new Error("orphaned object reconciliation failed");
+const request = fileRequest("dev", "files", "0.1.0", "files.upload", "avatar", {
+  contentType: "image/png",
+});
+if (request.params.pluginId !== "files" || request.params.operation !== "files.upload")
+  throw new Error("files plugin contract failed");
+if (
+  typeof createRouteHandler([
+    { operation: "files.upload", function: "upload", capability: "files.upload" },
+  ])(request) !== "object"
+)
+  throw new Error("files handler contract failed");
+if (
+  configurePrivateBucket({
+    endpoint: "https://s3.example.com",
+    bucket: "brain",
+    region: "us-east-1",
+  }).publicAccess
+)
+  throw new Error("private bucket exposed");
+try {
+  configurePrivateBucket({
+    endpoint: "http://s3.example.com",
+    bucket: "brain",
+    region: "us-east-1",
+  });
+  throw new Error("insecure bucket accepted");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "private bucket requires HTTPS") throw error;
+}
+if (
+  projectObjectKey("dev", "avatar.png") !== "projects/dev/objects/avatar.png" ||
+  projectObjectKey("prod", "avatar.png") === projectObjectKey("dev", "avatar.png")
+)
+  throw new Error("project object namespace failed");
+try {
+  projectObjectKey("dev/other", "avatar.png");
+  throw new Error("cross-project object key accepted");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "invalid object identity") throw error;
+}
+const uploadMap = new Map();
+const uploadCreator = new PendingUploadCreator(uploadMap);
+const uploadReader = new PendingUploadReader(uploadMap);
+const uploadPublisher = new PendingUploadPublisher(uploadMap);
+const uploadReconciler = new PendingUploadReconciler(uploadMap);
+if (
+  uploadCreator.create("dev", "avatar.png", "image/png", 12, 1000).status !== "pending" ||
+  uploadReader.get("prod", "avatar.png")
+)
+  throw new Error("pending upload metadata isolation failed");
+if (
+  uploadPublisher.publish("dev", "avatar.png", "etag-1").status !== "published" ||
+  uploadReader.get("dev", "avatar.png")?.etag !== "etag-1"
+)
+  throw new Error("published file metadata failed");
+try {
+  uploadPublisher.publish("dev", "missing.png", "etag-2");
+  throw new Error("missing object published");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "object upload not confirmed") throw error;
+}
+if (
+  uploadReconciler.reconcile(40_000, 30_000) !== 0 ||
+  uploadReader.get("dev", "avatar.png")?.status !== "published"
+)
+  throw new Error("published upload reconciled incorrectly");
+const interruptedMap = new Map();
+const interruptedCreator = new PendingUploadCreator(interruptedMap);
+interruptedCreator.create("dev", "broken.bin", "application/octet-stream", 2, 1000);
+if (
+  new PendingUploadReconciler(interruptedMap).reconcile(40_000, 30_000) !== 1 ||
+  new PendingUploadReader(interruptedMap).get("dev", "broken.bin")?.status !== "aborted"
+)
+  throw new Error("interrupted upload not reconciled");
+if (
+  reconcileOrphanedObjects(
+    "dev",
+    [
+      projectObjectKey("dev", "live.png"),
+      projectObjectKey("dev", "orphan.png"),
+      projectObjectKey("prod", "other.png"),
+    ],
+    ["live.png"],
+  ).join(",") !== "projects/dev/objects/orphan.png"
+)
+  throw new Error("orphaned object reconciliation failed");
 const headers = protectedDownloadHeaders("avatar.png");
-if (headers["cache-control"] !== "private, no-store" || !headers["content-disposition"].startsWith("attachment")) throw new Error("protected download headers failed");
+if (
+  headers["cache-control"] !== "private, no-store" ||
+  !headers["content-disposition"].startsWith("attachment")
+)
+  throw new Error("protected download headers failed");
 requireExplicitPublication(true);
-try { requireExplicitPublication(false); throw new Error("implicit public publication accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "explicit publication required") throw error; }
-const reserved = new Map<string, number>(); const quota = new Map([["dev", 20]]); const reserver = new QuotaReserver(reserved, quota);
+try {
+  requireExplicitPublication(false);
+  throw new Error("implicit public publication accepted");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "explicit publication required") throw error;
+}
+const reserved = new Map<string, number>();
+const quota = new Map([["dev", 20]]);
+const reserver = new QuotaReserver(reserved, quota);
 reserver.reserve("dev", 12);
-try { reserver.reserve("dev", 9); throw new Error("quota exceeded upload accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "file quota exceeded") throw error; }
-const uploadGrants = new Set<string>(); const uploadBytes = new Map<string, number>();
+try {
+  reserver.reserve("dev", 9);
+  throw new Error("quota exceeded upload accepted");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "file quota exceeded") throw error;
+}
+const uploadGrants = new Set<string>();
+const uploadBytes = new Map<string, number>();
 new UploadGrantStore(uploadGrants).authorize("dev", "avatar.png", "user-1");
-if (new AuthorizedUploadWriter(uploadGrants, uploadBytes).write("dev", "avatar.png", "user-1", new Uint8Array(3)) !== 3) throw new Error("authorized upload failed");
-try { new AuthorizedUploadWriter(uploadGrants, uploadBytes).write("dev", "avatar.png", "user-2", new Uint8Array(1)); throw new Error("unauthorized upload accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "upload denied") throw error; }
+if (
+  new AuthorizedUploadWriter(uploadGrants, uploadBytes).write(
+    "dev",
+    "avatar.png",
+    "user-1",
+    new Uint8Array(3),
+  ) !== 3
+)
+  throw new Error("authorized upload failed");
+try {
+  new AuthorizedUploadWriter(uploadGrants, uploadBytes).write(
+    "dev",
+    "avatar.png",
+    "user-2",
+    new Uint8Array(1),
+  );
+  throw new Error("unauthorized upload accepted");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "upload denied") throw error;
+}
 const accessGrants = new Set<string>();
-new FileGrantStore(accessGrants).grant("dev", "avatar.png", "user-1"); new FileAccessReader(accessGrants).read("dev", "avatar.png", "user-1"); new FileAccessDeleter(accessGrants).delete("dev", "avatar.png", "user-1");
-try { new FileAccessReader(accessGrants).read("dev", "avatar.png", "user-2"); throw new Error("unauthorized file read accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "file access denied") throw error; }
-try { new FileAccessReader(accessGrants).read("prod", "avatar.png", "user-1"); throw new Error("cross-project object read accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "file access denied") throw error; }
+new FileGrantStore(accessGrants).grant("dev", "avatar.png", "user-1");
+new FileAccessReader(accessGrants).read("dev", "avatar.png", "user-1");
+new FileAccessDeleter(accessGrants).delete("dev", "avatar.png", "user-1");
+try {
+  new FileAccessReader(accessGrants).read("dev", "avatar.png", "user-2");
+  throw new Error("unauthorized file read accepted");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "file access denied") throw error;
+}
+try {
+  new FileAccessReader(accessGrants).read("prod", "avatar.png", "user-1");
+  throw new Error("cross-project object read accepted");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "file access denied") throw error;
+}
 enforceUploadSize(10, 10);
-try { enforceUploadSize(11, 10); throw new Error("oversized upload accepted"); } catch (error) { if (!(error instanceof Error) || error.message !== "upload size exceeded") throw error; }
+try {
+  enforceUploadSize(11, 10);
+  throw new Error("oversized upload accepted");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "upload size exceeded") throw error;
+}

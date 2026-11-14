@@ -1,3 +1,30 @@
 import { validateTicTacToeRuleResult } from "./validate-tic-tac-toe-rule-result.js";
 import type { TicTacToeState } from "./index.js";
-export function reconnectTicTacToe(serialized: string, projectId: string, playerId: string): TicTacToeState { let parsed: unknown; try { parsed = JSON.parse(serialized); } catch { throw new Error("invalid persisted game"); } const state = parsed as Partial<TicTacToeState>; if (state.projectId !== projectId || !Array.isArray(state.players) || !state.players.includes(playerId)) throw new Error("game authorization required"); validateTicTacToeRuleResult({ board: state.board, turn: state.turn, status: state.status }); return { projectId: state.projectId, roomId: state.roomId!, players: [...state.players] as [string, string], board: [...state.board!] as ("X" | "O" | null)[], turn: state.turn!, status: state.status! }; }
+export function reconnectTicTacToe(
+  serialized: string,
+  projectId: string,
+  playerId: string,
+): TicTacToeState {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(serialized);
+  } catch {
+    throw new Error("invalid persisted game");
+  }
+  const state = parsed as Partial<TicTacToeState>;
+  if (
+    state.projectId !== projectId ||
+    !Array.isArray(state.players) ||
+    !state.players.includes(playerId)
+  )
+    throw new Error("game authorization required");
+  validateTicTacToeRuleResult({ board: state.board, turn: state.turn, status: state.status });
+  return {
+    projectId: state.projectId,
+    roomId: state.roomId!,
+    players: [...state.players] as [string, string],
+    board: [...state.board!] as ("X" | "O" | null)[],
+    turn: state.turn!,
+    status: state.status!,
+  };
+}

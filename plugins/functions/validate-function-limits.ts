@@ -1,1 +1,17 @@
-export function validateFunctionLimits(sourceBytes: number, artifactBytes: number, maxSourceBytes: number, maxArtifactBytes: number): void { if (![sourceBytes, artifactBytes, maxSourceBytes, maxArtifactBytes].every(Number.isSafeInteger) || sourceBytes < 0 || artifactBytes < 0 || maxSourceBytes < 0 || maxArtifactBytes < 0 || sourceBytes > maxSourceBytes || artifactBytes > maxArtifactBytes) throw new Error("function size limit exceeded"); }
+export function validateFunctionLimits(
+  sourceBytes: number,
+  artifactBytes: number,
+  maxSourceBytes: number,
+  maxArtifactBytes: number,
+): void {
+  if (
+    ![sourceBytes, artifactBytes, maxSourceBytes, maxArtifactBytes].every(Number.isSafeInteger) ||
+    sourceBytes < 0 ||
+    artifactBytes < 0 ||
+    maxSourceBytes < 0 ||
+    maxArtifactBytes < 0 ||
+    sourceBytes > maxSourceBytes ||
+    artifactBytes > maxArtifactBytes
+  )
+    throw new Error("function size limit exceeded");
+}

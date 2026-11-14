@@ -8,6 +8,8 @@ export class IdempotentCreateStore<T> {
     const id = `${projectId}:${key}`;
     const existing = this.results.get(id);
     if (existing) return existing;
-    const value = factory(); this.results.set(id, value); return value;
+    const value = factory();
+    this.results.set(id, value);
+    return value;
   }
 }

@@ -1,0 +1,5 @@
+#!/bin/sh
+set -eu
+
+npm run format:ts
+git add -- plugins tests

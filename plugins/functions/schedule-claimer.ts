@@ -1,3 +1,30 @@
 import { validateProjectId } from "../sdk-typescript/src/index.js";
 import type { ScheduleState } from "./schedule-state.js";
-export class ScheduleClaimer { constructor(private readonly state: ScheduleState) {} claim(projectId: string, functionId: string, workerId: string, now: number, leaseMs: number): boolean { validateProjectId(projectId); if (!workerId || !Number.isSafeInteger(now) || !Number.isSafeInteger(leaseMs) || leaseMs < 1) throw new Error("invalid schedule claim"); if (!this.state.schedules.some((candidate) => candidate.projectId === projectId && candidate.functionId === functionId && candidate.dueAt <= now)) return false; const key = `${projectId}:${functionId}`; const current = this.state.claims.get(key); if (current && current.expiresAt > now) return false; this.state.claims.set(key, { workerId, expiresAt: now + leaseMs }); return true; } }
+export class ScheduleClaimer {
+  constructor(private readonly state: ScheduleState) {}
+  claim(
+    projectId: string,
+    functionId: string,
+    workerId: string,
+    now: number,
+    leaseMs: number,
+  ): boolean {
+    validateProjectId(projectId);
+    if (!workerId || !Number.isSafeInteger(now) || !Number.isSafeInteger(leaseMs) || leaseMs < 1)
+      throw new Error("invalid schedule claim");
+    if (
+      !this.state.schedules.some(
+        (candidate) =>
+          candidate.projectId === projectId &&
+          candidate.functionId === functionId &&
+          candidate.dueAt <= now,
+      )
+    )
+      return false;
+    const key = `${projectId}:${functionId}`;
+    const current = this.state.claims.get(key);
+    if (current && current.expiresAt > now) return false;
+    this.state.claims.set(key, { workerId, expiresAt: now + leaseMs });
+    return true;
+  }
+}

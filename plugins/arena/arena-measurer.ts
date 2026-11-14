@@ -1,3 +1,18 @@
 import type { ArenaMeasurement } from "./types.js";
 import type { ArenaRuntime } from "./arena-state.js";
-export class ArenaMeasurer { constructor(private readonly runtime: ArenaRuntime) {} measure(iterations: number): ArenaMeasurement { if (!Number.isInteger(iterations) || iterations < 1) throw new Error("invalid measurement iterations"); const start = globalThis.performance.now(); let memoryBytes = 0; for (let index = 0; index < iterations; index += 1) memoryBytes += JSON.stringify({ state: this.runtime.state, players: this.runtime.players, sequences: [...this.runtime.sequences] }).length; return { iterations, elapsedMs: globalThis.performance.now() - start, memoryBytes }; } }
+export class ArenaMeasurer {
+  constructor(private readonly runtime: ArenaRuntime) {}
+  measure(iterations: number): ArenaMeasurement {
+    if (!Number.isInteger(iterations) || iterations < 1)
+      throw new Error("invalid measurement iterations");
+    const start = globalThis.performance.now();
+    let memoryBytes = 0;
+    for (let index = 0; index < iterations; index += 1)
+      memoryBytes += JSON.stringify({
+        state: this.runtime.state,
+        players: this.runtime.players,
+        sequences: [...this.runtime.sequences],
+      }).length;
+    return { iterations, elapsedMs: globalThis.performance.now() - start, memoryBytes };
+  }
+}

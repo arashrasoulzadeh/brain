@@ -1,2 +1,14 @@
 import type { ApiChangeState } from "./api-change-state.js";
-export class ApiChangeWriter { constructor(private readonly state: ApiChangeState) {} begin(projectId: string, operation: string, payload: unknown) { if (!projectId || !operation) throw new Error("invalid API change"); let finished = false; const finish = (commit: boolean) => { if (finished) throw new Error("transaction already finished"); finished = true; if (commit) this.state.changes.push({ projectId, operation, payload }); }; return { commit: () => finish(true), rollback: () => finish(false) }; } }
+export class ApiChangeWriter {
+  constructor(private readonly state: ApiChangeState) {}
+  begin(projectId: string, operation: string, payload: unknown) {
+    if (!projectId || !operation) throw new Error("invalid API change");
+    let finished = false;
+    const finish = (commit: boolean) => {
+      if (finished) throw new Error("transaction already finished");
+      finished = true;
+      if (commit) this.state.changes.push({ projectId, operation, payload });
+    };
+    return { commit: () => finish(true), rollback: () => finish(false) };
+  }
+}

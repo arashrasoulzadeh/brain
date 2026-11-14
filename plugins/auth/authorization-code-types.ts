@@ -1,1 +1,8 @@
-export type AuthorizationCode = { projectId: string; clientId: string; redirectUri: string; userId: string; expiresAt: number; used: boolean };
+export type AuthorizationCode = {
+  projectId: string;
+  clientId: string;
+  redirectUri: string;
+  userId: string;
+  expiresAt: number;
+  used: boolean;
+};

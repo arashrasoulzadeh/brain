@@ -1,2 +1,24 @@
 import type { HostExecutionContext, HostInvoker, PluginHandler, PluginRoute } from "./index.js";
-export function createHostHandler(host: HostInvoker, routes: readonly PluginRoute[], context: HostExecutionContext): PluginHandler { return (rpc) => { if (!context.projectId || !context.invocationId || rpc.params.projectId !== context.projectId) throw new Error("host project context mismatch"); const route = routes.find((candidate) => candidate.operation === rpc.params.operation); if (!route) throw new Error("operation not declared in plugin manifest"); if (!route.function || !route.capability) throw new Error("invalid plugin route"); return { accepted: true, operation: rpc.params.operation, payload: host.invoke(rpc.params.projectId, rpc.params.operation, route.capability, rpc.params.payload ?? null) }; }; }
+export function createHostHandler(
+  host: HostInvoker,
+  routes: readonly PluginRoute[],
+  context: HostExecutionContext,
+): PluginHandler {
+  return (rpc) => {
+    if (!context.projectId || !context.invocationId || rpc.params.projectId !== context.projectId)
+      throw new Error("host project context mismatch");
+    const route = routes.find((candidate) => candidate.operation === rpc.params.operation);
+    if (!route) throw new Error("operation not declared in plugin manifest");
+    if (!route.function || !route.capability) throw new Error("invalid plugin route");
+    return {
+      accepted: true,
+      operation: rpc.params.operation,
+      payload: host.invoke(
+        rpc.params.projectId,
+        rpc.params.operation,
+        route.capability,
+        rpc.params.payload ?? null,
+      ),
+    };
+  };
+}

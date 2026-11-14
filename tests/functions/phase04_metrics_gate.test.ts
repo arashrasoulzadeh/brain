@@ -11,4 +11,5 @@ const turnStarted = performance.now();
 arena.action("player-a", 1, { cell: 0 });
 const turnLatencyMs = performance.now() - turnStarted;
 const measurement = arena.measure(10);
-if (turnLatencyMs < 0 || measurement.elapsedMs < 0 || measurement.memoryBytes < 1) throw new Error("turn or memory metric missing");
+if (turnLatencyMs < 0 || measurement.elapsedMs < 0 || measurement.memoryBytes < 1)
+  throw new Error("turn or memory metric missing");

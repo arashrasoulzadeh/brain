@@ -1,1 +1,10 @@
-export function validateStartupDuration(durationMs: number, maxDurationMs: number): void { if (!Number.isSafeInteger(durationMs) || !Number.isSafeInteger(maxDurationMs) || durationMs < 0 || maxDurationMs < 1 || durationMs > maxDurationMs) throw new Error("startup timeout exceeded"); }
+export function validateStartupDuration(durationMs: number, maxDurationMs: number): void {
+  if (
+    !Number.isSafeInteger(durationMs) ||
+    !Number.isSafeInteger(maxDurationMs) ||
+    durationMs < 0 ||
+    maxDurationMs < 1 ||
+    durationMs > maxDurationMs
+  )
+    throw new Error("startup timeout exceeded");
+}

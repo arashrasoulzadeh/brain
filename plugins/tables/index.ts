@@ -24,6 +24,9 @@ export { createTransactionalChangeCapture } from "./create-transactional-change-
 export { createApiChangeCapture } from "./create-api-change-capture.js";
 export { createDirectSQLChangeCapture } from "./create-direct-sql-change-capture.js";
 export type RowChange<T> = { projectId: string; table: string; oldValue: T; newValue: T };
-export type ScopedRowChange<T> = RowChange<T> & { oldScope: readonly string[]; newScope: readonly string[] };
+export type ScopedRowChange<T> = RowChange<T> & {
+  oldScope: readonly string[];
+  newScope: readonly string[];
+};
 export type ApiChange = { projectId: string; operation: string; payload: unknown };
 export type DirectSQLChange = { projectId: string; table: string; statement: string };

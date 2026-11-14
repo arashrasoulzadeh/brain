@@ -1,4 +1,25 @@
 import type { ArenaRuntime } from "./arena-state.js";
 import type { DurableMatchResult } from "./types.js";
 import { validateMatchResult } from "./validate-result.js";
-export class ArenaFinisher { constructor(private readonly runtime: ArenaRuntime) {} finish(winnerIds: readonly string[], completedAt: string): DurableMatchResult { if (this.runtime.state !== "active") throw new Error("arena is not active"); if (!winnerIds.length || winnerIds.some((winner) => !this.runtime.players.includes(winner)) || !completedAt) throw new Error("invalid arena result"); this.runtime.state = "finished"; const result = { resultId: `${this.runtime.projectId}:${this.runtime.roomId}-${Date.parse(completedAt)}`, projectId: this.runtime.projectId, roomId: this.runtime.roomId, winnerIds: [...winnerIds], completedAt }; validateMatchResult(result); return result; } }
+export class ArenaFinisher {
+  constructor(private readonly runtime: ArenaRuntime) {}
+  finish(winnerIds: readonly string[], completedAt: string): DurableMatchResult {
+    if (this.runtime.state !== "active") throw new Error("arena is not active");
+    if (
+      !winnerIds.length ||
+      winnerIds.some((winner) => !this.runtime.players.includes(winner)) ||
+      !completedAt
+    )
+      throw new Error("invalid arena result");
+    this.runtime.state = "finished";
+    const result = {
+      resultId: `${this.runtime.projectId}:${this.runtime.roomId}-${Date.parse(completedAt)}`,
+      projectId: this.runtime.projectId,
+      roomId: this.runtime.roomId,
+      winnerIds: [...winnerIds],
+      completedAt,
+    };
+    validateMatchResult(result);
+    return result;
+  }
+}

@@ -1,2 +1,17 @@
 import type { HostExecutionContext, PluginFunction, PluginHandler, PluginRoute } from "./index.js";
-export function createFunctionHandler(functions: Readonly<Record<string, PluginFunction>>, routes: readonly PluginRoute[], context: HostExecutionContext): PluginHandler { return (rpc) => { if (!context.projectId || !context.invocationId || rpc.params.projectId !== context.projectId) throw new Error("host project context mismatch"); const route = routes.find((candidate) => candidate.operation === rpc.params.operation); if (!route) throw new Error("operation not declared in plugin manifest"); if (!route.function || !route.capability) throw new Error("invalid plugin route"); const fn = functions[route.function]; if (!fn) throw new Error("route function not implemented"); return { accepted: true, operation: rpc.params.operation, payload: fn(rpc) }; }; }
+export function createFunctionHandler(
+  functions: Readonly<Record<string, PluginFunction>>,
+  routes: readonly PluginRoute[],
+  context: HostExecutionContext,
+): PluginHandler {
+  return (rpc) => {
+    if (!context.projectId || !context.invocationId || rpc.params.projectId !== context.projectId)
+      throw new Error("host project context mismatch");
+    const route = routes.find((candidate) => candidate.operation === rpc.params.operation);
+    if (!route) throw new Error("operation not declared in plugin manifest");
+    if (!route.function || !route.capability) throw new Error("invalid plugin route");
+    const fn = functions[route.function];
+    if (!fn) throw new Error("route function not implemented");
+    return { accepted: true, operation: rpc.params.operation, payload: fn(rpc) };
+  };
+}
