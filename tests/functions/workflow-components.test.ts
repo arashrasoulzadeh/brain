@@ -2,6 +2,7 @@ import {
   createApprovalStore,
   createRecordChangeTriggerStore,
   evaluateCondition,
+  authorizeDeploymentPlugin,
   registerProjectWorkflowAction,
 } from "../../plugins/functions/index.js";
 
@@ -24,6 +25,17 @@ registerProjectWorkflowAction(actions, {
   capability: "workflow.project",
 });
 if (!actions.has("dev:notify-owner")) throw new Error("named workflow action was not registered");
+
+const deploymentGrants = new Set(["dev:deploy-plugin@1.0.0:deployment.execute"]);
+authorizeDeploymentPlugin(deploymentGrants, "dev", "deploy-plugin", "1.0.0");
+deploymentGrants.delete("dev:deploy-plugin@1.0.0:deployment.execute");
+try {
+  authorizeDeploymentPlugin(deploymentGrants, "dev", "deploy-plugin", "1.0.0");
+  throw new Error("deployment plugin without grant was accepted");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "deployment plugin grant required")
+    throw error;
+}
 
 const approvals = createApprovalStore();
 approvals.request("run-1", "workflow");

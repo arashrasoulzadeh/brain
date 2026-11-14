@@ -581,7 +581,7 @@ Goal: safely promote, roll back, disable, drain, uninstall, and extend plugin-co
 - [x] Ensure retried effects commit once.
 - [x] Add named triggers, conditions, actions, and approvals.
 - [x] Prevent project plugins from registering release steps.
-- [ ] Add explicitly granted deployment plugins.
+- [x] Add explicitly granted deployment plugins.
 - [ ] Add test, build, preflight, and post-deploy hooks.
 - [ ] Keep publish credentials outside plugin processes.
 - [ ] Keep the Docker socket outside plugin processes.
