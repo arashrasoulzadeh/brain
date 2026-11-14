@@ -11,6 +11,8 @@ import {
   hostOwnedAdminView,
   pluginHealthContribution,
   projectCreateRequest,
+  pluginPromoteRequest,
+  pluginRollbackRequest,
   projectOverviewContribution,
   recordBrowserPage,
   recordEditPage,
@@ -39,10 +41,14 @@ const enable = adminRequest("dev", "dashboard", "0.1.0", "plugin.enable", {
   targetPlugin: "auth",
   targetVersion: "1.0.0",
 });
+const promote = pluginPromoteRequest("dev", "rooms", "2.0.0");
+const rollback = pluginRollbackRequest("dev", "rooms", "1.0.0");
 if (
   install.params.operation !== "plugin.install" ||
   grant.params.operation !== "plugin.grant" ||
-  enable.params.operation !== "plugin.enable"
+  enable.params.operation !== "plugin.enable" ||
+  promote.params.operation !== "plugin.promote" ||
+  rollback.params.operation !== "plugin.rollback"
 ) {
   throw new Error("generic dashboard operation contract failed");
 }
@@ -52,6 +58,8 @@ const routes = [
   { operation: "plugin.install", function: "installPlugin", capability: "plugin.install" },
   { operation: "plugin.grant", function: "grantCapability", capability: "plugin.grant" },
   { operation: "plugin.enable", function: "enablePlugin", capability: "plugin.enable" },
+  { operation: "plugin.promote", function: "promotePlugin", capability: "plugin.promote" },
+  { operation: "plugin.rollback", function: "rollbackPlugin", capability: "plugin.rollback" },
   { operation: "plugin.readiness", function: "showReadiness", capability: "plugin.readiness" },
 ] as const;
 const calls: unknown[] = [];

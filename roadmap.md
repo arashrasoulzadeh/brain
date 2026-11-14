@@ -589,7 +589,7 @@ Goal: safely promote, roll back, disable, drain, uninstall, and extend plugin-co
 
 ### Phase 05 gate
 
-- [ ] Promote and roll back a plugin from the dashboard.
+- [x] Promote and roll back a plugin from the dashboard.
 - [ ] Preview and apply a dependency disable.
 - [ ] Demonstrate drain, resume, and immediate stop.
 - [ ] Uninstall a plugin while preserving durable records.

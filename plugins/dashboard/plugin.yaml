@@ -59,6 +59,8 @@ capabilities:
   - plugin.install
   - plugin.grant
   - plugin.enable
+  - plugin.promote
+  - plugin.rollback
   - plugin.readiness
 extension_points:
   - admin.navigation
@@ -78,6 +80,12 @@ routes:
   - operation: plugin.enable
     function: enablePlugin
     capability: plugin.enable
+  - operation: plugin.promote
+    function: promotePlugin
+    capability: plugin.promote
+  - operation: plugin.rollback
+    function: rollbackPlugin
+    capability: plugin.rollback
   - operation: plugin.readiness
     function: showReadiness
     capability: plugin.readiness

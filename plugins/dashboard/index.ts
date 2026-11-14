@@ -4,7 +4,11 @@ export { FormAuditReader } from "./form-audit-reader.js";
 export { browserQuickstart } from "./browser-quickstart.js";
 export { authSettingsPage } from "./auth-settings-page.js";
 export { fileManagementPage } from "./file-management-page.js";
-export { projectCreateRequest } from "./project-request.js";
+export {
+  pluginPromoteRequest,
+  pluginRollbackRequest,
+  projectCreateRequest,
+} from "./project-request.js";
 export { recordBrowserPage } from "./record-browser-page.js";
 export { recordEditPage } from "./record-edit-page.js";
 export { signupSettingsPage } from "./signup-settings-page.js";
