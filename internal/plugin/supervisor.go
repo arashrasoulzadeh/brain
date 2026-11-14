@@ -39,6 +39,9 @@ func NewSupervisor() *Supervisor { return &Supervisor{workers: map[string]superv
 func (s *Supervisor) Start(key string, worker Worker) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	if worker == nil {
+		return ErrWorkerRecoveryUnavailable
+	}
 	if _, ok := s.workers[key]; ok {
 		return ErrWorkerAlreadyRunning
 	}

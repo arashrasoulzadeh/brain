@@ -155,3 +155,10 @@ func TestSupervisorRejectsProjectlessStop(t *testing.T) {
 		t.Fatal("projectless stop was accepted")
 	}
 }
+
+func TestSupervisorRejectsNilWorker(t *testing.T) {
+	s := plugin.NewSupervisor()
+	if !errors.Is(s.Start("dev:rooms@1", nil), plugin.ErrWorkerRecoveryUnavailable) {
+		t.Fatal("nil worker was accepted")
+	}
+}
