@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `53911f7` — 2026-11-14 16:03:02 +0330 — refactor: decompose tic-tac-toe room helpers
+  Files: plugins/rooms/authorize-tic-tac-toe-command.ts,plugins/rooms/authorized-tic-tac-toe-state.ts plugins/rooms/command-deduplicator.ts,plugins/rooms/create-tic-tac-toe-coordinator.ts plugins/rooms/hidden-tic-tac-toe-view.ts,plugins/rooms/index.ts plugins/rooms/plugin.yaml,plugins/rooms/publish-tic-tac-toe-rules.ts plugins/rooms/reconnect-tic-tac-toe.ts,plugins/rooms/reconstruct-tic-tac-toe-history.ts plugins/rooms/serialize-tic-tac-toe-state.ts,plugins/rooms/validate-tic-tac-toe-command-payload.ts
+- `8b334d5` — 2026-11-14 12:24:21 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `0e86dbc` — 2026-11-14 15:54:01 +0330 — refactor: split room authorization boundaries
   Files: plugins/rooms/authorize-room-command.ts,plugins/rooms/authorized-room-snapshot.ts plugins/rooms/create-room-directory.ts,plugins/rooms/index.ts plugins/rooms/plugin.yaml
 - `d53136a` — 2026-11-14 12:23:11 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `e4e916b` — 2026-11-13 16:52:38 +0330 — feat: recheck lifecycle at invocation commit
   Files: plugins/functions/index.ts,plugins/functions/invocation-commit-state.ts plugins/functions/invocation-commit-writer.ts,roadmap.md tests/functions/functions.test.ts
-- `0851194` — 2026-11-13 13:21:55 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `fd0a32d` — 2026-11-13 16:51:34 +0330 — feat: recheck matchmaking lifecycle at assignment
-  Files: plugins/matchmaking/assignment-creator.ts,plugins/matchmaking/queue-runtime.ts plugins/matchmaking/queue.ts,roadmap.md tests/matchmaking/matchmaking.test.ts
