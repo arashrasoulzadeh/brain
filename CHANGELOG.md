@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `7b73658` — 2026-11-14 22:56:30 +0330 — launch nodejs path without symlink resolution
+  Files: scripts/run-sandboxed-typescript-worker.sh
+- `8958429` — 2026-11-14 19:25:28 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `ee7a868` — 2026-11-14 22:55:14 +0330 — use installed nodejs binary in sandbox ci
   Files: .github/workflows/test.yml,scripts/run-sandboxed-typescript-worker.sh
 - `a09c001` — 2026-11-14 19:24:06 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `0e0ca7a` — 2026-11-14 17:34:40 +0330 — record recovery duration and retention
   Files: internal/deploy/recovery_record.go,roadmap_backend.md tests/deploy/recovery_record_test.go
 - `e77288c` — 2026-11-14 14:04:09 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `d68bfe8` — 2026-11-14 17:33:56 +0330 — define fresh Compose restore rehearsal
-  Files: roadmap_backend.md,scripts/restore-compose.sh tests/deploy/compose_restore_test.go
-- `69efc6c` — 2026-11-14 14:03:30 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
