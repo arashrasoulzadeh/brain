@@ -662,9 +662,9 @@ Goal: finish the supported clients, publish the protocol, and rehearse productio
 
 ### Release images and CI
 
-- [ ] Gate releases on protected `main`.
-- [ ] Reject incomplete builds.
-- [ ] Build the backend image for amd64 and arm64.
+- [x] Gate releases on protected `main`.
+- [x] Reject incomplete builds.
+- [x] Build the backend image for amd64 and arm64.
 - [ ] Build the compiler image for amd64 and arm64.
 - [ ] Build the runner image for amd64 and arm64.
 - [ ] Publish images to public GHCR.
