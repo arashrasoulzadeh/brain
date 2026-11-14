@@ -501,6 +501,12 @@ if (!leases.acquire("prod", "job-1", "worker-b", 1500, 500))
   throw new Error("job lease was not isolated by project");
 if (!leases.acquire("dev", "job-1", "worker-b", 1800, 500))
   throw new Error("expired job lease was not reclaimable");
+try {
+  leases.acquire("bad/project", "job-2", "worker-a", 1000, 500);
+  throw new Error("job lease accepted an invalid project identity");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "invalid project id") throw error;
+}
 let grantActive = true;
 if (
   commitWithGrant(

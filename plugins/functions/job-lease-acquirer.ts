@@ -1,3 +1,4 @@
+import { validateProjectId } from "../sdk-typescript/src/index.js";
 import type { JobLeaseState } from "./job-lease-state.js";
 export class JobLeaseAcquirer {
   constructor(private readonly state: JobLeaseState) {}
@@ -8,8 +9,8 @@ export class JobLeaseAcquirer {
     now: number,
     leaseMs: number,
   ): boolean {
+    validateProjectId(projectId);
     if (
-      !projectId ||
       !jobId ||
       !workerId ||
       !Number.isSafeInteger(now) ||
