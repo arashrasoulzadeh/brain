@@ -478,18 +478,19 @@ func (r *Registry) ApplyDisablePreview(preview DisablePreview) error {
 	if _, ok := r.installations[preview.ProjectID+":"+preview.PluginID+"@"+preview.Version]; !ok {
 		return ErrNotInstalled
 	}
+	var transitionError error
 	if r.supervisor != nil {
 		if err := r.supervisor.StopProjectPlugin(preview.ProjectID, preview.PluginID, preview.Version); err != nil && !errors.Is(err, ErrWorkerNotRunning) {
-			return err
+			transitionError = err
 		}
 	}
 	if r.webSockets != nil {
-		if err := r.webSockets.CloseProject(preview.ProjectID); err != nil {
-			return err
+		if err := r.webSockets.CloseProject(preview.ProjectID); err != nil && transitionError == nil {
+			transitionError = err
 		}
 	}
 	r.lifecycleRevision++
-	return nil
+	return transitionError
 }
 
 func (r *Registry) SetReadiness(id, version string, ready bool) error {
@@ -651,17 +652,18 @@ func (r *Registry) Revoke(projectID, id, version, capability string) error {
 	delete(i.Resources, capability)
 	r.installations[key] = i
 	r.appendAudit(AuditEvent{Action: "revoke", ProjectID: projectID, PluginID: id, Version: version, Detail: capability})
+	var transitionError error
 	if r.supervisor != nil {
 		if err := r.supervisor.StopProjectPlugin(projectID, id, version); err != nil && !errors.Is(err, ErrWorkerNotRunning) {
-			return err
+			transitionError = err
 		}
 	}
 	if r.webSockets != nil {
-		if err := r.webSockets.CloseProject(projectID); err != nil {
-			return err
+		if err := r.webSockets.CloseProject(projectID); err != nil && transitionError == nil {
+			transitionError = err
 		}
 	}
-	return nil
+	return transitionError
 }
 
 func (r *Registry) Enable(projectID, id, version string) error {

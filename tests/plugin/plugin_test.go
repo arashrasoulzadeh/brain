@@ -908,6 +908,38 @@ func TestRevokeClosesOnlyProjectSockets(t *testing.T) {
 	}
 }
 
+func TestRevokeClosesSocketsWhenWorkerStopFails(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	m := plugin.Manifest{ID: "socket-stop-error", Version: "1.0.0", HostAPI: 1, Capabilities: []string{"session.issue"}}
+	if err := r.Register(m); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Install("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Grant("dev", m.ID, m.Version, "session.issue"); err != nil {
+		t.Fatal(err)
+	}
+	supervisor := plugin.NewSupervisor()
+	worker := &supervisorTestWorker{stopErr: errors.New("stop failed")}
+	if err := supervisor.Start("dev:"+m.ID+"@"+m.Version, worker); err != nil {
+		t.Fatal(err)
+	}
+	webSockets := plugin.NewWebSocketRegistry()
+	socket := &trackedConnection{}
+	if err := webSockets.RegisterProject("dev-socket", "dev", socket); err != nil {
+		t.Fatal(err)
+	}
+	r.BindSupervisor(supervisor)
+	r.BindWebSocketRegistry(webSockets)
+	if err := r.Revoke("dev", m.ID, m.Version, "session.issue"); err == nil {
+		t.Fatal("worker stop error was lost")
+	}
+	if !socket.closed {
+		t.Fatal("project socket remained open after worker stop failure")
+	}
+}
+
 func TestDisablePreviewClosesOnlyProjectSockets(t *testing.T) {
 	r := plugin.NewRegistry(1)
 	m := plugin.Manifest{ID: "socket-disable", Version: "1.0.0", HostAPI: 1}
@@ -966,10 +998,13 @@ func TestApplyDisablePreviewStopsTheProjectWorker(t *testing.T) {
 	}
 }
 
-type supervisorTestWorker struct{ stopped bool }
+type supervisorTestWorker struct {
+	stopped bool
+	stopErr error
+}
 
 func (w *supervisorTestWorker) Start() error { return nil }
-func (w *supervisorTestWorker) Stop() error  { w.stopped = true; return nil }
+func (w *supervisorTestWorker) Stop() error  { w.stopped = true; return w.stopErr }
 func (w *supervisorTestWorker) Ready() bool  { return !w.stopped }
 
 func TestProjectsCanInstallSameVersionIndependently(t *testing.T) {
