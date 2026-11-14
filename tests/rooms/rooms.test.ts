@@ -50,6 +50,14 @@ if (ticketConsumer.consume(ticket.token, "dev", "room-new", "user-1", 1002))
 const wrongProject = ticketIssuer.issue("dev", "room-new", "user-2", 1000, 60);
 if (ticketConsumer.consume(wrongProject.token, "prod", "room-new", "user-2", 1001))
   throw new Error("cross-project ticket accepted");
+try {
+  ticketConsumer.consume(wrongProject.token, "dev:other", "room-new", "user-2", 1001);
+  throw new Error("malformed connection ticket project accepted");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "invalid project id") throw error;
+}
+if (ticketConsumer.consume(wrongProject.token, "dev", "room-new", "user-2", Number.NaN))
+  throw new Error("invalid connection ticket time accepted");
 if (projectRoomID("dev", "room-1") !== "dev:room-1")
   throw new Error("project room id was not scoped");
 try {

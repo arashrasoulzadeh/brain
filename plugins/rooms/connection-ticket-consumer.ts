@@ -1,4 +1,5 @@
 import type { ConnectionTicket } from "./index.js";
+import { projectRoomID } from "./project-room-id.js";
 
 export class ConnectionTicketConsumer {
   constructor(private readonly tickets: Map<string, ConnectionTicket>) {}
@@ -9,6 +10,8 @@ export class ConnectionTicketConsumer {
     playerId: string,
     now: number,
   ): boolean {
+    projectRoomID(projectId, roomId);
+    if (!token.trim() || !playerId.trim() || !Number.isFinite(now)) return false;
     const ticket = this.tickets.get(token);
     if (
       !ticket ||
