@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `15805d7` — 2026-11-14 17:15:13 +0330 — enforce image pull before deployment drain
+  Files: internal/deploy/sequence.go,roadmap_backend.md tests/deploy/sequence_test.go
+- `452556c` — 2026-11-14 13:44:17 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `ed03dc6` — 2026-11-14 17:13:57 +0330 — make backend roadmap the active checklist
   Files: AGENTS.md
 - `b4be8d3` — 2026-11-14 13:43:01 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `47ce9a2` — 2026-11-14 16:54:56 +0330 — add flutter web transport adapter
   Files: clients/flutter/lib/web_transport.dart,roadmap.md tests/flutter/web_transport_test.dart
 - `58c698d` — 2026-11-14 13:24:45 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `fbe6e31` — 2026-11-14 16:54:32 +0330 — add flutter native transport adapter
-  Files: clients/flutter/lib/native_transport.dart,roadmap.md tests/flutter/native_transport_test.dart
-- `b3dc229` — 2026-11-14 13:24:20 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
