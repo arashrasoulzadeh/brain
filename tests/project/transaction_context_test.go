@@ -2,6 +2,7 @@ package project_test
 
 import (
 	"context"
+	"sync"
 	"testing"
 
 	"brain/internal/project"
@@ -15,6 +16,31 @@ func TestCallerContextIsBoundToTransactionContext(t *testing.T) {
 	}
 	if _, ok := project.CallerFromContext(context.Background()); ok {
 		t.Fatal("caller leaked outside transaction context")
+	}
+}
+
+func TestCallerLeaseCanBeConsumedOnlyOnceConcurrently(t *testing.T) {
+	lease := project.NewCallerLease("dev", "actor")
+	var group sync.WaitGroup
+	results := make(chan bool, 32)
+	for index := 0; index < 32; index++ {
+		group.Add(1)
+		go func() {
+			defer group.Done()
+			_, ok := lease.Consume()
+			results <- ok
+		}()
+	}
+	group.Wait()
+	close(results)
+	consumed := 0
+	for ok := range results {
+		if ok {
+			consumed++
+		}
+	}
+	if consumed != 1 {
+		t.Fatalf("lease consumed %d times, want once", consumed)
 	}
 }
 

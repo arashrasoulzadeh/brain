@@ -1,6 +1,9 @@
 package project
 
-import "context"
+import (
+	"context"
+	"sync"
+)
 
 type Caller struct {
 	ProjectID string
@@ -21,6 +24,7 @@ func CallerFromContext(ctx context.Context) (Caller, bool) {
 }
 
 type CallerLease struct {
+	mu     sync.Mutex
 	caller Caller
 	used   bool
 }
@@ -30,6 +34,8 @@ func NewCallerLease(projectID, actorID string) *CallerLease {
 }
 
 func (l *CallerLease) Consume() (Caller, bool) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
 	if l.used || l.caller.ProjectID == "" || l.caller.ActorID == "" {
 		return Caller{}, false
 	}
