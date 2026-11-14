@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `c3a1d91` — 2026-11-14 23:13:52 +0330 — stop revoked plugin worker versions
+  Files: internal/plugin/supervisor.go,tests/plugin/supervisor_test.go
+- `c664b18` — 2026-11-14 19:43:13 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `340c867` — 2026-11-14 23:12:54 +0330 — enforce project context in typescript workers
   Files: internal/plugin/typescript_worker.go,tests/plugin/typescript_worker_test.go
 - `953ae02` — 2026-11-14 19:42:00 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `c553fda` — 2026-11-14 22:38:27 +0330 — verify typescript sandbox in linux ci
   Files: .github/workflows/test.yml,scripts/run-sandboxed-typescript-worker.sh scripts/test-sandboxed-typescript-worker.sh
 - `828efc2` — 2026-11-14 19:07:13 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `5ca7c96` — 2026-11-14 22:36:57 +0330 — enforce sandbox resource limits
-  Files: internal/plugin/typescript_worker.go,scripts/run-sandboxed-typescript-worker.sh tests/plugin/bubblewrap_worker_test.go,tests/plugin/sandbox_launcher_test.go
-- `b370d18` — 2026-11-14 19:05:43 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
