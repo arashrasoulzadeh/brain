@@ -14,10 +14,11 @@ type CapacityProfile struct {
 	EyeExportJobs             int `json:"eye_export_jobs"`
 	SimulatedRTTMs            int `json:"simulated_rtt_ms"`
 	PacketLossPercent         int `json:"packet_loss_percent"`
+	P95InputSnapshotLatencyMs int `json:"p95_input_snapshot_latency_ms"`
 }
 
 func (p CapacityProfile) Validate() error {
-	if p.CPUCores <= 0 || p.MemoryBytes <= 0 || p.PlayersPerRoom < 1 || p.PlayersPerRoom > 8 || p.RepresentativeAppRequests <= 0 || p.UploadRequests <= 0 || p.BackgroundJobs <= 0 || p.EyeExportJobs <= 0 || p.SimulatedRTTMs < 0 || p.PacketLossPercent < 0 || p.PacketLossPercent > 100 {
+	if p.CPUCores <= 0 || p.MemoryBytes <= 0 || p.PlayersPerRoom < 1 || p.PlayersPerRoom > 8 || p.RepresentativeAppRequests <= 0 || p.UploadRequests <= 0 || p.BackgroundJobs <= 0 || p.EyeExportJobs <= 0 || p.SimulatedRTTMs < 0 || p.PacketLossPercent < 0 || p.PacketLossPercent > 100 || p.P95InputSnapshotLatencyMs <= 0 {
 		return ErrInvalidCapacityProfile
 	}
 	return nil
