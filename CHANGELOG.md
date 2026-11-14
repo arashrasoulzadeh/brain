@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `ba30916` — 2026-11-14 22:44:06 +0330 — stabilize sandbox worker host test
+  Files: tests/plugin/bubblewrap_worker_test.go
+- `dbcf3e7` — 2026-11-14 19:13:19 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `56fb77e` — 2026-11-14 22:43:05 +0330 — run sandbox verification in privileged ci container
   Files: .github/workflows/test.yml
 - `287c439` — 2026-11-14 19:12:08 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `2b05f3e` — 2026-11-14 17:27:21 +0330 — define verified backup policy
   Files: docs/admins.md,docs/developers.md internal/deploy/backup_policy.go,roadmap_backend.md tests/deploy/backup_policy_test.go
 - `0236b8f` — 2026-11-14 13:56:49 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `820173f` — 2026-11-14 17:26:18 +0330 — document incompatible migration recovery
-  Files: docs/admins.md,docs/developers.md docs/incompatible-migration-recovery.md,roadmap_backend.md tests/deploy/recovery_doc_test.go
-- `98f4266` — 2026-11-14 13:55:49 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
