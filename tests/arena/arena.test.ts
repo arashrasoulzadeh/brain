@@ -28,6 +28,24 @@ validateMatchResult({
   winnerIds: ["user-1"],
   completedAt: new Date().toISOString(),
 });
+try {
+  createArena("dev:other", "room-1");
+  throw new Error("malformed arena project accepted");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "invalid arena project") throw error;
+}
+try {
+  validateMatchResult({
+    resultId: "dev:result-invalid",
+    projectId: "dev",
+    roomId: "room-1",
+    winnerIds: ["user-1"],
+    completedAt: "not-a-date",
+  });
+  throw new Error("invalid match timestamp accepted");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "invalid match result") throw error;
+}
 const arena = createArena("dev", "room-1");
 if (arena.getState() !== "waiting") throw new Error("arena did not start waiting");
 arena.start(["user-1", "user-2"]);
