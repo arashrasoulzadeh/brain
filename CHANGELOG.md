@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `83e5f73` — 2026-11-15 02:26:24 +0330 — enforce canonical project identifiers
+  Files: internal/project/project.go,tests/project/project_test.go
+- `d36079c` — 2026-11-14 22:55:45 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `62ef061` — 2026-11-15 02:25:32 +0330 — bound analytics event values
   Files: plugins/analytics/validate-event.ts,tests/analytics/analytics.test.ts
 - `6a378b8` — 2026-11-14 22:55:13 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `52d292f` — 2026-11-15 01:57:23 +0330 — reject duplicate plugin installations
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `cc88191` — 2026-11-14 22:26:54 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `e7472cb` — 2026-11-15 01:56:29 +0330 — lock permission transitions during registry changes
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `e83fb51` — 2026-11-14 22:24:38 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
