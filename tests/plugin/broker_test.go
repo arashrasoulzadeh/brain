@@ -247,3 +247,11 @@ func TestBrokerReturnsBoundedWorkerUnavailableError(t *testing.T) {
 		t.Fatalf("Authorize() = %v", err)
 	}
 }
+
+func TestBrokerFailsClosedWithoutRegistry(t *testing.T) {
+	b := plugin.Broker{ActorAllows: func(string, string, string) bool { return true }}
+	call := plugin.HostCall{ProjectID: "dev", ActorID: "actor", ExpiresAt: time.Now().Add(time.Minute)}
+	if err := b.Authorize(call, time.Now()); !errors.Is(err, plugin.ErrRegistryUnavailable) {
+		t.Fatalf("expected registry unavailable error, got %v", err)
+	}
+}

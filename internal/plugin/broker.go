@@ -12,6 +12,7 @@ var ErrActorDenied = errors.New("actor permission denied")
 var ErrInvocationExpired = errors.New("invocation credential expired")
 var ErrWorkerUnavailable = errors.New("plugin worker unavailable")
 var ErrPluginScopeDenied = errors.New("plugin scope denied")
+var ErrRegistryUnavailable = errors.New("plugin registry unavailable")
 
 type HostCall struct {
 	ProjectID        string
@@ -62,6 +63,9 @@ func (b *Broker) Issue(call HostCall, now time.Time, lifetime time.Duration) (In
 }
 
 func (b *Broker) Authorize(call HostCall, now time.Time) error {
+	if b == nil {
+		return ErrRegistryUnavailable
+	}
 	if call.ProjectID == "" || call.ActorID == "" {
 		return ErrProjectInvalid
 	}
@@ -72,6 +76,9 @@ func (b *Broker) Authorize(call HostCall, now time.Time) error {
 		return ErrWorkerUnavailable
 	}
 	if call.Operation != "" {
+		if b.Registry == nil {
+			return ErrRegistryUnavailable
+		}
 		b.Registry.readinessMu.RLock()
 		registered, ok := b.Registry.registered[call.PluginID+"@"+call.Version]
 		b.Registry.readinessMu.RUnlock()
@@ -90,7 +97,13 @@ func (b *Broker) Authorize(call HostCall, now time.Time) error {
 		return ErrActorDenied
 	}
 	if call.Resource != "" {
+		if b.Registry == nil {
+			return ErrRegistryUnavailable
+		}
 		return b.Registry.AuthorizeResource(call.ProjectID, call.PluginID, call.Version, call.Capability, call.Resource)
+	}
+	if b.Registry == nil {
+		return ErrRegistryUnavailable
 	}
 	return b.Registry.Authorize(call.ProjectID, call.PluginID, call.Version, call.Capability)
 }
