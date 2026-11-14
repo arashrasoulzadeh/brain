@@ -4,7 +4,7 @@ Backend infrastructure, release, deployment, backup, capacity, and security work
 
 ## Backend laws
 
-- [ ] Keep the core host limited to shared infrastructure and contracts.
+- [x] Keep the core host limited to shared infrastructure and contracts. Verified with `go test ./...`, `go vet ./...`, and the plugin-first source layout: product capabilities remain under `plugins/`; Go host packages provide transport, isolation, lifecycle, permissions, storage primitives, worker supervision, and contracts.
 - [ ] Enforce project isolation at every request, job, socket, worker, and commit boundary.
 - [ ] Require host-authenticated execution context for every production plugin handler.
 - [ ] Bind every production commit to a single-use host-issued invocation credential.
