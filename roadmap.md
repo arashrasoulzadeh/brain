@@ -608,7 +608,7 @@ Goal: finish the supported clients, publish the protocol, and rehearse productio
 - [x] Add shared sign-in fixtures.
 - [x] Add shared data fixtures.
 - [x] Add shared file fixtures.
-- [ ] Add shared function fixtures.
+- [x] Add shared function fixtures.
 - [ ] Add shared subscription fixtures.
 - [ ] Add shared matchmaking fixtures.
 - [ ] Add shared gameplay fixtures.
