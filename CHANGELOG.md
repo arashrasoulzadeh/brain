@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `2e8f689` — 2026-11-14 17:05:46 +0330 — validate release image manifest
+  Files: internal/deploy/manifest.go,roadmap.md tests/deploy/manifest_test.go
+- `945c957` — 2026-11-14 13:35:31 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `c5eac14` — 2026-11-14 17:05:17 +0330 — validate deployment release sha
   Files: internal/deploy/release_sha.go,roadmap.md tests/deploy/release_sha_test.go
 - `2599e51` — 2026-11-14 13:35:09 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `a133ef4` — 2026-11-14 16:52:22 +0330 — verify flutter shared fixtures
   Files: .gitignore,clients/flutter/pubspec.lock roadmap.md
 - `e09d58e` — 2026-11-14 13:21:34 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `9e3565b` — 2026-11-14 16:51:21 +0330 — configure flutter fixture test dependency
-  Files: clients/flutter/pubspec.yaml
-- `c696b72` — 2026-11-14 13:21:06 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
