@@ -24,6 +24,16 @@ func TestResolveRejectsUnknownProject(t *testing.T) {
 	}
 }
 
+func TestStoreRejectsMalformedProjectIDs(t *testing.T) {
+	store := project.NewStore()
+	if err := store.Create("dev:other"); !errors.Is(err, project.ErrInvalidID) {
+		t.Fatalf("Create(malformed) = %v, want ErrInvalidID", err)
+	}
+	if _, err := store.Resolve("dev:other"); !errors.Is(err, project.ErrInvalidID) {
+		t.Fatalf("Resolve(malformed) = %v, want ErrInvalidID", err)
+	}
+}
+
 func TestResolveRejectsInactiveProject(t *testing.T) {
 	store := project.NewStore(project.Project{ID: "prod", Active: false})
 	_, err := store.Resolve("prod")

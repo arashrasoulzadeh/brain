@@ -2,6 +2,7 @@ package project
 
 import (
 	"errors"
+	"regexp"
 	"sync"
 )
 
@@ -9,7 +10,17 @@ var (
 	ErrNotFound  = errors.New("project not found")
 	ErrInactive  = errors.New("project inactive")
 	ErrDuplicate = errors.New("project already exists")
+	ErrInvalidID = errors.New("invalid project id")
 )
+
+var validID = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9_-]*$`)
+
+func ValidateID(id string) error {
+	if !validID.MatchString(id) {
+		return ErrInvalidID
+	}
+	return nil
+}
 
 type Project struct {
 	ID     string
@@ -19,8 +30,8 @@ type Project struct {
 func (s *Store) Create(id string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if id == "" {
-		return ErrNotFound
+	if err := ValidateID(id); err != nil {
+		return err
 	}
 	if _, ok := s.projects[id]; ok {
 		return ErrDuplicate
@@ -37,12 +48,18 @@ type Store struct {
 func NewStore(projects ...Project) *Store {
 	s := &Store{projects: make(map[string]Project, len(projects))}
 	for _, p := range projects {
+		if ValidateID(p.ID) != nil {
+			continue
+		}
 		s.projects[p.ID] = p
 	}
 	return s
 }
 
 func (s *Store) Resolve(id string) (Project, error) {
+	if err := ValidateID(id); err != nil {
+		return Project{}, err
+	}
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	p, ok := s.projects[id]
