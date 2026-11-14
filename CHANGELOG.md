@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `fd94528` — 2026-11-15 01:33:01 +0330 — protect plugin disable previews
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `8d27d6f` — 2026-11-14 22:02:37 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `4741525` — 2026-11-15 01:32:24 +0330 — enforce plugin project boundaries
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `87c5a5b` — 2026-11-14 22:01:40 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `2c53022` — 2026-11-15 01:12:09 +0330 — reject projectless plugin installation
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `182a7ae` — 2026-11-14 21:41:43 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `55aa276` — 2026-11-15 01:11:26 +0330 — make invocation credentials concurrency safe
-  Files: internal/plugin/broker.go,tests/plugin/broker_test.go
-- `03e8724` — 2026-11-14 21:40:05 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
