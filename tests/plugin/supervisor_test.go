@@ -51,3 +51,23 @@ func TestSupervisorChecksEnabledWorkerHealth(t *testing.T) {
 		t.Fatal("stopped enabled worker was accepted")
 	}
 }
+
+func TestSupervisorStopsAllInstancesOfPluginVersion(t *testing.T) {
+	s := plugin.NewSupervisor()
+	first, second, unrelated := &fakeWorker{}, &fakeWorker{}, &fakeWorker{}
+	if err := s.Start("dev:rooms@1.0.0", first); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.Start("prod:rooms@1.0.0", second); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.Start("dev:rooms@2.0.0", unrelated); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.StopPluginVersion("rooms", "1.0.0"); err != nil {
+		t.Fatal(err)
+	}
+	if !first.stopped || !second.stopped || unrelated.stopped {
+		t.Fatalf("unexpected worker state: first=%v second=%v unrelated=%v", first.stopped, second.stopped, unrelated.stopped)
+	}
+}

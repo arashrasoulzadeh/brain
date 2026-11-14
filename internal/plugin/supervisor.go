@@ -1,6 +1,9 @@
 package plugin
 
-import "errors"
+import (
+	"errors"
+	"strings"
+)
 
 var ErrWorkerAlreadyRunning = errors.New("worker already running")
 var ErrWorkerNotRunning = errors.New("worker not running")
@@ -36,6 +39,30 @@ func (s *Supervisor) Stop(key string) error {
 		return err
 	}
 	delete(s.workers, key)
+	return nil
+}
+
+func (s *Supervisor) StopPluginVersion(pluginID, version string) error {
+	if pluginID == "" || version == "" {
+		return ErrWorkerNotRunning
+	}
+	suffix := pluginID + "@" + version
+	var firstErr error
+	for key, worker := range s.workers {
+		if key != suffix && !strings.HasSuffix(key, ":"+suffix) {
+			continue
+		}
+		if err := worker.Stop(); err != nil {
+			if firstErr == nil {
+				firstErr = err
+			}
+			continue
+		}
+		delete(s.workers, key)
+	}
+	if firstErr != nil {
+		return firstErr
+	}
 	return nil
 }
 
