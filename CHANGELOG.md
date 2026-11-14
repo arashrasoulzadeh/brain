@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `c553fda` — 2026-11-14 22:38:27 +0330 — verify typescript sandbox in linux ci
+  Files: .github/workflows/test.yml,scripts/run-sandboxed-typescript-worker.sh scripts/test-sandboxed-typescript-worker.sh
+- `828efc2` — 2026-11-14 19:07:13 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `5ca7c96` — 2026-11-14 22:36:57 +0330 — enforce sandbox resource limits
   Files: internal/plugin/typescript_worker.go,scripts/run-sandboxed-typescript-worker.sh tests/plugin/bubblewrap_worker_test.go,tests/plugin/sandbox_launcher_test.go
 - `b370d18` — 2026-11-14 19:05:43 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `aff04b2` — 2026-11-14 17:24:03 +0330 — record deployed release version
   Files: internal/deploy/version.go,roadmap_backend.md tests/deploy/version_test.go
 - `c755865` — 2026-11-14 13:53:33 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `b9a8b6f` — 2026-11-14 17:23:19 +0330 — check enabled worker health before release
-  Files: internal/plugin/supervisor.go,roadmap_backend.md tests/plugin/supervisor_test.go
-- `49e553f` — 2026-11-14 13:52:40 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
