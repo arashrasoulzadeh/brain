@@ -11,11 +11,6 @@ Backend infrastructure, release, deployment, backup, capacity, and security work
 - [ ] Complete a deep security audit across every plugin and add regression tests for every finding.
 - [ ] Keep operator access separate from end-user access.
 - [ ] Treat destructive actions, migrations, releases, and permission changes as audited operations.
-- [ ] Keep every test file under `tests/<area>/`.
-- [ ] Run `go test ./...` after moving or adding tests.
-- [ ] Do not run Docker or Compose during ordinary local development.
-- [ ] Use SQLite for fast local tests when PostgreSQL-specific behavior is not required.
-- [ ] Keep PostgreSQL, Compose, and multi-service checks explicit and opt-in.
 
 ## Backup and restore
 
