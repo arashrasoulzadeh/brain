@@ -20,4 +20,4 @@ response=$(WORKER_SCRIPT="$PWD/scripts/typescript-worker.mjs" EXECUTION_DESCRIPT
 {"jsonrpc":"2.0","id":"one","params":{"pluginId":"sample","version":"1.0.0","projectId":"project","operation":"health"}}
 EOF
 )
-printf '%s\n' "$response" | rg '"accepted":true'
+printf '%s\n' "$response" | grep -F '"accepted":true'
