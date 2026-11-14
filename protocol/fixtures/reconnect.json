@@ -1,0 +1,9 @@
+{
+  "protocol": 1,
+  "fixture": "reconnect",
+  "projectId": "dev",
+  "roomId": "fixture-room",
+  "sessionId": "fixture-session",
+  "lastEventSequence": 4,
+  "replayFrom": 5
+}

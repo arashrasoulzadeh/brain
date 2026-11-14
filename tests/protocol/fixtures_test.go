@@ -134,3 +134,28 @@ func TestAuthorizedSnapshotFixtureIsTransportNeutral(t *testing.T) {
 		t.Fatalf("invalid authorized snapshot fixture: %+v", fixture)
 	}
 }
+
+func TestReconnectFixtureIsTransportNeutral(t *testing.T) {
+	fixturePath := filepath.Join("..", "..", "protocol", "fixtures", "reconnect.json")
+	raw, err := os.ReadFile(fixturePath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var fixture struct {
+		Protocol          int    `json:"protocol"`
+		Fixture           string `json:"fixture"`
+		ProjectID         string `json:"projectId"`
+		RoomID            string `json:"roomId"`
+		SessionID         string `json:"sessionId"`
+		LastEventSequence int    `json:"lastEventSequence"`
+		ReplayFrom        int    `json:"replayFrom"`
+	}
+	if err := json.Unmarshal(raw, &fixture); err != nil {
+		t.Fatal(err)
+	}
+	if fixture.Protocol != 1 || fixture.Fixture != "reconnect" || fixture.ProjectID == "" ||
+		fixture.RoomID == "" || fixture.SessionID == "" || fixture.LastEventSequence != 4 ||
+		fixture.ReplayFrom != 5 {
+		t.Fatalf("invalid reconnect fixture: %+v", fixture)
+	}
+}
