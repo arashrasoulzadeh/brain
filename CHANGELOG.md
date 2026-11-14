@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `37f14ab` — 2026-11-14 17:36:43 +0330 — run eight-player capacity fixture
+  Files: roadmap_backend.md,tests/deploy/capacity-eight-player.test.ts
+- `458cf7b` — 2026-11-14 14:06:16 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `0063cf9` — 2026-11-14 17:36:03 +0330 — define capacity reference profile
   Files: internal/deploy/capacity_profile.go,roadmap_backend.md tests/deploy/capacity_profile_test.go
 - `42a69a2` — 2026-11-14 14:05:41 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `6df7801` — 2026-11-14 17:16:44 +0330 — pause matchmaking assignments during deploy
   Files: plugins/matchmaking/assignment-creator.ts,plugins/matchmaking/is-project-assignments-paused.ts plugins/matchmaking/pause-project-assignments.ts,plugins/matchmaking/plugin.yaml plugins/matchmaking/queue-runtime.ts,plugins/matchmaking/queue.ts plugins/matchmaking/resume-project-assignments.ts,plugins/matchmaking/ticket-enqueuer.ts tests/matchmaking/matchmaking.test.ts
 - `beb53f0` — 2026-11-14 13:45:29 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `15805d7` — 2026-11-14 17:15:13 +0330 — enforce image pull before deployment drain
-  Files: internal/deploy/sequence.go,roadmap_backend.md tests/deploy/sequence_test.go
-- `452556c` — 2026-11-14 13:44:17 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
