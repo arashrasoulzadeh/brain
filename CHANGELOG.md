@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `919dd2b` — 2026-11-14 16:45:26 +0330 — add shared matchmaking fixture
+  Files: roadmap.md,tests/fixtures/matchmaking-fixture.test.ts tests/fixtures/matchmaking-fixture.ts
+- `49a8f4b` — 2026-11-14 13:15:17 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `5f52439` — 2026-11-14 16:45:02 +0330 — add shared subscription fixture
   Files: roadmap.md,tests/fixtures/subscription-fixture.test.ts tests/fixtures/subscription-fixture.ts
 - `3624038` — 2026-11-14 13:14:33 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `74c75b3` — 2026-11-14 16:26:54 +0330 — security: keep operator tokens out of dashboard bridges
   Files: plugins/dashboard/plugin.yaml,plugins/dashboard/reject-sensitive-bridge-data.ts plugins/dashboard/validate-bridge-message.ts,roadmap.md tests/dashboard/bridge-messages.test.ts
 - `8478c35` — 2026-11-14 12:56:22 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `41dc73e` — 2026-11-14 16:26:08 +0330 — test: reject malformed dashboard bridge messages
-  Files: roadmap.md,tests/dashboard/bridge-messages.test.ts
-- `b4bcf10` — 2026-11-14 12:55:52 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
