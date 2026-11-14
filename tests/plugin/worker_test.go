@@ -3,7 +3,6 @@ package plugin_test
 import (
 	"errors"
 	"testing"
-	"time"
 
 	"brain/internal/plugin"
 )
@@ -11,98 +10,29 @@ import (
 func TestInvokeWithCredentialBindsProductionWorkerRequest(t *testing.T) {
 	r := plugin.NewRegistry(1)
 	m := plugin.Manifest{ID: "sample", Version: "1.0.0", HostAPI: 1, Capabilities: []string{"read"}, Routes: []plugin.Route{{Operation: "read", Function: "read", Capability: "read"}}}
-	if err := r.Register(m); err != nil {
-		t.Fatal(err)
-	}
-	if err := r.Install("project-a", m.ID, m.Version); err != nil {
-		t.Fatal(err)
-	}
-	if err := r.Grant("project-a", m.ID, m.Version, "read"); err != nil {
-		t.Fatal(err)
-	}
-	if err := r.SetReadiness(m.ID, m.Version, true); err != nil {
-		t.Fatal(err)
-	}
-	if err := r.Enable("project-a", m.ID, m.Version); err != nil {
-		t.Fatal(err)
-	}
+	if err := r.Register(m); err != nil { t.Fatal(err) }
+	if err := r.Install("project-a", m.ID, m.Version); err != nil { t.Fatal(err) }
+	if err := r.Grant("project-a", m.ID, m.Version, "read"); err != nil { t.Fatal(err) }
+	if err := r.SetReadiness(m.ID, m.Version, true); err != nil { t.Fatal(err) }
+	if err := r.Enable("project-a", m.ID, m.Version); err != nil { t.Fatal(err) }
 	b := &plugin.Broker{Registry: r, ActorAllows: func(string, string, string) bool { return true }}
 	now := time.Unix(100, 0)
 	credential, err := b.Issue(plugin.HostCall{ProjectID: "project-a", ActorID: "actor", PluginID: m.ID, Version: m.Version, Capability: "read", Operation: "read"}, now, time.Minute)
-	if err != nil {
-		t.Fatal(err)
-	}
+	if err != nil { t.Fatal(err) }
 	worker := &countingWorker{}
 	request := plugin.WorkerRequest{Protocol: 1, ProjectID: "project-b", PluginID: m.ID, Version: m.Version, Operation: "read"}
-	if _, err := plugin.InvokeWithCredential(b, credential, worker, request, 1, now); !errors.Is(err, plugin.ErrInvalidWorkerRequest) {
-		t.Fatalf("mismatched request error = %v", err)
-	}
-	if worker.calls != 0 {
-		t.Fatal("handler ran for mismatched credential")
-	}
+	if _, err := plugin.InvokeWithCredential(b, credential, worker, request, 1, now); !errors.Is(err, plugin.ErrInvalidWorkerRequest) { t.Fatalf("mismatched request error = %v", err) }
+	if worker.calls != 0 { t.Fatal("handler ran for mismatched credential") }
 	request.ProjectID = "project-a"
-	if response, err := plugin.InvokeWithCredential(b, credential, worker, request, 1, now); err != nil || !response.Success {
-		t.Fatalf("valid credential invocation = %#v, %v", response, err)
-	}
+	if response, err := plugin.InvokeWithCredential(b, credential, worker, request, 1, now); err != nil || !response.Success { t.Fatalf("valid credential invocation = %#v, %v", response, err) }
 }
 
 type countingWorker struct{ calls int }
 
 func (w *countingWorker) Start() error { return nil }
-func (w *countingWorker) Stop() error  { return nil }
-func (w *countingWorker) Ready() bool  { return true }
-func (w *countingWorker) Handle(plugin.WorkerRequest) plugin.WorkerResponse {
-	w.calls++
-	return plugin.WorkerResponse{Protocol: 1, Success: true}
-}
-
-func TestInvokeWithCredentialBindsProductionWorkerRequest(t *testing.T) {
-	r := plugin.NewRegistry(1)
-	m := plugin.Manifest{ID: "sample", Version: "1.0.0", HostAPI: 1, Capabilities: []string{"read"}, Routes: []plugin.Route{{Operation: "read", Function: "read", Capability: "read"}}}
-	if err := r.Register(m); err != nil {
-		t.Fatal(err)
-	}
-	if err := r.Install("project-a", m.ID, m.Version); err != nil {
-		t.Fatal(err)
-	}
-	if err := r.Grant("project-a", m.ID, m.Version, "read"); err != nil {
-		t.Fatal(err)
-	}
-	if err := r.SetReadiness(m.ID, m.Version, true); err != nil {
-		t.Fatal(err)
-	}
-	if err := r.Enable("project-a", m.ID, m.Version); err != nil {
-		t.Fatal(err)
-	}
-	b := &plugin.Broker{Registry: r, ActorAllows: func(string, string, string) bool { return true }}
-	now := time.Unix(100, 0)
-	credential, err := b.Issue(plugin.HostCall{ProjectID: "project-a", ActorID: "actor", PluginID: m.ID, Version: m.Version, Capability: "read", Operation: "read"}, now, time.Minute)
-	if err != nil {
-		t.Fatal(err)
-	}
-	worker := &countingWorker{}
-	request := plugin.WorkerRequest{Protocol: 1, ProjectID: "project-b", PluginID: m.ID, Version: m.Version, Operation: "read"}
-	if _, err := plugin.InvokeWithCredential(b, credential, worker, request, 1, now); !errors.Is(err, plugin.ErrInvalidWorkerRequest) {
-		t.Fatalf("mismatched request error = %v", err)
-	}
-	if worker.calls != 0 {
-		t.Fatal("handler ran for mismatched credential")
-	}
-	request.ProjectID = "project-a"
-	if response, err := plugin.InvokeWithCredential(b, credential, worker, request, 1, now); err != nil || !response.Success {
-		t.Fatalf("valid credential invocation = %#v, %v", response, err)
-	}
-}
-
-type countingWorker struct{ calls int }
-
-func (w *countingWorker) Start() error { return nil }
-func (w *countingWorker) Stop() error  { return nil }
-func (w *countingWorker) Ready() bool  { return true }
-func (w *countingWorker) Handle(plugin.WorkerRequest) plugin.WorkerResponse {
-	w.calls++
-	return plugin.WorkerResponse{Protocol: 1, Success: true}
-}
+func (w *countingWorker) Stop() error { return nil }
+func (w *countingWorker) Ready() bool { return true }
+func (w *countingWorker) Handle(plugin.WorkerRequest) plugin.WorkerResponse { w.calls++; return plugin.WorkerResponse{Protocol: 1, Success: true} }
 
 func TestWorkerRequestContractRequiresScopeAndProtocol(t *testing.T) {
 	request := plugin.WorkerRequest{Protocol: 1, ProjectID: "dev", PluginID: "arena", Version: "1", Operation: "start", Payload: []byte("{}")}
