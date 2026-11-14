@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `d68bfe8` — 2026-11-14 17:33:56 +0330 — define fresh Compose restore rehearsal
+  Files: roadmap_backend.md,scripts/restore-compose.sh tests/deploy/compose_restore_test.go
+- `69efc6c` — 2026-11-14 14:03:30 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `303a8f4` — 2026-11-14 17:33:16 +0330 — detect missing object versions
   Files: internal/deploy/object_manifest.go,roadmap_backend.md tests/deploy/object_manifest_test.go
 - `251c916` — 2026-11-14 14:02:44 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `a6ff0ed` — 2026-11-14 17:10:36 +0330 — trim completed roadmap phases
   Files: roadmap.md
 - `04539b0` — 2026-11-14 13:37:34 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `7f77480` — 2026-11-14 17:07:19 +0330 — validate deployment compose configuration
-  Files: internal/deploy/compose.go,roadmap.md tests/deploy/compose_test.go
-- `2b73bf2` — 2026-11-14 13:36:05 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
