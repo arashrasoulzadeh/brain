@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `a795ca9` — 2026-11-15 01:33:49 +0330 — protect broker manifest authorization
+  Files: internal/plugin/broker.go,tests/plugin/plugin_test.go
+- `c972917` — 2026-11-14 22:03:15 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `fd94528` — 2026-11-15 01:33:01 +0330 — protect plugin disable previews
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `8d27d6f` — 2026-11-14 22:02:37 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `a065f6f` — 2026-11-15 01:12:46 +0330 — reject projectless lifecycle mutations
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `a447cde` — 2026-11-14 21:42:27 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `2c53022` — 2026-11-15 01:12:09 +0330 — reject projectless plugin installation
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `182a7ae` — 2026-11-14 21:41:43 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
