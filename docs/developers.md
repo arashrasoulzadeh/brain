@@ -94,3 +94,7 @@ The host registry promotes only installed, enabled plugin versions and keeps act
 Promotion also validates every configured field against the manifest schema and rejects missing or incorrectly typed values before changing the active version.
 
 Readiness is now an explicit promotion precondition; an installed but not-ready version returns `ErrNotReady` before lifecycle activation is considered.
+
+## Phase 05 completed
+
+Workflow extensions and dashboard lifecycle controls are exposed through manifest-declared TypeScript plugin routes. Project actions recheck grants, reject invalid graphs and release steps, commit retried effects once, and require explicit deployment grants. Deployment hooks require test, build, preflight, deploy, and post-deploy stages; publish credentials and host resources remain outside plugin processes. Dashboard contracts cover promotion, rollback, dependency-disable preview/apply, drain/resume/stop, and uninstall. Run `npm run lint:ts`, `npm run typecheck`, and `npm run test:ts`; Docker remains CI/release-only.

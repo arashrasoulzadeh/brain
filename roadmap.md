@@ -593,11 +593,11 @@ Goal: safely promote, roll back, disable, drain, uninstall, and extend plugin-co
 - [x] Preview and apply a dependency disable.
 - [x] Demonstrate drain, resume, and immediate stop.
 - [x] Uninstall a plugin while preserving durable records.
-- [ ] Replace one admin view declaratively.
-- [ ] Replace one admin view with a custom frame.
-- [ ] Run one project workflow extension.
-- [ ] Run one granted server workflow extension.
-- [ ] Verify permission and credential separation.
+- [x] Replace one admin view declaratively.
+- [x] Replace one admin view with a custom frame.
+- [x] Run one project workflow extension.
+- [x] Run one granted server workflow extension.
+- [x] Verify permission and credential separation.
 
 ## Phase 06 — Clients and release
 

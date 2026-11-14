@@ -72,3 +72,7 @@ The worker readiness state is checked explicitly before promotion; an unready ve
 Function compilation and execution are now covered by the hosted Compose isolation gate. Operators can rely on bounded compiler/runner execution, declared imports, denied filesystem/network/credential access, timeout and memory limits, safe retries, scheduled and record-change triggers, shared-helper rollback, grant rechecks, crash recovery, and deterministic Tic-tac-toe turn handling. CI run `43427610513` passed the isolation profile. Do not run Docker during ordinary local development; the normal local checks are TypeScript lint/typecheck/tests and the Go test suite.
 
 The compiler and runner are separate trust boundaries. Review artifact digests, pinned toolchains, grants, retries, leases, and idempotency records before enabling production functions. A failed or revoked invocation must produce no unauthorized write.
+
+## Phase 05 completed
+
+Administrators can promote or roll back plugin versions, preview/apply dependency disables, drain/resume/stop plugin lifecycle, and uninstall plugins through the dashboard contract. Workflow actions require current project grants; deployment plugins require explicit `deployment.execute` authorization. Publish credentials and Docker/host sockets remain host-owned. Review the required test/build/preflight/deploy/post-deploy sequence and audit lifecycle operations before production use. Local checks are Docker-free; use CI for Compose checks.
