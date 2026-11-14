@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `0db3271` — 2026-11-14 16:57:01 +0330 — define transport neutral login fixture
+  Files: protocol/fixtures/login.json,roadmap.md tests/protocol/fixtures_test.go
+- `df8d826` — 2026-11-14 13:26:34 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `2b2084c` — 2026-11-14 16:56:20 +0330 — complete flutter app and match flows
   Files: docs/flutter-quickstart.md,roadmap.md tests/flutter/app_match_flow_test.dart
 - `57250cc` — 2026-11-14 13:26:05 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `7932761` — 2026-11-14 16:43:32 +0330 — add shared file fixture
   Files: roadmap.md,tests/fixtures/file-fixture.test.ts tests/fixtures/file-fixture.ts
 - `6c95546` — 2026-11-14 13:13:22 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `4e89495` — 2026-11-14 16:43:08 +0330 — add shared data fixture
-  Files: roadmap.md,tests/fixtures/data-fixture.test.ts tests/fixtures/data-fixture.ts
-- `6d60f3f` — 2026-11-14 13:12:55 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
