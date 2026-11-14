@@ -617,7 +617,7 @@ Goal: finish the supported clients, publish the protocol, and rehearse productio
 - [x] Test CSRF protection.
 - [x] Test invalidation during a fetch.
 - [x] Test safe retry after reconnect.
-- [ ] Finish the typed JavaScript client.
+- [x] Finish the typed JavaScript client.
 - [ ] Publish the browser quickstart.
 - [ ] Publish the playable arena.
 
