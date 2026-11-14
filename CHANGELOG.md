@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `b36f5a7` — 2026-11-15 00:34:02 +0330 — use dedicated compiler and runner images
+  Files: .github/workflows/release-backend.yml,Dockerfile.compiler Dockerfile.runner,tests/deploy/release_workflow_test.go
+- `74f2af8` — 2026-11-14 21:03:08 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `1d644fd` — 2026-11-15 00:32:14 +0330 — publish multi-architecture backend images
   Files: .github/workflows/release-backend.yml,tests/deploy/release_workflow_test.go
 - `7f77e43` — 2026-11-14 21:02:52 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `340c867` — 2026-11-14 23:12:54 +0330 — enforce project context in typescript workers
   Files: internal/plugin/typescript_worker.go,tests/plugin/typescript_worker_test.go
 - `953ae02` — 2026-11-14 19:42:00 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `6633594` — 2026-11-14 23:11:46 +0330 — bind worker invocation to host project
-  Files: internal/plugin/worker.go,tests/plugin/worker_test.go
-- `c1e0000` — 2026-11-14 19:40:58 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
