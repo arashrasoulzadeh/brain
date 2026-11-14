@@ -258,6 +258,7 @@ type Registry struct {
 	readiness         map[string]bool
 	readinessMu       sync.RWMutex
 	audit             []AuditEvent
+	auditMu           sync.RWMutex
 	active            map[string]string
 	pins              map[string]string
 	artifacts         map[string]string
@@ -328,7 +329,7 @@ func (r *Registry) DeleteDurableData(projectID, pluginID, key string) error {
 	r.durableMu.Lock()
 	defer r.durableMu.Unlock()
 	delete(r.durableData, projectID+":"+pluginID+":"+key)
-	r.audit = append(r.audit, AuditEvent{Action: "delete_durable_data", ProjectID: projectID, PluginID: pluginID, Detail: key})
+	r.appendAudit(AuditEvent{Action: "delete_durable_data", ProjectID: projectID, PluginID: pluginID, Detail: key})
 	return nil
 }
 
@@ -340,7 +341,7 @@ func (r *Registry) ApproveCapability(projectID, id, version, capability string) 
 		return ErrNotInstalled
 	}
 	r.approvals[projectID+":"+id+"@"+version+":"+capability] = true
-	r.audit = append(r.audit, AuditEvent{Action: "approve_capability", ProjectID: projectID, PluginID: id, Version: version, Detail: capability})
+	r.appendAudit(AuditEvent{Action: "approve_capability", ProjectID: projectID, PluginID: id, Version: version, Detail: capability})
 	return nil
 }
 
@@ -364,7 +365,7 @@ func (r *Registry) ApproveArtifact(id, version, endpoint string) error {
 		return ErrInvalidManifest
 	}
 	r.artifacts[id+"@"+version] = endpoint
-	r.audit = append(r.audit, AuditEvent{Action: "approve_artifact", PluginID: id, Version: version, Detail: endpoint})
+	r.appendAudit(AuditEvent{Action: "approve_artifact", PluginID: id, Version: version, Detail: endpoint})
 	return nil
 }
 
@@ -396,7 +397,7 @@ func (r *Registry) Register(m Manifest) error {
 	}
 	r.registered[key] = Registered{Manifest: m}
 	r.readiness[key] = false
-	r.audit = append(r.audit, AuditEvent{Action: "register", PluginID: m.ID, Version: m.Version})
+	r.appendAudit(AuditEvent{Action: "register", PluginID: m.ID, Version: m.Version})
 	return nil
 }
 
@@ -462,7 +463,7 @@ func (r *Registry) SetReadiness(id, version string, ready bool) error {
 		return ErrNotRegistered
 	}
 	r.readiness[key] = ready
-	r.audit = append(r.audit, AuditEvent{Action: "readiness", PluginID: id, Version: version, Detail: fmt.Sprintf("ready=%t", ready)})
+	r.appendAudit(AuditEvent{Action: "readiness", PluginID: id, Version: version, Detail: fmt.Sprintf("ready=%t", ready)})
 	return nil
 }
 
@@ -476,7 +477,7 @@ func (r *Registry) Install(projectID, id, version string) error {
 	}
 	installKey := projectID + ":" + key
 	r.installations[installKey] = Installation{ProjectID: projectID, PluginID: id, Version: version, Grants: map[string]bool{}, Resources: map[string]map[string]bool{}, Config: map[string]any{}}
-	r.audit = append(r.audit, AuditEvent{Action: "install", ProjectID: projectID, PluginID: id, Version: version})
+	r.appendAudit(AuditEvent{Action: "install", ProjectID: projectID, PluginID: id, Version: version})
 	return nil
 }
 
@@ -503,7 +504,7 @@ func (r *Registry) GrantResource(projectID, id, version, capability, resource st
 	i.Grants[capability] = true
 	i.Resources[capability][resource] = true
 	r.installations[projectID+":"+id+"@"+version] = i
-	r.audit = append(r.audit, AuditEvent{Action: "grant_resource", ProjectID: projectID, PluginID: id, Version: version, Detail: capability + ":" + resource})
+	r.appendAudit(AuditEvent{Action: "grant_resource", ProjectID: projectID, PluginID: id, Version: version, Detail: capability + ":" + resource})
 	return nil
 }
 
@@ -533,7 +534,7 @@ func (r *Registry) Configure(projectID, id, version string, values map[string]an
 		i.Config[name] = value
 	}
 	r.installations[key] = i
-	r.audit = append(r.audit, AuditEvent{Action: "configure", ProjectID: projectID, PluginID: id, Version: version})
+	r.appendAudit(AuditEvent{Action: "configure", ProjectID: projectID, PluginID: id, Version: version})
 	return nil
 }
 
@@ -562,7 +563,7 @@ func (r *Registry) Grant(projectID, id, version, capability string) error {
 		if requested == capability {
 			i.Grants[capability] = true
 			r.installations[projectID+":"+id+"@"+version] = i
-			r.audit = append(r.audit, AuditEvent{Action: "grant", ProjectID: projectID, PluginID: id, Version: version, Detail: capability})
+			r.appendAudit(AuditEvent{Action: "grant", ProjectID: projectID, PluginID: id, Version: version, Detail: capability})
 			return nil
 		}
 	}
@@ -578,7 +579,7 @@ func (r *Registry) Revoke(projectID, id, version, capability string) error {
 	delete(i.Grants, capability)
 	delete(i.Resources, capability)
 	r.installations[key] = i
-	r.audit = append(r.audit, AuditEvent{Action: "revoke", ProjectID: projectID, PluginID: id, Version: version, Detail: capability})
+	r.appendAudit(AuditEvent{Action: "revoke", ProjectID: projectID, PluginID: id, Version: version, Detail: capability})
 	if r.supervisor != nil {
 		if err := r.supervisor.StopProjectPlugin(projectID, id, version); err != nil && !errors.Is(err, ErrWorkerNotRunning) {
 			return err
@@ -606,7 +607,7 @@ func (r *Registry) Enable(projectID, id, version string) error {
 	}
 	i.Enabled = true
 	r.installations[key] = i
-	r.audit = append(r.audit, AuditEvent{Action: "enable", ProjectID: projectID, PluginID: id, Version: version})
+	r.appendAudit(AuditEvent{Action: "enable", ProjectID: projectID, PluginID: id, Version: version})
 	return nil
 }
 
@@ -660,7 +661,7 @@ func (r *Registry) Promote(projectID, id, version string) error {
 	}
 	r.active[projectID+":"+id] = version
 	r.lifecycleRevision++
-	r.audit = append(r.audit, AuditEvent{Action: "promote", ProjectID: projectID, PluginID: id, Version: version})
+	r.appendAudit(AuditEvent{Action: "promote", ProjectID: projectID, PluginID: id, Version: version})
 	return nil
 }
 
@@ -680,7 +681,7 @@ func (r *Registry) DrainUntil(projectID, id, version string, deadline time.Time)
 	i.Draining = true
 	i.DrainUntil = deadline
 	r.installations[key] = i
-	r.audit = append(r.audit, AuditEvent{Action: "drain", ProjectID: projectID, PluginID: id, Version: version})
+	r.appendAudit(AuditEvent{Action: "drain", ProjectID: projectID, PluginID: id, Version: version})
 	return nil
 }
 
@@ -697,7 +698,7 @@ func (r *Registry) StopImmediately(projectID, id, version string) error {
 	i.DrainUntil = time.Unix(0, 0)
 	r.installations[key] = i
 	r.lifecycleRevision++
-	r.audit = append(r.audit, AuditEvent{Action: "stop_immediate", ProjectID: projectID, PluginID: id, Version: version})
+	r.appendAudit(AuditEvent{Action: "stop_immediate", ProjectID: projectID, PluginID: id, Version: version})
 	return nil
 }
 
@@ -714,7 +715,7 @@ func (r *Registry) Recover(projectID, id, version string) error {
 	i.DrainUntil = time.Time{}
 	r.installations[key] = i
 	r.lifecycleRevision++
-	r.audit = append(r.audit, AuditEvent{Action: "recover", ProjectID: projectID, PluginID: id, Version: version})
+	r.appendAudit(AuditEvent{Action: "recover", ProjectID: projectID, PluginID: id, Version: version})
 	return nil
 }
 
@@ -764,7 +765,7 @@ func (r *Registry) Rollback(projectID, id, version string) error {
 	if err := r.Promote(projectID, id, version); err != nil {
 		return err
 	}
-	r.audit = append(r.audit, AuditEvent{Action: "rollback", ProjectID: projectID, PluginID: id, Version: version})
+	r.appendAudit(AuditEvent{Action: "rollback", ProjectID: projectID, PluginID: id, Version: version})
 	return nil
 }
 
@@ -786,7 +787,7 @@ func (r *Registry) PinWork(workID, projectID, id, version string) error {
 		return ErrNotInstalled
 	}
 	r.pins[workID] = key
-	r.audit = append(r.audit, AuditEvent{Action: "pin", ProjectID: projectID, PluginID: id, Version: version, Detail: workID})
+	r.appendAudit(AuditEvent{Action: "pin", ProjectID: projectID, PluginID: id, Version: version, Detail: workID})
 	return nil
 }
 
@@ -820,7 +821,7 @@ func (r *Registry) Remove(projectID, id, version string) error {
 		return ErrVersionReferenced
 	}
 	delete(r.installations, key)
-	r.audit = append(r.audit, AuditEvent{Action: "remove", ProjectID: projectID, PluginID: id, Version: version})
+	r.appendAudit(AuditEvent{Action: "remove", ProjectID: projectID, PluginID: id, Version: version})
 	return nil
 }
 
@@ -859,7 +860,7 @@ func (r *Registry) Unregister(id, version string) error {
 	delete(r.registered, key)
 	delete(r.readiness, key)
 	delete(r.artifacts, key)
-	r.audit = append(r.audit, AuditEvent{Action: "unregister", PluginID: id, Version: version})
+	r.appendAudit(AuditEvent{Action: "unregister", PluginID: id, Version: version})
 	return nil
 }
 
@@ -880,16 +881,26 @@ func (r *Registry) UninstallProject(projectID string) error {
 	for key, installation := range r.installations {
 		if installation.ProjectID == projectID {
 			for capability := range installation.Grants {
-				r.audit = append(r.audit, AuditEvent{Action: "revoke_project_grant", ProjectID: projectID, PluginID: installation.PluginID, Version: installation.Version, Detail: capability})
+				r.appendAudit(AuditEvent{Action: "revoke_project_grant", ProjectID: projectID, PluginID: installation.PluginID, Version: installation.Version, Detail: capability})
 			}
 			delete(r.installations, key)
 		}
 	}
-	r.audit = append(r.audit, AuditEvent{Action: "uninstall_project", ProjectID: projectID})
+	r.appendAudit(AuditEvent{Action: "uninstall_project", ProjectID: projectID})
 	return nil
 }
 
-func (r *Registry) Audit() []AuditEvent { return append([]AuditEvent(nil), r.audit...) }
+func (r *Registry) appendAudit(event AuditEvent) {
+	r.auditMu.Lock()
+	defer r.auditMu.Unlock()
+	r.audit = append(r.audit, event)
+}
+
+func (r *Registry) Audit() []AuditEvent {
+	r.auditMu.RLock()
+	defer r.auditMu.RUnlock()
+	return append([]AuditEvent(nil), r.audit...)
+}
 
 func (r *Registry) Authorize(projectID, id, version, capability string) error {
 	if projectID == "" {
