@@ -19,7 +19,7 @@ if [ ! -f "$worker_script" ] || [ ! -f "$descriptor" ] || [ ! -d "$plugin_root" 
   exit 64
 fi
 
-node_path=$(readlink -f "$(command -v "$node_bin")")
+node_path=$(command -v "$node_bin")
 if [ ! -x "$node_path" ]; then
   echo "sandbox launcher received an invalid Node executable" >&2
   exit 64
