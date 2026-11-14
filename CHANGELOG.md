@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `f904063` — 2026-11-14 17:39:40 +0330 — gate typescript worker execution context
+  Files: scripts/typescript-worker.mjs,tests/plugin/typescript-worker.test.ts
+- `a402693` — 2026-11-14 14:08:55 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `c4e20fb` — 2026-11-14 17:38:41 +0330 — add typescript worker process
   Files: scripts/typescript-worker.mjs,tests/plugin/typescript-worker.test.ts
 - `6d4b51c` — 2026-11-14 14:06:56 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `0b92e4c` — 2026-11-14 17:19:14 +0330 — close tracked sockets during deploy
   Files: internal/plugin/websocket_registry.go,roadmap_backend.md tests/plugin/websocket_registry_test.go
 - `ef4c55b` — 2026-11-14 13:48:33 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `e25b42a` — 2026-11-14 17:18:18 +0330 — drain room admissions during deploy
-  Files: plugins/rooms/create-room-directory.ts,plugins/rooms/is-room-draining.ts plugins/rooms/plugin.yaml,plugins/rooms/room-creator.ts plugins/rooms/room-runtime.ts,plugins/rooms/start-room-drain.ts plugins/rooms/stop-room-drain.ts,tests/rooms/rooms.test.ts
-- `6385163` — 2026-11-14 13:47:00 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
