@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `7443223` — 2026-11-14 17:28:46 +0330 — record referenced object versions
+  Files: internal/deploy/object_manifest.go,roadmap_backend.md tests/deploy/object_manifest_test.go
+- `1487dde` — 2026-11-14 13:58:13 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `a0f6f69` — 2026-11-14 17:28:00 +0330 — add consistent PostgreSQL snapshot
   Files: roadmap_backend.md,scripts/snapshot-postgres.sh tests/deploy/postgres_snapshot_test.go
 - `c987deb` — 2026-11-14 13:57:36 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `a877763` — 2026-11-14 17:02:31 +0330 — add protected backend release workflow
   Files: .github/workflows/release-backend.yml,roadmap.md
 - `37e1143` — 2026-11-14 13:31:56 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `3689372` — 2026-11-14 17:01:44 +0330 — align plugin enable test with grant policy
-  Files: tests/plugin/plugin_test.go
-- `61f53c6` — 2026-11-14 13:31:03 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
