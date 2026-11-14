@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `6ca3489` — 2026-11-15 01:43:14 +0330 — add project scoped websocket cleanup
+  Files: internal/plugin/websocket_registry.go,tests/plugin/websocket_registry_test.go
+- `6f4abd2` — 2026-11-14 22:11:57 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `778f6dd` — 2026-11-15 01:41:41 +0330 — bound plugin transport payloads
   Files: internal/plugin/http_envelope.go,internal/plugin/websocket_message.go tests/plugin/http_envelope_test.go,tests/plugin/websocket_message_test.go
 - `e0206bf` — 2026-11-14 22:10:58 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `497ba7b` — 2026-11-15 01:22:50 +0330 — serialize plugin removal and pinning
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `52f7dfc` — 2026-11-14 21:52:14 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `e9f2ba3` — 2026-11-15 01:21:51 +0330 — protect plugin approval and artifact state
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `60dde13` — 2026-11-14 21:51:19 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
