@@ -20,3 +20,13 @@ func (m WebSocketMessage) Validate(protocol int) error {
 	}
 	return nil
 }
+
+func (m WebSocketMessage) ValidateForProject(protocol int, projectID string) error {
+	if err := m.Validate(protocol); err != nil {
+		return err
+	}
+	if projectID == "" || m.ProjectID != projectID {
+		return ErrInvalidWebSocketMessage
+	}
+	return nil
+}
