@@ -30,6 +30,7 @@ type executionDescriptor struct {
 
 type TypeScriptWorkerOptions struct {
 	InvocationTimeout time.Duration
+	ProjectID         string
 }
 
 type TypeScriptWorker struct {
@@ -88,7 +89,9 @@ func NewManifestBubblewrapTypeScriptWorker(launcher, workerScript, descriptor, p
 	if err := os.WriteFile(descriptor, data, 0o600); err != nil {
 		return nil, err
 	}
-	return NewBubblewrapTypeScriptWorker(launcher, workerScript, descriptor, pluginRoot, policy), nil
+	worker := NewBubblewrapTypeScriptWorker(launcher, workerScript, descriptor, pluginRoot, policy)
+	worker.options.ProjectID = projectID
+	return worker, nil
 }
 
 func (w *TypeScriptWorker) Start() error {
@@ -139,6 +142,9 @@ func (w *TypeScriptWorker) Ready() bool {
 func (w *TypeScriptWorker) Handle(request WorkerRequest) WorkerResponse {
 	w.mutex.Lock()
 	defer w.mutex.Unlock()
+	if w.options.ProjectID != "" && request.ProjectID != w.options.ProjectID {
+		return WorkerResponse{Protocol: request.Protocol, ErrorCode: ErrInvalidWorkerRequest.Error()}
+	}
 	if !w.ready {
 		return WorkerResponse{Protocol: request.Protocol, ErrorCode: ErrTypeScriptWorkerStopped.Error()}
 	}

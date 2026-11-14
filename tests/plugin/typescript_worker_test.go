@@ -47,3 +47,15 @@ func TestTypeScriptWorkerStopsHungInvocation(t *testing.T) {
 		t.Fatalf("hung worker was not stopped: %+v", response)
 	}
 }
+
+func TestTypeScriptWorkerRejectsRequestOutsideHostProject(t *testing.T) {
+	worker := plugin.NewTypeScriptWorkerWithOptions(plugin.TypeScriptWorkerOptions{ProjectID: "host-project"}, "true")
+	if err := worker.Start(); err != nil {
+		t.Fatal(err)
+	}
+	response := worker.Handle(plugin.WorkerRequest{Protocol: 1, ProjectID: "client-project", PluginID: "sample", Version: "1.0.0", Operation: "health"})
+	if response.ErrorCode != plugin.ErrInvalidWorkerRequest.Error() {
+		t.Fatalf("cross-project request reached worker: %+v", response)
+	}
+	_ = worker.Stop()
+}
