@@ -839,6 +839,8 @@ func (r *Registry) PinnedVersion(workID string) (string, bool) {
 }
 
 func (r *Registry) Remove(projectID, id, version string) error {
+	r.lifecycleMu.Lock()
+	defer r.lifecycleMu.Unlock()
 	if projectID == "" {
 		return ErrProjectInvalid
 	}
@@ -862,6 +864,8 @@ func (r *Registry) Remove(projectID, id, version string) error {
 func (r *Registry) Unregister(id, version string) error {
 	r.readinessMu.Lock()
 	defer r.readinessMu.Unlock()
+	r.artifactMu.Lock()
+	defer r.artifactMu.Unlock()
 	key := id + "@" + version
 	if _, ok := r.registered[key]; !ok {
 		return ErrNotRegistered
