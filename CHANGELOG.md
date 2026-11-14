@@ -3,6 +3,12 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `9152603` — 2026-11-14 15:52:50 +0330 — refactor: split tables index responsibilities
+  Files: plugins/tables/create-api-change-capture.ts,plugins/tables/create-direct-sql-change-capture.ts plugins/tables/create-schema-publication-audit.ts,plugins/tables/create-transactional-change-capture.ts plugins/tables/index.ts,plugins/tables/plan-schema-change.ts plugins/tables/plugin.yaml,plugins/tables/preview-schema-sql.ts plugins/tables/require-recent-schema-auth.ts,plugins/tables/schema-types.ts
+- `fb6503f` — 2026-11-14 12:21:06 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
+- `5242d81` — 2026-11-14 15:51:02 +0330 — refactor: split auth state responsibilities
+  Files: plugins/auth/account-project.ts,plugins/auth/auth-state.ts plugins/auth/create-auth-state.ts,plugins/auth/index.ts plugins/auth/new-session.ts,plugins/auth/password-hash.ts plugins/auth/plugin.yaml,plugins/auth/project-user-id.ts plugins/auth/validate-account.ts
 - `e2c3198` — 2026-11-14 15:50:53 +0330 — feat: embed custom views in restricted frames
   Files: plugins/dashboard/index.ts,plugins/dashboard/plugin.yaml plugins/dashboard/restricted-frame.ts,roadmap.md tests/dashboard/dashboard.test.ts
 - `b927fb1` — 2026-11-13 13:49:57 +0000 — docs: update changelog [skip ci]
@@ -97,9 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `a19fe89` — 2026-11-13 16:50:19 +0330 — feat: add immediate plugin security stop
   Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
-- `6551be1` — 2026-11-13 13:19:57 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `c2b688b` — 2026-11-13 16:49:36 +0330 — feat: interrupt expired action rooms
-  Files: plugins/arena/index.ts,plugins/arena/interrupt-expired-action-room.ts plugins/arena/plugin.yaml,plugins/arena/types.ts roadmap.md,tests/arena/arena.test.ts
-- `9bae6ae` — 2026-11-13 13:18:58 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
