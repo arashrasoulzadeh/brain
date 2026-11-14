@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `46b2e24` — 2026-11-15 01:15:51 +0330 — reject projectless plugin lifecycle checks
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `6259576` — 2026-11-14 21:45:16 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `f86e2a0` — 2026-11-15 01:14:59 +0330 — reject projectless plugin removal
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `7c67478` — 2026-11-14 21:44:37 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `0c1f923` — 2026-11-15 00:53:53 +0330 — reject manifest source traversal at load time
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `82f2747` — 2026-11-14 21:20:31 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `13f042c` — 2026-11-15 00:50:17 +0330 — wire full recovery rehearsal in CI
-  Files: .github/workflows/test.yml,tests/deploy/clean_environment_script_test.go
-- `450efb4` — 2026-11-14 21:19:50 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
