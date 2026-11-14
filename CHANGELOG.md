@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `ed03dc6` — 2026-11-14 17:13:57 +0330 — make backend roadmap the active checklist
+  Files: AGENTS.md
+- `b4be8d3` — 2026-11-14 13:43:01 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `c619d75` — 2026-11-14 17:12:44 +0330 — split roadmap by backend admin and client
   Files: roadmap.md,roadmap_admin.md roadmap_backend.md,roadmap_client.md
 - `89a45f0` — 2026-11-14 13:40:51 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `fbe6e31` — 2026-11-14 16:54:32 +0330 — add flutter native transport adapter
   Files: clients/flutter/lib/native_transport.dart,roadmap.md tests/flutter/native_transport_test.dart
 - `b3dc229` — 2026-11-14 13:24:20 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `2a28b8d` — 2026-11-14 16:54:07 +0330 — verify flutter web cookie policy
-  Files: clients/flutter/lib/web_cookie.dart,roadmap.md tests/flutter/web_cookie_test.dart
-- `e5669bb` — 2026-11-14 13:23:51 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
