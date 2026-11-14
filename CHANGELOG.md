@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `5420d0b` — 2026-11-14 16:49:37 +0330 — publish playable arena guide
+  Files: docs/playable-arena.md,roadmap.md
+- `ac8c43e` — 2026-11-14 13:19:29 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `e7f1ecf` — 2026-11-14 16:49:13 +0330 — publish browser quickstart
   Files: docs/browser-quickstart.md,roadmap.md
 - `54ad682` — 2026-11-14 13:18:59 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `ed74c03` — 2026-11-14 16:34:59 +0330 — require explicit deployment plugin grants
   Files: plugins/functions/authorize-deployment-plugin.ts,plugins/functions/index.ts plugins/functions/plugin.yaml,roadmap.md tests/functions/workflow-components.test.ts
 - `7ba30d7` — 2026-11-14 13:04:29 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `3a16ca9` — 2026-11-14 16:34:15 +0330 — block plugin release workflow steps
-  Files: plugins/functions/register-project-workflow-action.ts,roadmap.md tests/functions/project-workflow-action.test.ts
-- `4073074` — 2026-11-14 13:03:56 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
