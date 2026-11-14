@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `e03cbf4` — 2026-11-15 00:36:56 +0330 — add manual assignment pause contract
+  Files: internal/deploy/sequence.go,internal/plugin/plugin.go tests/deploy/sequence_test.go,tests/plugin/plugin_test.go
+- `6a8b810` — 2026-11-14 21:04:38 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `4799692` — 2026-11-15 00:34:24 +0330 — remove completed backend roadmap items
   Files: roadmap_backend.md
 - `319ddd9` — 2026-11-14 21:04:16 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `9a0cbaf` — 2026-11-14 23:14:39 +0330 — stop project workers when grants revoke
   Files: internal/plugin/plugin.go,internal/plugin/supervisor.go tests/plugin/plugin_test.go
 - `9032485` — 2026-11-14 19:44:06 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `c3a1d91` — 2026-11-14 23:13:52 +0330 — stop revoked plugin worker versions
-  Files: internal/plugin/supervisor.go,tests/plugin/supervisor_test.go
-- `c664b18` — 2026-11-14 19:43:13 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
