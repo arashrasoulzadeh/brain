@@ -78,6 +78,40 @@ func TestStoreRejectsEndUserOperatorAction(t *testing.T) {
 	}
 }
 
+func TestStoreRejectsForgedOperatorBeforeAuthentication(t *testing.T) {
+	store := &operator.Store{}
+	digest := func(string) string { return "digest" }
+	_, _ = store.Bootstrap("admin", "secret", digest)
+	if err := store.AuthorizeAction(operator.Actor{ID: "admin", Kind: operator.ActorOperator}, "plugin.enable"); !errors.Is(err, operator.ErrOperatorRequired) {
+		t.Fatalf("unauthenticated operator authorization error = %v", err)
+	}
+	if err := store.Authenticate("admin", "secret", digest); err != nil {
+		t.Fatal(err)
+	}
+	if err := store.AuthorizeAction(operator.Actor{ID: "admin", Kind: operator.ActorOperator}, "plugin.enable"); err != nil {
+		t.Fatalf("authenticated operator authorization error = %v", err)
+	}
+}
+
+func TestRecoveryRevokesAuthenticatedOperatorAccess(t *testing.T) {
+	store := &operator.Store{}
+	digest := func(value string) string { return "digest:" + value }
+	_, _ = store.Bootstrap("admin", "old", digest)
+	if err := store.Authenticate("admin", "old", digest); err != nil {
+		t.Fatal(err)
+	}
+	token, err := store.CreateRecoveryToken(func() string { return "one-time-token" })
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := store.Recover(token, "new", digest); err != nil {
+		t.Fatal(err)
+	}
+	if err := store.AuthorizeAction(operator.Actor{ID: "admin", Kind: operator.ActorOperator}, "plugin.enable"); !errors.Is(err, operator.ErrOperatorRequired) {
+		t.Fatalf("recovered operator authorization error = %v", err)
+	}
+}
+
 func TestRecoveryTokenReplacesSecretAndIsSingleUse(t *testing.T) {
 	store := &operator.Store{}
 	digest := func(value string) string { return "digest:" + value }
