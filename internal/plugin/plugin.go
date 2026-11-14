@@ -818,7 +818,7 @@ func (r *Registry) Recover(projectID, id, version string) error {
 	}
 	var recoveryError error
 	if r.supervisor != nil {
-		if err := r.supervisor.Recover(key); err != nil && !errors.Is(err, ErrWorkerNotRunning) && !errors.Is(err, ErrWorkerRecoveryUnavailable) {
+		if err := r.supervisor.Recover(key); err != nil && !errors.Is(err, ErrWorkerNotRunning) {
 			recoveryError = err
 		}
 	}

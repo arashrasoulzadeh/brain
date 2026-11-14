@@ -1059,6 +1059,44 @@ func TestRegistryRecoveryRestartsCrashedProjectWorker(t *testing.T) {
 	}
 }
 
+func TestRegistryRecoveryClosesSocketsWhenWorkerRecoveryFails(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	m := plugin.Manifest{ID: "recover-failure", Version: "1.0.0", HostAPI: 1}
+	if err := r.Register(m); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Install("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	supervisor := plugin.NewSupervisor()
+	initial := &supervisorTestWorker{}
+	attempts := 0
+	if err := supervisor.StartRecovering("dev:"+m.ID+"@"+m.Version, func() plugin.Worker {
+		attempts++
+		if attempts == 1 {
+			return initial
+		}
+		return nil
+	}, plugin.RecoveryPolicy{MaxRestarts: 1}); err != nil {
+		t.Fatal(err)
+	}
+	initial.stopped = true
+	webSockets := plugin.NewWebSocketRegistry()
+	socket := &trackedConnection{}
+	if err := webSockets.RegisterProject("dev-socket", "dev", socket); err != nil {
+		t.Fatal(err)
+	}
+	r.BindSupervisor(supervisor)
+	r.BindWebSocketRegistry(webSockets)
+	if err := r.Recover("dev", m.ID, m.Version); err != nil && errors.Is(err, plugin.ErrWorkerRecoveryUnavailable) {
+		if !socket.closed {
+			t.Fatal("project socket remained open after failed recovery")
+		}
+	} else {
+		t.Fatal("failed recovery was not surfaced")
+	}
+}
+
 func TestApplyDisablePreviewStopsTheProjectWorker(t *testing.T) {
 	r := plugin.NewRegistry(1)
 	m := plugin.Manifest{ID: "rooms", Version: "1.0.0", HostAPI: 1}
