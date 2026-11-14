@@ -534,6 +534,14 @@ validateWorkflowGraph([
   { id: "start", next: ["finish"] },
   { id: "finish", next: [] },
 ]);
+for (const invalidGraph of [[], [{ id: " ", next: [] }], [{ id: "start", next: [""] }]] as const) {
+  try {
+    validateWorkflowGraph(invalidGraph);
+    throw new Error("invalid workflow graph accepted");
+  } catch (error) {
+    if (!(error instanceof Error) || error.message !== "invalid workflow graph") throw error;
+  }
+}
 try {
   validateWorkflowGraph([
     { id: "a", next: ["b"] },

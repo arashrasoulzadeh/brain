@@ -2,8 +2,11 @@ export type WorkflowNode = { id: string; next: readonly string[] };
 export function validateWorkflowGraph(nodes: readonly WorkflowNode[]): void {
   const byId = new Map(nodes.map((node) => [node.id, node]));
   if (
+    nodes.length === 0 ||
     byId.size !== nodes.length ||
-    nodes.some((node) => !node.id || node.next.some((next) => !byId.has(next)))
+    nodes.some(
+      (node) => !node.id.trim() || node.next.some((next) => !next.trim() || !byId.has(next)),
+    )
   )
     throw new Error("invalid workflow graph");
   const visiting = new Set<string>();
