@@ -34,7 +34,7 @@ Backend infrastructure, release, deployment, backup, capacity, and security work
 - [ ] Drain active rooms for the configured window.
 - [x] Close remaining sockets explicitly.
 - [x] Run the one-shot migration when required.
-- [ ] Start with Compose `--no-build`.
+- [x] Start with Compose `--no-build`.
 - [ ] Check API readiness.
 - [ ] Check PostgreSQL access.
 - [ ] Check enabled worker health.
