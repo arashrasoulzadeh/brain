@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `132673c` — 2026-11-15 02:29:05 +0330 — reap terminated typescript workers
+  Files: internal/plugin/typescript_worker.go,tests/plugin/typescript_worker_test.go
+- `1efb3ad` — 2026-11-14 22:58:37 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `abe7af7` — 2026-11-15 02:28:26 +0330 — validate supervisor project teardown
   Files: internal/plugin/supervisor.go,tests/plugin/supervisor_test.go
 - `cf64875` — 2026-11-14 22:58:07 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `b68fd4f` — 2026-11-15 02:06:07 +0330 — verify plugin-first host boundary
   Files: docs/admins.md,docs/developers.md roadmap_backend.md
 - `3956b5c` — 2026-11-14 22:35:11 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `3dd11a5` — 2026-11-15 02:04:52 +0330 — refresh developer and administrator documentation
-  Files: docs/admins.html,docs/admins.md docs/developers.html,docs/developers.md docs/index.html,docs/index.md docs/site.css
-- `b0d6cb2` — 2026-11-14 22:30:16 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
