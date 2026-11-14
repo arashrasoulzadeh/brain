@@ -782,6 +782,31 @@ func TestRegistryUnregistrationAndRemovalAreConcurrentSafe(t *testing.T) {
 	group.Wait()
 }
 
+func TestRegistryRejectsProjectlessInstallationMutations(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	manifest := plugin.Manifest{ID: "project-boundary", Version: "1.0.0", HostAPI: 1, Capabilities: []string{"files.read"}}
+	if err := r.Register(manifest); err != nil {
+		t.Fatal(err)
+	}
+	operations := []struct {
+		name string
+		call func() error
+	}{
+		{"grant resource", func() error { return r.GrantResource("", manifest.ID, manifest.Version, "files.read", "bucket") }},
+		{"configure", func() error { return r.Configure("", manifest.ID, manifest.Version, nil) }},
+		{"grant", func() error { return r.Grant("", manifest.ID, manifest.Version, "files.read") }},
+		{"revoke", func() error { return r.Revoke("", manifest.ID, manifest.Version, "files.read") }},
+		{"enable", func() error { return r.Enable("", manifest.ID, manifest.Version) }},
+	}
+	for _, operation := range operations {
+		t.Run(operation.name, func(t *testing.T) {
+			if err := operation.call(); err != plugin.ErrProjectInvalid {
+				t.Fatalf("expected project validation error, got %v", err)
+			}
+		})
+	}
+}
+
 func TestRevokeStopsTheProjectWorker(t *testing.T) {
 	r := plugin.NewRegistry(1)
 	m := plugin.Manifest{ID: "guest", Version: "1.0.0", HostAPI: 1, Capabilities: []string{"session.issue"}}
