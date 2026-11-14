@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `083d722` — 2026-11-14 23:07:49 +0330 — avoid unavailable sandbox test dependency
+  Files: scripts/test-sandboxed-typescript-worker.sh
+- `418f2b8` — 2026-11-14 19:36:36 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `0dd6679` — 2026-11-14 23:06:18 +0330 — mount node runtime modules in sandbox
   Files: scripts/run-sandboxed-typescript-worker.sh
 - `5fdbef1` — 2026-11-14 19:34:37 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `2a0d887` — 2026-11-14 17:41:44 +0330 — bound typescript worker invocation time
   Files: internal/plugin/typescript_worker.go,tests/plugin/typescript_worker_test.go
 - `a6b3282` — 2026-11-14 14:10:53 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `29104c7` — 2026-11-14 17:40:39 +0330 — connect typescript worker to host supervisor
-  Files: internal/plugin/typescript_worker.go,tests/plugin/typescript_worker_test.go
-- `c84ba77` — 2026-11-14 14:09:53 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
