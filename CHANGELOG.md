@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `2f37359` — 2026-11-15 00:49:04 +0330 — add explicit compose rollback script
+  Files: scripts/rollback-compose.sh,tests/deploy/rollback_compose_test.go
+- `13b1c4c` — 2026-11-14 21:18:41 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `af4c449` — 2026-11-15 00:48:26 +0330 — make worker supervisor concurrency safe
   Files: internal/plugin/supervisor.go,tests/plugin/supervisor_test.go
 - `48ea91a` — 2026-11-14 21:18:01 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `5ca2610` — 2026-11-15 00:26:12 +0330 — guard clean environment runbook gate
   Files: tests/deploy/runbook_test.go
-- `b1b0951` — 2026-11-14 20:55:46 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `478118b` — 2026-11-15 00:25:33 +0330 — publish restore runbook
-  Files: docs/admins.md,docs/developers.md docs/restore-runbook.md
