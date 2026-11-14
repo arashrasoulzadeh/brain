@@ -588,6 +588,9 @@ func (r *Registry) Revoke(projectID, id, version, capability string) error {
 }
 
 func (r *Registry) Enable(projectID, id, version string) error {
+	if projectID == "" {
+		return ErrProjectInvalid
+	}
 	key := projectID + ":" + id + "@" + version
 	i, ok := r.installations[key]
 	if !ok {
@@ -608,6 +611,9 @@ func (r *Registry) Enable(projectID, id, version string) error {
 }
 
 func (r *Registry) Promote(projectID, id, version string) error {
+	if projectID == "" {
+		return ErrProjectInvalid
+	}
 	key := projectID + ":" + id + "@" + version
 	i, ok := r.installations[key]
 	if !ok {
@@ -663,6 +669,9 @@ func (r *Registry) Drain(projectID, id, version string) error {
 }
 
 func (r *Registry) DrainUntil(projectID, id, version string, deadline time.Time) error {
+	if projectID == "" {
+		return ErrProjectInvalid
+	}
 	key := projectID + ":" + id + "@" + version
 	i, ok := r.installations[key]
 	if !ok {
@@ -676,6 +685,9 @@ func (r *Registry) DrainUntil(projectID, id, version string, deadline time.Time)
 }
 
 func (r *Registry) StopImmediately(projectID, id, version string) error {
+	if projectID == "" {
+		return ErrProjectInvalid
+	}
 	key := projectID + ":" + id + "@" + version
 	i, ok := r.installations[key]
 	if !ok {
@@ -690,6 +702,9 @@ func (r *Registry) StopImmediately(projectID, id, version string) error {
 }
 
 func (r *Registry) Recover(projectID, id, version string) error {
+	if projectID == "" {
+		return ErrProjectInvalid
+	}
 	key := projectID + ":" + id + "@" + version
 	i, ok := r.installations[key]
 	if !ok {
@@ -704,6 +719,9 @@ func (r *Registry) Recover(projectID, id, version string) error {
 }
 
 func (r *Registry) CanStart(projectID, id, version string, now time.Time) error {
+	if projectID == "" {
+		return ErrProjectInvalid
+	}
 	i, ok := r.installations[projectID+":"+id+"@"+version]
 	if !ok {
 		return ErrNotInstalled
@@ -715,6 +733,9 @@ func (r *Registry) CanStart(projectID, id, version string, now time.Time) error 
 }
 
 func (r *Registry) CanStartNew(projectID, id, version string) error {
+	if projectID == "" {
+		return ErrProjectInvalid
+	}
 	i, ok := r.installations[projectID+":"+id+"@"+version]
 	if !ok {
 		return ErrNotInstalled
@@ -726,6 +747,9 @@ func (r *Registry) CanStartNew(projectID, id, version string) error {
 }
 
 func (r *Registry) CanReconnect(projectID, id, version string, now time.Time) error {
+	if projectID == "" {
+		return ErrProjectInvalid
+	}
 	i, ok := r.installations[projectID+":"+id+"@"+version]
 	if !ok {
 		return ErrNotInstalled
@@ -745,6 +769,9 @@ func (r *Registry) Rollback(projectID, id, version string) error {
 }
 
 func (r *Registry) ActiveVersion(projectID, id string) (string, bool) {
+	if projectID == "" {
+		return "", false
+	}
 	version, ok := r.active[projectID+":"+id]
 	return version, ok
 }

@@ -273,6 +273,37 @@ func TestRegistryRejectsProjectlessRemoval(t *testing.T) {
 	}
 }
 
+func TestRegistryRejectsProjectlessAdmissionAndLifecycleChecks(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	if err := r.Enable("", "sample", "1.0.0"); !errors.Is(err, plugin.ErrProjectInvalid) {
+		t.Fatalf("empty project enable error = %v", err)
+	}
+	if err := r.Promote("", "sample", "1.0.0"); !errors.Is(err, plugin.ErrProjectInvalid) {
+		t.Fatalf("empty project promote error = %v", err)
+	}
+	if err := r.DrainUntil("", "sample", "1.0.0", time.Now()); !errors.Is(err, plugin.ErrProjectInvalid) {
+		t.Fatalf("empty project drain error = %v", err)
+	}
+	if err := r.StopImmediately("", "sample", "1.0.0"); !errors.Is(err, plugin.ErrProjectInvalid) {
+		t.Fatalf("empty project stop error = %v", err)
+	}
+	if err := r.Recover("", "sample", "1.0.0"); !errors.Is(err, plugin.ErrProjectInvalid) {
+		t.Fatalf("empty project recover error = %v", err)
+	}
+	if err := r.CanStart("", "sample", "1.0.0", time.Now()); !errors.Is(err, plugin.ErrProjectInvalid) {
+		t.Fatalf("empty project can-start error = %v", err)
+	}
+	if err := r.CanStartNew("", "sample", "1.0.0"); !errors.Is(err, plugin.ErrProjectInvalid) {
+		t.Fatalf("empty project can-start-new error = %v", err)
+	}
+	if err := r.CanReconnect("", "sample", "1.0.0", time.Now()); !errors.Is(err, plugin.ErrProjectInvalid) {
+		t.Fatalf("empty project can-reconnect error = %v", err)
+	}
+	if version, ok := r.ActiveVersion("", "sample"); version != "" || ok {
+		t.Fatalf("empty project active version = %q, %t", version, ok)
+	}
+}
+
 func TestRevokeStopsTheProjectWorker(t *testing.T) {
 	r := plugin.NewRegistry(1)
 	m := plugin.Manifest{ID: "guest", Version: "1.0.0", HostAPI: 1, Capabilities: []string{"session.issue"}}
