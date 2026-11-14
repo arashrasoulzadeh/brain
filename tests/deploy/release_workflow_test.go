@@ -13,8 +13,16 @@ func TestBackendReleaseWorkflowPublishesAllImagesAndDigestManifest(t *testing.T)
 	}
 	content := string(workflow)
 	for _, image := range []string{"backend", "compiler", "runner"} {
-		if !strings.Contains(content, "- "+image) {
+		if !strings.Contains(content, "name: "+image) {
 			t.Fatalf("release workflow does not publish %s image", image)
+		}
+	}
+	for _, dockerfile := range []string{"Dockerfile", "Dockerfile.compiler", "Dockerfile.runner"} {
+		if _, err := os.Stat("../../" + dockerfile); err != nil {
+			t.Fatalf("missing release Dockerfile %s: %v", dockerfile, err)
+		}
+		if !strings.Contains(content, dockerfile) {
+			t.Fatalf("release workflow does not select %s", dockerfile)
 		}
 	}
 	for _, architecture := range []string{"linux/amd64", "linux/arm64"} {

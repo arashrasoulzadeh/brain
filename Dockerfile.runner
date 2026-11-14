@@ -1,0 +1,5 @@
+FROM node:20-bookworm-slim
+WORKDIR /workspace
+COPY scripts/typescript-worker.mjs ./scripts/typescript-worker.mjs
+COPY plugins ./plugins
+ENTRYPOINT ["node", "scripts/typescript-worker.mjs"]
