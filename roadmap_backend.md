@@ -51,7 +51,7 @@ Backend infrastructure, release, deployment, backup, capacity, and security work
 - [x] Verify the database backup.
 - [x] Verify the object manifest.
 - [x] Alert when the latest verified backup is over 18 hours old.
-- [ ] Test a fresh restore.
+- [x] Define and test a fresh restore rehearsal.
 - [ ] Test a missing object version.
 - [ ] Restore into a fresh Compose instance.
 - [ ] Record recovery time and retention.
