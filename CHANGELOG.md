@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `2a28b8d` — 2026-11-14 16:54:07 +0330 — verify flutter web cookie policy
+  Files: clients/flutter/lib/web_cookie.dart,roadmap.md tests/flutter/web_cookie_test.dart
+- `e5669bb` — 2026-11-14 13:23:51 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `3f4c539` — 2026-11-14 16:53:40 +0330 — add flutter secure token storage boundary
   Files: clients/flutter/lib/secure_token_storage.dart,tests/flutter/secure_token_storage_test.dart
 - `3253dc2` — 2026-11-14 13:23:24 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `44da82c` — 2026-11-14 16:39:27 +0330 — add dashboard dependency disable routes
   Files: plugins/dashboard/index.ts,plugins/dashboard/plugin.yaml plugins/dashboard/project-request.ts,roadmap.md tests/dashboard/dashboard.test.ts
 - `47284c3` — 2026-11-14 13:08:47 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `9bdeccc` — 2026-11-14 16:38:34 +0330 — add dashboard plugin promotion routes
-  Files: plugins/dashboard/index.ts,plugins/dashboard/plugin.yaml plugins/dashboard/project-request.ts,roadmap.md tests/dashboard/dashboard.test.ts
-- `768756a` — 2026-11-14 13:07:54 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
