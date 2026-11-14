@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `b6ef221` — 2026-11-14 16:12:54 +0330 — refactor: isolate function publication stores
+  Files: plugins/functions/create-approval-store.ts,plugins/functions/create-function-draft-store.ts plugins/functions/create-function-publication-store.ts,plugins/functions/create-shared-package-store.ts plugins/functions/index.ts,plugins/functions/plugin.yaml
+- `2cbd143` — 2026-11-14 12:42:16 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `7d94ffb` — 2026-11-14 16:12:03 +0330 — refactor: isolate function lifecycle stores
   Files: plugins/functions/create-job-lease-store.ts,plugins/functions/create-record-change-trigger-store.ts plugins/functions/create-schedule-store.ts,plugins/functions/index.ts plugins/functions/plugin.yaml
 - `415b273` — 2026-11-14 12:41:28 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `a5a3e1f` — 2026-11-13 13:41:19 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
 - `2fcb1ce` — 2026-11-13 17:10:55 +0330 — feat: discover declarative admin extension points
-  Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
-- `b059a1d` — 2026-11-13 13:40:34 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `c29beb0` — 2026-11-13 17:10:00 +0330 — feat: preserve operator plugin recovery
   Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
