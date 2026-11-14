@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `9a0cbaf` — 2026-11-14 23:14:39 +0330 — stop project workers when grants revoke
+  Files: internal/plugin/plugin.go,internal/plugin/supervisor.go tests/plugin/plugin_test.go
+- `9032485` — 2026-11-14 19:44:06 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `c3a1d91` — 2026-11-14 23:13:52 +0330 — stop revoked plugin worker versions
   Files: internal/plugin/supervisor.go,tests/plugin/supervisor_test.go
 - `c664b18` — 2026-11-14 19:43:13 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `3e7650e` — 2026-11-14 22:40:00 +0330 — run sandbox launcher with bash limits
   Files: .github/workflows/test.yml,scripts/run-sandboxed-typescript-worker.sh scripts/test-sandboxed-typescript-worker.sh
 - `bca43e5` — 2026-11-14 19:08:41 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `c553fda` — 2026-11-14 22:38:27 +0330 — verify typescript sandbox in linux ci
-  Files: .github/workflows/test.yml,scripts/run-sandboxed-typescript-worker.sh scripts/test-sandboxed-typescript-worker.sh
-- `828efc2` — 2026-11-14 19:07:13 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
