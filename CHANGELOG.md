@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `360fb3b` — 2026-11-15 01:31:27 +0330 — serialize plugin unregistration state
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `ef39714` — 2026-11-14 22:00:59 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `a8f8efe` — 2026-11-15 01:30:45 +0330 — protect plugin dependency metadata
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `2e2105f` — 2026-11-14 22:00:06 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `5011e16` — 2026-11-15 01:09:46 +0330 — make plugin readiness concurrency safe
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `c74b214` — 2026-11-14 21:38:22 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `17803ab` — 2026-11-15 01:08:06 +0330 — make plugin durable data concurrency safe
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `9981393` — 2026-11-14 21:37:30 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
