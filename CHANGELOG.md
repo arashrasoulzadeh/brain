@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `e046094` — 2026-11-15 01:38:50 +0330 — fail closed without plugin worker
+  Files: internal/plugin/worker.go,tests/plugin/worker_test.go
+- `4cd0809` — 2026-11-14 22:08:22 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `a2bc42c` — 2026-11-15 01:38:09 +0330 — reject trailing handshake data
   Files: internal/plugin/external_http.go,tests/plugin/external_http_test.go
 - `1fddf06` — 2026-11-14 22:07:44 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `4a17205` — 2026-11-15 01:19:04 +0330 — protect plugin authorization state
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `7ae4b79` — 2026-11-14 21:48:25 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `405c065` — 2026-11-15 01:18:03 +0330 — protect plugin audit history
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `1955f5a` — 2026-11-14 21:46:07 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
