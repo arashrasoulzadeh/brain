@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `e2c3198` — 2026-11-14 15:50:53 +0330 — feat: embed custom views in restricted frames
+  Files: plugins/dashboard/index.ts,plugins/dashboard/plugin.yaml plugins/dashboard/restricted-frame.ts,roadmap.md tests/dashboard/dashboard.test.ts
+- `b927fb1` — 2026-11-13 13:49:57 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `017c178` — 2026-11-13 17:19:34 +0330 — feat: isolate custom admin view origin
   Files: plugins/dashboard/custom-view-origin.ts,plugins/dashboard/index.ts plugins/dashboard/plugin.yaml,roadmap.md tests/dashboard/dashboard.test.ts
 - `093dac3` — 2026-11-13 13:49:07 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `c2b688b` — 2026-11-13 16:49:36 +0330 — feat: interrupt expired action rooms
   Files: plugins/arena/index.ts,plugins/arena/interrupt-expired-action-room.ts plugins/arena/plugin.yaml,plugins/arena/types.ts roadmap.md,tests/arena/arena.test.ts
 - `9bae6ae` — 2026-11-13 13:18:58 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `26403c5` — 2026-11-13 16:48:32 +0330 — feat: pause turn rooms at committed state
-  Files: plugins/rooms/index.ts,plugins/rooms/pause-tic-tac-toe-turn.ts plugins/rooms/plugin.yaml,plugins/rooms/validate-tic-tac-toe-rule-result.ts roadmap.md,tests/rooms/rooms.test.ts
-- `f78b1a4` — 2026-11-13 13:17:40 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
