@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `c4c0f1b` — 2026-11-14 16:08:37 +0330 — refactor: split function boundary validators
+  Files: plugins/functions/diagnostic-cap.ts,plugins/functions/function-input-validation.ts plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/write-intent-validation.ts
+- `5f2241a` — 2026-11-14 12:37:59 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `eac7662` — 2026-11-14 16:07:44 +0330 — refactor: split invocation validation helpers
   Files: plugins/functions/execute-fixture.ts,plugins/functions/index.ts plugins/functions/invocation-types.ts,plugins/functions/invoke-direct-https.ts plugins/functions/parse-invocation-result.ts,plugins/functions/plugin.yaml plugins/functions/validate-invocation-result.ts
 - `d225da5` — 2026-11-14 12:36:42 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `d8bdb9e` — 2026-11-13 17:04:32 +0330 — test: audit project uninstall
   Files: roadmap.md,tests/plugin/plugin_test.go
-- `f39e3bc` — 2026-11-13 13:32:29 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `90953c3` — 2026-11-13 17:00:28 +0330 — feat: preserve durable plugin data on uninstall
-  Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
