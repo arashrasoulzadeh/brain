@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `1d2eccd` — 2026-11-14 16:47:21 +0330 — verify csrf protection gate
+  Files: roadmap.md
+- `8f731cd` — 2026-11-14 13:17:07 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `30f915a` — 2026-11-14 16:46:54 +0330 — add first party session cookie
   Files: plugins/auth/first-party-session-cookie.ts,plugins/auth/index.ts plugins/auth/plugin.yaml,roadmap.md tests/auth/first-party-cookie.test.ts
 - `4a52869` — 2026-11-14 13:16:27 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `af054c2` — 2026-11-14 16:31:32 +0330 — security: recheck project workflow grants
   Files: plugins/functions/authorize-project-workflow-action.ts,plugins/functions/index.ts plugins/functions/plugin.yaml,roadmap.md tests/functions/project-workflow-action.test.ts
 - `8306354` — 2026-11-14 13:00:16 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `e35f8eb` — 2026-11-14 16:29:55 +0330 — feat: replace project workflow steps
-  Files: plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/replace-project-workflow-step.ts,roadmap.md tests/functions/project-workflow-action.test.ts
-- `c424620` — 2026-11-14 12:59:02 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
