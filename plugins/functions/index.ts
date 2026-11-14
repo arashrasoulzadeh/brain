@@ -2,7 +2,6 @@ import { type RpcRequest, validateProjectId } from "../sdk-typescript/src/index.
 import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { isIP } from "node:net";
 import { createApprovalState } from "./approval-state.js";
 import { ApprovalRequester } from "./approval-requester.js";
 import { ApprovalGranter } from "./approval-granter.js";
@@ -39,6 +38,7 @@ import { ScheduleClaimer } from "./schedule-claimer.js";
 import { ScheduleOccurrenceRecorder } from "./schedule-occurrence-recorder.js";
 import { MissedScheduleEnqueuer } from "./missed-schedule-enqueuer.js";
 import { FunctionVersionEnqueuer } from "./function-version-enqueuer.js";
+import type { FunctionInvocationRequest } from "./invocation-types.js";
 
 export { functionRequest } from "./function-request.js";
 export { publishSharedHelperArtifact } from "./shared-helper-publisher.js";
@@ -65,43 +65,15 @@ export function validateCompilerLimits(limits: CompilerLimits): void {
   if (![limits.cpuMs, limits.memoryBytes, limits.processes, limits.wallMs].every(Number.isSafeInteger) || limits.cpuMs < 1 || limits.memoryBytes < 1 || limits.processes < 1 || limits.wallMs < 1) throw new Error("invalid compiler limits");
 }
 
-export type FunctionInvocationRequest = { projectId: string; functionId: string; version: string; inputs: Readonly<Record<string, unknown>>; idempotencyKey: string };
+export type { FunctionInvocationResult, HttpsFetcher } from "./invocation-types.js";
+export { validateInvocationResult } from "./validate-invocation-result.js";
+export { parseInvocationResult } from "./parse-invocation-result.js";
+export { executeFixture } from "./execute-fixture.js";
+export { invokeDirectHttps } from "./invoke-direct-https.js";
 export function createInvocationRequest(input: FunctionInvocationRequest): FunctionInvocationRequest {
   validateProjectId(input.projectId);
   if (!input.functionId || !input.version || !input.idempotencyKey || !input.inputs || typeof input.inputs !== "object") throw new Error("invalid function invocation request");
   return { ...input, inputs: { ...input.inputs } };
-}
-export type FunctionInvocationResult = { success: boolean; output?: unknown; error?: string; diagnostics: readonly string[] };
-export function validateInvocationResult(result: FunctionInvocationResult, maxDiagnostics = 20): FunctionInvocationResult {
-  if (typeof result.success !== "boolean" || result.diagnostics.length > maxDiagnostics || result.diagnostics.some((line) => line.length > 4096) || (result.success && result.error) || (!result.success && !result.error)) throw new Error("invalid function invocation result");
-  return { ...result, diagnostics: [...result.diagnostics] };
-}
-export function parseInvocationResult(value: unknown): FunctionInvocationResult {
-  if (!value || typeof value !== "object") throw new Error("malformed function output");
-  const result = value as Partial<FunctionInvocationResult>;
-  if (Object.keys(value).some((key) => !["success", "output", "error", "diagnostics"].includes(key))) throw new Error("extra function result rejected");
-  if (!Array.isArray(result.diagnostics)) throw new Error("malformed function output");
-  return validateInvocationResult(result as FunctionInvocationResult);
-}
-export function executeFixture(fixture: () => unknown): FunctionInvocationResult {
-  try {
-    return parseInvocationResult(fixture());
-  } catch (error) {
-    return { success: false, error: error instanceof Error ? error.message : "fixture execution failed", diagnostics: [] };
-  }
-}
-export type HttpsFetcher = (input: string, init?: RequestInit) => Promise<Response>;
-export async function invokeDirectHttps(endpoint: string, input: unknown, fetcher: HttpsFetcher = fetch): Promise<FunctionInvocationResult> {
-  const target = new URL(endpoint);
-  if (target.protocol !== "https:" || target.username || target.password) throw new Error("HTTPS endpoint required");
-  const hostname = target.hostname.toLowerCase();
-  const addressType = isIP(hostname);
-  const privateIPv4 = addressType === 4 && (/^(10|127)\./.test(hostname) || /^192\.168\./.test(hostname) || /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(hostname) || hostname === "169.254.169.254");
-  const privateIPv6 = addressType === 6 && (hostname === "::1" || hostname.startsWith("fc") || hostname.startsWith("fd") || hostname.startsWith("fe8") || hostname.startsWith("fe9") || hostname.startsWith("fea") || hostname.startsWith("feb"));
-  if (!hostname || hostname === "localhost" || privateIPv4 || privateIPv6) throw new Error("HTTPS endpoint target denied");
-  const response = await fetcher(target.toString(), { method: "POST", redirect: "error", headers: { "content-type": "application/json" }, body: JSON.stringify(input) });
-  if (!response.ok) throw new Error(`HTTPS invocation failed: ${response.status}`);
-  return parseInvocationResult(await response.json());
 }
 export function loadDeclaredInputs(inputs: Readonly<Record<string, unknown>>, declarations: readonly string[]): Readonly<Record<string, unknown>> {
   if (!inputs || typeof inputs !== "object" || declarations.some((name) => !/^[A-Za-z_][A-Za-z0-9_]*$/.test(name))) throw new Error("invalid input declaration");

@@ -45,6 +45,11 @@ source_files:
   - validate-source-project.ts
   - validate-build-overrides.ts
   - validate-function-limits.ts
+  - invocation-types.ts
+  - validate-invocation-result.ts
+  - parse-invocation-result.ts
+  - execute-fixture.ts
+  - invoke-direct-https.ts
 imports:
   - ../sdk-typescript/src/index.js
   - node:fs
@@ -94,6 +99,11 @@ imports:
   - ./validate-source-project.js
   - ./validate-build-overrides.js
   - ./validate-function-limits.js
+  - ./invocation-types.js
+  - ./validate-invocation-result.js
+  - ./parse-invocation-result.js
+  - ./execute-fixture.js
+  - ./invoke-direct-https.js
   - ./index.js
 plugin_imports:
 title: Functions
