@@ -544,6 +544,71 @@ func TestRegistryUninstallAndPinningAreConcurrentSafe(t *testing.T) {
 	group.Wait()
 }
 
+func TestRegistryUnregisterClearsCapabilityApprovals(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	base := plugin.Manifest{ID: "approval-cleanup", Version: "1.0.0", HostAPI: 1, Capabilities: []string{"read"}}
+	candidate := plugin.Manifest{ID: "approval-cleanup", Version: "2.0.0", HostAPI: 1, Capabilities: []string{"read", "write"}}
+	for _, manifest := range []plugin.Manifest{base, candidate} {
+		if err := r.Register(manifest); err != nil {
+			t.Fatal(err)
+		}
+		if err := r.SetReadiness(manifest.ID, manifest.Version, true); err != nil {
+			t.Fatal(err)
+		}
+		if err := r.Install("dev", manifest.ID, manifest.Version); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := r.Grant("dev", base.ID, base.Version, "read"); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Grant("dev", candidate.ID, candidate.Version, "read"); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Grant("dev", candidate.ID, candidate.Version, "write"); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Enable("dev", base.ID, base.Version); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Enable("dev", candidate.ID, candidate.Version); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Promote("dev", base.ID, base.Version); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.ApproveCapability("dev", candidate.ID, candidate.Version, "write"); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Remove("dev", candidate.ID, candidate.Version); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Unregister(candidate.ID, candidate.Version); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Register(candidate); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.SetReadiness(candidate.ID, candidate.Version, true); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Install("dev", candidate.ID, candidate.Version); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Grant("dev", candidate.ID, candidate.Version, "read"); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Grant("dev", candidate.ID, candidate.Version, "write"); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Enable("dev", candidate.ID, candidate.Version); err != nil {
+		t.Fatal(err)
+	}
+	if !errors.Is(r.Promote("dev", candidate.ID, candidate.Version), plugin.ErrCapabilityApproval) {
+		t.Fatal("unregistered capability approval was retained")
+	}
+}
+
 func TestRevokeStopsTheProjectWorker(t *testing.T) {
 	r := plugin.NewRegistry(1)
 	m := plugin.Manifest{ID: "guest", Version: "1.0.0", HostAPI: 1, Capabilities: []string{"session.issue"}}

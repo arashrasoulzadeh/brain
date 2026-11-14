@@ -866,6 +866,8 @@ func (r *Registry) Unregister(id, version string) error {
 	defer r.readinessMu.Unlock()
 	r.artifactMu.Lock()
 	defer r.artifactMu.Unlock()
+	r.approvalMu.Lock()
+	defer r.approvalMu.Unlock()
 	key := id + "@" + version
 	if _, ok := r.registered[key]; !ok {
 		return ErrNotRegistered
@@ -898,6 +900,11 @@ func (r *Registry) Unregister(id, version string) error {
 	delete(r.registered, key)
 	delete(r.readiness, key)
 	delete(r.artifacts, key)
+	for approvalKey := range r.approvals {
+		if strings.Contains(approvalKey, ":"+key+":") || strings.HasPrefix(approvalKey, key+":") {
+			delete(r.approvals, approvalKey)
+		}
+	}
 	r.appendAudit(AuditEvent{Action: "unregister", PluginID: id, Version: version})
 	return nil
 }
