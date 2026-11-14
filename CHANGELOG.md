@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `4a17205` — 2026-11-15 01:19:04 +0330 — protect plugin authorization state
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `7ae4b79` — 2026-11-14 21:48:25 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `405c065` — 2026-11-15 01:18:03 +0330 — protect plugin audit history
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `1955f5a` — 2026-11-14 21:46:07 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `b41dfeb` — 2026-11-15 00:55:19 +0330 — bind websocket endpoint to host project
   Files: internal/plugin/websocket_endpoint.go,tests/plugin/websocket_endpoint_test.go
 - `7044e28` — 2026-11-14 21:24:39 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `2388a95` — 2026-11-15 00:54:26 +0330 — reject duplicate manifest sources
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `ca2a89f` — 2026-11-14 21:24:15 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
