@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `4aa27f7` — 2026-11-14 23:15:16 +0330 — stop workers when disable applies
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `e4477c9` — 2026-11-14 19:44:53 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `9a0cbaf` — 2026-11-14 23:14:39 +0330 — stop project workers when grants revoke
   Files: internal/plugin/plugin.go,internal/plugin/supervisor.go tests/plugin/plugin_test.go
 - `9032485` — 2026-11-14 19:44:06 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `40cbedd` — 2026-11-14 22:41:50 +0330 — pin sandbox ci to namespace capable runner
   Files: .github/workflows/test.yml
 - `efd818b` — 2026-11-14 19:10:15 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `3e7650e` — 2026-11-14 22:40:00 +0330 — run sandbox launcher with bash limits
-  Files: .github/workflows/test.yml,scripts/run-sandboxed-typescript-worker.sh scripts/test-sandboxed-typescript-worker.sh
-- `bca43e5` — 2026-11-14 19:08:41 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
