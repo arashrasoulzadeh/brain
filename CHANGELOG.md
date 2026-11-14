@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `9e3565b` — 2026-11-14 16:51:21 +0330 — configure flutter fixture test dependency
+  Files: clients/flutter/pubspec.yaml
+- `c696b72` — 2026-11-14 13:21:06 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `f774c5a` — 2026-11-14 16:50:46 +0330 — scaffold flutter fixture consumer
   Files: clients/flutter/lib/shared_fixtures.dart,clients/flutter/pubspec.yaml tests/flutter/shared_fixtures_test.dart
 - `c0361ae` — 2026-11-14 13:19:52 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `49d1eb2` — 2026-11-14 16:36:24 +0330 — keep publish credentials host owned
   Files: plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/reject-plugin-credentials.ts,roadmap.md tests/functions/publish-credential-boundary.test.ts
 - `531cfa6` — 2026-11-14 13:06:03 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `7cf3533` — 2026-11-14 16:35:51 +0330 — add deployment lifecycle hooks
-  Files: plugins/functions/create-deployment-hook-set.ts,plugins/functions/index.ts plugins/functions/plugin.yaml,roadmap.md tests/functions/deployment-hooks.test.ts
-- `fbc5388` — 2026-11-14 13:05:13 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
