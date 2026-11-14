@@ -50,6 +50,9 @@ source_files:
   - parse-invocation-result.ts
   - execute-fixture.ts
   - invoke-direct-https.ts
+  - function-input-validation.ts
+  - write-intent-validation.ts
+  - diagnostic-cap.ts
 imports:
   - ../sdk-typescript/src/index.js
   - node:fs
@@ -104,6 +107,9 @@ imports:
   - ./parse-invocation-result.js
   - ./execute-fixture.js
   - ./invoke-direct-https.js
+  - ./function-input-validation.js
+  - ./write-intent-validation.js
+  - ./diagnostic-cap.js
   - ./index.js
 plugin_imports:
 title: Functions

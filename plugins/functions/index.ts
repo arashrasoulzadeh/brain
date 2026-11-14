@@ -75,33 +75,9 @@ export function createInvocationRequest(input: FunctionInvocationRequest): Funct
   if (!input.functionId || !input.version || !input.idempotencyKey || !input.inputs || typeof input.inputs !== "object") throw new Error("invalid function invocation request");
   return { ...input, inputs: { ...input.inputs } };
 }
-export function loadDeclaredInputs(inputs: Readonly<Record<string, unknown>>, declarations: readonly string[]): Readonly<Record<string, unknown>> {
-  if (!inputs || typeof inputs !== "object" || declarations.some((name) => !/^[A-Za-z_][A-Za-z0-9_]*$/.test(name))) throw new Error("invalid input declaration");
-  const loaded: Record<string, unknown> = {};
-  for (const name of declarations) {
-    if (!Object.prototype.hasOwnProperty.call(inputs, name)) throw new Error("declared input missing");
-    loaded[name] = inputs[name];
-  }
-  return loaded;
-}
-export type FunctionWriteIntent = { operation: "set" | "delete"; path: string; value?: unknown };
-export function validateWriteIntents(intents: readonly FunctionWriteIntent[], declaredPaths: readonly string[]): FunctionWriteIntent[] {
-  const declared = new Set(declaredPaths);
-  for (const intent of intents) {
-    if (!intent || !["set", "delete"].includes(intent.operation) || !intent.path || intent.path.includes("..") || intent.path.startsWith("/") || intent.path.endsWith("/") || intent.path.includes("//")) throw new Error("invalid write intent");
-    if (!declared.has(intent.path)) throw new Error("write intent not declared");
-  }
-  return intents.map((intent) => ({ ...intent }));
-}
-export function validateStaleInputVersions(actual: Readonly<Record<string, number>>, expected: Readonly<Record<string, number>>): void {
-  for (const [name, version] of Object.entries(expected)) {
-    if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(name) || !Number.isSafeInteger(version) || version < 0 || actual[name] !== version) throw new Error("stale input version");
-  }
-}
-export function capDiagnostics(lines: readonly string[], maxLines = 20, maxLineLength = 4096): string[] {
-  if (!Number.isSafeInteger(maxLines) || maxLines < 1 || !Number.isSafeInteger(maxLineLength) || maxLineLength < 1 || lines.some((line) => line.length > maxLineLength)) throw new Error("diagnostic limit exceeded");
-  return [...lines.slice(0, maxLines)];
-}
+export { loadDeclaredInputs, validateStaleInputVersions } from "./function-input-validation.js";
+export { type FunctionWriteIntent, validateWriteIntents } from "./write-intent-validation.js";
+export { capDiagnostics } from "./diagnostic-cap.js";
 export const APPROVED_WASI_IMPORTS = ["wasi_snapshot_preview1"] as const;
 export function validateWasiImports(imports: readonly string[]): void { if (imports.some((name) => !APPROVED_WASI_IMPORTS.includes(name as typeof APPROVED_WASI_IMPORTS[number]))) throw new Error("unexpected WASI import"); }
 export function validateSandboxCapabilities(capabilities: readonly string[]): void {
