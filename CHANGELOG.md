@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `eac7662` — 2026-11-14 16:07:44 +0330 — refactor: split invocation validation helpers
+  Files: plugins/functions/execute-fixture.ts,plugins/functions/index.ts plugins/functions/invocation-types.ts,plugins/functions/invoke-direct-https.ts plugins/functions/parse-invocation-result.ts,plugins/functions/plugin.yaml plugins/functions/validate-invocation-result.ts
+- `d225da5` — 2026-11-14 12:36:42 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `2a8c8c6` — 2026-11-14 16:06:25 +0330 — refactor: split function compiler validation
   Files: plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/validate-build-overrides.ts,plugins/functions/validate-function-limits.ts plugins/functions/validate-sdk-imports.ts,plugins/functions/validate-source-project.ts plugins/functions/wasm-build-settings.ts
 - `716e06e` — 2026-11-14 12:35:43 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `f39e3bc` — 2026-11-13 13:32:29 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
 - `90953c3` — 2026-11-13 17:00:28 +0330 — feat: preserve durable plugin data on uninstall
-  Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
-- `19b1114` — 2026-11-13 13:28:25 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `66f3202` — 2026-11-13 16:58:02 +0330 — feat: revoke project grants during uninstall
   Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
