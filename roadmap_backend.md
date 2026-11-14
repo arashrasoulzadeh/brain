@@ -36,7 +36,7 @@ Backend infrastructure, release, deployment, backup, capacity, and security work
 - [x] Run the one-shot migration when required.
 - [x] Start with Compose `--no-build`.
 - [x] Check API readiness.
-- [ ] Check PostgreSQL access.
+- [x] Check PostgreSQL access.
 - [ ] Check enabled worker health.
 - [ ] Record the deployed version.
 - [ ] Keep the last healthy image set.
