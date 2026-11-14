@@ -15,6 +15,7 @@ func TestCapacityProfileRequiresReferenceWorkload(t *testing.T) {
 		RepresentativeAppRequests: 100,
 		UploadRequests:            10,
 		BackgroundJobs:            10,
+		EyeExportJobs:             5,
 		SimulatedRTTMs:            50,
 	}
 	if err := profile.Validate(); err != nil {
@@ -30,6 +31,7 @@ func TestCapacityProfileRequiresRepresentativeAppRequests(t *testing.T) {
 	profile := deploy.CapacityProfile{CPUCores: 4, MemoryBytes: 1 << 30, PlayersPerRoom: 8, RepresentativeAppRequests: 100, SimulatedRTTMs: 40}
 	profile.UploadRequests = 10
 	profile.BackgroundJobs = 10
+	profile.EyeExportJobs = 5
 	if err := profile.Validate(); err != nil {
 		t.Fatal(err)
 	}
@@ -40,7 +42,7 @@ func TestCapacityProfileRequiresRepresentativeAppRequests(t *testing.T) {
 }
 
 func TestCapacityProfileRequiresUploadsAndBackgroundJobs(t *testing.T) {
-	profile := deploy.CapacityProfile{CPUCores: 4, MemoryBytes: 1 << 30, PlayersPerRoom: 8, RepresentativeAppRequests: 100, UploadRequests: 10, BackgroundJobs: 10, SimulatedRTTMs: 40}
+	profile := deploy.CapacityProfile{CPUCores: 4, MemoryBytes: 1 << 30, PlayersPerRoom: 8, RepresentativeAppRequests: 100, UploadRequests: 10, BackgroundJobs: 10, EyeExportJobs: 5, SimulatedRTTMs: 40}
 	if err := profile.Validate(); err != nil {
 		t.Fatal(err)
 	}
@@ -52,5 +54,16 @@ func TestCapacityProfileRequiresUploadsAndBackgroundJobs(t *testing.T) {
 	profile.BackgroundJobs = 0
 	if !errors.Is(profile.Validate(), deploy.ErrInvalidCapacityProfile) {
 		t.Fatal("capacity profile accepted without background jobs")
+	}
+}
+
+func TestCapacityProfileRequiresEyeExportActivity(t *testing.T) {
+	profile := deploy.CapacityProfile{CPUCores: 4, MemoryBytes: 1 << 30, PlayersPerRoom: 8, RepresentativeAppRequests: 100, UploadRequests: 10, BackgroundJobs: 10, EyeExportJobs: 5, SimulatedRTTMs: 40}
+	if err := profile.Validate(); err != nil {
+		t.Fatal(err)
+	}
+	profile.EyeExportJobs = 0
+	if !errors.Is(profile.Validate(), deploy.ErrInvalidCapacityProfile) {
+		t.Fatal("capacity profile accepted without Eye export activity")
 	}
 }
