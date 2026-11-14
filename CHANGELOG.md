@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `c5ae197` — 2026-11-14 17:04:52 +0330 — add atomic deployment lock
+  Files: internal/deploy/lock.go,roadmap.md tests/deploy/lock_test.go
+- `8c29446` — 2026-11-14 13:34:25 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `74ca814` — 2026-11-14 17:04:10 +0330 — bind plugin envelopes to host project
   Files: internal/plugin/http_envelope.go,internal/plugin/worker.go tests/plugin/http_envelope_test.go,tests/plugin/worker_test.go
 - `6ea8068` — 2026-11-14 13:32:46 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `f774c5a` — 2026-11-14 16:50:46 +0330 — scaffold flutter fixture consumer
   Files: clients/flutter/lib/shared_fixtures.dart,clients/flutter/pubspec.yaml tests/flutter/shared_fixtures_test.dart
 - `c0361ae` — 2026-11-14 13:19:52 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `5420d0b` — 2026-11-14 16:49:37 +0330 — publish playable arena guide
-  Files: docs/playable-arena.md,roadmap.md
-- `ac8c43e` — 2026-11-14 13:19:29 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
