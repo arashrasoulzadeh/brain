@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `e4b4562` — 2026-11-15 01:29:16 +0330 — serialize plugin lifecycle state
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `521c5f0` — 2026-11-14 21:58:34 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `bdfe0d5` — 2026-11-15 01:27:28 +0330 — serialize plugin install unregistration
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `c2ca14e` — 2026-11-14 21:57:05 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `543ea63` — 2026-11-15 01:06:25 +0330 — make caller leases single use under concurrency
   Files: internal/project/transaction_context.go,tests/project/transaction_context_test.go
 - `ed20fc6` — 2026-11-14 21:35:50 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `ab714e3` — 2026-11-15 01:05:36 +0330 — make project store concurrency safe
-  Files: internal/project/project.go,tests/project/project_test.go
-- `5631278` — 2026-11-14 21:34:48 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
