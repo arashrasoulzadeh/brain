@@ -462,6 +462,9 @@ func (r *Registry) SetReadiness(id, version string, ready bool) error {
 }
 
 func (r *Registry) Install(projectID, id, version string) error {
+	if projectID == "" {
+		return ErrProjectInvalid
+	}
 	key := id + "@" + version
 	if _, ok := r.registered[key]; !ok {
 		return ErrNotRegistered
