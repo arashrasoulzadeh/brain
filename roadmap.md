@@ -615,7 +615,7 @@ Goal: finish the supported clients, publish the protocol, and rehearse productio
 - [x] Add shared reconnect fixtures.
 - [x] Test first-party cookie sessions.
 - [x] Test CSRF protection.
-- [ ] Test invalidation during a fetch.
+- [x] Test invalidation during a fetch.
 - [ ] Test safe retry after reconnect.
 - [ ] Finish the typed JavaScript client.
 - [ ] Publish the browser quickstart.
