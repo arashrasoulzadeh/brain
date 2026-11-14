@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `7722759` — 2026-11-14 16:17:53 +0330 — refactor: complete auth and functions boundaries
+  Files: plugins/auth/auth-functions.ts,plugins/auth/create-auth-operations.ts plugins/auth/index.ts,plugins/auth/plugin.yaml plugins/functions/compiler-environment.ts,plugins/functions/compiler-limits.ts plugins/functions/create-invocation-request.ts,plugins/functions/disposable-compiler-workspace.ts plugins/functions/function-input-validation.ts,plugins/functions/index.ts plugins/functions/plugin.yaml,plugins/functions/require-sdk-imports.ts plugins/functions/retry-invocation.ts,plugins/functions/validate-compiler-environment.ts plugins/functions/validate-execution-limits.ts,plugins/functions/validate-sdk-imports.ts plugins/functions/validate-stale-input-versions.ts,plugins/functions/validate-startup-duration.ts
+- `64be587` — 2026-11-14 12:45:22 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `5905fc9` — 2026-11-14 16:15:04 +0330 — refactor: split sdk request and handler boundaries
   Files: plugins/sdk-typescript/src/create-function-handler.ts,plugins/sdk-typescript/src/create-host-handler.ts plugins/sdk-typescript/src/create-route-handler.ts,plugins/sdk-typescript/src/index.ts plugins/sdk-typescript/src/plugin-request.ts,plugins/sdk-typescript/src/request.ts plugins/sdk-typescript/src/validate-identifier.ts,plugins/sdk-typescript/src/validate-project-id.ts
 - `1a68188` — 2026-11-14 12:44:09 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `7a1db4a` — 2026-11-13 17:13:25 +0330 — feat: activate scoped admin view replacements
   Files: plugins/dashboard/index.ts,plugins/dashboard/plugin.yaml plugins/dashboard/view-replacement-registry.ts,roadmap.md tests/dashboard/dashboard.test.ts
-- `1665987` — 2026-11-13 13:42:56 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `f8d1805` — 2026-11-13 17:12:35 +0330 — feat: add declarative dashboard view contributions
-  Files: plugins/dashboard/index.ts,plugins/dashboard/plugin-health-contribution.ts plugins/dashboard/plugin.yaml,plugins/dashboard/project-overview-contribution.ts roadmap.md,tests/dashboard/dashboard.test.ts
