@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `a6ff0ed` — 2026-11-14 17:10:36 +0330 — trim completed roadmap phases
+  Files: roadmap.md
+- `04539b0` — 2026-11-14 13:37:34 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `7f77480` — 2026-11-14 17:07:19 +0330 — validate deployment compose configuration
   Files: internal/deploy/compose.go,roadmap.md tests/deploy/compose_test.go
 - `2b73bf2` — 2026-11-14 13:36:05 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `3f4c539` — 2026-11-14 16:53:40 +0330 — add flutter secure token storage boundary
   Files: clients/flutter/lib/secure_token_storage.dart,tests/flutter/secure_token_storage_test.dart
 - `3253dc2` — 2026-11-14 13:23:24 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `9bc342b` — 2026-11-14 16:52:54 +0330 — verify native browser auth callback
-  Files: clients/flutter/lib/auth_callback.dart,roadmap.md tests/flutter/auth_callback_test.dart
-- `57a473e` — 2026-11-14 13:22:36 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
