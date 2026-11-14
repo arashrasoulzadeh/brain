@@ -626,7 +626,7 @@ Goal: finish the supported clients, publish the protocol, and rehearse productio
 - [x] Run shared fixtures in Flutter.
 - [x] Test the native system-browser callback.
 - [ ] Test secure token storage.
-- [ ] Test Flutter Web cookies.
+- [x] Test Flutter Web cookies.
 - [ ] Add native transport adapter.
 - [ ] Add web transport adapter.
 - [ ] Hide platform storage behind adapters.
