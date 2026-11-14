@@ -618,7 +618,7 @@ Goal: finish the supported clients, publish the protocol, and rehearse productio
 - [x] Test invalidation during a fetch.
 - [x] Test safe retry after reconnect.
 - [x] Finish the typed JavaScript client.
-- [ ] Publish the browser quickstart.
+- [x] Publish the browser quickstart.
 - [ ] Publish the playable arena.
 
 ### Flutter client
