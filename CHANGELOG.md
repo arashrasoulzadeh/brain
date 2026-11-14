@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `4d35e91` — 2026-11-15 00:20:19 +0330 — require tick delay capacity measurement
+  Files: internal/deploy/capacity_profile.go,tests/deploy/capacity_profile_test.go
+- `5381577` — 2026-11-14 20:48:52 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `fb2ee42` — 2026-11-15 00:18:40 +0330 — require p95 snapshot latency measurement
   Files: internal/deploy/capacity_profile.go,tests/deploy/capacity_profile_test.go
 - `917b06f` — 2026-11-14 20:48:04 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `d9cad6a` — 2026-11-14 22:51:16 +0330 — bind sandbox node executable explicitly
   Files: scripts/run-sandboxed-typescript-worker.sh
 - `636007d` — 2026-11-14 19:19:55 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `b29c103` — 2026-11-14 22:49:38 +0330 — bind node runtime trees without overlap
-  Files: scripts/run-sandboxed-typescript-worker.sh
-- `26f21a9` — 2026-11-14 19:18:22 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
