@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `a133ef4` — 2026-11-14 16:52:22 +0330 — verify flutter shared fixtures
+  Files: .gitignore,clients/flutter/pubspec.lock roadmap.md
+- `e09d58e` — 2026-11-14 13:21:34 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `9e3565b` — 2026-11-14 16:51:21 +0330 — configure flutter fixture test dependency
   Files: clients/flutter/pubspec.yaml
 - `c696b72` — 2026-11-14 13:21:06 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `1bf39fa` — 2026-11-14 16:37:06 +0330 — keep host resources outside plugins
   Files: plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/reject-plugin-host-resources.ts,roadmap.md tests/functions/host-resource-boundary.test.ts
 - `047c0c2` — 2026-11-14 13:06:37 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `49d1eb2` — 2026-11-14 16:36:24 +0330 — keep publish credentials host owned
-  Files: plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/reject-plugin-credentials.ts,roadmap.md tests/functions/publish-credential-boundary.test.ts
-- `531cfa6` — 2026-11-14 13:06:03 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
