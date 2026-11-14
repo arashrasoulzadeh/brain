@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `6d8b8c9` — 2026-11-15 00:43:02 +0330 — require project context for runtime SQL
+  Files: internal/db/db.go,tests/db/db_test.go
+- `ff8cabd` — 2026-11-14 21:12:23 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `45d622f` — 2026-11-15 00:42:09 +0330 — bind websocket messages to host project
   Files: internal/plugin/websocket_message.go,tests/plugin/websocket_message_test.go
 - `b5d22b6` — 2026-11-14 21:11:45 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `cb0bda6` — 2026-11-14 20:50:31 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
 - `4d35e91` — 2026-11-15 00:20:19 +0330 — require tick delay capacity measurement
-  Files: internal/deploy/capacity_profile.go,tests/deploy/capacity_profile_test.go
-- `5381577` — 2026-11-14 20:48:52 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `fb2ee42` — 2026-11-15 00:18:40 +0330 — require p95 snapshot latency measurement
   Files: internal/deploy/capacity_profile.go,tests/deploy/capacity_profile_test.go
