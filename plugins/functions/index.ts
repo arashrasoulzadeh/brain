@@ -78,21 +78,11 @@ export function createInvocationRequest(input: FunctionInvocationRequest): Funct
 export { loadDeclaredInputs, validateStaleInputVersions } from "./function-input-validation.js";
 export { type FunctionWriteIntent, validateWriteIntents } from "./write-intent-validation.js";
 export { capDiagnostics } from "./diagnostic-cap.js";
-export const APPROVED_WASI_IMPORTS = ["wasi_snapshot_preview1"] as const;
-export function validateWasiImports(imports: readonly string[]): void { if (imports.some((name) => !APPROVED_WASI_IMPORTS.includes(name as typeof APPROVED_WASI_IMPORTS[number]))) throw new Error("unexpected WASI import"); }
-export function validateSandboxCapabilities(capabilities: readonly string[]): void {
-  const denied = new Set(["filesystem", "network", "environment-credentials"]);
-  if (capabilities.some((capability) => denied.has(capability))) throw new Error("sandbox capability denied");
-}
-export async function runWithTimeout<T>(task: Promise<T>, timeoutMs: number): Promise<T> {
-  if (!Number.isSafeInteger(timeoutMs) || timeoutMs < 1) throw new Error("invalid invocation timeout");
-  let timer: ReturnType<typeof setTimeout>;
-  const timeout = new Promise<never>((_, reject) => { timer = setTimeout(() => reject(new Error("function invocation timed out")), timeoutMs); });
-  try { return await Promise.race([task, timeout]); } finally { clearTimeout(timer!); }
-}
-export function validateLinearMemory(bytes: number, maxBytes: number): void { if (!Number.isSafeInteger(bytes) || !Number.isSafeInteger(maxBytes) || bytes < 0 || maxBytes < 1 || bytes > maxBytes) throw new Error("linear memory limit exceeded"); }
-export function validateStartupDuration(durationMs: number, maxDurationMs: number): void { if (!Number.isSafeInteger(durationMs) || !Number.isSafeInteger(maxDurationMs) || durationMs < 0 || maxDurationMs < 1 || durationMs > maxDurationMs) throw new Error("startup timeout exceeded"); }
-export function rejectSandboxEscapeAttempt(value: string): void { if (!value || value.includes("../") || value.includes("\\..\\") || /^https?:\/\//.test(value)) throw new Error("sandbox escape attempt rejected"); }
+export { APPROVED_WASI_IMPORTS, validateWasiImports } from "./validate-wasi-imports.js";
+export { validateSandboxCapabilities } from "./validate-sandbox-capabilities.js";
+export { runWithTimeout } from "./run-with-timeout.js";
+export { validateLinearMemory, validateStartupDuration } from "./validate-execution-limits.js";
+export { rejectSandboxEscapeAttempt } from "./reject-sandbox-escape.js";
 export function createInvocationEffects() { const state = createInvocationEffectsState(); const writer = new InvocationEffectsWriter(state); const reader = new InvocationEffectsReader(state); return { begin: writer.begin.bind(writer), list: reader.list.bind(reader) }; }
 export function createInvocationCommitStore() { const state = createInvocationCommitState(); const writer = new InvocationCommitWriter(state); const effects = new InvocationCommitReader(state); const result = new InvocationResultReader(state); const existence = new InvocationExistenceReader(state); return { commit: writer.commit.bind(writer), effects: effects.effects.bind(effects), result: result.result.bind(result), has: existence.has.bind(existence), setLifecycleRevision: (revision: number) => { state.lifecycleRevision = revision; } }; }
 export async function retryInvocation<T>(store: ReturnType<typeof createInvocationCommitStore>, idempotencyKey: string, execute: () => T | Promise<T>, effects: readonly unknown[] = []): Promise<T> {

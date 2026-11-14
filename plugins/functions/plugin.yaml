@@ -53,6 +53,11 @@ source_files:
   - function-input-validation.ts
   - write-intent-validation.ts
   - diagnostic-cap.ts
+  - validate-wasi-imports.ts
+  - validate-sandbox-capabilities.ts
+  - run-with-timeout.ts
+  - validate-execution-limits.ts
+  - reject-sandbox-escape.ts
 imports:
   - ../sdk-typescript/src/index.js
   - node:fs
@@ -110,6 +115,11 @@ imports:
   - ./function-input-validation.js
   - ./write-intent-validation.js
   - ./diagnostic-cap.js
+  - ./validate-wasi-imports.js
+  - ./validate-sandbox-capabilities.js
+  - ./run-with-timeout.js
+  - ./validate-execution-limits.js
+  - ./reject-sandbox-escape.js
   - ./index.js
 plugin_imports:
 title: Functions
