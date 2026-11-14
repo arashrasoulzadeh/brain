@@ -4,10 +4,13 @@ import (
 	"context"
 	"errors"
 
+	"brain/internal/project"
 	"github.com/tetratelabs/wazero"
 )
 
 var ErrWasmModuleInvalid = errors.New("invalid wasm module")
+var ErrWasmProjectContextRequired = errors.New("WASM project context required")
+var ErrWasmProjectMismatch = errors.New("WASM project context mismatch")
 
 type WasmRunner struct{ invocations int }
 
@@ -22,6 +25,20 @@ func (r *WasmRunner) Run(ctx context.Context, wasm []byte) error {
 	defer compiled.Close(ctx)
 	_, err = runtime.InstantiateModule(ctx, compiled, wazero.NewModuleConfig())
 	return err
+}
+
+func (r *WasmRunner) RunForProject(ctx context.Context, projectID string, wasm []byte) error {
+	if ctx == nil {
+		return ErrWasmProjectContextRequired
+	}
+	hostProject, ok := project.FromContext(ctx)
+	if !ok || hostProject.ID == "" {
+		return ErrWasmProjectContextRequired
+	}
+	if projectID == "" || hostProject.ID != projectID {
+		return ErrWasmProjectMismatch
+	}
+	return r.Run(ctx, wasm)
 }
 
 func (r *WasmRunner) Invocations() int { return r.invocations }
