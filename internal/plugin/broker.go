@@ -72,7 +72,9 @@ func (b *Broker) Authorize(call HostCall, now time.Time) error {
 		return ErrWorkerUnavailable
 	}
 	if call.Operation != "" {
+		b.Registry.readinessMu.RLock()
 		registered, ok := b.Registry.registered[call.PluginID+"@"+call.Version]
+		b.Registry.readinessMu.RUnlock()
 		if !ok {
 			return ErrNotRegistered
 		}

@@ -830,6 +830,28 @@ func TestRegistryDisablePreviewAndRemovalAreConcurrentSafe(t *testing.T) {
 	group.Wait()
 }
 
+func TestBrokerAuthorizationAndRegistrationAreConcurrentSafe(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	manifest := plugin.Manifest{ID: "broker-registration-concurrency", Version: "1.0.0", HostAPI: 1, Capabilities: []string{"session.read"}, Routes: []plugin.Route{{Operation: "session.read", Function: "readSession", Capability: "session.read"}}}
+	if err := r.Register(manifest); err != nil {
+		t.Fatal(err)
+	}
+	b := &plugin.Broker{Registry: r, ActorAllows: func(string, string, string) bool { return true }, WorkerAvailable: func(string, string) bool { return true }}
+	call := plugin.HostCall{ProjectID: "dev", ActorID: "actor", PluginID: manifest.ID, Version: manifest.Version, Capability: "session.read", Operation: "session.read", ExpiresAt: time.Now().Add(time.Minute)}
+
+	var group sync.WaitGroup
+	group.Add(2)
+	go func() {
+		defer group.Done()
+		_ = b.Authorize(call, time.Now())
+	}()
+	go func() {
+		defer group.Done()
+		_ = r.Unregister(manifest.ID, manifest.Version)
+	}()
+	group.Wait()
+}
+
 func TestRevokeStopsTheProjectWorker(t *testing.T) {
 	r := plugin.NewRegistry(1)
 	m := plugin.Manifest{ID: "guest", Version: "1.0.0", HostAPI: 1, Capabilities: []string{"session.issue"}}
