@@ -745,7 +745,7 @@ func (r *Registry) ActiveVersion(projectID, id string) (string, bool) {
 }
 
 func (r *Registry) PinWork(workID, projectID, id, version string) error {
-	if workID == "" {
+	if workID == "" || projectID == "" {
 		return ErrProjectInvalid
 	}
 	key := projectID + ":" + id + "@" + version
@@ -827,6 +827,9 @@ func (r *Registry) Unregister(id, version string) error {
 }
 
 func (r *Registry) UninstallProject(projectID string) error {
+	if projectID == "" {
+		return ErrProjectInvalid
+	}
 	for _, pinnedVersion := range r.pins {
 		if strings.HasPrefix(pinnedVersion, projectID+":") {
 			return ErrActiveWork

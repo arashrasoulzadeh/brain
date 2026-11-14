@@ -232,6 +232,20 @@ func TestRegistryRejectsInstallationWithoutProjectIdentity(t *testing.T) {
 	}
 }
 
+func TestRegistryRejectsProjectlessLifecycleMutations(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	manifest := plugin.Manifest{ID: "sample", Version: "1.0.0", HostAPI: 1}
+	if err := r.Register(manifest); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.UninstallProject(""); !errors.Is(err, plugin.ErrProjectInvalid) {
+		t.Fatalf("empty project uninstall error = %v, want %v", err, plugin.ErrProjectInvalid)
+	}
+	if err := r.PinWork("work", "", manifest.ID, manifest.Version); !errors.Is(err, plugin.ErrProjectInvalid) {
+		t.Fatalf("empty project pin error = %v, want %v", err, plugin.ErrProjectInvalid)
+	}
+}
+
 func TestRevokeStopsTheProjectWorker(t *testing.T) {
 	r := plugin.NewRegistry(1)
 	m := plugin.Manifest{ID: "guest", Version: "1.0.0", HostAPI: 1, Capabilities: []string{"session.issue"}}
