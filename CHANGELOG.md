@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `b020f41` — 2026-11-14 23:00:57 +0330 — bound sandbox ci duration
+  Files: .github/workflows/test.yml
+- `c2d091c` — 2026-11-14 19:29:39 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `0cf1f85` — 2026-11-14 22:59:26 +0330 — bound sandbox network probe
   Files: scripts/test-sandboxed-typescript-worker.sh
 - `d91d110` — 2026-11-14 19:28:03 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `37f14ab` — 2026-11-14 17:36:43 +0330 — run eight-player capacity fixture
   Files: roadmap_backend.md,tests/deploy/capacity-eight-player.test.ts
 - `458cf7b` — 2026-11-14 14:06:16 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `0063cf9` — 2026-11-14 17:36:03 +0330 — define capacity reference profile
-  Files: internal/deploy/capacity_profile.go,roadmap_backend.md tests/deploy/capacity_profile_test.go
-- `42a69a2` — 2026-11-14 14:05:41 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
