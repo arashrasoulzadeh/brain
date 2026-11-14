@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `5011e16` — 2026-11-15 01:09:46 +0330 — make plugin readiness concurrency safe
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `c74b214` — 2026-11-14 21:38:22 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `17803ab` — 2026-11-15 01:08:06 +0330 — make plugin durable data concurrency safe
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `9981393` — 2026-11-14 21:37:30 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `af2e8c4` — 2026-11-15 00:45:37 +0330 — remove unscoped worker invocation
   Files: internal/plugin/worker.go,tests/plugin/bubblewrap_worker_test.go tests/plugin/external_fixture_test.go,tests/plugin/typescript_worker_test.go tests/plugin/worker_fixture_test.go
 - `28b1301` — 2026-11-14 21:15:10 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `b60dba0` — 2026-11-15 00:44:57 +0330 — bind wasm execution to host project
-  Files: internal/plugin/wasm_runner.go,tests/plugin/wasm_runner_test.go
-- `450c51e` — 2026-11-14 21:14:27 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
