@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `ee7a868` — 2026-11-14 22:55:14 +0330 — use installed nodejs binary in sandbox ci
+  Files: .github/workflows/test.yml,scripts/run-sandboxed-typescript-worker.sh
+- `a09c001` — 2026-11-14 19:24:06 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `702f508` — 2026-11-14 22:53:53 +0330 — resolve sandbox node symlink
   Files: scripts/run-sandboxed-typescript-worker.sh
 - `6ceafce` — 2026-11-14 19:22:48 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `d68bfe8` — 2026-11-14 17:33:56 +0330 — define fresh Compose restore rehearsal
   Files: roadmap_backend.md,scripts/restore-compose.sh tests/deploy/compose_restore_test.go
 - `69efc6c` — 2026-11-14 14:03:30 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `303a8f4` — 2026-11-14 17:33:16 +0330 — detect missing object versions
-  Files: internal/deploy/object_manifest.go,roadmap_backend.md tests/deploy/object_manifest_test.go
-- `251c916` — 2026-11-14 14:02:44 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
