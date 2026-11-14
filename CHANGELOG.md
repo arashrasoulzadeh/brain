@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `9bc342b` — 2026-11-14 16:52:54 +0330 — verify native browser auth callback
+  Files: clients/flutter/lib/auth_callback.dart,roadmap.md tests/flutter/auth_callback_test.dart
+- `57a473e` — 2026-11-14 13:22:36 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `a133ef4` — 2026-11-14 16:52:22 +0330 — verify flutter shared fixtures
   Files: .gitignore,clients/flutter/pubspec.lock roadmap.md
 - `e09d58e` — 2026-11-14 13:21:34 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `fa6f29e` — 2026-11-14 16:37:40 +0330 — audit deployment workflow steps
   Files: plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/validate-deployment-workflow.ts,roadmap.md tests/functions/deployment-workflow-audit.test.ts
 - `110dc00` — 2026-11-14 13:07:20 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `1bf39fa` — 2026-11-14 16:37:06 +0330 — keep host resources outside plugins
-  Files: plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/reject-plugin-host-resources.ts,roadmap.md tests/functions/host-resource-boundary.test.ts
-- `047c0c2` — 2026-11-14 13:06:37 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
