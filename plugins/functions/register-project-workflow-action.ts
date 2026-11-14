@@ -21,6 +21,7 @@ export function registerProjectWorkflowAction(
     !action.operation ||
     !action.capability ||
     action.operation.startsWith("deploy.") ||
+    action.operation.startsWith("release.") ||
     actions.has(`${action.projectId}:${action.id}`)
   ) {
     throw new Error("invalid project workflow action");

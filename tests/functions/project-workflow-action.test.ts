@@ -36,6 +36,7 @@ for (const candidate of [
   },
   { projectId: "prod/dev", id: "other", operation: "notify.owner", capability: "workflow.project" },
   { projectId: "dev", id: "deploy", operation: "deploy.release", capability: "workflow.project" },
+  { projectId: "dev", id: "release", operation: "release.publish", capability: "workflow.project" },
 ]) {
   try {
     registerProjectWorkflowAction(actions, candidate);
