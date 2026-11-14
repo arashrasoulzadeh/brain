@@ -843,6 +843,8 @@ func (r *Registry) PinnedVersion(workID string) (string, bool) {
 func (r *Registry) Remove(projectID, id, version string) error {
 	r.lifecycleMu.Lock()
 	defer r.lifecycleMu.Unlock()
+	r.installationMu.Lock()
+	defer r.installationMu.Unlock()
 	if projectID == "" {
 		return ErrProjectInvalid
 	}
@@ -914,6 +916,8 @@ func (r *Registry) Unregister(id, version string) error {
 func (r *Registry) UninstallProject(projectID string) error {
 	r.lifecycleMu.Lock()
 	defer r.lifecycleMu.Unlock()
+	r.installationMu.Lock()
+	defer r.installationMu.Unlock()
 	if projectID == "" {
 		return ErrProjectInvalid
 	}
