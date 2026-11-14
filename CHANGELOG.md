@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `5a921bc` — 2026-11-15 01:46:57 +0330 — invalidate plugin lifecycle previews
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `605a9c9` — 2026-11-14 22:16:26 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `c383e15` — 2026-11-15 01:46:13 +0330 — finish socket cleanup after stop errors
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `9235e5d` — 2026-11-14 22:15:29 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `5a21fc6` — 2026-11-15 01:26:47 +0330 — serialize plugin artifact cleanup
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `0a89897` — 2026-11-14 21:56:27 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `a16ca7c` — 2026-11-15 01:26:07 +0330 — protect plugin installation cleanup
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `e061bf3` — 2026-11-14 21:55:45 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
