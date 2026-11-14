@@ -1,0 +1,1 @@
+export function requireRecentSchemaAuth(lastAuthenticatedAt: number, now: number, maxAgeMs = 5 * 60 * 1000): void { if (!Number.isFinite(lastAuthenticatedAt) || !Number.isFinite(now) || now < lastAuthenticatedAt || now - lastAuthenticatedAt > maxAgeMs) throw new Error("recent authentication required"); }

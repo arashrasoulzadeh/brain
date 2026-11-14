@@ -39,6 +39,14 @@ source_files:
   - scoped-transaction-change-writer.ts
   - transaction-change-reader.ts
   - scoped-transaction-change-reader.ts
+  - schema-types.ts
+  - plan-schema-change.ts
+  - preview-schema-sql.ts
+  - require-recent-schema-auth.ts
+  - create-schema-publication-audit.ts
+  - create-transactional-change-capture.ts
+  - create-api-change-capture.ts
+  - create-direct-sql-change-capture.ts
 imports:
   - ../sdk-typescript/src/index.js
   - ./data-request.js
@@ -74,6 +82,14 @@ imports:
   - ./scoped-transaction-change-writer.js
   - ./transaction-change-reader.js
   - ./scoped-transaction-change-reader.js
+  - ./schema-types.js
+  - ./plan-schema-change.js
+  - ./preview-schema-sql.js
+  - ./require-recent-schema-auth.js
+  - ./create-schema-publication-audit.js
+  - ./create-transactional-change-capture.js
+  - ./create-api-change-capture.js
+  - ./create-direct-sql-change-capture.js
   - ./index.js
 plugin_imports:
 dependencies: []
