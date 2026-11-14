@@ -831,6 +831,49 @@ func TestDisablePreviewRejectsStaleRevision(t *testing.T) {
 	}
 }
 
+func TestDisablePreviewApplicationIsSingleUseUnderConcurrency(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	m := plugin.Manifest{ID: "concurrent-preview", Version: "1.0.0", HostAPI: 1}
+	if err := r.Register(m); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Install("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	preview, err := r.PreviewDisable("dev", m.ID, m.Version)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	results := make(chan error, 2)
+	var group sync.WaitGroup
+	for index := 0; index < 2; index++ {
+		group.Add(1)
+		go func() {
+			defer group.Done()
+			results <- r.ApplyDisablePreview(preview)
+		}()
+	}
+	group.Wait()
+	close(results)
+
+	successes := 0
+	stale := 0
+	for result := range results {
+		switch {
+		case result == nil:
+			successes++
+		case errors.Is(result, plugin.ErrStalePreview):
+			stale++
+		default:
+			t.Fatalf("unexpected concurrent preview result: %v", result)
+		}
+	}
+	if successes != 1 || stale != 1 {
+		t.Fatalf("preview results = successes %d, stale %d; want one each", successes, stale)
+	}
+}
+
 func TestDrainBlocksNewWorkButAllowsReconnectUntilDeadline(t *testing.T) {
 	r := plugin.NewRegistry(1)
 	m := plugin.Manifest{ID: "drain-admission", Version: "1.0.0", HostAPI: 1}

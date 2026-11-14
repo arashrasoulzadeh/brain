@@ -263,6 +263,7 @@ type Registry struct {
 	artifacts         map[string]string
 	approvals         map[string]bool
 	lifecycleRevision uint64
+	lifecycleMu       sync.Mutex
 	durableData       map[string][]byte
 	durableMu         sync.RWMutex
 	supervisor        *Supervisor
@@ -427,6 +428,8 @@ func (r *Registry) TransitiveDependents(id, version string) []string {
 }
 
 func (r *Registry) PreviewDisable(projectID, id, version string) (DisablePreview, error) {
+	r.lifecycleMu.Lock()
+	defer r.lifecycleMu.Unlock()
 	if _, ok := r.installations[projectID+":"+id+"@"+version]; !ok {
 		return DisablePreview{}, ErrNotInstalled
 	}
@@ -434,6 +437,8 @@ func (r *Registry) PreviewDisable(projectID, id, version string) (DisablePreview
 }
 
 func (r *Registry) ApplyDisablePreview(preview DisablePreview) error {
+	r.lifecycleMu.Lock()
+	defer r.lifecycleMu.Unlock()
 	if preview.Revision != r.lifecycleRevision {
 		return ErrStalePreview
 	}
