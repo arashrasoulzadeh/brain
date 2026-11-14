@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `9749012` — 2026-11-14 16:40:54 +0330 — add dashboard plugin uninstall route
+  Files: plugins/dashboard/index.ts,plugins/dashboard/plugin.yaml plugins/dashboard/project-request.ts,roadmap.md tests/dashboard/dashboard.test.ts
+- `140d17d` — 2026-11-14 13:10:39 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `9513dd1` — 2026-11-14 16:40:22 +0330 — add dashboard lifecycle routes
   Files: plugins/dashboard/index.ts,plugins/dashboard/plugin.yaml plugins/dashboard/project-request.ts,roadmap.md tests/dashboard/dashboard.test.ts
 - `4bdec10` — 2026-11-14 13:09:40 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `9146582` — 2026-11-14 16:13:56 +0330 — refactor: split workflow policy helpers
   Files: plugins/functions/diagnose-source.ts,plugins/functions/evaluate-workflow-condition.ts plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/redact-run-status.ts,plugins/functions/run-idempotent-workflow.ts plugins/functions/validate-workflow-graph.ts
 - `9a1018e` — 2026-11-14 12:43:09 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `b6ef221` — 2026-11-14 16:12:54 +0330 — refactor: isolate function publication stores
-  Files: plugins/functions/create-approval-store.ts,plugins/functions/create-function-draft-store.ts plugins/functions/create-function-publication-store.ts,plugins/functions/create-shared-package-store.ts plugins/functions/index.ts,plugins/functions/plugin.yaml
-- `2cbd143` — 2026-11-14 12:42:16 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
