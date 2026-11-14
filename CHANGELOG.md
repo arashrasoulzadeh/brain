@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `e25b42a` — 2026-11-14 17:18:18 +0330 — drain room admissions during deploy
+  Files: plugins/rooms/create-room-directory.ts,plugins/rooms/is-room-draining.ts plugins/rooms/plugin.yaml,plugins/rooms/room-creator.ts plugins/rooms/room-runtime.ts,plugins/rooms/start-room-drain.ts plugins/rooms/stop-room-drain.ts,tests/rooms/rooms.test.ts
+- `6385163` — 2026-11-14 13:47:00 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `6df7801` — 2026-11-14 17:16:44 +0330 — pause matchmaking assignments during deploy
   Files: plugins/matchmaking/assignment-creator.ts,plugins/matchmaking/is-project-assignments-paused.ts plugins/matchmaking/pause-project-assignments.ts,plugins/matchmaking/plugin.yaml plugins/matchmaking/queue-runtime.ts,plugins/matchmaking/queue.ts plugins/matchmaking/resume-project-assignments.ts,plugins/matchmaking/ticket-enqueuer.ts tests/matchmaking/matchmaking.test.ts
 - `beb53f0` — 2026-11-14 13:45:29 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `e53176e` — 2026-11-14 16:55:51 +0330 — complete flutter sign in flows
   Files: clients/flutter/lib/auth_client.dart,roadmap.md tests/flutter/auth_client_test.dart
 - `cc63347` — 2026-11-14 13:25:34 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `bb6bb7a` — 2026-11-14 16:55:20 +0330 — verify flutter storage adapter boundary
-  Files: roadmap.md
-- `e06a0ab` — 2026-11-14 13:25:12 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
