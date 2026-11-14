@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `a065f6f` — 2026-11-15 01:12:46 +0330 — reject projectless lifecycle mutations
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `a447cde` — 2026-11-14 21:42:27 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `2c53022` — 2026-11-15 01:12:09 +0330 — reject projectless plugin installation
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `182a7ae` — 2026-11-14 21:41:43 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `af4c449` — 2026-11-15 00:48:26 +0330 — make worker supervisor concurrency safe
   Files: internal/plugin/supervisor.go,tests/plugin/supervisor_test.go
 - `48ea91a` — 2026-11-14 21:18:01 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `7fff3e1` — 2026-11-15 00:47:48 +0330 — cover revoked in-flight credentials
-  Files: tests/plugin/broker_test.go
-- `0ef8193` — 2026-11-14 21:16:59 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
