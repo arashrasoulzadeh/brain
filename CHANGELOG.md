@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `895d229` — 2026-11-15 00:40:45 +0330 — make assignment gate concurrency safe
+  Files: internal/deploy/assignments.go,tests/deploy/assignments_test.go
+- `e42fa25` — 2026-11-14 21:10:19 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `c389b41` — 2026-11-15 00:40:05 +0330 — bind database and object restores to release
   Files: internal/deploy/restore_pair.go,roadmap_backend.md tests/deploy/restore_pair_test.go
 - `5b79130` — 2026-11-14 21:09:27 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `f62fe0e` — 2026-11-14 20:47:32 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
 - `e2fbc55` — 2026-11-15 00:17:19 +0330 — add eye export capacity workload
-  Files: internal/deploy/capacity_profile.go,tests/deploy/capacity_profile_test.go
-- `2db493b` — 2026-11-14 20:47:00 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `858302f` — 2026-11-15 00:16:43 +0330 — add upload and job capacity workload
   Files: internal/deploy/capacity_profile.go,tests/deploy/capacity_profile_test.go
