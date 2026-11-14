@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `5a21fc6` — 2026-11-15 01:26:47 +0330 — serialize plugin artifact cleanup
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `0a89897` — 2026-11-14 21:56:27 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `a16ca7c` — 2026-11-15 01:26:07 +0330 — protect plugin installation cleanup
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `e061bf3` — 2026-11-14 21:55:45 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `0084160` — 2026-11-15 01:04:36 +0330 — reject unsafe restore project names
   Files: scripts/restore-compose.sh,tests/deploy/compose_restore_test.go
 - `f2e48d1` — 2026-11-14 21:33:59 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `6b97bb5` — 2026-11-15 01:03:45 +0330 — verify release images by digest
-  Files: .github/workflows/release-backend.yml,tests/deploy/release_image_verification_test.go tests/deploy/release_workflow_test.go
-- `0da2616` — 2026-11-14 21:32:53 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
