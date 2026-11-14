@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `62ef061` — 2026-11-15 02:25:32 +0330 — bound analytics event values
+  Files: plugins/analytics/validate-event.ts,tests/analytics/analytics.test.ts
+- `6a378b8` — 2026-11-14 22:55:13 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `0c9c4a6` — 2026-11-15 02:24:58 +0330 — validate table authorization boundaries
   Files: plugins/tables/row-policy-checker.ts,plugins/tables/row-policy-granter.ts plugins/tables/scoped-transaction-change-reader.ts,plugins/tables/scoped-transaction-change-writer.ts plugins/tables/table-exposure-reader.ts,tests/tables/tables.test.ts
 - `fd6ec24` — 2026-11-14 22:54:18 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `e7472cb` — 2026-11-15 01:56:29 +0330 — lock permission transitions during registry changes
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `e83fb51` — 2026-11-14 22:24:38 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `163a7d2` — 2026-11-15 01:54:24 +0330 — order plugin approval locks
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `a39cc10` — 2026-11-14 22:24:01 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
