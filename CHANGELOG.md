@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `c4e20fb` — 2026-11-14 17:38:41 +0330 — add typescript worker process
+  Files: scripts/typescript-worker.mjs,tests/plugin/typescript-worker.test.ts
+- `6d4b51c` — 2026-11-14 14:06:56 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `37f14ab` — 2026-11-14 17:36:43 +0330 — run eight-player capacity fixture
   Files: roadmap_backend.md,tests/deploy/capacity-eight-player.test.ts
 - `458cf7b` — 2026-11-14 14:06:16 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `e25b42a` — 2026-11-14 17:18:18 +0330 — drain room admissions during deploy
   Files: plugins/rooms/create-room-directory.ts,plugins/rooms/is-room-draining.ts plugins/rooms/plugin.yaml,plugins/rooms/room-creator.ts plugins/rooms/room-runtime.ts,plugins/rooms/start-room-drain.ts plugins/rooms/stop-room-drain.ts,tests/rooms/rooms.test.ts
 - `6385163` — 2026-11-14 13:47:00 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `6df7801` — 2026-11-14 17:16:44 +0330 — pause matchmaking assignments during deploy
-  Files: plugins/matchmaking/assignment-creator.ts,plugins/matchmaking/is-project-assignments-paused.ts plugins/matchmaking/pause-project-assignments.ts,plugins/matchmaking/plugin.yaml plugins/matchmaking/queue-runtime.ts,plugins/matchmaking/queue.ts plugins/matchmaking/resume-project-assignments.ts,plugins/matchmaking/ticket-enqueuer.ts tests/matchmaking/matchmaking.test.ts
-- `beb53f0` — 2026-11-14 13:45:29 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
