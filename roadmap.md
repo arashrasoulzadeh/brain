@@ -677,7 +677,7 @@ Goal: finish the supported clients, publish the protocol, and rehearse productio
 
 - [x] Add a deployment lock.
 - [x] Validate the requested release SHA.
-- [ ] Validate the release manifest.
+- [x] Validate the release manifest.
 - [ ] Validate the Compose configuration.
 - [ ] Pull all pinned images before draining.
 - [ ] Pause new match assignments.
