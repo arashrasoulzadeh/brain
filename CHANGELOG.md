@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `7eb2eee` — 2026-11-14 17:29:19 +0330 — verify PostgreSQL backup artifacts
+  Files: roadmap_backend.md,scripts/verify-postgres-backup.sh tests/deploy/postgres_backup_verify_test.go
+- `a920cfe` — 2026-11-14 13:59:01 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `7443223` — 2026-11-14 17:28:46 +0330 — record referenced object versions
   Files: internal/deploy/object_manifest.go,roadmap_backend.md tests/deploy/object_manifest_test.go
 - `1487dde` — 2026-11-14 13:58:13 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `74ca814` — 2026-11-14 17:04:10 +0330 — bind plugin envelopes to host project
   Files: internal/plugin/http_envelope.go,internal/plugin/worker.go tests/plugin/http_envelope_test.go,tests/plugin/worker_test.go
 - `6ea8068` — 2026-11-14 13:32:46 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `a877763` — 2026-11-14 17:02:31 +0330 — add protected backend release workflow
-  Files: .github/workflows/release-backend.yml,roadmap.md
-- `37e1143` — 2026-11-14 13:31:56 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
