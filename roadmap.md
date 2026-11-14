@@ -579,7 +579,7 @@ Goal: safely promote, roll back, disable, drain, uninstall, and extend plugin-co
 - [x] Reject revoked workflow grants.
 - [x] Reject invalid workflow graphs.
 - [x] Ensure retried effects commit once.
-- [ ] Add named triggers, conditions, actions, and approvals.
+- [x] Add named triggers, conditions, actions, and approvals.
 - [ ] Prevent project plugins from registering release steps.
 - [ ] Add explicitly granted deployment plugins.
 - [ ] Add test, build, preflight, and post-deploy hooks.
