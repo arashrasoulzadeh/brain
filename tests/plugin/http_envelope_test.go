@@ -27,3 +27,10 @@ func TestHTTPEnvelopeRejectsHostProjectMismatch(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestHTTPEnvelopeRejectsOversizedPayload(t *testing.T) {
+	envelope := plugin.HTTPRequestEnvelope{Protocol: 1, RequestID: "req", ProjectID: "dev", PluginID: "files", Version: "1", Operation: "read", Payload: make([]byte, 1<<20+1)}
+	if err := envelope.ValidateForProject(1, "dev"); !errors.Is(err, plugin.ErrInvalidHTTPEnvelope) {
+		t.Fatalf("oversized HTTP payload accepted: %v", err)
+	}
+}

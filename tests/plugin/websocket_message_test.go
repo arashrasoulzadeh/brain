@@ -27,3 +27,10 @@ func TestWebSocketMessageRejectsHostProjectMismatch(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestWebSocketMessageRejectsOversizedPayload(t *testing.T) {
+	message := plugin.WebSocketMessage{Protocol: 1, RequestID: "req", ProjectID: "dev", RoomID: "room", Type: "chat", Payload: make([]byte, 1<<20+1)}
+	if err := message.ValidateForProject(1, "dev"); !errors.Is(err, plugin.ErrInvalidWebSocketMessage) {
+		t.Fatalf("oversized WebSocket payload accepted: %v", err)
+	}
+}

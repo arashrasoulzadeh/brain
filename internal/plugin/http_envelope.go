@@ -15,7 +15,7 @@ type HTTPRequestEnvelope struct {
 }
 
 func (e HTTPRequestEnvelope) Validate(protocol int) error {
-	if e.Protocol != protocol || e.RequestID == "" || e.ProjectID == "" || e.PluginID == "" || e.Version == "" || e.Operation == "" {
+	if e.Protocol != protocol || e.RequestID == "" || e.ProjectID == "" || e.PluginID == "" || e.Version == "" || e.Operation == "" || len(e.Payload) > 1<<20 {
 		return ErrInvalidHTTPEnvelope
 	}
 	return nil
