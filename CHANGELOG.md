@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `3a16ca9` — 2026-11-14 16:34:15 +0330 — block plugin release workflow steps
+  Files: plugins/functions/register-project-workflow-action.ts,roadmap.md tests/functions/project-workflow-action.test.ts
+- `4073074` — 2026-11-14 13:03:56 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `ac11194` — 2026-11-14 16:33:43 +0330 — test named workflow components
   Files: roadmap.md,tests/functions/workflow-components.test.ts
 - `6216df3` — 2026-11-14 13:03:19 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `ba2898c` — 2026-11-14 16:05:26 +0330 — refactor: isolate auth rate limiters
   Files: plugins/auth/account-rate-limiter.ts,plugins/auth/identity-linker.ts plugins/auth/index.ts,plugins/auth/otp-limiter.ts plugins/auth/plugin.yaml,plugins/auth/project-rate-limiter.ts
 - `9b761c8` — 2026-11-14 12:34:32 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `51b8cdc` — 2026-11-14 16:04:19 +0330 — refactor: split auth utility functions
-  Files: plugins/auth/create-pkce-challenge.ts,plugins/auth/index.ts plugins/auth/normalize-phone-number.ts,plugins/auth/oidc-types.ts plugins/auth/plugin.yaml,plugins/auth/public-auth-error.ts plugins/auth/require-recent-authentication.ts,plugins/auth/validate-delivery-config.ts plugins/auth/validate-oidc-token.ts,plugins/auth/verify-pkce.ts
-- `61084c0` — 2026-11-14 12:33:27 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
