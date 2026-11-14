@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `1e4acf0` — 2026-11-15 02:12:46 +0330 — audit every plugin manifest boundary
+  Files: tests/plugin/all_manifests_test.go
+- `143c435` — 2026-11-14 22:42:13 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `33a5162` — 2026-11-15 02:11:52 +0330 — validate dashboard project ids before html rendering
   Files: docs/admins.md,docs/developers.md plugins/dashboard/custom-admin-view.ts,plugins/dashboard/plugin.yaml tests/dashboard/dashboard.test.ts
 - `d26605e` — 2026-11-14 22:37:26 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `a926504` — 2026-11-15 01:45:15 +0330 — close all project sockets after errors
   Files: internal/plugin/websocket_registry.go,tests/plugin/websocket_registry_test.go
 - `f9ea4df` — 2026-11-14 22:14:54 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `3ad9f9b` — 2026-11-15 01:44:41 +0330 — close project sockets on disable
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `b0cefc8` — 2026-11-14 22:14:19 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
