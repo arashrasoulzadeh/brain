@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `e89084a` — 2026-11-15 02:22:47 +0330 — validate matchmaking scope boundaries
+  Files: plugins/matchmaking/assignment-creator.ts,plugins/matchmaking/ticket-canceller.ts plugins/matchmaking/ticket-enqueuer.ts,plugins/matchmaking/ticket-matcher.ts plugins/matchmaking/ticket-reader.ts,plugins/matchmaking/ticket-requeuer.ts tests/matchmaking/matchmaking.test.ts
+- `bcee2c9` — 2026-11-14 22:52:15 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `e466e09` — 2026-11-15 02:22:03 +0330 — validate room connection ticket context
   Files: plugins/rooms/connection-ticket-consumer.ts,tests/rooms/rooms.test.ts
 - `2dd5de8` — 2026-11-14 22:51:48 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `47c24bc` — 2026-11-15 01:52:42 +0330 — reject ungranted plugin revocations
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `3e10e2d` — 2026-11-14 22:22:21 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `d31f7c9` — 2026-11-15 01:52:08 +0330 — validate plugin revocation capability
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `8ec5743` — 2026-11-14 22:21:33 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
