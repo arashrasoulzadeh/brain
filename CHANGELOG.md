@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `647fa51` — 2026-11-15 00:39:13 +0330 — remove completed backend roadmap items
+  Files: roadmap_backend.md
+- `d38d3f6` — 2026-11-14 21:08:32 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `42b85d3` — 2026-11-15 00:38:18 +0330 — apply worker test formatting
   Files: tests/plugin/worker_test.go
 - `7e69e83` — 2026-11-15 00:37:57 +0330 — harden worker credentials and deployment controls
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `d928172` — 2026-11-15 00:16:08 +0330 — add representative app request capacity workload
   Files: internal/deploy/capacity_profile.go,tests/deploy/capacity_profile_test.go
-- `265f342` — 2026-11-14 20:45:36 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `a453c74` — 2026-11-15 00:15:16 +0330 — require assignment pause before room drain
-  Files: internal/deploy/sequence.go,tests/deploy/sequence_test.go
