@@ -643,6 +643,9 @@ func (r *Registry) Revoke(projectID, id, version, capability string) error {
 	if projectID == "" {
 		return ErrProjectInvalid
 	}
+	if capability == "" {
+		return ErrGrantDenied
+	}
 	key := projectID + ":" + id + "@" + version
 	i, ok := r.installations[key]
 	if !ok {

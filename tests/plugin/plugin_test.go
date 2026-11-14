@@ -1079,6 +1079,20 @@ func TestImmediateStopStopsWorkerAndClosesSockets(t *testing.T) {
 	}
 }
 
+func TestRevokeRejectsEmptyCapabilityBeforeRuntimeStop(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	m := plugin.Manifest{ID: "revoke-validation", Version: "1.0.0", HostAPI: 1}
+	if err := r.Register(m); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Install("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Revoke("dev", m.ID, m.Version, ""); !errors.Is(err, plugin.ErrGrantDenied) {
+		t.Fatalf("empty capability error = %v", err)
+	}
+}
+
 func TestRegistryRecoveryRestartsCrashedProjectWorker(t *testing.T) {
 	r := plugin.NewRegistry(1)
 	m := plugin.Manifest{ID: "recover-runtime", Version: "1.0.0", HostAPI: 1}
