@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `036e53f` — 2026-11-15 01:59:57 +0330 — validate manifests at registry registration
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `d1ddf96` — 2026-11-14 22:28:24 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `2ff2af8` — 2026-11-15 01:58:08 +0330 — enforce project identity in disable previews
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `ab341ac` — 2026-11-14 22:27:39 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `554707a` — 2026-11-15 01:39:19 +0330 — reject nil plugin workers
   Files: internal/plugin/supervisor.go,tests/plugin/supervisor_test.go
 - `0ea39c0` — 2026-11-14 22:09:03 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `e046094` — 2026-11-15 01:38:50 +0330 — fail closed without plugin worker
-  Files: internal/plugin/worker.go,tests/plugin/worker_test.go
-- `4cd0809` — 2026-11-14 22:08:22 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
