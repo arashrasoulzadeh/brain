@@ -19,4 +19,10 @@ func TestBackupPolicyRequiresTwelveHourCadenceAndEighteenHourAlert(t *testing.T)
 	if err := (deploy.BackupPolicy{Interval: 11 * time.Hour, AlertAfter: 18 * time.Hour}).Validate(); !errors.Is(err, deploy.ErrInvalidBackupPolicy) {
 		t.Fatal("short backup interval was accepted")
 	}
+	if !policy.IsStale(time.Unix(0, 0), time.Unix(0, 0).Add(19*time.Hour)) {
+		t.Fatal("old verified backup was not marked stale")
+	}
+	if policy.IsStale(time.Unix(0, 0), time.Unix(0, 0).Add(17*time.Hour)) {
+		t.Fatal("fresh verified backup was marked stale")
+	}
 }

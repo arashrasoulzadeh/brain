@@ -22,3 +22,7 @@ func (p BackupPolicy) Validate() error {
 func (p BackupPolicy) NextDue(lastVerified time.Time) time.Time {
 	return lastVerified.Add(p.Interval)
 }
+
+func (p BackupPolicy) IsStale(lastVerified time.Time, now time.Time) bool {
+	return now.Sub(lastVerified) > p.AlertAfter
+}
