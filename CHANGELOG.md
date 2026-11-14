@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `ed74c03` — 2026-11-14 16:34:59 +0330 — require explicit deployment plugin grants
+  Files: plugins/functions/authorize-deployment-plugin.ts,plugins/functions/index.ts plugins/functions/plugin.yaml,roadmap.md tests/functions/workflow-components.test.ts
+- `7ba30d7` — 2026-11-14 13:04:29 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `3a16ca9` — 2026-11-14 16:34:15 +0330 — block plugin release workflow steps
   Files: plugins/functions/register-project-workflow-action.ts,roadmap.md tests/functions/project-workflow-action.test.ts
 - `4073074` — 2026-11-14 13:03:56 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `2a8c8c6` — 2026-11-14 16:06:25 +0330 — refactor: split function compiler validation
   Files: plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/validate-build-overrides.ts,plugins/functions/validate-function-limits.ts plugins/functions/validate-sdk-imports.ts,plugins/functions/validate-source-project.ts plugins/functions/wasm-build-settings.ts
 - `716e06e` — 2026-11-14 12:35:43 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `ba2898c` — 2026-11-14 16:05:26 +0330 — refactor: isolate auth rate limiters
-  Files: plugins/auth/account-rate-limiter.ts,plugins/auth/identity-linker.ts plugins/auth/index.ts,plugins/auth/otp-limiter.ts plugins/auth/plugin.yaml,plugins/auth/project-rate-limiter.ts
-- `9b761c8` — 2026-11-14 12:34:32 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
