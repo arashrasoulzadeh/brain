@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `3dd11a5` — 2026-11-15 02:04:52 +0330 — refresh developer and administrator documentation
+  Files: docs/admins.html,docs/admins.md docs/developers.html,docs/developers.md docs/index.html,docs/index.md docs/site.css
+- `b0d6cb2` — 2026-11-14 22:30:16 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `036e53f` — 2026-11-15 01:59:57 +0330 — validate manifests at registry registration
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `d1ddf96` — 2026-11-14 22:28:24 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `8e4019b` — 2026-11-15 01:40:10 +0330 — fail closed for nil caller context
   Files: internal/project/transaction_context.go,tests/project/transaction_context_test.go
 - `351cb47` — 2026-11-14 22:09:32 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `554707a` — 2026-11-15 01:39:19 +0330 — reject nil plugin workers
-  Files: internal/plugin/supervisor.go,tests/plugin/supervisor_test.go
-- `0ea39c0` — 2026-11-14 22:09:03 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
