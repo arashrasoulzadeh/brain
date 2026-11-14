@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `7020298` — 2026-11-15 00:24:29 +0330 — gate releases on packaged revocation
+  Files: internal/deploy/manifest.go,tests/deploy/healthy_manifest_test.go tests/deploy/manifest_test.go,tests/deploy/rollback_test.go
+- `a346e1c` — 2026-11-14 20:54:02 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `63933fa` — 2026-11-15 00:23:50 +0330 — gate releases on packaged isolation
   Files: internal/deploy/manifest.go,tests/deploy/healthy_manifest_test.go tests/deploy/manifest_test.go,tests/deploy/rollback_test.go
 - `ab313ca` — 2026-11-14 20:53:19 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `7b73658` — 2026-11-14 22:56:30 +0330 — launch nodejs path without symlink resolution
   Files: scripts/run-sandboxed-typescript-worker.sh
 - `8958429` — 2026-11-14 19:25:28 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `ee7a868` — 2026-11-14 22:55:14 +0330 — use installed nodejs binary in sandbox ci
-  Files: .github/workflows/test.yml,scripts/run-sandboxed-typescript-worker.sh
-- `a09c001` — 2026-11-14 19:24:06 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
