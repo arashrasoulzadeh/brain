@@ -13,6 +13,8 @@ import {
   projectCreateRequest,
   pluginPromoteRequest,
   pluginRollbackRequest,
+  pluginDisableApplyRequest,
+  pluginDisablePreviewRequest,
   projectOverviewContribution,
   recordBrowserPage,
   recordEditPage,
@@ -43,12 +45,16 @@ const enable = adminRequest("dev", "dashboard", "0.1.0", "plugin.enable", {
 });
 const promote = pluginPromoteRequest("dev", "rooms", "2.0.0");
 const rollback = pluginRollbackRequest("dev", "rooms", "1.0.0");
+const disablePreview = pluginDisablePreviewRequest("dev", "rooms", "1.0.0");
+const disableApply = pluginDisableApplyRequest("dev", "rooms", "1.0.0");
 if (
   install.params.operation !== "plugin.install" ||
   grant.params.operation !== "plugin.grant" ||
   enable.params.operation !== "plugin.enable" ||
   promote.params.operation !== "plugin.promote" ||
-  rollback.params.operation !== "plugin.rollback"
+  rollback.params.operation !== "plugin.rollback" ||
+  disablePreview.params.operation !== "plugin.disable.preview" ||
+  disableApply.params.operation !== "plugin.disable.apply"
 ) {
   throw new Error("generic dashboard operation contract failed");
 }
@@ -60,6 +66,16 @@ const routes = [
   { operation: "plugin.enable", function: "enablePlugin", capability: "plugin.enable" },
   { operation: "plugin.promote", function: "promotePlugin", capability: "plugin.promote" },
   { operation: "plugin.rollback", function: "rollbackPlugin", capability: "plugin.rollback" },
+  {
+    operation: "plugin.disable.preview",
+    function: "previewPluginDisable",
+    capability: "plugin.disable",
+  },
+  {
+    operation: "plugin.disable.apply",
+    function: "applyPluginDisable",
+    capability: "plugin.disable",
+  },
   { operation: "plugin.readiness", function: "showReadiness", capability: "plugin.readiness" },
 ] as const;
 const calls: unknown[] = [];

@@ -28,6 +28,22 @@ export function pluginRollbackRequest(
   return adminRequest(projectId, "plugin.rollback", pluginId, version);
 }
 
+export function pluginDisablePreviewRequest(
+  projectId: string,
+  pluginId: string,
+  version: string,
+): RpcRequest {
+  return adminRequest(projectId, "plugin.disable.preview", pluginId, version);
+}
+
+export function pluginDisableApplyRequest(
+  projectId: string,
+  pluginId: string,
+  version: string,
+): RpcRequest {
+  return adminRequest(projectId, "plugin.disable.apply", pluginId, version);
+}
+
 function adminRequest(
   projectId: string,
   operation: string,

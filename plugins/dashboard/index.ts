@@ -7,6 +7,8 @@ export { fileManagementPage } from "./file-management-page.js";
 export {
   pluginPromoteRequest,
   pluginRollbackRequest,
+  pluginDisableApplyRequest,
+  pluginDisablePreviewRequest,
   projectCreateRequest,
 } from "./project-request.js";
 export { recordBrowserPage } from "./record-browser-page.js";
