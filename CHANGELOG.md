@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `774a9c2` — 2026-11-15 02:24:05 +0330 — validate arena identity and result time
+  Files: plugins/arena/arena-state.ts,plugins/arena/validate-result.ts tests/arena/arena.test.ts
+- `d7c7446` — 2026-11-14 22:53:41 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `3897676` — 2026-11-15 02:23:27 +0330 — harden invite validation boundaries
   Files: plugins/invites/invite-accepter.ts,plugins/invites/invite-creator.ts tests/invites/invites.test.ts
 - `abf0585` — 2026-11-14 22:53:00 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `0bb6e66` — 2026-11-15 01:53:47 +0330 — require plugin resource identifiers
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `2f99655` — 2026-11-14 22:23:28 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `9b009d1` — 2026-11-15 01:53:14 +0330 — validate plugin capability approvals
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `18bf5bf` — 2026-11-14 22:22:53 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
