@@ -627,7 +627,7 @@ Goal: finish the supported clients, publish the protocol, and rehearse productio
 - [x] Test the native system-browser callback.
 - [ ] Test secure token storage.
 - [x] Test Flutter Web cookies.
-- [ ] Add native transport adapter.
+- [x] Add native transport adapter.
 - [ ] Add web transport adapter.
 - [ ] Hide platform storage behind adapters.
 - [ ] Complete sign-in on a native target.
