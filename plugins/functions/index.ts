@@ -15,18 +15,10 @@ import { FunctionDraftReader } from "./function-draft-reader.js";
 import { createJobLeaseState } from "./job-lease-state.js";
 import { JobLeaseAcquirer } from "./job-lease-acquirer.js";
 import { JobLeaseRenewer } from "./job-lease-renewer.js";
-import { createInvocationEffectsState } from "./invocation-effects-state.js";
-import { InvocationEffectsWriter } from "./invocation-effects-writer.js";
-import { InvocationEffectsReader } from "./invocation-effects-reader.js";
 import { createFunctionPublicationState } from "./function-publication-state.js";
 import { FunctionPublicationWriter } from "./function-publication-writer.js";
 import { FunctionPublicationReader } from "./function-publication-reader.js";
 import { FunctionPublicationRollback } from "./function-publication-rollback.js";
-import { createInvocationCommitState } from "./invocation-commit-state.js";
-import { InvocationCommitWriter } from "./invocation-commit-writer.js";
-import { InvocationCommitReader } from "./invocation-commit-reader.js";
-import { InvocationResultReader } from "./invocation-result-reader.js";
-import { InvocationExistenceReader } from "./invocation-existence-reader.js";
 import { createRecordTriggerState } from "./record-trigger-state.js";
 import { RecordTriggerAdder } from "./record-trigger-adder.js";
 import { RecordTriggerMatcher } from "./record-trigger-matcher.js";
@@ -40,6 +32,7 @@ import { MissedScheduleEnqueuer } from "./missed-schedule-enqueuer.js";
 import { FunctionVersionEnqueuer } from "./function-version-enqueuer.js";
 import type { FunctionInvocationRequest } from "./invocation-types.js";
 import { runCappedRetries } from "./run-capped-retries.js";
+import { createInvocationCommitStore } from "./create-invocation-commit-store.js";
 
 export { functionRequest } from "./function-request.js";
 export { publishSharedHelperArtifact } from "./shared-helper-publisher.js";
@@ -84,8 +77,8 @@ export { validateSandboxCapabilities } from "./validate-sandbox-capabilities.js"
 export { runWithTimeout } from "./run-with-timeout.js";
 export { validateLinearMemory, validateStartupDuration } from "./validate-execution-limits.js";
 export { rejectSandboxEscapeAttempt } from "./reject-sandbox-escape.js";
-export function createInvocationEffects() { const state = createInvocationEffectsState(); const writer = new InvocationEffectsWriter(state); const reader = new InvocationEffectsReader(state); return { begin: writer.begin.bind(writer), list: reader.list.bind(reader) }; }
-export function createInvocationCommitStore() { const state = createInvocationCommitState(); const writer = new InvocationCommitWriter(state); const effects = new InvocationCommitReader(state); const result = new InvocationResultReader(state); const existence = new InvocationExistenceReader(state); return { commit: writer.commit.bind(writer), effects: effects.effects.bind(effects), result: result.result.bind(result), has: existence.has.bind(existence), setLifecycleRevision: (revision: number) => { state.lifecycleRevision = revision; } }; }
+export { createInvocationEffects } from "./create-invocation-effects.js";
+export { createInvocationCommitStore } from "./create-invocation-commit-store.js";
 export async function retryInvocation<T>(store: ReturnType<typeof createInvocationCommitStore>, idempotencyKey: string, execute: () => T | Promise<T>, effects: readonly unknown[] = []): Promise<T> {
   if (store.has(idempotencyKey)) return store.result(idempotencyKey) as T;
   const result = await execute();

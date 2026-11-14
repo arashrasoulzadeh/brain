@@ -60,6 +60,8 @@ source_files:
   - reject-sandbox-escape.ts
   - commit-with-grant.ts
   - run-capped-retries.ts
+  - create-invocation-effects.ts
+  - create-invocation-commit-store.ts
 imports:
   - ../sdk-typescript/src/index.js
   - node:fs
@@ -124,6 +126,8 @@ imports:
   - ./reject-sandbox-escape.js
   - ./commit-with-grant.js
   - ./run-capped-retries.js
+  - ./create-invocation-effects.js
+  - ./create-invocation-commit-store.js
   - ./index.js
 plugin_imports:
 title: Functions
