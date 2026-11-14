@@ -10,6 +10,7 @@ import (
 
 	"brain/internal/app"
 	"brain/internal/config"
+	"brain/internal/deploy"
 	"brain/internal/operator"
 )
 
@@ -22,12 +23,23 @@ func main() {
 		bootstrapDashboard()
 		return
 	}
+	if len(os.Args) > 2 && os.Args[1] == "verify-object-manifest" {
+		verifyObjectManifest(os.Args[2])
+		return
+	}
 	cfg := config.FromEnv()
 	if err := cfg.SafeError(); err != nil {
 		log.Fatal(err)
 	}
 	server := app.NewServer()
 	log.Fatal(http.ListenAndServe(cfg.HTTPAddress, server.Handler()))
+}
+
+func verifyObjectManifest(path string) {
+	if _, err := deploy.ReadObjectVersionManifest(path); err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("object manifest verified: %s", path)
 }
 
 func bootstrapDashboard() {
