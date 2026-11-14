@@ -777,6 +777,9 @@ func (r *Registry) PinnedVersion(workID string) (string, bool) {
 }
 
 func (r *Registry) Remove(projectID, id, version string) error {
+	if projectID == "" {
+		return ErrProjectInvalid
+	}
 	key := projectID + ":" + id + "@" + version
 	if _, ok := r.installations[key]; !ok {
 		return ErrNotInstalled

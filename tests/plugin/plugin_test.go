@@ -266,6 +266,13 @@ func TestRegistryReadinessAndUnregisterAreConcurrentSafe(t *testing.T) {
 	group.Wait()
 }
 
+func TestRegistryRejectsProjectlessRemoval(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	if err := r.Remove("", "sample", "1.0.0"); !errors.Is(err, plugin.ErrProjectInvalid) {
+		t.Fatalf("empty project removal error = %v, want %v", err, plugin.ErrProjectInvalid)
+	}
+}
+
 func TestRevokeStopsTheProjectWorker(t *testing.T) {
 	r := plugin.NewRegistry(1)
 	m := plugin.Manifest{ID: "guest", Version: "1.0.0", HostAPI: 1, Capabilities: []string{"session.issue"}}
