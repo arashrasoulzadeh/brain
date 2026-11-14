@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `0bb0413` — 2026-11-15 00:46:42 +0330 — bind external worker handshakes to project
+  Files: internal/plugin/external.go,internal/plugin/external_http.go tests/plugin/external_http_test.go,tests/plugin/external_test.go
+- `f33e44a` — 2026-11-14 21:15:52 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `af2e8c4` — 2026-11-15 00:45:37 +0330 — remove unscoped worker invocation
   Files: internal/plugin/worker.go,tests/plugin/bubblewrap_worker_test.go tests/plugin/external_fixture_test.go,tests/plugin/typescript_worker_test.go tests/plugin/worker_fixture_test.go
 - `28b1301` — 2026-11-14 21:15:10 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `033edc9` — 2026-11-14 20:54:43 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
 - `7020298` — 2026-11-15 00:24:29 +0330 — gate releases on packaged revocation
-  Files: internal/deploy/manifest.go,tests/deploy/healthy_manifest_test.go tests/deploy/manifest_test.go,tests/deploy/rollback_test.go
-- `a346e1c` — 2026-11-14 20:54:02 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `63933fa` — 2026-11-15 00:23:50 +0330 — gate releases on packaged isolation
   Files: internal/deploy/manifest.go,tests/deploy/healthy_manifest_test.go tests/deploy/manifest_test.go,tests/deploy/rollback_test.go
