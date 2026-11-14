@@ -197,6 +197,12 @@ otpIssuer.issue("project-a", "alice@example.com", "signin", 1000, 300);
 const emailCode = deliveryReader.read("alice@example.com");
 if (!emailCode || !otpVerifier.verify("project-a", "alice@example.com", "signin", emailCode, 1001))
   throw new Error("email OTP failed");
+try {
+  otpVerifier.verify("bad/project", "alice@example.com", "signin", emailCode ?? "", 1001);
+  throw new Error("email OTP accepted an invalid project identity");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "invalid project id") throw error;
+}
 const smsChallenges = new Map();
 const smsIssuer = new SMSOTPIssuer(smsChallenges, "test-secret", delivery);
 const smsVerifier = new SMSOTPVerifier(smsChallenges, "test-secret");
@@ -204,6 +210,12 @@ smsIssuer.issue("project-a", "+989121234567", "signin", 1000, 300);
 const smsCode = deliveryReader.read("+989121234567");
 if (!smsCode || !smsVerifier.verify("project-a", "+989121234567", "signin", smsCode, 1001))
   throw new Error("SMS OTP failed");
+try {
+  smsVerifier.verify("bad/project", "+989121234567", "signin", smsCode ?? "", 1001);
+  throw new Error("SMS OTP accepted an invalid project identity");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "invalid project id") throw error;
+}
 if (normalizePhoneNumber("0098 912-123-4567") !== "+989121234567")
   throw new Error("phone normalization failed");
 const otpLimiter = new OTPLimiter(2, 1000);
@@ -226,6 +238,12 @@ recoveryIssuer.issue("project-a", "alice@example.com", 1000, 60);
 const recoveryCode = deliveryReader.read("alice@example.com");
 if (!recoveryConsumer.consume("project-a", "alice@example.com", recoveryCode ?? "", 1001))
   throw new Error("email recovery failed");
+try {
+  recoveryConsumer.consume("bad/project", "alice@example.com", recoveryCode ?? "", 1001);
+  throw new Error("recovery token accepted an invalid project identity");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "invalid project id") throw error;
+}
 const resetService = createTestAuth();
 await resetService.signup("project-a", "erin", "old password");
 const resetSession = await resetService.signin("project-a", "erin", "old password", 1000);

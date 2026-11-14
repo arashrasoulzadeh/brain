@@ -1,4 +1,5 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
+import { validateProjectId } from "../sdk-typescript/src/index.js";
 import type { OTPChallenge } from "./otp-types.js";
 
 export class EmailOTPVerifier {
@@ -13,6 +14,7 @@ export class EmailOTPVerifier {
     code: string,
     now: number,
   ): boolean {
+    validateProjectId(projectId);
     const challenge = this.challenges.get(`${projectId}:${destination}:${purpose}`);
     const digest = createHmac("sha256", this.secret).update(code).digest("hex");
     if (
