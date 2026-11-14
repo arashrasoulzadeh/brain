@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `17803ab` — 2026-11-15 01:08:06 +0330 — make plugin durable data concurrency safe
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `9981393` — 2026-11-14 21:37:30 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `ebf0e13` — 2026-11-15 01:07:18 +0330 — make websocket send queue concurrency safe
   Files: internal/plugin/websocket_queue.go,tests/plugin/websocket_queue_test.go
 - `8b77ff4` — 2026-11-14 21:36:39 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `b60dba0` — 2026-11-15 00:44:57 +0330 — bind wasm execution to host project
   Files: internal/plugin/wasm_runner.go,tests/plugin/wasm_runner_test.go
 - `450c51e` — 2026-11-14 21:14:27 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `0ea8b29` — 2026-11-15 00:44:13 +0330 — scope function job leases by project
-  Files: plugins/functions/job-lease-acquirer.ts,plugins/functions/job-lease-renewer.ts tests/functions/functions.test.ts
-- `3924c1a` — 2026-11-14 21:13:14 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
