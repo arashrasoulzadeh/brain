@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `a2bc42c` — 2026-11-15 01:38:09 +0330 — reject trailing handshake data
+  Files: internal/plugin/external_http.go,tests/plugin/external_http_test.go
+- `1fddf06` — 2026-11-14 22:07:44 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `2f1188f` — 2026-11-15 01:37:31 +0330 — bind external handshake authentication
   Files: internal/plugin/external.go,tests/plugin/external_test.go
 - `2efbc61` — 2026-11-14 22:07:10 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `405c065` — 2026-11-15 01:18:03 +0330 — protect plugin audit history
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `1955f5a` — 2026-11-14 21:46:07 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `46b2e24` — 2026-11-15 01:15:51 +0330 — reject projectless plugin lifecycle checks
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `6259576` — 2026-11-14 21:45:16 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
