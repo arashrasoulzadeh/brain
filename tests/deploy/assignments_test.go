@@ -2,6 +2,7 @@ package deploy_test
 
 import (
 	"errors"
+	"sync"
 	"testing"
 
 	"brain/internal/deploy"
@@ -20,4 +21,20 @@ func TestAssignmentGatePausesNewMatches(t *testing.T) {
 	if err := gate.Accept(); err != nil {
 		t.Fatal(err)
 	}
+}
+
+func TestAssignmentGateSupportsConcurrentAdmissionChecks(t *testing.T) {
+	gate := deploy.NewAssignmentGate()
+	var group sync.WaitGroup
+	for index := 0; index < 16; index++ {
+		group.Add(1)
+		go func() {
+			defer group.Done()
+			gate.Pause()
+			_ = gate.Accept()
+			gate.Resume()
+			_ = gate.Accept()
+		}()
+	}
+	group.Wait()
 }
