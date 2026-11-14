@@ -31,3 +31,16 @@ func TestWebSocketEndpointRejectsNonUpgrade(t *testing.T) {
 		t.Fatalf("status = %d, want %d", rec.Code, http.StatusUpgradeRequired)
 	}
 }
+
+func TestWebSocketEndpointRejectsTraversalProjectPath(t *testing.T) {
+	h := plugin.WebSocketEndpoint()
+	req := httptest.NewRequest(http.MethodGet, "/v1/projects/%2e%2e/rooms/room-1/ws", nil)
+	req.Header.Set("Connection", "Upgrade")
+	req.Header.Set("Upgrade", "websocket")
+	req.Header.Set("X-Project-ID", "..")
+	rec := httptest.NewRecorder()
+	h.ServeHTTP(rec, req)
+	if rec.Code != http.StatusNotFound {
+		t.Fatalf("status = %d, want %d", rec.Code, http.StatusNotFound)
+	}
+}
