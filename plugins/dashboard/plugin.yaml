@@ -24,6 +24,7 @@ source_files:
   - custom-view-origin.ts
   - restricted-frame.ts
   - validate-bridge-message.ts
+  - reject-sensitive-bridge-data.ts
   - form-audit-recorder.ts
   - form-audit-reader.ts
   - browser-quickstart.ts
@@ -44,6 +45,7 @@ imports:
   - ./custom-view-origin.js
   - ./restricted-frame.js
   - ./validate-bridge-message.js
+  - ./reject-sensitive-bridge-data.js
   - ./project-request.js
   - ./record-browser-page.js
   - ./record-edit-page.js

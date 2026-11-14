@@ -34,5 +34,7 @@ export function validateBridgeMessage(
   ) {
     throw new Error("invalid bridge message");
   }
+  rejectSensitiveBridgeData(candidate.payload);
   return candidate as BridgeMessage;
 }
+import { rejectSensitiveBridgeData } from "./reject-sensitive-bridge-data.js";
