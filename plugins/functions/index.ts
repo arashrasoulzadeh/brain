@@ -109,48 +109,14 @@ export { createRecordChangeTriggerStore } from "./create-record-change-trigger-s
 export { createJobLeaseStore } from "./create-job-lease-store.js";
 export { commitWithGrant } from "./commit-with-grant.js";
 export { runCappedRetries } from "./run-capped-retries.js";
-export async function runIdempotentWorkflow<T>(store: ReturnType<typeof createInvocationCommitStore>, idempotencyKey: string, task: () => T | Promise<T>, maxAttempts: number): Promise<T> {
-  if (store.has(idempotencyKey)) return store.result(idempotencyKey) as T;
-  const result = await runCappedRetries(task, maxAttempts);
-  return store.commit(idempotencyKey, [], result) as T;
-}
-export function redactRunStatus<T>(status: T): T {
-  const secret = /TOKEN|SECRET|PASSWORD|CREDENTIAL|API[_-]?KEY/i;
-  const visit = (value: unknown): unknown => {
-    if (Array.isArray(value)) return value.map(visit);
-    if (!value || typeof value !== "object") return value;
-    const result: Record<string, unknown> = {};
-    for (const [key, nested] of Object.entries(value)) result[key] = secret.test(key) ? "[redacted]" : visit(nested);
-    return result;
-  };
-  return visit(status) as T;
-}
-export type WorkflowNode = { id: string; next: readonly string[] };
-export function validateWorkflowGraph(nodes: readonly WorkflowNode[]): void {
-  const byId = new Map(nodes.map((node) => [node.id, node]));
-  if (byId.size !== nodes.length || nodes.some((node) => !node.id || node.next.some((next) => !byId.has(next)))) throw new Error("invalid workflow graph");
-  const visiting = new Set<string>();
-  const visited = new Set<string>();
-  const visit = (id: string): void => {
-    if (visiting.has(id)) throw new Error("workflow cycle");
-    if (visited.has(id)) return;
-    visiting.add(id);
-    for (const next of byId.get(id)!.next) visit(next);
-    visiting.delete(id);
-    visited.add(id);
-  };
-  for (const node of nodes) visit(node.id);
-}
-export type WorkflowCondition = { field: string; operator: string; value: unknown };
-export function evaluateCondition(condition: WorkflowCondition, context: Readonly<Record<string, unknown>>): boolean {
-  if (!condition.field || condition.operator !== "equals") throw new Error("unsupported condition");
-  return Object.prototype.hasOwnProperty.call(context, condition.field) && Object.is(context[condition.field], condition.value);
-}
+export { runIdempotentWorkflow } from "./run-idempotent-workflow.js";
+export { redactRunStatus } from "./redact-run-status.js";
+export { type WorkflowNode, validateWorkflowGraph } from "./validate-workflow-graph.js";
+export { type WorkflowCondition, evaluateCondition } from "./evaluate-workflow-condition.js";
 export { createApprovalStore } from "./create-approval-store.js";
 export type FunctionDraft = { projectId: string; functionId: string; source: string; savedAt: number };
 export { createFunctionDraftStore } from "./create-function-draft-store.js";
 export type FunctionPublication = FunctionDraft & { version: number; artifactDigest: string; toolchain: string; publishedAt: number };
 export { createFunctionPublicationStore } from "./create-function-publication-store.js";
 export { createSharedPackageStore } from "./create-shared-package-store.js";
-export type SourceDiagnostic = { line: number; message: string };
-export function diagnoseSource(source: string): SourceDiagnostic[] { const diagnostics: SourceDiagnostic[] = []; const lines = source.split("\n"); lines.forEach((line, index) => { if (/import\s+.*\"(os|net|syscall)\"/.test(line)) diagnostics.push({ line: index + 1, message: "unsupported import" }); }); if (!/package\s+main\b/.test(source)) diagnostics.push({ line: 1, message: "package main required" }); return diagnostics; }
+export { type SourceDiagnostic, diagnoseSource } from "./diagnose-source.js";

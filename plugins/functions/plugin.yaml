@@ -69,6 +69,11 @@ source_files:
   - create-function-draft-store.ts
   - create-function-publication-store.ts
   - create-shared-package-store.ts
+  - run-idempotent-workflow.ts
+  - redact-run-status.ts
+  - validate-workflow-graph.ts
+  - evaluate-workflow-condition.ts
+  - diagnose-source.ts
 imports:
   - ../sdk-typescript/src/index.js
   - node:fs
@@ -142,6 +147,11 @@ imports:
   - ./create-function-draft-store.js
   - ./create-function-publication-store.js
   - ./create-shared-package-store.js
+  - ./run-idempotent-workflow.js
+  - ./redact-run-status.js
+  - ./validate-workflow-graph.js
+  - ./evaluate-workflow-condition.js
+  - ./diagnose-source.js
   - ./index.js
 plugin_imports:
 title: Functions
