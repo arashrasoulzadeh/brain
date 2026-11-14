@@ -49,4 +49,4 @@ jobs:
           -v "${GITHUB_WORKSPACE}:/workspace"
           -w /workspace
           node:20-bookworm
-          bash -lc 'apt-get update && apt-get install --yes bubblewrap && bash scripts/test-sandboxed-typescript-worker.sh'
+          bash -lc 'apt-get update && apt-get install --yes bubblewrap nodejs && NODE_BIN=/usr/bin/node bash scripts/test-sandboxed-typescript-worker.sh'

@@ -37,6 +37,7 @@ exec "$bwrap_bin" \
   --unshare-net \
   --tmpfs /tmp \
   --ro-bind /usr/local /usr/local \
+  --ro-bind /usr/bin /usr/bin \
   --ro-bind /usr/lib /usr/lib \
   --ro-bind /lib /lib \
   --ro-bind "$node_path" "$node_path" \
