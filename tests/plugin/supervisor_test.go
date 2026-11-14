@@ -32,3 +32,22 @@ func TestSupervisorStartsTracksAndStopsWorker(t *testing.T) {
 		t.Fatal("missing worker stop was accepted")
 	}
 }
+
+func TestSupervisorChecksEnabledWorkerHealth(t *testing.T) {
+	s := plugin.NewSupervisor()
+	if err := s.Start("auth@1", &fakeWorker{}); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.CheckEnabled([]string{"auth@1"}); err != nil {
+		t.Fatal(err)
+	}
+	if !errors.Is(s.CheckEnabled([]string{"missing@1"}), plugin.ErrEnabledWorkerUnavailable) {
+		t.Fatal("missing enabled worker was accepted")
+	}
+	if err := s.Stop("auth@1"); err != nil {
+		t.Fatal(err)
+	}
+	if !errors.Is(s.CheckEnabled([]string{"auth@1"}), plugin.ErrEnabledWorkerUnavailable) {
+		t.Fatal("stopped enabled worker was accepted")
+	}
+}

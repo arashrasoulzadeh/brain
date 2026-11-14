@@ -37,7 +37,7 @@ Backend infrastructure, release, deployment, backup, capacity, and security work
 - [x] Start with Compose `--no-build`.
 - [x] Check API readiness.
 - [x] Check PostgreSQL access.
-- [ ] Check enabled worker health.
+- [x] Check enabled worker health.
 - [ ] Record the deployed version.
 - [ ] Keep the last healthy image set.
 - [ ] Test rollback with a compatible schema.

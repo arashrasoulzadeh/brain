@@ -4,6 +4,7 @@ import "errors"
 
 var ErrWorkerAlreadyRunning = errors.New("worker already running")
 var ErrWorkerNotRunning = errors.New("worker not running")
+var ErrEnabledWorkerUnavailable = errors.New("enabled worker unavailable")
 
 type Worker interface {
 	Start() error
@@ -41,4 +42,13 @@ func (s *Supervisor) Stop(key string) error {
 func (s *Supervisor) Ready(key string) bool {
 	worker, ok := s.workers[key]
 	return ok && worker.Ready()
+}
+
+func (s *Supervisor) CheckEnabled(keys []string) error {
+	for _, key := range keys {
+		if !s.Ready(key) {
+			return ErrEnabledWorkerUnavailable
+		}
+	}
+	return nil
 }
