@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `eed37f9` — 2026-11-14 17:20:02 +0330 — add one-shot deployment migration runner
+  Files: internal/migrate/oneshot.go,roadmap_backend.md tests/migrate/migrate_test.go
+- `cd03169` — 2026-11-14 13:49:28 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `0b92e4c` — 2026-11-14 17:19:14 +0330 — close tracked sockets during deploy
   Files: internal/plugin/websocket_registry.go,roadmap_backend.md tests/plugin/websocket_registry_test.go
 - `ef4c55b` — 2026-11-14 13:48:33 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `0db3271` — 2026-11-14 16:57:01 +0330 — define transport neutral login fixture
   Files: protocol/fixtures/login.json,roadmap.md tests/protocol/fixtures_test.go
 - `df8d826` — 2026-11-14 13:26:34 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `2b2084c` — 2026-11-14 16:56:20 +0330 — complete flutter app and match flows
-  Files: docs/flutter-quickstart.md,roadmap.md tests/flutter/app_match_flow_test.dart
-- `57250cc` — 2026-11-14 13:26:05 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
