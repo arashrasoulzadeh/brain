@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `bec63b1` — 2026-11-15 00:58:03 +0330 — remove completed revocation gate
+  Files: roadmap_backend.md
+- `4df3d1f` — 2026-11-14 21:27:55 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `3dbfa92` — 2026-11-15 00:57:41 +0330 — remove completed backend process laws
   Files: roadmap_backend.md
 - `c7d8d55` — 2026-11-14 21:27:23 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `4799692` — 2026-11-15 00:34:24 +0330 — remove completed backend roadmap items
   Files: roadmap_backend.md
-- `319ddd9` — 2026-11-14 21:04:16 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `b36f5a7` — 2026-11-15 00:34:02 +0330 — use dedicated compiler and runner images
-  Files: .github/workflows/release-backend.yml,Dockerfile.compiler Dockerfile.runner,tests/deploy/release_workflow_test.go
