@@ -19,6 +19,15 @@ if (valid.operation !== "record.list" || valid.projectId !== "dev") {
 }
 
 for (const message of [
+  null,
+  { protocol: 1, projectId: "dev", invocationId: "frame-1" },
+  {
+    protocol: 1,
+    projectId: "dev",
+    invocationId: "frame-1",
+    operation: "record.list",
+    unexpected: true,
+  },
   { protocol: 1, projectId: "prod", invocationId: "frame-1", operation: "record.list" },
   { protocol: 1, projectId: "dev", invocationId: "other", operation: "record.list" },
   { protocol: 1, projectId: "dev", invocationId: "frame-1", operation: "plugin.grant" },

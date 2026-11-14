@@ -568,7 +568,7 @@ Goal: safely promote, roll back, disable, drain, uninstall, and extend plugin-co
 - [x] Serve it from a separate origin.
 - [x] Embed it in a restricted frame.
 - [x] Validate typed bridge messages.
-- [ ] Reject malformed or unbound messages.
+- [x] Reject malformed or unbound messages.
 - [ ] Keep operator tokens in the trusted UI.
 - [ ] Keep sensitive confirmations in the trusted UI.
 
