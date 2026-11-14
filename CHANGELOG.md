@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `ef5fe97` — 2026-11-15 02:29:50 +0330 — validate caller project context
+  Files: internal/project/transaction_context.go,tests/project/transaction_context_test.go
+- `9b74e34` — 2026-11-14 22:59:23 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `132673c` — 2026-11-15 02:29:05 +0330 — reap terminated typescript workers
   Files: internal/plugin/typescript_worker.go,tests/plugin/typescript_worker_test.go
 - `1efb3ad` — 2026-11-14 22:58:37 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `2d3f209` — 2026-11-15 02:06:31 +0330 — verify project isolation boundaries
   Files: roadmap_backend.md
 - `00dd5b2` — 2026-11-14 22:36:26 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `b68fd4f` — 2026-11-15 02:06:07 +0330 — verify plugin-first host boundary
-  Files: docs/admins.md,docs/developers.md roadmap_backend.md
-- `3956b5c` — 2026-11-14 22:35:11 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
