@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `301d035` — 2026-11-15 01:20:23 +0330 — protect active plugin version state
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `8a207dd` — 2026-11-14 21:50:02 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `0a90c9c` — 2026-11-15 01:19:45 +0330 — protect plugin installation state
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `1bd54af` — 2026-11-14 21:49:22 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `3dbfa92` — 2026-11-15 00:57:41 +0330 — remove completed backend process laws
   Files: roadmap_backend.md
 - `c7d8d55` — 2026-11-14 21:27:23 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `784d958` — 2026-11-15 00:57:11 +0330 — reject ambiguous plugin routes
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `a811db5` — 2026-11-14 21:26:49 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
