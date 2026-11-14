@@ -32,7 +32,7 @@ Backend infrastructure, release, deployment, backup, capacity, and security work
 - [x] Enforce pulling all pinned images before draining.
 - [ ] Pause new match assignments.
 - [ ] Drain active rooms for the configured window.
-- [ ] Close remaining sockets explicitly.
+- [x] Close remaining sockets explicitly.
 - [ ] Run the one-shot migration when required.
 - [ ] Start with Compose `--no-build`.
 - [ ] Check API readiness.
