@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `a21eb97` — 2026-11-14 16:28:49 +0330 — feat: register project workflow actions
+  Files: plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/register-project-workflow-action.ts,roadmap.md tests/functions/project-workflow-action.test.ts
+- `6d2dac9` — 2026-11-14 12:57:36 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `5532609` — 2026-11-14 16:27:24 +0330 — security: keep confirmations in trusted dashboard UI
   Files: plugins/dashboard/reject-sensitive-bridge-data.ts,roadmap.md tests/dashboard/bridge-messages.test.ts
 - `45aeea4` — 2026-11-14 12:57:09 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `017c178` — 2026-11-13 17:19:34 +0330 — feat: isolate custom admin view origin
   Files: plugins/dashboard/custom-view-origin.ts,plugins/dashboard/index.ts plugins/dashboard/plugin.yaml,roadmap.md tests/dashboard/dashboard.test.ts
-- `093dac3` — 2026-11-13 13:49:07 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `0714be7` — 2026-11-13 17:18:44 +0330 — feat: add custom typescript admin view
-  Files: plugins/dashboard/custom-admin-view.ts,plugins/dashboard/index.ts plugins/dashboard/plugin.yaml,roadmap.md tests/dashboard/dashboard.test.ts
