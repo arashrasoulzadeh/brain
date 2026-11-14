@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `3dbfa92` — 2026-11-15 00:57:41 +0330 — remove completed backend process laws
+  Files: roadmap_backend.md
+- `c7d8d55` — 2026-11-14 21:27:23 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `784d958` — 2026-11-15 00:57:11 +0330 — reject ambiguous plugin routes
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `a811db5` — 2026-11-14 21:26:49 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `b36f5a7` — 2026-11-15 00:34:02 +0330 — use dedicated compiler and runner images
   Files: .github/workflows/release-backend.yml,Dockerfile.compiler Dockerfile.runner,tests/deploy/release_workflow_test.go
-- `74f2af8` — 2026-11-14 21:03:08 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `1d644fd` — 2026-11-15 00:32:14 +0330 — publish multi-architecture backend images
-  Files: .github/workflows/release-backend.yml,tests/deploy/release_workflow_test.go
