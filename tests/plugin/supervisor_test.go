@@ -162,3 +162,13 @@ func TestSupervisorRejectsNilWorker(t *testing.T) {
 		t.Fatal("nil worker was accepted")
 	}
 }
+
+func TestSupervisorRejectsEmptyWorkerKey(t *testing.T) {
+	s := plugin.NewSupervisor()
+	if !errors.Is(s.Start("", &fakeWorker{}), plugin.ErrWorkerKeyRequired) {
+		t.Fatal("empty worker key was accepted")
+	}
+	if !errors.Is(s.StartRecovering(" ", func() plugin.Worker { return &fakeWorker{} }, plugin.RecoveryPolicy{MaxRestarts: 1}), plugin.ErrWorkerKeyRequired) {
+		t.Fatal("blank recovering worker key was accepted")
+	}
+}

@@ -11,6 +11,7 @@ var ErrWorkerNotRunning = errors.New("worker not running")
 var ErrEnabledWorkerUnavailable = errors.New("enabled worker unavailable")
 var ErrWorkerRecoveryUnavailable = errors.New("worker recovery unavailable")
 var ErrWorkerRestartLimit = errors.New("worker restart limit exceeded")
+var ErrWorkerKeyRequired = errors.New("worker key required")
 
 type Worker interface {
 	Start() error
@@ -39,6 +40,9 @@ func NewSupervisor() *Supervisor { return &Supervisor{workers: map[string]superv
 func (s *Supervisor) Start(key string, worker Worker) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	if strings.TrimSpace(key) == "" {
+		return ErrWorkerKeyRequired
+	}
 	if worker == nil {
 		return ErrWorkerRecoveryUnavailable
 	}
@@ -55,6 +59,9 @@ func (s *Supervisor) Start(key string, worker Worker) error {
 func (s *Supervisor) StartRecovering(key string, factory WorkerFactory, policy RecoveryPolicy) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	if strings.TrimSpace(key) == "" {
+		return ErrWorkerKeyRequired
+	}
 	if factory == nil || policy.MaxRestarts < 0 {
 		return ErrWorkerRecoveryUnavailable
 	}
