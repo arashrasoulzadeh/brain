@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `9a3d085` — 2026-11-15 01:49:09 +0330 — close sockets during project recovery
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `038867f` — 2026-11-14 22:18:47 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `7d91db3` — 2026-11-15 01:48:35 +0330 — recover project plugin workers
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `fd0b797` — 2026-11-14 22:17:54 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `446e983` — 2026-11-15 01:29:53 +0330 — serialize plugin grant state
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `bf216da` — 2026-11-14 21:59:29 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `e4b4562` — 2026-11-15 01:29:16 +0330 — serialize plugin lifecycle state
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `521c5f0` — 2026-11-14 21:58:34 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
