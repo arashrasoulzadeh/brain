@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `47c24bc` — 2026-11-15 01:52:42 +0330 — reject ungranted plugin revocations
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `3e10e2d` — 2026-11-14 22:22:21 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `d31f7c9` — 2026-11-15 01:52:08 +0330 — validate plugin revocation capability
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `8ec5743` — 2026-11-14 22:21:33 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `a795ca9` — 2026-11-15 01:33:49 +0330 — protect broker manifest authorization
   Files: internal/plugin/broker.go,tests/plugin/plugin_test.go
 - `c972917` — 2026-11-14 22:03:15 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `fd94528` — 2026-11-15 01:33:01 +0330 — protect plugin disable previews
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `8d27d6f` — 2026-11-14 22:02:37 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
