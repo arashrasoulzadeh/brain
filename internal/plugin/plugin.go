@@ -910,12 +910,16 @@ func (r *Registry) Remove(projectID, id, version string) error {
 }
 
 func (r *Registry) Unregister(id, version string) error {
+	r.lifecycleMu.Lock()
+	defer r.lifecycleMu.Unlock()
 	r.readinessMu.Lock()
 	defer r.readinessMu.Unlock()
 	r.artifactMu.Lock()
 	defer r.artifactMu.Unlock()
 	r.approvalMu.Lock()
 	defer r.approvalMu.Unlock()
+	r.installationMu.RLock()
+	defer r.installationMu.RUnlock()
 	key := id + "@" + version
 	if _, ok := r.registered[key]; !ok {
 		return ErrNotRegistered
@@ -1006,6 +1010,8 @@ func (r *Registry) Authorize(projectID, id, version, capability string) error {
 }
 
 func (r *Registry) authorizeGrant(projectID, id, version, capability string) error {
+	r.installationMu.RLock()
+	defer r.installationMu.RUnlock()
 	if projectID == "" {
 		return ErrProjectInvalid
 	}
