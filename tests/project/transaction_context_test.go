@@ -19,6 +19,12 @@ func TestCallerContextIsBoundToTransactionContext(t *testing.T) {
 	}
 }
 
+func TestCallerFromNilContextFailsClosed(t *testing.T) {
+	if caller, ok := project.CallerFromContext(nil); ok || caller != (project.Caller{}) {
+		t.Fatalf("nil context = %#v, %v", caller, ok)
+	}
+}
+
 func TestCallerLeaseCanBeConsumedOnlyOnceConcurrently(t *testing.T) {
 	lease := project.NewCallerLease("dev", "actor")
 	var group sync.WaitGroup

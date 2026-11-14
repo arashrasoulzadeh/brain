@@ -19,6 +19,9 @@ func WithCaller(ctx context.Context, projectID, actorID string) context.Context 
 }
 
 func CallerFromContext(ctx context.Context) (Caller, bool) {
+	if ctx == nil {
+		return Caller{}, false
+	}
 	caller, ok := ctx.Value(callerContextKey{}).(Caller)
 	return caller, ok
 }
