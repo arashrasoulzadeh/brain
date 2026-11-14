@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `7d354c8` — 2026-11-14 16:46:13 +0330 — add shared reconnect fixture
+  Files: roadmap.md,tests/fixtures/reconnect-fixture.test.ts tests/fixtures/reconnect-fixture.ts
+- `e2ca76d` — 2026-11-14 13:16:03 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `35ef1a5` — 2026-11-14 16:45:49 +0330 — add shared gameplay fixture
   Files: roadmap.md,tests/fixtures/gameplay-fixture.test.ts tests/fixtures/gameplay-fixture.ts
 - `cb84889` — 2026-11-14 13:15:40 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `a21eb97` — 2026-11-14 16:28:49 +0330 — feat: register project workflow actions
   Files: plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/register-project-workflow-action.ts,roadmap.md tests/functions/project-workflow-action.test.ts
 - `6d2dac9` — 2026-11-14 12:57:36 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `5532609` — 2026-11-14 16:27:24 +0330 — security: keep confirmations in trusted dashboard UI
-  Files: plugins/dashboard/reject-sensitive-bridge-data.ts,roadmap.md tests/dashboard/bridge-messages.test.ts
-- `45aeea4` — 2026-11-14 12:57:09 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
