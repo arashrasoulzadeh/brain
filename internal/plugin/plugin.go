@@ -266,7 +266,7 @@ type Registry struct {
 	artifacts         map[string]string
 	approvals         map[string]bool
 	lifecycleRevision uint64
-	lifecycleMu       sync.Mutex
+	lifecycleMu       sync.RWMutex
 	durableData       map[string][]byte
 	durableMu         sync.RWMutex
 	supervisor        *Supervisor
@@ -628,6 +628,8 @@ func (r *Registry) Enable(projectID, id, version string) error {
 }
 
 func (r *Registry) Promote(projectID, id, version string) error {
+	r.lifecycleMu.Lock()
+	defer r.lifecycleMu.Unlock()
 	if projectID == "" {
 		return ErrProjectInvalid
 	}
@@ -786,6 +788,8 @@ func (r *Registry) Rollback(projectID, id, version string) error {
 }
 
 func (r *Registry) ActiveVersion(projectID, id string) (string, bool) {
+	r.lifecycleMu.RLock()
+	defer r.lifecycleMu.RUnlock()
 	if projectID == "" {
 		return "", false
 	}
