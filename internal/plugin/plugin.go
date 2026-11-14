@@ -411,6 +411,14 @@ func (r *Registry) ApprovedArtifact(id, version string) (string, bool) {
 }
 
 func (r *Registry) Register(m Manifest) error {
+	validationManifest := m
+	if len(validationManifest.SourceFiles) == 0 && validationManifest.Entry == "" && len(validationManifest.Imports) == 0 && len(validationManifest.PluginImports) == 0 {
+		validationManifest.Entry = "index.ts"
+		validationManifest.SourceFiles = []string{"index.ts"}
+	}
+	if err := ValidateManifestContract(validationManifest); err != nil {
+		return err
+	}
 	r.readinessMu.Lock()
 	defer r.readinessMu.Unlock()
 	if m.ID == "" || m.Version == "" || m.HostAPI != r.HostAPI {

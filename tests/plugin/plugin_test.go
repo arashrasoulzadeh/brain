@@ -768,6 +768,19 @@ func TestRegistryDisablePreviewRejectsEmptyProject(t *testing.T) {
 	}
 }
 
+func TestRegistryRegisterRejectsInvalidManifestContract(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	manifest := plugin.Manifest{
+		ID:      "invalid-registration-contract",
+		Version: "1.0.0",
+		HostAPI: 1,
+		Routes:  []plugin.Route{{Operation: "read", Function: "read", Capability: "undeclared"}},
+	}
+	if err := r.Register(manifest); !errors.Is(err, plugin.ErrInvalidManifest) {
+		t.Fatalf("invalid manifest registration error = %v, want %v", err, plugin.ErrInvalidManifest)
+	}
+}
+
 func TestRegistryLifecycleAndRemovalAreConcurrentSafe(t *testing.T) {
 	registry := plugin.NewRegistry(1)
 	manifest := plugin.Manifest{ID: "lifecycle-removal-concurrency", Version: "1.0.0", HostAPI: 1}
