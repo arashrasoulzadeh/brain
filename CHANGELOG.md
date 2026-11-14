@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `c3faacf` — 2026-11-15 01:36:10 +0330 — fail closed without project store
+  Files: internal/project/http.go,tests/project/http_test.go
+- `b06e300` — 2026-11-14 22:05:32 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `01638f9` — 2026-11-15 01:35:18 +0330 — fail closed when plugin registry unavailable
   Files: internal/plugin/broker.go,tests/plugin/broker_test.go
 - `7d494af` — 2026-11-14 22:04:08 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `74a7306` — 2026-11-15 01:14:15 +0330 — serialize plugin readiness unregistration
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `d44cff9` — 2026-11-14 21:43:51 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `1979883` — 2026-11-15 01:13:33 +0330 — serialize plugin lifecycle previews
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `1f182c7` — 2026-11-14 21:43:07 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
