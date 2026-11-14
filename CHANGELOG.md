@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `2388a95` — 2026-11-15 00:54:26 +0330 — reject duplicate manifest sources
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `ca2a89f` — 2026-11-14 21:24:15 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `0c1f923` — 2026-11-15 00:53:53 +0330 — reject manifest source traversal at load time
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `82f2747` — 2026-11-14 21:20:31 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `ffd22c3` — 2026-11-15 00:31:51 +0330 — add bounded worker recovery
   Files: internal/plugin/supervisor.go,tests/plugin/supervisor_test.go
-- `7029390` — 2026-11-14 21:02:17 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `324637a` — 2026-11-15 00:31:39 +0330 — bind operator actions to authenticated sessions
-  Files: internal/operator/operator.go,tests/operator/operator_test.go
