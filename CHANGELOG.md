@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `cfb8d50` — 2026-11-14 16:42:39 +0330 — add shared sign in fixture
+  Files: roadmap.md,tests/fixtures/sign-in-fixture.test.ts tests/fixtures/sign-in-fixture.ts
+- `08bf066` — 2026-11-14 13:12:16 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `ecf8d0d` — 2026-11-14 16:42:01 +0330 — complete phase 05 workflow gate
   Files: docs/admins.md,docs/developers.md roadmap.md
 - `8486289` — 2026-11-14 13:11:07 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `7722759` — 2026-11-14 16:17:53 +0330 — refactor: complete auth and functions boundaries
   Files: plugins/auth/auth-functions.ts,plugins/auth/create-auth-operations.ts plugins/auth/index.ts,plugins/auth/plugin.yaml plugins/functions/compiler-environment.ts,plugins/functions/compiler-limits.ts plugins/functions/create-invocation-request.ts,plugins/functions/disposable-compiler-workspace.ts plugins/functions/function-input-validation.ts,plugins/functions/index.ts plugins/functions/plugin.yaml,plugins/functions/require-sdk-imports.ts plugins/functions/retry-invocation.ts,plugins/functions/validate-compiler-environment.ts plugins/functions/validate-execution-limits.ts,plugins/functions/validate-sdk-imports.ts plugins/functions/validate-stale-input-versions.ts,plugins/functions/validate-startup-duration.ts
 - `64be587` — 2026-11-14 12:45:22 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `5905fc9` — 2026-11-14 16:15:04 +0330 — refactor: split sdk request and handler boundaries
-  Files: plugins/sdk-typescript/src/create-function-handler.ts,plugins/sdk-typescript/src/create-host-handler.ts plugins/sdk-typescript/src/create-route-handler.ts,plugins/sdk-typescript/src/index.ts plugins/sdk-typescript/src/plugin-request.ts,plugins/sdk-typescript/src/request.ts plugins/sdk-typescript/src/validate-identifier.ts,plugins/sdk-typescript/src/validate-project-id.ts
-- `1a68188` — 2026-11-14 12:44:09 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
