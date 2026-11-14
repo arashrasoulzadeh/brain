@@ -1011,6 +1011,7 @@ func (r *Registry) UninstallProject(projectID string) error {
 	if projectID == "" {
 		return ErrProjectInvalid
 	}
+	var uninstallError error
 	for _, pinnedVersion := range r.pins {
 		if strings.HasPrefix(pinnedVersion, projectID+":") {
 			return ErrActiveWork
@@ -1023,6 +1024,11 @@ func (r *Registry) UninstallProject(projectID string) error {
 	}
 	for key, installation := range r.installations {
 		if installation.ProjectID == projectID {
+			if r.supervisor != nil {
+				if err := r.supervisor.StopProjectPlugin(projectID, installation.PluginID, installation.Version); err != nil && !errors.Is(err, ErrWorkerNotRunning) && uninstallError == nil {
+					uninstallError = err
+				}
+			}
 			for capability := range installation.Grants {
 				r.appendAudit(AuditEvent{Action: "revoke_project_grant", ProjectID: projectID, PluginID: installation.PluginID, Version: installation.Version, Detail: capability})
 			}
@@ -1032,11 +1038,11 @@ func (r *Registry) UninstallProject(projectID string) error {
 	r.lifecycleRevision++
 	r.appendAudit(AuditEvent{Action: "uninstall_project", ProjectID: projectID})
 	if r.webSockets != nil {
-		if err := r.webSockets.CloseProject(projectID); err != nil {
-			return err
+		if err := r.webSockets.CloseProject(projectID); err != nil && uninstallError == nil {
+			uninstallError = err
 		}
 	}
-	return nil
+	return uninstallError
 }
 
 func (r *Registry) appendAudit(event AuditEvent) {
