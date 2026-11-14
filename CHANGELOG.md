@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `ab8f75f` — 2026-11-15 02:18:03 +0330 — serialize concurrent idempotent workflows
+  Files: plugins/functions/run-idempotent-workflow.ts,tests/functions/functions.test.ts
+- `913c0b0` — 2026-11-14 22:47:19 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `fcca6c6` — 2026-11-15 02:17:02 +0330 — harden sandbox path traversal validation
   Files: plugins/functions/reject-sandbox-escape.ts,tests/functions/functions.test.ts
 - `c9a7ffb` — 2026-11-14 22:46:35 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `9a3d085` — 2026-11-15 01:49:09 +0330 — close sockets during project recovery
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `038867f` — 2026-11-14 22:18:47 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `7d91db3` — 2026-11-15 01:48:35 +0330 — recover project plugin workers
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `fd0b797` — 2026-11-14 22:17:54 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
