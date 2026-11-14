@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `a95a7fa` — 2026-11-15 01:21:02 +0330 — protect plugin pin state
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `7c9b68f` — 2026-11-14 21:50:42 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `301d035` — 2026-11-15 01:20:23 +0330 — protect active plugin version state
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `8a207dd` — 2026-11-14 21:50:02 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `bec63b1` — 2026-11-15 00:58:03 +0330 — remove completed revocation gate
   Files: roadmap_backend.md
 - `4df3d1f` — 2026-11-14 21:27:55 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `3dbfa92` — 2026-11-15 00:57:41 +0330 — remove completed backend process laws
-  Files: roadmap_backend.md
-- `c7d8d55` — 2026-11-14 21:27:23 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
