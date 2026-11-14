@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `6e90046` — 2026-11-14 17:31:44 +0330 — alert on stale verified backups
+  Files: internal/deploy/backup_policy.go,roadmap_backend.md scripts/check-backup-age.sh,tests/deploy/backup_age_script_test.go tests/deploy/backup_policy_test.go
+- `8243875` — 2026-11-14 14:01:17 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `d09d401` — 2026-11-14 17:31:01 +0330 — verify object version manifests
   Files: cmd/brain/main.go,roadmap_backend.md scripts/verify-object-manifest.sh,tests/deploy/object_manifest_script_test.go
 - `c07d666` — 2026-11-14 13:59:35 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `c5eac14` — 2026-11-14 17:05:17 +0330 — validate deployment release sha
   Files: internal/deploy/release_sha.go,roadmap.md tests/deploy/release_sha_test.go
 - `2599e51` — 2026-11-14 13:35:09 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `c5ae197` — 2026-11-14 17:04:52 +0330 — add atomic deployment lock
-  Files: internal/deploy/lock.go,roadmap.md tests/deploy/lock_test.go
-- `8c29446` — 2026-11-14 13:34:25 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
