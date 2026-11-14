@@ -25,6 +25,18 @@ try {
   if (!(error instanceof Error) || error.message !== "invalid event fields") throw error;
 }
 try {
+  validateEvent({ projectId: "dev", name: "room.joined", fields: { players: Number.NaN } });
+  throw new Error("non-finite analytics value accepted");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "invalid event field value") throw error;
+}
+try {
+  validateEvent({ projectId: "dev", name: "room.joined", fields: { roomId: "x".repeat(1025) } });
+  throw new Error("oversized analytics value accepted");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "invalid event field value") throw error;
+}
+try {
   validateEvent({ projectId: "dev", name: "room.joined", fields: { secret: "x" } }, [
     "roomId",
     "players",

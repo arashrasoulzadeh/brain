@@ -17,4 +17,15 @@ export function validateEvent(event: AnalyticsEvent, allowedFields: readonly str
     throw new Error("unapproved event field");
   if (fieldNames.some((fieldName) => event.fields[fieldName] === undefined))
     throw new Error("invalid event field value");
+  if (
+    fieldNames.some((fieldName) => {
+      const value = event.fields[fieldName];
+      return (
+        (typeof value === "number" && !Number.isFinite(value)) ||
+        (typeof value !== "string" && typeof value !== "number" && typeof value !== "boolean") ||
+        (typeof value === "string" && value.length > 1024)
+      );
+    })
+  )
+    throw new Error("invalid event field value");
 }
