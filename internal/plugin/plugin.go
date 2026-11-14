@@ -483,6 +483,11 @@ func (r *Registry) ApplyDisablePreview(preview DisablePreview) error {
 			return err
 		}
 	}
+	if r.webSockets != nil {
+		if err := r.webSockets.CloseProject(preview.ProjectID); err != nil {
+			return err
+		}
+	}
 	r.lifecycleRevision++
 	return nil
 }
@@ -1022,6 +1027,11 @@ func (r *Registry) UninstallProject(projectID string) error {
 		}
 	}
 	r.appendAudit(AuditEvent{Action: "uninstall_project", ProjectID: projectID})
+	if r.webSockets != nil {
+		if err := r.webSockets.CloseProject(projectID); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 

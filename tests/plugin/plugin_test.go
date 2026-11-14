@@ -908,6 +908,37 @@ func TestRevokeClosesOnlyProjectSockets(t *testing.T) {
 	}
 }
 
+func TestDisablePreviewClosesOnlyProjectSockets(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	m := plugin.Manifest{ID: "socket-disable", Version: "1.0.0", HostAPI: 1}
+	if err := r.Register(m); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Install("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	webSockets := plugin.NewWebSocketRegistry()
+	dev := &trackedConnection{}
+	prod := &trackedConnection{}
+	if err := webSockets.RegisterProject("dev-socket", "dev", dev); err != nil {
+		t.Fatal(err)
+	}
+	if err := webSockets.RegisterProject("prod-socket", "prod", prod); err != nil {
+		t.Fatal(err)
+	}
+	r.BindWebSocketRegistry(webSockets)
+	preview, err := r.PreviewDisable("dev", m.ID, m.Version)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := r.ApplyDisablePreview(preview); err != nil {
+		t.Fatal(err)
+	}
+	if !dev.closed || prod.closed {
+		t.Fatalf("socket close state = dev:%v prod:%v", dev.closed, prod.closed)
+	}
+}
+
 func TestApplyDisablePreviewStopsTheProjectWorker(t *testing.T) {
 	r := plugin.NewRegistry(1)
 	m := plugin.Manifest{ID: "rooms", Version: "1.0.0", HostAPI: 1}
