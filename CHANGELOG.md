@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `ee5a470` — 2026-11-15 02:13:48 +0330 — validate project identity in auth token consumers
+  Files: plugins/auth/email-otp-verifier.ts,plugins/auth/recovery-token-consumer.ts plugins/auth/sms-otp-verifier.ts,tests/auth/auth.test.ts
+- `f290136` — 2026-11-14 22:43:06 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `1e4acf0` — 2026-11-15 02:12:46 +0330 — audit every plugin manifest boundary
   Files: tests/plugin/all_manifests_test.go
 - `143c435` — 2026-11-14 22:42:13 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `c383e15` — 2026-11-15 01:46:13 +0330 — finish socket cleanup after stop errors
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `9235e5d` — 2026-11-14 22:15:29 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `a926504` — 2026-11-15 01:45:15 +0330 — close all project sockets after errors
-  Files: internal/plugin/websocket_registry.go,tests/plugin/websocket_registry_test.go
-- `f9ea4df` — 2026-11-14 22:14:54 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
