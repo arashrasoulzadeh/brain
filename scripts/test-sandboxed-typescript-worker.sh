@@ -8,7 +8,7 @@ import { writeFile } from "node:fs/promises";
 export async function handle() {
   let networkBlocked = false;
   let filesystemBlocked = false;
-  try { await fetch("http://127.0.0.1:9"); } catch { networkBlocked = true; }
+  try { await fetch("http://127.0.0.1:9", { signal: AbortSignal.timeout(100) }); } catch { networkBlocked = true; }
   try { await writeFile("/plugin/should-not-write", "blocked"); } catch { filesystemBlocked = true; }
   return { accepted: networkBlocked && filesystemBlocked };
 }
