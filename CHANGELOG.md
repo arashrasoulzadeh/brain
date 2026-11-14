@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `6a82173` — 2026-11-15 02:15:23 +0330 — validate file object identities at access boundaries
+  Files: plugins/files/authorized-upload-writer.ts,plugins/files/file-access-deleter.ts plugins/files/file-access-reader.ts,plugins/files/pending-upload-publisher.ts plugins/files/pending-upload-reader.ts,tests/files/files.test.ts
+- `992991f` — 2026-11-14 22:44:07 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `ee5a470` — 2026-11-15 02:13:48 +0330 — validate project identity in auth token consumers
   Files: plugins/auth/email-otp-verifier.ts,plugins/auth/recovery-token-consumer.ts plugins/auth/sms-otp-verifier.ts,tests/auth/auth.test.ts
 - `f290136` — 2026-11-14 22:43:06 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `5a921bc` — 2026-11-15 01:46:57 +0330 — invalidate plugin lifecycle previews
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `605a9c9` — 2026-11-14 22:16:26 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `c383e15` — 2026-11-15 01:46:13 +0330 — finish socket cleanup after stop errors
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `9235e5d` — 2026-11-14 22:15:29 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
