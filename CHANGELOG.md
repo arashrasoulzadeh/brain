@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `0ea8b29` — 2026-11-15 00:44:13 +0330 — scope function job leases by project
+  Files: plugins/functions/job-lease-acquirer.ts,plugins/functions/job-lease-renewer.ts tests/functions/functions.test.ts
+- `3924c1a` — 2026-11-14 21:13:14 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `6d8b8c9` — 2026-11-15 00:43:02 +0330 — require project context for runtime SQL
   Files: internal/db/db.go,tests/db/db_test.go
 - `ff8cabd` — 2026-11-14 21:12:23 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `6e3b6fb` — 2026-11-14 20:51:58 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
 - `fdaeb7e` — 2026-11-15 00:21:45 +0330 — require capacity resource and traffic measurements
-  Files: internal/deploy/capacity_profile.go,tests/deploy/capacity_profile_test.go
-- `cb0bda6` — 2026-11-14 20:50:31 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `4d35e91` — 2026-11-15 00:20:19 +0330 — require tick delay capacity measurement
   Files: internal/deploy/capacity_profile.go,tests/deploy/capacity_profile_test.go
