@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `3ad9f9b` — 2026-11-15 01:44:41 +0330 — close project sockets on disable
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `b0cefc8` — 2026-11-14 22:14:19 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `b40c59d` — 2026-11-15 01:44:07 +0330 — close project sockets on revocation
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `c375b09` — 2026-11-14 22:13:29 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `ddca07e` — 2026-11-15 01:24:51 +0330 — clear project plugin approvals on unregister
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `d15f461` — 2026-11-14 21:53:46 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `430b413` — 2026-11-15 01:23:29 +0330 — serialize plugin uninstall lifecycle
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `fd08c9d` — 2026-11-14 21:53:09 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
