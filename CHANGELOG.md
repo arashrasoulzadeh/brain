@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `af054c2` — 2026-11-14 16:31:32 +0330 — security: recheck project workflow grants
+  Files: plugins/functions/authorize-project-workflow-action.ts,plugins/functions/index.ts plugins/functions/plugin.yaml,roadmap.md tests/functions/project-workflow-action.test.ts
+- `8306354` — 2026-11-14 13:00:16 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `e35f8eb` — 2026-11-14 16:29:55 +0330 — feat: replace project workflow steps
   Files: plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/replace-project-workflow-step.ts,roadmap.md tests/functions/project-workflow-action.test.ts
 - `c424620` — 2026-11-14 12:59:02 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: plugins/tables/create-api-change-capture.ts,plugins/tables/create-direct-sql-change-capture.ts plugins/tables/create-schema-publication-audit.ts,plugins/tables/create-transactional-change-capture.ts plugins/tables/index.ts,plugins/tables/plan-schema-change.ts plugins/tables/plugin.yaml,plugins/tables/preview-schema-sql.ts plugins/tables/require-recent-schema-auth.ts,plugins/tables/schema-types.ts
 - `fb6503f` — 2026-11-14 12:21:06 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
-- `5242d81` — 2026-11-14 15:51:02 +0330 — refactor: split auth state responsibilities
-  Files: plugins/auth/account-project.ts,plugins/auth/auth-state.ts plugins/auth/create-auth-state.ts,plugins/auth/index.ts plugins/auth/new-session.ts,plugins/auth/password-hash.ts plugins/auth/plugin.yaml,plugins/auth/project-user-id.ts plugins/auth/validate-account.ts
-- `e2c3198` — 2026-11-14 15:50:53 +0330 — feat: embed custom views in restricted frames
-  Files: plugins/dashboard/index.ts,plugins/dashboard/plugin.yaml plugins/dashboard/restricted-frame.ts,roadmap.md tests/dashboard/dashboard.test.ts
