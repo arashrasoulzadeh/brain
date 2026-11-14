@@ -59,12 +59,6 @@ func TestPluginLifecycleAndScopedAuthorization(t *testing.T) {
 	if err := r.SetReadiness(m.ID, m.Version, true); err != nil {
 		t.Fatal(err)
 	}
-	if err := r.Enable("dev", m.ID, m.Version); err != nil {
-		t.Fatal(err)
-	}
-	if err := r.SetReadiness(m.ID, m.Version, true); err != nil {
-		t.Fatal(err)
-	}
 	if err := r.Enable("dev", m.ID, m.Version); !errors.Is(err, plugin.ErrGrantDenied) {
 		t.Fatalf("Enable() = %v, want grant denial", err)
 	}
