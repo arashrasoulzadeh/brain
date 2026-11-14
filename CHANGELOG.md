@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `74c953b` — 2026-11-15 01:50:06 +0330 — surface failed project recovery
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `170c90e` — 2026-11-14 22:19:22 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `9a3d085` — 2026-11-15 01:49:09 +0330 — close sockets during project recovery
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `038867f` — 2026-11-14 22:18:47 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `a8f8efe` — 2026-11-15 01:30:45 +0330 — protect plugin dependency metadata
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `2e2105f` — 2026-11-14 22:00:06 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `446e983` — 2026-11-15 01:29:53 +0330 — serialize plugin grant state
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `bf216da` — 2026-11-14 21:59:29 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
