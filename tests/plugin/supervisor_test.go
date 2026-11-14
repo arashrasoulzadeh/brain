@@ -13,6 +13,65 @@ func (w *fakeWorker) Start() error { w.started = true; w.ready = true; return ni
 func (w *fakeWorker) Stop() error  { w.stopped = true; w.ready = false; return nil }
 func (w *fakeWorker) Ready() bool  { return w.ready }
 
+func TestSupervisorRecoversCrashedWorkerWithinBound(t *testing.T) {
+	s := plugin.NewSupervisor()
+	created := 0
+	var current *fakeWorker
+	factory := func() plugin.Worker {
+		created++
+		current = &fakeWorker{}
+		return current
+	}
+	if err := s.StartRecovering("rooms@1", factory, plugin.RecoveryPolicy{MaxRestarts: 2}); err != nil {
+		t.Fatal(err)
+	}
+	if created != 1 {
+		t.Fatalf("expected one initial worker, got %d", created)
+	}
+	current.ready = false
+	if err := s.Recover("rooms@1"); err != nil {
+		t.Fatal(err)
+	}
+	if created != 2 || !s.Ready("rooms@1") {
+		t.Fatalf("worker was not recovered: created=%d ready=%v", created, s.Ready("rooms@1"))
+	}
+}
+
+func TestSupervisorRecoversOnlyAfterCrashAndHonorsRestartLimit(t *testing.T) {
+	s := plugin.NewSupervisor()
+	created := 0
+	workers := make([]*fakeWorker, 0, 3)
+	factory := func() plugin.Worker {
+		created++
+		worker := &fakeWorker{}
+		workers = append(workers, worker)
+		return worker
+	}
+	if err := s.StartRecovering("rooms@1", factory, plugin.RecoveryPolicy{MaxRestarts: 1}); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.Recover("rooms@1"); err != nil {
+		t.Fatal(err)
+	}
+	if created != 1 {
+		t.Fatalf("healthy worker was restarted: %d", created)
+	}
+	workers[0].ready = false
+	if err := s.Recover("rooms@1"); err != nil {
+		t.Fatal(err)
+	}
+	if created != 2 || !s.Ready("rooms@1") {
+		t.Fatalf("worker was not recovered: created=%d ready=%v", created, s.Ready("rooms@1"))
+	}
+	workers[1].ready = false
+	if err := s.Recover("rooms@1"); !errors.Is(err, plugin.ErrWorkerRestartLimit) {
+		t.Fatalf("expected bounded recovery, got %v", err)
+	}
+	if created != 2 {
+		t.Fatalf("restart limit was bypassed: %d", created)
+	}
+}
+
 func TestSupervisorStartsTracksAndStopsWorker(t *testing.T) {
 	s := plugin.NewSupervisor()
 	w := &fakeWorker{}

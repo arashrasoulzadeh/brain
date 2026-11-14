@@ -8,6 +8,8 @@ import (
 var ErrWorkerAlreadyRunning = errors.New("worker already running")
 var ErrWorkerNotRunning = errors.New("worker not running")
 var ErrEnabledWorkerUnavailable = errors.New("enabled worker unavailable")
+var ErrWorkerRecoveryUnavailable = errors.New("worker recovery unavailable")
+var ErrWorkerRestartLimit = errors.New("worker restart limit exceeded")
 
 type Worker interface {
 	Start() error
@@ -15,9 +17,20 @@ type Worker interface {
 	Ready() bool
 }
 
-type Supervisor struct{ workers map[string]Worker }
+type WorkerFactory func() Worker
 
-func NewSupervisor() *Supervisor { return &Supervisor{workers: map[string]Worker{}} }
+type RecoveryPolicy struct{ MaxRestarts int }
+
+type supervisedWorker struct {
+	worker       Worker
+	factory      WorkerFactory
+	policy       RecoveryPolicy
+	restartCount int
+}
+
+type Supervisor struct{ workers map[string]supervisedWorker }
+
+func NewSupervisor() *Supervisor { return &Supervisor{workers: map[string]supervisedWorker{}} }
 
 func (s *Supervisor) Start(key string, worker Worker) error {
 	if _, ok := s.workers[key]; ok {
@@ -26,16 +39,63 @@ func (s *Supervisor) Start(key string, worker Worker) error {
 	if err := worker.Start(); err != nil {
 		return err
 	}
-	s.workers[key] = worker
+	s.workers[key] = supervisedWorker{worker: worker}
+	return nil
+}
+
+func (s *Supervisor) StartRecovering(key string, factory WorkerFactory, policy RecoveryPolicy) error {
+	if factory == nil || policy.MaxRestarts < 0 {
+		return ErrWorkerRecoveryUnavailable
+	}
+	if _, ok := s.workers[key]; ok {
+		return ErrWorkerAlreadyRunning
+	}
+	worker := factory()
+	if worker == nil {
+		return ErrWorkerRecoveryUnavailable
+	}
+	if err := worker.Start(); err != nil {
+		return err
+	}
+	s.workers[key] = supervisedWorker{worker: worker, factory: factory, policy: policy}
+	return nil
+}
+
+func (s *Supervisor) Recover(key string) error {
+	entry, ok := s.workers[key]
+	if !ok {
+		return ErrWorkerNotRunning
+	}
+	if entry.factory == nil {
+		return ErrWorkerRecoveryUnavailable
+	}
+	if entry.worker.Ready() {
+		return nil
+	}
+	if entry.restartCount >= entry.policy.MaxRestarts {
+		return ErrWorkerRestartLimit
+	}
+	worker := entry.factory()
+	if worker == nil {
+		return ErrWorkerRecoveryUnavailable
+	}
+	if err := worker.Start(); err != nil {
+		entry.restartCount++
+		s.workers[key] = entry
+		return err
+	}
+	entry.worker = worker
+	entry.restartCount++
+	s.workers[key] = entry
 	return nil
 }
 
 func (s *Supervisor) Stop(key string) error {
-	worker, ok := s.workers[key]
+	entry, ok := s.workers[key]
 	if !ok {
 		return ErrWorkerNotRunning
 	}
-	if err := worker.Stop(); err != nil {
+	if err := entry.worker.Stop(); err != nil {
 		return err
 	}
 	delete(s.workers, key)
@@ -48,11 +108,11 @@ func (s *Supervisor) StopPluginVersion(pluginID, version string) error {
 	}
 	suffix := pluginID + "@" + version
 	var firstErr error
-	for key, worker := range s.workers {
+	for key, entry := range s.workers {
 		if key != suffix && !strings.HasSuffix(key, ":"+suffix) {
 			continue
 		}
-		if err := worker.Stop(); err != nil {
+		if err := entry.worker.Stop(); err != nil {
 			if firstErr == nil {
 				firstErr = err
 			}
@@ -71,8 +131,8 @@ func (s *Supervisor) StopProjectPlugin(projectID, pluginID, version string) erro
 }
 
 func (s *Supervisor) Ready(key string) bool {
-	worker, ok := s.workers[key]
-	return ok && worker.Ready()
+	entry, ok := s.workers[key]
+	return ok && entry.worker.Ready()
 }
 
 func (s *Supervisor) CheckEnabled(keys []string) error {
