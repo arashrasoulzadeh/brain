@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `1419fc3` — 2026-11-14 16:59:42 +0330 — validate protocol fixtures with dart
+  Files: clients/flutter/lib/protocol_fixtures.dart,roadmap.md tests/flutter/protocol_fixture_consumer_test.dart
+- `534efb2` — 2026-11-14 13:29:16 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `44a2c30` — 2026-11-14 16:59:01 +0330 — define reconnect protocol fixture
   Files: protocol/fixtures/reconnect.json,roadmap.md tests/protocol/fixtures_test.go
 - `8fe29c6` — 2026-11-14 13:28:50 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `30f915a` — 2026-11-14 16:46:54 +0330 — add first party session cookie
   Files: plugins/auth/first-party-session-cookie.ts,plugins/auth/index.ts plugins/auth/plugin.yaml,roadmap.md tests/auth/first-party-cookie.test.ts
 - `4a52869` — 2026-11-14 13:16:27 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `7d354c8` — 2026-11-14 16:46:13 +0330 — add shared reconnect fixture
-  Files: roadmap.md,tests/fixtures/reconnect-fixture.test.ts tests/fixtures/reconnect-fixture.ts
-- `e2ca76d` — 2026-11-14 13:16:03 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
