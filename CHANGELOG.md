@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `ce3d564` — 2026-11-15 00:17:51 +0330 — bound packet loss capacity simulation
+  Files: internal/deploy/capacity_profile.go,tests/deploy/capacity_profile_test.go
+- `f62fe0e` — 2026-11-14 20:47:32 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `e2fbc55` — 2026-11-15 00:17:19 +0330 — add eye export capacity workload
   Files: internal/deploy/capacity_profile.go,tests/deploy/capacity_profile_test.go
 - `2db493b` — 2026-11-14 20:47:00 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `9fe666d` — 2026-11-14 22:48:09 +0330 — bind node executable after runtime directory
   Files: scripts/run-sandboxed-typescript-worker.sh
 - `a3ba68c` — 2026-11-14 19:16:59 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `b14ff0e` — 2026-11-14 22:46:42 +0330 — preserve node runtime mount in sandbox
-  Files: scripts/run-sandboxed-typescript-worker.sh
-- `72a7447` — 2026-11-14 19:15:41 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
