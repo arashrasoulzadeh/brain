@@ -5,15 +5,15 @@ import (
 	"net/http"
 )
 
-func HandshakeHandler(hostProtocol int, expectedService string) http.Handler {
-	return handshakeHandler(hostProtocol, expectedService, "")
+func HandshakeHandlerForProject(hostProtocol int, expectedService, expectedProject string) http.Handler {
+	return handshakeHandler(hostProtocol, expectedService, expectedProject, "")
 }
 
-func HandshakeHandlerWithSecret(hostProtocol int, expectedService, secret string) http.Handler {
-	return handshakeHandler(hostProtocol, expectedService, secret)
+func HandshakeHandlerForProjectWithSecret(hostProtocol int, expectedService, expectedProject, secret string) http.Handler {
+	return handshakeHandler(hostProtocol, expectedService, expectedProject, secret)
 }
 
-func handshakeHandler(hostProtocol int, expectedService, secret string) http.Handler {
+func handshakeHandler(hostProtocol int, expectedService, expectedProject, secret string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
@@ -22,7 +22,7 @@ func handshakeHandler(hostProtocol int, expectedService, secret string) http.Han
 		defer r.Body.Close()
 		var handshake Handshake
 		decoder := json.NewDecoder(http.MaxBytesReader(w, r.Body, 4096))
-		if err := decoder.Decode(&handshake); err != nil || ValidateHandshake(handshake, hostProtocol, expectedService) != nil || (secret != "" && !AuthenticateHandshake(handshake, secret)) {
+		if err := decoder.Decode(&handshake); err != nil || ValidateHandshakeForProject(handshake, hostProtocol, expectedService, expectedProject) != nil || (secret != "" && !AuthenticateHandshake(handshake, secret)) {
 			http.Error(w, "invalid handshake", http.StatusUnauthorized)
 			return
 		}

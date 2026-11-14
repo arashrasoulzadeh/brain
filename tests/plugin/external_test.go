@@ -25,6 +25,13 @@ func TestExternalWorkerHandshakeRejectsWrongIdentity(t *testing.T) {
 	}
 }
 
+func TestExternalWorkerHandshakeRejectsHostProjectMismatch(t *testing.T) {
+	h := plugin.Handshake{Protocol: 1, ProjectID: "dev", PluginID: "arena", Version: "1", ServiceID: "arena-dev"}
+	if err := plugin.ValidateHandshakeForProject(h, 1, "arena-dev", "prod"); !errors.Is(err, plugin.ErrInvalidHandshake) {
+		t.Fatalf("cross-project handshake accepted: %v", err)
+	}
+}
+
 func TestExternalHandshakeAuthenticatesSignature(t *testing.T) {
 	h := plugin.Handshake{Protocol: 1, ProjectID: "dev", PluginID: "arena", Version: "1", ServiceID: "arena-dev", Signature: "bad"}
 	if plugin.AuthenticateHandshake(h, "secret") {

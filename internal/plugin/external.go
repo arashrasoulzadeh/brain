@@ -37,3 +37,13 @@ func ValidateHandshake(h Handshake, hostProtocol int, expectedService string) er
 	}
 	return nil
 }
+
+func ValidateHandshakeForProject(h Handshake, hostProtocol int, expectedService, expectedProject string) error {
+	if err := ValidateHandshake(h, hostProtocol, expectedService); err != nil {
+		return err
+	}
+	if expectedProject == "" || h.ProjectID != expectedProject {
+		return ErrInvalidHandshake
+	}
+	return nil
+}

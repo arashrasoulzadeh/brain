@@ -10,7 +10,7 @@ import (
 )
 
 func TestExternalHandshakeEndpointAcceptsValidHandshake(t *testing.T) {
-	handler := plugin.HandshakeHandler(1, "arena-dev")
+	handler := plugin.HandshakeHandlerForProject(1, "arena-dev", "dev")
 	body := `{"protocol":1,"projectID":"dev","pluginID":"arena","version":"1","serviceID":"arena-dev"}`
 	req := httptest.NewRequest(http.MethodPost, "/handshake", strings.NewReader(body))
 	res := httptest.NewRecorder()
@@ -21,7 +21,7 @@ func TestExternalHandshakeEndpointAcceptsValidHandshake(t *testing.T) {
 }
 
 func TestExternalHandshakeEndpointRejectsInvalidHandshake(t *testing.T) {
-	handler := plugin.HandshakeHandler(1, "arena-dev")
+	handler := plugin.HandshakeHandlerForProject(1, "arena-dev", "dev")
 	req := httptest.NewRequest(http.MethodPost, "/handshake", strings.NewReader(`{"projectID":"other"}`))
 	res := httptest.NewRecorder()
 	handler.ServeHTTP(res, req)
