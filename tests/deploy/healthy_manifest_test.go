@@ -10,10 +10,11 @@ import (
 func TestHealthyManifestStoreRetainsValidatedImageSet(t *testing.T) {
 	path := t.TempDir() + "/healthy.json"
 	manifest := deploy.ReleaseManifest{
-		CommitSHA: "0123456789abcdef0123456789abcdef01234567",
-		Backend:   "ghcr.io/example/backend@sha256:backend",
-		Compiler:  "ghcr.io/example/compiler@sha256:compiler",
-		Runner:    "ghcr.io/example/runner@sha256:runner",
+		CommitSHA:                 "0123456789abcdef0123456789abcdef01234567",
+		Backend:                   "ghcr.io/example/backend@sha256:backend",
+		Compiler:                  "ghcr.io/example/compiler@sha256:compiler",
+		Runner:                    "ghcr.io/example/runner@sha256:runner",
+		PackagedIsolationVerified: true,
 	}
 	if err := deploy.RecordHealthyManifest(path, manifest); err != nil {
 		t.Fatal(err)

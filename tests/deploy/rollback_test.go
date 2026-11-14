@@ -9,10 +9,11 @@ import (
 
 func TestSelectRollbackManifestRequiresCompatibleSchema(t *testing.T) {
 	manifest := deploy.ReleaseManifest{
-		CommitSHA: "0123456789abcdef0123456789abcdef01234567",
-		Backend:   "backend@sha256:healthy",
-		Compiler:  "compiler@sha256:healthy",
-		Runner:    "runner@sha256:healthy",
+		CommitSHA:                 "0123456789abcdef0123456789abcdef01234567",
+		Backend:                   "backend@sha256:healthy",
+		Compiler:                  "compiler@sha256:healthy",
+		Runner:                    "runner@sha256:healthy",
+		PackagedIsolationVerified: true,
 	}
 	selected, err := deploy.SelectRollbackManifest(manifest, true)
 	if err != nil || selected != manifest {
