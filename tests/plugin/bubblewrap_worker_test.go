@@ -8,6 +8,20 @@ import (
 	"brain/internal/plugin"
 )
 
+func TestManifestBoundWorkerRejectsUndeclaredPluginSource(t *testing.T) {
+	root := t.TempDir()
+	if err := os.WriteFile(filepath.Join(root, "index.ts"), []byte("import './secret.js';\nexport function handle() {}\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	manifest := plugin.Manifest{
+		ID: "sample", Version: "1.0.0", Entry: "index.ts", SourceFiles: []string{"index.ts"},
+		Imports: []string{}, Routes: []plugin.Route{{Operation: "health", Function: "health", Capability: "health"}},
+	}
+	if _, err := plugin.NewManifestBubblewrapTypeScriptWorker("launcher", "worker", filepath.Join(root, "execution.json"), root, "project", manifest, plugin.IsolationPolicy{FilesystemReadOnly: true, CPUMillis: 1000, MemoryBytes: 64 << 20, ProcessLimit: 8}); err == nil {
+		t.Fatal("undeclared plugin import was accepted")
+	}
+}
+
 func TestBubblewrapWorkerUsesExplicitSandboxEnvironment(t *testing.T) {
 	directory := t.TempDir()
 	launcher := filepath.Join(directory, "launcher.sh")

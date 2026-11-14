@@ -6,8 +6,11 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
@@ -15,6 +18,15 @@ import (
 var ErrTypeScriptWorkerStarted = errors.New("typescript worker already started")
 var ErrTypeScriptWorkerStopped = errors.New("typescript worker stopped")
 var ErrTypeScriptWorkerTimedOut = errors.New("typescript worker invocation timed out")
+var ErrTypeScriptWorkerManifest = errors.New("invalid typescript worker manifest")
+
+type executionDescriptor struct {
+	Entrypoint string   `json:"entrypoint"`
+	PluginID   string   `json:"pluginId"`
+	Version    string   `json:"version"`
+	ProjectID  string   `json:"projectId"`
+	Operations []string `json:"operations"`
+}
 
 type TypeScriptWorkerOptions struct {
 	InvocationTimeout time.Duration
@@ -52,6 +64,31 @@ func NewBubblewrapTypeScriptWorker(launcher, workerScript, descriptor, pluginRoo
 		},
 		options: TypeScriptWorkerOptions{InvocationTimeout: policy.WallTime},
 	}
+}
+
+func NewManifestBubblewrapTypeScriptWorker(launcher, workerScript, descriptor, pluginRoot, projectID string, manifest Manifest, policy IsolationPolicy) (*TypeScriptWorker, error) {
+	if strings.TrimSpace(projectID) == "" {
+		return nil, ErrTypeScriptWorkerManifest
+	}
+	if strings.TrimSpace(manifest.ID) == "" || strings.TrimSpace(manifest.Version) == "" {
+		return nil, ErrTypeScriptWorkerManifest
+	}
+	if err := ValidatePluginSources(pluginRoot, manifest); err != nil {
+		return nil, err
+	}
+	entrypoint := filepath.Join(pluginRoot, manifest.EntryPoint())
+	operations := make([]string, 0, len(manifest.Routes))
+	for _, route := range manifest.Routes {
+		operations = append(operations, route.Operation)
+	}
+	data, err := json.Marshal(executionDescriptor{Entrypoint: entrypoint, PluginID: manifest.ID, Version: manifest.Version, ProjectID: projectID, Operations: operations})
+	if err != nil {
+		return nil, err
+	}
+	if err := os.WriteFile(descriptor, data, 0o600); err != nil {
+		return nil, err
+	}
+	return NewBubblewrapTypeScriptWorker(launcher, workerScript, descriptor, pluginRoot, policy), nil
 }
 
 func (w *TypeScriptWorker) Start() error {
