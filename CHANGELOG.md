@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `d09d401` — 2026-11-14 17:31:01 +0330 — verify object version manifests
+  Files: cmd/brain/main.go,roadmap_backend.md scripts/verify-object-manifest.sh,tests/deploy/object_manifest_script_test.go
+- `c07d666` — 2026-11-14 13:59:35 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `7eb2eee` — 2026-11-14 17:29:19 +0330 — verify PostgreSQL backup artifacts
   Files: roadmap_backend.md,scripts/verify-postgres-backup.sh tests/deploy/postgres_backup_verify_test.go
 - `a920cfe` — 2026-11-14 13:59:01 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `c5ae197` — 2026-11-14 17:04:52 +0330 — add atomic deployment lock
   Files: internal/deploy/lock.go,roadmap.md tests/deploy/lock_test.go
 - `8c29446` — 2026-11-14 13:34:25 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `74ca814` — 2026-11-14 17:04:10 +0330 — bind plugin envelopes to host project
-  Files: internal/plugin/http_envelope.go,internal/plugin/worker.go tests/plugin/http_envelope_test.go,tests/plugin/worker_test.go
-- `6ea8068` — 2026-11-14 13:32:46 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
