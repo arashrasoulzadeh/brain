@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `c5eac14` — 2026-11-14 17:05:17 +0330 — validate deployment release sha
+  Files: internal/deploy/release_sha.go,roadmap.md tests/deploy/release_sha_test.go
+- `2599e51` — 2026-11-14 13:35:09 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `c5ae197` — 2026-11-14 17:04:52 +0330 — add atomic deployment lock
   Files: internal/deploy/lock.go,roadmap.md tests/deploy/lock_test.go
 - `8c29446` — 2026-11-14 13:34:25 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `9e3565b` — 2026-11-14 16:51:21 +0330 — configure flutter fixture test dependency
   Files: clients/flutter/pubspec.yaml
 - `c696b72` — 2026-11-14 13:21:06 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `f774c5a` — 2026-11-14 16:50:46 +0330 — scaffold flutter fixture consumer
-  Files: clients/flutter/lib/shared_fixtures.dart,clients/flutter/pubspec.yaml tests/flutter/shared_fixtures_test.dart
-- `c0361ae` — 2026-11-14 13:19:52 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
