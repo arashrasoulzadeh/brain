@@ -25,6 +25,7 @@ The dashboard, operator MFA, recovery, worker supervision, external workers, and
 ## Operational policy
 
 Follow the [deployment runbook](deployment-runbook.md) for release sequencing, pause/drain, readiness, rollback, and audit evidence.
+Follow the [restore runbook](restore-runbook.md) for coordinated PostgreSQL/object restoration and recovery verification.
 
 - Keep development and production project IDs separate.
 - Use migration credentials only for schema changes.

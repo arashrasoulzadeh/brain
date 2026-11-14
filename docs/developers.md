@@ -17,6 +17,7 @@ Keep changelog entries newest first, with one entry per commit containing the sh
 Deployment rollback must validate schema compatibility. The operator recovery procedure for incompatible migrations is documented in [`incompatible-migration-recovery.md`](incompatible-migration-recovery.md); code must not perform destructive down-migrations as an automatic fallback.
 
 The operator deployment sequence is documented in [`deployment-runbook.md`](deployment-runbook.md); keep pause/drain ordering and release verification aligned with `internal/deploy`.
+The restore procedure is documented in [`restore-runbook.md`](restore-runbook.md); keep database and object-manifest verification aligned with `internal/deploy` recovery contracts.
 
 Backup scheduling uses the deployment backup policy: a minimum 12-hour interval and an 18-hour stale-backup alert threshold. Keep backup execution adapters separate from policy validation so storage providers can be replaced and tested independently.
 
