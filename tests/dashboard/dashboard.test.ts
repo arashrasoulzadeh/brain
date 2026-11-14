@@ -15,6 +15,7 @@ import {
   pluginRollbackRequest,
   pluginDisableApplyRequest,
   pluginDisablePreviewRequest,
+  pluginLifecycleRequest,
   projectOverviewContribution,
   recordBrowserPage,
   recordEditPage,
@@ -47,6 +48,9 @@ const promote = pluginPromoteRequest("dev", "rooms", "2.0.0");
 const rollback = pluginRollbackRequest("dev", "rooms", "1.0.0");
 const disablePreview = pluginDisablePreviewRequest("dev", "rooms", "1.0.0");
 const disableApply = pluginDisableApplyRequest("dev", "rooms", "1.0.0");
+const drain = pluginLifecycleRequest("dev", "plugin.drain", "rooms", "1.0.0");
+const resume = pluginLifecycleRequest("dev", "plugin.resume", "rooms", "1.0.0");
+const stop = pluginLifecycleRequest("dev", "plugin.stop", "rooms", "1.0.0");
 if (
   install.params.operation !== "plugin.install" ||
   grant.params.operation !== "plugin.grant" ||
@@ -54,7 +58,10 @@ if (
   promote.params.operation !== "plugin.promote" ||
   rollback.params.operation !== "plugin.rollback" ||
   disablePreview.params.operation !== "plugin.disable.preview" ||
-  disableApply.params.operation !== "plugin.disable.apply"
+  disableApply.params.operation !== "plugin.disable.apply" ||
+  drain.params.operation !== "plugin.drain" ||
+  resume.params.operation !== "plugin.resume" ||
+  stop.params.operation !== "plugin.stop"
 ) {
   throw new Error("generic dashboard operation contract failed");
 }
@@ -76,6 +83,9 @@ const routes = [
     function: "applyPluginDisable",
     capability: "plugin.disable",
   },
+  { operation: "plugin.drain", function: "drainPlugin", capability: "plugin.lifecycle" },
+  { operation: "plugin.resume", function: "resumePlugin", capability: "plugin.lifecycle" },
+  { operation: "plugin.stop", function: "stopPlugin", capability: "plugin.lifecycle" },
   { operation: "plugin.readiness", function: "showReadiness", capability: "plugin.readiness" },
 ] as const;
 const calls: unknown[] = [];

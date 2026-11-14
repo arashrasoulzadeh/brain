@@ -44,6 +44,15 @@ export function pluginDisableApplyRequest(
   return adminRequest(projectId, "plugin.disable.apply", pluginId, version);
 }
 
+export function pluginLifecycleRequest(
+  projectId: string,
+  operation: "plugin.drain" | "plugin.resume" | "plugin.stop",
+  pluginId: string,
+  version: string,
+): RpcRequest {
+  return adminRequest(projectId, operation, pluginId, version);
+}
+
 function adminRequest(
   projectId: string,
   operation: string,

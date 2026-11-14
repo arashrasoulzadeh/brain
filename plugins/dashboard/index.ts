@@ -9,6 +9,7 @@ export {
   pluginRollbackRequest,
   pluginDisableApplyRequest,
   pluginDisablePreviewRequest,
+  pluginLifecycleRequest,
   projectCreateRequest,
 } from "./project-request.js";
 export { recordBrowserPage } from "./record-browser-page.js";

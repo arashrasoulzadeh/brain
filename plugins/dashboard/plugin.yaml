@@ -62,6 +62,7 @@ capabilities:
   - plugin.promote
   - plugin.rollback
   - plugin.disable
+  - plugin.lifecycle
   - plugin.readiness
 extension_points:
   - admin.navigation
@@ -93,6 +94,15 @@ routes:
   - operation: plugin.disable.apply
     function: applyPluginDisable
     capability: plugin.disable
+  - operation: plugin.drain
+    function: drainPlugin
+    capability: plugin.lifecycle
+  - operation: plugin.resume
+    function: resumePlugin
+    capability: plugin.lifecycle
+  - operation: plugin.stop
+    function: stopPlugin
+    capability: plugin.lifecycle
   - operation: plugin.readiness
     function: showReadiness
     capability: plugin.readiness
