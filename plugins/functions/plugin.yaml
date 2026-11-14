@@ -75,6 +75,7 @@ source_files:
   - evaluate-workflow-condition.ts
   - diagnose-source.ts
   - register-project-workflow-action.ts
+  - replace-project-workflow-step.ts
   - require-sdk-imports.ts
   - validate-startup-duration.ts
   - validate-stale-input-versions.ts
@@ -163,6 +164,7 @@ imports:
   - ./evaluate-workflow-condition.js
   - ./diagnose-source.js
   - ./register-project-workflow-action.js
+  - ./replace-project-workflow-step.js
   - ./require-sdk-imports.js
   - ./validate-startup-duration.js
   - ./validate-stale-input-versions.js

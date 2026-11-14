@@ -130,3 +130,4 @@ export {
   registerProjectWorkflowAction,
   type ProjectWorkflowAction,
 } from "./register-project-workflow-action.js";
+export { replaceProjectWorkflowStep } from "./replace-project-workflow-step.js";

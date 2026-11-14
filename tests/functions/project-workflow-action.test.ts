@@ -1,4 +1,7 @@
-import { registerProjectWorkflowAction } from "../../plugins/functions/index.js";
+import {
+  registerProjectWorkflowAction,
+  replaceProjectWorkflowStep,
+} from "../../plugins/functions/index.js";
 
 const actions = new Map();
 const action = registerProjectWorkflowAction(actions, {
@@ -27,6 +30,27 @@ for (const candidate of [
     throw new Error("invalid project workflow action was registered");
   } catch (error) {
     if (!(error instanceof Error) || error.message !== "invalid project workflow action")
+      throw error;
+  }
+}
+
+const replaced = replaceProjectWorkflowStep(actions, "dev", "notify-owner", {
+  projectId: "dev",
+  id: "notify-owner",
+  operation: "notify.admin",
+  capability: "workflow.project",
+});
+if (replaced.operation !== "notify.admin") throw new Error("workflow step was not replaced");
+
+for (const [projectId, stepId] of [
+  ["prod", "notify-owner"],
+  ["dev", "missing"],
+] as const) {
+  try {
+    replaceProjectWorkflowStep(actions, projectId, stepId, replaced);
+    throw new Error("invalid workflow step replacement was accepted");
+  } catch (error) {
+    if (!(error instanceof Error) || error.message !== "invalid workflow step replacement")
       throw error;
   }
 }

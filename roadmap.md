@@ -575,7 +575,7 @@ Goal: safely promote, roll back, disable, drain, uninstall, and extend plugin-co
 ### Workflow extensions
 
 - [x] Add one registered project workflow action.
-- [ ] Replace one named workflow step.
+- [x] Replace one named workflow step.
 - [ ] Reject revoked workflow grants.
 - [ ] Reject invalid workflow graphs.
 - [ ] Ensure retried effects commit once.
