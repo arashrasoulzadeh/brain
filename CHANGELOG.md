@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `e7f1ecf` — 2026-11-14 16:49:13 +0330 — publish browser quickstart
+  Files: docs/browser-quickstart.md,roadmap.md
+- `54ad682` — 2026-11-14 13:18:59 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `b742092` — 2026-11-14 16:48:45 +0330 — add typed javascript client
   Files: clients/javascript/src/client.ts,clients/javascript/src/index.ts roadmap.md,tests/client/javascript-client.test.ts
 - `cb54ba0` — 2026-11-14 13:18:22 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `3a16ca9` — 2026-11-14 16:34:15 +0330 — block plugin release workflow steps
   Files: plugins/functions/register-project-workflow-action.ts,roadmap.md tests/functions/project-workflow-action.test.ts
 - `4073074` — 2026-11-14 13:03:56 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `ac11194` — 2026-11-14 16:33:43 +0330 — test named workflow components
-  Files: roadmap.md,tests/functions/workflow-components.test.ts
-- `6216df3` — 2026-11-14 13:03:19 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
