@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `fa6f29e` — 2026-11-14 16:37:40 +0330 — audit deployment workflow steps
+  Files: plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/validate-deployment-workflow.ts,roadmap.md tests/functions/deployment-workflow-audit.test.ts
+- `110dc00` — 2026-11-14 13:07:20 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `1bf39fa` — 2026-11-14 16:37:06 +0330 — keep host resources outside plugins
   Files: plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/reject-plugin-host-resources.ts,roadmap.md tests/functions/host-resource-boundary.test.ts
 - `047c0c2` — 2026-11-14 13:06:37 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `1e381c5` — 2026-11-14 16:10:20 +0330 — refactor: isolate function retry policies
   Files: plugins/functions/commit-with-grant.ts,plugins/functions/index.ts plugins/functions/plugin.yaml,plugins/functions/run-capped-retries.ts
 - `4324839` — 2026-11-14 12:39:45 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `7bed196` — 2026-11-14 16:09:31 +0330 — refactor: isolate sandbox boundary checks
-  Files: plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/reject-sandbox-escape.ts,plugins/functions/run-with-timeout.ts plugins/functions/validate-execution-limits.ts,plugins/functions/validate-sandbox-capabilities.ts plugins/functions/validate-wasi-imports.ts
-- `d8d665f` — 2026-11-14 12:38:51 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
