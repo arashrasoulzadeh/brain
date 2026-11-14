@@ -2,7 +2,7 @@
 
 ## Project
 
-This repository is building a Go multi-tenant mobile backend. The complete product context is in [plan.md](plan.md); the executable checklist is [roadmap.md](roadmap.md).
+This repository is building a Go multi-tenant mobile backend. The complete product context is in [plan.md](plan.md); [roadmap.md](roadmap.md) is the index, and [roadmap_backend.md](roadmap_backend.md) is the active executable checklist until backend release gates pass.
 
 ## Plugin-first architecture law
 
@@ -29,7 +29,7 @@ This repository is building a Go multi-tenant mobile backend. The complete produ
 ## How to work
 
 1. Read this file and the relevant `.agents/phase-XX.md` file.
-2. Select the first unchecked roadmap item in the active phase unless the user names another item.
+2. Select the first unchecked item in `roadmap_backend.md` while backend work is active; use `roadmap_admin.md` and `roadmap_client.md` only after the backend release gates pass or the user explicitly changes priority.
 3. Inspect existing code before editing. Preserve unrelated user changes.
 4. Write one focused failing test first.
 5. Implement the smallest change that passes it.
