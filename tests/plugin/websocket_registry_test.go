@@ -9,11 +9,12 @@ import (
 
 type trackedConnection struct {
 	closed bool
+	err    error
 }
 
 func (c *trackedConnection) Close() error {
 	c.closed = true
-	return nil
+	return c.err
 }
 
 func TestWebSocketRegistryClosesAndRemovesConnections(t *testing.T) {
@@ -61,5 +62,26 @@ func TestWebSocketRegistryClosesOnlyProjectConnections(t *testing.T) {
 func TestWebSocketRegistryRejectsProjectlessRegistration(t *testing.T) {
 	if err := plugin.NewWebSocketRegistry().RegisterProject("connection", "", &trackedConnection{}); !errors.Is(err, plugin.ErrWebSocketProjectRequired) {
 		t.Fatalf("projectless registration error = %v", err)
+	}
+}
+
+func TestWebSocketRegistryClosesAllProjectConnectionsAfterError(t *testing.T) {
+	registry := plugin.NewWebSocketRegistry()
+	first := &trackedConnection{err: errors.New("close failed")}
+	second := &trackedConnection{}
+	if err := registry.RegisterProject("first", "dev", first); err != nil {
+		t.Fatal(err)
+	}
+	if err := registry.RegisterProject("second", "dev", second); err != nil {
+		t.Fatal(err)
+	}
+	if err := registry.CloseProject("dev"); err == nil {
+		t.Fatal("close error was not returned")
+	}
+	if !first.closed || !second.closed {
+		t.Fatalf("close state = first:%v second:%v", first.closed, second.closed)
+	}
+	if registry.Count() != 0 {
+		t.Fatalf("connection count = %d, want 0", registry.Count())
 	}
 }

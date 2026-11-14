@@ -81,12 +81,13 @@ func (r *WebSocketRegistry) CloseProject(projectID string) error {
 		}
 	}
 	r.mu.Unlock()
+	var closeError error
 	for _, connection := range connections {
-		if err := connection.Close(); err != nil {
-			return err
+		if err := connection.Close(); err != nil && closeError == nil {
+			closeError = err
 		}
 	}
-	return nil
+	return closeError
 }
 
 func (r *WebSocketRegistry) Count() int {
