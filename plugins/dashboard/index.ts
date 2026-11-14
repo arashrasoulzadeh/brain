@@ -18,3 +18,5 @@ export { validateCsrfToken } from "./validate-csrf-token.js";
 export { customAdminView } from "./custom-admin-view.js";
 export { customViewOrigin } from "./custom-view-origin.js";
 export { restrictedFrame } from "./restricted-frame.js";
+export { validateBridgeMessage } from "./validate-bridge-message.js";
+export type { BridgeExecutionContext, BridgeMessage } from "./validate-bridge-message.js";

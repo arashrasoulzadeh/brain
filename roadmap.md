@@ -567,7 +567,7 @@ Goal: safely promote, roll back, disable, drain, uninstall, and extend plugin-co
 - [x] Add one custom TypeScript view.
 - [x] Serve it from a separate origin.
 - [x] Embed it in a restricted frame.
-- [ ] Validate typed bridge messages.
+- [x] Validate typed bridge messages.
 - [ ] Reject malformed or unbound messages.
 - [ ] Keep operator tokens in the trusted UI.
 - [ ] Keep sensitive confirmations in the trusted UI.
