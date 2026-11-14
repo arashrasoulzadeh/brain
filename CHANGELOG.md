@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `9513dd1` — 2026-11-14 16:40:22 +0330 — add dashboard lifecycle routes
+  Files: plugins/dashboard/index.ts,plugins/dashboard/plugin.yaml plugins/dashboard/project-request.ts,roadmap.md tests/dashboard/dashboard.test.ts
+- `4bdec10` — 2026-11-14 13:09:40 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `44da82c` — 2026-11-14 16:39:27 +0330 — add dashboard dependency disable routes
   Files: plugins/dashboard/index.ts,plugins/dashboard/plugin.yaml plugins/dashboard/project-request.ts,roadmap.md tests/dashboard/dashboard.test.ts
 - `47284c3` — 2026-11-14 13:08:47 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `b6ef221` — 2026-11-14 16:12:54 +0330 — refactor: isolate function publication stores
   Files: plugins/functions/create-approval-store.ts,plugins/functions/create-function-draft-store.ts plugins/functions/create-function-publication-store.ts,plugins/functions/create-shared-package-store.ts plugins/functions/index.ts,plugins/functions/plugin.yaml
 - `2cbd143` — 2026-11-14 12:42:16 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `7d94ffb` — 2026-11-14 16:12:03 +0330 — refactor: isolate function lifecycle stores
-  Files: plugins/functions/create-job-lease-store.ts,plugins/functions/create-record-change-trigger-store.ts plugins/functions/create-schedule-store.ts,plugins/functions/index.ts plugins/functions/plugin.yaml
-- `415b273` — 2026-11-14 12:41:28 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
