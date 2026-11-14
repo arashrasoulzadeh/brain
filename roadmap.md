@@ -611,7 +611,7 @@ Goal: finish the supported clients, publish the protocol, and rehearse productio
 - [x] Add shared function fixtures.
 - [x] Add shared subscription fixtures.
 - [x] Add shared matchmaking fixtures.
-- [ ] Add shared gameplay fixtures.
+- [x] Add shared gameplay fixtures.
 - [ ] Add shared reconnect fixtures.
 - [ ] Test first-party cookie sessions.
 - [ ] Test CSRF protection.
