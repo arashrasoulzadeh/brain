@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `ec2f8d2` — 2026-11-14 22:34:27 +0330 — add fail-closed typescript sandbox launcher
+  Files: scripts/run-sandboxed-typescript-worker.sh,tests/plugin/sandbox_launcher_test.go
+- `fae6164` — 2026-11-14 14:11:57 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `2a0d887` — 2026-11-14 17:41:44 +0330 — bound typescript worker invocation time
   Files: internal/plugin/typescript_worker.go,tests/plugin/typescript_worker_test.go
 - `a6b3282` — 2026-11-14 14:10:53 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `104c589` — 2026-11-14 17:21:45 +0330 — add bounded API readiness check
   Files: roadmap_backend.md,scripts/check-api-readiness.sh tests/deploy/readiness_script_test.go
 - `6c97588` — 2026-11-14 13:51:07 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `6c4a8d3` — 2026-11-14 17:20:47 +0330 — start deployment compose without rebuilding
-  Files: roadmap_backend.md,scripts/start-compose-no-build.sh tests/deploy/compose_script_test.go
-- `94a5102` — 2026-11-14 13:50:23 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
