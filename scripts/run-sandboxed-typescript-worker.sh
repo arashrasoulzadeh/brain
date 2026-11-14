@@ -38,8 +38,8 @@ exec "$bwrap_bin" \
   --tmpfs /tmp \
   --ro-bind /usr /usr \
   --ro-bind /lib /lib \
-  --ro-bind "$node_path" "$node_path" \
   --ro-bind "$node_dir" "$node_dir" \
+  --ro-bind "$node_path" "$node_path" \
   --ro-bind "$worker_dir" "$worker_dir" \
   --ro-bind "$descriptor_dir" "$descriptor_dir" \
   --ro-bind "$plugin_root" "$plugin_root" \
