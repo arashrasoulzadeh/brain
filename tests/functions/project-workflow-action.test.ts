@@ -1,9 +1,11 @@
 import {
   registerProjectWorkflowAction,
+  authorizeProjectWorkflowAction,
   replaceProjectWorkflowStep,
 } from "../../plugins/functions/index.js";
 
 const actions = new Map();
+const grants = new Set<string>();
 const action = registerProjectWorkflowAction(actions, {
   projectId: "dev",
   id: "notify-owner",
@@ -13,6 +15,16 @@ const action = registerProjectWorkflowAction(actions, {
 
 if (action.projectId !== "dev" || !actions.has("dev:notify-owner")) {
   throw new Error("project workflow action was not registered");
+}
+
+grants.add("dev:notify-owner:workflow.project");
+authorizeProjectWorkflowAction(actions, grants, "dev", "notify-owner");
+grants.delete("dev:notify-owner:workflow.project");
+try {
+  authorizeProjectWorkflowAction(actions, grants, "dev", "notify-owner");
+  throw new Error("revoked workflow grant was accepted");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "workflow grant revoked") throw error;
 }
 
 for (const candidate of [
