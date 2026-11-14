@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `b742092` — 2026-11-14 16:48:45 +0330 — add typed javascript client
+  Files: clients/javascript/src/client.ts,clients/javascript/src/index.ts roadmap.md,tests/client/javascript-client.test.ts
+- `cb54ba0` — 2026-11-14 13:18:22 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `3491651` — 2026-11-14 16:48:07 +0330 — verify safe reconnect retry
   Files: roadmap.md
 - `715e5c3` — 2026-11-14 13:17:59 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `ac11194` — 2026-11-14 16:33:43 +0330 — test named workflow components
   Files: roadmap.md,tests/functions/workflow-components.test.ts
 - `6216df3` — 2026-11-14 13:03:19 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `9aa9728` — 2026-11-14 16:33:05 +0330 — test workflow effect idempotency
-  Files: roadmap.md,tests/functions/functions.test.ts
-- `294bf43` — 2026-11-14 13:02:37 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
