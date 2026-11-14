@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `fb2ee42` — 2026-11-15 00:18:40 +0330 — require p95 snapshot latency measurement
+  Files: internal/deploy/capacity_profile.go,tests/deploy/capacity_profile_test.go
+- `917b06f` — 2026-11-14 20:48:04 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `ce3d564` — 2026-11-15 00:17:51 +0330 — bound packet loss capacity simulation
   Files: internal/deploy/capacity_profile.go,tests/deploy/capacity_profile_test.go
 - `f62fe0e` — 2026-11-14 20:47:32 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `b29c103` — 2026-11-14 22:49:38 +0330 — bind node runtime trees without overlap
   Files: scripts/run-sandboxed-typescript-worker.sh
 - `26f21a9` — 2026-11-14 19:18:22 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `9fe666d` — 2026-11-14 22:48:09 +0330 — bind node executable after runtime directory
-  Files: scripts/run-sandboxed-typescript-worker.sh
-- `a3ba68c` — 2026-11-14 19:16:59 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
