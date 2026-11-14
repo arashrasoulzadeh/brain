@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `660be6c` — 2026-11-14 17:24:58 +0330 — retain last healthy release manifest
+  Files: internal/deploy/healthy_manifest.go,internal/deploy/manifest.go roadmap_backend.md,tests/deploy/healthy_manifest_test.go
+- `e508729` — 2026-11-14 13:54:20 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `aff04b2` — 2026-11-14 17:24:03 +0330 — record deployed release version
   Files: internal/deploy/version.go,roadmap_backend.md tests/deploy/version_test.go
 - `c755865` — 2026-11-14 13:53:33 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `1419fc3` — 2026-11-14 16:59:42 +0330 — validate protocol fixtures with dart
   Files: clients/flutter/lib/protocol_fixtures.dart,roadmap.md tests/flutter/protocol_fixture_consumer_test.dart
 - `534efb2` — 2026-11-14 13:29:16 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `44a2c30` — 2026-11-14 16:59:01 +0330 — define reconnect protocol fixture
-  Files: protocol/fixtures/reconnect.json,roadmap.md tests/protocol/fixtures_test.go
-- `8fe29c6` — 2026-11-14 13:28:50 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
