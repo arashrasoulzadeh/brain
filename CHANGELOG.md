@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `6cbde4f` — 2026-11-14 22:57:50 +0330 — mount linux loader for sandbox node
+  Files: scripts/run-sandboxed-typescript-worker.sh
+- `b295124` — 2026-11-14 19:26:43 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `7b73658` — 2026-11-14 22:56:30 +0330 — launch nodejs path without symlink resolution
   Files: scripts/run-sandboxed-typescript-worker.sh
 - `8958429` — 2026-11-14 19:25:28 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `ff6c182` — 2026-11-14 17:35:27 +0330 — check backup data loss target
   Files: internal/deploy/backup_policy.go,roadmap_backend.md scripts/check-data-loss-target.sh,tests/deploy/backup_policy_test.go tests/deploy/data_loss_target_script_test.go
 - `91019d6` — 2026-11-14 14:04:52 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `0e0ca7a` — 2026-11-14 17:34:40 +0330 — record recovery duration and retention
-  Files: internal/deploy/recovery_record.go,roadmap_backend.md tests/deploy/recovery_record_test.go
-- `e77288c` — 2026-11-14 14:04:09 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
