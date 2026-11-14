@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `2492765` — 2026-11-15 01:47:37 +0330 — stop project workers on uninstall
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `7fa32a1` — 2026-11-14 22:17:11 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `5a921bc` — 2026-11-15 01:46:57 +0330 — invalidate plugin lifecycle previews
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `605a9c9` — 2026-11-14 22:16:26 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `bdfe0d5` — 2026-11-15 01:27:28 +0330 — serialize plugin install unregistration
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `c2ca14e` — 2026-11-14 21:57:05 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `5a21fc6` — 2026-11-15 01:26:47 +0330 — serialize plugin artifact cleanup
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `0a89897` — 2026-11-14 21:56:27 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
