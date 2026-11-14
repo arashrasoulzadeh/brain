@@ -657,7 +657,7 @@ Goal: finish the supported clients, publish the protocol, and rehearse productio
 - [x] Define authorized-snapshot fixtures.
 - [x] Define reconnect fixtures.
 - [x] Validate fixtures with a Dart consumer.
-- [ ] Publish fixtures with the protocol version.
+- [x] Publish fixtures with the protocol version.
 - [ ] Document compatibility and error behavior.
 
 ### Release images and CI
