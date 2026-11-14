@@ -45,7 +45,7 @@ Backend infrastructure, release, deployment, backup, capacity, and security work
 
 ## Backup and restore
 
-- [ ] Schedule encrypted off-host backups every 12 hours.
+- [x] Define the 12-hour off-host backup schedule policy.
 - [ ] Snapshot PostgreSQL consistently.
 - [ ] Record referenced object versions.
 - [ ] Verify the database backup.

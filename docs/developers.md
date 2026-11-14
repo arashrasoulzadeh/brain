@@ -16,6 +16,8 @@ Keep changelog entries newest first, with one entry per commit containing the sh
 
 Deployment rollback must validate schema compatibility. The operator recovery procedure for incompatible migrations is documented in [`incompatible-migration-recovery.md`](incompatible-migration-recovery.md); code must not perform destructive down-migrations as an automatic fallback.
 
+Backup scheduling uses the deployment backup policy: a minimum 12-hour interval and an 18-hour stale-backup alert threshold. Keep backup execution adapters separate from policy validation so storage providers can be replaced and tested independently.
+
 ## Tests
 
 All tests live under the top-level `tests/` directory. Keep tests grouped by area, preserve external package boundaries, and run `GOCACHE=/tmp/brain-go-cache go test ./...` after every test move or implementation change.
