@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `e53176e` — 2026-11-14 16:55:51 +0330 — complete flutter sign in flows
+  Files: clients/flutter/lib/auth_client.dart,roadmap.md tests/flutter/auth_client_test.dart
+- `cc63347` — 2026-11-14 13:25:34 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `bb6bb7a` — 2026-11-14 16:55:20 +0330 — verify flutter storage adapter boundary
   Files: roadmap.md
 - `e06a0ab` — 2026-11-14 13:25:12 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `cfb8d50` — 2026-11-14 16:42:39 +0330 — add shared sign in fixture
   Files: roadmap.md,tests/fixtures/sign-in-fixture.test.ts tests/fixtures/sign-in-fixture.ts
 - `08bf066` — 2026-11-14 13:12:16 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `ecf8d0d` — 2026-11-14 16:42:01 +0330 — complete phase 05 workflow gate
-  Files: docs/admins.md,docs/developers.md roadmap.md
-- `8486289` — 2026-11-14 13:11:07 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
