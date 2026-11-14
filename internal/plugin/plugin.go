@@ -365,8 +365,8 @@ func (r *Registry) Status(projectID, pluginID, version string) (InstallationStat
 }
 
 func (r *Registry) ApproveArtifact(id, version, endpoint string) error {
-	r.artifactMu.Lock()
-	defer r.artifactMu.Unlock()
+	r.readinessMu.RLock()
+	defer r.readinessMu.RUnlock()
 	if _, ok := r.registered[id+"@"+version]; !ok {
 		return ErrNotRegistered
 	}
@@ -374,6 +374,8 @@ func (r *Registry) ApproveArtifact(id, version, endpoint string) error {
 	if err != nil || u.Scheme != "https" || u.Host == "" {
 		return ErrInvalidManifest
 	}
+	r.artifactMu.Lock()
+	defer r.artifactMu.Unlock()
 	r.artifacts[id+"@"+version] = endpoint
 	r.appendAudit(AuditEvent{Action: "approve_artifact", PluginID: id, Version: version, Detail: endpoint})
 	return nil

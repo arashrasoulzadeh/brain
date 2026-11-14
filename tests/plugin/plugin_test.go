@@ -652,6 +652,26 @@ func TestRegistryRemovalAndStatusAreConcurrentSafe(t *testing.T) {
 	group.Wait()
 }
 
+func TestRegistryArtifactApprovalAndUnregistrationAreConcurrentSafe(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	manifest := plugin.Manifest{ID: "artifact-unregister-concurrency", Version: "1.0.0", HostAPI: 1}
+	if err := r.Register(manifest); err != nil {
+		t.Fatal(err)
+	}
+
+	var group sync.WaitGroup
+	group.Add(2)
+	go func() {
+		defer group.Done()
+		_ = r.ApproveArtifact(manifest.ID, manifest.Version, "https://example.com/plugin.tgz")
+	}()
+	go func() {
+		defer group.Done()
+		_ = r.Unregister(manifest.ID, manifest.Version)
+	}()
+	group.Wait()
+}
+
 func TestRevokeStopsTheProjectWorker(t *testing.T) {
 	r := plugin.NewRegistry(1)
 	m := plugin.Manifest{ID: "guest", Version: "1.0.0", HostAPI: 1, Capabilities: []string{"session.issue"}}
