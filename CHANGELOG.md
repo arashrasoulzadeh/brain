@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `ac11194` — 2026-11-14 16:33:43 +0330 — test named workflow components
+  Files: roadmap.md,tests/functions/workflow-components.test.ts
+- `6216df3` — 2026-11-14 13:03:19 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `9aa9728` — 2026-11-14 16:33:05 +0330 — test workflow effect idempotency
   Files: roadmap.md,tests/functions/functions.test.ts
 - `294bf43` — 2026-11-14 13:02:37 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `51b8cdc` — 2026-11-14 16:04:19 +0330 — refactor: split auth utility functions
   Files: plugins/auth/create-pkce-challenge.ts,plugins/auth/index.ts plugins/auth/normalize-phone-number.ts,plugins/auth/oidc-types.ts plugins/auth/plugin.yaml,plugins/auth/public-auth-error.ts plugins/auth/require-recent-authentication.ts,plugins/auth/validate-delivery-config.ts plugins/auth/validate-oidc-token.ts,plugins/auth/verify-pkce.ts
 - `61084c0` — 2026-11-14 12:33:27 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `53911f7` — 2026-11-14 16:03:02 +0330 — refactor: decompose tic-tac-toe room helpers
-  Files: plugins/rooms/authorize-tic-tac-toe-command.ts,plugins/rooms/authorized-tic-tac-toe-state.ts plugins/rooms/command-deduplicator.ts,plugins/rooms/create-tic-tac-toe-coordinator.ts plugins/rooms/hidden-tic-tac-toe-view.ts,plugins/rooms/index.ts plugins/rooms/plugin.yaml,plugins/rooms/publish-tic-tac-toe-rules.ts plugins/rooms/reconnect-tic-tac-toe.ts,plugins/rooms/reconstruct-tic-tac-toe-history.ts plugins/rooms/serialize-tic-tac-toe-state.ts,plugins/rooms/validate-tic-tac-toe-command-payload.ts
-- `8b334d5` — 2026-11-14 12:24:21 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
