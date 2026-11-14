@@ -816,10 +816,19 @@ func (r *Registry) Recover(projectID, id, version string) error {
 	if !ok {
 		return ErrNotInstalled
 	}
+	var recoveryError error
 	if r.supervisor != nil {
 		if err := r.supervisor.Recover(key); err != nil && !errors.Is(err, ErrWorkerNotRunning) && !errors.Is(err, ErrWorkerRecoveryUnavailable) {
-			return err
+			recoveryError = err
 		}
+	}
+	if r.webSockets != nil {
+		if err := r.webSockets.CloseProject(projectID); err != nil && recoveryError == nil {
+			recoveryError = err
+		}
+	}
+	if recoveryError != nil {
+		return recoveryError
 	}
 	i.Draining = false
 	i.DrainUntil = time.Time{}

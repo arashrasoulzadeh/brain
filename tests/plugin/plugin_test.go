@@ -1045,11 +1045,17 @@ func TestRegistryRecoveryRestartsCrashedProjectWorker(t *testing.T) {
 	workerKey := "dev:" + m.ID + "@" + m.Version
 	initialWorker.stopped = true
 	r.BindSupervisor(supervisor)
+	webSockets := plugin.NewWebSocketRegistry()
+	socket := &trackedConnection{}
+	if err := webSockets.RegisterProject("dev-socket", "dev", socket); err != nil {
+		t.Fatal(err)
+	}
+	r.BindWebSocketRegistry(webSockets)
 	if err := r.Recover("dev", m.ID, m.Version); err != nil {
 		t.Fatal(err)
 	}
-	if created != 2 || !supervisor.Ready(workerKey) {
-		t.Fatalf("recovery state = created:%d ready:%v", created, supervisor.Ready(workerKey))
+	if created != 2 || !supervisor.Ready(workerKey) || !socket.closed {
+		t.Fatalf("recovery state = created:%d ready:%v socket:%v", created, supervisor.Ready(workerKey), socket.closed)
 	}
 }
 
