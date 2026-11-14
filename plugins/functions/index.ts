@@ -2,20 +2,6 @@ import { type RpcRequest, validateProjectId } from "../sdk-typescript/src/index.
 import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { createApprovalState } from "./approval-state.js";
-import { ApprovalRequester } from "./approval-requester.js";
-import { ApprovalGranter } from "./approval-granter.js";
-import { ApprovalReader } from "./approval-reader.js";
-import { createSharedPackageState } from "./shared-package-state.js";
-import { SharedPackageWriter } from "./shared-package-writer.js";
-import { SharedPackageReader } from "./shared-package-reader.js";
-import { createFunctionDraftState } from "./function-draft-state.js";
-import { FunctionDraftWriter } from "./function-draft-writer.js";
-import { FunctionDraftReader } from "./function-draft-reader.js";
-import { createFunctionPublicationState } from "./function-publication-state.js";
-import { FunctionPublicationWriter } from "./function-publication-writer.js";
-import { FunctionPublicationReader } from "./function-publication-reader.js";
-import { FunctionPublicationRollback } from "./function-publication-rollback.js";
 import type { FunctionInvocationRequest } from "./invocation-types.js";
 import { runCappedRetries } from "./run-capped-retries.js";
 import { createInvocationCommitStore } from "./create-invocation-commit-store.js";
@@ -160,11 +146,11 @@ export function evaluateCondition(condition: WorkflowCondition, context: Readonl
   if (!condition.field || condition.operator !== "equals") throw new Error("unsupported condition");
   return Object.prototype.hasOwnProperty.call(context, condition.field) && Object.is(context[condition.field], condition.value);
 }
-export function createApprovalStore() { const state = createApprovalState(); const requester = new ApprovalRequester(state); const granter = new ApprovalGranter(state); const reader = new ApprovalReader(state); return { request: requester.request.bind(requester), approve: granter.approve.bind(granter), isApproved: reader.isApproved.bind(reader) }; }
+export { createApprovalStore } from "./create-approval-store.js";
 export type FunctionDraft = { projectId: string; functionId: string; source: string; savedAt: number };
-export function createFunctionDraftStore() { const state = createFunctionDraftState(); const writer = new FunctionDraftWriter(state); const reader = new FunctionDraftReader(state); return { save: writer.save.bind(writer), get: reader.get.bind(reader) }; }
+export { createFunctionDraftStore } from "./create-function-draft-store.js";
 export type FunctionPublication = FunctionDraft & { version: number; artifactDigest: string; toolchain: string; publishedAt: number };
-export function createFunctionPublicationStore() { const state = createFunctionPublicationState(); const writer = new FunctionPublicationWriter(state); const reader = new FunctionPublicationReader(state); const rollback = new FunctionPublicationRollback(state); return { publish: writer.publish.bind(writer), get: reader.get.bind(reader), active: (projectId: string, functionId: string) => { const version = state.activeVersions.get(`${projectId}:${functionId}`); return version === undefined ? undefined : reader.get(projectId, functionId, version); }, rollback: rollback.rollback.bind(rollback) }; }
-export function createSharedPackageStore() { const state = createSharedPackageState(); const writer = new SharedPackageWriter(state); const reader = new SharedPackageReader(state); return { save: writer.save.bind(writer), load: reader.load.bind(reader) }; }
+export { createFunctionPublicationStore } from "./create-function-publication-store.js";
+export { createSharedPackageStore } from "./create-shared-package-store.js";
 export type SourceDiagnostic = { line: number; message: string };
 export function diagnoseSource(source: string): SourceDiagnostic[] { const diagnostics: SourceDiagnostic[] = []; const lines = source.split("\n"); lines.forEach((line, index) => { if (/import\s+.*\"(os|net|syscall)\"/.test(line)) diagnostics.push({ line: index + 1, message: "unsupported import" }); }); if (!/package\s+main\b/.test(source)) diagnostics.push({ line: 1, message: "package main required" }); return diagnostics; }

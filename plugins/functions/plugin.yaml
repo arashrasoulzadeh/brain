@@ -65,6 +65,10 @@ source_files:
   - create-schedule-store.ts
   - create-record-change-trigger-store.ts
   - create-job-lease-store.ts
+  - create-approval-store.ts
+  - create-function-draft-store.ts
+  - create-function-publication-store.ts
+  - create-shared-package-store.ts
 imports:
   - ../sdk-typescript/src/index.js
   - node:fs
@@ -134,6 +138,10 @@ imports:
   - ./create-schedule-store.js
   - ./create-record-change-trigger-store.js
   - ./create-job-lease-store.js
+  - ./create-approval-store.js
+  - ./create-function-draft-store.js
+  - ./create-function-publication-store.js
+  - ./create-shared-package-store.js
   - ./index.js
 plugin_imports:
 title: Functions
