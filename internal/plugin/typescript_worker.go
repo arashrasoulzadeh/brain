@@ -21,6 +21,7 @@ type TypeScriptWorkerOptions struct {
 
 type TypeScriptWorker struct {
 	command *exec.Cmd
+	env     []string
 	stdin   io.WriteCloser
 	reader  *bufio.Reader
 	options TypeScriptWorkerOptions
@@ -36,11 +37,27 @@ func NewTypeScriptWorkerWithOptions(options TypeScriptWorkerOptions, command str
 	return &TypeScriptWorker{command: exec.Command(command, arguments...), options: options}
 }
 
+func NewBubblewrapTypeScriptWorker(launcher, workerScript, descriptor, pluginRoot string, timeout time.Duration) *TypeScriptWorker {
+	return &TypeScriptWorker{
+		command: exec.Command(launcher),
+		env: []string{
+			"PATH=/usr/local/bin:/usr/bin:/bin",
+			"WORKER_SCRIPT=" + workerScript,
+			"EXECUTION_DESCRIPTOR=" + descriptor,
+			"PLUGIN_ROOT=" + pluginRoot,
+		},
+		options: TypeScriptWorkerOptions{InvocationTimeout: timeout},
+	}
+}
+
 func (w *TypeScriptWorker) Start() error {
 	w.mutex.Lock()
 	defer w.mutex.Unlock()
 	if w.ready {
 		return ErrTypeScriptWorkerStarted
+	}
+	if w.env != nil {
+		w.command.Env = w.env
 	}
 	stdin, err := w.command.StdinPipe()
 	if err != nil {
