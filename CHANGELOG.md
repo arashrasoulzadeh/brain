@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `f0b4284` — 2026-11-14 16:44:15 +0330 — add shared function fixture
+  Files: roadmap.md,tests/fixtures/function-fixture.test.ts tests/fixtures/function-fixture.ts
+- `4425ecc` — 2026-11-14 13:13:46 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `7932761` — 2026-11-14 16:43:32 +0330 — add shared file fixture
   Files: roadmap.md,tests/fixtures/file-fixture.test.ts tests/fixtures/file-fixture.ts
 - `6c95546` — 2026-11-14 13:13:22 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `66b1b16` — 2026-11-14 16:25:38 +0330 — feat: validate typed dashboard bridge messages
   Files: plugins/dashboard/index.ts,plugins/dashboard/plugin.yaml plugins/dashboard/validate-bridge-message.ts,roadmap.md tests/dashboard/bridge-messages.test.ts
 - `a6b2206` — 2026-11-14 12:53:30 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `28c430a` — 2026-11-14 16:23:06 +0330 — refactor: enforce one callable per auth file
-  Files: plugins/auth/auth-functions.ts,plugins/auth/auth-guest-function.ts plugins/auth/auth-session-function.ts,plugins/auth/auth-signin-function.ts plugins/auth/auth-signup-function.ts,plugins/auth/index.ts plugins/auth/plugin.yaml
-- `df0ebcb` — 2026-11-14 12:51:21 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
