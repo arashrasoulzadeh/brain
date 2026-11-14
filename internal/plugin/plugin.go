@@ -538,6 +538,8 @@ func (r *Registry) Install(projectID, id, version string) error {
 func (r *Registry) GrantResource(projectID, id, version, capability, resource string) error {
 	r.grantMu.Lock()
 	defer r.grantMu.Unlock()
+	r.readinessMu.RLock()
+	defer r.readinessMu.RUnlock()
 	r.installationMu.Lock()
 	defer r.installationMu.Unlock()
 	if projectID == "" {
@@ -588,6 +590,8 @@ func (r *Registry) AuthorizeResource(projectID, id, version, capability, resourc
 }
 
 func (r *Registry) Configure(projectID, id, version string, values map[string]any) error {
+	r.readinessMu.RLock()
+	defer r.readinessMu.RUnlock()
 	r.installationMu.Lock()
 	defer r.installationMu.Unlock()
 	if projectID == "" {
@@ -630,6 +634,8 @@ func configTypeMatches(want string, value any) bool {
 func (r *Registry) Grant(projectID, id, version, capability string) error {
 	r.grantMu.Lock()
 	defer r.grantMu.Unlock()
+	r.readinessMu.RLock()
+	defer r.readinessMu.RUnlock()
 	r.installationMu.Lock()
 	defer r.installationMu.Unlock()
 	if projectID == "" {
@@ -690,6 +696,8 @@ func (r *Registry) Revoke(projectID, id, version, capability string) error {
 func (r *Registry) Enable(projectID, id, version string) error {
 	r.grantMu.Lock()
 	defer r.grantMu.Unlock()
+	r.readinessMu.RLock()
+	defer r.readinessMu.RUnlock()
 	r.installationMu.Lock()
 	defer r.installationMu.Unlock()
 	if projectID == "" {
@@ -719,6 +727,10 @@ func (r *Registry) Promote(projectID, id, version string) error {
 	defer r.lifecycleMu.Unlock()
 	r.readinessMu.RLock()
 	defer r.readinessMu.RUnlock()
+	r.approvalMu.RLock()
+	defer r.approvalMu.RUnlock()
+	r.installationMu.RLock()
+	defer r.installationMu.RUnlock()
 	if projectID == "" {
 		return ErrProjectInvalid
 	}
@@ -734,8 +746,6 @@ func (r *Registry) Promote(projectID, id, version string) error {
 		return ErrDisabled
 	}
 	manifest := r.registered[id+"@"+version].Manifest
-	r.approvalMu.RLock()
-	defer r.approvalMu.RUnlock()
 	for _, capability := range manifest.Capabilities {
 		if !i.Grants[capability] {
 			return ErrGrantDenied

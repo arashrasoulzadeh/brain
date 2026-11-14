@@ -692,6 +692,54 @@ func TestRegistryInstallationAndUnregistrationAreConcurrentSafe(t *testing.T) {
 	group.Wait()
 }
 
+func TestRegistryPermissionTransitionsAndUnregistrationAreConcurrentSafe(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	manifest := plugin.Manifest{
+		ID:           "permission-transition-concurrency",
+		Version:      "1.0.0",
+		HostAPI:      1,
+		Capabilities: []string{"read"},
+		ConfigSchema: map[string]string{"region": "string"},
+	}
+	if err := r.Register(manifest); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Install("dev", manifest.ID, manifest.Version); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.SetReadiness(manifest.ID, manifest.Version, true); err != nil {
+		t.Fatal(err)
+	}
+
+	var group sync.WaitGroup
+	group.Add(6)
+	go func() {
+		defer group.Done()
+		_ = r.Grant("dev", manifest.ID, manifest.Version, "read")
+	}()
+	go func() {
+		defer group.Done()
+		_ = r.GrantResource("dev", manifest.ID, manifest.Version, "read", "documents")
+	}()
+	go func() {
+		defer group.Done()
+		_ = r.Configure("dev", manifest.ID, manifest.Version, map[string]any{"region": "local"})
+	}()
+	go func() {
+		defer group.Done()
+		_ = r.Enable("dev", manifest.ID, manifest.Version)
+	}()
+	go func() {
+		defer group.Done()
+		_ = r.Promote("dev", manifest.ID, manifest.Version)
+	}()
+	go func() {
+		defer group.Done()
+		_ = r.Unregister(manifest.ID, manifest.Version)
+	}()
+	group.Wait()
+}
+
 func TestRegistryLifecycleAndRemovalAreConcurrentSafe(t *testing.T) {
 	registry := plugin.NewRegistry(1)
 	manifest := plugin.Manifest{ID: "lifecycle-removal-concurrency", Version: "1.0.0", HostAPI: 1}
