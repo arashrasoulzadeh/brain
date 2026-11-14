@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `0e86dbc` — 2026-11-14 15:54:01 +0330 — refactor: split room authorization boundaries
+  Files: plugins/rooms/authorize-room-command.ts,plugins/rooms/authorized-room-snapshot.ts plugins/rooms/create-room-directory.ts,plugins/rooms/index.ts plugins/rooms/plugin.yaml
+- `d53136a` — 2026-11-14 12:23:11 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `9152603` — 2026-11-14 15:52:50 +0330 — refactor: split tables index responsibilities
   Files: plugins/tables/create-api-change-capture.ts,plugins/tables/create-direct-sql-change-capture.ts plugins/tables/create-schema-publication-audit.ts,plugins/tables/create-transactional-change-capture.ts plugins/tables/index.ts,plugins/tables/plan-schema-change.ts plugins/tables/plugin.yaml,plugins/tables/preview-schema-sql.ts plugins/tables/require-recent-schema-auth.ts,plugins/tables/schema-types.ts
 - `fb6503f` — 2026-11-14 12:21:06 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `fd0a32d` — 2026-11-13 16:51:34 +0330 — feat: recheck matchmaking lifecycle at assignment
   Files: plugins/matchmaking/assignment-creator.ts,plugins/matchmaking/queue-runtime.ts plugins/matchmaking/queue.ts,roadmap.md tests/matchmaking/matchmaking.test.ts
-- `d608ee7` — 2026-11-13 13:20:42 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `a19fe89` — 2026-11-13 16:50:19 +0330 — feat: add immediate plugin security stop
-  Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
