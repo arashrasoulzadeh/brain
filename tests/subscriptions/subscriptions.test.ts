@@ -76,12 +76,24 @@ try {
 new SubscriptionGrantStore(grants).grant("dev", "records.users", "user-1");
 new SubscriptionAuthorization(grants).authorize("dev", "records.users", "user-1");
 try {
+  new SubscriptionAuthorization(grants).authorize("dev:other", "records.users", "user-1");
+  throw new Error("malformed authorization project accepted");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "subscription denied") throw error;
+}
+try {
   new SubscriptionAuthorization(grants).authorize("dev", "records.users", "user-2");
   throw new Error("unauthorized subscription accepted");
 } catch (error) {
   if (!(error instanceof Error) || error.message !== "subscription denied") throw error;
 }
 new SubscriptionOwnerInvalidator(grants).invalidate("dev", "user-1");
+try {
+  new SubscriptionOwnerInvalidator(grants).invalidate("dev:other", "user-1");
+  throw new Error("malformed invalidation project accepted");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "invalid subscription owner") throw error;
+}
 try {
   new SubscriptionAuthorization(grants).authorize("dev", "records.users", "user-1");
   throw new Error("old owner subscription survived transfer");
