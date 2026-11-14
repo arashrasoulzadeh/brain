@@ -903,6 +903,8 @@ func (r *Registry) Unregister(id, version string) error {
 }
 
 func (r *Registry) UninstallProject(projectID string) error {
+	r.lifecycleMu.Lock()
+	defer r.lifecycleMu.Unlock()
 	if projectID == "" {
 		return ErrProjectInvalid
 	}
