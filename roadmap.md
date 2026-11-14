@@ -653,7 +653,7 @@ Goal: finish the supported clients, publish the protocol, and rehearse productio
 - [x] Define transport-neutral login fixtures.
 - [x] Define room-admission fixtures.
 - [x] Define assignment fixtures.
-- [ ] Define player-input fixtures.
+- [x] Define player-input fixtures.
 - [ ] Define authorized-snapshot fixtures.
 - [ ] Define reconnect fixtures.
 - [ ] Validate fixtures with a Dart consumer.

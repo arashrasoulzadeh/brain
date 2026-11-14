@@ -79,3 +79,31 @@ func TestAssignmentFixtureIsTransportNeutral(t *testing.T) {
 		t.Fatalf("invalid assignment fixture: %+v", fixture)
 	}
 }
+
+func TestPlayerInputFixtureIsTransportNeutral(t *testing.T) {
+	fixturePath := filepath.Join("..", "..", "protocol", "fixtures", "player-input.json")
+	raw, err := os.ReadFile(fixturePath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var fixture struct {
+		Protocol  int    `json:"protocol"`
+		Fixture   string `json:"fixture"`
+		ProjectID string `json:"projectId"`
+		RoomID    string `json:"roomId"`
+		PlayerID  string `json:"playerId"`
+		Revision  int    `json:"revision"`
+		Input     struct {
+			Type string `json:"type"`
+			Cell int    `json:"cell"`
+		} `json:"input"`
+	}
+	if err := json.Unmarshal(raw, &fixture); err != nil {
+		t.Fatal(err)
+	}
+	if fixture.Protocol != 1 || fixture.Fixture != "player-input" || fixture.ProjectID == "" ||
+		fixture.RoomID == "" || fixture.PlayerID == "" || fixture.Revision != 0 ||
+		fixture.Input.Type != "move" || fixture.Input.Cell != 0 {
+		t.Fatalf("invalid player input fixture: %+v", fixture)
+	}
+}

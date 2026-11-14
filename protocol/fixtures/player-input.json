@@ -1,0 +1,9 @@
+{
+  "protocol": 1,
+  "fixture": "player-input",
+  "projectId": "dev",
+  "roomId": "fixture-room",
+  "playerId": "fixture-player-a",
+  "revision": 0,
+  "input": { "type": "move", "cell": 0 }
+}
