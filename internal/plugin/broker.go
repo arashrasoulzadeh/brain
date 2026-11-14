@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"errors"
+	"sync"
 	"time"
 )
 
@@ -29,6 +30,7 @@ type Broker struct {
 	ActorAllows       func(actorID, capability, resource string) bool
 	WorkerAvailable   func(pluginID, version string) bool
 	MatchmakingAllows func(projectID, scope string) bool
+	issuedMu          sync.Mutex
 	issuedTokens      map[string]HostCall
 }
 
@@ -50,6 +52,8 @@ func (b *Broker) Issue(call HostCall, now time.Time, lifetime time.Duration) (In
 		return InvocationCredential{}, err
 	}
 	token := base64.RawURLEncoding.EncodeToString(raw[:])
+	b.issuedMu.Lock()
+	defer b.issuedMu.Unlock()
 	if b.issuedTokens == nil {
 		b.issuedTokens = map[string]HostCall{}
 	}
@@ -57,7 +61,7 @@ func (b *Broker) Issue(call HostCall, now time.Time, lifetime time.Duration) (In
 	return InvocationCredential{Token: token, Call: call}, nil
 }
 
-func (b Broker) Authorize(call HostCall, now time.Time) error {
+func (b *Broker) Authorize(call HostCall, now time.Time) error {
 	if call.ProjectID == "" || call.ActorID == "" {
 		return ErrProjectInvalid
 	}
@@ -90,11 +94,13 @@ func (b Broker) Authorize(call HostCall, now time.Time) error {
 }
 
 // Commit authorizes a raw call for low-level broker tests. Production code must use CommitCredential.
-func (b Broker) Commit(call HostCall, now time.Time) error {
+func (b *Broker) Commit(call HostCall, now time.Time) error {
 	return b.Authorize(call, now)
 }
 
 func (b *Broker) CommitCredential(credential InvocationCredential, now time.Time) error {
+	b.issuedMu.Lock()
+	defer b.issuedMu.Unlock()
 	if credential.Token == "" || b.issuedTokens == nil {
 		return ErrInvocationExpired
 	}

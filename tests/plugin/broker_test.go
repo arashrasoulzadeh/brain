@@ -2,6 +2,7 @@ package plugin_test
 
 import (
 	"errors"
+	"sync"
 	"testing"
 	"time"
 
@@ -192,6 +193,50 @@ func TestBrokerCommitCredentialRechecksRevokedGrant(t *testing.T) {
 	}
 	if !errors.Is(b.CommitCredential(credential, time.Unix(99, 0)), plugin.ErrGrantDenied) {
 		t.Fatal("revoked in-flight credential committed")
+	}
+}
+
+func TestBrokerCommitCredentialIsConcurrentSingleUse(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	m := plugin.Manifest{ID: "concurrent", Version: "1.0.0", HostAPI: 1, Capabilities: []string{"write"}}
+	if err := r.Register(m); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Install("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Grant("dev", m.ID, m.Version, "write"); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.SetReadiness(m.ID, m.Version, true); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Enable("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	b := plugin.Broker{Registry: r, ActorAllows: func(string, string, string) bool { return true }}
+	credential, err := b.Issue(plugin.HostCall{ProjectID: "dev", ActorID: "actor", PluginID: m.ID, Version: m.Version, Capability: "write"}, time.Unix(99, 0), time.Minute)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var group sync.WaitGroup
+	var successMu sync.Mutex
+	successes := 0
+	for index := 0; index < 32; index++ {
+		group.Add(1)
+		go func() {
+			defer group.Done()
+			if b.CommitCredential(credential, time.Unix(99, 0)) == nil {
+				successMu.Lock()
+				successes++
+				successMu.Unlock()
+			}
+		}()
+	}
+	group.Wait()
+	if successes != 1 {
+		t.Fatalf("successful commits = %d, want 1", successes)
 	}
 }
 
