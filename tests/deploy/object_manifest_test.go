@@ -24,4 +24,9 @@ func TestObjectManifestRecordsProjectScopedVersions(t *testing.T) {
 	if err := deploy.RecordObjectVersionManifest(path, manifest); !errors.Is(err, deploy.ErrInvalidObjectVersionManifest) {
 		t.Fatal("duplicate object version was accepted")
 	}
+	available := map[string]bool{"dev\x00uploads/avatar\x00v1": true}
+	missing := deploy.MissingObjectVersions(manifest.Objects[:2], available)
+	if len(missing) != 1 || missing[0].ObjectKey != "uploads/logo" {
+		t.Fatalf("missing objects = %#v", missing)
+	}
 }

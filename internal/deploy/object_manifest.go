@@ -19,6 +19,17 @@ type ObjectVersionManifest struct {
 	Objects []ObjectVersion `json:"objects"`
 }
 
+func MissingObjectVersions(objects []ObjectVersion, available map[string]bool) []ObjectVersion {
+	missing := make([]ObjectVersion, 0)
+	for _, object := range objects {
+		identity := object.ProjectID + "\x00" + object.ObjectKey + "\x00" + object.VersionID
+		if !available[identity] {
+			missing = append(missing, object)
+		}
+	}
+	return missing
+}
+
 func ValidateObjectVersionManifest(manifest ObjectVersionManifest) error {
 	seen := make(map[string]struct{}, len(manifest.Objects))
 	for _, object := range manifest.Objects {
