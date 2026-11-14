@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `0e0ca7a` — 2026-11-14 17:34:40 +0330 — record recovery duration and retention
+  Files: internal/deploy/recovery_record.go,roadmap_backend.md tests/deploy/recovery_record_test.go
+- `e77288c` — 2026-11-14 14:04:09 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `d68bfe8` — 2026-11-14 17:33:56 +0330 — define fresh Compose restore rehearsal
   Files: roadmap_backend.md,scripts/restore-compose.sh tests/deploy/compose_restore_test.go
 - `69efc6c` — 2026-11-14 14:03:30 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `c619d75` — 2026-11-14 17:12:44 +0330 — split roadmap by backend admin and client
   Files: roadmap.md,roadmap_admin.md roadmap_backend.md,roadmap_client.md
 - `89a45f0` — 2026-11-14 13:40:51 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `a6ff0ed` — 2026-11-14 17:10:36 +0330 — trim completed roadmap phases
-  Files: roadmap.md
-- `04539b0` — 2026-11-14 13:37:34 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
