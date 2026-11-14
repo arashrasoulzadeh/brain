@@ -54,6 +54,18 @@ func TestLoadManifestRejectsDuplicateSourceFiles(t *testing.T) {
 	}
 }
 
+func TestLoadManifestRejectsAmbiguousRoutes(t *testing.T) {
+	directory := t.TempDir()
+	manifestPath := filepath.Join(directory, "plugin.yaml")
+	unsafe := []byte("id: sample\nentrypoint: index.ts\nversion: 1.0.0\nhost_api: 1\nsource_files:\n  - index.ts\nimports:\n  - ../sdk-typescript/src/index.js\nroutes:\n  - operation: sample.run\n    function: run\n    capability: sample.run\n  - operation: sample.run\n    function: other\n    capability: sample.run\n")
+	if err := os.WriteFile(manifestPath, unsafe, 0600); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := plugin.LoadManifest(manifestPath); !errors.Is(err, plugin.ErrInvalidManifest) {
+		t.Fatalf("ambiguous route accepted: %v", err)
+	}
+}
+
 func TestValidatePluginSourcesRejectsUndeclaredImports(t *testing.T) {
 	directory := t.TempDir()
 	if err := os.WriteFile(filepath.Join(directory, "index.ts"), []byte("import \"node:crypto\";\nimport \"node:net\";\n"), 0600); err != nil {

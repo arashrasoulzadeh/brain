@@ -107,6 +107,13 @@ func ValidateManifestContract(manifest Manifest) error {
 		}
 		seenPlugins[pluginID] = true
 	}
+	seenRoutes := map[string]bool{}
+	for _, route := range manifest.Routes {
+		if route.Operation == "" || route.Function == "" || route.Capability == "" || seenRoutes[route.Operation] {
+			return ErrInvalidManifest
+		}
+		seenRoutes[route.Operation] = true
+	}
 	return nil
 }
 
