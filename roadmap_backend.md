@@ -40,7 +40,7 @@ Backend infrastructure, release, deployment, backup, capacity, and security work
 - [x] Check enabled worker health.
 - [x] Record the deployed version.
 - [x] Keep the last healthy image set.
-- [ ] Test rollback with a compatible schema.
+- [x] Test rollback with a compatible schema.
 - [ ] Document incompatible-migration recovery.
 
 ## Backup and restore
