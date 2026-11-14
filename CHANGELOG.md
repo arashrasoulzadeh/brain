@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `00f88bd` — 2026-11-14 22:52:34 +0330 — use explicit debian node in sandbox ci
+  Files: .github/workflows/test.yml,scripts/run-sandboxed-typescript-worker.sh
+- `96a5b3c` — 2026-11-14 19:21:30 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `d9cad6a` — 2026-11-14 22:51:16 +0330 — bind sandbox node executable explicitly
   Files: scripts/run-sandboxed-typescript-worker.sh
 - `636007d` — 2026-11-14 19:19:55 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `e968db1` — 2026-11-14 17:32:22 +0330 — define PostgreSQL restore rehearsal
   Files: roadmap_backend.md,scripts/restore-postgres-backup.sh tests/deploy/postgres_restore_test.go
 - `513d3ec` — 2026-11-14 14:01:58 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `6e90046` — 2026-11-14 17:31:44 +0330 — alert on stale verified backups
-  Files: internal/deploy/backup_policy.go,roadmap_backend.md scripts/check-backup-age.sh,tests/deploy/backup_age_script_test.go tests/deploy/backup_policy_test.go
-- `8243875` — 2026-11-14 14:01:17 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
