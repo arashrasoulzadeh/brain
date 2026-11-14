@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `aff04b2` — 2026-11-14 17:24:03 +0330 — record deployed release version
+  Files: internal/deploy/version.go,roadmap_backend.md tests/deploy/version_test.go
+- `c755865` — 2026-11-14 13:53:33 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `b9a8b6f` — 2026-11-14 17:23:19 +0330 — check enabled worker health before release
   Files: internal/plugin/supervisor.go,roadmap_backend.md tests/plugin/supervisor_test.go
 - `49e553f` — 2026-11-14 13:52:40 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `44a2c30` — 2026-11-14 16:59:01 +0330 — define reconnect protocol fixture
   Files: protocol/fixtures/reconnect.json,roadmap.md tests/protocol/fixtures_test.go
 - `8fe29c6` — 2026-11-14 13:28:50 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `6ebad02` — 2026-11-14 16:58:38 +0330 — define authorized snapshot fixture
-  Files: protocol/fixtures/authorized-snapshot.json,roadmap.md tests/protocol/fixtures_test.go
-- `b056235` — 2026-11-14 13:28:27 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
