@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `3f4c539` — 2026-11-14 16:53:40 +0330 — add flutter secure token storage boundary
+  Files: clients/flutter/lib/secure_token_storage.dart,tests/flutter/secure_token_storage_test.dart
+- `3253dc2` — 2026-11-14 13:23:24 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `9bc342b` — 2026-11-14 16:52:54 +0330 — verify native browser auth callback
   Files: clients/flutter/lib/auth_callback.dart,roadmap.md tests/flutter/auth_callback_test.dart
 - `57a473e` — 2026-11-14 13:22:36 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `9bdeccc` — 2026-11-14 16:38:34 +0330 — add dashboard plugin promotion routes
   Files: plugins/dashboard/index.ts,plugins/dashboard/plugin.yaml plugins/dashboard/project-request.ts,roadmap.md tests/dashboard/dashboard.test.ts
 - `768756a` — 2026-11-14 13:07:54 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `fa6f29e` — 2026-11-14 16:37:40 +0330 — audit deployment workflow steps
-  Files: plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/validate-deployment-workflow.ts,roadmap.md tests/functions/deployment-workflow-audit.test.ts
-- `110dc00` — 2026-11-14 13:07:20 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
