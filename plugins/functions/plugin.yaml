@@ -40,6 +40,11 @@ source_files:
   - missed-schedule-enqueuer.ts
   - function-version-enqueuer.ts
   - shared-helper-publisher.ts
+  - wasm-build-settings.ts
+  - validate-sdk-imports.ts
+  - validate-source-project.ts
+  - validate-build-overrides.ts
+  - validate-function-limits.ts
 imports:
   - ../sdk-typescript/src/index.js
   - node:fs
@@ -84,6 +89,11 @@ imports:
   - ./missed-schedule-enqueuer.js
   - ./function-version-enqueuer.js
   - ./shared-helper-publisher.js
+  - ./wasm-build-settings.js
+  - ./validate-sdk-imports.js
+  - ./validate-source-project.js
+  - ./validate-build-overrides.js
+  - ./validate-function-limits.js
   - ./index.js
 plugin_imports:
 title: Functions

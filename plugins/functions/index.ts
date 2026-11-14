@@ -43,30 +43,13 @@ import { FunctionVersionEnqueuer } from "./function-version-enqueuer.js";
 export { functionRequest } from "./function-request.js";
 export { publishSharedHelperArtifact } from "./shared-helper-publisher.js";
 
-export const APPROVED_SDK_IMPORTS = ["brain/sdk", "brain/project", "brain/storage"] as const;
 export const ENTRY_PACKAGE_FIXTURE = "package main\n\nimport \"encoding/json\"\n\nfunc main() {\n\t_ = json.NewEncoder(nil)\n}\n";
 export const PROJECT_HELPER_FIXTURE = "package helper";
-export function wasmBuildSettings(): Readonly<{ goos: "wasip1"; goarch: "wasm"; cgoEnabled: "0" }> {
-  return { goos: "wasip1", goarch: "wasm", cgoEnabled: "0" };
-}
-
-export function validateSDKImports(imports: readonly string[]): void {
-  if (imports.some((name) => !APPROVED_SDK_IMPORTS.includes(name as typeof APPROVED_SDK_IMPORTS[number]))) throw new Error("unsupported SDK import");
-}
-export function requireSDKImports(imports: readonly string[], required: readonly string[]): void {
-  validateSDKImports(imports);
-  if (required.some((name) => !imports.includes(name))) throw new Error("required SDK import missing");
-}
-export function validateSourceProject(sourceProjectId: string, requestedProjectId: string): void {
-  if (!sourceProjectId || sourceProjectId !== requestedProjectId) throw new Error("cross-project source access denied");
-}
-export function validateBuildOverrides(overrides: Readonly<Record<string, string>>): void {
-  const denied = new Set(["GOWORK", "GOTOOLCHAIN", "GOENV", "GOMOD", "GOPROXY", "GOFLAGS"]);
-  if (Object.keys(overrides).some((key) => denied.has(key) || key.toLowerCase().includes("workspace") || key.toLowerCase().includes("toolchain"))) throw new Error("build override denied");
-}
-export function validateFunctionLimits(sourceBytes: number, artifactBytes: number, maxSourceBytes: number, maxArtifactBytes: number): void {
-  if (![sourceBytes, artifactBytes, maxSourceBytes, maxArtifactBytes].every(Number.isSafeInteger) || sourceBytes < 0 || artifactBytes < 0 || maxSourceBytes < 0 || maxArtifactBytes < 0 || sourceBytes > maxSourceBytes || artifactBytes > maxArtifactBytes) throw new Error("function size limit exceeded");
-}
+export { wasmBuildSettings } from "./wasm-build-settings.js";
+export { APPROVED_SDK_IMPORTS, validateSDKImports, requireSDKImports } from "./validate-sdk-imports.js";
+export { validateSourceProject } from "./validate-source-project.js";
+export { validateBuildOverrides } from "./validate-build-overrides.js";
+export { validateFunctionLimits } from "./validate-function-limits.js";
 export class DisposableCompilerWorkspace {
   readonly path: string;
   constructor(prefix = "brain-function-") { this.path = mkdtempSync(join(tmpdir(), prefix)); }
