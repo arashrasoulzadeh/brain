@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `f774c5a` — 2026-11-14 16:50:46 +0330 — scaffold flutter fixture consumer
+  Files: clients/flutter/lib/shared_fixtures.dart,clients/flutter/pubspec.yaml tests/flutter/shared_fixtures_test.dart
+- `c0361ae` — 2026-11-14 13:19:52 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `5420d0b` — 2026-11-14 16:49:37 +0330 — publish playable arena guide
   Files: docs/playable-arena.md,roadmap.md
 - `ac8c43e` — 2026-11-14 13:19:29 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `7cf3533` — 2026-11-14 16:35:51 +0330 — add deployment lifecycle hooks
   Files: plugins/functions/create-deployment-hook-set.ts,plugins/functions/index.ts plugins/functions/plugin.yaml,roadmap.md tests/functions/deployment-hooks.test.ts
 - `fbc5388` — 2026-11-14 13:05:13 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `ed74c03` — 2026-11-14 16:34:59 +0330 — require explicit deployment plugin grants
-  Files: plugins/functions/authorize-deployment-plugin.ts,plugins/functions/index.ts plugins/functions/plugin.yaml,roadmap.md tests/functions/workflow-components.test.ts
-- `7ba30d7` — 2026-11-14 13:04:29 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
