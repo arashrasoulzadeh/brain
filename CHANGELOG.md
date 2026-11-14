@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `2ff2af8` — 2026-11-15 01:58:08 +0330 — enforce project identity in disable previews
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `ab341ac` — 2026-11-14 22:27:39 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `52d292f` — 2026-11-15 01:57:23 +0330 — reject duplicate plugin installations
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `cc88191` — 2026-11-14 22:26:54 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `e046094` — 2026-11-15 01:38:50 +0330 — fail closed without plugin worker
   Files: internal/plugin/worker.go,tests/plugin/worker_test.go
 - `4cd0809` — 2026-11-14 22:08:22 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `a2bc42c` — 2026-11-15 01:38:09 +0330 — reject trailing handshake data
-  Files: internal/plugin/external_http.go,tests/plugin/external_http_test.go
-- `1fddf06` — 2026-11-14 22:07:44 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
