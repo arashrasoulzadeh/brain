@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `45d622f` — 2026-11-15 00:42:09 +0330 — bind websocket messages to host project
+  Files: internal/plugin/websocket_message.go,tests/plugin/websocket_message_test.go
+- `b5d22b6` — 2026-11-14 21:11:45 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `8046ba0` — 2026-11-15 00:41:32 +0330 — reject traversal in websocket project paths
   Files: internal/plugin/websocket_endpoint.go,tests/plugin/websocket_endpoint_test.go
 - `3b13d37` — 2026-11-14 21:10:58 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `5381577` — 2026-11-14 20:48:52 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
 - `fb2ee42` — 2026-11-15 00:18:40 +0330 — require p95 snapshot latency measurement
-  Files: internal/deploy/capacity_profile.go,tests/deploy/capacity_profile_test.go
-- `917b06f` — 2026-11-14 20:48:04 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `ce3d564` — 2026-11-15 00:17:51 +0330 — bound packet loss capacity simulation
   Files: internal/deploy/capacity_profile.go,tests/deploy/capacity_profile_test.go
