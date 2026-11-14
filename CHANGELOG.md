@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `6ebad02` — 2026-11-14 16:58:38 +0330 — define authorized snapshot fixture
+  Files: protocol/fixtures/authorized-snapshot.json,roadmap.md tests/protocol/fixtures_test.go
+- `b056235` — 2026-11-14 13:28:27 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `3980d5f` — 2026-11-14 16:58:14 +0330 — define player input fixture
   Files: protocol/fixtures/player-input.json,roadmap.md tests/protocol/fixtures_test.go
 - `f42f7ab` — 2026-11-14 13:28:03 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `35ef1a5` — 2026-11-14 16:45:49 +0330 — add shared gameplay fixture
   Files: roadmap.md,tests/fixtures/gameplay-fixture.test.ts tests/fixtures/gameplay-fixture.ts
 - `cb84889` — 2026-11-14 13:15:40 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `919dd2b` — 2026-11-14 16:45:26 +0330 — add shared matchmaking fixture
-  Files: roadmap.md,tests/fixtures/matchmaking-fixture.test.ts tests/fixtures/matchmaking-fixture.ts
-- `49a8f4b` — 2026-11-14 13:15:17 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
