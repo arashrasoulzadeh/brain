@@ -14,6 +14,8 @@ At the end of every phase, update this guide with the implementation notes, test
 
 Keep changelog entries newest first, with one entry per commit containing the short commit hash and subject.
 
+Deployment rollback must validate schema compatibility. The operator recovery procedure for incompatible migrations is documented in [`incompatible-migration-recovery.md`](incompatible-migration-recovery.md); code must not perform destructive down-migrations as an automatic fallback.
+
 ## Tests
 
 All tests live under the top-level `tests/` directory. Keep tests grouped by area, preserve external package boundaries, and run `GOCACHE=/tmp/brain-go-cache go test ./...` after every test move or implementation change.

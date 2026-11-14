@@ -34,6 +34,8 @@ At the end of every phase, this guide must be updated with new operator capabili
 
 The changelog is newest first and separated into one auditable entry per commit.
 
+For incompatible migrations, follow [`incompatible-migration-recovery.md`](incompatible-migration-recovery.md). Never roll back binaries against an incompatible schema; restore the verified PostgreSQL backup and referenced object versions together, or keep traffic stopped for an approved forward fix.
+
 ## Phase 00 completed
 
 The foundation is complete and verified. Administrators now have documented separation between runtime and migration credentials, runtime DDL protection, a platform migration contract, isolated local test settings, and an opt-in Compose smoke test. CI verifies formatting, Go tests, and multi-architecture image builds. Project/plugin administration remains the next implementation phase.
