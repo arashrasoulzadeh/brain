@@ -57,3 +57,20 @@ try {
 } catch (error) {
   if (!(error instanceof Error) || error.message !== "invalid bridge message") throw error;
 }
+
+try {
+  validateBridgeMessage(
+    {
+      protocol: 1,
+      projectId: "dev",
+      invocationId: "frame-1",
+      operation: "record.list",
+      payload: { destructiveConfirmation: true },
+    },
+    context,
+    ["record.list"],
+  );
+  throw new Error("sensitive confirmation crossed the bridge");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "invalid bridge message") throw error;
+}

@@ -1,4 +1,4 @@
-const SENSITIVE_KEY = /(?:token|secret|password|credential|api[_-]?key)/i;
+const SENSITIVE_KEY = /(?:token|secret|password|credential|api[_-]?key|confirmation|destructive)/i;
 
 export function rejectSensitiveBridgeData(value: unknown): void {
   if (!value || typeof value !== "object") return;
