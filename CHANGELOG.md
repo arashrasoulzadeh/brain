@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `c619d75` — 2026-11-14 17:12:44 +0330 — split roadmap by backend admin and client
+  Files: roadmap.md,roadmap_admin.md roadmap_backend.md,roadmap_client.md
+- `89a45f0` — 2026-11-14 13:40:51 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `a6ff0ed` — 2026-11-14 17:10:36 +0330 — trim completed roadmap phases
   Files: roadmap.md
 - `04539b0` — 2026-11-14 13:37:34 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `2a28b8d` — 2026-11-14 16:54:07 +0330 — verify flutter web cookie policy
   Files: clients/flutter/lib/web_cookie.dart,roadmap.md tests/flutter/web_cookie_test.dart
 - `e5669bb` — 2026-11-14 13:23:51 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `3f4c539` — 2026-11-14 16:53:40 +0330 — add flutter secure token storage boundary
-  Files: clients/flutter/lib/secure_token_storage.dart,tests/flutter/secure_token_storage_test.dart
-- `3253dc2` — 2026-11-14 13:23:24 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
