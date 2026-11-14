@@ -16,7 +16,22 @@ const (
 var (
 	ErrImagesPulledAfterDrain = errors.New("images must be pulled before draining")
 	ErrDeploymentOrder        = errors.New("invalid deployment step order")
+	ErrProjectIDRequired      = errors.New("project ID required")
 )
+
+type AssignmentPauser interface {
+	PauseAssignments(projectID string) error
+}
+
+func PauseAssignmentsForDeployment(pauser AssignmentPauser, projectID string) error {
+	if pauser == nil {
+		return ErrDeploymentOrder
+	}
+	if projectID == "" {
+		return ErrProjectIDRequired
+	}
+	return pauser.PauseAssignments(projectID)
+}
 
 func ValidateDeploymentSequence(steps []DeploymentStep) error {
 	pullIndex := indexOfDeploymentStep(steps, StepPullImages)

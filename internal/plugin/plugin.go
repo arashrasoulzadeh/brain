@@ -116,6 +116,19 @@ func (m Manifest) EntryPoint() string {
 
 var sourceImportPattern = regexp.MustCompile(`(?m)^\s*import[^\n"']*(?:from\s*)?["']([^"']+)["']`)
 var sourceExportPattern = regexp.MustCompile(`(?m)^\s*export[^\n"']*from\s*["']([^"']+)["']`)
+var sourceDynamicImportPattern = regexp.MustCompile(`(?m)\bimport\s*\(\s*["']([^"']+)["']\s*\)`)
+var sourceRequirePattern = regexp.MustCompile(`(?m)\brequire\s*\(\s*["']([^"']+)["']\s*\)`)
+
+func validRelativeManifestPath(candidate string) bool {
+	if candidate == "" || strings.HasPrefix(candidate, "/") || strings.ContainsAny(candidate, "\\\x00") {
+		return false
+	}
+	clean := path.Clean(candidate)
+	if clean == "." || clean == ".." || strings.HasPrefix(clean, "../") {
+		return false
+	}
+	return clean == candidate
+}
 
 func ValidatePluginSources(directory string, manifest Manifest) error {
 	if err := ValidateManifestContract(manifest); err != nil {
@@ -126,11 +139,17 @@ func ValidatePluginSources(directory string, manifest Manifest) error {
 		allowedImports[importPath] = true
 	}
 	for _, sourceFile := range manifest.SourceFiles {
+		if !validRelativeManifestPath(sourceFile) {
+			return ErrInvalidManifest
+		}
 		data, err := os.ReadFile(filepath.Join(directory, sourceFile))
 		if err != nil {
 			return ErrInvalidManifest
 		}
-		matches := append(sourceImportPattern.FindAllStringSubmatch(string(data), -1), sourceExportPattern.FindAllStringSubmatch(string(data), -1)...)
+		matches := sourceImportPattern.FindAllStringSubmatch(string(data), -1)
+		matches = append(matches, sourceExportPattern.FindAllStringSubmatch(string(data), -1)...)
+		matches = append(matches, sourceDynamicImportPattern.FindAllStringSubmatch(string(data), -1)...)
+		matches = append(matches, sourceRequirePattern.FindAllStringSubmatch(string(data), -1)...)
 		for _, match := range matches {
 			if !allowedImports[match[1]] {
 				return fmt.Errorf("%w: %s imports %s", ErrInvalidManifest, sourceFile, match[1])

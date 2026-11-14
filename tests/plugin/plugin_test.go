@@ -47,6 +47,25 @@ func TestValidatePluginSourcesRejectsUndeclaredImports(t *testing.T) {
 	}
 }
 
+func TestValidatePluginSourcesRejectsUndeclaredDynamicImports(t *testing.T) {
+	directory := t.TempDir()
+	if err := os.WriteFile(filepath.Join(directory, "index.ts"), []byte("const dependency = require(\"node:fs\");\n"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	manifest := plugin.Manifest{ID: "sample", Entry: "index.ts", Version: "1.0.0", HostAPI: 1, SourceFiles: []string{"index.ts"}, Imports: []string{"node:path"}}
+	if err := plugin.ValidatePluginSources(directory, manifest); !errors.Is(err, plugin.ErrInvalidManifest) {
+		t.Fatalf("dynamic undeclared import error = %v", err)
+	}
+}
+
+func TestValidatePluginSourcesRejectsSourcePathTraversal(t *testing.T) {
+	directory := t.TempDir()
+	manifest := plugin.Manifest{ID: "sample", Entry: "index.ts", Version: "1.0.0", HostAPI: 1, SourceFiles: []string{"index.ts", "../outside.ts"}, Imports: []string{"node:path"}}
+	if err := plugin.ValidatePluginSources(directory, manifest); !errors.Is(err, plugin.ErrInvalidManifest) {
+		t.Fatalf("source path traversal error = %v", err)
+	}
+}
+
 func TestPluginLifecycleAndScopedAuthorization(t *testing.T) {
 	r := plugin.NewRegistry(1)
 	m := plugin.Manifest{ID: "guest", Version: "1.0.0", HostAPI: 1, Capabilities: []string{"session.issue"}}

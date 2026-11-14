@@ -33,3 +33,23 @@ func TestValidateDeploymentSequenceRequiresPauseBeforeDrain(t *testing.T) {
 		t.Fatalf("drain without pausing assignments accepted: %v", err)
 	}
 }
+
+func TestPauseAssignmentsForDeploymentCallsHostContract(t *testing.T) {
+	pauser := &recordingAssignmentPauser{}
+
+	if err := deploy.PauseAssignmentsForDeployment(pauser, "project-1"); err != nil {
+		t.Fatal(err)
+	}
+	if pauser.projectID != "project-1" {
+		t.Fatalf("paused project = %q", pauser.projectID)
+	}
+}
+
+type recordingAssignmentPauser struct {
+	projectID string
+}
+
+func (p *recordingAssignmentPauser) PauseAssignments(projectID string) error {
+	p.projectID = projectID
+	return nil
+}
