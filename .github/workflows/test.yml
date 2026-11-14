@@ -33,7 +33,7 @@ jobs:
       - name: Compose compiler and runner isolation tests
         run: RUN_PLUGIN_ISOLATION_TESTS=1 sh scripts/smoke-compose.sh
   typescript:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - name: Install Bubblewrap
