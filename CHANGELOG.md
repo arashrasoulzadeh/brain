@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `30f915a` — 2026-11-14 16:46:54 +0330 — add first party session cookie
+  Files: plugins/auth/first-party-session-cookie.ts,plugins/auth/index.ts plugins/auth/plugin.yaml,roadmap.md tests/auth/first-party-cookie.test.ts
+- `4a52869` — 2026-11-14 13:16:27 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `7d354c8` — 2026-11-14 16:46:13 +0330 — add shared reconnect fixture
   Files: roadmap.md,tests/fixtures/reconnect-fixture.test.ts tests/fixtures/reconnect-fixture.ts
 - `e2ca76d` — 2026-11-14 13:16:03 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `e35f8eb` — 2026-11-14 16:29:55 +0330 — feat: replace project workflow steps
   Files: plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/replace-project-workflow-step.ts,roadmap.md tests/functions/project-workflow-action.test.ts
 - `c424620` — 2026-11-14 12:59:02 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `a21eb97` — 2026-11-14 16:28:49 +0330 — feat: register project workflow actions
-  Files: plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/register-project-workflow-action.ts,roadmap.md tests/functions/project-workflow-action.test.ts
-- `6d2dac9` — 2026-11-14 12:57:36 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
