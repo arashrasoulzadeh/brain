@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `ffd22c3` — 2026-11-15 00:31:51 +0330 — add bounded worker recovery
+  Files: internal/plugin/supervisor.go,tests/plugin/supervisor_test.go
+- `7029390` — 2026-11-14 21:02:17 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `324637a` — 2026-11-15 00:31:39 +0330 — bind operator actions to authenticated sessions
   Files: internal/operator/operator.go,tests/operator/operator_test.go
 - `e2065c0` — 2026-11-14 20:58:07 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `083d722` — 2026-11-14 23:07:49 +0330 — avoid unavailable sandbox test dependency
   Files: scripts/test-sandboxed-typescript-worker.sh
 - `418f2b8` — 2026-11-14 19:36:36 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `0dd6679` — 2026-11-14 23:06:18 +0330 — mount node runtime modules in sandbox
-  Files: scripts/run-sandboxed-typescript-worker.sh
-- `5fdbef1` — 2026-11-14 19:34:37 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
