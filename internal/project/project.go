@@ -1,6 +1,9 @@
 package project
 
-import "errors"
+import (
+	"errors"
+	"sync"
+)
 
 var (
 	ErrNotFound  = errors.New("project not found")
@@ -14,6 +17,8 @@ type Project struct {
 }
 
 func (s *Store) Create(id string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	if id == "" {
 		return ErrNotFound
 	}
@@ -25,6 +30,7 @@ func (s *Store) Create(id string) error {
 }
 
 type Store struct {
+	mu       sync.RWMutex
 	projects map[string]Project
 }
 
@@ -37,6 +43,8 @@ func NewStore(projects ...Project) *Store {
 }
 
 func (s *Store) Resolve(id string) (Project, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	p, ok := s.projects[id]
 	if !ok {
 		return Project{}, ErrNotFound

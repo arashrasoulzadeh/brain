@@ -2,6 +2,8 @@ package project_test
 
 import (
 	"errors"
+	"fmt"
+	"sync"
 	"testing"
 
 	"brain/internal/project"
@@ -28,4 +30,25 @@ func TestResolveRejectsInactiveProject(t *testing.T) {
 	if !errors.Is(err, project.ErrInactive) {
 		t.Fatalf("Resolve(prod) = %v, want ErrInactive", err)
 	}
+}
+
+func TestStoreSupportsConcurrentProjectAccess(t *testing.T) {
+	store := project.NewStore()
+	var group sync.WaitGroup
+	for index := 0; index < 32; index++ {
+		index := index
+		group.Add(1)
+		go func() {
+			defer group.Done()
+			id := fmt.Sprintf("project-%d", index)
+			if err := store.Create(id); err != nil {
+				t.Errorf("Create(%q) = %v", id, err)
+				return
+			}
+			if _, err := store.Resolve(id); err != nil {
+				t.Errorf("Resolve(%q) = %v", id, err)
+			}
+		}()
+	}
+	group.Wait()
 }
