@@ -9,6 +9,8 @@ import { TicketRequeuer } from "./ticket-requeuer.js";
 import { AssignmentCreator } from "./assignment-creator.js";
 import { TicketCanceller } from "./ticket-canceller.js";
 import { ScopeTicketCanceller } from "./scope-ticket-canceller.js";
+import { pauseProjectAssignments } from "./pause-project-assignments.js";
+import { resumeProjectAssignments } from "./resume-project-assignments.js";
 export function createMatchmakingQueue(configs?: {
   reader: MatchmakingConfigReader;
   status: MatchmakingConfigStatus;
@@ -31,6 +33,8 @@ export function createMatchmakingQueue(configs?: {
     assign: assigner.assign.bind(assigner),
     cancelIncompatible: canceller.cancelIncompatible.bind(canceller),
     cancelScope: scopeCanceller.cancelScope.bind(scopeCanceller),
+    pauseAssignments: (projectId: string) => pauseProjectAssignments(runtime, projectId),
+    resumeAssignments: (projectId: string) => resumeProjectAssignments(runtime, projectId),
     setLifecycleRevision: (revision: number) => {
       runtime.lifecycleRevision = revision;
     },

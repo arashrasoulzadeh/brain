@@ -22,6 +22,9 @@ source_files:
   - assignment-creator.ts
   - ticket-canceller.ts
   - scope-ticket-canceller.ts
+  - pause-project-assignments.ts
+  - resume-project-assignments.ts
+  - is-project-assignments-paused.ts
 imports:
   - ../sdk-typescript/src/index.js
   - ./matchmaking-config-writer.js
@@ -38,6 +41,9 @@ imports:
   - ./assignment-creator.js
   - ./ticket-canceller.js
   - ./scope-ticket-canceller.js
+  - ./pause-project-assignments.js
+  - ./resume-project-assignments.js
+  - ./is-project-assignments-paused.js
   - ./validate-config.js
   - ./types.js
 plugin_imports:

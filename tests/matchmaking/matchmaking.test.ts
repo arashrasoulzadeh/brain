@@ -140,3 +140,15 @@ if (
   drainedQueue.peek("dev", "casual").length !== 0
 )
   throw new Error("queued matches were not cancelled for the disabled scope");
+
+const pausedQueue = createMatchmakingQueue();
+pausedQueue.pauseAssignments("dev");
+try {
+  pausedQueue.enqueue("dev", "ranked", "user-14");
+  throw new Error("paused project accepted a new matchmaking ticket");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "matchmaking assignments paused") throw error;
+}
+pausedQueue.resumeAssignments("dev");
+if (pausedQueue.enqueue("dev", "ranked", "user-14").playerId !== "user-14")
+  throw new Error("resumed project rejected a new matchmaking ticket");
