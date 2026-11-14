@@ -1021,6 +1021,35 @@ func TestProjectUninstallStopsWorkersAndClosesSockets(t *testing.T) {
 	}
 }
 
+func TestProjectRemovalStopsWorkerAndClosesSockets(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	m := plugin.Manifest{ID: "remove-runtime", Version: "1.0.0", HostAPI: 1}
+	if err := r.Register(m); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Install("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	supervisor := plugin.NewSupervisor()
+	worker := &supervisorTestWorker{}
+	if err := supervisor.Start("dev:"+m.ID+"@"+m.Version, worker); err != nil {
+		t.Fatal(err)
+	}
+	webSockets := plugin.NewWebSocketRegistry()
+	socket := &trackedConnection{}
+	if err := webSockets.RegisterProject("dev-socket", "dev", socket); err != nil {
+		t.Fatal(err)
+	}
+	r.BindSupervisor(supervisor)
+	r.BindWebSocketRegistry(webSockets)
+	if err := r.Remove("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	if !worker.stopped || !socket.closed {
+		t.Fatalf("runtime cleanup = worker:%v socket:%v", worker.stopped, socket.closed)
+	}
+}
+
 func TestRegistryRecoveryRestartsCrashedProjectWorker(t *testing.T) {
 	r := plugin.NewRegistry(1)
 	m := plugin.Manifest{ID: "recover-runtime", Version: "1.0.0", HostAPI: 1}

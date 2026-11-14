@@ -959,10 +959,21 @@ func (r *Registry) Remove(projectID, id, version string) error {
 	if r.active[projectID+":"+id] == version {
 		return ErrVersionReferenced
 	}
+	var removalError error
+	if r.supervisor != nil {
+		if err := r.supervisor.StopProjectPlugin(projectID, id, version); err != nil && !errors.Is(err, ErrWorkerNotRunning) {
+			removalError = err
+		}
+	}
 	delete(r.installations, key)
 	r.lifecycleRevision++
 	r.appendAudit(AuditEvent{Action: "remove", ProjectID: projectID, PluginID: id, Version: version})
-	return nil
+	if r.webSockets != nil {
+		if err := r.webSockets.CloseProject(projectID); err != nil && removalError == nil {
+			removalError = err
+		}
+	}
+	return removalError
 }
 
 func (r *Registry) Unregister(id, version string) error {
