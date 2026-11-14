@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `104c589` — 2026-11-14 17:21:45 +0330 — add bounded API readiness check
+  Files: roadmap_backend.md,scripts/check-api-readiness.sh tests/deploy/readiness_script_test.go
+- `6c97588` — 2026-11-14 13:51:07 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `6c4a8d3` — 2026-11-14 17:20:47 +0330 — start deployment compose without rebuilding
   Files: roadmap_backend.md,scripts/start-compose-no-build.sh tests/deploy/compose_script_test.go
 - `94a5102` — 2026-11-14 13:50:23 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `4a48adf` — 2026-11-14 16:57:50 +0330 — define assignment fixture
   Files: protocol/fixtures/assignment.json,roadmap.md tests/protocol/fixtures_test.go
 - `0618c1d` — 2026-11-14 13:27:41 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `2f3117a` — 2026-11-14 16:57:27 +0330 — define room admission fixture
-  Files: protocol/fixtures/room-admission.json,roadmap.md tests/protocol/fixtures_test.go
-- `bec31f5` — 2026-11-14 13:27:16 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
