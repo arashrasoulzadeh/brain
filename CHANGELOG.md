@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `2aa22bb` — 2026-11-14 22:45:28 +0330 — preserve sandbox mounts under isolated tmp
+  Files: scripts/run-sandboxed-typescript-worker.sh
+- `51fc3a4` — 2026-11-14 19:14:20 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `ba30916` — 2026-11-14 22:44:06 +0330 — stabilize sandbox worker host test
   Files: tests/plugin/bubblewrap_worker_test.go
 - `dbcf3e7` — 2026-11-14 19:13:19 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `a0f6f69` — 2026-11-14 17:28:00 +0330 — add consistent PostgreSQL snapshot
   Files: roadmap_backend.md,scripts/snapshot-postgres.sh tests/deploy/postgres_snapshot_test.go
 - `c987deb` — 2026-11-14 13:57:36 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `2b05f3e` — 2026-11-14 17:27:21 +0330 — define verified backup policy
-  Files: docs/admins.md,docs/developers.md internal/deploy/backup_policy.go,roadmap_backend.md tests/deploy/backup_policy_test.go
-- `0236b8f` — 2026-11-14 13:56:49 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
