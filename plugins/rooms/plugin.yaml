@@ -25,6 +25,9 @@ source_files:
   - room-joiner.ts
   - room-leaver.ts
   - room-event-reader.ts
+  - authorized-room-snapshot.ts
+  - authorize-room-command.ts
+  - create-room-directory.ts
   - pause-tic-tac-toe-turn.ts
   - resume-tic-tac-toe-turn.ts
   - tic-tac-toe-runtime.ts
@@ -52,6 +55,9 @@ imports:
   - ./room-joiner.js
   - ./room-leaver.js
   - ./room-event-reader.js
+  - ./authorized-room-snapshot.js
+  - ./authorize-room-command.js
+  - ./create-room-directory.js
   - ./pause-tic-tac-toe-turn.js
   - ./resume-tic-tac-toe-turn.js
   - ./tic-tac-toe-runtime.js
