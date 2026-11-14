@@ -64,13 +64,15 @@ func (s *Store) Recover(token, newSecret string, digest func(string) string) err
 	s.account.SecretDigest = digest(newSecret)
 	s.account.RecoveryDigest = ""
 	s.account.MFASecret = ""
+	s.authenticatedOperator = ""
 	s.record("operator.recovery", s.account.Username, true, s.account.Username)
 	return nil
 }
 
 type Store struct {
-	account *Account
-	audit   []AuditEvent
+	account               *Account
+	audit                 []AuditEvent
+	authenticatedOperator string
 }
 
 func (s *Store) Audit() []AuditEvent { return append([]AuditEvent(nil), s.audit...) }
@@ -80,7 +82,7 @@ func (s *Store) record(action, actorID string, success bool, detail string) {
 }
 
 func (s *Store) AuthorizeAction(actor Actor, action string) error {
-	if actor.ID == "" || action == "" || actor.Kind != ActorOperator || s.account == nil || actor.ID != s.account.Username {
+	if actor.ID == "" || action == "" || actor.Kind != ActorOperator || s.account == nil || actor.ID != s.account.Username || actor.ID != s.authenticatedOperator {
 		return ErrOperatorRequired
 	}
 	return nil
@@ -107,14 +109,17 @@ func (s *Store) Account() (Account, bool) {
 
 func (s *Store) Authenticate(username, secret string, digest func(string) string) error {
 	if s.account == nil || digest == nil || username != s.account.Username {
+		s.authenticatedOperator = ""
 		s.record("operator.signin", username, false, "")
 		return ErrInvalidCredentials
 	}
 	got := digest(secret)
 	if subtle.ConstantTimeCompare([]byte(got), []byte(s.account.SecretDigest)) != 1 {
+		s.authenticatedOperator = ""
 		s.record("operator.signin", username, false, "")
 		return ErrInvalidCredentials
 	}
+	s.authenticatedOperator = username
 	s.record("operator.signin", username, true, "")
 	return nil
 }
