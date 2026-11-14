@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `0dd6679` — 2026-11-14 23:06:18 +0330 — mount node runtime modules in sandbox
+  Files: scripts/run-sandboxed-typescript-worker.sh
+- `5fdbef1` — 2026-11-14 19:34:37 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `da26143` — 2026-11-14 23:04:22 +0330 — allow node snapshot address space in sandbox
   Files: scripts/test-sandboxed-typescript-worker.sh
 - `63a82e5` — 2026-11-14 19:33:05 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `29104c7` — 2026-11-14 17:40:39 +0330 — connect typescript worker to host supervisor
   Files: internal/plugin/typescript_worker.go,tests/plugin/typescript_worker_test.go
 - `c84ba77` — 2026-11-14 14:09:53 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `f904063` — 2026-11-14 17:39:40 +0330 — gate typescript worker execution context
-  Files: scripts/typescript-worker.mjs,tests/plugin/typescript-worker.test.ts
-- `a402693` — 2026-11-14 14:08:55 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
