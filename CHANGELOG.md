@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `1de68b9` — 2026-11-14 16:47:45 +0330 — verify session invalidation gate
+  Files: roadmap.md
+- `deaf7cb` — 2026-11-14 13:17:36 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `1d2eccd` — 2026-11-14 16:47:21 +0330 — verify csrf protection gate
   Files: roadmap.md
 - `8f731cd` — 2026-11-14 13:17:07 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `bde06ca` — 2026-11-14 16:32:23 +0330 — validate workflow graph inputs
   Files: plugins/functions/validate-workflow-graph.ts,roadmap.md tests/functions/functions.test.ts
 - `6397e71` — 2026-11-14 13:01:46 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `af054c2` — 2026-11-14 16:31:32 +0330 — security: recheck project workflow grants
-  Files: plugins/functions/authorize-project-workflow-action.ts,plugins/functions/index.ts plugins/functions/plugin.yaml,roadmap.md tests/functions/project-workflow-action.test.ts
-- `8306354` — 2026-11-14 13:00:16 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
