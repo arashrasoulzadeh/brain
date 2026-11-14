@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `9aa9728` — 2026-11-14 16:33:05 +0330 — test workflow effect idempotency
+  Files: roadmap.md,tests/functions/functions.test.ts
+- `294bf43` — 2026-11-14 13:02:37 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `bde06ca` — 2026-11-14 16:32:23 +0330 — validate workflow graph inputs
   Files: plugins/functions/validate-workflow-graph.ts,roadmap.md tests/functions/functions.test.ts
 - `6397e71` — 2026-11-14 13:01:46 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `53911f7` — 2026-11-14 16:03:02 +0330 — refactor: decompose tic-tac-toe room helpers
   Files: plugins/rooms/authorize-tic-tac-toe-command.ts,plugins/rooms/authorized-tic-tac-toe-state.ts plugins/rooms/command-deduplicator.ts,plugins/rooms/create-tic-tac-toe-coordinator.ts plugins/rooms/hidden-tic-tac-toe-view.ts,plugins/rooms/index.ts plugins/rooms/plugin.yaml,plugins/rooms/publish-tic-tac-toe-rules.ts plugins/rooms/reconnect-tic-tac-toe.ts,plugins/rooms/reconstruct-tic-tac-toe-history.ts plugins/rooms/serialize-tic-tac-toe-state.ts,plugins/rooms/validate-tic-tac-toe-command-payload.ts
 - `8b334d5` — 2026-11-14 12:24:21 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `0e86dbc` — 2026-11-14 15:54:01 +0330 — refactor: split room authorization boundaries
-  Files: plugins/rooms/authorize-room-command.ts,plugins/rooms/authorized-room-snapshot.ts plugins/rooms/create-room-directory.ts,plugins/rooms/index.ts plugins/rooms/plugin.yaml
-- `d53136a` — 2026-11-14 12:23:11 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
