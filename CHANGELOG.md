@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `1979883` — 2026-11-15 01:13:33 +0330 — serialize plugin lifecycle previews
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `1f182c7` — 2026-11-14 21:43:07 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `a065f6f` — 2026-11-15 01:12:46 +0330 — reject projectless lifecycle mutations
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `a447cde` — 2026-11-14 21:42:27 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `2f37359` — 2026-11-15 00:49:04 +0330 — add explicit compose rollback script
   Files: scripts/rollback-compose.sh,tests/deploy/rollback_compose_test.go
 - `13b1c4c` — 2026-11-14 21:18:41 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `af4c449` — 2026-11-15 00:48:26 +0330 — make worker supervisor concurrency safe
-  Files: internal/plugin/supervisor.go,tests/plugin/supervisor_test.go
-- `48ea91a` — 2026-11-14 21:18:01 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
