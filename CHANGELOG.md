@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `2a8c8c6` — 2026-11-14 16:06:25 +0330 — refactor: split function compiler validation
+  Files: plugins/functions/index.ts,plugins/functions/plugin.yaml plugins/functions/validate-build-overrides.ts,plugins/functions/validate-function-limits.ts plugins/functions/validate-sdk-imports.ts,plugins/functions/validate-source-project.ts plugins/functions/wasm-build-settings.ts
+- `716e06e` — 2026-11-14 12:35:43 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `ba2898c` — 2026-11-14 16:05:26 +0330 — refactor: isolate auth rate limiters
   Files: plugins/auth/account-rate-limiter.ts,plugins/auth/identity-linker.ts plugins/auth/index.ts,plugins/auth/otp-limiter.ts plugins/auth/plugin.yaml,plugins/auth/project-rate-limiter.ts
 - `9b761c8` — 2026-11-14 12:34:32 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `19b1114` — 2026-11-13 13:28:25 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
 - `66f3202` — 2026-11-13 16:58:02 +0330 — feat: revoke project grants during uninstall
-  Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
-- `b8e5533` — 2026-11-13 13:27:31 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `c423dd3` — 2026-11-13 16:56:42 +0330 — feat: wait for active work before uninstall
   Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
