@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `0a90c9c` — 2026-11-15 01:19:45 +0330 — protect plugin installation state
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `1bd54af` — 2026-11-14 21:49:22 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `4a17205` — 2026-11-15 01:19:04 +0330 — protect plugin authorization state
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `7ae4b79` — 2026-11-14 21:48:25 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `784d958` — 2026-11-15 00:57:11 +0330 — reject ambiguous plugin routes
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `a811db5` — 2026-11-14 21:26:49 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `b41dfeb` — 2026-11-15 00:55:19 +0330 — bind websocket endpoint to host project
-  Files: internal/plugin/websocket_endpoint.go,tests/plugin/websocket_endpoint_test.go
-- `7044e28` — 2026-11-14 21:24:39 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
