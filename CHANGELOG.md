@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `430b413` — 2026-11-15 01:23:29 +0330 — serialize plugin uninstall lifecycle
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `fd08c9d` — 2026-11-14 21:53:09 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `497ba7b` — 2026-11-15 01:22:50 +0330 — serialize plugin removal and pinning
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `52f7dfc` — 2026-11-14 21:52:14 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `66345a9` — 2026-11-15 01:01:00 +0330 — require declared route capabilities
   Files: internal/plugin/plugin.go,plugins/auth/plugin.yaml tests/plugin/discovery_test.go,tests/plugin/plugin_test.go
 - `5c92d2d` — 2026-11-14 21:29:35 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `9368677` — 2026-11-15 00:59:23 +0330 — require trusted caller for project middleware
-  Files: internal/project/http.go,tests/project/http_test.go
-- `25b0285` — 2026-11-14 21:28:46 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
