@@ -159,7 +159,12 @@ func ValidatePluginSources(directory string, manifest Manifest) error {
 		if !validRelativeManifestPath(sourceFile) {
 			return ErrInvalidManifest
 		}
-		data, err := os.ReadFile(filepath.Join(directory, sourceFile))
+		path := filepath.Join(directory, sourceFile)
+		info, err := os.Lstat(path)
+		if err != nil || !info.Mode().IsRegular() {
+			return ErrInvalidManifest
+		}
+		data, err := os.ReadFile(path)
 		if err != nil {
 			return ErrInvalidManifest
 		}
