@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `44a2c30` — 2026-11-14 16:59:01 +0330 — define reconnect protocol fixture
+  Files: protocol/fixtures/reconnect.json,roadmap.md tests/protocol/fixtures_test.go
+- `8fe29c6` — 2026-11-14 13:28:50 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `6ebad02` — 2026-11-14 16:58:38 +0330 — define authorized snapshot fixture
   Files: protocol/fixtures/authorized-snapshot.json,roadmap.md tests/protocol/fixtures_test.go
 - `b056235` — 2026-11-14 13:28:27 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `7d354c8` — 2026-11-14 16:46:13 +0330 — add shared reconnect fixture
   Files: roadmap.md,tests/fixtures/reconnect-fixture.test.ts tests/fixtures/reconnect-fixture.ts
 - `e2ca76d` — 2026-11-14 13:16:03 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `35ef1a5` — 2026-11-14 16:45:49 +0330 — add shared gameplay fixture
-  Files: roadmap.md,tests/fixtures/gameplay-fixture.test.ts tests/fixtures/gameplay-fixture.ts
-- `cb84889` — 2026-11-14 13:15:40 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
