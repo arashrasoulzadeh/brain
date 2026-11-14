@@ -24,8 +24,8 @@ func TestBackendReleaseWorkflowPullsAndSmokeTestsBothArchitectures(t *testing.T)
 		"docker buildx imagetools inspect",
 		"docker run --rm --platform",
 		"--entrypoint node",
-		"brain-compiler:${RELEASE_SHA}",
-		"brain-runner:${RELEASE_SHA}",
+		"brain-${image}@${digest}",
+		"^sha256:[0-9a-f]{64}$",
 	} {
 		if !strings.Contains(content, required) {
 			t.Fatalf("release workflow is missing %q", required)

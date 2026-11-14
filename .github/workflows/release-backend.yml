@@ -141,12 +141,13 @@ jobs:
         run: |
           set -euo pipefail
           for image in backend compiler runner; do
-            reference="ghcr.io/${IMAGE_OWNER}/brain-${image}:${RELEASE_SHA}"
+            digest="$(docker buildx imagetools inspect "ghcr.io/${IMAGE_OWNER}/brain-${image}:${RELEASE_SHA}" --format '{{json .Manifest.Digest}}' | tr -d '"')"
+            printf '%s\n' "${digest}" | grep -Eq '^sha256:[0-9a-f]{64}$'
+            reference="ghcr.io/${IMAGE_OWNER}/brain-${image}@${digest}"
             docker pull --platform "${TARGET_PLATFORM}" "${reference}"
             docker buildx imagetools inspect "${reference}" --format '{{json .Manifest.Manifests}}' \
               | grep -Fq '"architecture":"'"${TARGET_PLATFORM##*/}"'"'
+            if [ "${image}" = compiler ] || [ "${image}" = runner ]; then
+              docker run --rm --platform "${TARGET_PLATFORM}" --entrypoint node "${reference}" --version
+            fi
           done
-          docker run --rm --platform "${TARGET_PLATFORM}" \
-            --entrypoint node "ghcr.io/${IMAGE_OWNER}/brain-compiler:${RELEASE_SHA}" --version
-          docker run --rm --platform "${TARGET_PLATFORM}" \
-            --entrypoint node "ghcr.io/${IMAGE_OWNER}/brain-runner:${RELEASE_SHA}" --version

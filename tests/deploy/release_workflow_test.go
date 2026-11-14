@@ -66,6 +66,24 @@ func TestBackendReleaseWorkflowScopesGHCRCredentialsToPublishJobs(t *testing.T) 
 	}
 }
 
+func TestBackendReleaseWorkflowSmokeTestsDigestPinnedReferences(t *testing.T) {
+	workflow, err := os.ReadFile("../../.github/workflows/release-backend.yml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	verify := workflowJob(string(workflow), "verify-images")
+	for _, required := range []string{
+		"digest=",
+		"reference=\"ghcr.io/${IMAGE_OWNER}/brain-${image}@${digest}\"",
+		"docker pull --platform \"${TARGET_PLATFORM}\" \"${reference}\"",
+		"--entrypoint node \"${reference}\" --version",
+	} {
+		if !strings.Contains(verify, required) {
+			t.Fatalf("verify-images does not use digest-pinned reference %q", required)
+		}
+	}
+}
+
 func workflowJob(workflow, jobName string) string {
 	lines := strings.Split(workflow, "\n")
 	marker := "  " + jobName + ":"
