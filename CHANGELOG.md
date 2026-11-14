@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `af4c449` — 2026-11-15 00:48:26 +0330 — make worker supervisor concurrency safe
+  Files: internal/plugin/supervisor.go,tests/plugin/supervisor_test.go
+- `48ea91a` — 2026-11-14 21:18:01 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `7fff3e1` — 2026-11-15 00:47:48 +0330 — cover revoked in-flight credentials
   Files: tests/plugin/broker_test.go
 - `0ef8193` — 2026-11-14 21:16:59 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `478118b` — 2026-11-15 00:25:33 +0330 — publish restore runbook
   Files: docs/admins.md,docs/developers.md docs/restore-runbook.md
-- `7345ece` — 2026-11-14 20:55:17 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `fce1623` — 2026-11-15 00:25:03 +0330 — publish deployment runbook
-  Files: docs/admins.md,docs/deployment-runbook.md docs/developers.md
