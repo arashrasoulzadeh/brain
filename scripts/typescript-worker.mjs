@@ -1,13 +1,19 @@
 import readline from "node:readline";
+import { readFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 
-const manifestPath = process.argv[2];
-if (!manifestPath) {
-  process.stderr.write("manifest path is required\n");
+const descriptorPath = process.argv[2];
+if (!descriptorPath) {
+  process.stderr.write("execution descriptor path is required\n");
   process.exit(64);
 }
 
-const modulePath = pathToFileURL(manifestPath).href;
+const descriptor = JSON.parse(await readFile(descriptorPath, "utf8"));
+if (!descriptor.entrypoint || !descriptor.pluginId || !descriptor.version || !descriptor.projectId || !Array.isArray(descriptor.operations)) {
+  process.stderr.write("invalid execution descriptor\n");
+  process.exit(65);
+}
+const modulePath = pathToFileURL(descriptor.entrypoint).href;
 const plugin = await import(modulePath);
 const handler = plugin.handle ?? plugin.createHandler?.();
 if (typeof handler !== "function") {
@@ -22,6 +28,11 @@ for await (const line of input) {
   try {
     request = JSON.parse(line);
     if (JSON.stringify(request).length > 1_048_576) throw new Error("request too large");
+    const params = request.params ?? {};
+    if (params.pluginId !== descriptor.pluginId || params.version !== descriptor.version || params.projectId !== descriptor.projectId) {
+      throw new Error("execution context mismatch");
+    }
+    if (!descriptor.operations.includes(params.operation)) throw new Error("operation not declared in plugin manifest");
     const result = await handler(request);
     process.stdout.write(`${JSON.stringify({ jsonrpc: "2.0", id: request.id, result })}\n`);
   } catch (error) {

@@ -5,12 +5,23 @@ import { spawn } from "node:child_process";
 
 const directory = await mkdtemp(join(tmpdir(), "brain-ts-worker-"));
 const entrypoint = join(directory, "index.mjs");
+const descriptor = join(directory, "execution.json");
 await writeFile(
   entrypoint,
   "export function handle(request) { return { accepted: true, operation: request.params.operation }; }\n",
 );
+await writeFile(
+  descriptor,
+  JSON.stringify({
+    entrypoint,
+    pluginId: "sample",
+    version: "1.0.0",
+    projectId: "project",
+    operations: ["health"],
+  }),
+);
 
-const worker = spawn(process.execPath, ["scripts/typescript-worker.mjs", entrypoint], {
+const worker = spawn(process.execPath, ["scripts/typescript-worker.mjs", descriptor], {
   stdio: ["pipe", "pipe", "pipe"],
 });
 const output = new Promise<string>((resolve, reject) => {
@@ -22,7 +33,7 @@ const output = new Promise<string>((resolve, reject) => {
   worker.on("error", reject);
 });
 worker.stdin.write(
-  `${JSON.stringify({ jsonrpc: "2.0", id: "one", params: { operation: "health" } })}\n`,
+  `${JSON.stringify({ jsonrpc: "2.0", id: "one", params: { pluginId: "sample", version: "1.0.0", projectId: "project", operation: "health" } })}\n`,
 );
 const response = JSON.parse(await output) as {
   id: string;
