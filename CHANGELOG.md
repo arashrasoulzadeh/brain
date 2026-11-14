@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `362ae3b` — 2026-11-15 00:58:32 +0330 — align dashboard bootstrap with plugin manifest
+  Files: internal/app/dashboard.go,tests/app/dashboard_bootstrap_test.go
+- `d168679` — 2026-11-14 21:28:16 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `bec63b1` — 2026-11-15 00:58:03 +0330 — remove completed revocation gate
   Files: roadmap_backend.md
 - `4df3d1f` — 2026-11-14 21:27:55 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `e03cbf4` — 2026-11-15 00:36:56 +0330 — add manual assignment pause contract
   Files: internal/deploy/sequence.go,internal/plugin/plugin.go tests/deploy/sequence_test.go,tests/plugin/plugin_test.go
-- `6a8b810` — 2026-11-14 21:04:38 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `4799692` — 2026-11-15 00:34:24 +0330 — remove completed backend roadmap items
-  Files: roadmap_backend.md
