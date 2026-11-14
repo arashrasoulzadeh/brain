@@ -31,7 +31,7 @@ func (r *WebSocketRegistry) Register(id string, connection WebSocketConnection) 
 }
 
 func (r *WebSocketRegistry) RegisterProject(id, projectID string, connection WebSocketConnection) error {
-	if projectID == "" {
+	if !isValidProjectID(projectID) {
 		return ErrWebSocketProjectRequired
 	}
 	r.register(id, projectID, connection)
@@ -69,7 +69,7 @@ func (r *WebSocketRegistry) CloseAll() error {
 }
 
 func (r *WebSocketRegistry) CloseProject(projectID string) error {
-	if projectID == "" {
+	if !isValidProjectID(projectID) {
 		return ErrWebSocketProjectRequired
 	}
 	r.mu.Lock()

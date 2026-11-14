@@ -65,6 +65,16 @@ func TestWebSocketRegistryRejectsProjectlessRegistration(t *testing.T) {
 	}
 }
 
+func TestWebSocketRegistryRejectsMalformedProject(t *testing.T) {
+	registry := plugin.NewWebSocketRegistry()
+	if err := registry.RegisterProject("connection", "dev:other", &trackedConnection{}); !errors.Is(err, plugin.ErrWebSocketProjectRequired) {
+		t.Fatalf("malformed registration error = %v", err)
+	}
+	if err := registry.CloseProject("dev:other"); !errors.Is(err, plugin.ErrWebSocketProjectRequired) {
+		t.Fatalf("malformed close error = %v", err)
+	}
+}
+
 func TestWebSocketRegistryClosesAllProjectConnectionsAfterError(t *testing.T) {
 	registry := plugin.NewWebSocketRegistry()
 	first := &trackedConnection{err: errors.New("close failed")}

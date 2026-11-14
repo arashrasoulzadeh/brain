@@ -59,3 +59,14 @@ func TestWebSocketEndpointRejectsTraversalProjectPath(t *testing.T) {
 		t.Fatalf("status = %d, want %d", rec.Code, http.StatusNotFound)
 	}
 }
+
+func TestWebSocketEndpointRejectsAmbiguousProjectPath(t *testing.T) {
+	h := plugin.WebSocketEndpoint()
+	req := httptest.NewRequest(http.MethodGet, "/v1/projects/dev:other/rooms/room-1/ws", nil)
+	req.Header.Set("X-Project-ID", "dev:other")
+	rec := httptest.NewRecorder()
+	h.ServeHTTP(rec, req)
+	if rec.Code != http.StatusNotFound {
+		t.Fatalf("status = %d, want %d", rec.Code, http.StatusNotFound)
+	}
+}

@@ -41,7 +41,7 @@ func websocketPath(path string) (string, string, bool) {
 	if len(parts) != 6 || parts[0] != "v1" || parts[1] != "projects" || parts[3] != "rooms" || parts[5] != "ws" {
 		return "", "", false
 	}
-	return parts[2], parts[4], validWebSocketPathSegment(parts[2]) && validWebSocketPathSegment(parts[4])
+	return parts[2], parts[4], isValidProjectID(parts[2]) && validWebSocketPathSegment(parts[4])
 }
 
 func validWebSocketPathSegment(value string) bool {
