@@ -2,9 +2,11 @@ package plugin_test
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"reflect"
+	"sync"
 	"testing"
 	"time"
 
@@ -171,6 +173,27 @@ func TestPluginLifecycleAndScopedAuthorization(t *testing.T) {
 	if err := r.Authorize("prod", m.ID, m.Version, "session.issue"); !errors.Is(err, plugin.ErrNotInstalled) {
 		t.Fatalf("cross-project authorization = %v", err)
 	}
+}
+
+func TestRegistryDurableDataSupportsConcurrentAccess(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	var group sync.WaitGroup
+	for index := 0; index < 32; index++ {
+		index := index
+		group.Add(1)
+		go func() {
+			defer group.Done()
+			key := fmt.Sprintf("key-%d", index)
+			if err := r.SaveDurableData("dev", "sample", key, []byte(key)); err != nil {
+				t.Errorf("SaveDurableData(%q) = %v", key, err)
+				return
+			}
+			if value, ok := r.DurableData("dev", "sample", key); !ok || string(value) != key {
+				t.Errorf("DurableData(%q) = %q, %v", key, value, ok)
+			}
+		}()
+	}
+	group.Wait()
 }
 
 func TestRevokeStopsTheProjectWorker(t *testing.T) {

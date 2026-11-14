@@ -10,6 +10,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"gopkg.in/yaml.v3"
@@ -262,6 +263,7 @@ type Registry struct {
 	approvals         map[string]bool
 	lifecycleRevision uint64
 	durableData       map[string][]byte
+	durableMu         sync.RWMutex
 	supervisor        *Supervisor
 }
 
@@ -304,11 +306,15 @@ func (r *Registry) SaveDurableData(projectID, pluginID, key string, value []byte
 	if projectID == "" || pluginID == "" || key == "" {
 		return ErrProjectInvalid
 	}
+	r.durableMu.Lock()
+	defer r.durableMu.Unlock()
 	r.durableData[projectID+":"+pluginID+":"+key] = append([]byte(nil), value...)
 	return nil
 }
 
 func (r *Registry) DurableData(projectID, pluginID, key string) ([]byte, bool) {
+	r.durableMu.RLock()
+	defer r.durableMu.RUnlock()
 	value, ok := r.durableData[projectID+":"+pluginID+":"+key]
 	return append([]byte(nil), value...), ok
 }
@@ -317,6 +323,8 @@ func (r *Registry) DeleteDurableData(projectID, pluginID, key string) error {
 	if projectID == "" || pluginID == "" || key == "" {
 		return ErrProjectInvalid
 	}
+	r.durableMu.Lock()
+	defer r.durableMu.Unlock()
 	delete(r.durableData, projectID+":"+pluginID+":"+key)
 	r.audit = append(r.audit, AuditEvent{Action: "delete_durable_data", ProjectID: projectID, PluginID: pluginID, Detail: key})
 	return nil
