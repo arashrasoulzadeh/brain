@@ -616,7 +616,7 @@ Goal: finish the supported clients, publish the protocol, and rehearse productio
 - [x] Test first-party cookie sessions.
 - [x] Test CSRF protection.
 - [x] Test invalidation during a fetch.
-- [ ] Test safe retry after reconnect.
+- [x] Test safe retry after reconnect.
 - [ ] Finish the typed JavaScript client.
 - [ ] Publish the browser quickstart.
 - [ ] Publish the playable arena.
