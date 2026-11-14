@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `8fdadc2` — 2026-11-14 23:10:43 +0330 — bind typescript workers to plugin manifests
+  Files: internal/plugin/typescript_worker.go,tests/plugin/bubblewrap_worker_test.go
+- `9649c33` — 2026-11-14 19:38:03 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `083d722` — 2026-11-14 23:07:49 +0330 — avoid unavailable sandbox test dependency
   Files: scripts/test-sandboxed-typescript-worker.sh
 - `418f2b8` — 2026-11-14 19:36:36 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `ec2f8d2` — 2026-11-14 22:34:27 +0330 — add fail-closed typescript sandbox launcher
   Files: scripts/run-sandboxed-typescript-worker.sh,tests/plugin/sandbox_launcher_test.go
 - `fae6164` — 2026-11-14 14:11:57 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `2a0d887` — 2026-11-14 17:41:44 +0330 — bound typescript worker invocation time
-  Files: internal/plugin/typescript_worker.go,tests/plugin/typescript_worker_test.go
-- `a6b3282` — 2026-11-14 14:10:53 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
