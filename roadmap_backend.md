@@ -38,7 +38,7 @@ Backend infrastructure, release, deployment, backup, capacity, and security work
 - [x] Check API readiness.
 - [x] Check PostgreSQL access.
 - [x] Check enabled worker health.
-- [ ] Record the deployed version.
+- [x] Record the deployed version.
 - [ ] Keep the last healthy image set.
 - [ ] Test rollback with a compatible schema.
 - [ ] Document incompatible-migration recovery.
