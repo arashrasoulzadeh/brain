@@ -18,3 +18,16 @@ func TestCleanEnvironmentRehearsalRequiresDeployRollbackAndRestore(t *testing.T)
 		}
 	}
 }
+
+func TestTestWorkflowWiresFullRehearsalInputs(t *testing.T) {
+	content, err := os.ReadFile("../../.github/workflows/test.yml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	workflow := string(content)
+	for _, required := range []string{"BRAIN_REHEARSAL_ENABLED", "BRAIN_ROLLBACK_COMPOSE_FILE", "BRAIN_BACKUP_INPUT", "BRAIN_RESTORE_DSN", "BRAIN_OBJECT_MANIFEST", "scripts/clean-environment-rehearsal.sh"} {
+		if !strings.Contains(workflow, required) {
+			t.Fatalf("test workflow missing %q", required)
+		}
+	}
+}

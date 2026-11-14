@@ -43,6 +43,17 @@ jobs:
           scripts/start-compose-no-build.sh
           curl --fail --silent --show-error http://127.0.0.1:18080/livez
           docker compose -p "$COMPOSE_PROJECT_NAME" -f "$COMPOSE_FILE" down --volumes --remove-orphans
+      - name: Full deploy rollback and restore rehearsal
+        if: ${{ vars.BRAIN_REHEARSAL_ENABLED == 'true' }}
+        env:
+          COMPOSE_FILE: compose.test.yml
+          ROLLBACK_COMPOSE_FILE: ${{ vars.BRAIN_ROLLBACK_COMPOSE_FILE }}
+          COMPOSE_PROJECT_NAME: brain-full-rehearsal
+          BACKUP_INPUT: ${{ secrets.BRAIN_BACKUP_INPUT }}
+          RESTORE_DSN: ${{ secrets.BRAIN_RESTORE_DSN }}
+          OBJECT_MANIFEST: ${{ secrets.BRAIN_OBJECT_MANIFEST }}
+          BRAIN_BIN: ./brain
+        run: sh scripts/clean-environment-rehearsal.sh
   typescript:
     runs-on: ubuntu-24.04
     steps:
