@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `17fd047` — 2026-11-14 17:00:50 +0330 — scaffold kotlin android client
+  Files: clients/android/README.md,clients/android/src/main/kotlin/com/brain/client/AuthCallback.kt clients/android/src/main/kotlin/com/brain/client/BrainClient.kt
+- `9791301` — 2026-11-14 13:30:29 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `07c316b` — 2026-11-14 17:00:15 +0330 — document protocol compatibility rules
   Files: protocol/README.md,roadmap.md
 - `5620009` — 2026-11-14 13:30:15 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `3491651` — 2026-11-14 16:48:07 +0330 — verify safe reconnect retry
   Files: roadmap.md
 - `715e5c3` — 2026-11-14 13:17:59 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `1de68b9` — 2026-11-14 16:47:45 +0330 — verify session invalidation gate
-  Files: roadmap.md
-- `deaf7cb` — 2026-11-14 13:17:36 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
