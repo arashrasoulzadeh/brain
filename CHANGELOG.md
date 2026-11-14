@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `e9f2ba3` — 2026-11-15 01:21:51 +0330 — protect plugin approval and artifact state
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `60dde13` — 2026-11-14 21:51:19 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `a95a7fa` — 2026-11-15 01:21:02 +0330 — protect plugin pin state
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `7c9b68f` — 2026-11-14 21:50:42 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `362ae3b` — 2026-11-15 00:58:32 +0330 — align dashboard bootstrap with plugin manifest
   Files: internal/app/dashboard.go,tests/app/dashboard_bootstrap_test.go
 - `d168679` — 2026-11-14 21:28:16 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `bec63b1` — 2026-11-15 00:58:03 +0330 — remove completed revocation gate
-  Files: roadmap_backend.md
-- `4df3d1f` — 2026-11-14 21:27:55 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
