@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `f800672` — 2026-11-15 00:26:45 +0330 — rehearse clean deploy rollback in ci
+  Files: .github/workflows/test.yml
+- `3cee528` — 2026-11-14 20:56:25 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `5ca2610` — 2026-11-15 00:26:12 +0330 — guard clean environment runbook gate
   Files: tests/deploy/runbook_test.go
 - `b1b0951` — 2026-11-14 20:55:46 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `bb3122e` — 2026-11-14 23:02:47 +0330 — allow node startup memory in sandbox fixture
   Files: scripts/test-sandboxed-typescript-worker.sh
 - `414b866` — 2026-11-14 19:31:14 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `b020f41` — 2026-11-14 23:00:57 +0330 — bound sandbox ci duration
-  Files: .github/workflows/test.yml
-- `c2d091c` — 2026-11-14 19:29:39 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
