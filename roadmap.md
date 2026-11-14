@@ -613,7 +613,7 @@ Goal: finish the supported clients, publish the protocol, and rehearse productio
 - [x] Add shared matchmaking fixtures.
 - [x] Add shared gameplay fixtures.
 - [x] Add shared reconnect fixtures.
-- [ ] Test first-party cookie sessions.
+- [x] Test first-party cookie sessions.
 - [ ] Test CSRF protection.
 - [ ] Test invalidation during a fetch.
 - [ ] Test safe retry after reconnect.

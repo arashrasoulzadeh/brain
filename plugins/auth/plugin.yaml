@@ -42,6 +42,7 @@ source_files:
   - account-session-revoker.ts
   - account-password-resetter.ts
   - guest-session-issuer.ts
+  - first-party-session-cookie.ts
   - guest-account-upgrader.ts
   - create-pkce-challenge.ts
   - verify-pkce.ts
@@ -103,6 +104,7 @@ imports:
   - ./account-session-revoker.js
   - ./account-password-resetter.js
   - ./guest-session-issuer.js
+  - ./first-party-session-cookie.js
   - ./guest-account-upgrader.js
   - ./create-pkce-challenge.js
   - ./verify-pkce.js

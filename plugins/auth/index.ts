@@ -53,6 +53,7 @@ export { AccountSessionRotator } from "./account-session-rotator.js";
 export { AccountSessionRevoker } from "./account-session-revoker.js";
 export { AccountPasswordResetter } from "./account-password-resetter.js";
 export { GuestSessionIssuer } from "./guest-session-issuer.js";
+export { firstPartySessionCookie } from "./first-party-session-cookie.js";
 export { GuestAccountUpgrader } from "./guest-account-upgrader.js";
 export { createAuthOperations } from "./create-auth-operations.js";
 export { functions } from "./auth-functions.js";
