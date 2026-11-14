@@ -1,4 +1,3 @@
-import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import { type PluginFunction, type RpcRequest, validateProjectId } from "../sdk-typescript/src/index.js";
 import { sessionTokenDigest } from "./session-token-digest.js";
 import { createAuthState, type AuthState } from "./auth-state.js";
@@ -15,13 +14,8 @@ export { signUpRequest } from "./sign-up-request.js";
 export { projectUserID } from "./project-user-id.js";
 
 export { sessionTokenDigest } from "./session-token-digest.js";
-export function createPKCEChallenge(verifier: string): string { return createHash("sha256").update(verifier).digest("base64url"); }
-export function verifyPKCE(verifier: string, challenge: string, method: string): boolean {
-  if (method !== "S256") return false;
-  const expected = Buffer.from(createPKCEChallenge(verifier));
-  const received = Buffer.from(challenge);
-  return expected.length === received.length && timingSafeEqual(expected, received);
-}
+export { createPKCEChallenge } from "./create-pkce-challenge.js";
+export { verifyPKCE } from "./verify-pkce.js";
 export { OIDCStateIssuer } from "./oidc-state-issuer.js";
 export { OIDCStateConsumer } from "./oidc-state-consumer.js";
 export { DeliveryWriter } from "./delivery-writer.js";
@@ -30,12 +24,7 @@ export { EmailOTPIssuer } from "./email-otp-issuer.js";
 export { EmailOTPVerifier } from "./email-otp-verifier.js";
 export { SMSOTPIssuer } from "./sms-otp-issuer.js";
 export { SMSOTPVerifier } from "./sms-otp-verifier.js";
-export function normalizePhoneNumber(value: string): string {
-  const compact = value.replace(/[\s().-]/g, "");
-  const normalized = compact.startsWith("00") ? `+${compact.slice(2)}` : compact;
-  if (!/^\+[1-9][0-9]{7,14}$/.test(normalized)) throw new Error("invalid phone number");
-  return normalized;
-}
+export { normalizePhoneNumber } from "./normalize-phone-number.js";
 export class OTPLimiter {
   private readonly counts = new Map<string, { startedAt: number; count: number }>();
   constructor(private readonly limit: number, private readonly windowMs: number) {}
@@ -97,25 +86,14 @@ export class IdentityLinker {
   }
 }
 
-export type OIDCConfig = { issuer: string; audience: string; clientId: string; redirectUri: string };
+export type { OIDCConfig, OIDCTokenClaims } from "./oidc-types.js";
 export { OIDCConfigWriter } from "./oidc-config-writer.js";
 export { OIDCConfigReader } from "./oidc-config-reader.js";
 
-export type OIDCTokenClaims = { issuer: string; audience: string; expiresAt: number; nonce: string; signature: string };
-export function validateOIDCToken(claims: OIDCTokenClaims, config: OIDCConfig, expectedNonce: string, now: number, verifySignature: (signature: string) => boolean): void {
-  if (claims.issuer !== config.issuer || claims.audience !== config.audience || claims.expiresAt <= now || claims.nonce !== expectedNonce || !verifySignature(claims.signature)) throw new Error("invalid OIDC token");
-}
-export function requireRecentAuthentication(authenticatedAt: number, now: number, maxAgeMs: number): void {
-  if (maxAgeMs <= 0 || now - authenticatedAt > maxAgeMs) throw new Error("recent authentication required");
-}
-export function publicAuthError(error: unknown): string {
-  if (error instanceof Error && ["account already exists", "invalid credentials", "account not found"].includes(error.message)) return "invalid credentials";
-  return "authentication failed";
-}
-export function validateDeliveryConfig(environment: string, provider: string): void {
-  if (environment === "production" && ["local", "fake", "test"].includes(provider)) throw new Error("fake delivery forbidden in production");
-  if (!environment || !provider) throw new Error("invalid delivery configuration");
-}
+export { validateOIDCToken } from "./validate-oidc-token.js";
+export { requireRecentAuthentication } from "./require-recent-authentication.js";
+export { publicAuthError } from "./public-auth-error.js";
+export { validateDeliveryConfig } from "./validate-delivery-config.js";
 
 export { AuthorizationCodeIssuer } from "./authorization-code-issuer.js";
 export { AuthorizationCodeConsumer } from "./authorization-code-consumer.js";

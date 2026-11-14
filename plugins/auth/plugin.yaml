@@ -43,6 +43,14 @@ source_files:
   - account-password-resetter.ts
   - guest-session-issuer.ts
   - guest-account-upgrader.ts
+  - create-pkce-challenge.ts
+  - verify-pkce.ts
+  - normalize-phone-number.ts
+  - oidc-types.ts
+  - validate-oidc-token.ts
+  - require-recent-authentication.ts
+  - public-auth-error.ts
+  - validate-delivery-config.ts
   - guest-request.ts
 imports:
   - ../sdk-typescript/src/index.js
@@ -86,6 +94,14 @@ imports:
   - ./account-password-resetter.js
   - ./guest-session-issuer.js
   - ./guest-account-upgrader.js
+  - ./create-pkce-challenge.js
+  - ./verify-pkce.js
+  - ./normalize-phone-number.js
+  - ./oidc-types.js
+  - ./validate-oidc-token.js
+  - ./require-recent-authentication.js
+  - ./public-auth-error.js
+  - ./validate-delivery-config.js
   - ./index.js
 plugin_imports:
 dependencies: []
