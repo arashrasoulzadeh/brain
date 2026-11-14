@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `ba2898c` — 2026-11-14 16:05:26 +0330 — refactor: isolate auth rate limiters
+  Files: plugins/auth/account-rate-limiter.ts,plugins/auth/identity-linker.ts plugins/auth/index.ts,plugins/auth/otp-limiter.ts plugins/auth/plugin.yaml,plugins/auth/project-rate-limiter.ts
+- `9b761c8` — 2026-11-14 12:34:32 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `51b8cdc` — 2026-11-14 16:04:19 +0330 — refactor: split auth utility functions
   Files: plugins/auth/create-pkce-challenge.ts,plugins/auth/index.ts plugins/auth/normalize-phone-number.ts,plugins/auth/oidc-types.ts plugins/auth/plugin.yaml,plugins/auth/public-auth-error.ts plugins/auth/require-recent-authentication.ts,plugins/auth/validate-delivery-config.ts plugins/auth/validate-oidc-token.ts,plugins/auth/verify-pkce.ts
 - `61084c0` — 2026-11-14 12:33:27 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `c423dd3` — 2026-11-13 16:56:42 +0330 — feat: wait for active work before uninstall
   Files: internal/plugin/plugin.go,roadmap.md tests/plugin/plugin_test.go
-- `712fe8d` — 2026-11-13 13:24:25 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `42f12e5` — 2026-11-13 16:53:55 +0330 — feat: resume paused rooms on pinned versions
-  Files: plugins/rooms/index.ts,plugins/rooms/plugin.yaml plugins/rooms/resume-tic-tac-toe-turn.ts,roadmap.md tests/rooms/rooms.test.ts
