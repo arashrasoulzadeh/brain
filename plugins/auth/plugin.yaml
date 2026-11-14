@@ -128,6 +128,7 @@ imports:
 plugin_imports:
 dependencies: []
 capabilities:
+  - auth.signup
   - auth.signin
   - auth.session
   - auth.guest

@@ -25,7 +25,7 @@ func TestDiscoverFindsFeaturePluginsWithoutHardcodingThem(t *testing.T) {
 
 func TestLoadManifestDiscoversRoutesAndMetadata(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "plugin.yaml")
-	if err := os.WriteFile(path, []byte("id: demo\ntitle: Demo\ndescription: test\nversion: 1.0.0\nhost_api: 1\nentrypoint: index.ts\nsource_files:\n  - index.ts\nimports: []\nplugin_imports: []\nroutes:\n  - operation: demo.run\n    function: run\n    capability: demo.run\n"), 0o644); err != nil {
+	if err := os.WriteFile(path, []byte("id: demo\ntitle: Demo\ndescription: test\nversion: 1.0.0\nhost_api: 1\nentrypoint: index.ts\nsource_files:\n  - index.ts\nimports: []\nplugin_imports: []\ncapabilities:\n  - demo.run\nroutes:\n  - operation: demo.run\n    function: run\n    capability: demo.run\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	m, err := plugin.LoadManifest(path)

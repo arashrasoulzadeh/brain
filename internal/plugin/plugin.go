@@ -107,9 +107,16 @@ func ValidateManifestContract(manifest Manifest) error {
 		}
 		seenPlugins[pluginID] = true
 	}
+	declaredCapabilities := map[string]bool{}
+	for _, capability := range manifest.Capabilities {
+		if capability == "" || declaredCapabilities[capability] {
+			return ErrInvalidManifest
+		}
+		declaredCapabilities[capability] = true
+	}
 	seenRoutes := map[string]bool{}
 	for _, route := range manifest.Routes {
-		if route.Operation == "" || route.Function == "" || route.Capability == "" || seenRoutes[route.Operation] {
+		if route.Operation == "" || route.Function == "" || route.Capability == "" || seenRoutes[route.Operation] || !declaredCapabilities[route.Capability] {
 			return ErrInvalidManifest
 		}
 		seenRoutes[route.Operation] = true
