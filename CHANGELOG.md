@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `e7472cb` — 2026-11-15 01:56:29 +0330 — lock permission transitions during registry changes
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `e83fb51` — 2026-11-14 22:24:38 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `163a7d2` — 2026-11-15 01:54:24 +0330 — order plugin approval locks
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `a39cc10` — 2026-11-14 22:24:01 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `2f1188f` — 2026-11-15 01:37:31 +0330 — bind external handshake authentication
   Files: internal/plugin/external.go,tests/plugin/external_test.go
 - `2efbc61` — 2026-11-14 22:07:10 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `9e81357` — 2026-11-15 01:36:57 +0330 — reject projectless worker stops
-  Files: internal/plugin/supervisor.go,tests/plugin/supervisor_test.go
-- `01a4011` — 2026-11-14 22:06:23 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
