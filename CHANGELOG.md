@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `6c4a8d3` — 2026-11-14 17:20:47 +0330 — start deployment compose without rebuilding
+  Files: roadmap_backend.md,scripts/start-compose-no-build.sh tests/deploy/compose_script_test.go
+- `94a5102` — 2026-11-14 13:50:23 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `eed37f9` — 2026-11-14 17:20:02 +0330 — add one-shot deployment migration runner
   Files: internal/migrate/oneshot.go,roadmap_backend.md tests/migrate/migrate_test.go
 - `cd03169` — 2026-11-14 13:49:28 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `2f3117a` — 2026-11-14 16:57:27 +0330 — define room admission fixture
   Files: protocol/fixtures/room-admission.json,roadmap.md tests/protocol/fixtures_test.go
 - `bec31f5` — 2026-11-14 13:27:16 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `0db3271` — 2026-11-14 16:57:01 +0330 — define transport neutral login fixture
-  Files: protocol/fixtures/login.json,roadmap.md tests/protocol/fixtures_test.go
-- `df8d826` — 2026-11-14 13:26:34 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
