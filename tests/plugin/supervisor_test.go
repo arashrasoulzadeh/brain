@@ -148,3 +148,10 @@ func TestSupervisorStopsAllInstancesOfPluginVersion(t *testing.T) {
 		t.Fatalf("unexpected worker state: first=%v second=%v unrelated=%v", first.stopped, second.stopped, unrelated.stopped)
 	}
 }
+
+func TestSupervisorRejectsProjectlessStop(t *testing.T) {
+	s := plugin.NewSupervisor()
+	if !errors.Is(s.StopProjectPlugin("", "rooms", "1.0.0"), plugin.ErrWorkerNotRunning) {
+		t.Fatal("projectless stop was accepted")
+	}
+}

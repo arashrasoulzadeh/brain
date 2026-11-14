@@ -141,6 +141,9 @@ func (s *Supervisor) StopPluginVersion(pluginID, version string) error {
 }
 
 func (s *Supervisor) StopProjectPlugin(projectID, pluginID, version string) error {
+	if projectID == "" || pluginID == "" || version == "" {
+		return ErrWorkerNotRunning
+	}
 	return s.Stop(projectID + ":" + pluginID + "@" + version)
 }
 
