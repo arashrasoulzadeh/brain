@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `554707a` — 2026-11-15 01:39:19 +0330 — reject nil plugin workers
+  Files: internal/plugin/supervisor.go,tests/plugin/supervisor_test.go
+- `0ea39c0` — 2026-11-14 22:09:03 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `e046094` — 2026-11-15 01:38:50 +0330 — fail closed without plugin worker
   Files: internal/plugin/worker.go,tests/plugin/worker_test.go
 - `4cd0809` — 2026-11-14 22:08:22 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `0a90c9c` — 2026-11-15 01:19:45 +0330 — protect plugin installation state
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `1bd54af` — 2026-11-14 21:49:22 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `4a17205` — 2026-11-15 01:19:04 +0330 — protect plugin authorization state
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `7ae4b79` — 2026-11-14 21:48:25 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
