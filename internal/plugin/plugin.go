@@ -420,6 +420,8 @@ func (r *Registry) Register(m Manifest) error {
 }
 
 func (r *Registry) TransitiveDependents(id, version string) []string {
+	r.readinessMu.RLock()
+	defer r.readinessMu.RUnlock()
 	target := id + "@" + version
 	seen := map[string]bool{target: true}
 	dependents := make([]string, 0)
@@ -658,6 +660,8 @@ func (r *Registry) Enable(projectID, id, version string) error {
 func (r *Registry) Promote(projectID, id, version string) error {
 	r.lifecycleMu.Lock()
 	defer r.lifecycleMu.Unlock()
+	r.readinessMu.RLock()
+	defer r.readinessMu.RUnlock()
 	if projectID == "" {
 		return ErrProjectInvalid
 	}
@@ -848,6 +852,8 @@ func (r *Registry) ActiveVersion(projectID, id string) (string, bool) {
 func (r *Registry) PinWork(workID, projectID, id, version string) error {
 	r.lifecycleMu.Lock()
 	defer r.lifecycleMu.Unlock()
+	r.installationMu.RLock()
+	defer r.installationMu.RUnlock()
 	if workID == "" || projectID == "" {
 		return ErrProjectInvalid
 	}
@@ -864,6 +870,8 @@ func (r *Registry) PinWork(workID, projectID, id, version string) error {
 func (r *Registry) PinnedVersion(workID string) (string, bool) {
 	r.lifecycleMu.RLock()
 	defer r.lifecycleMu.RUnlock()
+	r.installationMu.RLock()
+	defer r.installationMu.RUnlock()
 	key, ok := r.pins[workID]
 	if !ok {
 		return "", false

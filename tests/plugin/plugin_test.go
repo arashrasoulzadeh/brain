@@ -738,6 +738,27 @@ func TestRegistryGrantAndRemovalAreConcurrentSafe(t *testing.T) {
 	group.Wait()
 }
 
+func TestRegistryDependencyInspectionAndRegistrationAreConcurrentSafe(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	root := plugin.Manifest{ID: "dependency-root-concurrency", Version: "1.0.0", HostAPI: 1}
+	dependent := plugin.Manifest{ID: "dependency-child-concurrency", Version: "1.0.0", HostAPI: 1, Dependencies: []string{root.ID + "@" + root.Version}}
+	if err := r.Register(root); err != nil {
+		t.Fatal(err)
+	}
+
+	var group sync.WaitGroup
+	group.Add(2)
+	go func() {
+		defer group.Done()
+		_ = r.Register(dependent)
+	}()
+	go func() {
+		defer group.Done()
+		_ = r.TransitiveDependents(root.ID, root.Version)
+	}()
+	group.Wait()
+}
+
 func TestRevokeStopsTheProjectWorker(t *testing.T) {
 	r := plugin.NewRegistry(1)
 	m := plugin.Manifest{ID: "guest", Version: "1.0.0", HostAPI: 1, Capabilities: []string{"session.issue"}}
