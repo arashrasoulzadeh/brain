@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `d299283` — 2026-11-15 01:01:59 +0330 — reject symlinked plugin sources
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `26693dd` — 2026-11-14 21:31:15 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `66345a9` — 2026-11-15 01:01:00 +0330 — require declared route capabilities
   Files: internal/plugin/plugin.go,plugins/auth/plugin.yaml tests/plugin/discovery_test.go,tests/plugin/plugin_test.go
 - `5c92d2d` — 2026-11-14 21:29:35 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: roadmap_backend.md
 - `d38d3f6` — 2026-11-14 21:08:32 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
-- `42b85d3` — 2026-11-15 00:38:18 +0330 — apply worker test formatting
-  Files: tests/plugin/worker_test.go
-- `7e69e83` — 2026-11-15 00:37:57 +0330 — harden worker credentials and deployment controls
-  Files: go.mod,internal/deploy/assignments.go internal/deploy/room_drain.go,internal/plugin/worker.go tests/plugin/worker_test.go
