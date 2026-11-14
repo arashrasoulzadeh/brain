@@ -619,6 +619,26 @@ const duplicateWorkflowResult = await runIdempotentWorkflow(
 );
 if (workflowResult !== "done" || duplicateWorkflowResult !== "done" || workflowAttempts !== 2)
   throw new Error("workflow retry/idempotency failed");
+const concurrentWorkflowStore = createInvocationCommitStore();
+let concurrentWorkflowAttempts = 0;
+const concurrentWorkflow = () =>
+  runIdempotentWorkflow(
+    concurrentWorkflowStore,
+    "workflow-concurrent",
+    async () => {
+      concurrentWorkflowAttempts++;
+      await Promise.resolve();
+      return "single-result";
+    },
+    1,
+  );
+const concurrentWorkflowResults = await Promise.all([concurrentWorkflow(), concurrentWorkflow()]);
+if (
+  concurrentWorkflowAttempts !== 1 ||
+  concurrentWorkflowResults[0] !== "single-result" ||
+  concurrentWorkflowResults[1] !== "single-result"
+)
+  throw new Error("concurrent workflow was executed more than once");
 const retriedEffects = createInvocationCommitStore();
 let effectAttempts = 0;
 const effectResult = await retryInvocation(
