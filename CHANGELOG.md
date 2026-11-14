@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `b14ff0e` — 2026-11-14 22:46:42 +0330 — preserve node runtime mount in sandbox
+  Files: scripts/run-sandboxed-typescript-worker.sh
+- `72a7447` — 2026-11-14 19:15:41 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `2aa22bb` — 2026-11-14 22:45:28 +0330 — preserve sandbox mounts under isolated tmp
   Files: scripts/run-sandboxed-typescript-worker.sh
 - `51fc3a4` — 2026-11-14 19:14:20 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `7443223` — 2026-11-14 17:28:46 +0330 — record referenced object versions
   Files: internal/deploy/object_manifest.go,roadmap_backend.md tests/deploy/object_manifest_test.go
 - `1487dde` — 2026-11-14 13:58:13 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `a0f6f69` — 2026-11-14 17:28:00 +0330 — add consistent PostgreSQL snapshot
-  Files: roadmap_backend.md,scripts/snapshot-postgres.sh tests/deploy/postgres_snapshot_test.go
-- `c987deb` — 2026-11-14 13:57:36 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
