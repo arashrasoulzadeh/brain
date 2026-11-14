@@ -30,6 +30,7 @@ Promotion rechecks readiness, configuration compatibility, grants, approvals, an
 - Keep runtime credentials unable to run DDL; use migration credentials for schema changes.
 - Use parameterized SQL and validated identifiers.
 - Keep secrets out of logs, images, bundles, fixtures, and diagnostics.
+- Treat project IDs as untrusted input at plugin boundaries, including dashboard HTML and URL generation.
 - Treat destructive actions as audited and protected by active-work checks.
 
 ## Local and release checks

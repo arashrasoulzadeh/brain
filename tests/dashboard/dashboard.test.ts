@@ -170,6 +170,12 @@ try {
 }
 if (customAdminView("dev").contentType !== "text/html")
   throw new Error("custom TypeScript view was not rendered");
+try {
+  customAdminView('dev"><script>alert(1)</script>');
+  throw new Error("custom admin view accepted an unsafe project identity");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "invalid project id") throw error;
+}
 if (!customViewOrigin("https://views.example.test", "dev").isolated)
   throw new Error("custom view was not isolated to a separate origin");
 if (restrictedFrame("https://views.example.test", "dev", "/admin").sandbox !== "allow-scripts")

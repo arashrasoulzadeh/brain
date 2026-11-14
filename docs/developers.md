@@ -78,4 +78,5 @@ sequenceDiagram
 - Never authorize from client payloads, route parameters, object keys, or plugin-supplied project IDs.
 - Keep all tests under top-level `tests/`.
 - Keep secrets out of logs, fixtures, screenshots, and diagnostics.
+- Validate project IDs before using them in generated HTML, URLs, storage keys, or other structured output.
 - Use parameterized SQL and validated identifiers.

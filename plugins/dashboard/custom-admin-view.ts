@@ -1,5 +1,7 @@
+import { validateProjectId } from "../sdk-typescript/src/validate-project-id.js";
+
 export function customAdminView(projectId: string) {
-  if (!projectId.trim()) throw new Error("project identity required");
+  validateProjectId(projectId);
   return {
     contentType: "text/html",
     projectId,
