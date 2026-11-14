@@ -331,6 +331,12 @@ try {
 }
 if (publications.active("dev", "hello")?.version !== 1)
   throw new Error("failed draft changed active version");
+try {
+  publications.rollback("bad/project", "hello", 1);
+  throw new Error("rollback accepted an invalid project identity");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "invalid project id") throw error;
+}
 const httpsResponse = await invokeDirectHttps(
   "https://functions.example.test/invoke",
   { projectId: "dev", functionId: "hello", version: "1", inputs: {}, idempotencyKey: "request-1" },
