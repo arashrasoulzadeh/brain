@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `2b05f3e` — 2026-11-14 17:27:21 +0330 — define verified backup policy
+  Files: docs/admins.md,docs/developers.md internal/deploy/backup_policy.go,roadmap_backend.md tests/deploy/backup_policy_test.go
+- `0236b8f` — 2026-11-14 13:56:49 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `820173f` — 2026-11-14 17:26:18 +0330 — document incompatible migration recovery
   Files: docs/admins.md,docs/developers.md docs/incompatible-migration-recovery.md,roadmap_backend.md tests/deploy/recovery_doc_test.go
 - `98f4266` — 2026-11-14 13:55:49 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `17fd047` — 2026-11-14 17:00:50 +0330 — scaffold kotlin android client
   Files: clients/android/README.md,clients/android/src/main/kotlin/com/brain/client/AuthCallback.kt clients/android/src/main/kotlin/com/brain/client/BrainClient.kt
 - `9791301` — 2026-11-14 13:30:29 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `07c316b` — 2026-11-14 17:00:15 +0330 — document protocol compatibility rules
-  Files: protocol/README.md,roadmap.md
-- `5620009` — 2026-11-14 13:30:15 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
