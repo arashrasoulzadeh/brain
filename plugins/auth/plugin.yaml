@@ -57,6 +57,10 @@ source_files:
   - identity-linker.ts
   - create-auth-operations.ts
   - auth-functions.ts
+  - auth-signup-function.ts
+  - auth-signin-function.ts
+  - auth-session-function.ts
+  - auth-guest-function.ts
   - guest-request.ts
 imports:
   - ../sdk-typescript/src/index.js
@@ -114,6 +118,10 @@ imports:
   - ./identity-linker.js
   - ./create-auth-operations.js
   - ./auth-functions.js
+  - ./auth-signup-function.js
+  - ./auth-signin-function.js
+  - ./auth-session-function.js
+  - ./auth-guest-function.js
   - ./index.js
 plugin_imports:
 dependencies: []

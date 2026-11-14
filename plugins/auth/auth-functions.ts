@@ -1,26 +1,19 @@
-import type { PluginFunction, RpcRequest } from "../sdk-typescript/src/index.js";
+import type { PluginFunction } from "../sdk-typescript/src/index.js";
 import { createAuthOperations } from "./create-auth-operations.js";
+import { authGuestFunction } from "./auth-guest-function.js";
+import { authSessionFunction } from "./auth-session-function.js";
+import { authSigninFunction } from "./auth-signin-function.js";
+import { authSignupFunction } from "./auth-signup-function.js";
+
+export type AuthOperations = ReturnType<typeof createAuthOperations>;
+
 export function functions(
-  service = createAuthOperations(),
+  service: AuthOperations = createAuthOperations(),
 ): Readonly<Record<string, PluginFunction>> {
-  const payload = (rpc: RpcRequest) => rpc.params.payload as Record<string, string> | undefined;
   return {
-    signup: (rpc) => {
-      const p = payload(rpc);
-      return service.signup(rpc.params.projectId, p?.username ?? "", p?.password ?? "");
-    },
-    signin: (rpc) => {
-      const p = payload(rpc);
-      return service.signin(
-        rpc.params.projectId,
-        p?.username ?? p?.provider ?? "",
-        p?.password ?? String(p?.credential ?? ""),
-      );
-    },
-    session: (rpc) => {
-      const p = payload(rpc);
-      return service.session(rpc.params.projectId, p?.token ?? "");
-    },
-    guest: (rpc) => service.guest(rpc.params.projectId),
+    signup: authSignupFunction(service),
+    signin: authSigninFunction(service),
+    session: authSessionFunction(service),
+    guest: authGuestFunction(service),
   };
 }
