@@ -79,6 +79,7 @@ source_files:
   - authorize-project-workflow-action.ts
   - authorize-deployment-plugin.ts
   - create-deployment-hook-set.ts
+  - reject-plugin-credentials.ts
   - require-sdk-imports.ts
   - validate-startup-duration.ts
   - validate-stale-input-versions.ts
@@ -171,6 +172,7 @@ imports:
   - ./authorize-project-workflow-action.js
   - ./authorize-deployment-plugin.js
   - ./create-deployment-hook-set.js
+  - ./reject-plugin-credentials.js
   - ./require-sdk-imports.js
   - ./validate-startup-duration.js
   - ./validate-stale-input-versions.js
