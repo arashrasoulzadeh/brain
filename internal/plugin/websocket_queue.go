@@ -1,10 +1,14 @@
 package plugin
 
-import "errors"
+import (
+	"errors"
+	"sync"
+)
 
 var ErrWebSocketSendQueueFull = errors.New("WebSocket send queue full")
 
 type WebSocketSendQueue struct {
+	mu       sync.Mutex
 	capacity int
 	frames   [][]byte
 }
@@ -17,6 +21,8 @@ func NewWebSocketSendQueue(capacity int) *WebSocketSendQueue {
 }
 
 func (q *WebSocketSendQueue) Enqueue(frame []byte) error {
+	q.mu.Lock()
+	defer q.mu.Unlock()
 	if len(q.frames) >= q.capacity {
 		return ErrWebSocketSendQueueFull
 	}
@@ -26,6 +32,8 @@ func (q *WebSocketSendQueue) Enqueue(frame []byte) error {
 }
 
 func (q *WebSocketSendQueue) Dequeue() []byte {
+	q.mu.Lock()
+	defer q.mu.Unlock()
 	if len(q.frames) == 0 {
 		return nil
 	}
