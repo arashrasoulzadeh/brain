@@ -454,6 +454,8 @@ func (r *Registry) TransitiveDependents(id, version string) []string {
 func (r *Registry) PreviewDisable(projectID, id, version string) (DisablePreview, error) {
 	r.lifecycleMu.Lock()
 	defer r.lifecycleMu.Unlock()
+	r.installationMu.RLock()
+	defer r.installationMu.RUnlock()
 	if _, ok := r.installations[projectID+":"+id+"@"+version]; !ok {
 		return DisablePreview{}, ErrNotInstalled
 	}
@@ -463,6 +465,8 @@ func (r *Registry) PreviewDisable(projectID, id, version string) (DisablePreview
 func (r *Registry) ApplyDisablePreview(preview DisablePreview) error {
 	r.lifecycleMu.Lock()
 	defer r.lifecycleMu.Unlock()
+	r.installationMu.RLock()
+	defer r.installationMu.RUnlock()
 	if preview.Revision != r.lifecycleRevision {
 		return ErrStalePreview
 	}
