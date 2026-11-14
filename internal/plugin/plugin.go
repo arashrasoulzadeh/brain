@@ -78,7 +78,7 @@ func ValidateManifestContract(manifest Manifest) error {
 	}
 	seenFiles := map[string]bool{}
 	for _, file := range manifest.SourceFiles {
-		if file == "" || strings.HasPrefix(file, "/") || path.Clean(file) != file || strings.ContainsAny(file, "\\\x00") {
+		if !validRelativeManifestPath(file) {
 			return ErrInvalidManifest
 		}
 		seenFiles[file] = true
