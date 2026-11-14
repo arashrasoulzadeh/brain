@@ -1,10 +1,12 @@
 import { validateProjectId } from "../sdk-typescript/src/index.js";
+import { validateIdentifier } from "../sdk-typescript/src/index.js";
 import type { MatchmakingTicket } from "./types.js";
 import type { QueueRuntime } from "./queue-runtime.js";
 export class TicketRequeuer {
   constructor(private readonly runtime: QueueRuntime) {}
   requeue(ticket: MatchmakingTicket, now = Date.now()): void {
     validateProjectId(ticket.projectId);
+    validateIdentifier(ticket.scope, "invalid matchmaking scope");
     if (ticket.expiresAt <= now) throw new Error("ticket expired");
     const key = `${ticket.projectId}:${ticket.scope}`;
     const queue = this.runtime.queues.get(key) ?? [];

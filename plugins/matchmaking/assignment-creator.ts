@@ -1,4 +1,5 @@
 import { validateProjectId } from "../sdk-typescript/src/index.js";
+import { validateIdentifier } from "../sdk-typescript/src/index.js";
 import type { AssignmentDecision } from "./types.js";
 import type { QueueRuntime } from "./queue-runtime.js";
 import { TicketMatcher } from "./ticket-matcher.js";
@@ -16,6 +17,7 @@ export class AssignmentCreator {
     expectedRevision = this.runtime.lifecycleRevision,
   ): AssignmentDecision | null {
     validateProjectId(projectId);
+    validateIdentifier(scope, "invalid matchmaking scope");
     if (isProjectAssignmentsPaused(this.runtime, projectId))
       throw new Error("matchmaking assignments paused");
     if (expectedRevision !== this.runtime.lifecycleRevision)

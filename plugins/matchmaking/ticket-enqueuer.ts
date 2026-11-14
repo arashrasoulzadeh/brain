@@ -1,4 +1,5 @@
 import { validateProjectId } from "../sdk-typescript/src/index.js";
+import { validateIdentifier } from "../sdk-typescript/src/index.js";
 import type { QueueRuntime } from "./queue-runtime.js";
 import { isProjectAssignmentsPaused } from "./is-project-assignments-paused.js";
 export class TicketEnqueuer {
@@ -11,6 +12,7 @@ export class TicketEnqueuer {
     pluginVersion = "unknown",
   ) {
     validateProjectId(projectId);
+    validateIdentifier(scope, "invalid matchmaking scope");
     if (!scope || !playerId || !pluginVersion) throw new Error("invalid matchmaking ticket");
     if (isProjectAssignmentsPaused(this.runtime, projectId))
       throw new Error("matchmaking assignments paused");

@@ -38,6 +38,12 @@ try {
   if (!(error instanceof Error) || error.message !== "matchmaking config not found") throw error;
 }
 const queue = createMatchmakingQueue();
+try {
+  queue.enqueue("dev", "ranked:other", "user-invalid", 1000);
+  throw new Error("ambiguous matchmaking scope accepted");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "invalid matchmaking scope") throw error;
+}
 const first = queue.enqueue("dev", "ranked", "user-1", 1000);
 queue.enqueue("dev", "ranked", "user-2", 2000);
 if (
