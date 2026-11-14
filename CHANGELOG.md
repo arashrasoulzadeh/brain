@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `44da82c` — 2026-11-14 16:39:27 +0330 — add dashboard dependency disable routes
+  Files: plugins/dashboard/index.ts,plugins/dashboard/plugin.yaml plugins/dashboard/project-request.ts,roadmap.md tests/dashboard/dashboard.test.ts
+- `47284c3` — 2026-11-14 13:08:47 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `9bdeccc` — 2026-11-14 16:38:34 +0330 — add dashboard plugin promotion routes
   Files: plugins/dashboard/index.ts,plugins/dashboard/plugin.yaml plugins/dashboard/project-request.ts,roadmap.md tests/dashboard/dashboard.test.ts
 - `768756a` — 2026-11-14 13:07:54 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `7d94ffb` — 2026-11-14 16:12:03 +0330 — refactor: isolate function lifecycle stores
   Files: plugins/functions/create-job-lease-store.ts,plugins/functions/create-record-change-trigger-store.ts plugins/functions/create-schedule-store.ts,plugins/functions/index.ts plugins/functions/plugin.yaml
 - `415b273` — 2026-11-14 12:41:28 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `4af8671` — 2026-11-14 16:11:15 +0330 — refactor: isolate invocation stores
-  Files: plugins/functions/create-invocation-commit-store.ts,plugins/functions/create-invocation-effects.ts plugins/functions/index.ts,plugins/functions/plugin.yaml
-- `1dc3601` — 2026-11-14 12:40:34 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
