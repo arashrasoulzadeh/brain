@@ -81,6 +81,7 @@ source_files:
   - create-deployment-hook-set.ts
   - reject-plugin-credentials.ts
   - reject-plugin-host-resources.ts
+  - validate-deployment-workflow.ts
   - require-sdk-imports.ts
   - validate-startup-duration.ts
   - validate-stale-input-versions.ts
@@ -175,6 +176,7 @@ imports:
   - ./create-deployment-hook-set.js
   - ./reject-plugin-credentials.js
   - ./reject-plugin-host-resources.js
+  - ./validate-deployment-workflow.js
   - ./require-sdk-imports.js
   - ./validate-startup-duration.js
   - ./validate-stale-input-versions.js

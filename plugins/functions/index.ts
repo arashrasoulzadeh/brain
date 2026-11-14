@@ -140,3 +140,4 @@ export {
 } from "./create-deployment-hook-set.js";
 export { rejectPluginCredentials } from "./reject-plugin-credentials.js";
 export { rejectPluginHostResources } from "./reject-plugin-host-resources.js";
+export { validateDeploymentWorkflow } from "./validate-deployment-workflow.js";
