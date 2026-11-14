@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `9e88566` — 2026-11-15 00:32:05 +0330 — gate packaged cross-project isolation
+  Files: tests/deploy/packaged_isolation_test.go,tests/deploy/testdata/packaged-isolation-probe/main.go
+- `1da1c17` — 2026-11-14 21:02:36 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `ffd22c3` — 2026-11-15 00:31:51 +0330 — add bounded worker recovery
   Files: internal/plugin/supervisor.go,tests/plugin/supervisor_test.go
 - `7029390` — 2026-11-14 21:02:17 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `8fdadc2` — 2026-11-14 23:10:43 +0330 — bind typescript workers to plugin manifests
   Files: internal/plugin/typescript_worker.go,tests/plugin/bubblewrap_worker_test.go
 - `9649c33` — 2026-11-14 19:38:03 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `083d722` — 2026-11-14 23:07:49 +0330 — avoid unavailable sandbox test dependency
-  Files: scripts/test-sandboxed-typescript-worker.sh
-- `418f2b8` — 2026-11-14 19:36:36 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
