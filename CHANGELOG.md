@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `478118b` — 2026-11-15 00:25:33 +0330 — publish restore runbook
+  Files: docs/admins.md,docs/developers.md docs/restore-runbook.md
+- `7345ece` — 2026-11-14 20:55:17 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `fce1623` — 2026-11-15 00:25:03 +0330 — publish deployment runbook
   Files: docs/admins.md,docs/deployment-runbook.md docs/developers.md
 - `033edc9` — 2026-11-14 20:54:43 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `0cf1f85` — 2026-11-14 22:59:26 +0330 — bound sandbox network probe
   Files: scripts/test-sandboxed-typescript-worker.sh
 - `d91d110` — 2026-11-14 19:28:03 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `6cbde4f` — 2026-11-14 22:57:50 +0330 — mount linux loader for sandbox node
-  Files: scripts/run-sandboxed-typescript-worker.sh
-- `b295124` — 2026-11-14 19:26:43 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
