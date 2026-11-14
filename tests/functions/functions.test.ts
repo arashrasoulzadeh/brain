@@ -597,6 +597,30 @@ const duplicateWorkflowResult = await runIdempotentWorkflow(
 );
 if (workflowResult !== "done" || duplicateWorkflowResult !== "done" || workflowAttempts !== 2)
   throw new Error("workflow retry/idempotency failed");
+const retriedEffects = createInvocationCommitStore();
+let effectAttempts = 0;
+const effectResult = await retryInvocation(
+  retriedEffects,
+  "workflow-effects-1",
+  () => {
+    effectAttempts++;
+    return "committed";
+  },
+  [{ type: "notify", recipient: "owner" }],
+);
+const duplicateEffectResult = await retryInvocation(
+  retriedEffects,
+  "workflow-effects-1",
+  () => "duplicate",
+  [{ type: "notify", recipient: "owner" }],
+);
+if (
+  effectResult !== "committed" ||
+  duplicateEffectResult !== "committed" ||
+  effectAttempts !== 1 ||
+  retriedEffects.effects().length !== 1
+)
+  throw new Error("retried workflow effects were committed more than once");
 const safeStatus = redactRunStatus({
   state: "running",
   token: "secret",
