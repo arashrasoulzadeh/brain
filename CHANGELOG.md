@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `0c9c4a6` — 2026-11-15 02:24:58 +0330 — validate table authorization boundaries
+  Files: plugins/tables/row-policy-checker.ts,plugins/tables/row-policy-granter.ts plugins/tables/scoped-transaction-change-reader.ts,plugins/tables/scoped-transaction-change-writer.ts plugins/tables/table-exposure-reader.ts,tests/tables/tables.test.ts
+- `fd6ec24` — 2026-11-14 22:54:18 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `774a9c2` — 2026-11-15 02:24:05 +0330 — validate arena identity and result time
   Files: plugins/arena/arena-state.ts,plugins/arena/validate-result.ts tests/arena/arena.test.ts
 - `d7c7446` — 2026-11-14 22:53:41 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `163a7d2` — 2026-11-15 01:54:24 +0330 — order plugin approval locks
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `a39cc10` — 2026-11-14 22:24:01 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `0bb6e66` — 2026-11-15 01:53:47 +0330 — require plugin resource identifiers
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `2f99655` — 2026-11-14 22:23:28 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
