@@ -971,6 +971,27 @@ func TestDisablePreviewClosesOnlyProjectSockets(t *testing.T) {
 	}
 }
 
+func TestRemovingInstallationInvalidatesDisablePreview(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	m := plugin.Manifest{ID: "preview-remove", Version: "1.0.0", HostAPI: 1}
+	if err := r.Register(m); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Install("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	preview, err := r.PreviewDisable("dev", m.ID, m.Version)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Remove("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.ApplyDisablePreview(preview); !errors.Is(err, plugin.ErrStalePreview) {
+		t.Fatalf("removed installation preview error = %v", err)
+	}
+}
+
 func TestApplyDisablePreviewStopsTheProjectWorker(t *testing.T) {
 	r := plugin.NewRegistry(1)
 	m := plugin.Manifest{ID: "rooms", Version: "1.0.0", HostAPI: 1}

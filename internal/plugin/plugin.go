@@ -946,6 +946,7 @@ func (r *Registry) Remove(projectID, id, version string) error {
 		return ErrVersionReferenced
 	}
 	delete(r.installations, key)
+	r.lifecycleRevision++
 	r.appendAudit(AuditEvent{Action: "remove", ProjectID: projectID, PluginID: id, Version: version})
 	return nil
 }
@@ -1028,6 +1029,7 @@ func (r *Registry) UninstallProject(projectID string) error {
 			delete(r.installations, key)
 		}
 	}
+	r.lifecycleRevision++
 	r.appendAudit(AuditEvent{Action: "uninstall_project", ProjectID: projectID})
 	if r.webSockets != nil {
 		if err := r.webSockets.CloseProject(projectID); err != nil {
