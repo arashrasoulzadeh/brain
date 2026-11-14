@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `702f508` — 2026-11-14 22:53:53 +0330 — resolve sandbox node symlink
+  Files: scripts/run-sandboxed-typescript-worker.sh
+- `6ceafce` — 2026-11-14 19:22:48 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `00f88bd` — 2026-11-14 22:52:34 +0330 — use explicit debian node in sandbox ci
   Files: .github/workflows/test.yml,scripts/run-sandboxed-typescript-worker.sh
 - `96a5b3c` — 2026-11-14 19:21:30 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `303a8f4` — 2026-11-14 17:33:16 +0330 — detect missing object versions
   Files: internal/deploy/object_manifest.go,roadmap_backend.md tests/deploy/object_manifest_test.go
 - `251c916` — 2026-11-14 14:02:44 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `e968db1` — 2026-11-14 17:32:22 +0330 — define PostgreSQL restore rehearsal
-  Files: roadmap_backend.md,scripts/restore-postgres-backup.sh tests/deploy/postgres_restore_test.go
-- `513d3ec` — 2026-11-14 14:01:58 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
