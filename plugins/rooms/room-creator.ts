@@ -1,10 +1,12 @@
 import { projectRoomID } from "./project-room-id.js";
 import type { RoomRuntime } from "./room-runtime.js";
 import type { Room } from "./index.js";
+import { isRoomDraining } from "./is-room-draining.js";
 export class RoomCreator {
   constructor(private readonly runtime: RoomRuntime) {}
   create(projectId: string, roomId: string, maxPlayers: number): Room {
     this.runtime.admission?.();
+    if (isRoomDraining(this.runtime)) throw new Error("room admissions disabled during drain");
     const id = projectRoomID(projectId, roomId);
     if (maxPlayers < 1 || maxPlayers > 64) throw new Error("invalid max players");
     if (this.runtime.rooms.has(id)) throw new Error("room already exists");

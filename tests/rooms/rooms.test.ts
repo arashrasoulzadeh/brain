@@ -141,6 +141,18 @@ try {
   if (!(error instanceof Error) || error.message !== "room admissions disabled during drain")
     throw error;
 }
+const deadlineDrainRooms = createRoomDirectory();
+deadlineDrainRooms.startDrain(Date.now() + 10_000);
+try {
+  deadlineDrainRooms.create("dev", "deadline-room", 2);
+  throw new Error("room admission was accepted during deadline drain");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "room admissions disabled during drain")
+    throw error;
+}
+deadlineDrainRooms.stopDrain();
+if (deadlineDrainRooms.create("dev", "after-drain", 2).state !== "waiting")
+  throw new Error("room admission did not resume after drain");
 if (!rooms.isMember("dev", "room-new", "user-1") || rooms.isMember("dev", "room-new", "user-2"))
   throw new Error("room membership check failed");
 try {

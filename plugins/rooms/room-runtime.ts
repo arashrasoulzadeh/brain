@@ -3,6 +3,7 @@ export type RoomRuntime = {
   rooms: Map<string, Room>;
   events: Map<string, RoomEvent[]>;
   sequence: number;
+  drainUntil?: number;
   store: MembershipStore;
   admission?: () => void;
 };

@@ -19,6 +19,9 @@ source_files:
   - connection-ticket-issuer.ts
   - connection-ticket-consumer.ts
   - room-runtime.ts
+  - start-room-drain.ts
+  - stop-room-drain.ts
+  - is-room-draining.ts
   - room-creator.ts
   - room-reader.ts
   - room-membership-reader.ts
@@ -59,6 +62,9 @@ imports:
   - ./connection-ticket-issuer.js
   - ./connection-ticket-consumer.js
   - ./room-runtime.js
+  - ./start-room-drain.js
+  - ./stop-room-drain.js
+  - ./is-room-draining.js
   - ./room-creator.js
   - ./room-reader.js
   - ./room-membership-reader.js

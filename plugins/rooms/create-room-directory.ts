@@ -6,6 +6,8 @@ import { RoomJoiner } from "./room-joiner.js";
 import { RoomLeaver } from "./room-leaver.js";
 import { RoomEventReader } from "./room-event-reader.js";
 import type { MembershipStore } from "./index.js";
+import { startRoomDrain } from "./start-room-drain.js";
+import { stopRoomDrain } from "./stop-room-drain.js";
 export function createRoomDirectory(store?: MembershipStore, admission?: () => void) {
   const runtime = createRoomRuntime(store, admission);
   const creator = new RoomCreator(runtime);
@@ -32,5 +34,7 @@ export function createRoomDirectory(store?: MembershipStore, admission?: () => v
       if (!Number.isInteger(sequence) || sequence < 0) throw new Error("invalid event sequence");
       return events.events(projectId, roomId).filter((event) => event.sequence > sequence);
     },
+    startDrain: (deadline: number) => startRoomDrain(runtime, deadline),
+    stopDrain: () => stopRoomDrain(runtime),
   };
 }
