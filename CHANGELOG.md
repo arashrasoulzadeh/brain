@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `bb6bb7a` — 2026-11-14 16:55:20 +0330 — verify flutter storage adapter boundary
+  Files: roadmap.md
+- `e06a0ab` — 2026-11-14 13:25:12 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `47ce9a2` — 2026-11-14 16:54:56 +0330 — add flutter web transport adapter
   Files: clients/flutter/lib/web_transport.dart,roadmap.md tests/flutter/web_transport_test.dart
 - `58c698d` — 2026-11-14 13:24:45 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `ecf8d0d` — 2026-11-14 16:42:01 +0330 — complete phase 05 workflow gate
   Files: docs/admins.md,docs/developers.md roadmap.md
 - `8486289` — 2026-11-14 13:11:07 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `9749012` — 2026-11-14 16:40:54 +0330 — add dashboard plugin uninstall route
-  Files: plugins/dashboard/index.ts,plugins/dashboard/plugin.yaml plugins/dashboard/project-request.ts,roadmap.md tests/dashboard/dashboard.test.ts
-- `140d17d` — 2026-11-14 13:10:39 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
