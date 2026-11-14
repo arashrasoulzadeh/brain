@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `ff6c182` — 2026-11-14 17:35:27 +0330 — check backup data loss target
+  Files: internal/deploy/backup_policy.go,roadmap_backend.md scripts/check-data-loss-target.sh,tests/deploy/backup_policy_test.go tests/deploy/data_loss_target_script_test.go
+- `91019d6` — 2026-11-14 14:04:52 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `0e0ca7a` — 2026-11-14 17:34:40 +0330 — record recovery duration and retention
   Files: internal/deploy/recovery_record.go,roadmap_backend.md tests/deploy/recovery_record_test.go
 - `e77288c` — 2026-11-14 14:04:09 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `ed03dc6` — 2026-11-14 17:13:57 +0330 — make backend roadmap the active checklist
   Files: AGENTS.md
 - `b4be8d3` — 2026-11-14 13:43:01 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `c619d75` — 2026-11-14 17:12:44 +0330 — split roadmap by backend admin and client
-  Files: roadmap.md,roadmap_admin.md roadmap_backend.md,roadmap_client.md
-- `89a45f0` — 2026-11-14 13:40:51 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
