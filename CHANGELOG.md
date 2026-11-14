@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `3e7650e` — 2026-11-14 22:40:00 +0330 — run sandbox launcher with bash limits
+  Files: .github/workflows/test.yml,scripts/run-sandboxed-typescript-worker.sh scripts/test-sandboxed-typescript-worker.sh
+- `bca43e5` — 2026-11-14 19:08:41 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `c553fda` — 2026-11-14 22:38:27 +0330 — verify typescript sandbox in linux ci
   Files: .github/workflows/test.yml,scripts/run-sandboxed-typescript-worker.sh scripts/test-sandboxed-typescript-worker.sh
 - `828efc2` — 2026-11-14 19:07:13 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `660be6c` — 2026-11-14 17:24:58 +0330 — retain last healthy release manifest
   Files: internal/deploy/healthy_manifest.go,internal/deploy/manifest.go roadmap_backend.md,tests/deploy/healthy_manifest_test.go
 - `e508729` — 2026-11-14 13:54:20 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `aff04b2` — 2026-11-14 17:24:03 +0330 — record deployed release version
-  Files: internal/deploy/version.go,roadmap_backend.md tests/deploy/version_test.go
-- `c755865` — 2026-11-14 13:53:33 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
