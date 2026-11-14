@@ -387,6 +387,8 @@ func (r *Registry) ApprovedArtifact(id, version string) (string, bool) {
 }
 
 func (r *Registry) Register(m Manifest) error {
+	r.readinessMu.Lock()
+	defer r.readinessMu.Unlock()
 	if m.ID == "" || m.Version == "" || m.HostAPI != r.HostAPI {
 		if m.ID == "" || m.Version == "" {
 			return ErrInvalidManifest
