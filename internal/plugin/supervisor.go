@@ -66,6 +66,10 @@ func (s *Supervisor) StopPluginVersion(pluginID, version string) error {
 	return nil
 }
 
+func (s *Supervisor) StopProjectPlugin(projectID, pluginID, version string) error {
+	return s.Stop(projectID + ":" + pluginID + "@" + version)
+}
+
 func (s *Supervisor) Ready(key string) bool {
 	worker, ok := s.workers[key]
 	return ok && worker.Ready()

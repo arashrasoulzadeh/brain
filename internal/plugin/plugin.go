@@ -203,6 +203,11 @@ type Registry struct {
 	approvals         map[string]bool
 	lifecycleRevision uint64
 	durableData       map[string][]byte
+	supervisor        *Supervisor
+}
+
+func (r *Registry) BindSupervisor(supervisor *Supervisor) {
+	r.supervisor = supervisor
 }
 
 type AuditEvent struct {
@@ -488,6 +493,11 @@ func (r *Registry) Revoke(projectID, id, version, capability string) error {
 	delete(i.Resources, capability)
 	r.installations[key] = i
 	r.audit = append(r.audit, AuditEvent{Action: "revoke", ProjectID: projectID, PluginID: id, Version: version, Detail: capability})
+	if r.supervisor != nil {
+		if err := r.supervisor.StopProjectPlugin(projectID, id, version); err != nil && !errors.Is(err, ErrWorkerNotRunning) {
+			return err
+		}
+	}
 	return nil
 }
 

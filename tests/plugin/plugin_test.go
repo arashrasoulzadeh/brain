@@ -76,6 +76,38 @@ func TestPluginLifecycleAndScopedAuthorization(t *testing.T) {
 	}
 }
 
+func TestRevokeStopsTheProjectWorker(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	m := plugin.Manifest{ID: "guest", Version: "1.0.0", HostAPI: 1, Capabilities: []string{"session.issue"}}
+	if err := r.Register(m); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Install("dev", m.ID, m.Version); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Grant("dev", m.ID, m.Version, "session.issue"); err != nil {
+		t.Fatal(err)
+	}
+	s := plugin.NewSupervisor()
+	w := &supervisorTestWorker{}
+	if err := s.Start("dev:guest@1.0.0", w); err != nil {
+		t.Fatal(err)
+	}
+	r.BindSupervisor(s)
+	if err := r.Revoke("dev", m.ID, m.Version, "session.issue"); err != nil {
+		t.Fatal(err)
+	}
+	if !w.stopped || s.Ready("dev:guest@1.0.0") {
+		t.Fatal("revocation left project worker running")
+	}
+}
+
+type supervisorTestWorker struct{ stopped bool }
+
+func (w *supervisorTestWorker) Start() error { return nil }
+func (w *supervisorTestWorker) Stop() error  { w.stopped = true; return nil }
+func (w *supervisorTestWorker) Ready() bool  { return !w.stopped }
+
 func TestProjectsCanInstallSameVersionIndependently(t *testing.T) {
 	r := plugin.NewRegistry(1)
 	m := plugin.Manifest{ID: "guest", Version: "1.0.0", HostAPI: 1, Capabilities: []string{"session.issue"}}
