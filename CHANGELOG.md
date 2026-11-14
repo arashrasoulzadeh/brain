@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `f479cbe` — 2026-11-15 02:06:53 +0330 — verify host authenticated plugin execution
+  Files: roadmap_backend.md
+- `def42f1` — 2026-11-14 22:36:48 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `2d3f209` — 2026-11-15 02:06:31 +0330 — verify project isolation boundaries
   Files: roadmap_backend.md
 - `00dd5b2` — 2026-11-14 22:36:26 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `6ca3489` — 2026-11-15 01:43:14 +0330 — add project scoped websocket cleanup
   Files: internal/plugin/websocket_registry.go,tests/plugin/websocket_registry_test.go
 - `6f4abd2` — 2026-11-14 22:11:57 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `778f6dd` — 2026-11-15 01:41:41 +0330 — bound plugin transport payloads
-  Files: internal/plugin/http_envelope.go,internal/plugin/websocket_message.go tests/plugin/http_envelope_test.go,tests/plugin/websocket_message_test.go
-- `e0206bf` — 2026-11-14 22:10:58 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
