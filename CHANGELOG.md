@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `958cd76` — 2026-11-15 02:27:51 +0330 — harden websocket project boundaries
+  Files: internal/plugin/websocket_endpoint.go,internal/plugin/websocket_registry.go tests/plugin/websocket_endpoint_test.go,tests/plugin/websocket_registry_test.go
+- `f2cbb2b` — 2026-11-14 22:57:28 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `9307c44` — 2026-11-15 02:27:11 +0330 — enforce host project identity format
   Files: internal/plugin/broker.go,internal/plugin/external.go internal/plugin/http_envelope.go,internal/plugin/project_identity.go internal/plugin/websocket_message.go,internal/plugin/worker.go tests/plugin/broker_test.go
 - `89aebb8` — 2026-11-14 22:56:37 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `036e53f` — 2026-11-15 01:59:57 +0330 — validate manifests at registry registration
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `d1ddf96` — 2026-11-14 22:28:24 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `2ff2af8` — 2026-11-15 01:58:08 +0330 — enforce project identity in disable previews
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `ab341ac` — 2026-11-14 22:27:39 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
