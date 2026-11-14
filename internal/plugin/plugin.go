@@ -570,6 +570,9 @@ func (r *Registry) GrantResource(projectID, id, version, capability, resource st
 func (r *Registry) AuthorizeResource(projectID, id, version, capability, resource string) error {
 	r.grantMu.RLock()
 	defer r.grantMu.RUnlock()
+	if resource == "" {
+		return ErrGrantDenied
+	}
 	r.installationMu.RLock()
 	defer r.installationMu.RUnlock()
 	if err := r.authorizeGrant(projectID, id, version, capability); err != nil {
