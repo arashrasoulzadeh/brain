@@ -255,6 +255,7 @@ type Registry struct {
 	HostAPI           int
 	registered        map[string]Registered
 	installations     map[string]Installation
+	installationMu    sync.RWMutex
 	readiness         map[string]bool
 	readinessMu       sync.RWMutex
 	grantMu           sync.RWMutex
@@ -347,6 +348,8 @@ func (r *Registry) ApproveCapability(projectID, id, version, capability string) 
 }
 
 func (r *Registry) Status(projectID, pluginID, version string) (InstallationStatus, error) {
+	r.installationMu.RLock()
+	defer r.installationMu.RUnlock()
 	installation, ok := r.installations[projectID+":"+pluginID+"@"+version]
 	if !ok {
 		return InstallationStatus{}, ErrNotInstalled
@@ -469,6 +472,8 @@ func (r *Registry) SetReadiness(id, version string, ready bool) error {
 }
 
 func (r *Registry) Install(projectID, id, version string) error {
+	r.installationMu.Lock()
+	defer r.installationMu.Unlock()
 	if projectID == "" {
 		return ErrProjectInvalid
 	}
