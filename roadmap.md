@@ -609,7 +609,7 @@ Goal: finish the supported clients, publish the protocol, and rehearse productio
 - [x] Add shared data fixtures.
 - [x] Add shared file fixtures.
 - [x] Add shared function fixtures.
-- [ ] Add shared subscription fixtures.
+- [x] Add shared subscription fixtures.
 - [ ] Add shared matchmaking fixtures.
 - [ ] Add shared gameplay fixtures.
 - [ ] Add shared reconnect fixtures.
