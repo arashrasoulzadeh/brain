@@ -39,6 +39,7 @@ exec "$bwrap_bin" \
   --ro-bind /usr/local /usr/local \
   --ro-bind /usr/lib /usr/lib \
   --ro-bind /lib /lib \
+  --ro-bind "$node_path" "$node_path" \
   --ro-bind "$worker_dir" "$worker_dir" \
   --ro-bind "$descriptor_dir" "$descriptor_dir" \
   --ro-bind "$plugin_root" "$plugin_root" \
