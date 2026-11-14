@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `816bb46` — 2026-11-15 00:27:50 +0330 — add complete clean environment rehearsal
+  Files: docs/deployment-runbook.md,scripts/clean-environment-rehearsal.sh tests/deploy/clean_environment_script_test.go
+- `33b66a5` — 2026-11-14 20:56:58 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `f800672` — 2026-11-15 00:26:45 +0330 — rehearse clean deploy rollback in ci
   Files: .github/workflows/test.yml
 - `3cee528` — 2026-11-14 20:56:25 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `da26143` — 2026-11-14 23:04:22 +0330 — allow node snapshot address space in sandbox
   Files: scripts/test-sandboxed-typescript-worker.sh
 - `63a82e5` — 2026-11-14 19:33:05 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `bb3122e` — 2026-11-14 23:02:47 +0330 — allow node startup memory in sandbox fixture
-  Files: scripts/test-sandboxed-typescript-worker.sh
-- `414b866` — 2026-11-14 19:31:14 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
