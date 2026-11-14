@@ -675,7 +675,7 @@ Goal: finish the supported clients, publish the protocol, and rehearse productio
 
 ### Manual Compose deployment
 
-- [ ] Add a deployment lock.
+- [x] Add a deployment lock.
 - [ ] Validate the requested release SHA.
 - [ ] Validate the release manifest.
 - [ ] Validate the Compose configuration.
