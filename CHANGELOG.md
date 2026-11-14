@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `303a8f4` — 2026-11-14 17:33:16 +0330 — detect missing object versions
+  Files: internal/deploy/object_manifest.go,roadmap_backend.md tests/deploy/object_manifest_test.go
+- `251c916` — 2026-11-14 14:02:44 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `e968db1` — 2026-11-14 17:32:22 +0330 — define PostgreSQL restore rehearsal
   Files: roadmap_backend.md,scripts/restore-postgres-backup.sh tests/deploy/postgres_restore_test.go
 - `513d3ec` — 2026-11-14 14:01:58 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `7f77480` — 2026-11-14 17:07:19 +0330 — validate deployment compose configuration
   Files: internal/deploy/compose.go,roadmap.md tests/deploy/compose_test.go
 - `2b73bf2` — 2026-11-14 13:36:05 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `2e8f689` — 2026-11-14 17:05:46 +0330 — validate release image manifest
-  Files: internal/deploy/manifest.go,roadmap.md tests/deploy/manifest_test.go
-- `945c957` — 2026-11-14 13:35:31 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
