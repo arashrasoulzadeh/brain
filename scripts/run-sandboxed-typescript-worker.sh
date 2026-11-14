@@ -43,6 +43,7 @@ exec "$bwrap_bin" \
   --ro-bind /usr/local /usr/local \
   --ro-bind /usr/bin /usr/bin \
   --ro-bind /usr/lib /usr/lib \
+  --ro-bind /usr/share/nodejs /usr/share/nodejs \
   --ro-bind /lib /lib \
   --ro-bind /lib64 /lib64 \
   --ro-bind "$node_path" "$node_path" \
