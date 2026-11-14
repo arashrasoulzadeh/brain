@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `e968db1` — 2026-11-14 17:32:22 +0330 — define PostgreSQL restore rehearsal
+  Files: roadmap_backend.md,scripts/restore-postgres-backup.sh tests/deploy/postgres_restore_test.go
+- `513d3ec` — 2026-11-14 14:01:58 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `6e90046` — 2026-11-14 17:31:44 +0330 — alert on stale verified backups
   Files: internal/deploy/backup_policy.go,roadmap_backend.md scripts/check-backup-age.sh,tests/deploy/backup_age_script_test.go tests/deploy/backup_policy_test.go
 - `8243875` — 2026-11-14 14:01:17 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `2e8f689` — 2026-11-14 17:05:46 +0330 — validate release image manifest
   Files: internal/deploy/manifest.go,roadmap.md tests/deploy/manifest_test.go
 - `945c957` — 2026-11-14 13:35:31 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `c5eac14` — 2026-11-14 17:05:17 +0330 — validate deployment release sha
-  Files: internal/deploy/release_sha.go,roadmap.md tests/deploy/release_sha_test.go
-- `2599e51` — 2026-11-14 13:35:09 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
