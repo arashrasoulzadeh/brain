@@ -19,7 +19,7 @@ if [ ! -f "$worker_script" ] || [ ! -f "$descriptor" ] || [ ! -d "$plugin_root" 
   exit 64
 fi
 
-node_path=$(command -v "$node_bin")
+node_path=$(readlink -f "$(command -v "$node_bin")")
 node_dir=$(dirname "$node_path")
 worker_dir=$(dirname "$worker_script")
 descriptor_dir=$(dirname "$descriptor")
