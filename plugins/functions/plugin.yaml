@@ -62,6 +62,9 @@ source_files:
   - run-capped-retries.ts
   - create-invocation-effects.ts
   - create-invocation-commit-store.ts
+  - create-schedule-store.ts
+  - create-record-change-trigger-store.ts
+  - create-job-lease-store.ts
 imports:
   - ../sdk-typescript/src/index.js
   - node:fs
@@ -128,6 +131,9 @@ imports:
   - ./run-capped-retries.js
   - ./create-invocation-effects.js
   - ./create-invocation-commit-store.js
+  - ./create-schedule-store.js
+  - ./create-record-change-trigger-store.js
+  - ./create-job-lease-store.js
   - ./index.js
 plugin_imports:
 title: Functions

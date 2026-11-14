@@ -12,24 +12,10 @@ import { SharedPackageReader } from "./shared-package-reader.js";
 import { createFunctionDraftState } from "./function-draft-state.js";
 import { FunctionDraftWriter } from "./function-draft-writer.js";
 import { FunctionDraftReader } from "./function-draft-reader.js";
-import { createJobLeaseState } from "./job-lease-state.js";
-import { JobLeaseAcquirer } from "./job-lease-acquirer.js";
-import { JobLeaseRenewer } from "./job-lease-renewer.js";
 import { createFunctionPublicationState } from "./function-publication-state.js";
 import { FunctionPublicationWriter } from "./function-publication-writer.js";
 import { FunctionPublicationReader } from "./function-publication-reader.js";
 import { FunctionPublicationRollback } from "./function-publication-rollback.js";
-import { createRecordTriggerState } from "./record-trigger-state.js";
-import { RecordTriggerAdder } from "./record-trigger-adder.js";
-import { RecordTriggerMatcher } from "./record-trigger-matcher.js";
-import { RecordTriggerDispatcher } from "./record-trigger-dispatcher.js";
-import { createScheduleState } from "./schedule-state.js";
-import { ScheduleAdder } from "./schedule-adder.js";
-import { ScheduleReader } from "./schedule-reader.js";
-import { ScheduleClaimer } from "./schedule-claimer.js";
-import { ScheduleOccurrenceRecorder } from "./schedule-occurrence-recorder.js";
-import { MissedScheduleEnqueuer } from "./missed-schedule-enqueuer.js";
-import { FunctionVersionEnqueuer } from "./function-version-enqueuer.js";
 import type { FunctionInvocationRequest } from "./invocation-types.js";
 import { runCappedRetries } from "./run-capped-retries.js";
 import { createInvocationCommitStore } from "./create-invocation-commit-store.js";
@@ -86,7 +72,7 @@ export async function retryInvocation<T>(store: ReturnType<typeof createInvocati
 }
 export type FunctionSchedule = { projectId: string; functionId: string; expression: string; dueAt: number };
 export type EnqueuedFunction = { projectId: string; functionId: string; functionVersion: number; enqueuedAt: number };
-export function createScheduleStore() { const state = createScheduleState(); const adder = new ScheduleAdder(state); const reader = new ScheduleReader(state); const claimer = new ScheduleClaimer(state); const occurrence = new ScheduleOccurrenceRecorder(state); const missed = new MissedScheduleEnqueuer(state); const version = new FunctionVersionEnqueuer(); return { add: adder.add.bind(adder), due: reader.due.bind(reader), claim: claimer.claim.bind(claimer), recordOccurrence: occurrence.recordOccurrence.bind(occurrence), enqueueLatestMissed: missed.enqueueLatestMissed.bind(missed), enqueueVersion: version.enqueueVersion.bind(version) }; }
+export { createScheduleStore } from "./create-schedule-store.js";
 /* legacy schedule operations are composed by createScheduleStore above. */
 /*
   add(projectId: string, functionId: string, expression: string, dueAt: number): FunctionSchedule {
@@ -133,8 +119,8 @@ export function createScheduleStore() { const state = createScheduleState(); con
   }
 }*/
 export type RecordChangeTrigger = { projectId: string; collection: string; operation: string; target: { functionId: string; version: number } };
-export function createRecordChangeTriggerStore() { const state = createRecordTriggerState(); const adder = new RecordTriggerAdder(state); const matcher = new RecordTriggerMatcher(state); const dispatcher = new RecordTriggerDispatcher(state); return { add: adder.add.bind(adder), match: matcher.match.bind(matcher), dispatch: dispatcher.dispatch.bind(dispatcher) }; }
-export function createJobLeaseStore() { const state = createJobLeaseState(); const acquirer = new JobLeaseAcquirer(state); const renewer = new JobLeaseRenewer(state); return { acquire: acquirer.acquire.bind(acquirer), renew: renewer.renew.bind(renewer) }; }
+export { createRecordChangeTriggerStore } from "./create-record-change-trigger-store.js";
+export { createJobLeaseStore } from "./create-job-lease-store.js";
 export { commitWithGrant } from "./commit-with-grant.js";
 export { runCappedRetries } from "./run-capped-retries.js";
 export async function runIdempotentWorkflow<T>(store: ReturnType<typeof createInvocationCommitStore>, idempotencyKey: string, task: () => T | Promise<T>, maxAttempts: number): Promise<T> {
