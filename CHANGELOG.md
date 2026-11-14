@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `5532609` — 2026-11-14 16:27:24 +0330 — security: keep confirmations in trusted dashboard UI
+  Files: plugins/dashboard/reject-sensitive-bridge-data.ts,roadmap.md tests/dashboard/bridge-messages.test.ts
+- `45aeea4` — 2026-11-14 12:57:09 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `74c75b3` — 2026-11-14 16:26:54 +0330 — security: keep operator tokens out of dashboard bridges
   Files: plugins/dashboard/plugin.yaml,plugins/dashboard/reject-sensitive-bridge-data.ts plugins/dashboard/validate-bridge-message.ts,roadmap.md tests/dashboard/bridge-messages.test.ts
 - `8478c35` — 2026-11-14 12:56:22 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `0714be7` — 2026-11-13 17:18:44 +0330 — feat: add custom typescript admin view
   Files: plugins/dashboard/custom-admin-view.ts,plugins/dashboard/index.ts plugins/dashboard/plugin.yaml,roadmap.md tests/dashboard/dashboard.test.ts
-- `5902a49` — 2026-11-13 13:48:28 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `1730e10` — 2026-11-13 17:17:56 +0330 — feat: audit dashboard view actions
-  Files: plugins/dashboard/view-replacement-registry.ts,roadmap.md tests/dashboard/dashboard.test.ts
