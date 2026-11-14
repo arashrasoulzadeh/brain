@@ -38,59 +38,11 @@ export type HostExecutionContext = {
   readonly invocationId: string;
 };
 
-export function createRouteHandler(routes: readonly PluginRoute[]): PluginHandler {
-  return (rpc) => {
-    const route = routes.find((candidate) => candidate.operation === rpc.params.operation);
-    if (!route || !route.function || !route.capability) throw new Error("operation not declared in plugin manifest");
-    return { accepted: true, operation: rpc.params.operation, function: route.function, capability: route.capability };
-  };
-}
-
-export function createHostHandler(host: HostInvoker, routes: readonly PluginRoute[], context: HostExecutionContext): PluginHandler {
-  return (rpc) => {
-    if (!context.projectId || !context.invocationId || rpc.params.projectId !== context.projectId) throw new Error("host project context mismatch");
-    const route = routes.find((candidate) => candidate.operation === rpc.params.operation);
-    if (!route) throw new Error("operation not declared in plugin manifest");
-    if (!route.function || !route.capability) throw new Error("invalid plugin route");
-    return {
-      accepted: true,
-      operation: rpc.params.operation,
-      payload: host.invoke(rpc.params.projectId, rpc.params.operation, route.capability, rpc.params.payload ?? null),
-    };
-  };
-}
-
 export type PluginFunction = (request: RpcRequest) => unknown;
-
-export function createFunctionHandler(functions: Readonly<Record<string, PluginFunction>>, routes: readonly PluginRoute[], context: HostExecutionContext): PluginHandler {
-  return (rpc) => {
-    if (!context.projectId || !context.invocationId || rpc.params.projectId !== context.projectId) throw new Error("host project context mismatch");
-    const route = routes.find((candidate) => candidate.operation === rpc.params.operation);
-    if (!route) throw new Error("operation not declared in plugin manifest");
-    if (!route.function || !route.capability) throw new Error("invalid plugin route");
-    const fn = functions[route.function];
-    if (!fn) throw new Error("route function not implemented");
-    return { accepted: true, operation: rpc.params.operation, payload: fn(rpc) };
-  };
-}
-
-export function request(id: string, params: WorkerParams): RpcRequest {
-  if (!id || !params.projectId || !params.pluginId || !params.version || !params.operation) {
-    throw new Error("invalid plugin request");
-  }
-  return { jsonrpc: "2.0", id, method: "invoke", params };
-}
-
-export function pluginRequest(prefix: string, projectId: string, pluginId: string, version: string, operation: string, payload: unknown = {}, identity = ""): RpcRequest {
-  return request(`${prefix}-${operation}-${projectId}${identity ? `-${identity}` : ""}`, { protocol: 1, projectId, pluginId, version, operation, payload });
-}
-
-export function validateProjectId(projectId: string, errorMessage = "invalid project id"): string {
-  if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(projectId)) throw new Error(errorMessage);
-  return projectId;
-}
-
-export function validateIdentifier(identifier: string, errorMessage = "invalid identifier"): string {
-  if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(identifier)) throw new Error(errorMessage);
-  return identifier;
-}
+export { createRouteHandler } from "./create-route-handler.js";
+export { createHostHandler } from "./create-host-handler.js";
+export { createFunctionHandler } from "./create-function-handler.js";
+export { request } from "./request.js";
+export { pluginRequest } from "./plugin-request.js";
+export { validateProjectId } from "./validate-project-id.js";
+export { validateIdentifier } from "./validate-identifier.js";
