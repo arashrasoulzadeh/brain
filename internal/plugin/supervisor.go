@@ -3,6 +3,7 @@ package plugin
 import (
 	"errors"
 	"strings"
+	"sync"
 )
 
 var ErrWorkerAlreadyRunning = errors.New("worker already running")
@@ -28,11 +29,16 @@ type supervisedWorker struct {
 	restartCount int
 }
 
-type Supervisor struct{ workers map[string]supervisedWorker }
+type Supervisor struct {
+	mu      sync.RWMutex
+	workers map[string]supervisedWorker
+}
 
 func NewSupervisor() *Supervisor { return &Supervisor{workers: map[string]supervisedWorker{}} }
 
 func (s *Supervisor) Start(key string, worker Worker) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	if _, ok := s.workers[key]; ok {
 		return ErrWorkerAlreadyRunning
 	}
@@ -44,6 +50,8 @@ func (s *Supervisor) Start(key string, worker Worker) error {
 }
 
 func (s *Supervisor) StartRecovering(key string, factory WorkerFactory, policy RecoveryPolicy) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	if factory == nil || policy.MaxRestarts < 0 {
 		return ErrWorkerRecoveryUnavailable
 	}
@@ -62,6 +70,8 @@ func (s *Supervisor) StartRecovering(key string, factory WorkerFactory, policy R
 }
 
 func (s *Supervisor) Recover(key string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	entry, ok := s.workers[key]
 	if !ok {
 		return ErrWorkerNotRunning
@@ -91,6 +101,8 @@ func (s *Supervisor) Recover(key string) error {
 }
 
 func (s *Supervisor) Stop(key string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	entry, ok := s.workers[key]
 	if !ok {
 		return ErrWorkerNotRunning
@@ -103,6 +115,8 @@ func (s *Supervisor) Stop(key string) error {
 }
 
 func (s *Supervisor) StopPluginVersion(pluginID, version string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	if pluginID == "" || version == "" {
 		return ErrWorkerNotRunning
 	}
@@ -131,6 +145,8 @@ func (s *Supervisor) StopProjectPlugin(projectID, pluginID, version string) erro
 }
 
 func (s *Supervisor) Ready(key string) bool {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	entry, ok := s.workers[key]
 	return ok && entry.worker.Ready()
 }

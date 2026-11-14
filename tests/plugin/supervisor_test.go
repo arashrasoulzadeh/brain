@@ -2,6 +2,7 @@ package plugin_test
 
 import (
 	"errors"
+	"sync"
 	"testing"
 
 	"brain/internal/plugin"
@@ -35,6 +36,23 @@ func TestSupervisorRecoversCrashedWorkerWithinBound(t *testing.T) {
 	if created != 2 || !s.Ready("rooms@1") {
 		t.Fatalf("worker was not recovered: created=%d ready=%v", created, s.Ready("rooms@1"))
 	}
+}
+
+func TestSupervisorSupportsConcurrentHealthChecks(t *testing.T) {
+	s := plugin.NewSupervisor()
+	if err := s.Start("rooms@1", &fakeWorker{}); err != nil {
+		t.Fatal(err)
+	}
+	var group sync.WaitGroup
+	for range 32 {
+		group.Add(1)
+		go func() {
+			defer group.Done()
+			_ = s.Ready("rooms@1")
+			_ = s.CheckEnabled([]string{"rooms@1"})
+		}()
+	}
+	group.Wait()
 }
 
 func TestSupervisorRecoversOnlyAfterCrashAndHonorsRestartLimit(t *testing.T) {
