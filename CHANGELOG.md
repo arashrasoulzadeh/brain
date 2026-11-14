@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `bb3122e` — 2026-11-14 23:02:47 +0330 — allow node startup memory in sandbox fixture
+  Files: scripts/test-sandboxed-typescript-worker.sh
+- `414b866` — 2026-11-14 19:31:14 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `b020f41` — 2026-11-14 23:00:57 +0330 — bound sandbox ci duration
   Files: .github/workflows/test.yml
 - `c2d091c` — 2026-11-14 19:29:39 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `c4e20fb` — 2026-11-14 17:38:41 +0330 — add typescript worker process
   Files: scripts/typescript-worker.mjs,tests/plugin/typescript-worker.test.ts
 - `6d4b51c` — 2026-11-14 14:06:56 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `37f14ab` — 2026-11-14 17:36:43 +0330 — run eight-player capacity fixture
-  Files: roadmap_backend.md,tests/deploy/capacity-eight-player.test.ts
-- `458cf7b` — 2026-11-14 14:06:16 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
