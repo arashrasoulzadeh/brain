@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `5063d62` — 2026-11-15 00:49:36 +0330 — rehearse explicit compose rollback
+  Files: scripts/clean-environment-rehearsal.sh,tests/deploy/clean_environment_script_test.go
+- `002176b` — 2026-11-14 21:19:19 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `2f37359` — 2026-11-15 00:49:04 +0330 — add explicit compose rollback script
   Files: scripts/rollback-compose.sh,tests/deploy/rollback_compose_test.go
 - `13b1c4c` — 2026-11-14 21:18:41 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `f800672` — 2026-11-15 00:26:45 +0330 — rehearse clean deploy rollback in ci
   Files: .github/workflows/test.yml
-- `3cee528` — 2026-11-14 20:56:25 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `5ca2610` — 2026-11-15 00:26:12 +0330 — guard clean environment runbook gate
-  Files: tests/deploy/runbook_test.go
