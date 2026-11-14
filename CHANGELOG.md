@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `47ce9a2` — 2026-11-14 16:54:56 +0330 — add flutter web transport adapter
+  Files: clients/flutter/lib/web_transport.dart,roadmap.md tests/flutter/web_transport_test.dart
+- `58c698d` — 2026-11-14 13:24:45 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `fbe6e31` — 2026-11-14 16:54:32 +0330 — add flutter native transport adapter
   Files: clients/flutter/lib/native_transport.dart,roadmap.md tests/flutter/native_transport_test.dart
 - `b3dc229` — 2026-11-14 13:24:20 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `9749012` — 2026-11-14 16:40:54 +0330 — add dashboard plugin uninstall route
   Files: plugins/dashboard/index.ts,plugins/dashboard/plugin.yaml plugins/dashboard/project-request.ts,roadmap.md tests/dashboard/dashboard.test.ts
 - `140d17d` — 2026-11-14 13:10:39 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `9513dd1` — 2026-11-14 16:40:22 +0330 — add dashboard lifecycle routes
-  Files: plugins/dashboard/index.ts,plugins/dashboard/plugin.yaml plugins/dashboard/project-request.ts,roadmap.md tests/dashboard/dashboard.test.ts
-- `4bdec10` — 2026-11-14 13:09:40 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
