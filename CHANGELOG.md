@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `0b9cd72` — 2026-11-15 00:36:59 +0330 — verify multi-architecture release images
+  Files: .github/workflows/release-backend.yml,tests/deploy/assignments_test.go tests/deploy/release_image_verification_test.go,tests/deploy/release_workflow_test.go tests/deploy/room_drain_test.go,tests/plugin/worker_test.go
+- `e85471a` — 2026-11-14 21:07:07 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `e03cbf4` — 2026-11-15 00:36:56 +0330 — add manual assignment pause contract
   Files: internal/deploy/sequence.go,internal/plugin/plugin.go tests/deploy/sequence_test.go,tests/plugin/plugin_test.go
 - `6a8b810` — 2026-11-14 21:04:38 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `4aa27f7` — 2026-11-14 23:15:16 +0330 — stop workers when disable applies
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `e4477c9` — 2026-11-14 19:44:53 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `9a0cbaf` — 2026-11-14 23:14:39 +0330 — stop project workers when grants revoke
-  Files: internal/plugin/plugin.go,internal/plugin/supervisor.go tests/plugin/plugin_test.go
-- `9032485` — 2026-11-14 19:44:06 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
