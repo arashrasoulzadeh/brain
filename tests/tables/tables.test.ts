@@ -44,6 +44,12 @@ if (
 if (projectRoleName("dev") !== "runtime_project_dev")
   throw new Error("project role isolation failed");
 const grants = new Set<string>();
+try {
+  new RowPolicyGranter(grants).grant("dev", "user:other");
+  throw new Error("ambiguous row policy actor accepted");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "invalid actor id") throw error;
+}
 if (
   new RowPolicyChecker(grants).allows("dev", "user-1") ||
   !new RowPolicyGranter(grants).grant("dev", "user-1") ||
@@ -53,6 +59,12 @@ if (
   throw new Error("default deny row policy failed");
 const exposureMap = new Map();
 new TableExposureWriter(exposureMap).expose("dev", "users", ["id", "name"]);
+try {
+  new TableExposureReader(exposureMap).get("dev:other", "users");
+  throw new Error("malformed table exposure project accepted");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "invalid project id") throw error;
+}
 if (
   !new TableExposureReader(exposureMap).get("dev", "users")?.columns.includes("id") ||
   new TableExposureReader(exposureMap).get("prod", "users")
