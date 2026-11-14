@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `2d3f209` — 2026-11-15 02:06:31 +0330 — verify project isolation boundaries
+  Files: roadmap_backend.md
+- `00dd5b2` — 2026-11-14 22:36:26 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `b68fd4f` — 2026-11-15 02:06:07 +0330 — verify plugin-first host boundary
   Files: docs/admins.md,docs/developers.md roadmap_backend.md
 - `3956b5c` — 2026-11-14 22:35:11 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `778f6dd` — 2026-11-15 01:41:41 +0330 — bound plugin transport payloads
   Files: internal/plugin/http_envelope.go,internal/plugin/websocket_message.go tests/plugin/http_envelope_test.go,tests/plugin/websocket_message_test.go
 - `e0206bf` — 2026-11-14 22:10:58 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `a48d2c9` — 2026-11-15 01:40:46 +0330 — require plugin worker keys
-  Files: internal/plugin/supervisor.go,tests/plugin/supervisor_test.go
-- `c57ac11` — 2026-11-14 22:10:25 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
