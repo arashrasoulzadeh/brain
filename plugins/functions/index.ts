@@ -1,10 +1,5 @@
 import { type RpcRequest, validateProjectId } from "../sdk-typescript/src/index.js";
-import { existsSync, mkdtempSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
-import type { FunctionInvocationRequest } from "./invocation-types.js";
 import { runCappedRetries } from "./run-capped-retries.js";
-import { createInvocationCommitStore } from "./create-invocation-commit-store.js";
 
 export { functionRequest } from "./function-request.js";
 export { publishSharedHelperArtifact } from "./shared-helper-publisher.js";
@@ -12,50 +7,35 @@ export { publishSharedHelperArtifact } from "./shared-helper-publisher.js";
 export const ENTRY_PACKAGE_FIXTURE = "package main\n\nimport \"encoding/json\"\n\nfunc main() {\n\t_ = json.NewEncoder(nil)\n}\n";
 export const PROJECT_HELPER_FIXTURE = "package helper";
 export { wasmBuildSettings } from "./wasm-build-settings.js";
-export { APPROVED_SDK_IMPORTS, validateSDKImports, requireSDKImports } from "./validate-sdk-imports.js";
+export { APPROVED_SDK_IMPORTS, validateSDKImports } from "./validate-sdk-imports.js";
+export { requireSDKImports } from "./require-sdk-imports.js";
 export { validateSourceProject } from "./validate-source-project.js";
 export { validateBuildOverrides } from "./validate-build-overrides.js";
 export { validateFunctionLimits } from "./validate-function-limits.js";
-export class DisposableCompilerWorkspace {
-  readonly path: string;
-  constructor(prefix = "brain-function-") { this.path = mkdtempSync(join(tmpdir(), prefix)); }
-  dispose(): void { if (existsSync(this.path)) rmSync(this.path, { recursive: true, force: true }); }
-}
-export function compilerEnvironment(): Readonly<Record<string, string>> { return { GOOS: "wasip1", GOARCH: "wasm", CGO_ENABLED: "0", GOPROXY: "off", GOSUMDB: "off" }; }
-export function validateCompilerEnvironment(environment: Readonly<Record<string, string>>): void {
-  const forbidden = /TOKEN|SECRET|PASSWORD|CREDENTIAL|AWS_|HOME|HTTP_PROXY|HTTPS_PROXY|ALL_PROXY/i;
-  if (Object.keys(environment).some((key) => forbidden.test(key))) throw new Error("compiler credential or network environment denied");
-}
-export type CompilerLimits = { cpuMs: number; memoryBytes: number; processes: number; wallMs: number };
-export function validateCompilerLimits(limits: CompilerLimits): void {
-  if (![limits.cpuMs, limits.memoryBytes, limits.processes, limits.wallMs].every(Number.isSafeInteger) || limits.cpuMs < 1 || limits.memoryBytes < 1 || limits.processes < 1 || limits.wallMs < 1) throw new Error("invalid compiler limits");
-}
+export { DisposableCompilerWorkspace } from "./disposable-compiler-workspace.js";
+export { compilerEnvironment } from "./compiler-environment.js";
+export { validateCompilerEnvironment } from "./validate-compiler-environment.js";
+export { type CompilerLimits, validateCompilerLimits } from "./compiler-limits.js";
 
 export type { FunctionInvocationResult, HttpsFetcher } from "./invocation-types.js";
 export { validateInvocationResult } from "./validate-invocation-result.js";
 export { parseInvocationResult } from "./parse-invocation-result.js";
 export { executeFixture } from "./execute-fixture.js";
 export { invokeDirectHttps } from "./invoke-direct-https.js";
-export function createInvocationRequest(input: FunctionInvocationRequest): FunctionInvocationRequest {
-  validateProjectId(input.projectId);
-  if (!input.functionId || !input.version || !input.idempotencyKey || !input.inputs || typeof input.inputs !== "object") throw new Error("invalid function invocation request");
-  return { ...input, inputs: { ...input.inputs } };
-}
-export { loadDeclaredInputs, validateStaleInputVersions } from "./function-input-validation.js";
+export { createInvocationRequest } from "./create-invocation-request.js";
+export { loadDeclaredInputs } from "./function-input-validation.js";
+export { validateStaleInputVersions } from "./validate-stale-input-versions.js";
 export { type FunctionWriteIntent, validateWriteIntents } from "./write-intent-validation.js";
 export { capDiagnostics } from "./diagnostic-cap.js";
 export { APPROVED_WASI_IMPORTS, validateWasiImports } from "./validate-wasi-imports.js";
 export { validateSandboxCapabilities } from "./validate-sandbox-capabilities.js";
 export { runWithTimeout } from "./run-with-timeout.js";
-export { validateLinearMemory, validateStartupDuration } from "./validate-execution-limits.js";
+export { validateLinearMemory } from "./validate-execution-limits.js";
+export { validateStartupDuration } from "./validate-startup-duration.js";
 export { rejectSandboxEscapeAttempt } from "./reject-sandbox-escape.js";
 export { createInvocationEffects } from "./create-invocation-effects.js";
 export { createInvocationCommitStore } from "./create-invocation-commit-store.js";
-export async function retryInvocation<T>(store: ReturnType<typeof createInvocationCommitStore>, idempotencyKey: string, execute: () => T | Promise<T>, effects: readonly unknown[] = []): Promise<T> {
-  if (store.has(idempotencyKey)) return store.result(idempotencyKey) as T;
-  const result = await execute();
-  return store.commit(idempotencyKey, effects, result) as T;
-}
+export { retryInvocation } from "./retry-invocation.js";
 export type FunctionSchedule = { projectId: string; functionId: string; expression: string; dueAt: number };
 export type EnqueuedFunction = { projectId: string; functionId: string; functionVersion: number; enqueuedAt: number };
 export { createScheduleStore } from "./create-schedule-store.js";

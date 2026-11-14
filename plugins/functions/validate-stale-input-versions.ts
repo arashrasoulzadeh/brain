@@ -1,0 +1,1 @@
+export function validateStaleInputVersions(actual: Readonly<Record<string, number>>, expected: Readonly<Record<string, number>>): void { for (const [name, version] of Object.entries(expected)) { if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(name) || !Number.isSafeInteger(version) || version < 0 || actual[name] !== version) throw new Error("stale input version"); } }

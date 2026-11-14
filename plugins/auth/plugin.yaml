@@ -55,6 +55,8 @@ source_files:
   - account-rate-limiter.ts
   - project-rate-limiter.ts
   - identity-linker.ts
+  - create-auth-operations.ts
+  - auth-functions.ts
   - guest-request.ts
 imports:
   - ../sdk-typescript/src/index.js
@@ -110,6 +112,8 @@ imports:
   - ./account-rate-limiter.js
   - ./project-rate-limiter.js
   - ./identity-linker.js
+  - ./create-auth-operations.js
+  - ./auth-functions.js
   - ./index.js
 plugin_imports:
 dependencies: []

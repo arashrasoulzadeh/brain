@@ -1,10 +1,4 @@
-import { type PluginFunction, type RpcRequest } from "../sdk-typescript/src/index.js";
 import { sessionTokenDigest } from "./session-token-digest.js";
-import { createAuthState, type AuthState } from "./auth-state.js";
-import { AccountSignup } from "./account-signup.js";
-import { AccountSignin } from "./account-signin.js";
-import { AccountSessionReader } from "./account-session-reader.js";
-import { GuestSessionIssuer } from "./guest-session-issuer.js";
 
 export { guestRequest } from "./guest-request.js";
 export { signInRequest } from "./sign-in-request.js";
@@ -60,18 +54,6 @@ export { AccountSessionRevoker } from "./account-session-revoker.js";
 export { AccountPasswordResetter } from "./account-password-resetter.js";
 export { GuestSessionIssuer } from "./guest-session-issuer.js";
 export { GuestAccountUpgrader } from "./guest-account-upgrader.js";
-export type AuthOperations = ReturnType<typeof createAuthOperations>;
-export function createAuthOperations(state: AuthState = createAuthState()) {
-  const signup = new AccountSignup(state); const signin = new AccountSignin(state); const session = new AccountSessionReader(state); const guest = new GuestSessionIssuer(state);
-  return { signup: signup.signup.bind(signup), signin: signin.signin.bind(signin), session: session.session.bind(session), guest: guest.guest.bind(guest) };
-}
-
-export function functions(service = createAuthOperations()): Readonly<Record<string, PluginFunction>> {
-  const payload = (rpc: RpcRequest) => rpc.params.payload as Record<string, string> | undefined;
-  return {
-    signup: (rpc) => { const p = payload(rpc); return service.signup(rpc.params.projectId, p?.username ?? "", p?.password ?? ""); },
-    signin: (rpc) => { const p = payload(rpc); return service.signin(rpc.params.projectId, p?.username ?? p?.provider ?? "", p?.password ?? String(p?.credential ?? "")); },
-    session: (rpc) => { const p = payload(rpc); return service.session(rpc.params.projectId, p?.token ?? ""); },
-    guest: (rpc) => service.guest(rpc.params.projectId),
-  };
-}
+export { createAuthOperations } from "./create-auth-operations.js";
+export type AuthOperations = ReturnType<typeof import("./create-auth-operations.js").createAuthOperations>;
+export { functions } from "./auth-functions.js";

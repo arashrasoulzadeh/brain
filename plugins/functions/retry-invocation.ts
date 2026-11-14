@@ -1,0 +1,2 @@
+import type { createInvocationCommitStore } from "./create-invocation-commit-store.js";
+export async function retryInvocation<T>(store: ReturnType<typeof createInvocationCommitStore>, idempotencyKey: string, execute: () => T | Promise<T>, effects: readonly unknown[] = []): Promise<T> { if (store.has(idempotencyKey)) return store.result(idempotencyKey) as T; const result = await execute(); return store.commit(idempotencyKey, effects, result) as T; }

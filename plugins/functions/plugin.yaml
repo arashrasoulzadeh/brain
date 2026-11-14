@@ -74,6 +74,15 @@ source_files:
   - validate-workflow-graph.ts
   - evaluate-workflow-condition.ts
   - diagnose-source.ts
+  - require-sdk-imports.ts
+  - validate-startup-duration.ts
+  - validate-stale-input-versions.ts
+  - disposable-compiler-workspace.ts
+  - compiler-environment.ts
+  - validate-compiler-environment.ts
+  - compiler-limits.ts
+  - create-invocation-request.ts
+  - retry-invocation.ts
 imports:
   - ../sdk-typescript/src/index.js
   - node:fs
@@ -152,6 +161,15 @@ imports:
   - ./validate-workflow-graph.js
   - ./evaluate-workflow-condition.js
   - ./diagnose-source.js
+  - ./require-sdk-imports.js
+  - ./validate-startup-duration.js
+  - ./validate-stale-input-versions.js
+  - ./disposable-compiler-workspace.js
+  - ./compiler-environment.js
+  - ./validate-compiler-environment.js
+  - ./compiler-limits.js
+  - ./create-invocation-request.js
+  - ./retry-invocation.js
   - ./index.js
 plugin_imports:
 title: Functions
