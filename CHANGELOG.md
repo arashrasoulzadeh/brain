@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `0c1f923` — 2026-11-15 00:53:53 +0330 — reject manifest source traversal at load time
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `82f2747` — 2026-11-14 21:20:31 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `13f042c` — 2026-11-15 00:50:17 +0330 — wire full recovery rehearsal in CI
   Files: .github/workflows/test.yml,tests/deploy/clean_environment_script_test.go
 - `450efb4` — 2026-11-14 21:19:50 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `324637a` — 2026-11-15 00:31:39 +0330 — bind operator actions to authenticated sessions
   Files: internal/operator/operator.go,tests/operator/operator_test.go
-- `e2065c0` — 2026-11-14 20:58:07 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `816bb46` — 2026-11-15 00:27:50 +0330 — add complete clean environment rehearsal
-  Files: docs/deployment-runbook.md,scripts/clean-environment-rehearsal.sh tests/deploy/clean_environment_script_test.go
