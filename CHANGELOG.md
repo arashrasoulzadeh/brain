@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `bdfe0d5` — 2026-11-15 01:27:28 +0330 — serialize plugin install unregistration
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `c2ca14e` — 2026-11-14 21:57:05 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `5a21fc6` — 2026-11-15 01:26:47 +0330 — serialize plugin artifact cleanup
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `0a89897` — 2026-11-14 21:56:27 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `ab714e3` — 2026-11-15 01:05:36 +0330 — make project store concurrency safe
   Files: internal/project/project.go,tests/project/project_test.go
 - `5631278` — 2026-11-14 21:34:48 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `0084160` — 2026-11-15 01:04:36 +0330 — reject unsafe restore project names
-  Files: scripts/restore-compose.sh,tests/deploy/compose_restore_test.go
-- `f2e48d1` — 2026-11-14 21:33:59 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
