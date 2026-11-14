@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `543ea63` — 2026-11-15 01:06:25 +0330 — make caller leases single use under concurrency
+  Files: internal/project/transaction_context.go,tests/project/transaction_context_test.go
+- `ed20fc6` — 2026-11-14 21:35:50 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `ab714e3` — 2026-11-15 01:05:36 +0330 — make project store concurrency safe
   Files: internal/project/project.go,tests/project/project_test.go
 - `5631278` — 2026-11-14 21:34:48 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `6d8b8c9` — 2026-11-15 00:43:02 +0330 — require project context for runtime SQL
   Files: internal/db/db.go,tests/db/db_test.go
 - `ff8cabd` — 2026-11-14 21:12:23 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `45d622f` — 2026-11-15 00:42:09 +0330 — bind websocket messages to host project
-  Files: internal/plugin/websocket_message.go,tests/plugin/websocket_message_test.go
-- `b5d22b6` — 2026-11-14 21:11:45 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
