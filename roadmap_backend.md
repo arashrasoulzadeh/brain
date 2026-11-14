@@ -60,7 +60,7 @@ Backend infrastructure, release, deployment, backup, capacity, and security work
 ## Capacity and backend release gate
 
 - [x] Record the reference test profile.
-- [ ] Start with one eight-player room.
+- [x] Start with one eight-player room.
 - [ ] Add representative app requests.
 - [ ] Add uploads and background jobs.
 - [ ] Add Eye export activity.
