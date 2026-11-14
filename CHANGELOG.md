@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `0084160` — 2026-11-15 01:04:36 +0330 — reject unsafe restore project names
+  Files: scripts/restore-compose.sh,tests/deploy/compose_restore_test.go
+- `f2e48d1` — 2026-11-14 21:33:59 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `6b97bb5` — 2026-11-15 01:03:45 +0330 — verify release images by digest
   Files: .github/workflows/release-backend.yml,tests/deploy/release_image_verification_test.go tests/deploy/release_workflow_test.go
 - `0da2616` — 2026-11-14 21:32:53 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `8046ba0` — 2026-11-15 00:41:32 +0330 — reject traversal in websocket project paths
   Files: internal/plugin/websocket_endpoint.go,tests/plugin/websocket_endpoint_test.go
 - `3b13d37` — 2026-11-14 21:10:58 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `895d229` — 2026-11-15 00:40:45 +0330 — make assignment gate concurrency safe
-  Files: internal/deploy/assignments.go,tests/deploy/assignments_test.go
-- `e42fa25` — 2026-11-14 21:10:19 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
