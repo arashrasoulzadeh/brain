@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `a48d2c9` — 2026-11-15 01:40:46 +0330 — require plugin worker keys
+  Files: internal/plugin/supervisor.go,tests/plugin/supervisor_test.go
+- `c57ac11` — 2026-11-14 22:10:25 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `8e4019b` — 2026-11-15 01:40:10 +0330 — fail closed for nil caller context
   Files: internal/project/transaction_context.go,tests/project/transaction_context_test.go
 - `351cb47` — 2026-11-14 22:09:32 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `a95a7fa` — 2026-11-15 01:21:02 +0330 — protect plugin pin state
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `7c9b68f` — 2026-11-14 21:50:42 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `301d035` — 2026-11-15 01:20:23 +0330 — protect active plugin version state
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `8a207dd` — 2026-11-14 21:50:02 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
