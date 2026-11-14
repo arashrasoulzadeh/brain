@@ -14,7 +14,14 @@ export class InviteCreator {
     now = Date.now(),
   ): Invite {
     validateProjectId(projectId, "invalid invite");
-    if (!roomId || !targetPlayerId || ttlSeconds <= 0) throw new Error("invalid invite");
+    if (
+      !roomId ||
+      !targetPlayerId ||
+      !Number.isFinite(now) ||
+      !Number.isFinite(ttlSeconds) ||
+      ttlSeconds <= 0
+    )
+      throw new Error("invalid invite");
     const id = `${projectId}:invite-${this.nextId()}`;
     const invite = {
       id,

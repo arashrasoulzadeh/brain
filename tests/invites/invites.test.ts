@@ -29,6 +29,18 @@ try {
   if (!(error instanceof Error) || error.message !== "invalid invite") throw error;
 }
 const invite = creator.create("dev", "room-1", "user-2", 60, 1000);
+try {
+  accepter.accept(invite.id, "dev:other", "user-2", 2000);
+  throw new Error("malformed invite consumer project accepted");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "invite unavailable") throw error;
+}
+try {
+  creator.create("dev", "room-invalid", "user-2", Number.NaN, 1000);
+  throw new Error("non-finite invite ttl accepted");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "invalid invite") throw error;
+}
 if (
   !invite.id.startsWith("dev:") ||
   !invite.code.startsWith("INVITE-") ||
