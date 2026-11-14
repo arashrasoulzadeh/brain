@@ -605,7 +605,7 @@ Goal: finish the supported clients, publish the protocol, and rehearse productio
 
 ### Browser client
 
-- [ ] Add shared sign-in fixtures.
+- [x] Add shared sign-in fixtures.
 - [ ] Add shared data fixtures.
 - [ ] Add shared file fixtures.
 - [ ] Add shared function fixtures.
