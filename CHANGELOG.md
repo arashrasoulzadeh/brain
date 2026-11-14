@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `2b2084c` — 2026-11-14 16:56:20 +0330 — complete flutter app and match flows
+  Files: docs/flutter-quickstart.md,roadmap.md tests/flutter/app_match_flow_test.dart
+- `57250cc` — 2026-11-14 13:26:05 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `e53176e` — 2026-11-14 16:55:51 +0330 — complete flutter sign in flows
   Files: clients/flutter/lib/auth_client.dart,roadmap.md tests/flutter/auth_client_test.dart
 - `cc63347` — 2026-11-14 13:25:34 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `4e89495` — 2026-11-14 16:43:08 +0330 — add shared data fixture
   Files: roadmap.md,tests/fixtures/data-fixture.test.ts tests/fixtures/data-fixture.ts
 - `6d60f3f` — 2026-11-14 13:12:55 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `cfb8d50` — 2026-11-14 16:42:39 +0330 — add shared sign in fixture
-  Files: roadmap.md,tests/fixtures/sign-in-fixture.test.ts tests/fixtures/sign-in-fixture.ts
-- `08bf066` — 2026-11-14 13:12:16 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
