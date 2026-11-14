@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `d8763d5` — 2026-11-15 02:16:17 +0330 — validate project identity for function job leases
+  Files: plugins/functions/job-lease-acquirer.ts,plugins/functions/job-lease-renewer.ts tests/functions/functions.test.ts
+- `1b20cc1` — 2026-11-14 22:45:39 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `6a82173` — 2026-11-15 02:15:23 +0330 — validate file object identities at access boundaries
   Files: plugins/files/authorized-upload-writer.ts,plugins/files/file-access-deleter.ts plugins/files/file-access-reader.ts,plugins/files/pending-upload-publisher.ts plugins/files/pending-upload-reader.ts,tests/files/files.test.ts
 - `992991f` — 2026-11-14 22:44:07 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `2492765` — 2026-11-15 01:47:37 +0330 — stop project workers on uninstall
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `7fa32a1` — 2026-11-14 22:17:11 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `5a921bc` — 2026-11-15 01:46:57 +0330 — invalidate plugin lifecycle previews
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `605a9c9` — 2026-11-14 22:16:26 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
