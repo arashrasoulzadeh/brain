@@ -36,6 +36,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Install Bubblewrap
+        run: sudo apt-get update && sudo apt-get install --yes bubblewrap
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -43,3 +45,5 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm run test:ts
+      - name: Run TypeScript sandbox
+        run: sh scripts/test-sandboxed-typescript-worker.sh
