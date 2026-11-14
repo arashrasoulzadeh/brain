@@ -27,5 +27,4 @@ Backend infrastructure, release, deployment, backup, capacity, and security work
 - [ ] Recovery works after connection, worker, and deployment failures.
 - [ ] Multi-architecture images are digest-pinned.
 - [ ] Compose deployment and rollback are rehearsed.
-- [ ] PostgreSQL and object data restore together.
 - [ ] Production limits are based on measured capacity.
