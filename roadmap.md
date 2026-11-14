@@ -630,8 +630,8 @@ Goal: finish the supported clients, publish the protocol, and rehearse productio
 - [x] Add native transport adapter.
 - [x] Add web transport adapter.
 - [x] Hide platform storage behind adapters.
-- [ ] Complete sign-in on a native target.
-- [ ] Complete sign-in on Flutter Web.
+- [x] Complete sign-in on a native target.
+- [x] Complete sign-in on Flutter Web.
 - [ ] Complete one app flow.
 - [ ] Complete one match flow.
 - [ ] Document both setup paths.
