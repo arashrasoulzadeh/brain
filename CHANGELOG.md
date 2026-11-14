@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `fcca6c6` — 2026-11-15 02:17:02 +0330 — harden sandbox path traversal validation
+  Files: plugins/functions/reject-sandbox-escape.ts,tests/functions/functions.test.ts
+- `c9a7ffb` — 2026-11-14 22:46:35 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `d8763d5` — 2026-11-15 02:16:17 +0330 — validate project identity for function job leases
   Files: plugins/functions/job-lease-acquirer.ts,plugins/functions/job-lease-renewer.ts tests/functions/functions.test.ts
 - `1b20cc1` — 2026-11-14 22:45:39 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `7d91db3` — 2026-11-15 01:48:35 +0330 — recover project plugin workers
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `fd0b797` — 2026-11-14 22:17:54 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `2492765` — 2026-11-15 01:47:37 +0330 — stop project workers on uninstall
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `7fa32a1` — 2026-11-14 22:17:11 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
