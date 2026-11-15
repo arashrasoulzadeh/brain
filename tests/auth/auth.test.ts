@@ -6,6 +6,7 @@ import {
   AccountSignup,
   AccountSignin,
   AccountSessionReader,
+  accountProject,
   AuthorizationCodeIssuer,
   AuthorizationCodeConsumer,
   DeliveryReader,
@@ -366,3 +367,10 @@ if (
   !projectLimiter.allow("project-b", 101)
 )
   throw new Error("project rate limit failed");
+const authState = createAuthState();
+try {
+  accountProject(authState, "project/a");
+  throw new Error("auth state accepted malformed project");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "invalid project id") throw error;
+}

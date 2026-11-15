@@ -5,6 +5,7 @@ export { signInRequest } from "./sign-in-request.js";
 export { signUpRequest } from "./sign-up-request.js";
 
 export { projectUserID } from "./project-user-id.js";
+export { accountProject } from "./account-project.js";
 
 export { sessionTokenDigest } from "./session-token-digest.js";
 export { createPKCEChallenge } from "./create-pkce-challenge.js";
