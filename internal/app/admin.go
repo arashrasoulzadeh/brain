@@ -68,6 +68,22 @@ func AuthenticatedAdminHandler(service *admin.LifecycleService, sessions *operat
 	})
 }
 
+func OperatorLogoutHandler(sessions *operator.Store) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if sessions == nil || r.Method != http.MethodDelete {
+			http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+			return
+		}
+		const prefix = "Bearer "
+		header := r.Header.Get("Authorization")
+		if !strings.HasPrefix(header, prefix) || sessions.RevokeSession(strings.TrimPrefix(header, prefix)) != nil {
+			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+			return
+		}
+		w.WriteHeader(http.StatusNoContent)
+	})
+}
+
 func AuthenticatedProjectsHandler(service *admin.LifecycleService, sessions *operator.Store) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet || service == nil || sessions == nil {

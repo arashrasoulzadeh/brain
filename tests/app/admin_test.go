@@ -149,6 +149,31 @@ func TestOperatorSessionHandlerIssuesBearerSession(t *testing.T) {
 	}
 }
 
+func TestOperatorLogoutRevokesBearerSession(t *testing.T) {
+	operators := &operator.Store{}
+	digest := func(string) string { return "digest" }
+	if _, err := operators.Bootstrap("admin", "secret", digest); err != nil {
+		t.Fatal(err)
+	}
+	if err := operators.Authenticate("admin", "secret", digest); err != nil {
+		t.Fatal(err)
+	}
+	token, err := operators.IssueSession(func() string { return "logout-token" })
+	if err != nil {
+		t.Fatal(err)
+	}
+	request := httptest.NewRequest(http.MethodDelete, "/admin/session", nil)
+	request.Header.Set("Authorization", "Bearer "+token)
+	recorder := httptest.NewRecorder()
+	app.OperatorLogoutHandler(operators).ServeHTTP(recorder, request)
+	if recorder.Code != http.StatusNoContent {
+		t.Fatalf("logout status = %d, want %d", recorder.Code, http.StatusNoContent)
+	}
+	if _, ok := operators.ValidateSession(token); ok {
+		t.Fatal("revoked session remained valid")
+	}
+}
+
 func TestAuthenticatedPluginsHandlerReturnsInventory(t *testing.T) {
 	operators := &operator.Store{}
 	digest := func(string) string { return "digest" }

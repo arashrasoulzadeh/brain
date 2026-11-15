@@ -180,6 +180,10 @@ export default function AdminPage() {
       setError(reason instanceof Error ? reason.message : "Sign in failed");
     }
   }
+  async function signOut() {
+    await fetch("/api/admin/session", { method: "DELETE", headers: { authorization: `Bearer ${session}` } }).catch(() => undefined);
+    setSession("");
+  }
   async function createProject(event: FormEvent) {
     event.preventDefault();
     setError("");
@@ -298,7 +302,7 @@ export default function AdminPage() {
           </div>
           <div>
             {switcher}
-            <button className="secondary" onClick={() => setSession("")}>
+            <button className="secondary" onClick={() => void signOut()}> 
               {text.signOut}
             </button>
           </div>
