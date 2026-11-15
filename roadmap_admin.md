@@ -8,9 +8,9 @@ Admin-panel and operator documentation work after backend release gates pass.
 - [x] Verify operator sessions remain separate from end-user sessions. Covered by cross-use rejection and revocation tests in `tests/auth/auth.test.ts`.
 - [x] Verify destructive actions require explicit confirmation and audit records. The admin HTTP boundary now fails closed without `confirmed: true`, and lifecycle tests verify audit records.
 - [x] Verify plugin lifecycle controls expose readiness, grants, drain, rollback, and revocation state. Covered by dashboard manifest routes, lifecycle HTTP routes, and lifecycle service tests.
-- [ ] Publish the administrator deployment runbook.
-- [ ] Publish the administrator restore runbook.
-- [ ] Document configuration, limitations, and recovery procedures.
+- [x] Publish the administrator deployment runbook. Available at `docs/deployment-runbook.md`.
+- [x] Publish the administrator restore runbook. Available at `docs/restore-runbook.md`.
+- [x] Document configuration, limitations, and recovery procedures in `docs/admins.md`, `docs/deployment-runbook.md`, `docs/restore-runbook.md`, and `docs/incompatible-migration-recovery.md`.
 
 ## Admin release gate
 
