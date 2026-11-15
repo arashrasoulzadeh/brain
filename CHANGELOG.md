@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `68003df` — 2026-11-15 15:03:50 +0330 — expose plugin capability grant state
+  Files: admin-nextjs/app/plugins/[plugin]/page.tsx,internal/plugin/plugin.go
+- `08659d6` — 2026-11-15 11:32:59 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `dddbb87` — 2026-11-15 15:02:43 +0330 — run custom functions in bounded vm
   Files: admin-nextjs/app/page.tsx,internal/admin/functions.go internal/app/admin.go
 - `65a8d46` — 2026-11-15 11:29:35 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `8f8a056` — 2026-11-15 10:17:53 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
 - `ba9a526` — 2026-11-15 13:47:39 +0330 — show complete admin audit history
-  Files: admin-nextjs/app/page.tsx
-- `4d2c90e` — 2026-11-15 10:16:28 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `0ff5867` — 2026-11-15 13:46:16 +0330 — restore selected project across admin pages
   Files: admin-nextjs/app/page.tsx
