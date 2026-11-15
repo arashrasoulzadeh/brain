@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `45b3a9a` — 2026-11-15 17:20:32 +0330 — persist room state in sqlite
+  Files: internal/plugin/plugin.go,plugins/rooms/rooms-create-route.ts plugins/rooms/rooms-join-route.ts,plugins/rooms/rooms-reconnect-route.ts plugins/rooms/rooms-result-route.ts
+- `5d01aa3` — 2026-11-15 13:49:58 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `7860a8d` — 2026-11-15 17:19:43 +0330 — persist matchmaking tickets in sqlite
   Files: internal/plugin/plugin.go,internal/plugin/sqlite_storage.go plugins/matchmaking/matchmaking-assign-route.ts,plugins/matchmaking/matchmaking-cancel-route.ts plugins/matchmaking/matchmaking-status-route.ts
 - `3eaa5ae` — 2026-11-15 13:47:51 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `a11cb82` — 2026-11-15 14:59:20 +0330 — limit custom function draft inputs
   Files: internal/admin/functions.go
 - `ec22cd3` — 2026-11-15 11:29:09 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `3216e00` — 2026-11-15 14:58:55 +0330 — bind function drafts to active projects
-  Files: internal/admin/functions.go
-- `7e21adf` — 2026-11-15 11:28:21 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
