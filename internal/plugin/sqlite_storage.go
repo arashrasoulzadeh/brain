@@ -18,11 +18,33 @@ func OpenSQLiteStorage(path string) (*SQLiteStorage, error) {
 	if err != nil {
 		return nil, err
 	}
-	if _, err = db.Exec(`CREATE TABLE IF NOT EXISTS plugin_table_rows (project_id TEXT NOT NULL, table_name TEXT NOT NULL, rows_json TEXT NOT NULL, PRIMARY KEY(project_id, table_name)); CREATE TABLE IF NOT EXISTS plugin_file_rows (project_id TEXT NOT NULL, file_key TEXT NOT NULL, data TEXT NOT NULL, published INTEGER NOT NULL, PRIMARY KEY(project_id, file_key))`); err != nil {
+	if _, err = db.Exec(`CREATE TABLE IF NOT EXISTS plugin_table_rows (project_id TEXT NOT NULL, table_name TEXT NOT NULL, rows_json TEXT NOT NULL, PRIMARY KEY(project_id, table_name)); CREATE TABLE IF NOT EXISTS plugin_file_rows (project_id TEXT NOT NULL, file_key TEXT NOT NULL, data TEXT NOT NULL, published INTEGER NOT NULL, PRIMARY KEY(project_id, file_key)); CREATE TABLE IF NOT EXISTS plugin_state (project_id TEXT NOT NULL, namespace TEXT NOT NULL, state_key TEXT NOT NULL, value_json TEXT NOT NULL, PRIMARY KEY(project_id, namespace, state_key))`); err != nil {
 		_ = db.Close()
 		return nil, err
 	}
 	return &SQLiteStorage{db: db}, nil
+}
+
+func (s *SQLiteStorage) PutState(projectID, namespace, key string, value map[string]any) error {
+	encoded, err := json.Marshal(value)
+	if err != nil {
+		return err
+	}
+	_, err = s.db.Exec(`INSERT INTO plugin_state(project_id,namespace,state_key,value_json) VALUES(?,?,?,?) ON CONFLICT(project_id,namespace,state_key) DO UPDATE SET value_json=excluded.value_json`, projectID, namespace, key, string(encoded))
+	return err
+}
+
+func (s *SQLiteStorage) State(projectID, namespace, key string) (map[string]any, error) {
+	var encoded string
+	err := s.db.QueryRow(`SELECT value_json FROM plugin_state WHERE project_id=? AND namespace=? AND state_key=?`, projectID, namespace, key).Scan(&encoded)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	var value map[string]any
+	return value, json.Unmarshal([]byte(encoded), &value)
 }
 
 func (s *SQLiteStorage) PutFile(projectID, key, data string, published bool) error {

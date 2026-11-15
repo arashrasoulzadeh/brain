@@ -425,6 +425,33 @@ func (r *Registry) prepareStorageRequest(request WorkerRequest) WorkerRequest {
 		}
 		return request
 	}
+	if request.PluginID == "matchmaking" {
+		id, _ := payload["id"].(string)
+		if id == "" {
+			return request
+		}
+		state, _ := r.storage.State(request.ProjectID, "matchmaking", id)
+		if request.Operation == "matchmaking.queue" {
+			state = map[string]any{"id": id, "status": "queued"}
+			_ = r.storage.PutState(request.ProjectID, "matchmaking", id, state)
+		}
+		if request.Operation == "matchmaking.cancel" || request.Operation == "matchmaking.assign" {
+			if state == nil {
+				return request
+			}
+			if request.Operation == "matchmaking.cancel" {
+				state["status"] = "cancelled"
+			} else {
+				state["status"] = "assigned"
+			}
+			_ = r.storage.PutState(request.ProjectID, "matchmaking", id, state)
+		}
+		if state != nil {
+			payload["ticket"] = state
+			request.Payload, _ = json.Marshal(payload)
+		}
+		return request
+	}
 	if request.PluginID != "tables" {
 		return request
 	}
