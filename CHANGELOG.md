@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `7937f78` — 2026-11-15 13:45:22 +0330 — remove admin workspace width cap
+  Files: admin-nextjs/app/styles.css
+- `bd9352b` — 2026-11-15 10:14:39 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `0ad50f4` — 2026-11-15 13:44:26 +0330 — highlight active admin route
   Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css
 - `0b6d767` — 2026-11-15 10:13:34 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `d4d1f56` — 2026-11-15 13:15:16 +0330 — add project uninstall control
   Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css
 - `c08d4e6` — 2026-11-15 09:44:52 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `614ef5c` — 2026-11-15 13:14:37 +0330 — avoid duplicate project inventory request
-  Files: admin-nextjs/app/page.tsx
-- `a3c7fea` — 2026-11-15 09:44:23 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
