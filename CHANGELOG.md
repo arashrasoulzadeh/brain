@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `9a823fb` — 2026-11-15 13:41:21 +0330 — add domain admin pages
+  Files: admin-nextjs/app/database/page.tsx,admin-nextjs/app/files/page.tsx admin-nextjs/app/functions/page.tsx,admin-nextjs/app/live-sessions/page.tsx admin-nextjs/app/page.tsx,admin-nextjs/app/workflows/page.tsx
+- `936b138` — 2026-11-15 10:09:51 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `d3fb806` — 2026-11-15 13:39:37 +0330 — isolate project controls to projects page
   Files: admin-nextjs/app/page.tsx
 - `8674440` — 2026-11-15 10:08:53 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `dc136f1` — 2026-11-15 13:12:12 +0330 — complete plugin lifecycle actions
   Files: admin-nextjs/app/page.tsx
 - `56ce16e` — 2026-11-15 09:41:40 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `dad83b2` — 2026-11-15 13:11:27 +0330 — show plugin operations in admin
-  Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css
-- `fbafc59` — 2026-11-15 09:40:57 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
