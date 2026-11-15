@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `d58d684` — 2026-11-15 12:08:06 +0330 — validate compose project names
+  Files: scripts/rollback-compose.sh,scripts/start-compose-no-build.sh tests/deploy/compose_script_test.go,tests/deploy/rollback_compose_test.go
+- `b227c0b` — 2026-11-15 08:37:40 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `f199861` — 2026-11-15 12:07:27 +0330 — reject empty compose services
   Files: internal/deploy/compose.go,tests/deploy/compose_test.go
 - `3824c0a` — 2026-11-15 08:37:10 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `ee5a470` — 2026-11-15 02:13:48 +0330 — validate project identity in auth token consumers
   Files: plugins/auth/email-otp-verifier.ts,plugins/auth/recovery-token-consumer.ts plugins/auth/sms-otp-verifier.ts,tests/auth/auth.test.ts
 - `f290136` — 2026-11-14 22:43:06 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `1e4acf0` — 2026-11-15 02:12:46 +0330 — audit every plugin manifest boundary
-  Files: tests/plugin/all_manifests_test.go
-- `143c435` — 2026-11-14 22:42:13 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
