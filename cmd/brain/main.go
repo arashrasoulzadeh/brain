@@ -8,10 +8,12 @@ import (
 	"net/http"
 	"os"
 
+	"brain/internal/admin"
 	"brain/internal/app"
 	"brain/internal/config"
 	"brain/internal/deploy"
 	"brain/internal/operator"
+	"brain/internal/plugin"
 )
 
 func main() {
@@ -31,8 +33,26 @@ func main() {
 	if err := cfg.SafeError(); err != nil {
 		log.Fatal(err)
 	}
-	server := app.NewServer()
+	server := productionServer()
 	log.Fatal(http.ListenAndServe(cfg.HTTPAddress, server.Handler()))
+}
+
+func productionServer() *app.Server {
+	username, secret := os.Getenv("OPERATOR_USERNAME"), os.Getenv("OPERATOR_SECRET")
+	if username == "" || secret == "" {
+		return app.NewServer()
+	}
+	operators := &operator.Store{}
+	digest := func(value string) string {
+		sum := sha256.Sum256([]byte(value))
+		return hex.EncodeToString(sum[:])
+	}
+	if _, err := operators.Bootstrap(username, secret, digest); err != nil {
+		log.Printf("operator admin disabled: %v", err)
+		return app.NewServer()
+	}
+	registry := plugin.NewRegistry(1)
+	return app.NewServerWithOperatorAdmin(admin.NewLifecycleService(operators, registry), operators, digest)
 }
 
 func verifyObjectManifest(path string) {

@@ -1,6 +1,8 @@
 package app
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"net/http"
 	"strings"
@@ -8,6 +10,41 @@ import (
 	"brain/internal/admin"
 	"brain/internal/operator"
 )
+
+type operatorLogin struct {
+	Username string `json:"username"`
+	Secret   string `json:"secret"`
+}
+
+func OperatorSessionHandler(sessions *operator.Store, digest func(string) string) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if sessions == nil || digest == nil || r.Method != http.MethodPost {
+			http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+			return
+		}
+		var login operatorLogin
+		if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 16<<10)).Decode(&login); err != nil {
+			http.Error(w, "invalid operator login", http.StatusBadRequest)
+			return
+		}
+		if err := sessions.Authenticate(login.Username, login.Secret, digest); err != nil {
+			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+			return
+		}
+		tokenBytes := make([]byte, 32)
+		if _, err := rand.Read(tokenBytes); err != nil {
+			http.Error(w, "operator session unavailable", http.StatusInternalServerError)
+			return
+		}
+		token, err := sessions.IssueSession(func() string { return hex.EncodeToString(tokenBytes) })
+		if err != nil {
+			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]string{"session": token})
+	})
+}
 
 func AuthenticatedAdminHandler(service *admin.LifecycleService, sessions *operator.Store) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

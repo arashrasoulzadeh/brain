@@ -2,6 +2,7 @@ package app_test
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -122,5 +123,28 @@ func TestAuthenticatedAdminHandlerUsesOperatorBearerSession(t *testing.T) {
 	}
 	if _, ok := operators.ValidateSession(token); !ok {
 		t.Fatal("operator session was not retained after request")
+	}
+}
+
+func TestOperatorSessionHandlerIssuesBearerSession(t *testing.T) {
+	operators := &operator.Store{}
+	digest := func(string) string { return "digest" }
+	if _, err := operators.Bootstrap("admin", "secret", digest); err != nil {
+		t.Fatal(err)
+	}
+	request := httptest.NewRequest(http.MethodPost, "/admin/session", strings.NewReader(`{"username":"admin","secret":"secret"}`))
+	recorder := httptest.NewRecorder()
+	app.OperatorSessionHandler(operators, digest).ServeHTTP(recorder, request)
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("login status = %d, want %d", recorder.Code, http.StatusOK)
+	}
+	var response struct {
+		Session string `json:"session"`
+	}
+	if err := json.Unmarshal(recorder.Body.Bytes(), &response); err != nil || response.Session == "" {
+		t.Fatalf("login response = %q, err=%v", recorder.Body.String(), err)
+	}
+	if _, ok := operators.ValidateSession(response.Session); !ok {
+		t.Fatal("issued session was not valid")
 	}
 }
