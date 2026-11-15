@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `094f8e4` — 2026-11-15 17:09:47 +0330 — implement file admin routes
+  Files: plugins/files/file-route-store.ts,plugins/files/files-download.ts plugins/files/files-metadata.ts,plugins/files/files-publish.ts plugins/files/files-upload.ts,plugins/files/index.ts plugins/files/plugin.yaml,tests/files/files.test.ts
+- `e581f88` — 2026-11-15 13:38:37 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `7f314b3` — 2026-11-15 17:07:48 +0330 — persist table operations within plugin worker
   Files: plugins/tables/index.ts,plugins/tables/plugin.yaml plugins/tables/table-store.ts,plugins/tables/tables-read.ts plugins/tables/tables-schema.ts,plugins/tables/tables-write.ts tests/tables/tables.test.ts
 - `0d467e1` — 2026-11-15 13:36:48 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: admin-nextjs/app/plugins/[plugin]/page.tsx
 - `98ce14a` — 2026-11-15 14:34:48 +0330 — add project scoped plugin settings pages
   Files: admin-nextjs/app/page.tsx,admin-nextjs/app/plugins/[plugin]/page.tsx
-- `6360d74` — 2026-11-15 11:03:28 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `1ab7ef7` — 2026-11-15 14:33:12 +0330 — show readiness controls for installed plugins
-  Files: admin-nextjs/app/page.tsx
