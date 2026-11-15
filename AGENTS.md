@@ -6,6 +6,14 @@ This repository is building a Go multi-tenant mobile backend. The complete produ
 
 ## Plugin-first architecture law
 
+## Cross-cutting change law
+
+- A requested theme, visual kind, message format, error response, warning, info message, toast, status, or UI behavior is a project-wide contract change—not a local-file change.
+- Before declaring such a change complete, audit and update every affected API handler, shared host contract, SDK helper, plugin manifest, plugin function, plugin class, admin page, client surface, and test fixture.
+- Shared behavior must be implemented once at the lowest appropriate boundary, then consumed by every plugin, function, class, API, and UI surface. Do not leave parallel legacy formats or local exceptions.
+- Add a cross-surface regression test or contract test proving that all layers use the same format and behavior. A focused test for one plugin or page is insufficient.
+- Completion reports must list the audited surfaces and explicitly identify any intentionally excluded surface.
+
 - Core host infrastructure is limited to transport, project isolation, configuration, lifecycle, permission brokering, storage primitives, worker supervision, and shared contracts.
 - Every user-facing or product capability must be implemented as a separate TypeScript plugin under `plugins/<plugin-id>/`.
 - Go is reserved for the host infrastructure; no plugin implementation may be written in Go.

@@ -80,3 +80,6 @@ sequenceDiagram
 - Keep secrets out of logs, fixtures, screenshots, and diagnostics.
 - Validate project IDs before using them in generated HTML, URLs, storage keys, or other structured output.
 - Use parameterized SQL and validated identifiers.
+# Cross-cutting UI and API changes
+
+Themes, UI kinds, API errors, warnings, informational messages, and toast behavior are project-wide contracts. Implement them in shared host/SDK/UI boundaries, then audit every plugin, function, class, API handler, admin page, client, manifest, and test fixture before marking the change complete. Keep one canonical response/message shape and add a cross-surface regression test.
