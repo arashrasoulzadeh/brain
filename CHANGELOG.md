@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `1c01bb5` — 2026-11-15 13:43:18 +0330 — label admin pages by active domain
+  Files: admin-nextjs/app/page.tsx
+- `95725fa` — 2026-11-15 10:12:34 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `d9e5077` — 2026-11-15 13:42:19 +0330 — preserve admin session across pages
   Files: admin-nextjs/app/page.tsx
 - `3ccf80f` — 2026-11-15 10:11:35 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `018e005` — 2026-11-15 13:14:04 +0330 — bind admin actions to selected project
   Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css
 - `805f435` — 2026-11-15 09:43:33 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `aadc7b2` — 2026-11-15 13:13:21 +0330 — add admin capability navigation
-  Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css
-- `e70b897` — 2026-11-15 09:42:28 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
