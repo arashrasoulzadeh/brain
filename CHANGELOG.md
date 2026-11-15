@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `c3188d7` — 2026-11-15 13:26:25 +0330 — complete declared plugin lifecycle controls
+  Files: admin-nextjs/app/page.tsx,internal/admin/lifecycle.go internal/app/admin.go,tests/app/admin_test.go
+- `88f790b` — 2026-11-15 09:54:59 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `2cec502` — 2026-11-15 13:24:45 +0330 — add safe plugin disable control
   Files: admin-nextjs/app/page.tsx
 - `c15c3a6` — 2026-11-15 09:53:37 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `a9e2257` — 2026-11-15 12:51:25 +0330 — keep go host api only
   Files: cmd/brain/main.go,internal/app/app.go
 - `48bb3b8` — 2026-11-15 09:21:18 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `91b82bc` — 2026-11-15 12:51:05 +0330 — move admin panel to nextjs
-  Files: admin-nextjs/app/layout.tsx,admin-nextjs/app/page.tsx admin-nextjs/app/styles.css,admin-nextjs/next-env.d.ts admin-nextjs/next.config.ts,admin-nextjs/package.json admin-nextjs/tsconfig.json,cmd/brain/main.go internal/admin/lifecycle.go,internal/app/admin.go internal/app/app.go,internal/project/project.go plugins/dashboard/admin-panel.html,plugins/dashboard/plugin.yaml tests/app/admin_test.go
-- `74597af` — 2026-11-15 09:18:45 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
