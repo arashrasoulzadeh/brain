@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `f199861` — 2026-11-15 12:07:27 +0330 — reject empty compose services
+  Files: internal/deploy/compose.go,tests/deploy/compose_test.go
+- `3824c0a` — 2026-11-15 08:37:10 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `6cf468c` — 2026-11-15 12:06:53 +0330 — validate deployment project identity
   Files: internal/deploy/sequence.go,tests/deploy/sequence_test.go
 - `d6660fa` — 2026-11-15 08:36:34 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `1e4acf0` — 2026-11-15 02:12:46 +0330 — audit every plugin manifest boundary
   Files: tests/plugin/all_manifests_test.go
 - `143c435` — 2026-11-14 22:42:13 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `33a5162` — 2026-11-15 02:11:52 +0330 — validate dashboard project ids before html rendering
-  Files: docs/admins.md,docs/developers.md plugins/dashboard/custom-admin-view.ts,plugins/dashboard/plugin.yaml tests/dashboard/dashboard.test.ts
-- `d26605e` — 2026-11-14 22:37:26 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
