@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `dc734c5` — 2026-11-15 12:54:38 +0330 — format admin panel sources
+  Files: admin-nextjs/app/layout.tsx,admin-nextjs/app/page.tsx admin-nextjs/app/styles.css,admin-nextjs/next.config.ts admin-nextjs/tsconfig.json
+- `e4ab42f` — 2026-11-15 09:24:35 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `9200be3` — 2026-11-15 12:54:20 +0330 — polish localized nextjs admin panel
   Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css admin-nextjs/next.config.ts
 - `4ef9725` — 2026-11-15 09:21:40 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `dbb1983` — 2026-11-15 12:27:30 +0330 — complete project boundary audit pass
   Files: plugins/functions/record-trigger-matcher.ts,plugins/functions/shared-helper-publisher.ts plugins/matchmaking/matchmaking-config-reader.ts,plugins/matchmaking/matchmaking-config-status.ts plugins/rooms/authorized-room-snapshot.ts,plugins/rooms/authorized-tic-tac-toe-state.ts plugins/rooms/reconnect-tic-tac-toe.ts,tests/matchmaking/matchmaking.test.ts tests/rooms/rooms.test.ts
 - `2b97bcf` — 2026-11-15 08:56:14 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `873210b` — 2026-11-15 12:26:00 +0330 — harden function state project boundaries
-  Files: plugins/functions/authorize-project-workflow-action.ts,plugins/functions/function-draft-reader.ts plugins/functions/function-publication-reader.ts,plugins/functions/shared-package-reader.ts tests/functions/functions.test.ts,tests/functions/workflow-components.test.ts
-- `f9d36eb` — 2026-11-15 08:55:13 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
