@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `fa151a6` — 2026-11-15 16:54:48 +0330 — route manifest functions through plugin workers
+  Files: admin-nextjs/app/styles.css,internal/plugin/typescript_worker.go scripts/typescript-worker.mjs,tests/plugin/typescript-worker.test.ts
+- `510f630` — 2026-11-15 11:37:14 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `4ea6c3e` — 2026-11-15 15:06:58 +0330 — show saved function drafts in admin
   Files: admin-nextjs/app/page.tsx
 - `43c9061` — 2026-11-15 11:36:09 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `b9095e7` — 2026-11-15 13:54:57 +0330 — keep project table details authoritative
   Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css
-- `3ecbfb4` — 2026-11-15 10:24:27 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `f678310` — 2026-11-15 13:54:11 +0330 — refine project management screen
-  Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css internal/admin/lifecycle.go,internal/app/admin.go internal/project/project.go,tests/app/admin_test.go tests/project/project_test.go
