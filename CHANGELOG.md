@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `427e5fa` — 2026-11-15 12:09:31 +0330 — validate backup age timestamps
+  Files: scripts/check-backup-age.sh,tests/deploy/postgres_backup_verify_test.go
+- `ae7a3c0` — 2026-11-15 08:38:53 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `d246728` — 2026-11-15 12:08:40 +0330 — validate rehearsal compose projects
   Files: scripts/clean-environment-rehearsal.sh,tests/deploy/clean_environment_script_test.go
 - `a4e3ebc` — 2026-11-15 08:38:23 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `d8763d5` — 2026-11-15 02:16:17 +0330 — validate project identity for function job leases
   Files: plugins/functions/job-lease-acquirer.ts,plugins/functions/job-lease-renewer.ts tests/functions/functions.test.ts
 - `1b20cc1` — 2026-11-14 22:45:39 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `6a82173` — 2026-11-15 02:15:23 +0330 — validate file object identities at access boundaries
-  Files: plugins/files/authorized-upload-writer.ts,plugins/files/file-access-deleter.ts plugins/files/file-access-reader.ts,plugins/files/pending-upload-publisher.ts plugins/files/pending-upload-reader.ts,tests/files/files.test.ts
-- `992991f` — 2026-11-14 22:44:07 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
