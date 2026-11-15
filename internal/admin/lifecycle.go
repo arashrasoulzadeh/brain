@@ -46,6 +46,13 @@ func (s *LifecycleService) ListPlugins(actor operator.Actor, projectID string) (
 	return s.registry.RegisteredManifests(), s.registry.InstallationStatuses(projectID), nil
 }
 
+func (s *LifecycleService) SystemCapabilities(actor operator.Actor) ([]plugin.Manifest, error) {
+	if actor.Kind != operator.ActorOperator || s.registry == nil {
+		return nil, operator.ErrInvalidOperatorAction
+	}
+	return s.registry.RegisteredManifests(), nil
+}
+
 func (s *LifecycleService) InstallPlugin(actor operator.Actor, projectID, pluginID, version string) error {
 	return s.execute(actor, "plugin.install", func() error {
 		return s.registry.Install(projectID, pluginID, version)

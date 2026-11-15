@@ -174,3 +174,13 @@ func TestAuthenticatedPluginsHandlerReturnsInventory(t *testing.T) {
 		t.Fatalf("plugin inventory body = %q", recorder.Body.String())
 	}
 }
+
+func TestAuthenticatedSystemHandlerRequiresOperatorSession(t *testing.T) {
+	service := admin.NewLifecycleService(&operator.Store{}, plugin.NewRegistry(1))
+	request := httptest.NewRequest(http.MethodGet, "/admin/system", nil)
+	recorder := httptest.NewRecorder()
+	app.AuthenticatedSystemHandler(service, &operator.Store{}).ServeHTTP(recorder, request)
+	if recorder.Code != http.StatusForbidden {
+		t.Fatalf("system capabilities status = %d, want %d", recorder.Code, http.StatusForbidden)
+	}
+}
