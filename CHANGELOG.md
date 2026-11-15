@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `1dae3fd` — 2026-11-15 12:27:58 +0330 — record verified backend release gates
+  Files: roadmap_backend.md
+- `ccba3f7` — 2026-11-15 08:57:42 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `dbb1983` — 2026-11-15 12:27:30 +0330 — complete project boundary audit pass
   Files: plugins/functions/record-trigger-matcher.ts,plugins/functions/shared-helper-publisher.ts plugins/matchmaking/matchmaking-config-reader.ts,plugins/matchmaking/matchmaking-config-status.ts plugins/rooms/authorized-room-snapshot.ts,plugins/rooms/authorized-tic-tac-toe-state.ts plugins/rooms/reconnect-tic-tac-toe.ts,tests/matchmaking/matchmaking.test.ts tests/rooms/rooms.test.ts
 - `2b97bcf` — 2026-11-15 08:56:14 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `6cf468c` — 2026-11-15 12:06:53 +0330 — validate deployment project identity
   Files: internal/deploy/sequence.go,tests/deploy/sequence_test.go
 - `d6660fa` — 2026-11-15 08:36:34 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `bcdb15d` — 2026-11-15 12:06:20 +0330 — require digest pinned release images
-  Files: internal/deploy/manifest.go,tests/deploy/healthy_manifest_test.go tests/deploy/manifest_test.go,tests/deploy/rollback_test.go
-- `5ec4f7d` — 2026-11-15 08:35:39 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
