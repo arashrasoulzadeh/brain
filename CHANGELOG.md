@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `f1cef48` — 2026-11-15 18:52:06 +0330 — apply tailwind component layer across admin ui
+  Files: admin-nextjs/app/styles.css
+- `539f29e` — 2026-11-15 15:19:14 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `c44ecc0` — 2026-11-15 18:48:53 +0330 — fix function publish flow and tailwind controls
   Files: admin-nextjs/app/functions/[name]/page.tsx,admin-nextjs/app/styles.css admin-nextjs/package-lock.json,admin-nextjs/package.json admin-nextjs/postcss.config.mjs
 - `60556fc` — 2026-11-15 15:14:38 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `46bc82c` — 2026-11-15 15:05:55 +0330 — load project function drafts in admin
   Files: admin-nextjs/app/page.tsx
 - `3192140` — 2026-11-15 11:35:22 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `f70dafa` — 2026-11-15 15:05:05 +0330 — persist custom function drafts locally
-  Files: internal/admin/functions.go
-- `d861dd5` — 2026-11-15 11:34:08 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
