@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `59c25e6` — 2026-11-15 19:47:58 +0330 — show function publish status beside actions
+  Files: admin-nextjs/app/functions/[name]/page.tsx
+- `0c5e222` — 2026-11-15 16:17:07 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `3ae1cd1` — 2026-11-15 19:46:50 +0330 — add explicit function draft save action
   Files: admin-nextjs/app/functions/[name]/page.tsx
 - `b19933b` — 2026-11-15 16:14:52 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `4f80ea3` — 2026-11-15 17:16:17 +0330 — add sqlite storage bridge for table routes
   Files: cmd/brain/main.go,internal/plugin/plugin.go internal/plugin/sqlite_storage.go,plugins/tables/tables-read.ts
 - `95ffeb8` — 2026-11-15 13:44:55 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `84b45ea` — 2026-11-15 17:14:41 +0330 — make analytics capture host invokable
-  Files: plugins/analytics/analytics-route-sink.ts,plugins/analytics/capture.ts plugins/analytics/index.ts,plugins/analytics/plugin.yaml
-- `2b3c5a0` — 2026-11-15 13:44:09 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
