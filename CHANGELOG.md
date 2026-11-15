@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `8319f63` — 2026-11-15 13:20:49 +0330 — add manifest driven plugin configuration
+  Files: admin-nextjs/app/page.tsx
+- `f577901` — 2026-11-15 09:49:36 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `ffad212` — 2026-11-15 13:19:21 +0330 — scope admin plugin inventory by project
   Files: admin-nextjs/app/page.tsx
 - `3d96c29` — 2026-11-15 09:48:27 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `88f7b87` — 2026-11-15 12:39:23 +0330 — mark packaged admin verification complete
   Files: roadmap_admin.md
 - `64162e9` — 2026-11-15 09:09:26 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `166f0f6` — 2026-11-15 12:39:10 +0330 — verify packaged admin composition
-  Files: cmd/brain/main_test.go
-- `d8fbe27` — 2026-11-15 09:08:58 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
