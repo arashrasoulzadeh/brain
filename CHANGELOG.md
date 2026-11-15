@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `96dfb07` — 2026-11-15 14:45:40 +0330 — fix plugin settings build
+  Files: admin-nextjs/app/plugins/[plugin]/page.tsx
+- `56c0713` — 2026-11-15 11:13:41 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `d2f6b43` — 2026-11-15 14:43:24 +0330 — keep plugin settings inside admin workspace
   Files: admin-nextjs/app/plugins/[plugin]/page.tsx
 - `d8af0b4` — 2026-11-15 11:12:38 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `7d57f6c` — 2026-11-15 13:38:40 +0330 — split admin into full width pages
   Files: admin-nextjs/app/audit/page.tsx,admin-nextjs/app/page.tsx admin-nextjs/app/plugins/page.tsx,admin-nextjs/app/projects/page.tsx admin-nextjs/app/styles.css,admin-nextjs/app/system/page.tsx
-- `7c5c6a1` — 2026-11-15 10:07:10 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `4daea39` — 2026-11-15 13:36:58 +0330 — hide inactive project destructive actions
-  Files: admin-nextjs/app/page.tsx
