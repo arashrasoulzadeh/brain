@@ -148,7 +148,11 @@ export default function AdminPage() {
     const savedSession = window.sessionStorage.getItem("brain-admin-session");
     if (!savedSession) return;
     setSession(savedSession);
-    Promise.all([loadProjects(savedSession), loadPlugins(savedSession), loadAudit(savedSession), loadSystem(savedSession)]).catch(() => setError("Could not restore operator session"));
+    loadProjects(savedSession).then((loadedProjects) => {
+      const activeProjectID = loadedProjects.find((project) => project.Active)?.ID ?? "";
+      setSelectedProjectID(activeProjectID);
+      return Promise.all([loadPlugins(savedSession, activeProjectID), loadAudit(savedSession), loadSystem(savedSession)]);
+    }).catch(() => setError("Could not restore operator session"));
   }, []);
   async function loadProjects(token: string): Promise<Project[]> {
     const response = await fetch("/api/admin/projects", {
