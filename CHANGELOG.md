@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `3a986e9` — 2026-11-15 14:57:35 +0330 — preflight custom function source safely
+  Files: internal/admin/functions.go,tests/admin/functions_test.go
+- `6d35c59` — 2026-11-15 11:27:02 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `3c615ba` — 2026-11-15 14:56:39 +0330 — add project scoped custom function drafts
   Files: admin-nextjs/app/page.tsx,admin-nextjs/app/plugins/[plugin]/page.tsx admin-nextjs/app/styles.css,internal/admin/functions.go internal/app/admin.go,internal/app/app.go
 - `a9bb7f4` — 2026-11-15 11:19:04 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `d9e5077` — 2026-11-15 13:42:19 +0330 — preserve admin session across pages
   Files: admin-nextjs/app/page.tsx
-- `3ccf80f` — 2026-11-15 10:11:35 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `9a823fb` — 2026-11-15 13:41:21 +0330 — add domain admin pages
-  Files: admin-nextjs/app/database/page.tsx,admin-nextjs/app/files/page.tsx admin-nextjs/app/functions/page.tsx,admin-nextjs/app/live-sessions/page.tsx admin-nextjs/app/page.tsx,admin-nextjs/app/workflows/page.tsx
