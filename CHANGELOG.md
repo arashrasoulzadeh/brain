@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `2d57b95` — 2026-11-15 17:17:36 +0330 — persist file routes in sqlite
+  Files: internal/plugin/plugin.go,internal/plugin/sqlite_storage.go plugins/files/files-download.ts,plugins/files/files-metadata.ts plugins/files/files-publish.ts
+- `02df869` — 2026-11-15 13:46:31 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `4f80ea3` — 2026-11-15 17:16:17 +0330 — add sqlite storage bridge for table routes
   Files: cmd/brain/main.go,internal/plugin/plugin.go internal/plugin/sqlite_storage.go,plugins/tables/tables-read.ts
 - `95ffeb8` — 2026-11-15 13:44:55 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `e6ecbb1` — 2026-11-15 14:58:06 +0330 — audit plugin metadata and route permissions
   Files: tests/plugin/all_manifests_test.go
 - `394aa31` — 2026-11-15 11:27:50 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `3a986e9` — 2026-11-15 14:57:35 +0330 — preflight custom function source safely
-  Files: internal/admin/functions.go,tests/admin/functions_test.go
-- `6d35c59` — 2026-11-15 11:27:02 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
