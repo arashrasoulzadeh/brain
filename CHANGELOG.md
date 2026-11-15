@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `cde7a13` — 2026-11-15 17:05:36 +0330 — add database operation console
+  Files: admin-nextjs/app/page.tsx
+- `3aa111b` — 2026-11-15 13:33:12 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `31ab0b1` — 2026-11-15 17:02:58 +0330 — report runtime worker health in admin
   Files: admin-nextjs/app/page.tsx,internal/plugin/plugin.go
 - `f6f8c50` — 2026-11-15 13:32:03 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `b391400` — 2026-11-15 10:49:02 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
 - `eb9bea9` — 2026-11-15 14:18:45 +0330 — fix route playground and monitoring states
-  Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css
-- `f0c408e` — 2026-11-15 10:39:54 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `8421762` — 2026-11-15 14:09:34 +0330 — fix monitoring status and add route playground
   Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css
