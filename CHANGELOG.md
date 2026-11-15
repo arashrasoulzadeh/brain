@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `e556070` — 2026-11-15 17:13:23 +0330 — implement room admin routes
+  Files: plugins/rooms/index.ts,plugins/rooms/plugin.yaml plugins/rooms/room-route-store.ts,plugins/rooms/rooms-create-route.ts plugins/rooms/rooms-join-route.ts,plugins/rooms/rooms-reconnect-route.ts plugins/rooms/rooms-result-route.ts
+- `210ad10` — 2026-11-15 13:42:59 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `c32d1c7` — 2026-11-15 17:12:45 +0330 — implement matchmaking admin routes
   Files: plugins/matchmaking/index.ts,plugins/matchmaking/matchmaking-assign-route.ts plugins/matchmaking/matchmaking-cancel-route.ts,plugins/matchmaking/matchmaking-queue-route.ts plugins/matchmaking/matchmaking-route-store.ts,plugins/matchmaking/matchmaking-status-route.ts plugins/matchmaking/plugin.yaml
 - `7abd628` — 2026-11-15 13:41:57 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `96dfb07` — 2026-11-15 14:45:40 +0330 — fix plugin settings build
   Files: admin-nextjs/app/plugins/[plugin]/page.tsx
 - `56c0713` — 2026-11-15 11:13:41 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `d2f6b43` — 2026-11-15 14:43:24 +0330 — keep plugin settings inside admin workspace
-  Files: admin-nextjs/app/plugins/[plugin]/page.tsx
-- `d8af0b4` — 2026-11-15 11:12:38 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
