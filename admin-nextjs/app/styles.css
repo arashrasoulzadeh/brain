@@ -68,7 +68,7 @@ button {
 .top {
   display: flex;
   justify-content: space-between;
-  align-items: start;
+  align-items: flex-start;
 }
 .secondary,
 .language {
