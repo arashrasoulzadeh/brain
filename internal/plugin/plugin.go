@@ -452,6 +452,45 @@ func (r *Registry) prepareStorageRequest(request WorkerRequest) WorkerRequest {
 		}
 		return request
 	}
+	if request.PluginID == "rooms" {
+		id, _ := payload["id"].(string)
+		if id == "" {
+			return request
+		}
+		state, _ := r.storage.State(request.ProjectID, "rooms", id)
+		if request.Operation == "rooms.create" {
+			state = map[string]any{"id": id, "members": []any{}}
+			_ = r.storage.PutState(request.ProjectID, "rooms", id, state)
+		}
+		if state == nil {
+			return request
+		}
+		if request.Operation == "rooms.join" || request.Operation == "rooms.reconnect" {
+			if member, ok := payload["member"].(string); ok {
+				members, _ := state["members"].([]any)
+				found := false
+				for _, existing := range members {
+					if existing == member {
+						found = true
+					}
+				}
+				if !found {
+					members = append(members, member)
+				}
+				state["members"] = members
+				_ = r.storage.PutState(request.ProjectID, "rooms", id, state)
+			}
+		}
+		if request.Operation == "rooms.result" {
+			if value, ok := payload["result"]; ok {
+				state["result"] = value
+				_ = r.storage.PutState(request.ProjectID, "rooms", id, state)
+			}
+		}
+		payload["room"] = state
+		request.Payload, _ = json.Marshal(payload)
+		return request
+	}
 	if request.PluginID != "tables" {
 		return request
 	}
