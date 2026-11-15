@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `614ef5c` — 2026-11-15 13:14:37 +0330 — avoid duplicate project inventory request
+  Files: admin-nextjs/app/page.tsx
+- `a3c7fea` — 2026-11-15 09:44:23 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `018e005` — 2026-11-15 13:14:04 +0330 — bind admin actions to selected project
   Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css
 - `805f435` — 2026-11-15 09:43:33 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `2bd1147` — 2026-11-15 12:35:04 +0330 — record admin isolation release gates
   Files: roadmap_admin.md
 - `e39e00b` — 2026-11-15 09:04:54 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `640915a` — 2026-11-15 12:34:40 +0330 — record administrator runbooks complete
-  Files: roadmap_admin.md
-- `52d00a6` — 2026-11-15 09:04:31 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
