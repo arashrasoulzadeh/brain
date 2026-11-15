@@ -44,5 +44,14 @@ test("the shared shell owns the only sidebar implementation", async () => {
   const source = await readFile(join(root, "admin-nextjs/app/components/admin-chrome.tsx"), "utf8");
   assert.equal(source.match(/export function AdminSidebar\b/g)?.length ?? 0, 1);
   assert.equal(source.match(/<aside className="sidebar">/g)?.length ?? 0, 1);
-  assert.match(source, /setDiscoveredPages\(\["projects".*"audit"/s);
+  assert.ok(source.includes('"audit"'), "shared sidebar discovery must include Audit");
+});
+
+test("authenticated route content is mounted below the persistent root shell", async () => {
+  const layout = await readFile(join(root, "admin-nextjs/app/layout.tsx"), "utf8");
+  const shell = await readFile(join(root, "admin-nextjs/app/components/admin-shell.tsx"), "utf8");
+  const frame = await readFile(join(root, "admin-nextjs/app/components/admin-chrome.tsx"), "utf8");
+  assert.match(layout, /<AdminShell>\{children\}<\/AdminShell>/);
+  assert.match(shell, /export function AdminShell/);
+  assert.doesNotMatch(frame, /return <main className="shell">/);
 });

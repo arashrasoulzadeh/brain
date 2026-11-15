@@ -184,14 +184,7 @@ export default function FunctionDetailPage() {
       setPublishing(false);
     }
   }
-  if (pluginAccess !== "allowed")
-    return (
-      <main className="shell">
-        <section className="card">
-          <p className="muted">Checking page access…</p>
-        </section>
-      </main>
-    );
+  if (pluginAccess !== "allowed") return <p className="muted">Checking page access…</p>;
   if (!draft)
     return (
       <AdminPageFrame
