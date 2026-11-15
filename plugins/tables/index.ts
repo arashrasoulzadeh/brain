@@ -23,6 +23,9 @@ export { createSchemaPublicationAudit } from "./create-schema-publication-audit.
 export { createTransactionalChangeCapture } from "./create-transactional-change-capture.js";
 export { createApiChangeCapture } from "./create-api-change-capture.js";
 export { createDirectSQLChangeCapture } from "./create-direct-sql-change-capture.js";
+export { read } from "./tables-read.js";
+export { write } from "./tables-write.js";
+export { schema } from "./tables-schema.js";
 export type RowChange<T> = { projectId: string; table: string; oldValue: T; newValue: T };
 export type ScopedRowChange<T> = RowChange<T> & {
   oldScope: readonly string[];

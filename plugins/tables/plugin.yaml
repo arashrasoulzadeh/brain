@@ -47,6 +47,9 @@ source_files:
   - create-transactional-change-capture.ts
   - create-api-change-capture.ts
   - create-direct-sql-change-capture.ts
+  - tables-read.ts
+  - tables-write.ts
+  - tables-schema.ts
 imports:
   - ../sdk-typescript/src/index.js
   - ./data-request.js
@@ -90,6 +93,9 @@ imports:
   - ./create-transactional-change-capture.js
   - ./create-api-change-capture.js
   - ./create-direct-sql-change-capture.js
+  - ./tables-read.js
+  - ./tables-write.js
+  - ./tables-schema.js
   - ./index.js
 plugin_imports:
 dependencies: []
