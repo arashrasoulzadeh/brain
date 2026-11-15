@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `d4d1f56` — 2026-11-15 13:15:16 +0330 — add project uninstall control
+  Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css
+- `c08d4e6` — 2026-11-15 09:44:52 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `614ef5c` — 2026-11-15 13:14:37 +0330 — avoid duplicate project inventory request
   Files: admin-nextjs/app/page.tsx
 - `a3c7fea` — 2026-11-15 09:44:23 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `baa2d17` — 2026-11-15 12:37:00 +0330 — wire operator sessions to admin boundary
   Files: internal/app/admin.go,internal/operator/operator.go internal/operator/session.go,tests/app/admin_test.go tests/operator/operator_test.go
 - `b051ca7` — 2026-11-15 09:05:17 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `2bd1147` — 2026-11-15 12:35:04 +0330 — record admin isolation release gates
-  Files: roadmap_admin.md
-- `e39e00b` — 2026-11-15 09:04:54 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
