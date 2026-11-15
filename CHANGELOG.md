@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `4f6539b` — 2026-11-15 13:33:51 +0330 — add full width admin sidebar layout
+  Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css
+- `a4fb2bc` — 2026-11-15 10:03:01 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `cf3c26d` — 2026-11-15 13:32:46 +0330 — revoke admin sessions on sign out
   Files: admin-nextjs/app/page.tsx,internal/app/admin.go internal/app/app.go,tests/app/admin_test.go
 - `19d3c94` — 2026-11-15 10:01:00 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `60f72a6` — 2026-11-15 13:06:19 +0330 — add admin audit activity panel
   Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css internal/admin/lifecycle.go,internal/app/admin.go internal/app/app.go
 - `8460adb` — 2026-11-15 09:34:43 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `fee2da8` — 2026-11-15 13:04:30 +0330 — add plugin install controls to admin
-  Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css internal/admin/lifecycle.go,internal/app/admin.go tests/admin/lifecycle_test.go
-- `d270b7a` — 2026-11-15 09:33:32 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
