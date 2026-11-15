@@ -62,3 +62,8 @@ export { TicTacToeMover } from "./tic-tac-toe-mover.js";
 export { serializeTicTacToeState } from "./serialize-tic-tac-toe-state.js";
 export { reconnectTicTacToe } from "./reconnect-tic-tac-toe.js";
 export { hiddenTicTacToeView } from "./hidden-tic-tac-toe-view.js";
+export { RoomRouteStore, roomRouteStore } from "./room-route-store.js";
+export { create } from "./rooms-create-route.js";
+export { join } from "./rooms-join-route.js";
+export { reconnect } from "./rooms-reconnect-route.js";
+export { result } from "./rooms-result-route.js";

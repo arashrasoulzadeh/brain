@@ -46,6 +46,11 @@ source_files:
   - serialize-tic-tac-toe-state.ts
   - reconnect-tic-tac-toe.ts
   - hidden-tic-tac-toe-view.ts
+  - room-route-store.ts
+  - rooms-create-route.ts
+  - rooms-join-route.ts
+  - rooms-reconnect-route.ts
+  - rooms-result-route.ts
 imports:
   - ../sdk-typescript/src/index.js
   - node:crypto
@@ -90,6 +95,11 @@ imports:
   - ./reconnect-tic-tac-toe.js
   - ./hidden-tic-tac-toe-view.js
   - ./index.js
+  - ./room-route-store.js
+  - ./rooms-create-route.js
+  - ./rooms-join-route.js
+  - ./rooms-reconnect-route.js
+  - ./rooms-result-route.js
 plugin_imports:
 dependencies: []
 capabilities:
