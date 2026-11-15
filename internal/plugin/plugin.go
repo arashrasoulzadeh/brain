@@ -315,7 +315,7 @@ func NewRegistry(hostAPI int) *Registry {
 }
 
 func (r *Registry) SaveDurableData(projectID, pluginID, key string, value []byte) error {
-	if projectID == "" || pluginID == "" || key == "" {
+	if !isValidProjectID(projectID) || pluginID == "" || key == "" {
 		return ErrProjectInvalid
 	}
 	r.durableMu.Lock()
@@ -332,7 +332,7 @@ func (r *Registry) DurableData(projectID, pluginID, key string) ([]byte, bool) {
 }
 
 func (r *Registry) DeleteDurableData(projectID, pluginID, key string) error {
-	if projectID == "" || pluginID == "" || key == "" {
+	if !isValidProjectID(projectID) || pluginID == "" || key == "" {
 		return ErrProjectInvalid
 	}
 	r.durableMu.Lock()
@@ -349,7 +349,7 @@ func (r *Registry) ApproveCapability(projectID, id, version, capability string) 
 	defer r.approvalMu.Unlock()
 	r.installationMu.RLock()
 	defer r.installationMu.RUnlock()
-	if projectID == "" || capability == "" {
+	if !isValidProjectID(projectID) || capability == "" {
 		return ErrProjectInvalid
 	}
 	if _, ok := r.installations[projectID+":"+id+"@"+version]; !ok {
@@ -371,7 +371,7 @@ func (r *Registry) ApproveCapability(projectID, id, version, capability string) 
 }
 
 func (r *Registry) Status(projectID, pluginID, version string) (InstallationStatus, error) {
-	if projectID == "" {
+	if !isValidProjectID(projectID) {
 		return InstallationStatus{}, ErrProjectInvalid
 	}
 	r.readinessMu.RLock()
@@ -481,7 +481,7 @@ func (r *Registry) PreviewDisable(projectID, id, version string) (DisablePreview
 	defer r.lifecycleMu.Unlock()
 	r.installationMu.RLock()
 	defer r.installationMu.RUnlock()
-	if projectID == "" {
+	if !isValidProjectID(projectID) {
 		return DisablePreview{}, ErrProjectInvalid
 	}
 	if _, ok := r.installations[projectID+":"+id+"@"+version]; !ok {
@@ -536,7 +536,7 @@ func (r *Registry) Install(projectID, id, version string) error {
 	defer r.readinessMu.RUnlock()
 	r.installationMu.Lock()
 	defer r.installationMu.Unlock()
-	if projectID == "" {
+	if !isValidProjectID(projectID) {
 		return ErrProjectInvalid
 	}
 	key := id + "@" + version
@@ -559,7 +559,7 @@ func (r *Registry) GrantResource(projectID, id, version, capability, resource st
 	defer r.readinessMu.RUnlock()
 	r.installationMu.Lock()
 	defer r.installationMu.Unlock()
-	if projectID == "" {
+	if !isValidProjectID(projectID) {
 		return ErrProjectInvalid
 	}
 	if resource == "" {
@@ -611,7 +611,7 @@ func (r *Registry) Configure(projectID, id, version string, values map[string]an
 	defer r.readinessMu.RUnlock()
 	r.installationMu.Lock()
 	defer r.installationMu.Unlock()
-	if projectID == "" {
+	if !isValidProjectID(projectID) {
 		return ErrProjectInvalid
 	}
 	key := projectID + ":" + id + "@" + version
@@ -655,7 +655,7 @@ func (r *Registry) Grant(projectID, id, version, capability string) error {
 	defer r.readinessMu.RUnlock()
 	r.installationMu.Lock()
 	defer r.installationMu.Unlock()
-	if projectID == "" {
+	if !isValidProjectID(projectID) {
 		return ErrProjectInvalid
 	}
 	i, ok := r.installations[projectID+":"+id+"@"+version]
@@ -678,7 +678,7 @@ func (r *Registry) Revoke(projectID, id, version, capability string) error {
 	defer r.grantMu.Unlock()
 	r.installationMu.Lock()
 	defer r.installationMu.Unlock()
-	if projectID == "" {
+	if !isValidProjectID(projectID) {
 		return ErrProjectInvalid
 	}
 	if capability == "" {
@@ -717,7 +717,7 @@ func (r *Registry) Enable(projectID, id, version string) error {
 	defer r.readinessMu.RUnlock()
 	r.installationMu.Lock()
 	defer r.installationMu.Unlock()
-	if projectID == "" {
+	if !isValidProjectID(projectID) {
 		return ErrProjectInvalid
 	}
 	key := projectID + ":" + id + "@" + version
@@ -748,7 +748,7 @@ func (r *Registry) Promote(projectID, id, version string) error {
 	defer r.approvalMu.RUnlock()
 	r.installationMu.RLock()
 	defer r.installationMu.RUnlock()
-	if projectID == "" {
+	if !isValidProjectID(projectID) {
 		return ErrProjectInvalid
 	}
 	key := projectID + ":" + id + "@" + version
@@ -810,7 +810,7 @@ func (r *Registry) DrainUntil(projectID, id, version string, deadline time.Time)
 	defer r.lifecycleMu.Unlock()
 	r.installationMu.Lock()
 	defer r.installationMu.Unlock()
-	if projectID == "" {
+	if !isValidProjectID(projectID) {
 		return ErrProjectInvalid
 	}
 	key := projectID + ":" + id + "@" + version
@@ -830,7 +830,7 @@ func (r *Registry) StopImmediately(projectID, id, version string) error {
 	defer r.lifecycleMu.Unlock()
 	r.installationMu.Lock()
 	defer r.installationMu.Unlock()
-	if projectID == "" {
+	if !isValidProjectID(projectID) {
 		return ErrProjectInvalid
 	}
 	key := projectID + ":" + id + "@" + version
@@ -862,7 +862,7 @@ func (r *Registry) Recover(projectID, id, version string) error {
 	defer r.lifecycleMu.Unlock()
 	r.installationMu.Lock()
 	defer r.installationMu.Unlock()
-	if projectID == "" {
+	if !isValidProjectID(projectID) {
 		return ErrProjectInvalid
 	}
 	key := projectID + ":" + id + "@" + version
@@ -895,7 +895,7 @@ func (r *Registry) Recover(projectID, id, version string) error {
 func (r *Registry) CanStart(projectID, id, version string, now time.Time) error {
 	r.installationMu.RLock()
 	defer r.installationMu.RUnlock()
-	if projectID == "" {
+	if !isValidProjectID(projectID) {
 		return ErrProjectInvalid
 	}
 	i, ok := r.installations[projectID+":"+id+"@"+version]
@@ -911,7 +911,7 @@ func (r *Registry) CanStart(projectID, id, version string, now time.Time) error 
 func (r *Registry) CanStartNew(projectID, id, version string) error {
 	r.installationMu.RLock()
 	defer r.installationMu.RUnlock()
-	if projectID == "" {
+	if !isValidProjectID(projectID) {
 		return ErrProjectInvalid
 	}
 	i, ok := r.installations[projectID+":"+id+"@"+version]
@@ -927,7 +927,7 @@ func (r *Registry) CanStartNew(projectID, id, version string) error {
 func (r *Registry) CanReconnect(projectID, id, version string, now time.Time) error {
 	r.installationMu.RLock()
 	defer r.installationMu.RUnlock()
-	if projectID == "" {
+	if !isValidProjectID(projectID) {
 		return ErrProjectInvalid
 	}
 	i, ok := r.installations[projectID+":"+id+"@"+version]
@@ -951,7 +951,7 @@ func (r *Registry) Rollback(projectID, id, version string) error {
 func (r *Registry) ActiveVersion(projectID, id string) (string, bool) {
 	r.lifecycleMu.RLock()
 	defer r.lifecycleMu.RUnlock()
-	if projectID == "" {
+	if !isValidProjectID(projectID) {
 		return "", false
 	}
 	version, ok := r.active[projectID+":"+id]
@@ -963,7 +963,7 @@ func (r *Registry) PinWork(workID, projectID, id, version string) error {
 	defer r.lifecycleMu.Unlock()
 	r.installationMu.RLock()
 	defer r.installationMu.RUnlock()
-	if workID == "" || projectID == "" {
+	if workID == "" || !isValidProjectID(projectID) {
 		return ErrProjectInvalid
 	}
 	key := projectID + ":" + id + "@" + version
@@ -998,7 +998,7 @@ func (r *Registry) Remove(projectID, id, version string) error {
 	defer r.lifecycleMu.Unlock()
 	r.installationMu.Lock()
 	defer r.installationMu.Unlock()
-	if projectID == "" {
+	if !isValidProjectID(projectID) {
 		return ErrProjectInvalid
 	}
 	key := projectID + ":" + id + "@" + version
@@ -1087,7 +1087,7 @@ func (r *Registry) UninstallProject(projectID string) error {
 	defer r.lifecycleMu.Unlock()
 	r.installationMu.Lock()
 	defer r.installationMu.Unlock()
-	if projectID == "" {
+	if !isValidProjectID(projectID) {
 		return ErrProjectInvalid
 	}
 	var uninstallError error
@@ -1145,7 +1145,7 @@ func (r *Registry) Authorize(projectID, id, version, capability string) error {
 func (r *Registry) authorizeGrant(projectID, id, version, capability string) error {
 	r.installationMu.RLock()
 	defer r.installationMu.RUnlock()
-	if projectID == "" {
+	if !isValidProjectID(projectID) {
 		return ErrProjectInvalid
 	}
 	i, ok := r.installations[projectID+":"+id+"@"+version]

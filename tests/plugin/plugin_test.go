@@ -246,6 +246,25 @@ func TestRegistryRejectsProjectlessLifecycleMutations(t *testing.T) {
 	}
 }
 
+func TestRegistryRejectsNonCanonicalProjectIDs(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	manifest := plugin.Manifest{ID: "canonical", Version: "1.0.0", HostAPI: 1}
+	if err := r.Register(manifest); err != nil {
+		t.Fatal(err)
+	}
+	for _, projectID := range []string{"tenant/other", " tenant", "tenant other", "tenant."} {
+		if err := r.Install(projectID, manifest.ID, manifest.Version); !errors.Is(err, plugin.ErrProjectInvalid) {
+			t.Errorf("Install(%q) = %v, want %v", projectID, err, plugin.ErrProjectInvalid)
+		}
+		if err := r.SaveDurableData(projectID, manifest.ID, "key", []byte("value")); !errors.Is(err, plugin.ErrProjectInvalid) {
+			t.Errorf("SaveDurableData(%q) = %v, want %v", projectID, err, plugin.ErrProjectInvalid)
+		}
+		if err := r.UninstallProject(projectID); !errors.Is(err, plugin.ErrProjectInvalid) {
+			t.Errorf("UninstallProject(%q) = %v, want %v", projectID, err, plugin.ErrProjectInvalid)
+		}
+	}
+}
+
 func TestRegistryReadinessAndUnregisterAreConcurrentSafe(t *testing.T) {
 	r := plugin.NewRegistry(1)
 	manifest := plugin.Manifest{ID: "readiness-unregister", Version: "1.0.0", HostAPI: 1}
