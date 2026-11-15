@@ -10,6 +10,19 @@ restore_dsn="${RESTORE_DSN:?RESTORE_DSN is required}"
 object_manifest="${OBJECT_MANIFEST:?OBJECT_MANIFEST is required}"
 brain_bin="${BRAIN_BIN:-./brain}"
 
+case "$project" in
+  ''|*[!A-Za-z0-9_-]*)
+  echo "COMPOSE_PROJECT_NAME must contain a valid Compose project name" >&2
+  exit 1
+  ;;
+esac
+case "$restore_project" in
+  ''|*[!A-Za-z0-9_-]*)
+  echo "RESTORE_PROJECT must contain a valid Compose project name" >&2
+  exit 1
+  ;;
+esac
+
 cleanup() {
   docker compose -p "$project" -f "$compose_file" down --volumes --remove-orphans || true
   docker compose -p "$project" -f "$rollback_compose_file" down --volumes --remove-orphans || true

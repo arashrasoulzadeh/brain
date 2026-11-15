@@ -17,6 +17,11 @@ func TestCleanEnvironmentRehearsalRequiresDeployRollbackAndRestore(t *testing.T)
 			t.Fatalf("rehearsal script missing %q", required)
 		}
 	}
+	for _, required := range []string{"case \"$project\" in", "case \"$restore_project\" in", "*[!A-Za-z0-9_-]*)"} {
+		if !strings.Contains(script, required) {
+			t.Fatalf("rehearsal script missing %q", required)
+		}
+	}
 }
 
 func TestTestWorkflowWiresFullRehearsalInputs(t *testing.T) {
