@@ -69,3 +69,21 @@ func TestLifecycleServiceAuditsDurableDataDeletion(t *testing.T) {
 		t.Fatalf("deletion audit = %#v", events)
 	}
 }
+
+func TestLifecycleServiceAuditsRecoveryOperation(t *testing.T) {
+	operators := &operator.Store{}
+	digest := func(string) string { return "digest" }
+	_, _ = operators.Bootstrap("admin", "secret", digest)
+	if err := operators.Authenticate("admin", "secret", digest); err != nil {
+		t.Fatal(err)
+	}
+	service := admin.NewLifecycleService(operators, plugin.NewRegistry(1))
+	actor := operator.Actor{ID: "admin", Kind: operator.ActorOperator}
+	if err := service.RecoverPlugin(actor, "dev", "rooms", "1.0.0"); !errors.Is(err, plugin.ErrNotInstalled) {
+		t.Fatalf("recovery registry error = %v", err)
+	}
+	events := operators.Audit()
+	if len(events) != 2 || events[1].Action != "plugin.recover" || events[1].Success {
+		t.Fatalf("recovery audit = %#v", events)
+	}
+}

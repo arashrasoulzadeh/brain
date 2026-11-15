@@ -50,6 +50,30 @@ func (s *LifecycleService) DeleteDurableData(actor operator.Actor, projectID, pl
 	})
 }
 
+func (s *LifecycleService) DrainPlugin(actor operator.Actor, projectID, pluginID, version string) error {
+	return s.execute(actor, "plugin.drain", func() error {
+		return s.registry.Drain(projectID, pluginID, version)
+	})
+}
+
+func (s *LifecycleService) StopPluginImmediately(actor operator.Actor, projectID, pluginID, version string) error {
+	return s.execute(actor, "plugin.stop-immediate", func() error {
+		return s.registry.StopImmediately(projectID, pluginID, version)
+	})
+}
+
+func (s *LifecycleService) RecoverPlugin(actor operator.Actor, projectID, pluginID, version string) error {
+	return s.execute(actor, "plugin.recover", func() error {
+		return s.registry.Recover(projectID, pluginID, version)
+	})
+}
+
+func (s *LifecycleService) RollbackPlugin(actor operator.Actor, projectID, pluginID, version string) error {
+	return s.execute(actor, "plugin.rollback", func() error {
+		return s.registry.Rollback(projectID, pluginID, version)
+	})
+}
+
 func (s *LifecycleService) execute(actor operator.Actor, action string, operation func() error) error {
 	if s == nil || s.operators == nil || s.registry == nil {
 		return operator.ErrInvalidOperatorAction
