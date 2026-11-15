@@ -33,3 +33,24 @@ func TestAdminHandlerDoesNotTrustActorFromBody(t *testing.T) {
 		t.Fatalf("status = %d, want %d", rec.Code, http.StatusForbidden)
 	}
 }
+
+func TestServerWiresAuthenticatedAdminCommand(t *testing.T) {
+	operators := &operator.Store{}
+	digest := func(string) string { return "digest" }
+	_, _ = operators.Bootstrap("admin", "secret", digest)
+	if err := operators.Authenticate("admin", "secret", digest); err != nil {
+		t.Fatal(err)
+	}
+	service := admin.NewLifecycleService(operators, plugin.NewRegistry(1))
+	actor := operator.Actor{ID: "admin", Kind: operator.ActorOperator}
+	request := httptest.NewRequest(http.MethodPost, "/admin/actions", strings.NewReader(`{"operation":"plugin.enable","project_id":"dev","plugin_id":"rooms","version":"1.0.0"}`))
+	request = request.WithContext(operator.WithActor(context.Background(), actor))
+	recorder := httptest.NewRecorder()
+	app.NewServerWithAdmin(service).Handler().ServeHTTP(recorder, request)
+	if recorder.Code != http.StatusForbidden {
+		t.Fatalf("admin command status = %d, want %d", recorder.Code, http.StatusForbidden)
+	}
+	if events := operators.Audit(); len(events) != 2 || events[1].Action != "plugin.enable" {
+		t.Fatalf("admin command audit = %#v", events)
+	}
+}
