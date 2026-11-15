@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `f48bead` — 2026-11-15 18:44:07 +0330 — fix function deployment method and source publishing
+  Files: admin-nextjs/.gitignore,admin-nextjs/app/components/admin-chrome.tsx admin-nextjs/app/functions/[name]/page.tsx,admin-nextjs/app/functions/function-editor.tsx admin-nextjs/app/functions/new/page.tsx,admin-nextjs/app/functions/page.tsx admin-nextjs/app/page.tsx,admin-nextjs/app/plugins/[plugin]/page.tsx admin-nextjs/app/styles.css,admin-nextjs/app/workers/page.tsx admin-nextjs/next.config.ts,admin-nextjs/tsconfig.json internal/admin/functions.go,internal/admin/lifecycle.go internal/app/admin.go,internal/app/app.go internal/plugin/plugin.go,plugins/functions/call-route.ts plugins/functions/index.ts,plugins/functions/plugin.yaml tests/admin/functions_test.go,tests/functions/public-call.test.ts
+- `7db93a4` — 2026-11-15 13:51:16 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `fa0fc43` — 2026-11-15 17:21:01 +0330 — persist analytics events in sqlite
   Files: internal/plugin/plugin.go
 - `49424e3` — 2026-11-15 13:50:48 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `68003df` — 2026-11-15 15:03:50 +0330 — expose plugin capability grant state
   Files: admin-nextjs/app/plugins/[plugin]/page.tsx,internal/plugin/plugin.go
 - `08659d6` — 2026-11-15 11:32:59 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `dddbb87` — 2026-11-15 15:02:43 +0330 — run custom functions in bounded vm
-  Files: admin-nextjs/app/page.tsx,internal/admin/functions.go internal/app/admin.go
-- `65a8d46` — 2026-11-15 11:29:35 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
