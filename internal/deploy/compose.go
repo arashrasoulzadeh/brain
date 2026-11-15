@@ -15,7 +15,7 @@ func ValidateComposeConfig(raw []byte) error {
 	if err := yaml.Unmarshal(raw, &document); err != nil {
 		return ErrInvalidComposeConfig
 	}
-	if document.Services["brain"] == nil || document.Services["postgres"] == nil {
+	if len(document.Services["brain"]) == 0 || len(document.Services["postgres"]) == 0 {
 		return ErrInvalidComposeConfig
 	}
 	return nil

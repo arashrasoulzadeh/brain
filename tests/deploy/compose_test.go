@@ -19,4 +19,7 @@ func TestValidateComposeConfigChecksRequiredBackendServices(t *testing.T) {
 	if !errors.Is(deploy.ValidateComposeConfig([]byte("services: {}")), deploy.ErrInvalidComposeConfig) {
 		t.Fatal("incomplete compose config accepted")
 	}
+	if !errors.Is(deploy.ValidateComposeConfig([]byte("services:\n  brain: {}\n  postgres: {}\n")), deploy.ErrInvalidComposeConfig) {
+		t.Fatal("empty required service definitions accepted")
+	}
 }
