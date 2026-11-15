@@ -21,6 +21,7 @@ export class EmailOTPVerifier {
       !challenge ||
       challenge.used ||
       challenge.expiresAt <= now ||
+      challenge.digest.length !== digest.length ||
       !timingSafeEqual(Buffer.from(challenge.digest), Buffer.from(digest))
     )
       return false;

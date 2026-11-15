@@ -12,7 +12,11 @@ export class RecoveryTokenConsumer {
     const record = this.tokens.get(`${projectId}:${destination}`);
     if (!record || record.used || record.expiresAt <= now) return false;
     const digest = createHmac("sha256", this.secret).update(token).digest("hex");
-    if (!timingSafeEqual(Buffer.from(record.digest), Buffer.from(digest))) return false;
+    if (
+      record.digest.length !== digest.length ||
+      !timingSafeEqual(Buffer.from(record.digest), Buffer.from(digest))
+    )
+      return false;
     (record as RecoveryToken).used = true;
     return true;
   }

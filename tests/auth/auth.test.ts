@@ -198,6 +198,13 @@ otpIssuer.issue("project-a", "alice@example.com", "signin", 1000, 300);
 const emailCode = deliveryReader.read("alice@example.com");
 if (!emailCode || !otpVerifier.verify("project-a", "alice@example.com", "signin", emailCode, 1001))
   throw new Error("email OTP failed");
+emailChallenges.set("project-a:malformed@example.com:signin", {
+  digest: "short",
+  expiresAt: 2000,
+  used: false,
+});
+if (otpVerifier.verify("project-a", "malformed@example.com", "signin", "code", 1001))
+  throw new Error("malformed email OTP digest was accepted");
 try {
   otpVerifier.verify("bad/project", "alice@example.com", "signin", emailCode ?? "", 1001);
   throw new Error("email OTP accepted an invalid project identity");
@@ -211,6 +218,13 @@ smsIssuer.issue("project-a", "+989121234567", "signin", 1000, 300);
 const smsCode = deliveryReader.read("+989121234567");
 if (!smsCode || !smsVerifier.verify("project-a", "+989121234567", "signin", smsCode, 1001))
   throw new Error("SMS OTP failed");
+smsChallenges.set("project-a:+989100000000:signin", {
+  digest: "short",
+  expiresAt: 2000,
+  used: false,
+});
+if (smsVerifier.verify("project-a", "+989100000000", "signin", "code", 1001))
+  throw new Error("malformed SMS OTP digest was accepted");
 try {
   smsVerifier.verify("bad/project", "+989121234567", "signin", smsCode ?? "", 1001);
   throw new Error("SMS OTP accepted an invalid project identity");
@@ -239,6 +253,13 @@ recoveryIssuer.issue("project-a", "alice@example.com", 1000, 60);
 const recoveryCode = deliveryReader.read("alice@example.com");
 if (!recoveryConsumer.consume("project-a", "alice@example.com", recoveryCode ?? "", 1001))
   throw new Error("email recovery failed");
+recoveryMap.set("project-a:malformed@example.com", {
+  digest: "short",
+  expiresAt: 2000,
+  used: false,
+});
+if (recoveryConsumer.consume("project-a", "malformed@example.com", "token", 1001))
+  throw new Error("malformed recovery digest was accepted");
 try {
   recoveryConsumer.consume("bad/project", "alice@example.com", recoveryCode ?? "", 1001);
   throw new Error("recovery token accepted an invalid project identity");
