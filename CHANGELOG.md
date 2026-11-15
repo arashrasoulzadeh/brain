@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `dddbb87` — 2026-11-15 15:02:43 +0330 — run custom functions in bounded vm
+  Files: admin-nextjs/app/page.tsx,internal/admin/functions.go internal/app/admin.go
+- `65a8d46` — 2026-11-15 11:29:35 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `a11cb82` — 2026-11-15 14:59:20 +0330 — limit custom function draft inputs
   Files: internal/admin/functions.go
 - `ec22cd3` — 2026-11-15 11:29:09 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `0ff5867` — 2026-11-15 13:46:16 +0330 — restore selected project across admin pages
   Files: admin-nextjs/app/page.tsx
-- `0504d80` — 2026-11-15 10:15:42 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `7937f78` — 2026-11-15 13:45:22 +0330 — remove admin workspace width cap
-  Files: admin-nextjs/app/styles.css
