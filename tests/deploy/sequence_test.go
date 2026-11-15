@@ -45,6 +45,12 @@ func TestPauseAssignmentsForDeploymentCallsHostContract(t *testing.T) {
 	}
 }
 
+func TestPauseAssignmentsForDeploymentRejectsMalformedProject(t *testing.T) {
+	if err := deploy.PauseAssignmentsForDeployment(&recordingAssignmentPauser{}, "dev:other"); !errors.Is(err, deploy.ErrProjectIDRequired) {
+		t.Fatalf("malformed project was accepted: %v", err)
+	}
+}
+
 type recordingAssignmentPauser struct {
 	projectID string
 }

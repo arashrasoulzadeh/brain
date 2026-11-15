@@ -1,6 +1,9 @@
 package deploy
 
-import "errors"
+import (
+	"errors"
+	"regexp"
+)
 
 type DeploymentStep string
 
@@ -19,6 +22,8 @@ var (
 	ErrProjectIDRequired      = errors.New("project ID required")
 )
 
+var deploymentProjectID = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9_-]*$`)
+
 type AssignmentPauser interface {
 	PauseAssignments(projectID string) error
 }
@@ -27,7 +32,7 @@ func PauseAssignmentsForDeployment(pauser AssignmentPauser, projectID string) er
 	if pauser == nil {
 		return ErrDeploymentOrder
 	}
-	if projectID == "" {
+	if !deploymentProjectID.MatchString(projectID) {
 		return ErrProjectIDRequired
 	}
 	return pauser.PauseAssignments(projectID)
