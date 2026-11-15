@@ -3,6 +3,7 @@ package plugin_test
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"brain/internal/plugin"
@@ -30,6 +31,18 @@ func TestEveryPluginManifestAuthorizesItsSources(t *testing.T) {
 		}
 		if err := plugin.ValidatePluginSources(pluginDirectory, manifest); err != nil {
 			t.Errorf("plugin %q sources: %v", entry.Name(), err)
+		}
+		if strings.TrimSpace(manifest.Title) == "" || strings.TrimSpace(manifest.Description) == "" {
+			t.Errorf("plugin %q must declare title and description", entry.Name())
+		}
+		capabilities := map[string]bool{}
+		for _, capability := range manifest.Capabilities {
+			capabilities[capability] = true
+		}
+		for _, route := range manifest.Routes {
+			if !capabilities[route.Capability] {
+				t.Errorf("plugin %q route %q lacks declared capability %q", entry.Name(), route.Operation, route.Capability)
+			}
 		}
 	}
 }
