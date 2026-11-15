@@ -52,6 +52,31 @@ func (s *LifecycleService) InstallPlugin(actor operator.Actor, projectID, plugin
 	})
 }
 
+type AuditRecord struct {
+	Source    string `json:"source"`
+	Action    string `json:"action"`
+	ActorID   string `json:"actor_id,omitempty"`
+	ProjectID string `json:"project_id,omitempty"`
+	PluginID  string `json:"plugin_id,omitempty"`
+	Version   string `json:"version,omitempty"`
+	Success   bool   `json:"success"`
+	Detail    string `json:"detail,omitempty"`
+}
+
+func (s *LifecycleService) AuditRecords(actor operator.Actor) ([]AuditRecord, error) {
+	if actor.Kind != operator.ActorOperator || s.operators == nil || s.registry == nil {
+		return nil, operator.ErrInvalidOperatorAction
+	}
+	records := make([]AuditRecord, 0)
+	for _, event := range s.operators.Audit() {
+		records = append(records, AuditRecord{Source: "operator", Action: event.Action, ActorID: event.ActorID, Success: event.Success, Detail: event.Detail})
+	}
+	for _, event := range s.registry.Audit() {
+		records = append(records, AuditRecord{Source: "plugin", Action: event.Action, ProjectID: event.ProjectID, PluginID: event.PluginID, Version: event.Version, Success: true, Detail: event.Detail})
+	}
+	return records, nil
+}
+
 func (s *LifecycleService) GrantCapability(actor operator.Actor, projectID, pluginID, version, capability string) error {
 	return s.execute(actor, "plugin.grant", func() error {
 		return s.registry.Grant(projectID, pluginID, version, capability)
