@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `df4bb08` — 2026-11-15 12:19:16 +0330 — enforce canonical plugin project identities
+  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
+- `5b07349` — 2026-11-15 08:47:37 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `02710a4` — 2026-11-15 12:17:22 +0330 — mount audited admin server boundary
   Files: internal/app/app.go,tests/app/admin_test.go
 - `41894f7` — 2026-11-15 08:47:04 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `62ef061` — 2026-11-15 02:25:32 +0330 — bound analytics event values
   Files: plugins/analytics/validate-event.ts,tests/analytics/analytics.test.ts
 - `6a378b8` — 2026-11-14 22:55:13 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `0c9c4a6` — 2026-11-15 02:24:58 +0330 — validate table authorization boundaries
-  Files: plugins/tables/row-policy-checker.ts,plugins/tables/row-policy-granter.ts plugins/tables/scoped-transaction-change-reader.ts,plugins/tables/scoped-transaction-change-writer.ts plugins/tables/table-exposure-reader.ts,tests/tables/tables.test.ts
-- `fd6ec24` — 2026-11-14 22:54:18 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
