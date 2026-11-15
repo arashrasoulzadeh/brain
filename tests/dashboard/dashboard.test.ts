@@ -1,5 +1,6 @@
 import {
   adminRequest,
+  adminPanel,
   FormAuditRecorder,
   FormAuditReader,
   authSettingsPage,
@@ -31,6 +32,8 @@ import {
 import { createHostHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = projectCreateRequest("dashboard", "0.1.0", "dev");
+if (adminPanel("dev").sections.length !== 7 || !adminPanel("dev").destructiveConfirmationRequired)
+  throw new Error("admin panel model is incomplete");
 if (request.params.pluginId !== "dashboard" || request.params.operation !== "project.create") {
   throw new Error("dashboard TypeScript plugin contract failed");
 }

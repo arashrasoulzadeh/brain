@@ -1,4 +1,6 @@
 export { adminRequest } from "./admin-request.js";
+export { adminPanel } from "./admin-panel.js";
+export type { AdminPanelSection } from "./admin-panel.js";
 export { FormAuditRecorder } from "./form-audit-recorder.js";
 export { FormAuditReader } from "./form-audit-reader.js";
 export { browserQuickstart } from "./browser-quickstart.js";

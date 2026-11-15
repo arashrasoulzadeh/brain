@@ -9,6 +9,7 @@ source_files:
   - types.ts
   - project-request.ts
   - admin-request.ts
+  - admin-panel.ts
   - auth-settings-page.ts
   - signup-settings-page.ts
   - record-browser-page.ts
@@ -35,6 +36,7 @@ imports:
   - ../sdk-typescript/src/index.js
   - ../sdk-typescript/src/validate-project-id.js
   - ./admin-request.js
+  - ./admin-panel.js
   - ./form-audit-recorder.js
   - ./form-audit-reader.js
   - ./auth-settings-page.js
