@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 type AdminSidebarProps = { activePage: string; projectID?: string; onSignOut?: () => void; title?: string; visiblePages?: string[] };
 
@@ -35,6 +36,32 @@ export function AdminFooter() {
   return <footer className="admin-footer">Brain Control Plane · Local administration</footer>;
 }
 
-export function AdminPageFrame({ activePage, title, eyebrow, projectID, onSignOut, children }: { activePage: string; title: string; eyebrow?: string; projectID?: string; onSignOut?: () => void; children: ReactNode }) {
+export function AdminPageFrame({ activePage, title, eyebrow, projectID, onSignOut, requiredPluginID, children }: { activePage: string; title: string; eyebrow?: string; projectID?: string; onSignOut?: () => void; requiredPluginID?: string; children: ReactNode }) {
+  const router = useRouter();
+  const [access, setAccess] = useState(requiredPluginID ? "checking" : "allowed");
+  useEffect(() => {
+    if (!requiredPluginID) return;
+    const token = window.sessionStorage.getItem("brain-admin-session") ?? "";
+    if (!token) {
+      router.replace("/");
+      return;
+    }
+    void fetch("/api/admin/projects", { headers: { authorization: `Bearer ${token}` } }).then(async (projectsResponse) => {
+      if (!projectsResponse.ok) throw new Error("session expired");
+      const projects = await projectsResponse.json() as Array<{ ID: string; Active: boolean }>;
+      const activeProject = projects.find((project) => project.Active)?.ID;
+      if (!activeProject) throw new Error("no active project");
+      const pluginsResponse = await fetch(`/api/admin/plugins?project_id=${encodeURIComponent(activeProject)}`, { headers: { authorization: `Bearer ${token}` } });
+      if (!pluginsResponse.ok) throw new Error("plugin access unavailable");
+      const payload = await pluginsResponse.json() as { installations: Array<{ PluginID: string; Enabled: boolean; Ready: boolean }> };
+      const active = payload.installations.some((installation) => installation.PluginID === requiredPluginID && installation.Enabled && installation.Ready);
+      if (!active) {
+        router.replace("/");
+        return;
+      }
+      setAccess("allowed");
+    }).catch(() => router.replace("/"));
+  }, [requiredPluginID, router]);
+  if (access !== "allowed") return <main className="shell"><section className="card"><p className="muted">Checking page access…</p></section></main>;
   return <main className="shell"><div className="workspace"><AdminSidebar activePage={activePage} projectID={projectID} onSignOut={onSignOut} /><section className="card admin-content"><AdminHeader title={title} eyebrow={eyebrow} />{children}<AdminFooter /></section></div></main>;
 }

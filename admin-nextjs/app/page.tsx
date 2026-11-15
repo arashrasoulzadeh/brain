@@ -191,6 +191,8 @@ export default function AdminPage() {
   const text = copy[language];
   const pageTitle = ({ projects: text.projects, plugins: text.plugins, system: text.system, audit: text.audit, database: text.database, functions: text.functions, workflows: text.workflows, files: text.files, "live-sessions": text.liveSessions, routes: text.routesPage, monitoring: text.monitoring, workers: text.workers } as Record<string, string>)[activePage] ?? text.projects;
   const activePluginIDs = new Set(installations.filter((installation) => installation.Enabled && installation.Ready).map((installation) => installation.PluginID));
+  const requiredPlugin = ({ system: "dashboard", database: "tables", functions: "functions", workflows: "functions", files: "files", "live-sessions": "rooms" } as Record<string, string | undefined>)[activePage];
+  const pageRequiresAnyPlugin = ["routes", "monitoring", "workers"].includes(activePage);
   useEffect(() => {
     if (!session) return;
     const refresh = () => Promise.all([loadProjects(session), loadPlugins(session, selectedProjectID), loadAudit(session), loadSystem(session), loadFunctionDrafts(session, selectedProjectID)]).catch(() => undefined);
@@ -486,6 +488,8 @@ export default function AdminPage() {
         </section>
       </main>
     );
+  if ((requiredPlugin && !activePluginIDs.has(requiredPlugin)) || (pageRequiresAnyPlugin && activePluginIDs.size === 0))
+    return <main className="shell" dir={language === "fa" ? "rtl" : "ltr"}><section className="card"><AdminHeader title={pageTitle} eyebrow={text.eyebrow} /><p className="error">This page is unavailable until its plugin is ready and enabled.</p><Link href="/plugins">Open Plugins to enable it</Link><AdminFooter /></section></main>;
   return (
     <main className="shell" dir={language === "fa" ? "rtl" : "ltr"}>
       <div className="workspace">
