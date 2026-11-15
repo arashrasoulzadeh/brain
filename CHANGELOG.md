@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `b7571e2` — 2026-11-15 12:30:54 +0330 — complete plugin security audit gate
+  Files: roadmap_backend.md
+- `c451bc2` — 2026-11-15 09:00:26 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `f49fd18` — 2026-11-15 12:30:13 +0330 — record compose rehearsal gate
   Files: roadmap_backend.md
 - `11b7521` — 2026-11-15 09:00:02 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `57ee8e1` — 2026-11-15 12:10:07 +0330 — reject compose host isolation bypasses
   Files: internal/deploy/compose.go,tests/deploy/compose_test.go
 - `7054dcd` — 2026-11-15 08:39:45 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `427e5fa` — 2026-11-15 12:09:31 +0330 — validate backup age timestamps
-  Files: scripts/check-backup-age.sh,tests/deploy/postgres_backup_verify_test.go
-- `ae7a3c0` — 2026-11-15 08:38:53 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
