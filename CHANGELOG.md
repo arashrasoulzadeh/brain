@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `4ba054c` — 2026-11-15 19:04:00 +0330 — finish shared admin shell across all pages
+  Files: admin-nextjs/app/components/admin-chrome.tsx,admin-nextjs/app/functions/new/page.tsx admin-nextjs/app/functions/page.tsx,admin-nextjs/app/plugins/[plugin]/page.tsx admin-nextjs/app/workers/page.tsx,admin-nextjs/app/workflows/page.tsx
+- `9e392cc` — 2026-11-15 15:27:42 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `86f77a3` — 2026-11-15 18:57:17 +0330 — return json for every api response
   Files: internal/app/api_response.go
 - `a512f26` — 2026-11-15 18:55:52 +0330 — make cross-cutting changes project-wide law
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `da82034` — 2026-11-15 17:00:29 +0330 — bind local workers when plugins enable
   Files: cmd/brain/main.go,internal/plugin/plugin.go internal/plugin/typescript_worker.go,scripts/typescript-worker.mjs
 - `a94e65b` — 2026-11-15 13:28:48 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `dd18ac1` — 2026-11-15 16:58:27 +0330 — execute playground requests through host
-  Files: admin-nextjs/app/page.tsx,internal/admin/lifecycle.go internal/app/admin.go,internal/plugin/plugin.go scripts/typescript-worker.mjs,tests/plugin/registry_invoke_test.go
-- `65153c6` — 2026-11-15 13:25:05 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
