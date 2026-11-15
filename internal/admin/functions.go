@@ -32,6 +32,11 @@ func (s *LifecycleService) CreateFunctionDraft(actor operator.Actor, projectID, 
 	if actor.Kind != operator.ActorOperator || strings.TrimSpace(projectID) == "" || strings.TrimSpace(name) == "" || strings.TrimSpace(source) == "" {
 		return FunctionDraft{}, ErrFunctionDraftInvalid
 	}
+	if s.projects != nil {
+		if _, err := s.projects.Resolve(projectID); err != nil {
+			return FunctionDraft{}, err
+		}
+	}
 	draft := FunctionDraft{ProjectID: projectID, Name: strings.TrimSpace(name), Source: source, CreatedAt: time.Now().UTC()}
 	functionDrafts.Lock()
 	functionDrafts.items[projectID+":"+draft.Name] = draft
@@ -42,6 +47,11 @@ func (s *LifecycleService) CreateFunctionDraft(actor operator.Actor, projectID, 
 func (s *LifecycleService) ListFunctionDrafts(actor operator.Actor, projectID string) ([]FunctionDraft, error) {
 	if actor.Kind != operator.ActorOperator || strings.TrimSpace(projectID) == "" {
 		return nil, ErrFunctionDraftInvalid
+	}
+	if s.projects != nil {
+		if _, err := s.projects.Resolve(projectID); err != nil {
+			return nil, err
+		}
 	}
 	functionDrafts.RLock()
 	defer functionDrafts.RUnlock()
@@ -57,6 +67,11 @@ func (s *LifecycleService) ListFunctionDrafts(actor operator.Actor, projectID st
 func (s *LifecycleService) TestFunctionDraft(actor operator.Actor, projectID, name, source string) (map[string]any, error) {
 	if actor.Kind != operator.ActorOperator || strings.TrimSpace(projectID) == "" || strings.TrimSpace(name) == "" || strings.TrimSpace(source) == "" {
 		return nil, ErrFunctionDraftInvalid
+	}
+	if s.projects != nil {
+		if _, err := s.projects.Resolve(projectID); err != nil {
+			return nil, err
+		}
 	}
 	if !functionExportPattern.MatchString(source) || functionUnsafePattern.MatchString(source) {
 		return nil, ErrFunctionSourceInvalid
