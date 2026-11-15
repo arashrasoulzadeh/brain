@@ -232,6 +232,10 @@ func AdminHandler(service *admin.LifecycleService) http.Handler {
 		switch command.Operation {
 		case "project.create":
 			err = service.CreateProject(actor, command.ProjectID)
+		case "project.activate":
+			err = service.SetProjectActive(actor, command.ProjectID, true)
+		case "project.deactivate":
+			err = service.SetProjectActive(actor, command.ProjectID, false)
 		case "plugin.install":
 			err = service.InstallPlugin(actor, command.ProjectID, command.PluginID, command.Version)
 		case "plugin.readiness":
@@ -291,7 +295,7 @@ func AdminHandler(service *admin.LifecycleService) http.Handler {
 
 func requiresAdminConfirmation(operation string) bool {
 	switch operation {
-	case "plugin.remove", "plugin.revoke", "plugin.stop-immediate", "plugin.stop", "plugin.rollback", "plugin.disable.apply", "project.uninstall", "durable-data.delete":
+	case "plugin.remove", "plugin.revoke", "plugin.stop-immediate", "plugin.stop", "plugin.rollback", "plugin.disable.apply", "project.deactivate", "project.uninstall", "durable-data.delete":
 		return true
 	default:
 		return false

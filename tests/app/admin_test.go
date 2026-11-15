@@ -69,7 +69,7 @@ func TestAdminHandlerRecognizesLifecycleOperations(t *testing.T) {
 	actor := operator.Actor{ID: "admin", Kind: operator.ActorOperator}
 	for _, operation := range []string{
 		"plugin.revoke", "plugin.promote", "plugin.drain", "plugin.stop-immediate",
-		"plugin.recover", "plugin.resume", "plugin.stop", "plugin.rollback", "plugin.disable.preview", "plugin.disable.apply", "project.uninstall", "durable-data.delete",
+		"project.activate", "project.deactivate", "plugin.recover", "plugin.resume", "plugin.stop", "plugin.rollback", "plugin.disable.preview", "plugin.disable.apply", "project.uninstall", "durable-data.delete",
 	} {
 		request := httptest.NewRequest(http.MethodPost, "/admin/actions", strings.NewReader(`{"operation":"`+operation+`","project_id":"dev","plugin_id":"rooms","version":"1.0.0","key":"state","confirmed":true}`))
 		request = request.WithContext(operator.WithActor(context.Background(), actor))

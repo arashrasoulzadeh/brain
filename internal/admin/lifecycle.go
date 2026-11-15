@@ -39,6 +39,15 @@ func (s *LifecycleService) ListProjects(actor operator.Actor) ([]project.Project
 	return s.projects.List(), nil
 }
 
+func (s *LifecycleService) SetProjectActive(actor operator.Actor, projectID string, active bool) error {
+	return s.execute(actor, "project.active", func() error {
+		if s.projects == nil {
+			return operator.ErrInvalidOperatorAction
+		}
+		return s.projects.SetActive(projectID, active)
+	})
+}
+
 func (s *LifecycleService) ListPlugins(actor operator.Actor, projectID string) ([]plugin.Manifest, []plugin.InstallationStatus, error) {
 	if actor.Kind != operator.ActorOperator || s.registry == nil {
 		return nil, nil, operator.ErrInvalidOperatorAction

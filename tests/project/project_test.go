@@ -42,6 +42,22 @@ func TestResolveRejectsInactiveProject(t *testing.T) {
 	}
 }
 
+func TestSetActiveChangesProjectStatus(t *testing.T) {
+	store := project.NewStore(project.Project{ID: "dev", Active: true})
+	if err := store.SetActive("dev", false); err != nil {
+		t.Fatal(err)
+	}
+	if got := store.List()[0].Active; got {
+		t.Fatal("project remained active")
+	}
+	if err := store.SetActive("dev", true); err != nil {
+		t.Fatal(err)
+	}
+	if got := store.List()[0].Active; !got {
+		t.Fatal("project remained inactive")
+	}
+}
+
 func TestStoreSupportsConcurrentProjectAccess(t *testing.T) {
 	store := project.NewStore()
 	var group sync.WaitGroup

@@ -83,3 +83,18 @@ func (s *Store) List() []Project {
 	sort.Slice(projects, func(left, right int) bool { return projects[left].ID < projects[right].ID })
 	return projects
 }
+
+func (s *Store) SetActive(id string, active bool) error {
+	if err := ValidateID(id); err != nil {
+		return err
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	project, ok := s.projects[id]
+	if !ok {
+		return ErrNotFound
+	}
+	project.Active = active
+	s.projects[id] = project
+	return nil
+}

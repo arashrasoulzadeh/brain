@@ -3,7 +3,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 type Project = { ID: string; Active: boolean };
 type PluginManifest = { ID: string; Title: string; Description: string; Version: string; Capabilities: string[]; ConfigSchema?: Record<string, string> };
-type PluginStatus = { PluginID: string; Version: string; Enabled: boolean; Ready: boolean; Draining: boolean };
+type PluginStatus = { ProjectID: string; PluginID: string; Version: string; Enabled: boolean; Ready: boolean; Draining: boolean };
 type AuditRecord = { source: string; action: string; actor_id?: string; project_id?: string; plugin_id?: string; version?: string; success: boolean; detail?: string };
 type SystemManifest = PluginManifest & { Routes: { Operation: string; Capability: string }[]; ExtensionPoints: string[]; SourceFiles: string[]; Imports: string[]; PluginImports: string[]; Dependencies: string[] };
 type Language = "en" | "fa";
@@ -40,6 +40,8 @@ const copy = {
     navigation: "Admin navigation",
     project: "Project",
     uninstall: "Uninstall",
+    activate: "Activate",
+    deactivate: "Deactivate",
     enable: "Enable",
     grant: "Grant first capability",
     grantCapability: "Grant",
@@ -96,6 +98,8 @@ const copy = {
     navigation: "ناوبری مدیریت",
     project: "پروژه",
     uninstall: "حذف پروژه",
+    activate: "فعال‌سازی",
+    deactivate: "غیرفعال‌سازی",
     enable: "فعال‌سازی",
     grant: "اعطای اولین دسترسی",
     grantCapability: "اعطا",
@@ -226,6 +230,14 @@ export default function AdminPage() {
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Could not create project");
     }
+  }
+  async function setProjectActive(project: Project, active: boolean) {
+    if (!active && !window.confirm(`${text.deactivate} ${project.ID}?`)) return;
+    const response = await fetch("/api/admin/actions", { method: "POST", headers: { authorization: `Bearer ${session}`, "content-type": "application/json" }, body: JSON.stringify({ operation: active ? "project.activate" : "project.deactivate", project_id: project.ID, confirmed: !active }) });
+    if (!response.ok) { setError(await response.text()); return; }
+    const loadedProjects = await loadProjects(session);
+    if (selectedProjectID === project.ID && !active) setSelectedProjectID(loadedProjects.find((candidate) => candidate.Active)?.ID ?? "");
+    await loadPlugins(session, active ? project.ID : ""); await loadAudit(session);
   }
   async function installPlugin(manifest: PluginManifest) {
     setError("");
@@ -358,23 +370,15 @@ export default function AdminPage() {
         </form>
         {error && <p className="error">{error}</p>}
         <div className={activePage === "projects" ? "" : "page-hidden"}>
-          {projects.length ? (
-            projects.map((project) => (
-              <div className="project" key={project.ID}>
-                <span>{project.ID}</span>
-                <span className="project-actions"><small>{project.Active ? text.active : text.inactive}</small>{project.Active && <button className="danger" onClick={() => uninstallProject(project)}>{text.uninstall}</button>}</span>
-              </div>
-            ))
-          ) : (
-            <p className="muted">{text.empty}</p>
-          )}
+          {projects.length ? <div className="project-table"><div className="project-table-head"><span>{text.project}</span><span>{text.active}</span><span>{text.plugins}</span><span>{text.navigation}</span></div>{projects.map((project) => <div className="project-table-row" key={project.ID}><strong>{project.ID}</strong><span className={project.Active ? "success" : "failure"}>{project.Active ? text.active : text.inactive}</span><span>{installations.filter((installation) => installation.ProjectID === project.ID).length}</span><span className="project-actions">{project.Active ? <button className="secondary" onClick={() => void setProjectActive(project, false)}>{text.deactivate}</button> : <button onClick={() => void setProjectActive(project, true)}>{text.activate}</button>}{project.Active && <button className="danger" onClick={() => uninstallProject(project)}>{text.uninstall}</button>}</span></div>)}</div> : <p className="muted">{text.empty}</p>}
         </div>
-        <section className={`section ${activePage !== "projects" ? "page-hidden" : ""}`} id="projects">
+        <section className="section page-hidden" id="projects">
           <div className="section-heading"><div><p className="eyebrow">{text.plugins}</p><h2>{text.registered}</h2></div><span className="count">{manifests.length}</span></div>
           <input className="plugin-search" placeholder={text.search} value={pluginFilter} onChange={(event) => setPluginFilter(event.target.value)} />
           <div className="plugin-grid">{manifests.filter((manifest) => `${manifest.ID} ${manifest.Title} ${manifest.Description}`.toLowerCase().includes(pluginFilter.toLowerCase())).length ? manifests.filter((manifest) => `${manifest.ID} ${manifest.Title} ${manifest.Description}`.toLowerCase().includes(pluginFilter.toLowerCase())).map((manifest) => { const installed = installations.some((item) => item.PluginID === manifest.ID && item.Version === manifest.Version); return <article className="plugin" key={`${manifest.ID}@${manifest.Version}`}><div><h3>{manifest.Title || manifest.ID}</h3><p className="muted">{manifest.Description}</p></div><small>{manifest.ID}@{manifest.Version}</small><div className="capabilities">{manifest.Capabilities?.map((capability) => <span key={capability}>{capability}</span>)}</div><button className="plugin-action" disabled={installed} onClick={() => installPlugin(manifest)}>{installed ? text.installedLabel : text.install}</button></article>; }) : <p className="muted">{text.empty}</p>}</div>
         </section>
         <section className={`section ${activePage !== "plugins" ? "page-hidden" : ""}`} id="plugins"><div className="section-heading"><div><p className="eyebrow">{text.plugins}</p><h2>{text.installed}</h2></div><span className="count">{installations.length}</span></div><div>{installations.map((installation) => { const manifest = manifests.find((candidate) => candidate.ID === installation.PluginID && candidate.Version === installation.Version); const can = (capability: string) => manifest?.Capabilities?.includes(capability) ?? false; const key = `${installation.PluginID}@${installation.Version}`; return <div className="project lifecycle-row" key={key}><span>{installation.PluginID}@{installation.Version}<small>{installation.Enabled ? text.enabled : text.disabled} · {installation.Ready ? text.ready : text.notReady}</small>{manifest?.ConfigSchema && Object.entries(manifest.ConfigSchema).map(([name, type]) => <label key={name}>{name}<input type={type === "int" ? "number" : type === "bool" ? "checkbox" : "text"} checked={type === "bool" ? Boolean(configuration[key]?.[name]) : undefined} value={type === "bool" ? undefined : String(configuration[key]?.[name] ?? "")} onChange={(event) => setConfiguration((current) => ({ ...current, [key]: { ...current[key], [name]: type === "bool" ? event.target.checked : event.target.value } }))} /></label>)}{manifest?.ConfigSchema && <button onClick={() => configurePlugin(installation)}>{text.configure}</button>}<small>{manifest?.Capabilities?.map((capability) => <span className="capability-action" key={capability}><code>{capability}</code>{can("plugin.grant") && <button onClick={() => runPluginAction("plugin.grant", installation, capability)}>{text.grantCapability}</button>}{can("plugin.grant") && <button onClick={() => runPluginAction("plugin.revoke", installation, capability)}>{text.revokeCapability}</button>}</span>)}</small></span><span className="lifecycle-actions">{!installation.Ready && can("plugin.readiness") && <button onClick={() => runPluginAction("plugin.readiness", installation)}>{text.markReady}</button>}{!installation.Enabled && can("plugin.enable") && <button onClick={() => runPluginAction("plugin.enable", installation)}>{text.enable}</button>}{installation.Enabled && can("plugin.promote") && <button onClick={() => runPluginAction("plugin.promote", installation)}>{text.promote}</button>}{can("plugin.disable") && <button onClick={() => disablePlugin(installation)}>{text.disable}</button>}{can("plugin.lifecycle") && <button onClick={() => runPluginAction("plugin.drain", installation)}>{text.drain}</button>}{can("plugin.lifecycle") && <button onClick={() => runPluginAction("plugin.resume", installation)}>{text.resume}</button>}{can("plugin.lifecycle") && <button onClick={() => runPluginAction("plugin.stop", installation)}>{text.stop}</button>}{can("plugin.lifecycle") && <button onClick={() => runPluginAction("plugin.recover", installation)}>{text.recover}</button>}{can("plugin.rollback") && <button onClick={() => runPluginAction("plugin.rollback", installation)}>{text.rollback}</button>}{can("plugin.uninstall") && <button className="danger" onClick={() => runPluginAction("plugin.remove", installation)}>{text.remove}</button>}</span></div>; })}</div></section>
+        <section className={`section ${activePage !== "plugins" ? "page-hidden" : ""}`}><div className="section-heading"><div><p className="eyebrow">{text.plugins}</p><h2>{text.registered}</h2></div><span className="count">{manifests.length}</span></div><input className="plugin-search" placeholder={text.search} value={pluginFilter} onChange={(event) => setPluginFilter(event.target.value)} /><div className="plugin-grid">{manifests.filter((manifest) => `${manifest.ID} ${manifest.Title} ${manifest.Description}`.toLowerCase().includes(pluginFilter.toLowerCase())).map((manifest) => { const installed = installations.some((item) => item.PluginID === manifest.ID && item.Version === manifest.Version); return <article className="plugin" key={`catalog-${manifest.ID}@${manifest.Version}`}><div><h3>{manifest.Title || manifest.ID}</h3><p className="muted">{manifest.Description}</p></div><small>{manifest.ID}@{manifest.Version}</small><div className="capabilities">{manifest.Capabilities?.map((capability) => <span key={capability}>{capability}</span>)}</div><button className="plugin-action" disabled={installed} onClick={() => installPlugin(manifest)}>{installed ? text.installedLabel : text.install}</button></article>; })}</div></section>
         <section className={`section ${activePage !== "audit" ? "page-hidden" : ""}`} id="audit"><div className="section-heading"><div><p className="eyebrow">{text.audit}</p><h2>{text.audit}</h2></div><span className="count">{audit.length}</span></div><input className="plugin-search" placeholder={text.searchAudit} value={auditFilter} onChange={(event) => setAuditFilter(event.target.value)} /><div className="audit-list">{audit.length ? audit.slice().reverse().filter((record) => `${record.action} ${record.source} ${record.project_id ?? ""} ${record.plugin_id ?? ""} ${record.detail ?? ""}`.toLowerCase().includes(auditFilter.toLowerCase())).map((record, index) => <div className="audit" key={`${record.action}-${index}`}><span className={record.success ? "success" : "failure"}>{record.success ? "✓" : "!"}</span><div><strong>{record.action}</strong><small>{record.source}{record.plugin_id ? ` · ${record.plugin_id}@${record.version}` : ""}{record.project_id ? ` · ${record.project_id}` : ""}</small></div></div>) : <p className="muted">{text.noAudit}</p>}</div></section>
         <section className={`section ${activePage !== "system" ? "page-hidden" : ""}`} id="system"><div className="section-heading"><div><p className="eyebrow">{text.system}</p><h2>{text.system}</h2></div><span className="count">{system.length}</span></div><div className="plugin-grid">{system.map((manifest) => <article className="plugin" key={`system-${manifest.ID}@${manifest.Version}`}><h3>{manifest.Title || manifest.ID}</h3><p className="muted">{manifest.Description}</p><small>{manifest.Routes?.length ?? 0} {text.routes} · {manifest.ExtensionPoints?.length ?? 0} {text.extensions} · {manifest.SourceFiles?.length ?? 0} {text.files}</small><div className="capabilities">{manifest.Capabilities?.map((capability) => <span key={capability}>{capability}</span>)}</div><div className="route-list">{manifest.Routes?.map((route) => <div key={route.Operation}><code>{route.Operation}</code><small>{route.Capability}</small></div>)}</div><details><summary>{text.files} / {text.imports} / {text.dependencies}</summary><small>{manifest.SourceFiles?.join(" · ")}</small><small>{manifest.Imports?.join(" · ")}</small><small>{[...(manifest.Dependencies ?? []), ...(manifest.PluginImports ?? [])].join(" · ") || "—"}</small></details></article>)}</div></section>
         <section className={`section ${activePage !== "database" ? "page-hidden" : ""}`}><div className="section-heading"><div><p className="eyebrow">{text.database}</p><h2>{text.database}</h2></div></div><div className="plugin-grid">{system.filter((manifest) => manifest.ID === "tables").map((manifest) => <article className="plugin" key={`database-${manifest.ID}`}><h3>{manifest.Title}</h3><p className="muted">{manifest.Description}</p><div className="route-list">{manifest.Routes?.map((route) => <div key={route.Operation}><code>{route.Operation}</code><small>{route.Capability}</small></div>)}</div></article>)}</div></section>
