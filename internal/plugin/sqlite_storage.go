@@ -13,6 +13,11 @@ var ErrStorageTableRequired = errors.New("storage table required")
 
 type SQLiteStorage struct{ db *sql.DB }
 
+type persistedRegistryState struct {
+	Installations map[string]Installation `json:"installations"`
+	Readiness     map[string]bool         `json:"readiness"`
+}
+
 func OpenSQLiteStorage(path string) (*SQLiteStorage, error) {
 	db, err := sql.Open("sqlite", path)
 	if err != nil {
@@ -23,6 +28,26 @@ func OpenSQLiteStorage(path string) (*SQLiteStorage, error) {
 		return nil, err
 	}
 	return &SQLiteStorage{db: db}, nil
+}
+
+func (s *SQLiteStorage) SaveRegistryState(installations map[string]Installation, readiness map[string]bool) error {
+	return s.PutState("", "registry", "lifecycle", map[string]any{"installations": installations, "readiness": readiness})
+}
+
+func (s *SQLiteStorage) LoadRegistryState() (map[string]Installation, map[string]bool, error) {
+	value, err := s.State("", "registry", "lifecycle")
+	if err != nil || value == nil {
+		return map[string]Installation{}, map[string]bool{}, err
+	}
+	encoded, err := json.Marshal(value)
+	if err != nil {
+		return nil, nil, err
+	}
+	var state persistedRegistryState
+	if err := json.Unmarshal(encoded, &state); err != nil {
+		return nil, nil, err
+	}
+	return state.Installations, state.Readiness, nil
 }
 
 func (s *SQLiteStorage) PutState(projectID, namespace, key string, value map[string]any) error {

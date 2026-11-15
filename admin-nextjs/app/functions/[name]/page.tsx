@@ -2,12 +2,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import {
-  AdminFooter,
-  AdminHeader,
-  AdminPageFrame,
-  AdminSidebar,
-} from "../../components/admin-chrome";
+import { AdminPageFrame } from "../../components/admin-chrome";
 import { FunctionEditor } from "../function-editor";
 type Draft = {
   project_id: string;
@@ -214,12 +209,8 @@ export default function FunctionDetailPage() {
     ? Math.round(logs.reduce((sum, log) => sum + log.duration_ms, 0) / logs.length)
     : 0;
   return (
-    <main className="shell">
-      <div className="workspace">
-        <AdminSidebar activePage="functions" projectID={project} />
-        <section className="card admin-content">
+    <AdminPageFrame activePage="functions" title={draft.name} projectID={project} requiredPluginID="functions">
           <div className="section-heading">
-            <AdminHeader title={draft.name} />
             <Link href="/functions">Back to functions</Link>
           </div>
           <div className="function-tabs">
@@ -400,9 +391,6 @@ export default function FunctionDetailPage() {
               {!logs.length && <p className="muted">No request logs recorded yet.</p>}
             </div>
           )}
-          <AdminFooter />
-        </section>
-      </div>
-    </main>
+    </AdminPageFrame>
   );
 }

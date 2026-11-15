@@ -300,6 +300,31 @@ func (r *Registry) BindSQLiteStorage(storage *SQLiteStorage) {
 	r.workerMu.Lock()
 	defer r.workerMu.Unlock()
 	r.storage = storage
+	installations, readiness, err := storage.LoadRegistryState()
+	if err != nil {
+		return
+	}
+	r.installationMu.Lock()
+	r.readinessMu.Lock()
+	for key, installation := range installations {
+		if _, registered := r.registered[installation.PluginID+"@"+installation.Version]; registered {
+			r.installations[key] = installation
+		}
+	}
+	for key, ready := range readiness {
+		if _, registered := r.registered[key]; registered {
+			r.readiness[key] = ready
+		}
+	}
+	r.readinessMu.Unlock()
+	r.installationMu.Unlock()
+}
+
+func (r *Registry) persistLifecycleState() {
+	if r.storage == nil {
+		return
+	}
+	_ = r.storage.SaveRegistryState(r.installations, r.readiness)
 }
 
 type AuditEvent struct {
@@ -796,6 +821,7 @@ func (r *Registry) SetReadiness(id, version string, ready bool) error {
 		return ErrNotRegistered
 	}
 	r.readiness[key] = ready
+	r.persistLifecycleState()
 	r.appendAudit(AuditEvent{Action: "readiness", PluginID: id, Version: version, Detail: fmt.Sprintf("ready=%t", ready)})
 	return nil
 }
@@ -817,6 +843,7 @@ func (r *Registry) Install(projectID, id, version string) error {
 		return ErrDuplicate
 	}
 	r.installations[installKey] = Installation{ProjectID: projectID, PluginID: id, Version: version, Grants: map[string]bool{}, Resources: map[string]map[string]bool{}, Config: map[string]any{}}
+	r.persistLifecycleState()
 	r.appendAudit(AuditEvent{Action: "install", ProjectID: projectID, PluginID: id, Version: version})
 	return nil
 }
@@ -853,6 +880,7 @@ func (r *Registry) GrantResource(projectID, id, version, capability, resource st
 	i.Grants[capability] = true
 	i.Resources[capability][resource] = true
 	r.installations[projectID+":"+id+"@"+version] = i
+	r.persistLifecycleState()
 	r.appendAudit(AuditEvent{Action: "grant_resource", ProjectID: projectID, PluginID: id, Version: version, Detail: capability + ":" + resource})
 	return nil
 }
@@ -897,6 +925,7 @@ func (r *Registry) Configure(projectID, id, version string, values map[string]an
 		i.Config[name] = value
 	}
 	r.installations[key] = i
+	r.persistLifecycleState()
 	r.appendAudit(AuditEvent{Action: "configure", ProjectID: projectID, PluginID: id, Version: version})
 	return nil
 }
@@ -935,6 +964,7 @@ func (r *Registry) Grant(projectID, id, version, capability string) error {
 		if requested == capability {
 			i.Grants[capability] = true
 			r.installations[projectID+":"+id+"@"+version] = i
+			r.persistLifecycleState()
 			r.appendAudit(AuditEvent{Action: "grant", ProjectID: projectID, PluginID: id, Version: version, Detail: capability})
 			return nil
 		}
@@ -964,6 +994,7 @@ func (r *Registry) Revoke(projectID, id, version, capability string) error {
 	delete(i.Grants, capability)
 	delete(i.Resources, capability)
 	r.installations[key] = i
+	r.persistLifecycleState()
 	r.appendAudit(AuditEvent{Action: "revoke", ProjectID: projectID, PluginID: id, Version: version, Detail: capability})
 	var transitionError error
 	if r.supervisor != nil {
@@ -1004,6 +1035,7 @@ func (r *Registry) Enable(projectID, id, version string) error {
 	}
 	i.Enabled = true
 	r.installations[key] = i
+	r.persistLifecycleState()
 	if r.workerFactory != nil {
 		worker, err := r.workerFactory(projectID, id, version)
 		if err != nil {
