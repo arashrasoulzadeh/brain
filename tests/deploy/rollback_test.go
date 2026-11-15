@@ -2,6 +2,7 @@ package deploy_test
 
 import (
 	"errors"
+	"strings"
 	"testing"
 
 	"brain/internal/deploy"
@@ -10,9 +11,9 @@ import (
 func TestSelectRollbackManifestRequiresCompatibleSchema(t *testing.T) {
 	manifest := deploy.ReleaseManifest{
 		CommitSHA:                  "0123456789abcdef0123456789abcdef01234567",
-		Backend:                    "backend@sha256:healthy",
-		Compiler:                   "compiler@sha256:healthy",
-		Runner:                     "runner@sha256:healthy",
+		Backend:                    "backend@sha256:" + strings.Repeat("b", 64),
+		Compiler:                   "compiler@sha256:" + strings.Repeat("c", 64),
+		Runner:                     "runner@sha256:" + strings.Repeat("d", 64),
 		PackagedIsolationVerified:  true,
 		PackagedRevocationVerified: true,
 	}
