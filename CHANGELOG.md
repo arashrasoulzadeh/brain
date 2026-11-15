@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `bcdb15d` — 2026-11-15 12:06:20 +0330 — require digest pinned release images
+  Files: internal/deploy/manifest.go,tests/deploy/healthy_manifest_test.go tests/deploy/manifest_test.go,tests/deploy/rollback_test.go
+- `5ec4f7d` — 2026-11-15 08:35:39 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `41710ac` — 2026-11-15 12:05:12 +0330 — bound measured capacity memory
   Files: internal/deploy/capacity_profile.go,tests/deploy/capacity_profile_test.go
 - `efd8b75` — 2026-11-14 23:00:04 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `6ffa6ed` — 2026-11-15 02:07:11 +0330 — verify single use commit credentials
   Files: roadmap_backend.md
 - `063afca` — 2026-11-14 22:37:09 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `f479cbe` — 2026-11-15 02:06:53 +0330 — verify host authenticated plugin execution
-  Files: roadmap_backend.md
-- `def42f1` — 2026-11-14 22:36:48 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
