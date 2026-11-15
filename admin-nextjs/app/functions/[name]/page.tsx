@@ -272,6 +272,7 @@ export default function FunctionDetailPage() {
                   {publishing ? "Publishing…" : "Publish current version"}
                 </button>
               </div>
+              {message && <p className="notice" role="status" aria-live="polite">{message}</p>}
               {route && (
                 <p className="notice">
                   Public route: <code>{route}</code>
