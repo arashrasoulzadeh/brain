@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `c32d1c7` — 2026-11-15 17:12:45 +0330 — implement matchmaking admin routes
+  Files: plugins/matchmaking/index.ts,plugins/matchmaking/matchmaking-assign-route.ts plugins/matchmaking/matchmaking-cancel-route.ts,plugins/matchmaking/matchmaking-queue-route.ts plugins/matchmaking/matchmaking-route-store.ts,plugins/matchmaking/matchmaking-status-route.ts plugins/matchmaking/plugin.yaml
+- `7abd628` — 2026-11-15 13:41:57 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `70eb9f3` — 2026-11-15 17:11:36 +0330 — add workflow and live session consoles
   Files: admin-nextjs/app/page.tsx
 - `42e9e40` — 2026-11-15 13:40:50 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `d2f6b43` — 2026-11-15 14:43:24 +0330 — keep plugin settings inside admin workspace
   Files: admin-nextjs/app/plugins/[plugin]/page.tsx
 - `d8af0b4` — 2026-11-15 11:12:38 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `a3601a8` — 2026-11-15 14:42:23 +0330 — simplify installed plugins table
-  Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css
-- `eeb02a3` — 2026-11-15 11:10:41 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
