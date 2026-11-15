@@ -3,6 +3,12 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `86f77a3` — 2026-11-15 18:57:17 +0330 — return json for every api response
+  Files: internal/app/api_response.go
+- `a512f26` — 2026-11-15 18:55:52 +0330 — make cross-cutting changes project-wide law
+  Files: AGENTS.md,docs/developers.md
+- `2f03e16` — 2026-11-15 15:24:48 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `31ab1e7` — 2026-11-15 18:54:33 +0330 — wire api envelope into server handler
   Files: internal/app/app.go
 - `4a9a60b` — 2026-11-15 18:54:14 +0330 — standardize api messages and add admin toasts
@@ -97,9 +103,3 @@ Automatically generated from commits on main.
   Files: admin-nextjs/app/page.tsx,internal/admin/lifecycle.go internal/app/admin.go,internal/plugin/plugin.go scripts/typescript-worker.mjs,tests/plugin/registry_invoke_test.go
 - `65153c6` — 2026-11-15 13:25:05 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
-- `fa151a6` — 2026-11-15 16:54:48 +0330 — route manifest functions through plugin workers
-  Files: admin-nextjs/app/styles.css,internal/plugin/typescript_worker.go scripts/typescript-worker.mjs,tests/plugin/typescript-worker.test.ts
-- `510f630` — 2026-11-15 11:37:14 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `4ea6c3e` — 2026-11-15 15:06:58 +0330 — show saved function drafts in admin
-  Files: admin-nextjs/app/page.tsx
