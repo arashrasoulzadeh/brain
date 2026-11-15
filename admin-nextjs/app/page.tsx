@@ -137,6 +137,7 @@ export default function AdminPage() {
   const [configuration, setConfiguration] = useState<Record<string, Record<string, string | boolean>>>({});
   const [pluginFilter, setPluginFilter] = useState("");
   const text = copy[language];
+  const pageTitle = ({ projects: text.projects, plugins: text.plugins, system: text.system, audit: text.audit, database: text.database, functions: text.functions, workflows: text.workflows, files: text.files, "live-sessions": text.liveSessions } as Record<string, string>)[activePage] ?? text.projects;
   useEffect(() => {
     if (!session) return;
     const refresh = () => Promise.all([loadProjects(session), loadPlugins(session, selectedProjectID), loadAudit(session), loadSystem(session)]).catch(() => undefined);
@@ -334,7 +335,7 @@ export default function AdminPage() {
         <div className="top">
           <div>
             <p className="eyebrow">{text.eyebrow}</p>
-            <h1>{text.projects}</h1>
+            <h1>{pageTitle}</h1>
           </div>
         </div>
         <div className={activePage === "projects" ? "project-selector" : "project-selector page-hidden"}><label htmlFor="selected-project">{text.project}</label><select id="selected-project" value={selectedProjectID} onChange={(event) => { const nextProjectID = event.target.value; setSelectedProjectID(nextProjectID); void loadPlugins(session, nextProjectID); }}><option value="">—</option>{projects.map((project) => <option key={project.ID} value={project.ID} disabled={!project.Active}>{project.ID}{project.Active ? "" : " (inactive)"}</option>)}</select></div>
