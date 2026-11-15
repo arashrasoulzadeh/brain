@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `6c3dc6b` — 2026-11-15 17:10:36 +0330 — add files operation console
+  Files: admin-nextjs/app/page.tsx
+- `966ce9b` — 2026-11-15 13:40:01 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `094f8e4` — 2026-11-15 17:09:47 +0330 — implement file admin routes
   Files: plugins/files/file-route-store.ts,plugins/files/files-download.ts plugins/files/files-metadata.ts,plugins/files/files-publish.ts plugins/files/files-upload.ts,plugins/files/index.ts plugins/files/plugin.yaml,tests/files/files.test.ts
 - `e581f88` — 2026-11-15 13:38:37 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: admin-nextjs/app/styles.css,admin-nextjs/next.config.ts
 - `d942b3b` — 2026-11-15 11:06:23 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
-- `a5937ac` — 2026-11-15 14:36:08 +0330 — redirect unauthenticated plugin pages to login
-  Files: admin-nextjs/app/plugins/[plugin]/page.tsx
-- `98ce14a` — 2026-11-15 14:34:48 +0330 — add project scoped plugin settings pages
-  Files: admin-nextjs/app/page.tsx,admin-nextjs/app/plugins/[plugin]/page.tsx
