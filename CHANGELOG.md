@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `7860a8d` — 2026-11-15 17:19:43 +0330 — persist matchmaking tickets in sqlite
+  Files: internal/plugin/plugin.go,internal/plugin/sqlite_storage.go plugins/matchmaking/matchmaking-assign-route.ts,plugins/matchmaking/matchmaking-cancel-route.ts plugins/matchmaking/matchmaking-status-route.ts
+- `3eaa5ae` — 2026-11-15 13:47:51 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `2d57b95` — 2026-11-15 17:17:36 +0330 — persist file routes in sqlite
   Files: internal/plugin/plugin.go,internal/plugin/sqlite_storage.go plugins/files/files-download.ts,plugins/files/files-metadata.ts plugins/files/files-publish.ts
 - `02df869` — 2026-11-15 13:46:31 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `3216e00` — 2026-11-15 14:58:55 +0330 — bind function drafts to active projects
   Files: internal/admin/functions.go
 - `7e21adf` — 2026-11-15 11:28:21 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `e6ecbb1` — 2026-11-15 14:58:06 +0330 — audit plugin metadata and route permissions
-  Files: tests/plugin/all_manifests_test.go
-- `394aa31` — 2026-11-15 11:27:50 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
