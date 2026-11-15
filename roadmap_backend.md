@@ -17,8 +17,8 @@ Backend infrastructure, release, deployment, backup, capacity, and security work
 
 ## Final backend gates
 
-- [ ] Project isolation holds across APIs, SQL, workers, jobs, sockets, and WASM.
+- [x] Project isolation holds across APIs, SQL, workers, jobs, sockets, and WASM. Verified by the full Go suite, race suite, TypeScript isolation gates, and the plugin project-boundary audit commits.
 - [ ] Recovery works after connection, worker, and deployment failures.
-- [ ] Multi-architecture images are digest-pinned.
+- [x] Multi-architecture images are digest-pinned. Verified by release-manifest validation requiring immutable SHA-256 references for backend, compiler, and runner images.
 - [ ] Compose deployment and rollback are rehearsed.
-- [ ] Production limits are based on measured capacity.
+- [x] Production limits are based on measured capacity. Verified by bounded memory/capacity validation and the eight-player capacity gate.
