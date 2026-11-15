@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `1e0e33c` — 2026-11-15 13:29:54 +0330 — add searchable admin plugin catalog
+  Files: admin-nextjs/app/page.tsx
+- `648e5ef` — 2026-11-15 09:58:56 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `0befcb3` — 2026-11-15 13:28:43 +0330 — serialize admin plugin configuration types
   Files: admin-nextjs/app/page.tsx
 - `a4f91f2` — 2026-11-15 09:57:45 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `6892718` — 2026-11-15 12:55:59 +0330 — verify nextjs admin production build
   Files: admin-nextjs/.gitignore,admin-nextjs/app/styles.css admin-nextjs/next-env.d.ts,admin-nextjs/next.config.ts admin-nextjs/package-lock.json,admin-nextjs/tsconfig.json
 - `cbea454` — 2026-11-15 09:24:52 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `dc734c5` — 2026-11-15 12:54:38 +0330 — format admin panel sources
-  Files: admin-nextjs/app/layout.tsx,admin-nextjs/app/page.tsx admin-nextjs/app/styles.css,admin-nextjs/next.config.ts admin-nextjs/tsconfig.json
-- `e4ab42f` — 2026-11-15 09:24:35 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
