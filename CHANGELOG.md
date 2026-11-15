@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `227a014` — 2026-11-15 12:31:42 +0330 — expose audited admin lifecycle operations
+  Files: internal/app/admin.go,tests/app/admin_test.go
+- `0f37015` — 2026-11-15 09:01:07 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `b7571e2` — 2026-11-15 12:30:54 +0330 — complete plugin security audit gate
   Files: roadmap_backend.md
 - `c451bc2` — 2026-11-15 09:00:26 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `199a380` — 2026-11-15 12:11:11 +0330 — separate sensitive operator setup
   Files: internal/operator/mfa.go,internal/operator/operator.go tests/operator/operator_test.go
 - `34836ca` — 2026-11-15 08:40:21 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `57ee8e1` — 2026-11-15 12:10:07 +0330 — reject compose host isolation bypasses
-  Files: internal/deploy/compose.go,tests/deploy/compose_test.go
-- `7054dcd` — 2026-11-15 08:39:45 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
