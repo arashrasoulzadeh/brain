@@ -108,3 +108,4 @@ button {
 .plugin-action{width:100%;margin-top:16px}.plugin-action:disabled{background:#dce4f0;color:#61708a;cursor:not-allowed}
 .lifecycle-row{gap:16px}.lifecycle-row>span:first-child{display:flex;flex-direction:column;gap:4px}.lifecycle-actions{display:flex;gap:6px;flex-wrap:wrap}.lifecycle-actions button{margin:0;padding:8px 10px;font-size:12px}.lifecycle-actions .danger{background:#fff0ef;color:#b42318}
 .route-list{margin-top:14px;border-top:1px solid #edf0f5}.route-list div{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid #edf0f5}.route-list code{font-size:11px;color:#253b70}.route-list small{font-size:10px;color:#65728a}
+.admin-nav{display:flex;flex-wrap:wrap;gap:8px;margin:28px 0 8px;padding-bottom:18px;border-bottom:1px solid #edf0f5}.admin-nav a{padding:8px 12px;border-radius:999px;background:#eef3fc;color:#3569d4;text-decoration:none;font-size:13px;font-weight:700}
