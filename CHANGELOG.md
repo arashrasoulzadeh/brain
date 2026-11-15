@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `0befcb3` — 2026-11-15 13:28:43 +0330 — serialize admin plugin configuration types
+  Files: admin-nextjs/app/page.tsx
+- `a4f91f2` — 2026-11-15 09:57:45 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `4c522b0` — 2026-11-15 13:27:30 +0330 — expose complete plugin contract in admin
   Files: admin-nextjs/app/page.tsx
 - `64259ab` — 2026-11-15 09:56:42 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `dc734c5` — 2026-11-15 12:54:38 +0330 — format admin panel sources
   Files: admin-nextjs/app/layout.tsx,admin-nextjs/app/page.tsx admin-nextjs/app/styles.css,admin-nextjs/next.config.ts admin-nextjs/tsconfig.json
 - `e4ab42f` — 2026-11-15 09:24:35 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `9200be3` — 2026-11-15 12:54:20 +0330 — polish localized nextjs admin panel
-  Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css admin-nextjs/next.config.ts
-- `4ef9725` — 2026-11-15 09:21:40 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
