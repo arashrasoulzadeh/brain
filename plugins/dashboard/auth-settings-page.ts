@@ -1,10 +1,16 @@
 import type { AuthSettings } from "./types.js";
+import { validateProjectId } from "../sdk-typescript/src/index.js";
 
 export function authSettingsPage(
   projectId: string,
   settings: AuthSettings,
 ): { projectId: string; title: string; settings: AuthSettings } {
-  if (!projectId || settings.oidcProviders.some((provider) => !provider))
+  try {
+    validateProjectId(projectId);
+  } catch {
+    throw new Error("invalid auth settings");
+  }
+  if (settings.oidcProviders.some((provider) => !provider))
     throw new Error("invalid auth settings");
   return {
     projectId,

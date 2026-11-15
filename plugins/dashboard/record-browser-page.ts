@@ -1,3 +1,5 @@
+import { validateProjectId } from "../sdk-typescript/src/index.js";
+
 export function recordBrowserPage(
   projectId: string,
   table: string,
@@ -9,7 +11,12 @@ export function recordBrowserPage(
   columns: readonly string[];
   rows: Record<string, unknown>[];
 } {
-  if (!projectId || !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table) || !approvedColumns.length)
+  try {
+    validateProjectId(projectId);
+  } catch {
+    throw new Error("invalid record browser");
+  }
+  if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table) || !approvedColumns.length)
     throw new Error("invalid record browser");
   return {
     projectId,

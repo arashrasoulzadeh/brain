@@ -1,5 +1,7 @@
+import { validateProjectId } from "../sdk-typescript/src/index.js";
+
 export function hostOwnedAdminView(projectId: string) {
-  if (!projectId.trim()) throw new Error("project identity required");
+  validateProjectId(projectId, "project identity required");
   return {
     kind: "host-admin-view",
     projectId,

@@ -232,6 +232,31 @@ if (edit.patch.name !== "bob" || edit.patch.secret !== undefined || edit.expecte
   throw new Error("record edit validation failed");
 if (tableManagementPage("dev", ["users", "orders"]).tables.length !== 2)
   throw new Error("table management page failed");
+for (const invalidProjectId of ["dev/other", " dev", "dev."]) {
+  for (const operation of [
+    () =>
+      authSettingsPage(invalidProjectId, {
+        passwordEnabled: true,
+        oidcProviders: [],
+        emailRecoveryEnabled: true,
+      }),
+    () =>
+      signupSettingsPage(invalidProjectId, {
+        enabled: true,
+        allowedDomains: [],
+        requireInvite: false,
+      }),
+    () => browserQuickstart(invalidProjectId, "https://example.test"),
+    () => tableManagementPage(invalidProjectId, []),
+  ]) {
+    try {
+      operation();
+      throw new Error("dashboard accepted malformed project");
+    } catch (error) {
+      if (!(error instanceof Error) || !error.message.startsWith("invalid ")) throw error;
+    }
+  }
+}
 if (
   fileManagementPage("dev", [{ objectId: "avatar.png", size: 12, status: "published" }]).files[0]
     .objectId !== "avatar.png"

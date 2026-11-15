@@ -1,3 +1,5 @@
+import { validateProjectId } from "../sdk-typescript/src/index.js";
+
 export function recordEditPage(
   projectId: string,
   table: string,
@@ -13,13 +15,17 @@ export function recordEditPage(
   patch: Record<string, unknown>;
 } {
   if (
-    !projectId ||
     !recordId ||
     !Number.isInteger(expectedVersion) ||
     expectedVersion < 0 ||
     !approvedColumns.length
   )
     throw new Error("invalid record edit");
+  try {
+    validateProjectId(projectId);
+  } catch {
+    throw new Error("invalid record edit");
+  }
   const filtered = Object.fromEntries(
     Object.entries(patch).filter(([column]) => approvedColumns.includes(column)),
   );
