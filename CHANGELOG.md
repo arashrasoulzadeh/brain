@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `a8b84db` — 2026-11-15 13:35:08 +0330 — gate admin actions by plugin capabilities
+  Files: admin-nextjs/app/page.tsx
+- `74b8735` — 2026-11-15 10:04:11 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `4f6539b` — 2026-11-15 13:33:51 +0330 — add full width admin sidebar layout
   Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css
 - `a4fb2bc` — 2026-11-15 10:03:01 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `d38d7f5` — 2026-11-15 13:07:14 +0330 — add plugin lifecycle controls
   Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css
 - `52f77ca` — 2026-11-15 09:36:32 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `60f72a6` — 2026-11-15 13:06:19 +0330 — add admin audit activity panel
-  Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css internal/admin/lifecycle.go,internal/app/admin.go internal/app/app.go
-- `8460adb` — 2026-11-15 09:34:43 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
