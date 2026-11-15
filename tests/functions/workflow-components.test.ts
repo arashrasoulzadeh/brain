@@ -36,6 +36,18 @@ try {
   if (!(error instanceof Error) || error.message !== "deployment plugin grant required")
     throw error;
 }
+try {
+  authorizeDeploymentPlugin(
+    new Set(["dev/other:deploy-plugin@1.0.0:deployment.execute"]),
+    "dev/other",
+    "deploy-plugin",
+    "1.0.0",
+  );
+  throw new Error("deployment accepted malformed project");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "deployment plugin grant required")
+    throw error;
+}
 
 const approvals = createApprovalStore();
 approvals.request("run-1", "workflow");

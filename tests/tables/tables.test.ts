@@ -147,6 +147,16 @@ try {
 } catch (error) {
   if (!(error instanceof Error) || error.message !== "unsupported schema change") throw error;
 }
+try {
+  planSchemaChange("dev/other", "users", {
+    kind: "add_column",
+    name: "display_name",
+    type: "string",
+  });
+  throw new Error("schema change accepted malformed project");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "invalid schema target") throw error;
+}
 if (
   previewSchemaSQL(schemaPlan) !==
   'ALTER TABLE "project_dev"."users" ADD COLUMN "display_name" TEXT;'

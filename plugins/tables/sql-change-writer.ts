@@ -1,10 +1,11 @@
-import { validateIdentifier } from "../sdk-typescript/src/index.js";
+import { validateIdentifier, validateProjectId } from "../sdk-typescript/src/index.js";
 import type { SQLChangeState } from "./sql-change-state.js";
 export class SQLChangeWriter {
   constructor(private readonly state: SQLChangeState) {}
   begin(projectId: string, table: string, statement: string) {
     validateIdentifier(table);
-    if (!projectId || !statement) throw new Error("invalid SQL change");
+    validateProjectId(projectId, "invalid SQL change");
+    if (!statement) throw new Error("invalid SQL change");
     let finished = false;
     const finish = (commit: boolean) => {
       if (finished) throw new Error("transaction already finished");

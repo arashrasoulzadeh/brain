@@ -1,12 +1,12 @@
-import { validateIdentifier } from "../sdk-typescript/src/index.js";
+import { validateIdentifier, validateProjectId } from "../sdk-typescript/src/index.js";
 import type { SchemaChange, SchemaChangePlan } from "./schema-types.js";
 export function planSchemaChange(
   projectId: string,
   table: string,
   change: SchemaChange,
 ): SchemaChangePlan {
-  if (!projectId || !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table))
-    throw new Error("invalid schema target");
+  validateProjectId(projectId, "invalid schema target");
+  if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) throw new Error("invalid schema target");
   if (change.kind === "add_column") {
     validateIdentifier(change.name);
     return { projectId, table, change: { ...change } };
