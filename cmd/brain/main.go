@@ -54,7 +54,7 @@ func productionServer() *app.Server {
 	}
 	registry := plugin.NewRegistry(1)
 	projects := project.NewStore()
-	return app.NewServerWithOperatorAdminPage(admin.NewLifecycleServiceWithProjects(operators, registry, projects), operators, digest, "")
+	return app.NewServerWithOperatorAdmin(admin.NewLifecycleServiceWithProjects(operators, registry, projects), operators, digest)
 }
 
 func verifyObjectManifest(path string) {

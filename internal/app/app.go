@@ -30,10 +30,6 @@ func NewServerWithAdmin(adminService *admin.LifecycleService) *Server {
 }
 
 func NewServerWithOperatorAdmin(adminService *admin.LifecycleService, sessions *operator.Store, digest func(string) string) *Server {
-	return NewServerWithOperatorAdminPage(adminService, sessions, digest, "")
-}
-
-func NewServerWithOperatorAdminPage(adminService *admin.LifecycleService, sessions *operator.Store, digest func(string) string, _ string) *Server {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /livez", func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
