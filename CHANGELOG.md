@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `9200be3` — 2026-11-15 12:54:20 +0330 — polish localized nextjs admin panel
+  Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css admin-nextjs/next.config.ts
+- `4ef9725` — 2026-11-15 09:21:40 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `a9e2257` — 2026-11-15 12:51:25 +0330 — keep go host api only
   Files: cmd/brain/main.go,internal/app/app.go
 - `48bb3b8` — 2026-11-15 09:21:18 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `873210b` — 2026-11-15 12:26:00 +0330 — harden function state project boundaries
   Files: plugins/functions/authorize-project-workflow-action.ts,plugins/functions/function-draft-reader.ts plugins/functions/function-publication-reader.ts,plugins/functions/shared-package-reader.ts tests/functions/functions.test.ts,tests/functions/workflow-components.test.ts
 - `f9d36eb` — 2026-11-15 08:55:13 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `b49cb7d` — 2026-11-15 12:24:56 +0330 — mark operator session isolation complete
-  Files: roadmap_backend.md
-- `df33381` — 2026-11-15 08:54:56 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
