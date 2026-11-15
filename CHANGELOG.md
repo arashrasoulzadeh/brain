@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `41710ac` — 2026-11-15 12:05:12 +0330 — bound measured capacity memory
+  Files: internal/deploy/capacity_profile.go,tests/deploy/capacity_profile_test.go
+- `efd8b75` — 2026-11-14 23:00:04 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `ef5fe97` — 2026-11-15 02:29:50 +0330 — validate caller project context
   Files: internal/project/transaction_context.go,tests/project/transaction_context_test.go
 - `9b74e34` — 2026-11-14 22:59:23 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `f479cbe` — 2026-11-15 02:06:53 +0330 — verify host authenticated plugin execution
   Files: roadmap_backend.md
 - `def42f1` — 2026-11-14 22:36:48 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `2d3f209` — 2026-11-15 02:06:31 +0330 — verify project isolation boundaries
-  Files: roadmap_backend.md
-- `00dd5b2` — 2026-11-14 22:36:26 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
