@@ -316,8 +316,8 @@ export default function AdminPage() {
             <h1>{text.projects}</h1>
           </div>
         </div>
-        <div className="project-selector"><label htmlFor="selected-project">{text.project}</label><select id="selected-project" value={selectedProjectID} onChange={(event) => { const nextProjectID = event.target.value; setSelectedProjectID(nextProjectID); void loadPlugins(session, nextProjectID); }}><option value="">—</option>{projects.map((project) => <option key={project.ID} value={project.ID} disabled={!project.Active}>{project.ID}{project.Active ? "" : " (inactive)"}</option>)}</select></div>
-        <form className="create" onSubmit={createProject}>
+        <div className={activePage === "projects" ? "project-selector" : "project-selector page-hidden"}><label htmlFor="selected-project">{text.project}</label><select id="selected-project" value={selectedProjectID} onChange={(event) => { const nextProjectID = event.target.value; setSelectedProjectID(nextProjectID); void loadPlugins(session, nextProjectID); }}><option value="">—</option>{projects.map((project) => <option key={project.ID} value={project.ID} disabled={!project.Active}>{project.ID}{project.Active ? "" : " (inactive)"}</option>)}</select></div>
+        <form className={activePage === "projects" ? "create" : "create page-hidden"} onSubmit={createProject}>
           <input
             placeholder={text.newProject}
             value={projectID}
@@ -327,7 +327,7 @@ export default function AdminPage() {
           <button>{text.create}</button>
         </form>
         {error && <p className="error">{error}</p>}
-        <div>
+        <div className={activePage === "projects" ? "" : "page-hidden"}>
           {projects.length ? (
             projects.map((project) => (
               <div className="project" key={project.ID}>
