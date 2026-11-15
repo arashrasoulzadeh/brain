@@ -37,6 +37,7 @@ const copy = {
     routes: "routes",
     extensions: "extension points",
     navigation: "Admin navigation",
+    project: "Project",
     enable: "Enable",
     grant: "Grant first capability",
     remove: "Remove",
@@ -76,6 +77,7 @@ const copy = {
     routes: "مسیر",
     extensions: "نقاط توسعه",
     navigation: "ناوبری مدیریت",
+    project: "پروژه",
     enable: "فعال‌سازی",
     grant: "اعطای اولین دسترسی",
     remove: "حذف",
@@ -97,6 +99,7 @@ export default function AdminPage() {
   const [username, setUsername] = useState("");
   const [secret, setSecret] = useState("");
   const [projectID, setProjectID] = useState("");
+  const [selectedProjectID, setSelectedProjectID] = useState("");
   const [error, setError] = useState("");
   const text = copy[language];
   async function loadProjects(token: string) {
@@ -136,6 +139,8 @@ export default function AdminPage() {
       const token = ((await response.json()) as { session: string }).session;
       setSession(token);
       await loadProjects(token);
+      const loadedProjects = await (async () => { const response = await fetch("/api/admin/projects", { headers: { authorization: `Bearer ${token}` } }); return (await response.json()) as Project[]; })();
+      setSelectedProjectID(loadedProjects.find((project) => project.Active)?.ID ?? "");
       await loadPlugins(token);
       await loadAudit(token);
       await loadSystem(token);
@@ -161,7 +166,7 @@ export default function AdminPage() {
   }
   async function installPlugin(manifest: PluginManifest) {
     setError("");
-    const project = projects.find((candidate) => candidate.Active);
+    const project = projects.find((candidate) => candidate.ID === selectedProjectID && candidate.Active);
     if (!project) { setError("Create an active project first"); return; }
     try {
       const response = await fetch("/api/admin/actions", { method: "POST", headers: { authorization: `Bearer ${session}`, "content-type": "application/json" }, body: JSON.stringify({ operation: "plugin.install", project_id: project.ID, plugin_id: manifest.ID, version: manifest.Version }) });
@@ -237,6 +242,7 @@ export default function AdminPage() {
           </div>
         </div>
         <nav className="admin-nav" aria-label={text.navigation}><a href="#projects">{text.projects}</a><a href="#plugins">{text.plugins}</a><a href="#system">{text.system}</a><a href="#audit">{text.audit}</a></nav>
+        <div className="project-selector"><label htmlFor="selected-project">{text.project}</label><select id="selected-project" value={selectedProjectID} onChange={(event) => setSelectedProjectID(event.target.value)}><option value="">—</option>{projects.map((project) => <option key={project.ID} value={project.ID} disabled={!project.Active}>{project.ID}{project.Active ? "" : " (inactive)"}</option>)}</select></div>
         <form className="create" onSubmit={createProject}>
           <input
             placeholder={text.newProject}
