@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `166f0f6` — 2026-11-15 12:39:10 +0330 — verify packaged admin composition
+  Files: cmd/brain/main_test.go
+- `d8fbe27` — 2026-11-15 09:08:58 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `ec00c8d` — 2026-11-15 12:38:45 +0330 — compose production operator admin server
   Files: cmd/brain/main.go,internal/app/admin.go internal/app/app.go,tests/app/admin_test.go
 - `222ccf4` — 2026-11-15 09:07:47 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `f521c5a` — 2026-11-15 12:20:52 +0330 — validate plugin project boundaries
   Files: plugins/arena/arena-start.ts,plugins/dashboard/file-management-page.ts tests/arena/arena.test.ts,tests/dashboard/dashboard.test.ts
 - `6561360` — 2026-11-15 08:49:30 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `df4bb08` — 2026-11-15 12:19:16 +0330 — enforce canonical plugin project identities
-  Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
-- `5b07349` — 2026-11-15 08:47:37 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
