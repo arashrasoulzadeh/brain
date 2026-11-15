@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `3216e00` — 2026-11-15 14:58:55 +0330 — bind function drafts to active projects
+  Files: internal/admin/functions.go
+- `7e21adf` — 2026-11-15 11:28:21 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `e6ecbb1` — 2026-11-15 14:58:06 +0330 — audit plugin metadata and route permissions
   Files: tests/plugin/all_manifests_test.go
 - `394aa31` — 2026-11-15 11:27:50 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `0ad50f4` — 2026-11-15 13:44:26 +0330 — highlight active admin route
   Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css
-- `0b6d767` — 2026-11-15 10:13:34 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `1c01bb5` — 2026-11-15 13:43:18 +0330 — label admin pages by active domain
-  Files: admin-nextjs/app/page.tsx
