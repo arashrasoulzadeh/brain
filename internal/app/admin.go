@@ -238,6 +238,10 @@ func AdminHandler(service *admin.LifecycleService) http.Handler {
 			err = service.DrainPlugin(actor, command.ProjectID, command.PluginID, command.Version)
 		case "plugin.stop-immediate":
 			err = service.StopPluginImmediately(actor, command.ProjectID, command.PluginID, command.Version)
+		case "plugin.stop":
+			err = service.StopPlugin(actor, command.ProjectID, command.PluginID, command.Version)
+		case "plugin.resume":
+			err = service.ResumePlugin(actor, command.ProjectID, command.PluginID, command.Version)
 		case "plugin.disable.preview":
 			preview, previewErr := service.PreviewDisable(actor, command.ProjectID, command.PluginID, command.Version)
 			if previewErr != nil {
@@ -271,7 +275,7 @@ func AdminHandler(service *admin.LifecycleService) http.Handler {
 
 func requiresAdminConfirmation(operation string) bool {
 	switch operation {
-	case "plugin.remove", "plugin.revoke", "plugin.stop-immediate", "plugin.rollback", "plugin.disable.apply", "project.uninstall", "durable-data.delete":
+	case "plugin.remove", "plugin.revoke", "plugin.stop-immediate", "plugin.stop", "plugin.rollback", "plugin.disable.apply", "project.uninstall", "durable-data.delete":
 		return true
 	default:
 		return false

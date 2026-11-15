@@ -178,6 +178,18 @@ func (s *LifecycleService) RecoverPlugin(actor operator.Actor, projectID, plugin
 	})
 }
 
+func (s *LifecycleService) ResumePlugin(actor operator.Actor, projectID, pluginID, version string) error {
+	return s.execute(actor, "plugin.resume", func() error {
+		return s.registry.Recover(projectID, pluginID, version)
+	})
+}
+
+func (s *LifecycleService) StopPlugin(actor operator.Actor, projectID, pluginID, version string) error {
+	return s.execute(actor, "plugin.stop", func() error {
+		return s.registry.StopImmediately(projectID, pluginID, version)
+	})
+}
+
 func (s *LifecycleService) RollbackPlugin(actor operator.Actor, projectID, pluginID, version string) error {
 	return s.execute(actor, "plugin.rollback", func() error {
 		return s.registry.Rollback(projectID, pluginID, version)
