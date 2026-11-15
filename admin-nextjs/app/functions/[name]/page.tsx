@@ -39,6 +39,8 @@ export default function FunctionDetailPage() {
   const [message, setMessage] = useState("");
   const [route, setRoute] = useState("");
   const [publishing, setPublishing] = useState(false);
+  const [validating, setValidating] = useState(false);
+  const [validationMessage, setValidationMessage] = useState("");
   async function refresh(token: string) {
     const headers = { authorization: `Bearer ${token}` };
     const projectsResponse = await fetch("/api/admin/projects", { headers });
@@ -197,6 +199,36 @@ export default function FunctionDetailPage() {
       setPublishing(false);
     }
   }
+  async function validateSource() {
+    if (!draft || !project || !session) {
+      setValidationMessage("Select an active project and sign in before validating.");
+      return;
+    }
+    setValidating(true);
+    setValidationMessage("");
+    try {
+      const response = await fetch("/api/admin/functions", {
+        method: "POST",
+        headers: { authorization: `Bearer ${session}`, "content-type": "application/json" },
+        body: JSON.stringify({
+          operation: "functions.test",
+          project_id: project,
+          name: draft.name,
+          source: draft.source,
+        }),
+      });
+      const body = await response.text();
+      if (!response.ok) {
+        setValidationMessage(body || `Validation failed (${response.status}).`);
+        return;
+      }
+      setValidationMessage("Source passed host validation and is ready for sandbox compilation.");
+    } catch (error) {
+      setValidationMessage(error instanceof Error ? error.message : "Validation request failed.");
+    } finally {
+      setValidating(false);
+    }
+  }
   async function saveDraft() {
     if (!draft || !project || !session) {
       setMessage("Select an active project and sign in before saving.");
@@ -313,6 +345,9 @@ export default function FunctionDetailPage() {
           <FunctionEditor
             source={draft.source}
             onChange={(source) => setDraft({ ...draft, source })}
+            onValidate={() => void validateSource()}
+            validating={validating}
+            validationMessage={validationMessage}
           />
           <div className="permission-panel">
             <h2>Function settings</h2>

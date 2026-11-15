@@ -46,9 +46,15 @@ function highlight(source: string) {
 export function FunctionEditor({
   source,
   onChange,
+  onValidate,
+  validating = false,
+  validationMessage = "",
 }: {
   source: string;
   onChange: (source: string) => void;
+  onValidate?: () => void;
+  validating?: boolean;
+  validationMessage?: string;
 }) {
   const editorRef = useRef<HTMLTextAreaElement>(null);
   const [showCompletions, setShowCompletions] = useState(false);
@@ -57,6 +63,18 @@ export function FunctionEditor({
   const visibleCompletions = completions.filter((completion) =>
     completion.label.includes(query.toLowerCase()),
   );
+  const localDiagnostic = useMemo(() => {
+    const stack: string[] = [];
+    const pairs: Record<string, string> = { "(": ")", "[": "]", "{": "}" };
+    for (const character of source) {
+      if (pairs[character]) stack.push(pairs[character]);
+      else if (Object.values(pairs).includes(character) && stack.pop() !== character)
+        return "Unbalanced brackets or braces";
+    }
+    if (stack.length) return "Unclosed bracket or brace";
+    if (!/\bexport\s+default\b/.test(source)) return "A default exported handler is required";
+    return "";
+  }, [source]);
 
   function insertCompletion(completion: Completion) {
     const editor = editorRef.current;
@@ -115,6 +133,11 @@ export function FunctionEditor({
           <i className="editor-dot" /> TypeScript
         </span>
         <small>⌘/Ctrl + Space for completions · Tab to indent</small>
+        {onValidate && (
+          <button type="button" disabled={validating} onClick={onValidate}>
+            {validating ? "Checking…" : "Check syntax"}
+          </button>
+        )}
         <button
           type="button"
           onClick={() => {
@@ -172,6 +195,15 @@ export function FunctionEditor({
             </button>
           ))}
           {!visibleCompletions.length && <small className="muted">No matching completions.</small>}
+        </div>
+      )}
+      {(localDiagnostic || validationMessage) && (
+        <div
+          className={`editor-diagnostic ${validationMessage && !localDiagnostic ? "valid" : "invalid"}`}
+          role="status"
+        >
+          <strong>{validationMessage && !localDiagnostic ? "✓ Validated" : "Syntax check"}</strong>
+          <span>{validationMessage || localDiagnostic}</span>
         </div>
       )}
       <footer className="editor-status">
