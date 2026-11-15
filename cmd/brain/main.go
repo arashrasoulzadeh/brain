@@ -7,6 +7,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
+	"time"
 
 	"brain/internal/admin"
 	"brain/internal/app"
@@ -53,7 +55,8 @@ func productionServer() *app.Server {
 		return app.NewServer()
 	}
 	registry := plugin.NewRegistry(1)
-	registerDiscoveredPlugins(registry)
+	locations := registerDiscoveredPlugins(registry)
+	bindLocalTypeScriptWorkers(registry, locations)
 	projectsPath := os.Getenv("PROJECTS_FILE")
 	if projectsPath == "" {
 		projectsPath = ".local/brain.sqlite"
@@ -66,11 +69,12 @@ func productionServer() *app.Server {
 	return app.NewServerWithOperatorAdmin(admin.NewLifecycleServiceWithProjects(operators, registry, projects), operators, digest)
 }
 
-func registerDiscoveredPlugins(registry *plugin.Registry) {
+func registerDiscoveredPlugins(registry *plugin.Registry) map[string]plugin.PluginLocation {
+	registered := map[string]plugin.PluginLocation{}
 	locations, err := plugin.Discover("plugins")
 	if err != nil {
 		log.Printf("plugin discovery unavailable: %v", err)
-		return
+		return registered
 	}
 	for _, location := range locations {
 		manifest, err := plugin.LoadManifest(location.ManifestPath)
@@ -80,8 +84,34 @@ func registerDiscoveredPlugins(registry *plugin.Registry) {
 		}
 		if err := registry.Register(manifest); err != nil {
 			log.Printf("plugin %s@%s rejected: %v", manifest.ID, manifest.Version, err)
+			continue
 		}
+		registered[manifest.ID+"@"+manifest.Version] = location
 	}
+	return registered
+}
+
+func bindLocalTypeScriptWorkers(registry *plugin.Registry, locations map[string]plugin.PluginLocation) {
+	command := filepath.Join("node_modules", ".bin", "tsx")
+	workerScript := filepath.Join("scripts", "typescript-worker.mjs")
+	policy := plugin.IsolationPolicy{FilesystemReadOnly: true, NetworkEnabled: false, CPUMillis: 1000, MemoryBytes: 128 << 20, ProcessLimit: 16, WallTime: 2 * time.Second}
+	_ = os.MkdirAll(".local", 0o700)
+	registry.BindWorkerFactory(func(projectID, pluginID, version string) (plugin.ContractWorker, error) {
+		location, ok := locations[pluginID+"@"+version]
+		if !ok {
+			return nil, fmt.Errorf("plugin location unavailable: %s@%s", pluginID, version)
+		}
+		manifest, err := plugin.LoadManifest(location.ManifestPath)
+		if err != nil {
+			return nil, err
+		}
+		descriptor, err := os.CreateTemp(".local", "worker-*.json")
+		if err != nil {
+			return nil, err
+		}
+		_ = descriptor.Close()
+		return plugin.NewManifestTypeScriptWorker(command, workerScript, descriptor.Name(), location.Directory, projectID, manifest, policy)
+	})
 }
 
 func verifyObjectManifest(path string) {

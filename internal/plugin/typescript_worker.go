@@ -73,6 +73,24 @@ func NewBubblewrapTypeScriptWorker(launcher, workerScript, descriptor, pluginRoo
 }
 
 func NewManifestBubblewrapTypeScriptWorker(launcher, workerScript, descriptor, pluginRoot, projectID string, manifest Manifest, policy IsolationPolicy) (*TypeScriptWorker, error) {
+	worker, err := NewManifestTypeScriptWorker("", workerScript, descriptor, pluginRoot, projectID, manifest, policy)
+	if err != nil {
+		return nil, err
+	}
+	worker.command = exec.Command(launcher)
+	worker.env = []string{
+		"PATH=/usr/local/bin:/usr/bin:/bin",
+		"WORKER_SCRIPT=" + workerScript,
+		"EXECUTION_DESCRIPTOR=" + descriptor,
+		"PLUGIN_ROOT=" + pluginRoot,
+		"CPU_MILLIS=" + strconv.Itoa(policy.CPUMillis),
+		"MEMORY_BYTES=" + strconv.FormatInt(policy.MemoryBytes, 10),
+		"PROCESS_LIMIT=" + strconv.Itoa(policy.ProcessLimit),
+	}
+	return worker, nil
+}
+
+func NewManifestTypeScriptWorker(command, workerScript, descriptor, pluginRoot, projectID string, manifest Manifest, policy IsolationPolicy) (*TypeScriptWorker, error) {
 	if strings.TrimSpace(projectID) == "" {
 		return nil, ErrTypeScriptWorkerManifest
 	}
@@ -94,7 +112,7 @@ func NewManifestBubblewrapTypeScriptWorker(launcher, workerScript, descriptor, p
 	if err := os.WriteFile(descriptor, data, 0o600); err != nil {
 		return nil, err
 	}
-	worker := NewBubblewrapTypeScriptWorker(launcher, workerScript, descriptor, pluginRoot, policy)
+	worker := NewTypeScriptWorkerWithOptions(TypeScriptWorkerOptions{InvocationTimeout: policy.WallTime, ProjectID: projectID}, command, workerScript, descriptor)
 	worker.options.ProjectID = projectID
 	return worker, nil
 }

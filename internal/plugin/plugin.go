@@ -275,6 +275,7 @@ type Registry struct {
 	supervisor        *Supervisor
 	workerMu          sync.RWMutex
 	workers           map[string]ContractWorker
+	workerFactory     func(projectID, pluginID, version string) (ContractWorker, error)
 	webSockets        *WebSocketRegistry
 }
 
@@ -284,6 +285,12 @@ func (r *Registry) BindSupervisor(supervisor *Supervisor) {
 
 func (r *Registry) BindWebSocketRegistry(webSockets *WebSocketRegistry) {
 	r.webSockets = webSockets
+}
+
+func (r *Registry) BindWorkerFactory(factory func(projectID, pluginID, version string) (ContractWorker, error)) {
+	r.workerMu.Lock()
+	defer r.workerMu.Unlock()
+	r.workerFactory = factory
 }
 
 type AuditEvent struct {
@@ -847,6 +854,22 @@ func (r *Registry) Enable(projectID, id, version string) error {
 	}
 	i.Enabled = true
 	r.installations[key] = i
+	if r.workerFactory != nil {
+		worker, err := r.workerFactory(projectID, id, version)
+		if err != nil {
+			i.Enabled = false
+			r.installations[key] = i
+			return err
+		}
+		if err := worker.Start(); err != nil {
+			i.Enabled = false
+			r.installations[key] = i
+			return err
+		}
+		r.workerMu.Lock()
+		r.workers[key] = worker
+		r.workerMu.Unlock()
+	}
 	r.appendAudit(AuditEvent{Action: "enable", ProjectID: projectID, PluginID: id, Version: version})
 	return nil
 }

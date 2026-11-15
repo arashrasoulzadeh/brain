@@ -16,7 +16,7 @@ if (!descriptor.entrypoint || !descriptor.pluginId || !descriptor.version || !de
 const modulePath = pathToFileURL(descriptor.entrypoint).href;
 const plugin = await import(modulePath);
 const handler = plugin.handle ?? plugin.createHandler?.();
-if (typeof handler !== "function" && descriptor.routes.some((route) => typeof plugin[route.function] !== "function")) {
+if (typeof handler !== "function" && typeof plugin.functions !== "function" && descriptor.routes.some((route) => typeof plugin[route.function] !== "function")) {
   process.stderr.write("plugin must export handle or createHandler\n");
   process.exit(65);
 }
@@ -42,7 +42,10 @@ for await (const line of input) {
 }
 
 async function invokeDeclaredRoute(plugin, functionName, request) {
-  const exported = plugin[functionName] ?? (typeof plugin.functions === "function" ? plugin.functions()[functionName] : undefined);
-  if (typeof exported === "function") return exported(request.params.payload ?? null);
+  const directExport = plugin[functionName];
+  if (typeof directExport === "function") return directExport(request.params.payload ?? null);
+  const functionMap = typeof plugin.functions === "function" ? plugin.functions() : null;
+  const mappedExport = functionMap?.[functionName];
+  if (typeof mappedExport === "function") return mappedExport(request);
   throw new Error(`declared plugin function is not exported: ${functionName}`);
 }
