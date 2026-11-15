@@ -129,3 +129,35 @@ button {
 @media (max-width:800px){.shell{padding:12px}.workspace{display:block}.sidebar{position:static;padding:12px 4px}.sidebar h2{display:none}.sidebar-nav{display:flex;overflow:auto}.sidebar-actions{display:flex;margin-top:14px}.sidebar-actions button{width:auto}.card{padding:24px}.top{gap:12px}}
 .rich-editor .editor-completions{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px;padding:10px 14px;background:#14203a;color:#a9c5ff;font-size:11px}.rich-editor .editor-completions code{padding:4px 7px;border:1px solid #3a5685;border-radius:6px}
 .setting-toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:16px 0;padding:12px 14px;border:1px solid #e1e7f0;border-radius:12px;background:#f8faff}.setting-toolbar span{padding:6px 10px;border-radius:999px;background:#e9effb;color:#315da9;font-size:12px;font-weight:750}.setting-toolbar button{margin:0}
+
+/* Tailwind component layer: shared primitives used by every admin route. */
+@layer components {
+  .shell { @apply min-h-screen p-6; }
+  .workspace { @apply grid w-full max-w-none grid-cols-[250px_minmax(0,1fr)] items-start gap-6; }
+  .card { @apply min-w-0 w-full rounded-3xl border border-slate-200 bg-white p-10 shadow-2xl shadow-slate-900/10; }
+  .sidebar { @apply sticky top-6 min-h-[calc(100vh-3rem)] rounded-[22px] bg-slate-900 p-7 text-slate-100 shadow-2xl shadow-slate-900/25; }
+  .sidebar-nav { @apply grid gap-1.5; }
+  .sidebar-nav a { @apply rounded-xl px-3 py-2.5 font-bold text-slate-300 no-underline transition-colors; }
+  .sidebar-nav a:hover, .sidebar-nav a.active { @apply bg-blue-700 text-white shadow-lg shadow-blue-950/30; }
+  .admin-header { @apply mb-5; }
+  .admin-footer { @apply mt-11 border-t border-slate-200 pt-5 text-xs text-slate-500; }
+  .table-wrap { @apply overflow-auto rounded-2xl border border-slate-200 bg-white; }
+  .table-wrap th { @apply bg-slate-50 px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-500; }
+  .table-wrap td { @apply border-b border-slate-100 px-4 py-3.5 text-left; }
+  input, select, textarea { @apply rounded-lg border border-slate-300 bg-white px-3.5 py-3 text-slate-900 shadow-sm outline-none transition; }
+  input:focus, select:focus, textarea:focus { @apply border-blue-500 ring-2 ring-blue-200; }
+  button { @apply rounded-lg bg-blue-600 px-4 py-3 font-bold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50; }
+  .secondary, .language { @apply bg-slate-100 text-blue-700 hover:bg-slate-200; }
+  .notice { @apply rounded-xl bg-blue-50 px-3.5 py-3 text-blue-800; }
+  .muted { @apply text-slate-500; }
+  .function-editor { @apply max-w-5xl rounded-2xl border border-slate-200 bg-white p-5; }
+  .permission-panel { @apply mt-6 max-w-3xl rounded-2xl border border-slate-200 p-5; }
+  .permission-row { @apply flex items-center justify-between border-b border-slate-100 py-2.5; }
+  .function-tabs { @apply my-5 flex gap-2 border-b border-slate-200; }
+  .function-tabs button { @apply rounded-t-lg bg-transparent text-slate-600 hover:bg-blue-50 hover:text-blue-700; }
+  .function-tabs button.active { @apply bg-blue-600 text-white; }
+  .metric-grid { @apply grid grid-cols-1 gap-4 md:grid-cols-3; }
+  .metric-grid article { @apply rounded-2xl border border-slate-200 bg-slate-50 p-5; }
+  .metric-grid strong { @apply block text-3xl text-blue-700; }
+  .metric-grid span { @apply block text-slate-500; }
+}
