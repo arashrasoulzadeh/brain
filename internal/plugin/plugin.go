@@ -491,6 +491,19 @@ func (r *Registry) prepareStorageRequest(request WorkerRequest) WorkerRequest {
 		request.Payload, _ = json.Marshal(payload)
 		return request
 	}
+	if request.PluginID == "analytics" && request.Operation == "analytics.capture" {
+		var event map[string]any
+		if json.Unmarshal(request.Payload, &event) == nil {
+			state, _ := r.storage.State(request.ProjectID, "analytics", "events")
+			if state == nil {
+				state = map[string]any{"events": []any{}}
+			}
+			events, _ := state["events"].([]any)
+			events = append(events, event)
+			state["events"] = events
+			_ = r.storage.PutState(request.ProjectID, "analytics", "events", state)
+		}
+	}
 	if request.PluginID != "tables" {
 		return request
 	}
