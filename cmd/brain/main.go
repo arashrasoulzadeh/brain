@@ -53,8 +53,27 @@ func productionServer() *app.Server {
 		return app.NewServer()
 	}
 	registry := plugin.NewRegistry(1)
+	registerDiscoveredPlugins(registry)
 	projects := project.NewStore()
 	return app.NewServerWithOperatorAdmin(admin.NewLifecycleServiceWithProjects(operators, registry, projects), operators, digest)
+}
+
+func registerDiscoveredPlugins(registry *plugin.Registry) {
+	locations, err := plugin.Discover("plugins")
+	if err != nil {
+		log.Printf("plugin discovery unavailable: %v", err)
+		return
+	}
+	for _, location := range locations {
+		manifest, err := plugin.LoadManifest(location.ManifestPath)
+		if err != nil {
+			log.Printf("plugin %s rejected: %v", location.ID, err)
+			continue
+		}
+		if err := registry.Register(manifest); err != nil {
+			log.Printf("plugin %s@%s rejected: %v", manifest.ID, manifest.Version, err)
+		}
+	}
 }
 
 func verifyObjectManifest(path string) {
