@@ -247,6 +247,7 @@ type InstallationStatus struct {
 	Version    string
 	Enabled    bool
 	Ready      bool
+	Grants     []string
 	Draining   bool
 	DrainUntil time.Time
 }
@@ -428,7 +429,14 @@ func (r *Registry) Status(projectID, pluginID, version string) (InstallationStat
 		return InstallationStatus{}, ErrNotInstalled
 	}
 	ready := r.readiness[pluginID+"@"+version]
-	return InstallationStatus{ProjectID: projectID, PluginID: pluginID, Version: version, Enabled: installation.Enabled, Ready: ready, Draining: installation.Draining, DrainUntil: installation.DrainUntil}, nil
+	grants := make([]string, 0, len(installation.Grants))
+	for capability, granted := range installation.Grants {
+		if granted {
+			grants = append(grants, capability)
+		}
+	}
+	sort.Strings(grants)
+	return InstallationStatus{ProjectID: projectID, PluginID: pluginID, Version: version, Enabled: installation.Enabled, Ready: ready, Grants: grants, Draining: installation.Draining, DrainUntil: installation.DrainUntil}, nil
 }
 
 func (r *Registry) ApproveArtifact(id, version, endpoint string) error {
