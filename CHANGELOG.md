@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `5e2e969` — 2026-11-15 12:33:56 +0330 — require admin confirmation for destructive actions
+  Files: internal/app/admin.go,tests/app/admin_test.go
+- `8d9cae8` — 2026-11-15 09:03:18 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `7519519` — 2026-11-15 12:33:03 +0330 — mark dashboard routine operations complete
   Files: roadmap_admin.md
 - `00e528d` — 2026-11-15 09:03:01 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `8ef5720` — 2026-11-15 12:13:42 +0330 — audit durable data deletion
   Files: internal/admin/lifecycle.go,tests/admin/lifecycle_test.go
 - `c6ee526` — 2026-11-15 08:43:25 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `a5a65c7` — 2026-11-15 12:13:11 +0330 — add audited admin lifecycle service
-  Files: internal/admin/lifecycle.go,tests/admin/lifecycle_test.go
-- `8b1e024` — 2026-11-15 08:42:23 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
