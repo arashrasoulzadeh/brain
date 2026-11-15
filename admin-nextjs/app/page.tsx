@@ -194,7 +194,7 @@ export default function AdminPage() {
   }
   async function runPluginAction(operation: string, installation: PluginStatus) {
     setError("");
-    const project = projects.find((candidate) => candidate.Active);
+    const project = projects.find((candidate) => candidate.ID === selectedProjectID && candidate.Active);
     if (!project) { setError("Create an active project first"); return; }
     const manifest = manifests.find((candidate) => candidate.ID === installation.PluginID && candidate.Version === installation.Version);
     const capability = manifest?.Capabilities?.[0] ?? "";
