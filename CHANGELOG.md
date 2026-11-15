@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `487b4f9` — 2026-11-15 12:15:57 +0330 — audit plugin permission actions
+  Files: internal/admin/lifecycle.go,tests/admin/lifecycle_test.go
+- `8e5eb31` — 2026-11-15 08:45:14 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `b03ada6` — 2026-11-15 12:15:00 +0330 — audit migration and rollback actions
   Files: internal/admin/lifecycle.go,tests/admin/lifecycle_test.go
 - `33f0aba` — 2026-11-15 08:44:31 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `3897676` — 2026-11-15 02:23:27 +0330 — harden invite validation boundaries
   Files: plugins/invites/invite-accepter.ts,plugins/invites/invite-creator.ts tests/invites/invites.test.ts
 - `abf0585` — 2026-11-14 22:53:00 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `e89084a` — 2026-11-15 02:22:47 +0330 — validate matchmaking scope boundaries
-  Files: plugins/matchmaking/assignment-creator.ts,plugins/matchmaking/ticket-canceller.ts plugins/matchmaking/ticket-enqueuer.ts,plugins/matchmaking/ticket-matcher.ts plugins/matchmaking/ticket-reader.ts,plugins/matchmaking/ticket-requeuer.ts tests/matchmaking/matchmaking.test.ts
-- `bcee2c9` — 2026-11-14 22:52:15 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
