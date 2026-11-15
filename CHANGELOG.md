@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `9a9d3e9` — 2026-11-15 14:47:45 +0330 — match plugin page shell and prevent route flash
+  Files: admin-nextjs/app/plugins/[plugin]/page.tsx
+- `55142a5` — 2026-11-15 11:15:57 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `96dfb07` — 2026-11-15 14:45:40 +0330 — fix plugin settings build
   Files: admin-nextjs/app/plugins/[plugin]/page.tsx
 - `56c0713` — 2026-11-15 11:13:41 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `d3fb806` — 2026-11-15 13:39:37 +0330 — isolate project controls to projects page
   Files: admin-nextjs/app/page.tsx
-- `8674440` — 2026-11-15 10:08:53 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `7d57f6c` — 2026-11-15 13:38:40 +0330 — split admin into full width pages
-  Files: admin-nextjs/app/audit/page.tsx,admin-nextjs/app/page.tsx admin-nextjs/app/plugins/page.tsx,admin-nextjs/app/projects/page.tsx admin-nextjs/app/styles.css,admin-nextjs/app/system/page.tsx
