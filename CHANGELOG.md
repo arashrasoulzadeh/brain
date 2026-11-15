@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `02710a4` — 2026-11-15 12:17:22 +0330 — mount audited admin server boundary
+  Files: internal/app/app.go,tests/app/admin_test.go
+- `41894f7` — 2026-11-15 08:47:04 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `9137037` — 2026-11-15 12:16:47 +0330 — wire audited admin HTTP boundary
   Files: internal/app/admin.go,internal/operator/context.go tests/app/admin_test.go
 - `fd7ca9c` — 2026-11-15 08:46:12 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `0c9c4a6` — 2026-11-15 02:24:58 +0330 — validate table authorization boundaries
   Files: plugins/tables/row-policy-checker.ts,plugins/tables/row-policy-granter.ts plugins/tables/scoped-transaction-change-reader.ts,plugins/tables/scoped-transaction-change-writer.ts plugins/tables/table-exposure-reader.ts,tests/tables/tables.test.ts
 - `fd6ec24` — 2026-11-14 22:54:18 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `774a9c2` — 2026-11-15 02:24:05 +0330 — validate arena identity and result time
-  Files: plugins/arena/arena-state.ts,plugins/arena/validate-result.ts tests/arena/arena.test.ts
-- `d7c7446` — 2026-11-14 22:53:41 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
