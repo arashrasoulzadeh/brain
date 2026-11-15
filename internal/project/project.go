@@ -1,12 +1,14 @@
 package project
 
 import (
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"os"
 	"path/filepath"
 	"regexp"
 	"sort"
+	"strings"
 	"sync"
 )
 
@@ -41,6 +43,17 @@ func (s *Store) Create(id string) error {
 		return ErrDuplicate
 	}
 	s.projects[id] = Project{ID: id, Active: true}
+	if s.db != nil {
+		_, err := s.db.Exec(`INSERT INTO projects (id, active) VALUES (?, 1)`, id)
+		if err != nil {
+			delete(s.projects, id)
+			if strings.Contains(err.Error(), "UNIQUE") {
+				return ErrDuplicate
+			}
+			return err
+		}
+		return nil
+	}
 	return s.persistLocked()
 }
 
@@ -48,6 +61,7 @@ type Store struct {
 	mu       sync.RWMutex
 	projects map[string]Project
 	path     string
+	db       *sql.DB
 }
 
 func NewStore(projects ...Project) *Store {
@@ -89,6 +103,20 @@ func (s *Store) Resolve(id string) (Project, error) {
 	}
 	s.mu.RLock()
 	defer s.mu.RUnlock()
+	if s.db != nil {
+		var active bool
+		err := s.db.QueryRow(`SELECT active FROM projects WHERE id = ?`, id).Scan(&active)
+		if errors.Is(err, sql.ErrNoRows) {
+			return Project{}, ErrNotFound
+		}
+		if err != nil {
+			return Project{}, err
+		}
+		if !active {
+			return Project{}, ErrInactive
+		}
+		return Project{ID: id, Active: true}, nil
+	}
 	p, ok := s.projects[id]
 	if !ok {
 		return Project{}, ErrNotFound
@@ -102,6 +130,21 @@ func (s *Store) Resolve(id string) (Project, error) {
 func (s *Store) List() []Project {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
+	if s.db != nil {
+		rows, err := s.db.Query(`SELECT id, active FROM projects ORDER BY id`)
+		if err != nil {
+			return nil
+		}
+		defer rows.Close()
+		projects := make([]Project, 0)
+		for rows.Next() {
+			var item Project
+			if rows.Scan(&item.ID, &item.Active) == nil {
+				projects = append(projects, item)
+			}
+		}
+		return projects
+	}
 	projects := make([]Project, 0, len(s.projects))
 	for _, project := range s.projects {
 		projects = append(projects, project)
@@ -116,6 +159,20 @@ func (s *Store) SetActive(id string, active bool) error {
 	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	if s.db != nil {
+		result, err := s.db.Exec(`UPDATE projects SET active = ? WHERE id = ?`, active, id)
+		if err != nil {
+			return err
+		}
+		count, err := result.RowsAffected()
+		if err != nil {
+			return err
+		}
+		if count == 0 {
+			return ErrNotFound
+		}
+		return nil
+	}
 	project, ok := s.projects[id]
 	if !ok {
 		return ErrNotFound

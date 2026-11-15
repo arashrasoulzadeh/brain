@@ -56,9 +56,9 @@ func productionServer() *app.Server {
 	registerDiscoveredPlugins(registry)
 	projectsPath := os.Getenv("PROJECTS_FILE")
 	if projectsPath == "" {
-		projectsPath = ".local/projects.json"
+		projectsPath = ".local/brain.sqlite"
 	}
-	projects, err := project.NewPersistentStore(projectsPath)
+	projects, err := project.NewSQLiteStore(projectsPath)
 	if err != nil {
 		log.Printf("project store unavailable: %v", err)
 		projects = project.NewStore()

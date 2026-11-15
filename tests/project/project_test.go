@@ -81,6 +81,28 @@ func TestPersistentStoreSurvivesReopen(t *testing.T) {
 	}
 }
 
+func TestSQLiteStoreSurvivesReopen(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "projects.sqlite")
+	first, err := project.NewSQLiteStore(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := first.Create("sqlite-dev"); err != nil {
+		t.Fatal(err)
+	}
+	if err := first.SetActive("sqlite-dev", false); err != nil {
+		t.Fatal(err)
+	}
+	second, err := project.NewSQLiteStore(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	projects := second.List()
+	if len(projects) != 1 || projects[0].ID != "sqlite-dev" || projects[0].Active {
+		t.Fatalf("reopened sqlite projects = %#v", projects)
+	}
+}
+
 func TestStoreSupportsConcurrentProjectAccess(t *testing.T) {
 	store := project.NewStore()
 	var group sync.WaitGroup
