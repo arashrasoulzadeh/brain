@@ -58,6 +58,8 @@ const copy = {
     functions: "Functions",
     workflows: "Workflows",
     liveSessions: "Live sessions",
+    routesPage: "Routes",
+    monitoring: "Monitoring",
     remove: "Remove",
     markReady: "Mark ready",
     promote: "Promote",
@@ -116,6 +118,8 @@ const copy = {
     functions: "توابع",
     workflows: "گردش‌کارها",
     liveSessions: "جلسه‌های زنده",
+    routesPage: "مسیرها",
+    monitoring: "پایش",
     remove: "حذف",
     markReady: "اعلام آمادگی",
     promote: "ارتقا",
@@ -130,6 +134,7 @@ export default function AdminPage() {
   const activePage = pathname.split("/")[1] || "projects";
   const [language, setLanguage] = useState<Language>("en");
   const [session, setSession] = useState("");
+  const [hydratingSession, setHydratingSession] = useState(true);
   const [projects, setProjects] = useState<Project[]>([]);
   const [manifests, setManifests] = useState<PluginManifest[]>([]);
   const [installations, setInstallations] = useState<PluginStatus[]>([]);
@@ -144,7 +149,7 @@ export default function AdminPage() {
   const [pluginFilter, setPluginFilter] = useState("");
   const [auditFilter, setAuditFilter] = useState("");
   const text = copy[language];
-  const pageTitle = ({ projects: text.projects, plugins: text.plugins, system: text.system, audit: text.audit, database: text.database, functions: text.functions, workflows: text.workflows, files: text.files, "live-sessions": text.liveSessions } as Record<string, string>)[activePage] ?? text.projects;
+  const pageTitle = ({ projects: text.projects, plugins: text.plugins, system: text.system, audit: text.audit, database: text.database, functions: text.functions, workflows: text.workflows, files: text.files, "live-sessions": text.liveSessions, routes: text.routesPage, monitoring: text.monitoring } as Record<string, string>)[activePage] ?? text.projects;
   useEffect(() => {
     if (!session) return;
     const refresh = () => Promise.all([loadProjects(session), loadPlugins(session, selectedProjectID), loadAudit(session), loadSystem(session)]).catch(() => undefined);
@@ -153,7 +158,7 @@ export default function AdminPage() {
   }, [session, selectedProjectID]);
   useEffect(() => {
     const savedSession = window.sessionStorage.getItem("brain-admin-session");
-    if (!savedSession) return;
+    if (!savedSession) { setHydratingSession(false); return; }
     setSession(savedSession);
     loadProjects(savedSession).then((loadedProjects) => {
       const activeProjectID = loadedProjects.find((project) => project.Active)?.ID ?? "";
@@ -163,7 +168,7 @@ export default function AdminPage() {
       window.sessionStorage.removeItem("brain-admin-session");
       setSession("");
       setError("Your operator session expired. Please sign in again.");
-    });
+    }).finally(() => setHydratingSession(false));
   }, []);
   async function loadProjects(token: string): Promise<Project[]> {
     const response = await fetch("/api/admin/projects", {
@@ -303,6 +308,8 @@ export default function AdminPage() {
       {language === "en" ? "فارسی" : "English"}
     </button>
   );
+  if (hydratingSession)
+    return <main className="shell" dir={language === "fa" ? "rtl" : "ltr"}><section className="card login"><p className="eyebrow">{text.eyebrow}</p><p className="muted">Loading operator session…</p></section></main>;
   if (!session)
     return (
       <main className="shell" dir={language === "fa" ? "rtl" : "ltr"}>
@@ -351,6 +358,8 @@ export default function AdminPage() {
             {system.some((manifest) => manifest.ID === "functions") && <a className={activePage === "workflows" ? "active" : ""} href="/workflows">{text.workflows}</a>}
             {system.some((manifest) => manifest.ID === "files") && <a className={activePage === "files" ? "active" : ""} href="/files">{text.files}</a>}
             {system.some((manifest) => ["rooms", "matchmaking"].includes(manifest.ID)) && <a className={activePage === "live-sessions" ? "active" : ""} href="/live-sessions">{text.liveSessions}</a>}
+            {system.length > 0 && <a className={activePage === "routes" ? "active" : ""} href="/routes">{text.routesPage}</a>}
+            {system.length > 0 && <a className={activePage === "monitoring" ? "active" : ""} href="/monitoring">{text.monitoring}</a>}
           </nav>
           <label className="sidebar-project" htmlFor="sidebar-project">{text.project}<select id="sidebar-project" value={selectedProjectID} onChange={(event) => { const nextProjectID = event.target.value; setSelectedProjectID(nextProjectID); void loadPlugins(session, nextProjectID); }}><option value="">—</option>{projects.map((project) => <option key={project.ID} value={project.ID} disabled={!project.Active}>{project.ID}</option>)}</select></label>
           <div className="sidebar-actions">{switcher}<button className="secondary" onClick={() => void signOut()}>{text.signOut}</button></div>
@@ -390,6 +399,8 @@ export default function AdminPage() {
         <section className={`section ${activePage !== "workflows" ? "page-hidden" : ""}`}><div className="section-heading"><div><p className="eyebrow">{text.workflows}</p><h2>{text.workflows}</h2></div></div><div className="plugin-grid">{system.filter((manifest) => manifest.ID === "functions").map((manifest) => <article className="plugin" key={`workflows-${manifest.ID}`}><h3>{manifest.Title}</h3><p className="muted">{manifest.Description}</p><div className="route-list">{manifest.Routes?.filter((route) => route.Operation.includes("workflow") || route.Operation.includes("deploy") || route.Operation.includes("function")).map((route) => <div key={route.Operation}><code>{route.Operation}</code><small>{route.Capability}</small></div>)}</div></article>)}</div></section>
         <section className={`section ${activePage !== "files" ? "page-hidden" : ""}`}><div className="section-heading"><div><p className="eyebrow">{text.files}</p><h2>{text.files}</h2></div></div><div className="plugin-grid">{system.filter((manifest) => manifest.ID === "files").map((manifest) => <article className="plugin" key={`files-${manifest.ID}`}><h3>{manifest.Title}</h3><p className="muted">{manifest.Description}</p><div className="route-list">{manifest.Routes?.map((route) => <div key={route.Operation}><code>{route.Operation}</code><small>{route.Capability}</small></div>)}</div></article>)}</div></section>
         <section className={`section ${activePage !== "live-sessions" ? "page-hidden" : ""}`}><div className="section-heading"><div><p className="eyebrow">{text.liveSessions}</p><h2>{text.liveSessions}</h2></div></div><div className="plugin-grid">{system.filter((manifest) => ["rooms", "matchmaking"].includes(manifest.ID)).map((manifest) => <article className="plugin" key={`live-${manifest.ID}`}><h3>{manifest.Title}</h3><p className="muted">{manifest.Description}</p><div className="route-list">{manifest.Routes?.map((route) => <div key={route.Operation}><code>{route.Operation}</code><small>{route.Capability}</small></div>)}</div></article>)}</div></section>
+        <section className={`section ${activePage !== "routes" ? "page-hidden" : ""}`}><div className="section-heading"><div><p className="eyebrow">{text.routesPage}</p><h2>{text.routesPage}</h2></div><span className="count">{system.reduce((total, manifest) => total + (manifest.Routes?.length ?? 0), 0)}</span></div><div className="plugin-grid">{system.map((manifest) => <article className="plugin" key={`routes-${manifest.ID}`}><h3>{manifest.Title}</h3><div className="route-list">{manifest.Routes?.map((route) => <div key={route.Operation}><code>{route.Operation}</code><small>{route.Capability}</small></div>)}</div></article>)}</div></section>
+        <section className={`section ${activePage !== "monitoring" ? "page-hidden" : ""}`}><div className="section-heading"><div><p className="eyebrow">{text.monitoring}</p><h2>{text.monitoring}</h2></div><span className="count">{installations.length}</span></div><div className="audit-list">{installations.map((installation) => <div className="audit" key={`${installation.ProjectID}-${installation.PluginID}@${installation.Version}`}><span className={installation.Enabled && installation.Ready ? "success" : "failure"}>{installation.Enabled && installation.Ready ? "✓" : "!"}</span><div><strong>{installation.PluginID}@{installation.Version}</strong><small>{installation.ProjectID} · {installation.Enabled ? text.enabled : text.disabled} · {installation.Ready ? text.ready : text.notReady}{installation.Draining ? " · draining" : ""}</small></div></div>)}</div></section>
         </section>
       </div>
     </main>
