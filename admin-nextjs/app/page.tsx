@@ -143,6 +143,12 @@ export default function AdminPage() {
     const timer = window.setInterval(refresh, 10000);
     return () => window.clearInterval(timer);
   }, [session, selectedProjectID]);
+  useEffect(() => {
+    const savedSession = window.sessionStorage.getItem("brain-admin-session");
+    if (!savedSession) return;
+    setSession(savedSession);
+    Promise.all([loadProjects(savedSession), loadPlugins(savedSession), loadAudit(savedSession), loadSystem(savedSession)]).catch(() => setError("Could not restore operator session"));
+  }, []);
   async function loadProjects(token: string): Promise<Project[]> {
     const response = await fetch("/api/admin/projects", {
       headers: { authorization: `Bearer ${token}` },
@@ -182,6 +188,7 @@ export default function AdminPage() {
       if (!response.ok) throw new Error(text.invalid);
       const token = ((await response.json()) as { session: string }).session;
       setSession(token);
+      window.sessionStorage.setItem("brain-admin-session", token);
       const loadedProjects = await loadProjects(token);
       setSelectedProjectID(loadedProjects.find((project) => project.Active)?.ID ?? "");
       await loadPlugins(token, loadedProjects.find((project) => project.Active)?.ID ?? "");
@@ -193,6 +200,7 @@ export default function AdminPage() {
   }
   async function signOut() {
     await fetch("/api/admin/session", { method: "DELETE", headers: { authorization: `Bearer ${session}` } }).catch(() => undefined);
+    window.sessionStorage.removeItem("brain-admin-session");
     setSession("");
   }
   async function createProject(event: FormEvent) {
