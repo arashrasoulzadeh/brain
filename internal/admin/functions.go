@@ -170,8 +170,11 @@ func (s *LifecycleService) CreateFunctionDraftWithSettings(actor operator.Actor,
 }
 
 func (s *LifecycleService) UpdateFunctionDraft(actor operator.Actor, projectID, name, source string, version int) (FunctionDraft, error) {
-	if actor.Kind != operator.ActorOperator || strings.TrimSpace(projectID) == "" || !functionNamePattern.MatchString(strings.TrimSpace(name)) || strings.TrimSpace(source) == "" || len(source) > maxFunctionSourceBytes || version < 1 {
+	if actor.Kind != operator.ActorOperator || strings.TrimSpace(projectID) == "" || !functionNamePattern.MatchString(strings.TrimSpace(name)) || len(source) > maxFunctionSourceBytes || version < 1 {
 		return FunctionDraft{}, ErrFunctionDraftInvalid
+	}
+	if strings.TrimSpace(source) == "" {
+		return FunctionDraft{}, errors.New("function source is required")
 	}
 	functionDrafts.Lock()
 	defer functionDrafts.Unlock()

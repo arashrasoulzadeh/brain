@@ -119,6 +119,10 @@ export default function FunctionDetailPage() {
       setMessage("Select an active project and sign in before publishing.");
       return;
     }
+    if (!draft.name.trim() || !draft.source.trim()) {
+      setMessage("Cannot publish: function name and source are required.");
+      return;
+    }
     setPublishing(true);
     setMessage("Saving source and publishing…");
     try {
@@ -187,6 +191,10 @@ export default function FunctionDetailPage() {
   async function saveDraft() {
     if (!draft || !project || !session) {
       setMessage("Select an active project and sign in before saving.");
+      return;
+    }
+    if (!draft.name.trim() || !draft.source.trim()) {
+      setMessage("Cannot save: function name and source are required.");
       return;
     }
     setPublishing(true);
