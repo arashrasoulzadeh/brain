@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `88f7b87` — 2026-11-15 12:39:23 +0330 — mark packaged admin verification complete
+  Files: roadmap_admin.md
+- `64162e9` — 2026-11-15 09:09:26 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `166f0f6` — 2026-11-15 12:39:10 +0330 — verify packaged admin composition
   Files: cmd/brain/main_test.go
 - `d8fbe27` — 2026-11-15 09:08:58 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `4014f79` — 2026-11-15 12:21:51 +0330 — validate auth state project boundaries
   Files: plugins/auth/account-project.ts,plugins/auth/index.ts tests/auth/auth.test.ts
 - `3ea2358` — 2026-11-15 08:51:07 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `f521c5a` — 2026-11-15 12:20:52 +0330 — validate plugin project boundaries
-  Files: plugins/arena/arena-start.ts,plugins/dashboard/file-management-page.ts tests/arena/arena.test.ts,tests/dashboard/dashboard.test.ts
-- `6561360` — 2026-11-15 08:49:30 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
