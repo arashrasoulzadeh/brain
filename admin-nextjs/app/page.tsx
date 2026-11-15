@@ -1,0 +1,15 @@
+"use client";
+
+import { FormEvent, useState } from "react";
+
+type Project = { ID: string; Active: boolean };
+
+export default function AdminPage() {
+  const [session, setSession] = useState(""); const [projects, setProjects] = useState<Project[]>([]); const [username, setUsername] = useState(""); const [secret, setSecret] = useState(""); const [projectID, setProjectID] = useState(""); const [error, setError] = useState("");
+  const api = process.env.NEXT_PUBLIC_BRAIN_API ?? "http://localhost:8080";
+  async function loadProjects(token: string) { const response = await fetch(`${api}/admin/projects`, { headers: { authorization: `Bearer ${token}` } }); if (!response.ok) throw new Error("Could not load projects"); setProjects(await response.json() as Project[]); }
+  async function signIn(event: FormEvent) { event.preventDefault(); setError(""); try { const response = await fetch(`${api}/admin/session`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ username, secret }) }); if (!response.ok) throw new Error("Invalid operator credentials"); const token = (await response.json() as { session: string }).session; setSession(token); await loadProjects(token); } catch (reason) { setError(reason instanceof Error ? reason.message : "Sign in failed"); } }
+  async function createProject(event: FormEvent) { event.preventDefault(); setError(""); try { const response = await fetch(`${api}/admin/actions`, { method: "POST", headers: { authorization: `Bearer ${session}`, "content-type": "application/json" }, body: JSON.stringify({ operation: "project.create", project_id: projectID }) }); if (!response.ok) throw new Error(await response.text()); setProjectID(""); await loadProjects(session); } catch (reason) { setError(reason instanceof Error ? reason.message : "Could not create project"); } }
+  if (!session) return <main className="shell"><section className="card login"><p className="eyebrow">BRAIN CONTROL PLANE</p><h1>Welcome back</h1><p className="muted">Securely manage projects and plugins.</p><form onSubmit={signIn}><label>Operator username<input value={username} onChange={event => setUsername(event.target.value)} required /></label><label>Secret<input type="password" value={secret} onChange={event => setSecret(event.target.value)} required /></label><button>Sign in</button>{error && <p className="error">{error}</p>}</form></section></main>;
+  return <main className="shell"><section className="card"><div className="top"><div><p className="eyebrow">BRAIN CONTROL PLANE</p><h1>Projects</h1></div><button className="secondary" onClick={() => setSession("")}>Sign out</button></div><form className="create" onSubmit={createProject}><input placeholder="New project ID" value={projectID} onChange={event => setProjectID(event.target.value)} required /><button>Create project</button></form>{error && <p className="error">{error}</p>}<div>{projects.length ? projects.map(project => <div className="project" key={project.ID}><span>{project.ID}</span><small>{project.Active ? "Active" : "Inactive"}</small></div>) : <p className="muted">No projects yet.</p>}</div></section></main>;
+}

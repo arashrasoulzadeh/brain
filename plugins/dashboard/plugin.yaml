@@ -32,7 +32,6 @@ source_files:
   - form-audit-recorder.ts
   - form-audit-reader.ts
   - browser-quickstart.ts
-  - admin-panel.html
 imports:
   - ../sdk-typescript/src/index.js
   - ../sdk-typescript/src/validate-project-id.js

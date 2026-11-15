@@ -14,6 +14,7 @@ import (
 	"brain/internal/deploy"
 	"brain/internal/operator"
 	"brain/internal/plugin"
+	"brain/internal/project"
 )
 
 func main() {
@@ -52,11 +53,8 @@ func productionServer() *app.Server {
 		return app.NewServer()
 	}
 	registry := plugin.NewRegistry(1)
-	panel, err := os.ReadFile("plugins/dashboard/admin-panel.html")
-	if err != nil {
-		log.Printf("admin panel unavailable: %v", err)
-	}
-	return app.NewServerWithOperatorAdminPage(admin.NewLifecycleService(operators, registry), operators, digest, string(panel))
+	projects := project.NewStore()
+	return app.NewServerWithOperatorAdminPage(admin.NewLifecycleServiceWithProjects(operators, registry, projects), operators, digest, "")
 }
 
 func verifyObjectManifest(path string) {

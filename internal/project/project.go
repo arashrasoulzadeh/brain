@@ -3,6 +3,7 @@ package project
 import (
 	"errors"
 	"regexp"
+	"sort"
 	"sync"
 )
 
@@ -70,4 +71,15 @@ func (s *Store) Resolve(id string) (Project, error) {
 		return Project{}, ErrInactive
 	}
 	return p, nil
+}
+
+func (s *Store) List() []Project {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	projects := make([]Project, 0, len(s.projects))
+	for _, project := range s.projects {
+		projects = append(projects, project)
+	}
+	sort.Slice(projects, func(left, right int) bool { return projects[left].ID < projects[right].ID })
+	return projects
 }

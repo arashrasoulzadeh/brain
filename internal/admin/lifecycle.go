@@ -4,15 +4,39 @@ import (
 	"brain/internal/deploy"
 	"brain/internal/operator"
 	"brain/internal/plugin"
+	"brain/internal/project"
 )
 
 type LifecycleService struct {
 	operators *operator.Store
 	registry  *plugin.Registry
+	projects  *project.Store
 }
 
 func NewLifecycleService(operators *operator.Store, registry *plugin.Registry) *LifecycleService {
 	return &LifecycleService{operators: operators, registry: registry}
+}
+
+func NewLifecycleServiceWithProjects(operators *operator.Store, registry *plugin.Registry, projects *project.Store) *LifecycleService {
+	service := NewLifecycleService(operators, registry)
+	service.projects = projects
+	return service
+}
+
+func (s *LifecycleService) CreateProject(actor operator.Actor, projectID string) error {
+	return s.execute(actor, "project.create", func() error {
+		if s.projects == nil {
+			return operator.ErrInvalidOperatorAction
+		}
+		return s.projects.Create(projectID)
+	})
+}
+
+func (s *LifecycleService) ListProjects(actor operator.Actor) ([]project.Project, error) {
+	if actor.Kind != operator.ActorOperator || s.projects == nil {
+		return nil, operator.ErrInvalidOperatorAction
+	}
+	return s.projects.List(), nil
 }
 
 func (s *LifecycleService) GrantCapability(actor operator.Actor, projectID, pluginID, version, capability string) error {
