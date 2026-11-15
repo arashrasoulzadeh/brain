@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `1b9b96f` — 2026-11-15 19:25:41 +0330 — complete public function routes and source methods
+  Files: admin-nextjs/app/functions/[name]/page.tsx,admin-nextjs/app/functions/new/page.tsx admin-nextjs/app/page.tsx,admin-nextjs/next.config.ts internal/admin/functions.go,internal/app/admin.go tests/admin/functions_test.go
+- `c009559` — 2026-11-15 15:48:42 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `a03dc58` — 2026-11-15 19:18:20 +0330 — enforce plugin lifecycle on function APIs
   Files: internal/admin/lifecycle.go,internal/app/admin.go tests/admin/functions_test.go
 - `f81fe4b` — 2026-11-15 15:46:54 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `0f9ea2c` — 2026-11-15 17:06:34 +0330 — implement tables admin routes
   Files: plugins/tables/index.ts,plugins/tables/plugin.yaml plugins/tables/tables-read.ts,plugins/tables/tables-schema.ts plugins/tables/tables-write.ts,tests/tables/tables.test.ts
 - `e8b71c8` — 2026-11-15 13:35:51 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `cde7a13` — 2026-11-15 17:05:36 +0330 — add database operation console
-  Files: admin-nextjs/app/page.tsx
-- `3aa111b` — 2026-11-15 13:33:12 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
