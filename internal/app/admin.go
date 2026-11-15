@@ -193,20 +193,21 @@ func AuthenticatedSystemHandler(service *admin.LifecycleService, sessions *opera
 }
 
 type adminCommand struct {
-	Operation  string         `json:"operation"`
-	ProjectID  string         `json:"project_id"`
-	PluginID   string         `json:"plugin_id"`
-	Version    string         `json:"version"`
-	Ready      bool           `json:"ready"`
-	Capability string         `json:"capability"`
-	Resource   string         `json:"resource"`
-	Key        string         `json:"key"`
-	Values     map[string]any `json:"values"`
-	Confirmed  bool           `json:"confirmed"`
-	Revision   uint64         `json:"revision"`
-	Dependents []string       `json:"dependents"`
-	Name       string         `json:"name"`
-	Source     string         `json:"source"`
+	Operation  string          `json:"operation"`
+	ProjectID  string          `json:"project_id"`
+	PluginID   string          `json:"plugin_id"`
+	Version    string          `json:"version"`
+	Ready      bool            `json:"ready"`
+	Capability string          `json:"capability"`
+	Resource   string          `json:"resource"`
+	Key        string          `json:"key"`
+	Values     map[string]any  `json:"values"`
+	Confirmed  bool            `json:"confirmed"`
+	Revision   uint64          `json:"revision"`
+	Dependents []string        `json:"dependents"`
+	Name       string          `json:"name"`
+	Source     string          `json:"source"`
+	Input      json.RawMessage `json:"input"`
 }
 
 func AuthenticatedFunctionsHandler(service *admin.LifecycleService, sessions *operator.Store) http.Handler {
@@ -242,6 +243,16 @@ func AuthenticatedFunctionsHandler(service *admin.LifecycleService, sessions *op
 		}
 		if command.Operation == "functions.test" {
 			result, err := service.TestFunctionDraft(actor, command.ProjectID, command.Name, command.Source)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			_ = json.NewEncoder(w).Encode(result)
+			return
+		}
+		if command.Operation == "functions.run" {
+			result, err := service.RunFunctionDraft(actor, command.ProjectID, command.Name, command.Source, command.Input)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusBadRequest)
 				return

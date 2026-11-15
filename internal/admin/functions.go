@@ -1,7 +1,11 @@
 package admin
 
 import (
+	"context"
+	"encoding/json"
 	"errors"
+	"os"
+	"os/exec"
 	"regexp"
 	"strings"
 	"sync"
@@ -80,4 +84,30 @@ func (s *LifecycleService) TestFunctionDraft(actor operator.Actor, projectID, na
 		return nil, ErrFunctionSourceInvalid
 	}
 	return map[string]any{"valid": true, "project_id": projectID, "name": strings.TrimSpace(name), "source_bytes": len(source), "message": "source passed the host preflight and is ready for sandbox compilation"}, nil
+}
+
+func (s *LifecycleService) RunFunctionDraft(actor operator.Actor, projectID, name, source string, input json.RawMessage) (map[string]any, error) {
+	if _, err := s.TestFunctionDraft(actor, projectID, name, source); err != nil {
+		return nil, err
+	}
+	if len(input) == 0 {
+		input = json.RawMessage(`null`)
+	}
+	if !json.Valid(input) {
+		return nil, errors.New("function input must be valid JSON")
+	}
+	const runner = `const vm=await import("node:vm");const source=process.env.BRAIN_FUNCTION_SOURCE;const input=JSON.parse(process.env.BRAIN_FUNCTION_INPUT);const context=vm.createContext(Object.create(null));const module=new vm.SourceTextModule(source,{context});await module.link(()=>{throw new Error("imports are not permitted")});await module.evaluate({timeout:450});const handler=module.namespace.default;if(typeof handler!=="function")throw new Error("default export must be a function");const result=await Promise.race([Promise.resolve(handler(input)),new Promise((_,reject)=>setTimeout(()=>reject(new Error("function execution timed out")),400))]);process.stdout.write(JSON.stringify(result??null));`
+	commandContext, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	command := exec.CommandContext(commandContext, "node", "--experimental-vm-modules", "--input-type=module", "-e", runner)
+	command.Env = append(os.Environ(), "BRAIN_FUNCTION_SOURCE="+source, "BRAIN_FUNCTION_INPUT="+string(input))
+	output, err := command.Output()
+	if err != nil {
+		return nil, errors.New("function execution failed")
+	}
+	var result any
+	if err := json.Unmarshal(output, &result); err != nil {
+		return nil, errors.New("function returned invalid JSON")
+	}
+	return map[string]any{"valid": true, "project_id": projectID, "name": name, "result": result}, nil
 }
