@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `c84040f` — 2026-11-15 12:28:59 +0330 — harden malformed authentication digests
+  Files: plugins/auth/email-otp-verifier.ts,plugins/auth/recovery-token-consumer.ts plugins/auth/sms-otp-verifier.ts,tests/auth/auth.test.ts
+- `06167ad` — 2026-11-15 08:58:11 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `1dae3fd` — 2026-11-15 12:27:58 +0330 — record verified backend release gates
   Files: roadmap_backend.md
 - `ccba3f7` — 2026-11-15 08:57:42 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `f199861` — 2026-11-15 12:07:27 +0330 — reject empty compose services
   Files: internal/deploy/compose.go,tests/deploy/compose_test.go
 - `3824c0a` — 2026-11-15 08:37:10 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `6cf468c` — 2026-11-15 12:06:53 +0330 — validate deployment project identity
-  Files: internal/deploy/sequence.go,tests/deploy/sequence_test.go
-- `d6660fa` — 2026-11-15 08:36:34 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
