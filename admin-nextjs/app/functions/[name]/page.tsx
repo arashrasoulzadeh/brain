@@ -184,6 +184,24 @@ export default function FunctionDetailPage() {
       setPublishing(false);
     }
   }
+  async function saveDraft() {
+    if (!draft || !project || !session) {
+      setMessage("Select an active project and sign in before saving.");
+      return;
+    }
+    setPublishing(true);
+    try {
+      const response = await fetch("/api/admin/functions", {
+        method: "POST",
+        headers: { authorization: `Bearer ${session}`, "content-type": "application/json" },
+        body: JSON.stringify({ operation: "functions.update", project_id: project, name: draft.name, source: draft.source, function_version: draft.version ?? 1 }),
+      });
+      setMessage(response.ok ? "Changes saved." : await response.text());
+      if (response.ok) await refresh(session);
+    } finally {
+      setPublishing(false);
+    }
+  }
   if (pluginAccess !== "allowed") return <p className="muted">Checking page access…</p>;
   if (!draft)
     return (
@@ -237,6 +255,14 @@ export default function FunctionDetailPage() {
                 <div className="rounded-lg bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700">
                   Method {draft.method ?? "—"} · set in source config
                 </div>
+                <button
+                  type="button"
+                  disabled={publishing}
+                  className="h-10 rounded-lg bg-slate-700 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+                  onClick={() => void saveDraft()}
+                >
+                  {publishing ? "Saving…" : "Save changes"}
+                </button>
                 <button
                   type="button"
                   disabled={publishing}
