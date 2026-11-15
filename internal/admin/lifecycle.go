@@ -5,7 +5,16 @@ import (
 	"brain/internal/operator"
 	"brain/internal/plugin"
 	"brain/internal/project"
+	"encoding/json"
 )
+
+type PluginInvocation struct {
+	ProjectID string
+	PluginID  string
+	Version   string
+	Operation string
+	Payload   json.RawMessage
+}
 
 type LifecycleService struct {
 	operators *operator.Store
@@ -127,6 +136,16 @@ func (s *LifecycleService) EnablePlugin(actor operator.Actor, projectID, pluginI
 	return s.execute(actor, "plugin.enable", func() error {
 		return s.registry.Enable(projectID, pluginID, version)
 	})
+}
+
+func (s *LifecycleService) InvokePlugin(actor operator.Actor, invocation PluginInvocation) (plugin.WorkerResponse, error) {
+	var response plugin.WorkerResponse
+	err := s.execute(actor, "plugin.invoke", func() error {
+		var invokeErr error
+		response, invokeErr = s.registry.Invoke(plugin.WorkerRequest{Protocol: s.registry.HostAPI, ProjectID: invocation.ProjectID, PluginID: invocation.PluginID, Version: invocation.Version, Operation: invocation.Operation, Payload: invocation.Payload})
+		return invokeErr
+	})
+	return response, err
 }
 
 func (s *LifecycleService) PromotePlugin(actor operator.Actor, projectID, pluginID, version string) error {

@@ -42,7 +42,7 @@ for await (const line of input) {
 }
 
 async function invokeDeclaredRoute(plugin, functionName, request) {
-  const exported = plugin[functionName];
+  const exported = plugin[functionName] ?? (typeof plugin.functions === "function" ? plugin.functions()[functionName] : undefined);
   if (typeof exported === "function") return exported(request.params.payload ?? null);
   throw new Error(`declared plugin function is not exported: ${functionName}`);
 }

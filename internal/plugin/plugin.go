@@ -273,6 +273,8 @@ type Registry struct {
 	durableData       map[string][]byte
 	durableMu         sync.RWMutex
 	supervisor        *Supervisor
+	workerMu          sync.RWMutex
+	workers           map[string]ContractWorker
 	webSockets        *WebSocketRegistry
 }
 
@@ -312,7 +314,64 @@ func (m Manifest) RequestedCapabilities() []CapabilityRequest {
 }
 
 func NewRegistry(hostAPI int) *Registry {
-	return &Registry{HostAPI: hostAPI, registered: map[string]Registered{}, installations: map[string]Installation{}, readiness: map[string]bool{}, active: map[string]string{}, pins: map[string]string{}, artifacts: map[string]string{}, approvals: map[string]bool{}, durableData: map[string][]byte{}}
+	return &Registry{HostAPI: hostAPI, registered: map[string]Registered{}, installations: map[string]Installation{}, readiness: map[string]bool{}, active: map[string]string{}, pins: map[string]string{}, artifacts: map[string]string{}, approvals: map[string]bool{}, durableData: map[string][]byte{}, workers: map[string]ContractWorker{}}
+}
+
+// BindWorker attaches the host-created runtime worker for one project plugin.
+// Lifecycle state remains authoritative; a bound worker alone can never execute.
+func (r *Registry) BindWorker(projectID, id, version string, worker ContractWorker) error {
+	if !isValidProjectID(projectID) || id == "" || version == "" || worker == nil {
+		return ErrInvalidWorkerRequest
+	}
+	r.workerMu.Lock()
+	defer r.workerMu.Unlock()
+	r.workers[projectID+":"+id+"@"+version] = worker
+	return nil
+}
+
+func (r *Registry) UnbindWorker(projectID, id, version string) {
+	r.workerMu.Lock()
+	defer r.workerMu.Unlock()
+	delete(r.workers, projectID+":"+id+"@"+version)
+}
+
+// Invoke executes only an installed, ready, enabled and fully granted plugin.
+func (r *Registry) Invoke(request WorkerRequest) (WorkerResponse, error) {
+	key := request.ProjectID + ":" + request.PluginID + "@" + request.Version
+	r.installationMu.RLock()
+	installation, installed := r.installations[key]
+	r.installationMu.RUnlock()
+	if !installed {
+		return WorkerResponse{}, ErrNotInstalled
+	}
+	if !installation.Enabled {
+		return WorkerResponse{}, ErrDisabled
+	}
+	r.readinessMu.RLock()
+	ready := r.readiness[request.PluginID+"@"+request.Version]
+	r.readinessMu.RUnlock()
+	if !ready {
+		return WorkerResponse{}, ErrNotReady
+	}
+	r.grantMu.RLock()
+	registered, exists := r.registered[request.PluginID+"@"+request.Version]
+	granted := exists
+	if exists {
+		for _, capability := range registered.Manifest.Capabilities {
+			if !installation.Grants[capability] {
+				granted = false
+				break
+			}
+		}
+	}
+	r.grantMu.RUnlock()
+	if !granted {
+		return WorkerResponse{}, ErrGrantDenied
+	}
+	r.workerMu.RLock()
+	worker := r.workers[key]
+	r.workerMu.RUnlock()
+	return InvokeForProject(worker, request, r.HostAPI, request.ProjectID)
 }
 
 func (r *Registry) RegisteredManifests() []Manifest {

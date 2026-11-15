@@ -193,21 +193,23 @@ func AuthenticatedSystemHandler(service *admin.LifecycleService, sessions *opera
 }
 
 type adminCommand struct {
-	Operation  string          `json:"operation"`
-	ProjectID  string          `json:"project_id"`
-	PluginID   string          `json:"plugin_id"`
-	Version    string          `json:"version"`
-	Ready      bool            `json:"ready"`
-	Capability string          `json:"capability"`
-	Resource   string          `json:"resource"`
-	Key        string          `json:"key"`
-	Values     map[string]any  `json:"values"`
-	Confirmed  bool            `json:"confirmed"`
-	Revision   uint64          `json:"revision"`
-	Dependents []string        `json:"dependents"`
-	Name       string          `json:"name"`
-	Source     string          `json:"source"`
-	Input      json.RawMessage `json:"input"`
+	Operation       string          `json:"operation"`
+	ProjectID       string          `json:"project_id"`
+	PluginID        string          `json:"plugin_id"`
+	Version         string          `json:"version"`
+	Ready           bool            `json:"ready"`
+	Capability      string          `json:"capability"`
+	Resource        string          `json:"resource"`
+	Key             string          `json:"key"`
+	Values          map[string]any  `json:"values"`
+	Confirmed       bool            `json:"confirmed"`
+	Revision        uint64          `json:"revision"`
+	Dependents      []string        `json:"dependents"`
+	Name            string          `json:"name"`
+	Source          string          `json:"source"`
+	Input           json.RawMessage `json:"input"`
+	Payload         json.RawMessage `json:"payload"`
+	TargetOperation string          `json:"target_operation"`
 }
 
 func AuthenticatedFunctionsHandler(service *admin.LifecycleService, sessions *operator.Store) http.Handler {
@@ -318,6 +320,15 @@ func AdminHandler(service *admin.LifecycleService) http.Handler {
 			err = service.GrantResource(actor, command.ProjectID, command.PluginID, command.Version, command.Capability, command.Resource)
 		case "plugin.configure":
 			err = service.ConfigurePlugin(actor, command.ProjectID, command.PluginID, command.Version, command.Values)
+		case "plugin.invoke":
+			response, invokeErr := service.InvokePlugin(actor, admin.PluginInvocation{ProjectID: command.ProjectID, PluginID: command.PluginID, Version: command.Version, Operation: command.TargetOperation, Payload: command.Payload})
+			if invokeErr != nil {
+				http.Error(w, invokeErr.Error(), http.StatusForbidden)
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			_ = json.NewEncoder(w).Encode(response)
+			return
 		case "plugin.revoke":
 			err = service.RevokeCapability(actor, command.ProjectID, command.PluginID, command.Version, command.Capability)
 		case "plugin.promote":

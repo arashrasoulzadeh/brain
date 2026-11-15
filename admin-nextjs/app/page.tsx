@@ -277,10 +277,25 @@ export default function AdminPage() {
   function testPlayground() {
     try { JSON.parse(playgroundPayload || "{}"); setPlaygroundMessage("Valid JSON payload"); } catch { setPlaygroundMessage("Invalid JSON payload"); }
   }
-  function sendPlayground() {
+  async function sendPlayground() {
     testPlayground();
     if (!playgroundRoute) { setPlaygroundMessage("Select a route first"); return; }
-    setPlaygroundMessage("Request prepared for the selected project; host execution requires an installed, ready plugin.");
+    if (!selectedProjectID) { setPlaygroundMessage("Select an active project first"); return; }
+    const [pluginID, targetOperation] = playgroundRoute.split(":");
+    const manifest = system.find((candidate) => candidate.ID === pluginID);
+    if (!manifest) { setPlaygroundMessage("Plugin manifest not found"); return; }
+    let payload: unknown;
+    try { payload = JSON.parse(playgroundPayload || "{}"); } catch { setPlaygroundMessage("Invalid JSON payload"); return; }
+    setPlaygroundMessage("Executing through the host...");
+    const response = await fetch("/api/admin/actions", { method: "POST", headers: { authorization: `Bearer ${session}`, "content-type": "application/json" }, body: JSON.stringify({ operation: "plugin.invoke", project_id: selectedProjectID, plugin_id: pluginID, version: manifest.Version, target_operation: targetOperation, payload }) });
+    if (!response.ok) { setPlaygroundMessage(await response.text()); return; }
+    const result = await response.json();
+    setPlaygroundMessage(result.success === false ? `Plugin error: ${result.errorCode ?? "execution failed"}` : "Host execution completed");
+    let output: unknown = result;
+    if (typeof result.payload === "string") {
+      try { output = JSON.parse(atob(result.payload)); } catch { output = result.payload; }
+    }
+    setPlaygroundPayload(JSON.stringify(output, null, 2));
   }
   async function installPlugin(manifest: PluginManifest) {
     setError("");
