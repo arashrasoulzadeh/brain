@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `018e005` — 2026-11-15 13:14:04 +0330 — bind admin actions to selected project
+  Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css
+- `805f435` — 2026-11-15 09:43:33 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `aadc7b2` — 2026-11-15 13:13:21 +0330 — add admin capability navigation
   Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css
 - `e70b897` — 2026-11-15 09:42:28 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `640915a` — 2026-11-15 12:34:40 +0330 — record administrator runbooks complete
   Files: roadmap_admin.md
 - `52d00a6` — 2026-11-15 09:04:31 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `46c1cba` — 2026-11-15 12:34:11 +0330 — record verified admin security controls
-  Files: roadmap_admin.md
-- `d7168e6` — 2026-11-15 09:04:14 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
