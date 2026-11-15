@@ -25,6 +25,9 @@ func TestBootstrapCreatesSeparateOperatorAccount(t *testing.T) {
 func TestMFAAcceptsCurrentAndAdjacentTOTPWindow(t *testing.T) {
 	store := &operator.Store{}
 	_, _ = store.Bootstrap("admin", "secret", func(string) string { return "digest" })
+	if err := store.Authenticate("admin", "secret", func(string) string { return "digest" }); err != nil {
+		t.Fatal(err)
+	}
 	if err := store.EnableMFA("JBSWY3DPEHPK3PXP"); err != nil {
 		t.Fatal(err)
 	}
@@ -78,6 +81,17 @@ func TestStoreRejectsEndUserOperatorAction(t *testing.T) {
 	}
 }
 
+func TestSensitiveOperatorSetupRequiresAuthentication(t *testing.T) {
+	store := &operator.Store{}
+	_, _ = store.Bootstrap("admin", "secret", func(string) string { return "digest" })
+	if err := store.EnableMFA("JBSWY3DPEHPK3PXP"); !errors.Is(err, operator.ErrInvalidCredentials) {
+		t.Fatalf("unauthenticated MFA enrollment = %v", err)
+	}
+	if _, err := store.CreateRecoveryToken(func() string { return "token" }); !errors.Is(err, operator.ErrInvalidCredentials) {
+		t.Fatalf("unauthenticated recovery token = %v", err)
+	}
+}
+
 func TestStoreRejectsForgedOperatorBeforeAuthentication(t *testing.T) {
 	store := &operator.Store{}
 	digest := func(string) string { return "digest" }
@@ -116,6 +130,9 @@ func TestRecoveryTokenReplacesSecretAndIsSingleUse(t *testing.T) {
 	store := &operator.Store{}
 	digest := func(value string) string { return "digest:" + value }
 	_, _ = store.Bootstrap("admin", "old", digest)
+	if err := store.Authenticate("admin", "old", digest); err != nil {
+		t.Fatal(err)
+	}
 	if err := store.EnableMFA("JBSWY3DPEHPK3PXP"); err != nil {
 		t.Fatal(err)
 	}
@@ -133,10 +150,10 @@ func TestRecoveryTokenReplacesSecretAndIsSingleUse(t *testing.T) {
 		t.Fatal("MFA was not cleared")
 	}
 	events := store.Audit()
-	if len(events) != 2 || events[0].Action != "operator.recovery" || !events[0].Success || events[1].Action != "operator.signin" {
+	if len(events) != 3 || events[0].Action != "operator.signin" || !events[0].Success || events[1].Action != "operator.recovery" || !events[1].Success || events[2].Action != "operator.signin" {
 		t.Fatalf("recovery audit = %#v", events)
 	}
-	if events[0].Detail != "admin" {
+	if events[1].Detail != "admin" {
 		t.Fatal("recovery audit exposed sensitive data")
 	}
 }

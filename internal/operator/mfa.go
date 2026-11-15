@@ -12,7 +12,7 @@ import (
 )
 
 func (s *Store) EnableMFA(secret string) error {
-	if s.account == nil || strings.TrimSpace(secret) == "" {
+	if s.account == nil || s.authenticatedOperator == "" || strings.TrimSpace(secret) == "" {
 		return ErrInvalidCredentials
 	}
 	s.account.MFASecret = secret

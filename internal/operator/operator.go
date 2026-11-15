@@ -40,7 +40,7 @@ type Account struct {
 }
 
 func (s *Store) CreateRecoveryToken(tokenSource func() string) (string, error) {
-	if s.account == nil || tokenSource == nil {
+	if s.account == nil || s.authenticatedOperator == "" || tokenSource == nil {
 		return "", ErrInvalidCredentials
 	}
 	token := tokenSource()
