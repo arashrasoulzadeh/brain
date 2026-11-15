@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `57724d8` — 2026-11-15 12:29:26 +0330 — record verified recovery gate
+  Files: roadmap_backend.md
+- `9ced1dd` — 2026-11-15 08:59:12 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `c84040f` — 2026-11-15 12:28:59 +0330 — harden malformed authentication digests
   Files: plugins/auth/email-otp-verifier.ts,plugins/auth/recovery-token-consumer.ts plugins/auth/sms-otp-verifier.ts,tests/auth/auth.test.ts
 - `06167ad` — 2026-11-15 08:58:11 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `d58d684` — 2026-11-15 12:08:06 +0330 — validate compose project names
   Files: scripts/rollback-compose.sh,scripts/start-compose-no-build.sh tests/deploy/compose_script_test.go,tests/deploy/rollback_compose_test.go
 - `b227c0b` — 2026-11-15 08:37:40 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `f199861` — 2026-11-15 12:07:27 +0330 — reject empty compose services
-  Files: internal/deploy/compose.go,tests/deploy/compose_test.go
-- `3824c0a` — 2026-11-15 08:37:10 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
