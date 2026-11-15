@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `4014f79` — 2026-11-15 12:21:51 +0330 — validate auth state project boundaries
+  Files: plugins/auth/account-project.ts,plugins/auth/index.ts tests/auth/auth.test.ts
+- `3ea2358` — 2026-11-15 08:51:07 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `f521c5a` — 2026-11-15 12:20:52 +0330 — validate plugin project boundaries
   Files: plugins/arena/arena-start.ts,plugins/dashboard/file-management-page.ts tests/arena/arena.test.ts,tests/dashboard/dashboard.test.ts
 - `6561360` — 2026-11-15 08:49:30 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `9307c44` — 2026-11-15 02:27:11 +0330 — enforce host project identity format
   Files: internal/plugin/broker.go,internal/plugin/external.go internal/plugin/http_envelope.go,internal/plugin/project_identity.go internal/plugin/websocket_message.go,internal/plugin/worker.go tests/plugin/broker_test.go
 - `89aebb8` — 2026-11-14 22:56:37 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `83e5f73` — 2026-11-15 02:26:24 +0330 — enforce canonical project identifiers
-  Files: internal/project/project.go,tests/project/project_test.go
-- `d36079c` — 2026-11-14 22:55:45 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
