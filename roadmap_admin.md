@@ -14,6 +14,6 @@ Admin-panel and operator documentation work after backend release gates pass.
 
 ## Admin release gate
 
-- [ ] Verify admin operations against the packaged backend.
+- [x] Verify admin operations against the packaged backend. The production command composition test boots the configured server, logs in through `/admin/session`, and exercises bearer-authenticated `/admin/actions`; Compose CI remains the deployment-level check.
 - [x] Verify cross-project isolation in the admin panel. Covered by dashboard host-handler, view, auth, table-policy, and file-access isolation tests.
 - [x] Verify permission revocation in the admin panel. Covered by broker credential revocation tests, plugin lifecycle revocation tests, and audited admin lifecycle tests.
