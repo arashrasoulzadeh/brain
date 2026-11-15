@@ -294,20 +294,25 @@ export default function AdminPage() {
     );
   return (
     <main className="shell" dir={language === "fa" ? "rtl" : "ltr"}>
-      <section className="card">
+      <div className="workspace">
+        <aside className="sidebar">
+          <p className="eyebrow">{text.eyebrow}</p>
+          <h2>{text.projects}</h2>
+          <nav className="sidebar-nav" aria-label={text.navigation}>
+            <a href="#projects">{text.projects}</a>
+            {manifests.length > 0 && <a href="#plugins">{text.plugins}</a>}
+            {system.length > 0 && <a href="#system">{text.system}</a>}
+            {audit.length > 0 && <a href="#audit">{text.audit}</a>}
+          </nav>
+          <div className="sidebar-actions">{switcher}<button className="secondary" onClick={() => void signOut()}>{text.signOut}</button></div>
+        </aside>
+        <section className="card">
         <div className="top">
           <div>
             <p className="eyebrow">{text.eyebrow}</p>
             <h1>{text.projects}</h1>
           </div>
-          <div>
-            {switcher}
-            <button className="secondary" onClick={() => void signOut()}> 
-              {text.signOut}
-            </button>
-          </div>
         </div>
-        <nav className="admin-nav" aria-label={text.navigation}><a href="#projects">{text.projects}</a><a href="#plugins">{text.plugins}</a><a href="#system">{text.system}</a><a href="#audit">{text.audit}</a></nav>
         <div className="project-selector"><label htmlFor="selected-project">{text.project}</label><select id="selected-project" value={selectedProjectID} onChange={(event) => { const nextProjectID = event.target.value; setSelectedProjectID(nextProjectID); void loadPlugins(session, nextProjectID); }}><option value="">—</option>{projects.map((project) => <option key={project.ID} value={project.ID} disabled={!project.Active}>{project.ID}{project.Active ? "" : " (inactive)"}</option>)}</select></div>
         <form className="create" onSubmit={createProject}>
           <input
@@ -339,7 +344,8 @@ export default function AdminPage() {
         <section className="section" id="plugins"><div className="section-heading"><div><p className="eyebrow">{text.plugins}</p><h2>{text.installed}</h2></div><span className="count">{installations.length}</span></div><div>{installations.map((installation) => { const manifest = manifests.find((candidate) => candidate.ID === installation.PluginID && candidate.Version === installation.Version); const key = `${installation.PluginID}@${installation.Version}`; return <div className="project lifecycle-row" key={key}><span>{installation.PluginID}@{installation.Version}<small>{installation.Enabled ? text.enabled : text.disabled} · {installation.Ready ? text.ready : text.notReady}</small>{manifest?.ConfigSchema && Object.entries(manifest.ConfigSchema).map(([name, type]) => <label key={name}>{name}<input type={type === "int" ? "number" : type === "bool" ? "checkbox" : "text"} checked={type === "bool" ? Boolean(configuration[key]?.[name]) : undefined} value={type === "bool" ? undefined : String(configuration[key]?.[name] ?? "")} onChange={(event) => setConfiguration((current) => ({ ...current, [key]: { ...current[key], [name]: type === "bool" ? event.target.checked : event.target.value } }))} /></label>)}{manifest?.ConfigSchema && <button onClick={() => configurePlugin(installation)}>{text.configure}</button>}<small>{manifest?.Capabilities?.map((capability) => <span className="capability-action" key={capability}><code>{capability}</code><button onClick={() => runPluginAction("plugin.grant", installation, capability)}>{text.grantCapability}</button><button onClick={() => runPluginAction("plugin.revoke", installation, capability)}>{text.revokeCapability}</button></span>)}</small></span><span className="lifecycle-actions">{!installation.Ready && <button onClick={() => runPluginAction("plugin.readiness", installation)}>{text.markReady}</button>}{!installation.Enabled && <button onClick={() => runPluginAction("plugin.enable", installation)}>{text.enable}</button>}{installation.Enabled && <button onClick={() => runPluginAction("plugin.promote", installation)}>{text.promote}</button>}<button onClick={() => disablePlugin(installation)}>{text.disable}</button><button onClick={() => runPluginAction("plugin.drain", installation)}>{text.drain}</button><button onClick={() => runPluginAction("plugin.resume", installation)}>{text.resume}</button><button onClick={() => runPluginAction("plugin.stop", installation)}>{text.stop}</button><button onClick={() => runPluginAction("plugin.recover", installation)}>{text.recover}</button><button onClick={() => runPluginAction("plugin.rollback", installation)}>{text.rollback}</button><button className="danger" onClick={() => runPluginAction("plugin.remove", installation)}>{text.remove}</button></span></div>; })}</div></section>
         <section className="section" id="audit"><div className="section-heading"><div><p className="eyebrow">{text.audit}</p><h2>{text.audit}</h2></div><span className="count">{audit.length}</span></div><div className="audit-list">{audit.length ? audit.slice().reverse().slice(0, 20).map((record, index) => <div className="audit" key={`${record.action}-${index}`}><span className={record.success ? "success" : "failure"}>{record.success ? "✓" : "!"}</span><div><strong>{record.action}</strong><small>{record.source}{record.plugin_id ? ` · ${record.plugin_id}@${record.version}` : ""}{record.project_id ? ` · ${record.project_id}` : ""}</small></div></div>) : <p className="muted">{text.noAudit}</p>}</div></section>
         <section className="section" id="system"><div className="section-heading"><div><p className="eyebrow">{text.system}</p><h2>{text.system}</h2></div><span className="count">{system.length}</span></div><div className="plugin-grid">{system.map((manifest) => <article className="plugin" key={`system-${manifest.ID}@${manifest.Version}`}><h3>{manifest.Title || manifest.ID}</h3><p className="muted">{manifest.Description}</p><small>{manifest.Routes?.length ?? 0} {text.routes} · {manifest.ExtensionPoints?.length ?? 0} {text.extensions} · {manifest.SourceFiles?.length ?? 0} {text.files}</small><div className="capabilities">{manifest.Capabilities?.map((capability) => <span key={capability}>{capability}</span>)}</div><div className="route-list">{manifest.Routes?.slice(0, 8).map((route) => <div key={route.Operation}><code>{route.Operation}</code><small>{route.Capability}</small></div>)}</div><details><summary>{text.files} / {text.imports} / {text.dependencies}</summary><small>{manifest.SourceFiles?.join(" · ")}</small><small>{manifest.Imports?.join(" · ")}</small><small>{[...(manifest.Dependencies ?? []), ...(manifest.PluginImports ?? [])].join(" · ") || "—"}</small></details></article>)}</div></section>
-      </section>
+        </section>
+      </div>
     </main>
   );
 }
