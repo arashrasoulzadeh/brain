@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `8421762` — 2026-11-15 14:09:34 +0330 — fix monitoring status and add route playground
+  Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css
+- `8ffa19e` — 2026-11-15 10:37:37 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `f4402f6` — 2026-11-15 14:07:21 +0330 — add admin routes and monitoring pages
   Files: admin-nextjs/app/monitoring/page.tsx,admin-nextjs/app/page.tsx admin-nextjs/app/routes/page.tsx
 - `715d255` — 2026-11-15 10:33:18 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `0befcb3` — 2026-11-15 13:28:43 +0330 — serialize admin plugin configuration types
   Files: admin-nextjs/app/page.tsx
 - `a4f91f2` — 2026-11-15 09:57:45 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `4c522b0` — 2026-11-15 13:27:30 +0330 — expose complete plugin contract in admin
-  Files: admin-nextjs/app/page.tsx
-- `64259ab` — 2026-11-15 09:56:42 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
