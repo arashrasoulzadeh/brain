@@ -26,6 +26,7 @@ export { createDirectSQLChangeCapture } from "./create-direct-sql-change-capture
 export { read } from "./tables-read.js";
 export { write } from "./tables-write.js";
 export { schema } from "./tables-schema.js";
+export { TableStore, tableStore } from "./table-store.js";
 export type RowChange<T> = { projectId: string; table: string; oldValue: T; newValue: T };
 export type ScopedRowChange<T> = RowChange<T> & {
   oldScope: readonly string[];

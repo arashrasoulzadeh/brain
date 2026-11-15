@@ -50,6 +50,7 @@ source_files:
   - tables-read.ts
   - tables-write.ts
   - tables-schema.ts
+  - table-store.ts
 imports:
   - ../sdk-typescript/src/index.js
   - ./data-request.js
@@ -96,6 +97,7 @@ imports:
   - ./tables-read.js
   - ./tables-write.js
   - ./tables-schema.js
+  - ./table-store.js
   - ./index.js
 plugin_imports:
 dependencies: []

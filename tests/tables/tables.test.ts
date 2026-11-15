@@ -41,10 +41,9 @@ if (
   throw new Error("tables handler contract failed");
 if (schema({ table: "users", columns: ["id"] }).table !== "users")
   throw new Error("tables schema route failed");
-if (read({ table: "users", rows: [{ id: "1" }] }).rows.length !== 1)
-  throw new Error("tables read route failed");
 if (!write({ table: "users", row: { id: "1" } }).written)
   throw new Error("tables write route failed");
+if (read({ table: "users" }).rows.length !== 1) throw new Error("tables read route failed");
 if (
   projectSchemaName("dev") !== "project_dev" ||
   projectSchemaName("prod") === projectSchemaName("dev")
