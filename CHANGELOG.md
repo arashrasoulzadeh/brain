@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `4a5970e` — 2026-11-15 13:03:14 +0330 — add plugin inventory to admin panel
+  Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css internal/admin/lifecycle.go,internal/app/admin.go internal/app/app.go,internal/plugin/plugin.go tests/app/admin_test.go
+- `42f6abe` — 2026-11-15 09:26:12 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `6892718` — 2026-11-15 12:55:59 +0330 — verify nextjs admin production build
   Files: admin-nextjs/.gitignore,admin-nextjs/app/styles.css admin-nextjs/next-env.d.ts,admin-nextjs/next.config.ts admin-nextjs/package-lock.json,admin-nextjs/tsconfig.json
 - `cbea454` — 2026-11-15 09:24:52 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `c84040f` — 2026-11-15 12:28:59 +0330 — harden malformed authentication digests
   Files: plugins/auth/email-otp-verifier.ts,plugins/auth/recovery-token-consumer.ts plugins/auth/sms-otp-verifier.ts,tests/auth/auth.test.ts
 - `06167ad` — 2026-11-15 08:58:11 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `1dae3fd` — 2026-11-15 12:27:58 +0330 — record verified backend release gates
-  Files: roadmap_backend.md
-- `ccba3f7` — 2026-11-15 08:57:42 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
