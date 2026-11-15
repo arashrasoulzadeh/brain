@@ -117,3 +117,27 @@ func TestLifecycleServiceAuditsMigrationAndRollback(t *testing.T) {
 		t.Fatalf("migration/rollback audit = %#v", events)
 	}
 }
+
+func TestLifecycleServiceAuditsPermissionAndPromotionActions(t *testing.T) {
+	operators := &operator.Store{}
+	digest := func(string) string { return "digest" }
+	_, _ = operators.Bootstrap("admin", "secret", digest)
+	if err := operators.Authenticate("admin", "secret", digest); err != nil {
+		t.Fatal(err)
+	}
+	service := admin.NewLifecycleService(operators, plugin.NewRegistry(1))
+	actor := operator.Actor{ID: "admin", Kind: operator.ActorOperator}
+	if err := service.GrantResource(actor, "dev", "rooms", "1.0.0", "rooms.read", "room-1"); !errors.Is(err, plugin.ErrNotInstalled) {
+		t.Fatalf("resource grant error = %v", err)
+	}
+	if err := service.ConfigurePlugin(actor, "dev", "rooms", "1.0.0", map[string]any{"limit": 1}); !errors.Is(err, plugin.ErrNotInstalled) {
+		t.Fatalf("configuration error = %v", err)
+	}
+	if err := service.PromotePlugin(actor, "dev", "rooms", "1.0.0"); !errors.Is(err, plugin.ErrNotInstalled) {
+		t.Fatalf("promotion error = %v", err)
+	}
+	events := operators.Audit()
+	if len(events) != 4 || events[1].Action != "plugin.grant-resource" || events[2].Action != "plugin.configure" || events[3].Action != "plugin.promote" {
+		t.Fatalf("permission/promotion audit = %#v", events)
+	}
+}
