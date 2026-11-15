@@ -5,6 +5,7 @@ type Project = { ID: string; Active: boolean };
 type PluginManifest = { ID: string; Title: string; Description: string; Version: string; Capabilities: string[]; ConfigSchema?: Record<string, string> };
 type PluginStatus = { ProjectID: string; PluginID: string; Version: string; Enabled: boolean; Ready: boolean; Draining: boolean };
 type AuditRecord = { source: string; action: string; actor_id?: string; project_id?: string; plugin_id?: string; version?: string; success: boolean; detail?: string };
+type FunctionDraft = { project_id: string; name: string; source: string; created_at: string };
 type SystemManifest = PluginManifest & { Routes: { Operation: string; Capability: string }[]; ExtensionPoints: string[]; SourceFiles: string[]; Imports: string[]; PluginImports: string[]; Dependencies: string[] };
 type Language = "en" | "fa";
 const copy = {
@@ -167,11 +168,12 @@ export default function AdminPage() {
   const [functionSource, setFunctionSource] = useState("export default async function handler(input) {\n  return input;\n}\n");
   const [functionMessage, setFunctionMessage] = useState("");
   const [functionInput, setFunctionInput] = useState("{}");
+  const [functionDrafts, setFunctionDrafts] = useState<FunctionDraft[]>([]);
   const text = copy[language];
   const pageTitle = ({ projects: text.projects, plugins: text.plugins, system: text.system, audit: text.audit, database: text.database, functions: text.functions, workflows: text.workflows, files: text.files, "live-sessions": text.liveSessions, routes: text.routesPage, monitoring: text.monitoring } as Record<string, string>)[activePage] ?? text.projects;
   useEffect(() => {
     if (!session) return;
-    const refresh = () => Promise.all([loadProjects(session), loadPlugins(session, selectedProjectID), loadAudit(session), loadSystem(session)]).catch(() => undefined);
+    const refresh = () => Promise.all([loadProjects(session), loadPlugins(session, selectedProjectID), loadAudit(session), loadSystem(session), loadFunctionDrafts(session, selectedProjectID)]).catch(() => undefined);
     const timer = window.setInterval(refresh, 10000);
     return () => window.clearInterval(timer);
   }, [session, selectedProjectID]);
@@ -182,7 +184,7 @@ export default function AdminPage() {
     loadProjects(savedSession).then((loadedProjects) => {
       const activeProjectID = loadedProjects.find((project) => project.Active)?.ID ?? "";
       setSelectedProjectID(activeProjectID);
-      return Promise.all([loadPlugins(savedSession, activeProjectID), loadAudit(savedSession), loadSystem(savedSession)]);
+      return Promise.all([loadPlugins(savedSession, activeProjectID), loadAudit(savedSession), loadSystem(savedSession), loadFunctionDrafts(savedSession, activeProjectID)]);
     }).catch(() => {
       window.sessionStorage.removeItem("brain-admin-session");
       setSession("");
@@ -215,6 +217,11 @@ export default function AdminPage() {
     const response = await fetch("/api/admin/system", { headers: { authorization: `Bearer ${token}` } });
     if (!response.ok) throw new Error("Could not load system capabilities");
     setSystem((await response.json()) as SystemManifest[]);
+  }
+  async function loadFunctionDrafts(token: string, projectID = selectedProjectID) {
+    if (!projectID) { setFunctionDrafts([]); return; }
+    const response = await fetch(`/api/admin/functions?project_id=${encodeURIComponent(projectID)}`, { headers: { authorization: `Bearer ${token}` } });
+    if (response.ok) setFunctionDrafts(await response.json() as FunctionDraft[]);
   }
   async function signIn(event: FormEvent) {
     event.preventDefault();
@@ -292,6 +299,7 @@ export default function AdminPage() {
     const response = await fetch("/api/admin/functions", { method: "POST", headers: { authorization: `Bearer ${session}`, "content-type": "application/json" }, body: JSON.stringify({ operation, project_id: selectedProjectID, name: functionName, source: functionSource, input }) });
     if (!response.ok) { setFunctionMessage(await response.text()); return; }
     const result = await response.json(); setFunctionMessage(operation === "functions.create" ? "Function draft saved." : JSON.stringify(result));
+    if (operation === "functions.create") await loadFunctionDrafts(session, selectedProjectID);
   }
   async function uninstallProject(project: Project) {
     if (!window.confirm(`${text.uninstall} ${project.ID}?`)) return;
