@@ -17,6 +17,7 @@ type adminCommand struct {
 	Resource   string         `json:"resource"`
 	Key        string         `json:"key"`
 	Values     map[string]any `json:"values"`
+	Confirmed  bool           `json:"confirmed"`
 }
 
 func AdminHandler(service *admin.LifecycleService) http.Handler {
@@ -34,6 +35,10 @@ func AdminHandler(service *admin.LifecycleService) http.Handler {
 		decoder := json.NewDecoder(http.MaxBytesReader(w, r.Body, 64<<10))
 		if err := decoder.Decode(&command); err != nil {
 			http.Error(w, "invalid admin command", http.StatusBadRequest)
+			return
+		}
+		if requiresAdminConfirmation(command.Operation) && !command.Confirmed {
+			http.Error(w, "explicit confirmation required", http.StatusBadRequest)
 			return
 		}
 		var err error
@@ -74,4 +79,13 @@ func AdminHandler(service *admin.LifecycleService) http.Handler {
 		}
 		w.WriteHeader(http.StatusNoContent)
 	})
+}
+
+func requiresAdminConfirmation(operation string) bool {
+	switch operation {
+	case "plugin.remove", "plugin.revoke", "plugin.stop-immediate", "plugin.rollback", "project.uninstall", "durable-data.delete":
+		return true
+	default:
+		return false
+	}
 }
