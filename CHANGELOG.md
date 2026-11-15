@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `4f80ea3` — 2026-11-15 17:16:17 +0330 — add sqlite storage bridge for table routes
+  Files: cmd/brain/main.go,internal/plugin/plugin.go internal/plugin/sqlite_storage.go,plugins/tables/tables-read.ts
+- `95ffeb8` — 2026-11-15 13:44:55 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `84b45ea` — 2026-11-15 17:14:41 +0330 — make analytics capture host invokable
   Files: plugins/analytics/analytics-route-sink.ts,plugins/analytics/capture.ts plugins/analytics/index.ts,plugins/analytics/plugin.yaml
 - `2b3c5a0` — 2026-11-15 13:44:09 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `3a986e9` — 2026-11-15 14:57:35 +0330 — preflight custom function source safely
   Files: internal/admin/functions.go,tests/admin/functions_test.go
 - `6d35c59` — 2026-11-15 11:27:02 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `3c615ba` — 2026-11-15 14:56:39 +0330 — add project scoped custom function drafts
-  Files: admin-nextjs/app/page.tsx,admin-nextjs/app/plugins/[plugin]/page.tsx admin-nextjs/app/styles.css,internal/admin/functions.go internal/app/admin.go,internal/app/app.go
-- `a9bb7f4` — 2026-11-15 11:19:04 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
