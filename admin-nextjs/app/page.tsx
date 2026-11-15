@@ -319,15 +319,15 @@ export default function AdminPage() {
           <p className="eyebrow">{text.eyebrow}</p>
           <h2>{text.projects}</h2>
           <nav className="sidebar-nav" aria-label={text.navigation}>
-            <a href="/projects">{text.projects}</a>
-            {manifests.length > 0 && <a href="/plugins">{text.plugins}</a>}
-            {system.length > 0 && <a href="/system">{text.system}</a>}
-            {audit.length > 0 && <a href="/audit">{text.audit}</a>}
-            {system.some((manifest) => manifest.ID === "tables") && <a href="/database">{text.database}</a>}
-            {system.some((manifest) => manifest.ID === "functions") && <a href="/functions">{text.functions}</a>}
-            {system.some((manifest) => manifest.ID === "functions") && <a href="/workflows">{text.workflows}</a>}
-            {system.some((manifest) => manifest.ID === "files") && <a href="/files">{text.files}</a>}
-            {system.some((manifest) => ["rooms", "matchmaking"].includes(manifest.ID)) && <a href="/live-sessions">{text.liveSessions}</a>}
+            <a className={activePage === "projects" ? "active" : ""} href="/projects">{text.projects}</a>
+            {manifests.length > 0 && <a className={activePage === "plugins" ? "active" : ""} href="/plugins">{text.plugins}</a>}
+            {system.length > 0 && <a className={activePage === "system" ? "active" : ""} href="/system">{text.system}</a>}
+            {audit.length > 0 && <a className={activePage === "audit" ? "active" : ""} href="/audit">{text.audit}</a>}
+            {system.some((manifest) => manifest.ID === "tables") && <a className={activePage === "database" ? "active" : ""} href="/database">{text.database}</a>}
+            {system.some((manifest) => manifest.ID === "functions") && <a className={activePage === "functions" ? "active" : ""} href="/functions">{text.functions}</a>}
+            {system.some((manifest) => manifest.ID === "functions") && <a className={activePage === "workflows" ? "active" : ""} href="/workflows">{text.workflows}</a>}
+            {system.some((manifest) => manifest.ID === "files") && <a className={activePage === "files" ? "active" : ""} href="/files">{text.files}</a>}
+            {system.some((manifest) => ["rooms", "matchmaking"].includes(manifest.ID)) && <a className={activePage === "live-sessions" ? "active" : ""} href="/live-sessions">{text.liveSessions}</a>}
           </nav>
           <div className="sidebar-actions">{switcher}<button className="secondary" onClick={() => void signOut()}>{text.signOut}</button></div>
         </aside>
