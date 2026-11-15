@@ -242,14 +242,15 @@ type Installation struct {
 }
 
 type InstallationStatus struct {
-	ProjectID  string
-	PluginID   string
-	Version    string
-	Enabled    bool
-	Ready      bool
-	Grants     []string
-	Draining   bool
-	DrainUntil time.Time
+	ProjectID   string
+	PluginID    string
+	Version     string
+	Enabled     bool
+	Ready       bool
+	WorkerReady bool
+	Grants      []string
+	Draining    bool
+	DrainUntil  time.Time
 }
 
 type Registry struct {
@@ -495,6 +496,12 @@ func (r *Registry) Status(projectID, pluginID, version string) (InstallationStat
 		return InstallationStatus{}, ErrNotInstalled
 	}
 	ready := r.readiness[pluginID+"@"+version]
+	r.workerMu.RLock()
+	workerReady := false
+	if worker := r.workers[projectID+":"+pluginID+"@"+version]; worker != nil {
+		workerReady = worker.Ready()
+	}
+	r.workerMu.RUnlock()
 	grants := make([]string, 0, len(installation.Grants))
 	for capability, granted := range installation.Grants {
 		if granted {
@@ -502,7 +509,7 @@ func (r *Registry) Status(projectID, pluginID, version string) (InstallationStat
 		}
 	}
 	sort.Strings(grants)
-	return InstallationStatus{ProjectID: projectID, PluginID: pluginID, Version: version, Enabled: installation.Enabled, Ready: ready, Grants: grants, Draining: installation.Draining, DrainUntil: installation.DrainUntil}, nil
+	return InstallationStatus{ProjectID: projectID, PluginID: pluginID, Version: version, Enabled: installation.Enabled, Ready: ready, WorkerReady: workerReady, Grants: grants, Draining: installation.Draining, DrainUntil: installation.DrainUntil}, nil
 }
 
 func (r *Registry) ApproveArtifact(id, version, endpoint string) error {
