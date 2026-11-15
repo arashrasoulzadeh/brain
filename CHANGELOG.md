@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `fa169ca` — 2026-11-15 19:40:38 +0330 — keep audit navigation consistent across pages
+  Files: admin-nextjs/app/components/admin-chrome.tsx,admin-nextjs/app/page.tsx tests/admin/admin-shell.test.ts
+- `017fae2` — 2026-11-15 16:09:19 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `c46295c` — 2026-11-15 19:39:04 +0330 — test shared admin shell across pages
   Files: tests/admin/admin-shell.test.ts
 - `9a06b67` — 2026-11-15 16:06:12 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `e556070` — 2026-11-15 17:13:23 +0330 — implement room admin routes
   Files: plugins/rooms/index.ts,plugins/rooms/plugin.yaml plugins/rooms/room-route-store.ts,plugins/rooms/rooms-create-route.ts plugins/rooms/rooms-join-route.ts,plugins/rooms/rooms-reconnect-route.ts plugins/rooms/rooms-result-route.ts
 - `210ad10` — 2026-11-15 13:42:59 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `c32d1c7` — 2026-11-15 17:12:45 +0330 — implement matchmaking admin routes
-  Files: plugins/matchmaking/index.ts,plugins/matchmaking/matchmaking-assign-route.ts plugins/matchmaking/matchmaking-cancel-route.ts,plugins/matchmaking/matchmaking-queue-route.ts plugins/matchmaking/matchmaking-route-store.ts,plugins/matchmaking/matchmaking-status-route.ts plugins/matchmaking/plugin.yaml
-- `7abd628` — 2026-11-15 13:41:57 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
