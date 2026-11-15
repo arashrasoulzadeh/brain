@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `57ee8e1` — 2026-11-15 12:10:07 +0330 — reject compose host isolation bypasses
+  Files: internal/deploy/compose.go,tests/deploy/compose_test.go
+- `7054dcd` — 2026-11-15 08:39:45 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `427e5fa` — 2026-11-15 12:09:31 +0330 — validate backup age timestamps
   Files: scripts/check-backup-age.sh,tests/deploy/postgres_backup_verify_test.go
 - `ae7a3c0` — 2026-11-15 08:38:53 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `fcca6c6` — 2026-11-15 02:17:02 +0330 — harden sandbox path traversal validation
   Files: plugins/functions/reject-sandbox-escape.ts,tests/functions/functions.test.ts
 - `c9a7ffb` — 2026-11-14 22:46:35 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `d8763d5` — 2026-11-15 02:16:17 +0330 — validate project identity for function job leases
-  Files: plugins/functions/job-lease-acquirer.ts,plugins/functions/job-lease-renewer.ts tests/functions/functions.test.ts
-- `1b20cc1` — 2026-11-14 22:45:39 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
