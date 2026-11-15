@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `e6ecbb1` — 2026-11-15 14:58:06 +0330 — audit plugin metadata and route permissions
+  Files: tests/plugin/all_manifests_test.go
+- `394aa31` — 2026-11-15 11:27:50 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `3a986e9` — 2026-11-15 14:57:35 +0330 — preflight custom function source safely
   Files: internal/admin/functions.go,tests/admin/functions_test.go
 - `6d35c59` — 2026-11-15 11:27:02 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `0b6d767` — 2026-11-15 10:13:34 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
 - `1c01bb5` — 2026-11-15 13:43:18 +0330 — label admin pages by active domain
-  Files: admin-nextjs/app/page.tsx
-- `95725fa` — 2026-11-15 10:12:34 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `d9e5077` — 2026-11-15 13:42:19 +0330 — preserve admin session across pages
   Files: admin-nextjs/app/page.tsx
