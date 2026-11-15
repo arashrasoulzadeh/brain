@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `70eb9f3` — 2026-11-15 17:11:36 +0330 — add workflow and live session consoles
+  Files: admin-nextjs/app/page.tsx
+- `42e9e40` — 2026-11-15 13:40:50 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `6c3dc6b` — 2026-11-15 17:10:36 +0330 — add files operation console
   Files: admin-nextjs/app/page.tsx
 - `966ce9b` — 2026-11-15 13:40:01 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `a3601a8` — 2026-11-15 14:42:23 +0330 — simplify installed plugins table
   Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css
 - `eeb02a3` — 2026-11-15 11:10:41 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `6a00395` — 2026-11-15 14:40:26 +0330 — fix admin login proxy and centering
-  Files: admin-nextjs/app/styles.css,admin-nextjs/next.config.ts
-- `d942b3b` — 2026-11-15 11:06:23 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
