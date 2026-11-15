@@ -224,13 +224,17 @@ export default function AdminPage() {
     await loadPlugins(session, selectedProjectID); await loadAudit(session);
   }
   async function configurePlugin(installation: PluginStatus) {
+    if (!selectedProjectID) { setError("Select an active project first"); return; }
     const key = `${installation.PluginID}@${installation.Version}`;
-    const values = configuration[key] ?? {};
+    const manifest = manifests.find((candidate) => candidate.ID === installation.PluginID && candidate.Version === installation.Version);
+    const rawValues = configuration[key] ?? {};
+    const values = Object.fromEntries(Object.entries(rawValues).map(([name, value]) => [name, manifest?.ConfigSchema?.[name] === "int" ? Number(value) : value]));
     const response = await fetch("/api/admin/actions", { method: "POST", headers: { authorization: `Bearer ${session}`, "content-type": "application/json" }, body: JSON.stringify({ operation: "plugin.configure", project_id: selectedProjectID, plugin_id: installation.PluginID, version: installation.Version, values }) });
     if (!response.ok) { setError(await response.text()); return; }
     await loadAudit(session);
   }
   async function disablePlugin(installation: PluginStatus) {
+    if (!selectedProjectID) { setError("Select an active project first"); return; }
     const previewResponse = await fetch("/api/admin/actions", { method: "POST", headers: { authorization: `Bearer ${session}`, "content-type": "application/json" }, body: JSON.stringify({ operation: "plugin.disable.preview", project_id: selectedProjectID, plugin_id: installation.PluginID, version: installation.Version }) });
     if (!previewResponse.ok) { setError(await previewResponse.text()); return; }
     const preview = (await previewResponse.json()) as { Revision: number; Dependents: string[] };
