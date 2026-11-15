@@ -18,4 +18,9 @@ func TestComposeDeploymentScriptUsesNoBuild(t *testing.T) {
 	if strings.Contains(script, "up -d --build") {
 		t.Fatal("deployment script rebuilds images")
 	}
+	for _, required := range []string{"case \"$compose_project\" in", "*[!A-Za-z0-9_-]*)"} {
+		if !strings.Contains(script, required) {
+			t.Fatalf("deployment script missing %q", required)
+		}
+	}
 }

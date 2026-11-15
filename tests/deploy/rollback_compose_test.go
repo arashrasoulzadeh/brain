@@ -17,4 +17,9 @@ func TestRollbackComposeRequiresPinnedRollbackDefinition(t *testing.T) {
 			t.Fatalf("rollback script missing %q", required)
 		}
 	}
+	for _, required := range []string{"case \"$compose_project\" in", "*[!A-Za-z0-9_-]*)"} {
+		if !strings.Contains(script, required) {
+			t.Fatalf("rollback script missing %q", required)
+		}
+	}
 }
