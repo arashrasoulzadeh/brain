@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `782abbb` — 2026-11-15 19:49:42 +0330 — show precise function publish validation errors
+  Files: admin-nextjs/app/functions/[name]/page.tsx,internal/admin/functions.go
+- `fd03fa3` — 2026-11-15 16:18:15 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `59c25e6` — 2026-11-15 19:47:58 +0330 — show function publish status beside actions
   Files: admin-nextjs/app/functions/[name]/page.tsx
 - `0c5e222` — 2026-11-15 16:17:07 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `2d57b95` — 2026-11-15 17:17:36 +0330 — persist file routes in sqlite
   Files: internal/plugin/plugin.go,internal/plugin/sqlite_storage.go plugins/files/files-download.ts,plugins/files/files-metadata.ts plugins/files/files-publish.ts
 - `02df869` — 2026-11-15 13:46:31 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `4f80ea3` — 2026-11-15 17:16:17 +0330 — add sqlite storage bridge for table routes
-  Files: cmd/brain/main.go,internal/plugin/plugin.go internal/plugin/sqlite_storage.go,plugins/tables/tables-read.ts
-- `95ffeb8` — 2026-11-15 13:44:55 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
