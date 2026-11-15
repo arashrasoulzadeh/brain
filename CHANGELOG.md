@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `46bc82c` — 2026-11-15 15:05:55 +0330 — load project function drafts in admin
+  Files: admin-nextjs/app/page.tsx
+- `3192140` — 2026-11-15 11:35:22 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `f70dafa` — 2026-11-15 15:05:05 +0330 — persist custom function drafts locally
   Files: internal/admin/functions.go
 - `d861dd5` — 2026-11-15 11:34:08 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `84e45a3` — 2026-11-15 13:49:41 +0330 — add global admin project context
   Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css
-- `ee540be` — 2026-11-15 10:18:47 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `d9616af` — 2026-11-15 13:48:31 +0330 — add admin audit search
-  Files: admin-nextjs/app/page.tsx
