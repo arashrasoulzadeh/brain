@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `dd932b3` — 2026-11-15 12:23:09 +0330 — harden dashboard project boundaries
+  Files: plugins/dashboard/auth-settings-page.ts,plugins/dashboard/browser-quickstart.ts plugins/dashboard/form-audit-recorder.ts,plugins/dashboard/host-owned-admin-view.ts plugins/dashboard/plugin-health-contribution.ts,plugins/dashboard/project-overview-contribution.ts plugins/dashboard/record-browser-page.ts,plugins/dashboard/record-edit-page.ts plugins/dashboard/signup-settings-page.ts,plugins/dashboard/table-management-page.ts tests/dashboard/dashboard.test.ts
+- `39688df` — 2026-11-15 08:52:04 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `4014f79` — 2026-11-15 12:21:51 +0330 — validate auth state project boundaries
   Files: plugins/auth/account-project.ts,plugins/auth/index.ts tests/auth/auth.test.ts
 - `3ea2358` — 2026-11-15 08:51:07 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `958cd76` — 2026-11-15 02:27:51 +0330 — harden websocket project boundaries
   Files: internal/plugin/websocket_endpoint.go,internal/plugin/websocket_registry.go tests/plugin/websocket_endpoint_test.go,tests/plugin/websocket_registry_test.go
 - `f2cbb2b` — 2026-11-14 22:57:28 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `9307c44` — 2026-11-15 02:27:11 +0330 — enforce host project identity format
-  Files: internal/plugin/broker.go,internal/plugin/external.go internal/plugin/http_envelope.go,internal/plugin/project_identity.go internal/plugin/websocket_message.go,internal/plugin/worker.go tests/plugin/broker_test.go
-- `89aebb8` — 2026-11-14 22:56:37 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
