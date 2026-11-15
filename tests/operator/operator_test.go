@@ -107,6 +107,31 @@ func TestStoreRejectsForgedOperatorBeforeAuthentication(t *testing.T) {
 	}
 }
 
+func TestOperatorSessionIsAuthenticatedAndRevocable(t *testing.T) {
+	store := &operator.Store{}
+	digest := func(value string) string { return "digest:" + value }
+	if _, err := store.Bootstrap("admin", "secret", digest); err != nil {
+		t.Fatal(err)
+	}
+	if err := store.Authenticate("admin", "secret", digest); err != nil {
+		t.Fatal(err)
+	}
+	token, err := store.IssueSession(func() string { return "operator-session" })
+	if err != nil || token != "operator-session" {
+		t.Fatalf("IssueSession() = %q, %v", token, err)
+	}
+	actor, ok := store.ValidateSession(token)
+	if !ok || actor.ID != "admin" || actor.Kind != operator.ActorOperator {
+		t.Fatalf("ValidateSession() = %#v, %v", actor, ok)
+	}
+	if err := store.RevokeSession(token); err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := store.ValidateSession(token); ok {
+		t.Fatal("revoked operator session remained valid")
+	}
+}
+
 func TestExecuteActionAuthorizesAndAuditsOperation(t *testing.T) {
 	store := &operator.Store{}
 	digest := func(string) string { return "digest" }

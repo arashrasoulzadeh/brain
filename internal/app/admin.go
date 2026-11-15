@@ -3,10 +3,32 @@ package app
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 
 	"brain/internal/admin"
 	"brain/internal/operator"
 )
+
+func AuthenticatedAdminHandler(service *admin.LifecycleService, sessions *operator.Store) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if sessions == nil {
+			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+			return
+		}
+		const prefix = "Bearer "
+		header := r.Header.Get("Authorization")
+		if !strings.HasPrefix(header, prefix) {
+			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+			return
+		}
+		actor, ok := sessions.ValidateSession(strings.TrimPrefix(header, prefix))
+		if !ok {
+			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+			return
+		}
+		AdminHandler(service).ServeHTTP(w, r.WithContext(operator.WithActor(r.Context(), actor)))
+	})
+}
 
 type adminCommand struct {
 	Operation  string         `json:"operation"`

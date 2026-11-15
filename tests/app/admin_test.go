@@ -98,3 +98,29 @@ func TestAdminHandlerRequiresConfirmationForDestructiveOperations(t *testing.T) 
 		t.Fatalf("unconfirmed destructive operation status = %d, want %d", recorder.Code, http.StatusBadRequest)
 	}
 }
+
+func TestAuthenticatedAdminHandlerUsesOperatorBearerSession(t *testing.T) {
+	operators := &operator.Store{}
+	digest := func(string) string { return "digest" }
+	if _, err := operators.Bootstrap("admin", "secret", digest); err != nil {
+		t.Fatal(err)
+	}
+	if err := operators.Authenticate("admin", "secret", digest); err != nil {
+		t.Fatal(err)
+	}
+	token, err := operators.IssueSession(func() string { return "operator-token" })
+	if err != nil {
+		t.Fatal(err)
+	}
+	service := admin.NewLifecycleService(operators, plugin.NewRegistry(1))
+	request := httptest.NewRequest(http.MethodPost, "/admin/actions", strings.NewReader(`{"operation":"plugin.enable","project_id":"dev","plugin_id":"rooms","version":"1.0.0"}`))
+	request.Header.Set("Authorization", "Bearer "+token)
+	recorder := httptest.NewRecorder()
+	app.AuthenticatedAdminHandler(service, operators).ServeHTTP(recorder, request)
+	if recorder.Code != http.StatusForbidden {
+		t.Fatalf("authenticated admin command status = %d, want %d", recorder.Code, http.StatusForbidden)
+	}
+	if _, ok := operators.ValidateSession(token); !ok {
+		t.Fatal("operator session was not retained after request")
+	}
+}

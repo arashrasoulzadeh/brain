@@ -66,6 +66,7 @@ func (s *Store) Recover(token, newSecret string, digest func(string) string) err
 	s.account.RecoveryDigest = ""
 	s.account.MFASecret = ""
 	s.authenticatedOperator = ""
+	s.sessions = nil
 	s.record("operator.recovery", s.account.Username, true, s.account.Username)
 	return nil
 }
@@ -74,6 +75,7 @@ type Store struct {
 	account               *Account
 	audit                 []AuditEvent
 	authenticatedOperator string
+	sessions              map[string]string
 }
 
 func (s *Store) Audit() []AuditEvent { return append([]AuditEvent(nil), s.audit...) }
