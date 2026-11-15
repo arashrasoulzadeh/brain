@@ -336,6 +336,7 @@ export default function AdminPage() {
             {system.some((manifest) => manifest.ID === "files") && <a className={activePage === "files" ? "active" : ""} href="/files">{text.files}</a>}
             {system.some((manifest) => ["rooms", "matchmaking"].includes(manifest.ID)) && <a className={activePage === "live-sessions" ? "active" : ""} href="/live-sessions">{text.liveSessions}</a>}
           </nav>
+          <label className="sidebar-project" htmlFor="sidebar-project">{text.project}<select id="sidebar-project" value={selectedProjectID} onChange={(event) => { const nextProjectID = event.target.value; setSelectedProjectID(nextProjectID); void loadPlugins(session, nextProjectID); }}><option value="">—</option>{projects.map((project) => <option key={project.ID} value={project.ID} disabled={!project.Active}>{project.ID}</option>)}</select></label>
           <div className="sidebar-actions">{switcher}<button className="secondary" onClick={() => void signOut()}>{text.signOut}</button></div>
         </aside>
         <section className="card">
