@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `7d57f6c` — 2026-11-15 13:38:40 +0330 — split admin into full width pages
+  Files: admin-nextjs/app/audit/page.tsx,admin-nextjs/app/page.tsx admin-nextjs/app/plugins/page.tsx,admin-nextjs/app/projects/page.tsx admin-nextjs/app/styles.css,admin-nextjs/app/system/page.tsx
+- `7c5c6a1` — 2026-11-15 10:07:10 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `4daea39` — 2026-11-15 13:36:58 +0330 — hide inactive project destructive actions
   Files: admin-nextjs/app/page.tsx
 - `c7f6a0e` — 2026-11-15 10:06:23 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `63e749b` — 2026-11-15 13:10:43 +0330 — add system capabilities admin view
   Files: admin-nextjs/app/page.tsx,internal/admin/lifecycle.go internal/app/admin.go,internal/app/app.go tests/app/admin_test.go
 - `0a7ba00` — 2026-11-15 09:39:50 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `cc9f26e` — 2026-11-15 13:09:36 +0330 — discover plugins for admin runtime
-  Files: cmd/brain/main.go
-- `25f84c3` — 2026-11-15 09:38:34 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
