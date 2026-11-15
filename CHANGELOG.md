@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `fd5fc6b` — 2026-11-15 19:44:37 +0330 — persist admin shell across page navigation
+  Files: admin-nextjs/app/components/admin-chrome.tsx,admin-nextjs/app/components/admin-shell.tsx admin-nextjs/app/functions/[name]/page.tsx,admin-nextjs/app/layout.tsx admin-nextjs/app/page.tsx,tests/admin/admin-shell.test.ts
+- `7d37674` — 2026-11-15 16:10:52 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `fa169ca` — 2026-11-15 19:40:38 +0330 — keep audit navigation consistent across pages
   Files: admin-nextjs/app/components/admin-chrome.tsx,admin-nextjs/app/page.tsx tests/admin/admin-shell.test.ts
 - `017fae2` — 2026-11-15 16:09:19 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `cfdca95` — 2026-11-15 17:13:55 +0330 — implement function admin routes
   Files: plugins/functions/index.ts,plugins/functions/invoke-route.ts plugins/functions/plugin.yaml,plugins/functions/publish-route.ts
 - `da5ea09` — 2026-11-15 13:43:38 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `e556070` — 2026-11-15 17:13:23 +0330 — implement room admin routes
-  Files: plugins/rooms/index.ts,plugins/rooms/plugin.yaml plugins/rooms/room-route-store.ts,plugins/rooms/rooms-create-route.ts plugins/rooms/rooms-join-route.ts,plugins/rooms/rooms-reconnect-route.ts plugins/rooms/rooms-result-route.ts
-- `210ad10` — 2026-11-15 13:42:59 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
