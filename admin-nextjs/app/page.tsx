@@ -38,6 +38,7 @@ const copy = {
     extensions: "extension points",
     navigation: "Admin navigation",
     project: "Project",
+    uninstall: "Uninstall",
     enable: "Enable",
     grant: "Grant first capability",
     remove: "Remove",
@@ -78,6 +79,7 @@ const copy = {
     extensions: "نقاط توسعه",
     navigation: "ناوبری مدیریت",
     project: "پروژه",
+    uninstall: "حذف پروژه",
     enable: "فعال‌سازی",
     grant: "اعطای اولین دسترسی",
     remove: "حذف",
@@ -175,6 +177,15 @@ export default function AdminPage() {
       await loadPlugins(session);
     } catch (reason) { setError(reason instanceof Error ? reason.message : "Could not install plugin"); }
   }
+  async function uninstallProject(project: Project) {
+    if (!window.confirm(`${text.uninstall} ${project.ID}?`)) return;
+    setError("");
+    const response = await fetch("/api/admin/actions", { method: "POST", headers: { authorization: `Bearer ${session}`, "content-type": "application/json" }, body: JSON.stringify({ operation: "project.uninstall", project_id: project.ID, confirmed: true }) });
+    if (!response.ok) { setError(await response.text()); return; }
+    const loadedProjects = await loadProjects(session);
+    setSelectedProjectID(loadedProjects.find((candidate) => candidate.Active)?.ID ?? "");
+    await loadPlugins(session); await loadAudit(session);
+  }
   async function runPluginAction(operation: string, installation: PluginStatus) {
     setError("");
     const project = projects.find((candidate) => candidate.Active);
@@ -259,7 +270,7 @@ export default function AdminPage() {
             projects.map((project) => (
               <div className="project" key={project.ID}>
                 <span>{project.ID}</span>
-                <small>{project.Active ? text.active : text.inactive}</small>
+                <span className="project-actions"><small>{project.Active ? text.active : text.inactive}</small><button className="danger" onClick={() => uninstallProject(project)}>{text.uninstall}</button></span>
               </div>
             ))
           ) : (
