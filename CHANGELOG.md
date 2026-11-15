@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `b9095e7` — 2026-11-15 13:54:57 +0330 — keep project table details authoritative
+  Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css
+- `3ecbfb4` — 2026-11-15 10:24:27 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `f678310` — 2026-11-15 13:54:11 +0330 — refine project management screen
   Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css internal/admin/lifecycle.go,internal/app/admin.go internal/project/project.go,tests/app/admin_test.go tests/project/project_test.go
 - `9a3af4c` — 2026-11-15 10:19:55 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `607a192` — 2026-11-15 13:23:22 +0330 — wire safe plugin disable lifecycle
   Files: internal/admin/lifecycle.go,internal/app/admin.go tests/app/admin_test.go
 - `bf0296a` — 2026-11-15 09:52:19 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `e6fe011` — 2026-11-15 13:22:05 +0330 — expose complete plugin capability controls
-  Files: admin-nextjs/app/page.tsx
-- `daf9d9a` — 2026-11-15 09:51:02 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
