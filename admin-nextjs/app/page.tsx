@@ -1,5 +1,5 @@
 "use client";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 type Project = { ID: string; Active: boolean };
 type PluginManifest = { ID: string; Title: string; Description: string; Version: string; Capabilities: string[] };
 type PluginStatus = { PluginID: string; Version: string; Enabled: boolean; Ready: boolean; Draining: boolean };
@@ -104,6 +104,12 @@ export default function AdminPage() {
   const [selectedProjectID, setSelectedProjectID] = useState("");
   const [error, setError] = useState("");
   const text = copy[language];
+  useEffect(() => {
+    if (!session) return;
+    const refresh = () => Promise.all([loadProjects(session), loadPlugins(session), loadAudit(session), loadSystem(session)]).catch(() => undefined);
+    const timer = window.setInterval(refresh, 10000);
+    return () => window.clearInterval(timer);
+  }, [session]);
   async function loadProjects(token: string): Promise<Project[]> {
     const response = await fetch("/api/admin/projects", {
       headers: { authorization: `Bearer ${token}` },
