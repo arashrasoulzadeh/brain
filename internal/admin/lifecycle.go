@@ -52,6 +52,12 @@ func (s *LifecycleService) InstallPlugin(actor operator.Actor, projectID, plugin
 	})
 }
 
+func (s *LifecycleService) SetPluginReadiness(actor operator.Actor, pluginID, version string, ready bool) error {
+	return s.execute(actor, "plugin.readiness", func() error {
+		return s.registry.SetReadiness(pluginID, version, ready)
+	})
+}
+
 type AuditRecord struct {
 	Source    string `json:"source"`
 	Action    string `json:"action"`

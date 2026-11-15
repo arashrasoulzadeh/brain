@@ -51,6 +51,26 @@ func TestLifecycleServiceInstallsPluginAndAuditsAction(t *testing.T) {
 	}
 }
 
+func TestLifecycleServiceSetsPluginReadiness(t *testing.T) {
+	operators := &operator.Store{}
+	digest := func(string) string { return "digest" }
+	_, _ = operators.Bootstrap("admin", "secret", digest)
+	if err := operators.Authenticate("admin", "secret", digest); err != nil {
+		t.Fatal(err)
+	}
+	registry := plugin.NewRegistry(1)
+	if err := registry.Register(plugin.Manifest{ID: "rooms", Version: "1.0.0", HostAPI: 1, Entry: "index.ts", SourceFiles: []string{"index.ts"}}); err != nil {
+		t.Fatal(err)
+	}
+	service := admin.NewLifecycleService(operators, registry)
+	if err := service.SetPluginReadiness(operator.Actor{ID: "admin", Kind: operator.ActorOperator}, "rooms", "1.0.0", true); err != nil {
+		t.Fatal(err)
+	}
+	if len(operators.Audit()) != 2 || operators.Audit()[1].Action != "plugin.readiness" {
+		t.Fatalf("readiness audit = %#v", operators.Audit())
+	}
+}
+
 func TestLifecycleServiceRoutesAuthorizedActionAndAuditsFailure(t *testing.T) {
 	operators := &operator.Store{}
 	digest := func(string) string { return "digest" }

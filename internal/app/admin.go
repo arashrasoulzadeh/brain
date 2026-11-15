@@ -153,6 +153,7 @@ type adminCommand struct {
 	ProjectID  string         `json:"project_id"`
 	PluginID   string         `json:"plugin_id"`
 	Version    string         `json:"version"`
+	Ready      bool           `json:"ready"`
 	Capability string         `json:"capability"`
 	Resource   string         `json:"resource"`
 	Key        string         `json:"key"`
@@ -187,6 +188,8 @@ func AdminHandler(service *admin.LifecycleService) http.Handler {
 			err = service.CreateProject(actor, command.ProjectID)
 		case "plugin.install":
 			err = service.InstallPlugin(actor, command.ProjectID, command.PluginID, command.Version)
+		case "plugin.readiness":
+			err = service.SetPluginReadiness(actor, command.PluginID, command.Version, command.Ready)
 		case "plugin.enable":
 			err = service.EnablePlugin(actor, command.ProjectID, command.PluginID, command.Version)
 		case "plugin.remove":

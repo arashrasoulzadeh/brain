@@ -35,6 +35,7 @@ const copy = {
     enable: "Enable",
     grant: "Grant first capability",
     remove: "Remove",
+    markReady: "Mark ready",
   },
   fa: {
     eyebrow: "پنل مدیریت برین",
@@ -65,6 +66,7 @@ const copy = {
     enable: "فعال‌سازی",
     grant: "اعطای اولین دسترسی",
     remove: "حذف",
+    markReady: "اعلام آمادگی",
   },
 };
 export default function AdminPage() {
@@ -150,7 +152,7 @@ export default function AdminPage() {
     const manifest = manifests.find((candidate) => candidate.ID === installation.PluginID && candidate.Version === installation.Version);
     const capability = manifest?.Capabilities?.[0] ?? "";
     if (operation === "plugin.remove" && !window.confirm(`Remove ${installation.PluginID}@${installation.Version}?`)) return;
-    const response = await fetch("/api/admin/actions", { method: "POST", headers: { authorization: `Bearer ${session}`, "content-type": "application/json" }, body: JSON.stringify({ operation, project_id: project.ID, plugin_id: installation.PluginID, version: installation.Version, capability, confirmed: operation === "plugin.remove" }) });
+    const response = await fetch("/api/admin/actions", { method: "POST", headers: { authorization: `Bearer ${session}`, "content-type": "application/json" }, body: JSON.stringify({ operation, project_id: project.ID, plugin_id: installation.PluginID, version: installation.Version, capability, ready: operation === "plugin.readiness", confirmed: operation === "plugin.remove" }) });
     if (!response.ok) { setError(await response.text()); return; }
     await loadPlugins(session); await loadAudit(session);
   }
@@ -236,7 +238,7 @@ export default function AdminPage() {
           <div className="section-heading"><div><p className="eyebrow">{text.plugins}</p><h2>{text.registered}</h2></div><span className="count">{manifests.length}</span></div>
           <div className="plugin-grid">{manifests.length ? manifests.map((manifest) => { const installed = installations.some((item) => item.PluginID === manifest.ID && item.Version === manifest.Version); return <article className="plugin" key={`${manifest.ID}@${manifest.Version}`}><div><h3>{manifest.Title || manifest.ID}</h3><p className="muted">{manifest.Description}</p></div><small>{manifest.ID}@{manifest.Version}</small><div className="capabilities">{manifest.Capabilities?.slice(0, 3).map((capability) => <span key={capability}>{capability}</span>)}</div><button className="plugin-action" disabled={installed} onClick={() => installPlugin(manifest)}>{installed ? text.installedLabel : text.install}</button></article>; }) : <p className="muted">{text.empty}</p>}</div>
         </section>
-        <section className="section"><div className="section-heading"><div><p className="eyebrow">{text.plugins}</p><h2>{text.installed}</h2></div><span className="count">{installations.length}</span></div><div>{installations.map((installation) => <div className="project lifecycle-row" key={`${installation.PluginID}@${installation.Version}`}><span>{installation.PluginID}@{installation.Version}<small>{installation.Enabled ? text.enabled : text.disabled} · {installation.Ready ? text.ready : text.notReady}</small></span><span className="lifecycle-actions">{!installation.Enabled && <button onClick={() => runPluginAction("plugin.enable", installation)}>{text.enable}</button>}{!installation.Enabled && <button onClick={() => runPluginAction("plugin.grant", installation)}>{text.grant}</button>}<button className="danger" onClick={() => runPluginAction("plugin.remove", installation)}>{text.remove}</button></span></div>)}</div></section>
+        <section className="section"><div className="section-heading"><div><p className="eyebrow">{text.plugins}</p><h2>{text.installed}</h2></div><span className="count">{installations.length}</span></div><div>{installations.map((installation) => <div className="project lifecycle-row" key={`${installation.PluginID}@${installation.Version}`}><span>{installation.PluginID}@{installation.Version}<small>{installation.Enabled ? text.enabled : text.disabled} · {installation.Ready ? text.ready : text.notReady}</small></span><span className="lifecycle-actions">{!installation.Ready && <button onClick={() => runPluginAction("plugin.readiness", installation)}>{text.markReady}</button>}{!installation.Enabled && <button onClick={() => runPluginAction("plugin.enable", installation)}>{text.enable}</button>}{!installation.Enabled && <button onClick={() => runPluginAction("plugin.grant", installation)}>{text.grant}</button>}<button className="danger" onClick={() => runPluginAction("plugin.remove", installation)}>{text.remove}</button></span></div>)}</div></section>
         <section className="section"><div className="section-heading"><div><p className="eyebrow">{text.audit}</p><h2>{text.audit}</h2></div><span className="count">{audit.length}</span></div><div className="audit-list">{audit.length ? audit.slice().reverse().slice(0, 20).map((record, index) => <div className="audit" key={`${record.action}-${index}`}><span className={record.success ? "success" : "failure"}>{record.success ? "✓" : "!"}</span><div><strong>{record.action}</strong><small>{record.source}{record.plugin_id ? ` · ${record.plugin_id}@${record.version}` : ""}{record.project_id ? ` · ${record.project_id}` : ""}</small></div></div>) : <p className="muted">{text.noAudit}</p>}</div></section>
       </section>
     </main>
