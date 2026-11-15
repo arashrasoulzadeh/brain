@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `0f9ea2c` — 2026-11-15 17:06:34 +0330 — implement tables admin routes
+  Files: plugins/tables/index.ts,plugins/tables/plugin.yaml plugins/tables/tables-read.ts,plugins/tables/tables-schema.ts plugins/tables/tables-write.ts,tests/tables/tables.test.ts
+- `e8b71c8` — 2026-11-15 13:35:51 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `cde7a13` — 2026-11-15 17:05:36 +0330 — add database operation console
   Files: admin-nextjs/app/page.tsx
 - `3aa111b` — 2026-11-15 13:33:12 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `ada9840` — 2026-11-15 14:31:13 +0330 — expose plugin readiness controls
   Files: admin-nextjs/app/page.tsx
-- `b391400` — 2026-11-15 10:49:02 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `eb9bea9` — 2026-11-15 14:18:45 +0330 — fix route playground and monitoring states
-  Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css
