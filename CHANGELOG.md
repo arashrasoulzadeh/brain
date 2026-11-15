@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `fa0fc43` — 2026-11-15 17:21:01 +0330 — persist analytics events in sqlite
+  Files: internal/plugin/plugin.go
+- `49424e3` — 2026-11-15 13:50:48 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `45b3a9a` — 2026-11-15 17:20:32 +0330 — persist room state in sqlite
   Files: internal/plugin/plugin.go,plugins/rooms/rooms-create-route.ts plugins/rooms/rooms-join-route.ts,plugins/rooms/rooms-reconnect-route.ts plugins/rooms/rooms-result-route.ts
 - `5d01aa3` — 2026-11-15 13:49:58 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `dddbb87` — 2026-11-15 15:02:43 +0330 — run custom functions in bounded vm
   Files: admin-nextjs/app/page.tsx,internal/admin/functions.go internal/app/admin.go
 - `65a8d46` — 2026-11-15 11:29:35 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `a11cb82` — 2026-11-15 14:59:20 +0330 — limit custom function draft inputs
-  Files: internal/admin/functions.go
-- `ec22cd3` — 2026-11-15 11:29:09 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
