@@ -44,3 +44,28 @@ func TestLifecycleServiceRoutesAuthorizedActionAndAuditsFailure(t *testing.T) {
 		t.Fatalf("failure audit = %#v", events)
 	}
 }
+
+func TestLifecycleServiceAuditsDurableDataDeletion(t *testing.T) {
+	operators := &operator.Store{}
+	digest := func(string) string { return "digest" }
+	_, _ = operators.Bootstrap("admin", "secret", digest)
+	if err := operators.Authenticate("admin", "secret", digest); err != nil {
+		t.Fatal(err)
+	}
+	registry := plugin.NewRegistry(1)
+	if err := registry.SaveDurableData("dev", "rooms", "snapshot", []byte("state")); err != nil {
+		t.Fatal(err)
+	}
+	service := admin.NewLifecycleService(operators, registry)
+	actor := operator.Actor{ID: "admin", Kind: operator.ActorOperator}
+	if err := service.DeleteDurableData(actor, "dev", "rooms", "snapshot"); err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := registry.DurableData("dev", "rooms", "snapshot"); ok {
+		t.Fatal("durable data was not deleted")
+	}
+	events := operators.Audit()
+	if len(events) != 2 || events[1].Action != "durable-data.delete" || !events[1].Success {
+		t.Fatalf("deletion audit = %#v", events)
+	}
+}

@@ -44,6 +44,12 @@ func (s *LifecycleService) UninstallProject(actor operator.Actor, projectID stri
 	})
 }
 
+func (s *LifecycleService) DeleteDurableData(actor operator.Actor, projectID, pluginID, key string) error {
+	return s.execute(actor, "durable-data.delete", func() error {
+		return s.registry.DeleteDurableData(projectID, pluginID, key)
+	})
+}
+
 func (s *LifecycleService) execute(actor operator.Actor, action string, operation func() error) error {
 	if s == nil || s.operators == nil || s.registry == nil {
 		return operator.ErrInvalidOperatorAction
