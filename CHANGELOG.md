@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `b03ada6` — 2026-11-15 12:15:00 +0330 — audit migration and rollback actions
+  Files: internal/admin/lifecycle.go,tests/admin/lifecycle_test.go
+- `33f0aba` — 2026-11-15 08:44:31 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `355ec53` — 2026-11-15 12:14:17 +0330 — audit plugin recovery actions
   Files: internal/admin/lifecycle.go,tests/admin/lifecycle_test.go
 - `b0150a4` — 2026-11-15 08:43:56 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `e89084a` — 2026-11-15 02:22:47 +0330 — validate matchmaking scope boundaries
   Files: plugins/matchmaking/assignment-creator.ts,plugins/matchmaking/ticket-canceller.ts plugins/matchmaking/ticket-enqueuer.ts,plugins/matchmaking/ticket-matcher.ts plugins/matchmaking/ticket-reader.ts,plugins/matchmaking/ticket-requeuer.ts tests/matchmaking/matchmaking.test.ts
 - `bcee2c9` — 2026-11-14 22:52:15 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `e466e09` — 2026-11-15 02:22:03 +0330 — validate room connection ticket context
-  Files: plugins/rooms/connection-ticket-consumer.ts,tests/rooms/rooms.test.ts
-- `2dd5de8` — 2026-11-14 22:51:48 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
