@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `dc136f1` — 2026-11-15 13:12:12 +0330 — complete plugin lifecycle actions
+  Files: admin-nextjs/app/page.tsx
+- `56ce16e` — 2026-11-15 09:41:40 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `dad83b2` — 2026-11-15 13:11:27 +0330 — show plugin operations in admin
   Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css
 - `fbafc59` — 2026-11-15 09:40:57 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `5e2e969` — 2026-11-15 12:33:56 +0330 — require admin confirmation for destructive actions
   Files: internal/app/admin.go,tests/app/admin_test.go
 - `8d9cae8` — 2026-11-15 09:03:18 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `7519519` — 2026-11-15 12:33:03 +0330 — mark dashboard routine operations complete
-  Files: roadmap_admin.md
-- `00e528d` — 2026-11-15 09:03:01 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
