@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `ede74b7` — 2026-11-15 12:48:31 +0330 — add browser admin login panel
+  Files: cmd/brain/main.go,internal/app/app.go plugins/dashboard/admin-panel.html,plugins/dashboard/plugin.yaml tests/app/admin_test.go
+- `54a2560` — 2026-11-15 09:13:22 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `7984810` — 2026-11-15 12:43:09 +0330 — add dashboard admin panel and login client
   Files: clients/javascript/src/admin.ts,clients/javascript/src/index.ts plugins/dashboard/admin-panel.ts,plugins/dashboard/index.ts plugins/dashboard/plugin.yaml,tests/client/admin-client.test.ts tests/dashboard/dashboard.test.ts
 - `60b0376` — 2026-11-15 09:09:45 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `4680c1f` — 2026-11-15 12:24:06 +0330 — harden data and deployment project boundaries
   Files: plugins/functions/authorize-deployment-plugin.ts,plugins/tables/api-change-writer.ts plugins/tables/plan-schema-change.ts,plugins/tables/sql-change-writer.ts plugins/tables/transaction-change-writer.ts,tests/functions/workflow-components.test.ts tests/tables/tables.test.ts
 - `38c9c5d` — 2026-11-15 08:53:21 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `dd932b3` — 2026-11-15 12:23:09 +0330 — harden dashboard project boundaries
-  Files: plugins/dashboard/auth-settings-page.ts,plugins/dashboard/browser-quickstart.ts plugins/dashboard/form-audit-recorder.ts,plugins/dashboard/host-owned-admin-view.ts plugins/dashboard/plugin-health-contribution.ts,plugins/dashboard/project-overview-contribution.ts plugins/dashboard/record-browser-page.ts,plugins/dashboard/record-edit-page.ts plugins/dashboard/signup-settings-page.ts,plugins/dashboard/table-management-page.ts tests/dashboard/dashboard.test.ts
-- `39688df` — 2026-11-15 08:52:04 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
