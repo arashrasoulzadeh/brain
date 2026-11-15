@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `a9e2257` — 2026-11-15 12:51:25 +0330 — keep go host api only
+  Files: cmd/brain/main.go,internal/app/app.go
+- `48bb3b8` — 2026-11-15 09:21:18 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `91b82bc` — 2026-11-15 12:51:05 +0330 — move admin panel to nextjs
   Files: admin-nextjs/app/layout.tsx,admin-nextjs/app/page.tsx admin-nextjs/app/styles.css,admin-nextjs/next-env.d.ts admin-nextjs/next.config.ts,admin-nextjs/package.json admin-nextjs/tsconfig.json,cmd/brain/main.go internal/admin/lifecycle.go,internal/app/admin.go internal/app/app.go,internal/project/project.go plugins/dashboard/admin-panel.html,plugins/dashboard/plugin.yaml tests/app/admin_test.go
 - `74597af` — 2026-11-15 09:18:45 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `b49cb7d` — 2026-11-15 12:24:56 +0330 — mark operator session isolation complete
   Files: roadmap_backend.md
 - `df33381` — 2026-11-15 08:54:56 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `a51ac81` — 2026-11-15 12:24:41 +0330 — verify operator session isolation
-  Files: tests/auth/auth.test.ts
-- `8084f95` — 2026-11-15 08:54:19 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
