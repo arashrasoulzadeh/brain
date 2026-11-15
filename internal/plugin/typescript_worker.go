@@ -21,11 +21,16 @@ var ErrTypeScriptWorkerTimedOut = errors.New("typescript worker invocation timed
 var ErrTypeScriptWorkerManifest = errors.New("invalid typescript worker manifest")
 
 type executionDescriptor struct {
-	Entrypoint string   `json:"entrypoint"`
-	PluginID   string   `json:"pluginId"`
-	Version    string   `json:"version"`
-	ProjectID  string   `json:"projectId"`
-	Operations []string `json:"operations"`
+	Entrypoint string           `json:"entrypoint"`
+	PluginID   string           `json:"pluginId"`
+	Version    string           `json:"version"`
+	ProjectID  string           `json:"projectId"`
+	Routes     []executionRoute `json:"routes"`
+}
+
+type executionRoute struct {
+	Operation string `json:"operation"`
+	Function  string `json:"function"`
 }
 
 type TypeScriptWorkerOptions struct {
@@ -78,11 +83,11 @@ func NewManifestBubblewrapTypeScriptWorker(launcher, workerScript, descriptor, p
 		return nil, err
 	}
 	entrypoint := filepath.Join(pluginRoot, manifest.EntryPoint())
-	operations := make([]string, 0, len(manifest.Routes))
+	routes := make([]executionRoute, 0, len(manifest.Routes))
 	for _, route := range manifest.Routes {
-		operations = append(operations, route.Operation)
+		routes = append(routes, executionRoute{Operation: route.Operation, Function: route.Function})
 	}
-	data, err := json.Marshal(executionDescriptor{Entrypoint: entrypoint, PluginID: manifest.ID, Version: manifest.Version, ProjectID: projectID, Operations: operations})
+	data, err := json.Marshal(executionDescriptor{Entrypoint: entrypoint, PluginID: manifest.ID, Version: manifest.Version, ProjectID: projectID, Routes: routes})
 	if err != nil {
 		return nil, err
 	}

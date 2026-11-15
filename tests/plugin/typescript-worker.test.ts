@@ -17,7 +17,7 @@ await writeFile(
     pluginId: "sample",
     version: "1.0.0",
     projectId: "project",
-    operations: ["health"],
+    routes: [{ operation: "health", function: "health" }],
   }),
 );
 

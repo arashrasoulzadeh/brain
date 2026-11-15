@@ -9,14 +9,14 @@ if (!descriptorPath) {
 }
 
 const descriptor = JSON.parse(await readFile(descriptorPath, "utf8"));
-if (!descriptor.entrypoint || !descriptor.pluginId || !descriptor.version || !descriptor.projectId || !Array.isArray(descriptor.operations)) {
+if (!descriptor.entrypoint || !descriptor.pluginId || !descriptor.version || !descriptor.projectId || !Array.isArray(descriptor.routes)) {
   process.stderr.write("invalid execution descriptor\n");
   process.exit(65);
 }
 const modulePath = pathToFileURL(descriptor.entrypoint).href;
 const plugin = await import(modulePath);
 const handler = plugin.handle ?? plugin.createHandler?.();
-if (typeof handler !== "function") {
+if (typeof handler !== "function" && descriptor.routes.some((route) => typeof plugin[route.function] !== "function")) {
   process.stderr.write("plugin must export handle or createHandler\n");
   process.exit(65);
 }
@@ -32,10 +32,17 @@ for await (const line of input) {
     if (params.pluginId !== descriptor.pluginId || params.version !== descriptor.version || params.projectId !== descriptor.projectId) {
       throw new Error("execution context mismatch");
     }
-    if (!descriptor.operations.includes(params.operation)) throw new Error("operation not declared in plugin manifest");
-    const result = await handler(request);
+    const route = descriptor.routes.find((candidate) => candidate.operation === params.operation);
+    if (!route) throw new Error("operation not declared in plugin manifest");
+    const result = typeof handler === "function" ? await handler(request) : await invokeDeclaredRoute(plugin, route.function, request);
     process.stdout.write(`${JSON.stringify({ jsonrpc: "2.0", id: request.id, result })}\n`);
   } catch (error) {
     process.stdout.write(`${JSON.stringify({ jsonrpc: "2.0", id: request?.id ?? "", errorCode: error instanceof Error ? error.message : "plugin execution failed" })}\n`);
   }
+}
+
+async function invokeDeclaredRoute(plugin, functionName, request) {
+  const exported = plugin[functionName];
+  if (typeof exported === "function") return exported(request.params.payload ?? null);
+  throw new Error(`declared plugin function is not exported: ${functionName}`);
 }
