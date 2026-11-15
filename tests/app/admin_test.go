@@ -24,6 +24,27 @@ func TestAdminHandlerFailsClosedWithoutTrustedOperatorContext(t *testing.T) {
 	}
 }
 
+func TestServerUsesConsistentAPIErrorEnvelope(t *testing.T) {
+	server := app.NewServerWithOperatorAdmin(&admin.LifecycleService{}, &operator.Store{}, func(string) string { return "digest" })
+	request := httptest.NewRequest(http.MethodGet, "/admin/projects", nil)
+	recorder := httptest.NewRecorder()
+	server.Handler().ServeHTTP(recorder, request)
+	if recorder.Code != http.StatusForbidden {
+		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusForbidden)
+	}
+	var response struct {
+		Status  string `json:"status"`
+		Code    string `json:"code"`
+		Message string `json:"message"`
+	}
+	if err := json.Unmarshal(recorder.Body.Bytes(), &response); err != nil {
+		t.Fatalf("response is not JSON: %v; body=%q", err, recorder.Body.String())
+	}
+	if response.Status != "error" || response.Code == "" || response.Message == "" {
+		t.Fatalf("incomplete API error = %#v", response)
+	}
+}
+
 func TestAdminHandlerDoesNotTrustActorFromBody(t *testing.T) {
 	service := admin.NewLifecycleService(&operator.Store{}, plugin.NewRegistry(1))
 	req := httptest.NewRequest(http.MethodPost, "/admin/actions", strings.NewReader(`{"operation":"plugin.enable","actor":{"id":"admin","kind":"operator"}}`))
