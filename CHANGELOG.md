@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `60f72a6` — 2026-11-15 13:06:19 +0330 — add admin audit activity panel
+  Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css internal/admin/lifecycle.go,internal/app/admin.go internal/app/app.go
+- `8460adb` — 2026-11-15 09:34:43 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `fee2da8` — 2026-11-15 13:04:30 +0330 — add plugin install controls to admin
   Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css internal/admin/lifecycle.go,internal/app/admin.go tests/admin/lifecycle_test.go
 - `d270b7a` — 2026-11-15 09:33:32 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `0d96aae` — 2026-11-15 12:29:47 +0330 — record audited action gate
   Files: roadmap_backend.md
 - `21e848c` — 2026-11-15 08:59:38 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `57724d8` — 2026-11-15 12:29:26 +0330 — record verified recovery gate
-  Files: roadmap_backend.md
-- `9ced1dd` — 2026-11-15 08:59:12 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
