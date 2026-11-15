@@ -329,7 +329,7 @@ export default function AdminPage() {
             projects.map((project) => (
               <div className="project" key={project.ID}>
                 <span>{project.ID}</span>
-                <span className="project-actions"><small>{project.Active ? text.active : text.inactive}</small><button className="danger" onClick={() => uninstallProject(project)}>{text.uninstall}</button></span>
+                <span className="project-actions"><small>{project.Active ? text.active : text.inactive}</small>{project.Active && <button className="danger" onClick={() => uninstallProject(project)}>{text.uninstall}</button>}</span>
               </div>
             ))
           ) : (
