@@ -4,7 +4,7 @@ type Project = { ID: string; Active: boolean };
 type PluginManifest = { ID: string; Title: string; Description: string; Version: string; Capabilities: string[]; ConfigSchema?: Record<string, string> };
 type PluginStatus = { PluginID: string; Version: string; Enabled: boolean; Ready: boolean; Draining: boolean };
 type AuditRecord = { source: string; action: string; actor_id?: string; project_id?: string; plugin_id?: string; version?: string; success: boolean; detail?: string };
-type SystemManifest = PluginManifest & { Routes: { Operation: string; Capability: string }[]; ExtensionPoints: string[] };
+type SystemManifest = PluginManifest & { Routes: { Operation: string; Capability: string }[]; ExtensionPoints: string[]; SourceFiles: string[]; Imports: string[]; PluginImports: string[]; Dependencies: string[] };
 type Language = "en" | "fa";
 const copy = {
   en: {
@@ -46,6 +46,9 @@ const copy = {
     disable: "Disable",
     resume: "Resume",
     stop: "Stop",
+    files: "files",
+    imports: "imports",
+    dependencies: "dependencies",
     remove: "Remove",
     markReady: "Mark ready",
     promote: "Promote",
@@ -93,6 +96,9 @@ const copy = {
     disable: "غیرفعال‌سازی",
     resume: "ادامه فعالیت",
     stop: "توقف",
+    files: "فایل",
+    imports: "واردسازی",
+    dependencies: "وابستگی",
     remove: "حذف",
     markReady: "اعلام آمادگی",
     promote: "ارتقا",
@@ -320,7 +326,7 @@ export default function AdminPage() {
         </section>
         <section className="section" id="plugins"><div className="section-heading"><div><p className="eyebrow">{text.plugins}</p><h2>{text.installed}</h2></div><span className="count">{installations.length}</span></div><div>{installations.map((installation) => { const manifest = manifests.find((candidate) => candidate.ID === installation.PluginID && candidate.Version === installation.Version); const key = `${installation.PluginID}@${installation.Version}`; return <div className="project lifecycle-row" key={key}><span>{installation.PluginID}@{installation.Version}<small>{installation.Enabled ? text.enabled : text.disabled} · {installation.Ready ? text.ready : text.notReady}</small>{manifest?.ConfigSchema && Object.entries(manifest.ConfigSchema).map(([name, type]) => <label key={name}>{name}<input type={type === "int" ? "number" : type === "bool" ? "checkbox" : "text"} checked={type === "bool" ? Boolean(configuration[key]?.[name]) : undefined} value={type === "bool" ? undefined : String(configuration[key]?.[name] ?? "")} onChange={(event) => setConfiguration((current) => ({ ...current, [key]: { ...current[key], [name]: type === "bool" ? event.target.checked : event.target.value } }))} /></label>)}{manifest?.ConfigSchema && <button onClick={() => configurePlugin(installation)}>{text.configure}</button>}<small>{manifest?.Capabilities?.map((capability) => <span className="capability-action" key={capability}><code>{capability}</code><button onClick={() => runPluginAction("plugin.grant", installation, capability)}>{text.grantCapability}</button><button onClick={() => runPluginAction("plugin.revoke", installation, capability)}>{text.revokeCapability}</button></span>)}</small></span><span className="lifecycle-actions">{!installation.Ready && <button onClick={() => runPluginAction("plugin.readiness", installation)}>{text.markReady}</button>}{!installation.Enabled && <button onClick={() => runPluginAction("plugin.enable", installation)}>{text.enable}</button>}{installation.Enabled && <button onClick={() => runPluginAction("plugin.promote", installation)}>{text.promote}</button>}<button onClick={() => disablePlugin(installation)}>{text.disable}</button><button onClick={() => runPluginAction("plugin.drain", installation)}>{text.drain}</button><button onClick={() => runPluginAction("plugin.resume", installation)}>{text.resume}</button><button onClick={() => runPluginAction("plugin.stop", installation)}>{text.stop}</button><button onClick={() => runPluginAction("plugin.recover", installation)}>{text.recover}</button><button onClick={() => runPluginAction("plugin.rollback", installation)}>{text.rollback}</button><button className="danger" onClick={() => runPluginAction("plugin.remove", installation)}>{text.remove}</button></span></div>; })}</div></section>
         <section className="section" id="audit"><div className="section-heading"><div><p className="eyebrow">{text.audit}</p><h2>{text.audit}</h2></div><span className="count">{audit.length}</span></div><div className="audit-list">{audit.length ? audit.slice().reverse().slice(0, 20).map((record, index) => <div className="audit" key={`${record.action}-${index}`}><span className={record.success ? "success" : "failure"}>{record.success ? "✓" : "!"}</span><div><strong>{record.action}</strong><small>{record.source}{record.plugin_id ? ` · ${record.plugin_id}@${record.version}` : ""}{record.project_id ? ` · ${record.project_id}` : ""}</small></div></div>) : <p className="muted">{text.noAudit}</p>}</div></section>
-        <section className="section" id="system"><div className="section-heading"><div><p className="eyebrow">{text.system}</p><h2>{text.system}</h2></div><span className="count">{system.length}</span></div><div className="plugin-grid">{system.map((manifest) => <article className="plugin" key={`system-${manifest.ID}@${manifest.Version}`}><h3>{manifest.Title || manifest.ID}</h3><p className="muted">{manifest.Description}</p><small>{manifest.Routes?.length ?? 0} {text.routes} · {manifest.ExtensionPoints?.length ?? 0} {text.extensions}</small><div className="capabilities">{manifest.Capabilities?.map((capability) => <span key={capability}>{capability}</span>)}</div><div className="route-list">{manifest.Routes?.slice(0, 8).map((route) => <div key={route.Operation}><code>{route.Operation}</code><small>{route.Capability}</small></div>)}</div></article>)}</div></section>
+        <section className="section" id="system"><div className="section-heading"><div><p className="eyebrow">{text.system}</p><h2>{text.system}</h2></div><span className="count">{system.length}</span></div><div className="plugin-grid">{system.map((manifest) => <article className="plugin" key={`system-${manifest.ID}@${manifest.Version}`}><h3>{manifest.Title || manifest.ID}</h3><p className="muted">{manifest.Description}</p><small>{manifest.Routes?.length ?? 0} {text.routes} · {manifest.ExtensionPoints?.length ?? 0} {text.extensions} · {manifest.SourceFiles?.length ?? 0} {text.files}</small><div className="capabilities">{manifest.Capabilities?.map((capability) => <span key={capability}>{capability}</span>)}</div><div className="route-list">{manifest.Routes?.slice(0, 8).map((route) => <div key={route.Operation}><code>{route.Operation}</code><small>{route.Capability}</small></div>)}</div><details><summary>{text.files} / {text.imports} / {text.dependencies}</summary><small>{manifest.SourceFiles?.join(" · ")}</small><small>{manifest.Imports?.join(" · ")}</small><small>{[...(manifest.Dependencies ?? []), ...(manifest.PluginImports ?? [])].join(" · ") || "—"}</small></details></article>)}</div></section>
       </section>
     </main>
   );
