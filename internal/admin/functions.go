@@ -15,6 +15,9 @@ var ErrFunctionSourceInvalid = errors.New("function source must export a handler
 
 var functionExportPattern = regexp.MustCompile(`(?m)\bexport\s+default\b`)
 var functionUnsafePattern = regexp.MustCompile(`(?m)\b(import|require|process|child_process|fs|net|fetch|Deno)\b`)
+var functionNamePattern = regexp.MustCompile(`^[A-Za-z][A-Za-z0-9_-]{0,63}$`)
+
+const maxFunctionSourceBytes = 256 * 1024
 
 type FunctionDraft struct {
 	ProjectID string    `json:"project_id"`
@@ -29,7 +32,7 @@ var functionDrafts = struct {
 }{items: make(map[string]FunctionDraft)}
 
 func (s *LifecycleService) CreateFunctionDraft(actor operator.Actor, projectID, name, source string) (FunctionDraft, error) {
-	if actor.Kind != operator.ActorOperator || strings.TrimSpace(projectID) == "" || strings.TrimSpace(name) == "" || strings.TrimSpace(source) == "" {
+	if actor.Kind != operator.ActorOperator || strings.TrimSpace(projectID) == "" || !functionNamePattern.MatchString(strings.TrimSpace(name)) || strings.TrimSpace(source) == "" || len(source) > maxFunctionSourceBytes {
 		return FunctionDraft{}, ErrFunctionDraftInvalid
 	}
 	if s.projects != nil {
@@ -65,7 +68,7 @@ func (s *LifecycleService) ListFunctionDrafts(actor operator.Actor, projectID st
 }
 
 func (s *LifecycleService) TestFunctionDraft(actor operator.Actor, projectID, name, source string) (map[string]any, error) {
-	if actor.Kind != operator.ActorOperator || strings.TrimSpace(projectID) == "" || strings.TrimSpace(name) == "" || strings.TrimSpace(source) == "" {
+	if actor.Kind != operator.ActorOperator || strings.TrimSpace(projectID) == "" || !functionNamePattern.MatchString(strings.TrimSpace(name)) || strings.TrimSpace(source) == "" || len(source) > maxFunctionSourceBytes {
 		return nil, ErrFunctionDraftInvalid
 	}
 	if s.projects != nil {
