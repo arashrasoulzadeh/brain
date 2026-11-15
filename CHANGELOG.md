@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `729e411` — 2026-11-15 12:37:32 +0330 — document authenticated admin sessions
+  Files: docs/admins.html,docs/admins.md
+- `e99ed11` — 2026-11-15 09:07:13 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `baa2d17` — 2026-11-15 12:37:00 +0330 — wire operator sessions to admin boundary
   Files: internal/app/admin.go,internal/operator/operator.go internal/operator/session.go,tests/app/admin_test.go tests/operator/operator_test.go
 - `b051ca7` — 2026-11-15 09:05:17 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `02710a4` — 2026-11-15 12:17:22 +0330 — mount audited admin server boundary
   Files: internal/app/app.go,tests/app/admin_test.go
 - `41894f7` — 2026-11-15 08:47:04 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `9137037` — 2026-11-15 12:16:47 +0330 — wire audited admin HTTP boundary
-  Files: internal/app/admin.go,internal/operator/context.go tests/app/admin_test.go
-- `fd7ca9c` — 2026-11-15 08:46:12 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
