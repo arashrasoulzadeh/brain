@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `baa2d17` — 2026-11-15 12:37:00 +0330 — wire operator sessions to admin boundary
+  Files: internal/app/admin.go,internal/operator/operator.go internal/operator/session.go,tests/app/admin_test.go tests/operator/operator_test.go
+- `b051ca7` — 2026-11-15 09:05:17 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `2bd1147` — 2026-11-15 12:35:04 +0330 — record admin isolation release gates
   Files: roadmap_admin.md
 - `e39e00b` — 2026-11-15 09:04:54 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `9137037` — 2026-11-15 12:16:47 +0330 — wire audited admin HTTP boundary
   Files: internal/app/admin.go,internal/operator/context.go tests/app/admin_test.go
 - `fd7ca9c` — 2026-11-15 08:46:12 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `487b4f9` — 2026-11-15 12:15:57 +0330 — audit plugin permission actions
-  Files: internal/admin/lifecycle.go,tests/admin/lifecycle_test.go
-- `8e5eb31` — 2026-11-15 08:45:14 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
