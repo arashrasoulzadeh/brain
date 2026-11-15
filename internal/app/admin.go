@@ -229,6 +229,10 @@ func AuthenticatedFunctionsHandler(service *admin.LifecycleService, sessions *op
 		}
 		projectID := r.URL.Query().Get("project_id")
 		if r.Method == http.MethodGet {
+			if err := service.RequireEnabledPlugin(actor, projectID, "functions"); err != nil {
+				http.Error(w, err.Error(), http.StatusForbidden)
+				return
+			}
 			drafts, err := service.ListFunctionDrafts(actor, projectID)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusBadRequest)
@@ -245,6 +249,10 @@ func AuthenticatedFunctionsHandler(service *admin.LifecycleService, sessions *op
 		var command adminCommand
 		if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<20)).Decode(&command); err != nil {
 			http.Error(w, "invalid function request", http.StatusBadRequest)
+			return
+		}
+		if err := service.RequireEnabledPlugin(actor, command.ProjectID, "functions"); err != nil {
+			http.Error(w, err.Error(), http.StatusForbidden)
 			return
 		}
 		if command.Operation == "functions.test" {
@@ -314,6 +322,10 @@ func AuthenticatedFunctionLogsHandler(service *admin.LifecycleService, sessions 
 		actor, ok := sessions.ValidateSession(strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer "))
 		if !ok {
 			http.Error(w, "forbidden", http.StatusForbidden)
+			return
+		}
+		if err := service.RequireEnabledPlugin(actor, r.URL.Query().Get("project_id"), "functions"); err != nil {
+			http.Error(w, err.Error(), http.StatusForbidden)
 			return
 		}
 		logs, err := service.ListFunctionLogs(actor, r.URL.Query().Get("project_id"), r.URL.Query().Get("name"))

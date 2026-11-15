@@ -6,7 +6,11 @@ import (
 	"brain/internal/plugin"
 	"brain/internal/project"
 	"encoding/json"
+	"errors"
+	"strings"
 )
+
+var ErrPluginUnavailable = errors.New("plugin is not enabled and ready")
 
 type PluginInvocation struct {
 	ProjectID string
@@ -62,6 +66,20 @@ func (s *LifecycleService) ListPlugins(actor operator.Actor, projectID string) (
 		return nil, nil, operator.ErrInvalidOperatorAction
 	}
 	return s.registry.RegisteredManifests(), s.registry.InstallationStatuses(projectID), nil
+}
+
+// RequireEnabledPlugin is the server-side gate for plugin-backed admin APIs.
+// The browser sidebar is only a convenience; API authorization must recheck lifecycle state.
+func (s *LifecycleService) RequireEnabledPlugin(actor operator.Actor, projectID, pluginID string) error {
+	if actor.Kind != operator.ActorOperator || s.registry == nil || strings.TrimSpace(projectID) == "" || strings.TrimSpace(pluginID) == "" {
+		return operator.ErrInvalidOperatorAction
+	}
+	for _, installation := range s.registry.InstallationStatuses(projectID) {
+		if installation.PluginID == pluginID && installation.Enabled && installation.Ready {
+			return nil
+		}
+	}
+	return ErrPluginUnavailable
 }
 
 func (s *LifecycleService) SystemCapabilities(actor operator.Actor) ([]plugin.Manifest, error) {

@@ -1,11 +1,41 @@
 package admin_test
 
 import (
+	"errors"
 	"testing"
 
 	"brain/internal/admin"
 	"brain/internal/operator"
+	"brain/internal/plugin"
 )
+
+func TestRequireEnabledPluginRejectsDirectAPIAccessUntilLifecycleIsComplete(t *testing.T) {
+	registry := plugin.NewRegistry(1)
+	manifest := plugin.Manifest{ID: "functions", Title: "Functions", Version: "1.0.0", HostAPI: 1, Capabilities: []string{"functions.invoke"}}
+	if err := registry.Register(manifest); err != nil {
+		t.Fatal(err)
+	}
+	service := admin.NewLifecycleService(nil, registry)
+	actor := operator.Actor{ID: "admin", Kind: operator.ActorOperator}
+	if err := service.RequireEnabledPlugin(actor, "dev", "functions"); !errors.Is(err, admin.ErrPluginUnavailable) {
+		t.Fatalf("inactive plugin error = %v", err)
+	}
+	if err := registry.Install("dev", manifest.ID, manifest.Version); err != nil {
+		t.Fatal(err)
+	}
+	if err := registry.SetReadiness(manifest.ID, manifest.Version, true); err != nil {
+		t.Fatal(err)
+	}
+	if err := registry.Grant("dev", manifest.ID, manifest.Version, "functions.invoke"); err != nil {
+		t.Fatal(err)
+	}
+	if err := registry.Enable("dev", manifest.ID, manifest.Version); err != nil {
+		t.Fatal(err)
+	}
+	if err := service.RequireEnabledPlugin(actor, "dev", "functions"); err != nil {
+		t.Fatalf("active plugin was rejected: %v", err)
+	}
+}
 
 func TestFunctionDraftPreservesMethodAndUpdatesSourceBeforePublish(t *testing.T) {
 	service := admin.NewLifecycleService(nil, nil)
