@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `873210b` — 2026-11-15 12:26:00 +0330 — harden function state project boundaries
+  Files: plugins/functions/authorize-project-workflow-action.ts,plugins/functions/function-draft-reader.ts plugins/functions/function-publication-reader.ts,plugins/functions/shared-package-reader.ts tests/functions/functions.test.ts,tests/functions/workflow-components.test.ts
+- `f9d36eb` — 2026-11-15 08:55:13 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `b49cb7d` — 2026-11-15 12:24:56 +0330 — mark operator session isolation complete
   Files: roadmap_backend.md
 - `df33381` — 2026-11-15 08:54:56 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `41710ac` — 2026-11-15 12:05:12 +0330 — bound measured capacity memory
   Files: internal/deploy/capacity_profile.go,tests/deploy/capacity_profile_test.go
 - `efd8b75` — 2026-11-14 23:00:04 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `ef5fe97` — 2026-11-15 02:29:50 +0330 — validate caller project context
-  Files: internal/project/transaction_context.go,tests/project/transaction_context_test.go
-- `9b74e34` — 2026-11-14 22:59:23 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
