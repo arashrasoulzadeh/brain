@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `607a192` — 2026-11-15 13:23:22 +0330 — wire safe plugin disable lifecycle
+  Files: internal/admin/lifecycle.go,internal/app/admin.go tests/app/admin_test.go
+- `bf0296a` — 2026-11-15 09:52:19 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `e6fe011` — 2026-11-15 13:22:05 +0330 — expose complete plugin capability controls
   Files: admin-nextjs/app/page.tsx
 - `daf9d9a` — 2026-11-15 09:51:02 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `ede74b7` — 2026-11-15 12:48:31 +0330 — add browser admin login panel
   Files: cmd/brain/main.go,internal/app/app.go plugins/dashboard/admin-panel.html,plugins/dashboard/plugin.yaml tests/app/admin_test.go
 - `54a2560` — 2026-11-15 09:13:22 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `7984810` — 2026-11-15 12:43:09 +0330 — add dashboard admin panel and login client
-  Files: clients/javascript/src/admin.ts,clients/javascript/src/index.ts plugins/dashboard/admin-panel.ts,plugins/dashboard/index.ts plugins/dashboard/plugin.yaml,tests/client/admin-client.test.ts tests/dashboard/dashboard.test.ts
-- `60b0376` — 2026-11-15 09:09:45 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
