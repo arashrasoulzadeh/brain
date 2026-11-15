@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `9137037` — 2026-11-15 12:16:47 +0330 — wire audited admin HTTP boundary
+  Files: internal/app/admin.go,internal/operator/context.go tests/app/admin_test.go
+- `fd7ca9c` — 2026-11-15 08:46:12 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `487b4f9` — 2026-11-15 12:15:57 +0330 — audit plugin permission actions
   Files: internal/admin/lifecycle.go,tests/admin/lifecycle_test.go
 - `8e5eb31` — 2026-11-15 08:45:14 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `774a9c2` — 2026-11-15 02:24:05 +0330 — validate arena identity and result time
   Files: plugins/arena/arena-state.ts,plugins/arena/validate-result.ts tests/arena/arena.test.ts
 - `d7c7446` — 2026-11-14 22:53:41 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `3897676` — 2026-11-15 02:23:27 +0330 — harden invite validation boundaries
-  Files: plugins/invites/invite-accepter.ts,plugins/invites/invite-creator.ts tests/invites/invites.test.ts
-- `abf0585` — 2026-11-14 22:53:00 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
