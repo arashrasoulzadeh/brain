@@ -3,6 +3,12 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `31ab1e7` — 2026-11-15 18:54:33 +0330 — wire api envelope into server handler
+  Files: internal/app/app.go
+- `4a9a60b` — 2026-11-15 18:54:14 +0330 — standardize api messages and add admin toasts
+  Files: admin-nextjs/app/components/toast-provider.tsx,admin-nextjs/app/layout.tsx internal/app/api_response.go,tests/app/admin_test.go
+- `e038b0c` — 2026-11-15 15:22:27 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `f1cef48` — 2026-11-15 18:52:06 +0330 — apply tailwind component layer across admin ui
   Files: admin-nextjs/app/styles.css
 - `539f29e` — 2026-11-15 15:19:14 +0000 — docs: update changelog [skip ci]
@@ -97,9 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `4ea6c3e` — 2026-11-15 15:06:58 +0330 — show saved function drafts in admin
   Files: admin-nextjs/app/page.tsx
-- `43c9061` — 2026-11-15 11:36:09 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `46bc82c` — 2026-11-15 15:05:55 +0330 — load project function drafts in admin
-  Files: admin-nextjs/app/page.tsx
-- `3192140` — 2026-11-15 11:35:22 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
