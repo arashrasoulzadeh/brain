@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `ec00c8d` — 2026-11-15 12:38:45 +0330 — compose production operator admin server
+  Files: cmd/brain/main.go,internal/app/admin.go internal/app/app.go,tests/app/admin_test.go
+- `222ccf4` — 2026-11-15 09:07:47 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `729e411` — 2026-11-15 12:37:32 +0330 — document authenticated admin sessions
   Files: docs/admins.html,docs/admins.md
 - `e99ed11` — 2026-11-15 09:07:13 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `df4bb08` — 2026-11-15 12:19:16 +0330 — enforce canonical plugin project identities
   Files: internal/plugin/plugin.go,tests/plugin/plugin_test.go
 - `5b07349` — 2026-11-15 08:47:37 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `02710a4` — 2026-11-15 12:17:22 +0330 — mount audited admin server boundary
-  Files: internal/app/app.go,tests/app/admin_test.go
-- `41894f7` — 2026-11-15 08:47:04 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
