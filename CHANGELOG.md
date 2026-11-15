@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `969581e` — 2026-11-15 19:35:56 +0330 — document admin pages and shared shell
+  Files: docs/admin-pages/README.md,docs/admin-pages/audit.md docs/admin-pages/database.md,docs/admin-pages/files.md docs/admin-pages/function-detail.md,docs/admin-pages/function-new.md docs/admin-pages/functions.md,docs/admin-pages/live-sessions.md docs/admin-pages/monitoring.md,docs/admin-pages/plugin-detail.md docs/admin-pages/plugins.md,docs/admin-pages/projects.md docs/admin-pages/routes.md,docs/admin-pages/system.md docs/admin-pages/workers.md,docs/admin-pages/workflows.md
+- `fe9c9f7` — 2026-11-15 16:04:47 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `e1e28f6` — 2026-11-15 19:34:27 +0330 — unify admin sidebar and persist plugin lifecycle
   Files: admin-nextjs/app/functions/[name]/page.tsx,internal/plugin/plugin.go internal/plugin/sqlite_storage.go,tests/plugin/lifecycle_persistence_test.go
 - `e761fbc` — 2026-11-15 15:59:14 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `70eb9f3` — 2026-11-15 17:11:36 +0330 — add workflow and live session consoles
   Files: admin-nextjs/app/page.tsx
 - `42e9e40` — 2026-11-15 13:40:50 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `6c3dc6b` — 2026-11-15 17:10:36 +0330 — add files operation console
-  Files: admin-nextjs/app/page.tsx
-- `966ce9b` — 2026-11-15 13:40:01 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
