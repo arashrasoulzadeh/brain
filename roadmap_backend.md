@@ -20,5 +20,5 @@ Backend infrastructure, release, deployment, backup, capacity, and security work
 - [x] Project isolation holds across APIs, SQL, workers, jobs, sockets, and WASM. Verified by the full Go suite, race suite, TypeScript isolation gates, and the plugin project-boundary audit commits.
 - [x] Recovery works after connection, worker, and deployment failures. Verified by connection/reconnect tests, bounded worker restart tests, idempotent invocation recovery, release rollback compatibility tests, and deployment recovery-record/runbook checks.
 - [x] Multi-architecture images are digest-pinned. Verified by release-manifest validation requiring immutable SHA-256 references for backend, compiler, and runner images.
-- [ ] Compose deployment and rollback are rehearsed.
+- [x] Compose deployment and rollback are rehearsed in CI. Verified by the `test.yml` clean-environment and full deploy/rollback/restore rehearsal jobs, with local development explicitly remaining Docker-free.
 - [x] Production limits are based on measured capacity. Verified by bounded memory/capacity validation and the eight-player capacity gate.
