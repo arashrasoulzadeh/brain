@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `a03dc58` — 2026-11-15 19:18:20 +0330 — enforce plugin lifecycle on function APIs
+  Files: internal/admin/lifecycle.go,internal/app/admin.go tests/admin/functions_test.go
+- `f81fe4b` — 2026-11-15 15:46:54 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `b24f115` — 2026-11-15 19:16:22 +0330 — guard plugin pages by lifecycle state
   Files: admin-nextjs/app/components/admin-chrome.tsx,admin-nextjs/app/functions/[name]/page.tsx admin-nextjs/app/functions/new/page.tsx,admin-nextjs/app/functions/page.tsx admin-nextjs/app/page.tsx,admin-nextjs/app/workflows/page.tsx
 - `58242df` — 2026-11-15 15:38:12 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `cde7a13` — 2026-11-15 17:05:36 +0330 — add database operation console
   Files: admin-nextjs/app/page.tsx
 - `3aa111b` — 2026-11-15 13:33:12 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `31ab0b1` — 2026-11-15 17:02:58 +0330 — report runtime worker health in admin
-  Files: admin-nextjs/app/page.tsx,internal/plugin/plugin.go
-- `f6f8c50` — 2026-11-15 13:32:03 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
