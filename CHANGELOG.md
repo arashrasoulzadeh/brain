@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `3ae1cd1` — 2026-11-15 19:46:50 +0330 — add explicit function draft save action
+  Files: admin-nextjs/app/functions/[name]/page.tsx
+- `b19933b` — 2026-11-15 16:14:52 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `fd5fc6b` — 2026-11-15 19:44:37 +0330 — persist admin shell across page navigation
   Files: admin-nextjs/app/components/admin-chrome.tsx,admin-nextjs/app/components/admin-shell.tsx admin-nextjs/app/functions/[name]/page.tsx,admin-nextjs/app/layout.tsx admin-nextjs/app/page.tsx,tests/admin/admin-shell.test.ts
 - `7d37674` — 2026-11-15 16:10:52 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `84b45ea` — 2026-11-15 17:14:41 +0330 — make analytics capture host invokable
   Files: plugins/analytics/analytics-route-sink.ts,plugins/analytics/capture.ts plugins/analytics/index.ts,plugins/analytics/plugin.yaml
 - `2b3c5a0` — 2026-11-15 13:44:09 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `cfdca95` — 2026-11-15 17:13:55 +0330 — implement function admin routes
-  Files: plugins/functions/index.ts,plugins/functions/invoke-route.ts plugins/functions/plugin.yaml,plugins/functions/publish-route.ts
-- `da5ea09` — 2026-11-15 13:43:38 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
