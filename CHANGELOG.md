@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `ffad212` — 2026-11-15 13:19:21 +0330 — scope admin plugin inventory by project
+  Files: admin-nextjs/app/page.tsx
+- `3d96c29` — 2026-11-15 09:48:27 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `c88c541` — 2026-11-15 13:18:04 +0330 — target plugin actions at selected project
   Files: admin-nextjs/app/page.tsx
 - `fd8d888` — 2026-11-15 09:45:58 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `166f0f6` — 2026-11-15 12:39:10 +0330 — verify packaged admin composition
   Files: cmd/brain/main_test.go
 - `d8fbe27` — 2026-11-15 09:08:58 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `ec00c8d` — 2026-11-15 12:38:45 +0330 — compose production operator admin server
-  Files: cmd/brain/main.go,internal/app/admin.go internal/app/app.go,tests/app/admin_test.go
-- `222ccf4` — 2026-11-15 09:07:47 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
