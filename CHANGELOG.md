@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `ea3e8fc` — 2026-11-15 13:08:20 +0330 — add plugin readiness control
+  Files: admin-nextjs/app/page.tsx,internal/admin/lifecycle.go internal/app/admin.go,tests/admin/lifecycle_test.go
+- `2768bf2` — 2026-11-15 09:37:27 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `d38d7f5` — 2026-11-15 13:07:14 +0330 — add plugin lifecycle controls
   Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css
 - `52f77ca` — 2026-11-15 09:36:32 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `b7571e2` — 2026-11-15 12:30:54 +0330 — complete plugin security audit gate
   Files: roadmap_backend.md
 - `c451bc2` — 2026-11-15 09:00:26 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `f49fd18` — 2026-11-15 12:30:13 +0330 — record compose rehearsal gate
-  Files: roadmap_backend.md
-- `11b7521` — 2026-11-15 09:00:02 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
