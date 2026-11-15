@@ -9,6 +9,7 @@ import (
 
 	"brain/internal/admin"
 	"brain/internal/operator"
+	"brain/internal/plugin"
 )
 
 type operatorLogin struct {
@@ -186,6 +187,8 @@ type adminCommand struct {
 	Key        string         `json:"key"`
 	Values     map[string]any `json:"values"`
 	Confirmed  bool           `json:"confirmed"`
+	Revision   uint64         `json:"revision"`
+	Dependents []string       `json:"dependents"`
 }
 
 func AdminHandler(service *admin.LifecycleService) http.Handler {
@@ -235,6 +238,17 @@ func AdminHandler(service *admin.LifecycleService) http.Handler {
 			err = service.DrainPlugin(actor, command.ProjectID, command.PluginID, command.Version)
 		case "plugin.stop-immediate":
 			err = service.StopPluginImmediately(actor, command.ProjectID, command.PluginID, command.Version)
+		case "plugin.disable.preview":
+			preview, previewErr := service.PreviewDisable(actor, command.ProjectID, command.PluginID, command.Version)
+			if previewErr != nil {
+				http.Error(w, previewErr.Error(), http.StatusForbidden)
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			_ = json.NewEncoder(w).Encode(preview)
+			return
+		case "plugin.disable.apply":
+			err = service.ApplyDisable(actor, plugin.DisablePreview{ProjectID: command.ProjectID, PluginID: command.PluginID, Version: command.Version, Revision: command.Revision, Dependents: command.Dependents})
 		case "plugin.recover":
 			err = service.RecoverPlugin(actor, command.ProjectID, command.PluginID, command.Version)
 		case "plugin.rollback":
@@ -257,7 +271,7 @@ func AdminHandler(service *admin.LifecycleService) http.Handler {
 
 func requiresAdminConfirmation(operation string) bool {
 	switch operation {
-	case "plugin.remove", "plugin.revoke", "plugin.stop-immediate", "plugin.rollback", "project.uninstall", "durable-data.delete":
+	case "plugin.remove", "plugin.revoke", "plugin.stop-immediate", "plugin.rollback", "plugin.disable.apply", "project.uninstall", "durable-data.delete":
 		return true
 	default:
 		return false

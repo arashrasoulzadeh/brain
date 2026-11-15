@@ -156,6 +156,22 @@ func (s *LifecycleService) StopPluginImmediately(actor operator.Actor, projectID
 	})
 }
 
+func (s *LifecycleService) PreviewDisable(actor operator.Actor, projectID, pluginID, version string) (plugin.DisablePreview, error) {
+	var preview plugin.DisablePreview
+	err := s.execute(actor, "plugin.disable.preview", func() error {
+		var err error
+		preview, err = s.registry.PreviewDisable(projectID, pluginID, version)
+		return err
+	})
+	return preview, err
+}
+
+func (s *LifecycleService) ApplyDisable(actor operator.Actor, preview plugin.DisablePreview) error {
+	return s.execute(actor, "plugin.disable.apply", func() error {
+		return s.registry.ApplyDisablePreview(preview)
+	})
+}
+
 func (s *LifecycleService) RecoverPlugin(actor operator.Actor, projectID, pluginID, version string) error {
 	return s.execute(actor, "plugin.recover", func() error {
 		return s.registry.Recover(projectID, pluginID, version)
