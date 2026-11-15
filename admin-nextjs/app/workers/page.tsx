@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { AdminFooter, AdminHeader, AdminSidebar } from "../components/admin-chrome";
+import { AdminPageFrame } from "../components/admin-chrome";
 
 type Installation = { PluginID: string; Version: string; Enabled: boolean; Ready: boolean; WorkerReady?: boolean };
 
@@ -38,5 +38,5 @@ export default function WorkersPage() {
     if (response.ok) await load(session);
   }
 
-  return <main className="shell"><div className="workspace"><AdminSidebar activePage="workers" projectID={project} onSignOut={() => { window.sessionStorage.removeItem("brain-admin-session"); router.replace("/"); }} /><section className="card admin-content"><AdminHeader title="Workers" /><p className="muted">Project: {project || "—"}. A plugin is executable only after its worker is ready.</p>{message && <p className="notice">{message}</p>}<div className="audit-list">{workers.map((worker) => <div className="audit" key={`${worker.PluginID}@${worker.Version}`}><span className={worker.WorkerReady ? "success" : "failure"}>{worker.WorkerReady ? "✓" : "!"}</span><div><strong>{worker.PluginID}@{worker.Version}</strong><small>{worker.WorkerReady ? "Worker ready" : "Worker not ready"}</small></div>{worker.Enabled && worker.Ready && !worker.WorkerReady && <button type="button" onClick={() => void spinUp(worker)}>Spin up worker</button>}</div>)}</div><AdminFooter /></section></div></main>;
+  return <AdminPageFrame activePage="workers" title="Workers" projectID={project} onSignOut={() => { window.sessionStorage.removeItem("brain-admin-session"); router.replace("/"); }}><p className="muted">Project: {project || "—"}. A plugin is executable only after its worker is ready.</p>{message && <p className="notice">{message}</p>}<div className="audit-list">{workers.map((worker) => <div className="audit" key={`${worker.PluginID}@${worker.Version}`}><span className={worker.WorkerReady ? "success" : "failure"}>{worker.WorkerReady ? "✓" : "!"}</span><div><strong>{worker.PluginID}@{worker.Version}</strong><small>{worker.WorkerReady ? "Worker ready" : "Worker not ready"}</small></div>{worker.Enabled && worker.Ready && !worker.WorkerReady && <button type="button" onClick={() => void spinUp(worker)}>Spin up worker</button>}</div>)}</div></AdminPageFrame>;
 }

@@ -2,7 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
-import { AdminFooter, AdminHeader, AdminSidebar } from "../../components/admin-chrome";
+import { AdminPageFrame } from "../../components/admin-chrome";
 import { FunctionEditor } from "../function-editor";
 
 export default function NewFunctionPage() {
@@ -25,5 +25,5 @@ export default function NewFunctionPage() {
     router.push(`/functions/${encodeURIComponent(name)}`);
   }
 
-  return <main className="shell"><div className="workspace"><AdminSidebar activePage="functions" /><section className="card admin-content"><AdminHeader title="Create function" /><form className="function-studio" onSubmit={save}><label>Function name<input value={name} onChange={(event) => setName(event.target.value)} required placeholder="hello" /></label><label>Source code<FunctionEditor source={source} onChange={setSource} /></label><div className="function-settings"><label>Version<input type="number" min="1" value={version} onChange={(event) => setVersion(event.target.value)} /></label><label>Method<select value={method} onChange={(event) => setMethod(event.target.value)}><option>GET</option><option>POST</option><option>PUT</option><option>PATCH</option></select></label><label>Permissions<input value={permissions} onChange={(event) => setPermissions(event.target.value)} /></label><label className="checkbox-label"><input type="checkbox" checked={publicRoute} onChange={(event) => setPublicRoute(event.target.checked)} /> Public call route</label></div><div className="playground-actions"><button type="submit">Create function</button><small>{message}</small></div></form><AdminFooter /></section></div></main>;
+  return <AdminPageFrame activePage="functions" title="Create function"><form className="function-studio" onSubmit={save}><label>Function name<input value={name} onChange={(event) => setName(event.target.value)} required placeholder="hello" /></label><label>Source code<FunctionEditor source={source} onChange={setSource} /></label><div className="function-settings"><label>Version<input type="number" min="1" value={version} onChange={(event) => setVersion(event.target.value)} /></label><label>Method<select value={method} onChange={(event) => setMethod(event.target.value)}><option>GET</option><option>POST</option><option>PUT</option><option>PATCH</option></select></label><label>Permissions<input value={permissions} onChange={(event) => setPermissions(event.target.value)} /></label><label className="checkbox-label"><input type="checkbox" checked={publicRoute} onChange={(event) => setPublicRoute(event.target.checked)} /> Public call route</label></div><div className="playground-actions"><button type="submit">Create function</button><small>{message}</small></div></form></AdminPageFrame>;
 }

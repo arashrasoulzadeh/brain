@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { AdminFooter, AdminHeader, AdminSidebar } from "../components/admin-chrome";
+import { AdminPageFrame } from "../components/admin-chrome";
 
 type Draft = { project_id: string; name: string; source: string; version?: number; public?: boolean; permissions?: string[]; created_at: string };
 
@@ -18,5 +18,5 @@ export default function FunctionsPage() {
     void (async () => { const projects = await (await fetch("/api/admin/projects", { headers: { authorization: `Bearer ${token}` } })).json() as { ID: string; Active: boolean }[]; const active = projects.find((candidate) => candidate.Active)?.ID ?? ""; setProject(active); if (active) setDrafts(await (await fetch(`/api/admin/functions?project_id=${encodeURIComponent(active)}`, { headers: { authorization: `Bearer ${token}` } })).json() as Draft[]); })();
   }, []);
 
-  return <main className="shell"><div className="workspace"><AdminSidebar activePage="functions" projectID={project} /><section className="card admin-content"><div className="section-heading"><AdminHeader title="Functions" /><Link className="button-link" href="/functions/new">Create function</Link></div><p className="muted">Project-scoped serverless functions. Select a function to edit permissions, versions, analytics, and logs.</p><div className="table-wrap"><table><thead><tr><th>Function</th><th>Version</th><th>Visibility</th><th>Updated</th><th /></tr></thead><tbody>{drafts.map((draft) => <tr key={`${draft.project_id}:${draft.name}`}><td><Link href={`/functions/${encodeURIComponent(draft.name)}`}>{draft.name}</Link></td><td>{draft.version ?? 1}</td><td>{draft.public ? "Public" : "Private"}</td><td>{new Date(draft.created_at).toLocaleString()}</td><td><Link href={`/functions/${encodeURIComponent(draft.name)}`}>View</Link></td></tr>)}</tbody></table>{drafts.length === 0 && <p className="muted">No functions yet.</p>}</div><AdminFooter /></section></div></main>;
+  return <AdminPageFrame activePage="functions" title="Functions" projectID={project}><div className="section-heading"><Link className="button-link" href="/functions/new">Create function</Link></div><p className="muted">Project-scoped serverless functions. Select a function to edit permissions, versions, analytics, and logs.</p><div className="table-wrap"><table><thead><tr><th>Function</th><th>Version</th><th>Visibility</th><th>Updated</th><th /></tr></thead><tbody>{drafts.map((draft) => <tr key={`${draft.project_id}:${draft.name}`}><td><Link href={`/functions/${encodeURIComponent(draft.name)}`}>{draft.name}</Link></td><td>{draft.version ?? 1}</td><td>{draft.public ? "Public" : "Private"}</td><td>{new Date(draft.created_at).toLocaleString()}</td><td><Link href={`/functions/${encodeURIComponent(draft.name)}`}>View</Link></td></tr>)}</tbody></table>{drafts.length === 0 && <p className="muted">No functions yet.</p>}</div></AdminPageFrame>;
 }

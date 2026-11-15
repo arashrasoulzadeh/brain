@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { AdminFooter, AdminHeader, AdminSidebar } from "../../components/admin-chrome";
+import { AdminPageFrame } from "../../components/admin-chrome";
 
 type Project = { ID: string; Active: boolean };
 type Manifest = { ID: string; Title: string; Description: string; Version: string; Capabilities: string[] };
@@ -54,5 +54,5 @@ export default function PluginSettingsPage() {
     router.replace("/");
   }
 
-  return <main className="shell"><div className="workspace"><AdminSidebar activePage="plugins" projectID={project?.ID} onSignOut={signOut} /><section className="card admin-content"><div className="section-heading"><AdminHeader eyebrow="Plugin settings" title={manifest?.Title ?? pluginKey} /><Link href="/plugins">Back to plugins</Link></div><p className="muted">Project: {project?.ID ?? "—"}</p>{manifest && <><p>{manifest.Description}</p><p><code>{manifest.ID}@{manifest.Version}</code> · {installation?.Ready ? "Ready" : "Not ready"} · {installation?.Enabled ? "Enabled" : "Disabled"}</p><div className="lifecycle-actions">{installation && !installation.Ready && <button onClick={() => lifecycle("plugin.readiness")}>Mark ready</button>}{installation?.Ready && !installation.Enabled && <button onClick={() => lifecycle("plugin.enable")}>Enable</button>}</div>{message && <p className="notice">{message}</p>}<h2>Capabilities</h2><div className="capabilities">{manifest.Capabilities.map((capability) => <span key={capability}><code>{capability}</code>{installation?.Grants?.includes(capability) ? <><small>Granted</small><button className="danger" onClick={() => lifecycle("plugin.revoke", capability)}>Revoke</button></> : <button onClick={() => lifecycle("plugin.grant", capability)}>Grant</button>}</span>)}</div></>}<AdminFooter /></section></div></main>;
+  return <AdminPageFrame activePage="plugins" title={manifest?.Title ?? pluginKey} eyebrow="Plugin settings" projectID={project?.ID} onSignOut={signOut}><div className="section-heading"><Link href="/plugins">Back to plugins</Link></div><p className="muted">Project: {project?.ID ?? "—"}</p>{manifest && <><p>{manifest.Description}</p><p><code>{manifest.ID}@{manifest.Version}</code> · {installation?.Ready ? "Ready" : "Not ready"} · {installation?.Enabled ? "Enabled" : "Disabled"}</p><div className="lifecycle-actions">{installation && !installation.Ready && <button onClick={() => lifecycle("plugin.readiness")}>Mark ready</button>}{installation?.Ready && !installation.Enabled && <button onClick={() => lifecycle("plugin.enable")}>Enable</button>}</div>{message && <p className="notice">{message}</p>}<h2>Capabilities</h2><div className="capabilities">{manifest.Capabilities.map((capability) => <span key={capability}><code>{capability}</code>{installation?.Grants?.includes(capability) ? <><small>Granted</small><button className="danger" onClick={() => lifecycle("plugin.revoke", capability)}>Revoke</button></> : <button onClick={() => lifecycle("plugin.grant", capability)}>Grant</button>}</span>)}</div></>}</AdminPageFrame>;
 }
