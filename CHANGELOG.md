@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `d2f6b43` — 2026-11-15 14:43:24 +0330 — keep plugin settings inside admin workspace
+  Files: admin-nextjs/app/plugins/[plugin]/page.tsx
+- `d8af0b4` — 2026-11-15 11:12:38 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `a3601a8` — 2026-11-15 14:42:23 +0330 — simplify installed plugins table
   Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css
 - `eeb02a3` — 2026-11-15 11:10:41 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `7c5c6a1` — 2026-11-15 10:07:10 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
 - `4daea39` — 2026-11-15 13:36:58 +0330 — hide inactive project destructive actions
-  Files: admin-nextjs/app/page.tsx
-- `c7f6a0e` — 2026-11-15 10:06:23 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `805c0de` — 2026-11-15 13:36:11 +0330 — show complete plugin manifest catalog
   Files: admin-nextjs/app/page.tsx
