@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `84b45ea` — 2026-11-15 17:14:41 +0330 — make analytics capture host invokable
+  Files: plugins/analytics/analytics-route-sink.ts,plugins/analytics/capture.ts plugins/analytics/index.ts,plugins/analytics/plugin.yaml
+- `2b3c5a0` — 2026-11-15 13:44:09 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `cfdca95` — 2026-11-15 17:13:55 +0330 — implement function admin routes
   Files: plugins/functions/index.ts,plugins/functions/invoke-route.ts plugins/functions/plugin.yaml,plugins/functions/publish-route.ts
 - `da5ea09` — 2026-11-15 13:43:38 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `3c615ba` — 2026-11-15 14:56:39 +0330 — add project scoped custom function drafts
   Files: admin-nextjs/app/page.tsx,admin-nextjs/app/plugins/[plugin]/page.tsx admin-nextjs/app/styles.css,internal/admin/functions.go internal/app/admin.go,internal/app/app.go
 - `a9bb7f4` — 2026-11-15 11:19:04 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `9a9d3e9` — 2026-11-15 14:47:45 +0330 — match plugin page shell and prevent route flash
-  Files: admin-nextjs/app/plugins/[plugin]/page.tsx
-- `55142a5` — 2026-11-15 11:15:57 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
