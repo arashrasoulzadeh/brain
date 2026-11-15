@@ -148,3 +148,21 @@ func TestOperatorSessionHandlerIssuesBearerSession(t *testing.T) {
 		t.Fatal("issued session was not valid")
 	}
 }
+
+func TestOperatorAdminServerServesBrowserPanel(t *testing.T) {
+	operators := &operator.Store{}
+	digest := func(string) string { return "digest" }
+	if _, err := operators.Bootstrap("admin", "secret", digest); err != nil {
+		t.Fatal(err)
+	}
+	service := admin.NewLifecycleService(operators, plugin.NewRegistry(1))
+	request := httptest.NewRequest(http.MethodGet, "/admin", nil)
+	recorder := httptest.NewRecorder()
+	app.NewServerWithOperatorAdminPage(service, operators, digest, "<html>admin login</html>").Handler().ServeHTTP(recorder, request)
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("panel status = %d, want %d", recorder.Code, http.StatusOK)
+	}
+	if !strings.Contains(recorder.Body.String(), "admin login") {
+		t.Fatalf("panel body = %q", recorder.Body.String())
+	}
+}

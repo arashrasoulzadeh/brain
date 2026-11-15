@@ -52,7 +52,11 @@ func productionServer() *app.Server {
 		return app.NewServer()
 	}
 	registry := plugin.NewRegistry(1)
-	return app.NewServerWithOperatorAdmin(admin.NewLifecycleService(operators, registry), operators, digest)
+	panel, err := os.ReadFile("plugins/dashboard/admin-panel.html")
+	if err != nil {
+		log.Printf("admin panel unavailable: %v", err)
+	}
+	return app.NewServerWithOperatorAdminPage(admin.NewLifecycleService(operators, registry), operators, digest, string(panel))
 }
 
 func verifyObjectManifest(path string) {
