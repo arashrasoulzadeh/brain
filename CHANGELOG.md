@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `cfdca95` — 2026-11-15 17:13:55 +0330 — implement function admin routes
+  Files: plugins/functions/index.ts,plugins/functions/invoke-route.ts plugins/functions/plugin.yaml,plugins/functions/publish-route.ts
+- `da5ea09` — 2026-11-15 13:43:38 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `e556070` — 2026-11-15 17:13:23 +0330 — implement room admin routes
   Files: plugins/rooms/index.ts,plugins/rooms/plugin.yaml plugins/rooms/room-route-store.ts,plugins/rooms/rooms-create-route.ts plugins/rooms/rooms-join-route.ts,plugins/rooms/rooms-reconnect-route.ts plugins/rooms/rooms-result-route.ts
 - `210ad10` — 2026-11-15 13:42:59 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `9a9d3e9` — 2026-11-15 14:47:45 +0330 — match plugin page shell and prevent route flash
   Files: admin-nextjs/app/plugins/[plugin]/page.tsx
 - `55142a5` — 2026-11-15 11:15:57 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `96dfb07` — 2026-11-15 14:45:40 +0330 — fix plugin settings build
-  Files: admin-nextjs/app/plugins/[plugin]/page.tsx
-- `56c0713` — 2026-11-15 11:13:41 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
