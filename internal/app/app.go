@@ -53,5 +53,5 @@ func NewServerWithOperatorAdmin(adminService *admin.LifecycleService, sessions *
 
 // Handler returns the server's HTTP handler for tests and command wiring.
 func (s *Server) Handler() http.Handler {
-	return s.mux
+	return withAPIEnvelope(s.mux)
 }
