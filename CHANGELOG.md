@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `ba9a526` — 2026-11-15 13:47:39 +0330 — show complete admin audit history
+  Files: admin-nextjs/app/page.tsx
+- `4d2c90e` — 2026-11-15 10:16:28 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `0ff5867` — 2026-11-15 13:46:16 +0330 — restore selected project across admin pages
   Files: admin-nextjs/app/page.tsx
 - `0504d80` — 2026-11-15 10:15:42 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `c88c541` — 2026-11-15 13:18:04 +0330 — target plugin actions at selected project
   Files: admin-nextjs/app/page.tsx
 - `fd8d888` — 2026-11-15 09:45:58 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `6f9356a` — 2026-11-15 13:15:45 +0330 — add live admin panel refresh
-  Files: admin-nextjs/app/page.tsx
-- `5aad36c` — 2026-11-15 09:45:30 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
