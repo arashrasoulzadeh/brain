@@ -76,17 +76,39 @@ func registerDiscoveredPlugins(registry *plugin.Registry) map[string]plugin.Plug
 		log.Printf("plugin discovery unavailable: %v", err)
 		return registered
 	}
+	pending := make(map[string]plugin.PluginLocation, len(locations))
+	manifests := make(map[string]plugin.Manifest, len(locations))
 	for _, location := range locations {
 		manifest, err := plugin.LoadManifest(location.ManifestPath)
 		if err != nil {
 			log.Printf("plugin %s rejected: %v", location.ID, err)
 			continue
 		}
-		if err := registry.Register(manifest); err != nil {
-			log.Printf("plugin %s@%s rejected: %v", manifest.ID, manifest.Version, err)
-			continue
+		key := manifest.ID + "@" + manifest.Version
+		pending[key] = location
+		manifests[key] = manifest
+	}
+	for len(pending) > 0 {
+		progress := false
+		for key, location := range pending {
+			if err := registry.Register(manifests[key]); err != nil {
+				if err == plugin.ErrDependencyMissing {
+					continue
+				}
+				log.Printf("plugin %s rejected: %v", key, err)
+				delete(pending, key)
+				continue
+			}
+			registered[key] = location
+			delete(pending, key)
+			progress = true
 		}
-		registered[manifest.ID+"@"+manifest.Version] = location
+		if !progress {
+			for key := range pending {
+				log.Printf("plugin %s rejected: unresolved dependency", key)
+			}
+			break
+		}
 	}
 	return registered
 }
