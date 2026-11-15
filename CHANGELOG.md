@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `1e442c2` — 2026-11-15 12:32:48 +0330 — add routine dashboard operation pages
+  Files: plugins/dashboard/function-management-page.ts,plugins/dashboard/index.ts plugins/dashboard/live-session-page.ts,plugins/dashboard/plugin.yaml plugins/dashboard/types.ts,plugins/dashboard/workflow-management-page.ts tests/dashboard/dashboard.test.ts
+- `734a219` — 2026-11-15 09:01:57 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `227a014` — 2026-11-15 12:31:42 +0330 — expose audited admin lifecycle operations
   Files: internal/app/admin.go,tests/app/admin_test.go
 - `0f37015` — 2026-11-15 09:01:07 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `4658128` — 2026-11-15 12:12:09 +0330 — add audited operator action boundary
   Files: internal/operator/operator.go,tests/operator/operator_test.go
 - `16ec3fc` — 2026-11-15 08:41:24 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `199a380` — 2026-11-15 12:11:11 +0330 — separate sensitive operator setup
-  Files: internal/operator/mfa.go,internal/operator/operator.go tests/operator/operator_test.go
-- `34836ca` — 2026-11-15 08:40:21 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
