@@ -102,6 +102,12 @@ try {
   if (!(error instanceof Error) || error.message !== "arena project mismatch") throw error;
 }
 try {
+  arenaStartCommand(commandArena, "dev/other", "room-2", ["user-1", "user-2"]);
+  throw new Error("malformed arena project accepted");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "arena project mismatch") throw error;
+}
+try {
   validateMatchResult({
     resultId: "prod:result-1",
     projectId: "dev",

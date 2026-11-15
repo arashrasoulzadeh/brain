@@ -237,6 +237,12 @@ if (
     .objectId !== "avatar.png"
 )
   throw new Error("file management page failed");
+try {
+  fileManagementPage("dev/other", []);
+  throw new Error("file management accepted malformed project");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "invalid file management") throw error;
+}
 const audits: { projectId: string; actorId: string; action: string; occurredAt: number }[] = [];
 new FormAuditRecorder(audits).record("dev", "operator-1", "signup.update", 1000);
 if (
