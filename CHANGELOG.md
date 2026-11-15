@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `aadc7b2` — 2026-11-15 13:13:21 +0330 — add admin capability navigation
+  Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css
+- `e70b897` — 2026-11-15 09:42:28 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `dc136f1` — 2026-11-15 13:12:12 +0330 — complete plugin lifecycle actions
   Files: admin-nextjs/app/page.tsx
 - `56ce16e` — 2026-11-15 09:41:40 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `46c1cba` — 2026-11-15 12:34:11 +0330 — record verified admin security controls
   Files: roadmap_admin.md
 - `d7168e6` — 2026-11-15 09:04:14 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `5e2e969` — 2026-11-15 12:33:56 +0330 — require admin confirmation for destructive actions
-  Files: internal/app/admin.go,tests/app/admin_test.go
-- `8d9cae8` — 2026-11-15 09:03:18 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
