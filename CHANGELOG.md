@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `a51ac81` — 2026-11-15 12:24:41 +0330 — verify operator session isolation
+  Files: tests/auth/auth.test.ts
+- `8084f95` — 2026-11-15 08:54:19 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `4680c1f` — 2026-11-15 12:24:06 +0330 — harden data and deployment project boundaries
   Files: plugins/functions/authorize-deployment-plugin.ts,plugins/tables/api-change-writer.ts plugins/tables/plan-schema-change.ts,plugins/tables/sql-change-writer.ts plugins/tables/transaction-change-writer.ts,tests/functions/workflow-components.test.ts tests/tables/tables.test.ts
 - `38c9c5d` — 2026-11-15 08:53:21 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `132673c` — 2026-11-15 02:29:05 +0330 — reap terminated typescript workers
   Files: internal/plugin/typescript_worker.go,tests/plugin/typescript_worker_test.go
 - `1efb3ad` — 2026-11-14 22:58:37 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `abe7af7` — 2026-11-15 02:28:26 +0330 — validate supervisor project teardown
-  Files: internal/plugin/supervisor.go,tests/plugin/supervisor_test.go
-- `cf64875` — 2026-11-14 22:58:07 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
