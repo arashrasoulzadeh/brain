@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `0d96aae` — 2026-11-15 12:29:47 +0330 — record audited action gate
+  Files: roadmap_backend.md
+- `21e848c` — 2026-11-15 08:59:38 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `57724d8` — 2026-11-15 12:29:26 +0330 — record verified recovery gate
   Files: roadmap_backend.md
 - `9ced1dd` — 2026-11-15 08:59:12 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `d246728` — 2026-11-15 12:08:40 +0330 — validate rehearsal compose projects
   Files: scripts/clean-environment-rehearsal.sh,tests/deploy/clean_environment_script_test.go
 - `a4e3ebc` — 2026-11-15 08:38:23 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `d58d684` — 2026-11-15 12:08:06 +0330 — validate compose project names
-  Files: scripts/rollback-compose.sh,scripts/start-compose-no-build.sh tests/deploy/compose_script_test.go,tests/deploy/rollback_compose_test.go
-- `b227c0b` — 2026-11-15 08:37:40 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
