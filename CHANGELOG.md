@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `a3601a8` — 2026-11-15 14:42:23 +0330 — simplify installed plugins table
+  Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css
+- `eeb02a3` — 2026-11-15 11:10:41 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `6a00395` — 2026-11-15 14:40:26 +0330 — fix admin login proxy and centering
   Files: admin-nextjs/app/styles.css,admin-nextjs/next.config.ts
 - `d942b3b` — 2026-11-15 11:06:23 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `c7f6a0e` — 2026-11-15 10:06:23 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
 - `805c0de` — 2026-11-15 13:36:11 +0330 — show complete plugin manifest catalog
-  Files: admin-nextjs/app/page.tsx
-- `35d7bfe` — 2026-11-15 10:05:22 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `a8b84db` — 2026-11-15 13:35:08 +0330 — gate admin actions by plugin capabilities
   Files: admin-nextjs/app/page.tsx
