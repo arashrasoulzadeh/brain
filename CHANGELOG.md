@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `f49fd18` — 2026-11-15 12:30:13 +0330 — record compose rehearsal gate
+  Files: roadmap_backend.md
+- `11b7521` — 2026-11-15 09:00:02 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `0d96aae` — 2026-11-15 12:29:47 +0330 — record audited action gate
   Files: roadmap_backend.md
 - `21e848c` — 2026-11-15 08:59:38 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `427e5fa` — 2026-11-15 12:09:31 +0330 — validate backup age timestamps
   Files: scripts/check-backup-age.sh,tests/deploy/postgres_backup_verify_test.go
 - `ae7a3c0` — 2026-11-15 08:38:53 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `d246728` — 2026-11-15 12:08:40 +0330 — validate rehearsal compose projects
-  Files: scripts/clean-environment-rehearsal.sh,tests/deploy/clean_environment_script_test.go
-- `a4e3ebc` — 2026-11-15 08:38:23 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
