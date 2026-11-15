@@ -49,6 +49,7 @@ const copy = {
     files: "files",
     imports: "imports",
     dependencies: "dependencies",
+    search: "Search plugins",
     remove: "Remove",
     markReady: "Mark ready",
     promote: "Promote",
@@ -99,6 +100,7 @@ const copy = {
     files: "فایل",
     imports: "واردسازی",
     dependencies: "وابستگی",
+    search: "جستجوی افزونه‌ها",
     remove: "حذف",
     markReady: "اعلام آمادگی",
     promote: "ارتقا",
@@ -122,6 +124,7 @@ export default function AdminPage() {
   const [selectedProjectID, setSelectedProjectID] = useState("");
   const [error, setError] = useState("");
   const [configuration, setConfiguration] = useState<Record<string, Record<string, string | boolean>>>({});
+  const [pluginFilter, setPluginFilter] = useState("");
   const text = copy[language];
   useEffect(() => {
     if (!session) return;
@@ -326,7 +329,8 @@ export default function AdminPage() {
         </div>
         <section className="section" id="projects">
           <div className="section-heading"><div><p className="eyebrow">{text.plugins}</p><h2>{text.registered}</h2></div><span className="count">{manifests.length}</span></div>
-          <div className="plugin-grid">{manifests.length ? manifests.map((manifest) => { const installed = installations.some((item) => item.PluginID === manifest.ID && item.Version === manifest.Version); return <article className="plugin" key={`${manifest.ID}@${manifest.Version}`}><div><h3>{manifest.Title || manifest.ID}</h3><p className="muted">{manifest.Description}</p></div><small>{manifest.ID}@{manifest.Version}</small><div className="capabilities">{manifest.Capabilities?.slice(0, 3).map((capability) => <span key={capability}>{capability}</span>)}</div><button className="plugin-action" disabled={installed} onClick={() => installPlugin(manifest)}>{installed ? text.installedLabel : text.install}</button></article>; }) : <p className="muted">{text.empty}</p>}</div>
+          <input className="plugin-search" placeholder={text.search} value={pluginFilter} onChange={(event) => setPluginFilter(event.target.value)} />
+          <div className="plugin-grid">{manifests.filter((manifest) => `${manifest.ID} ${manifest.Title} ${manifest.Description}`.toLowerCase().includes(pluginFilter.toLowerCase())).length ? manifests.filter((manifest) => `${manifest.ID} ${manifest.Title} ${manifest.Description}`.toLowerCase().includes(pluginFilter.toLowerCase())).map((manifest) => { const installed = installations.some((item) => item.PluginID === manifest.ID && item.Version === manifest.Version); return <article className="plugin" key={`${manifest.ID}@${manifest.Version}`}><div><h3>{manifest.Title || manifest.ID}</h3><p className="muted">{manifest.Description}</p></div><small>{manifest.ID}@{manifest.Version}</small><div className="capabilities">{manifest.Capabilities?.slice(0, 3).map((capability) => <span key={capability}>{capability}</span>)}</div><button className="plugin-action" disabled={installed} onClick={() => installPlugin(manifest)}>{installed ? text.installedLabel : text.install}</button></article>; }) : <p className="muted">{text.empty}</p>}</div>
         </section>
         <section className="section" id="plugins"><div className="section-heading"><div><p className="eyebrow">{text.plugins}</p><h2>{text.installed}</h2></div><span className="count">{installations.length}</span></div><div>{installations.map((installation) => { const manifest = manifests.find((candidate) => candidate.ID === installation.PluginID && candidate.Version === installation.Version); const key = `${installation.PluginID}@${installation.Version}`; return <div className="project lifecycle-row" key={key}><span>{installation.PluginID}@{installation.Version}<small>{installation.Enabled ? text.enabled : text.disabled} · {installation.Ready ? text.ready : text.notReady}</small>{manifest?.ConfigSchema && Object.entries(manifest.ConfigSchema).map(([name, type]) => <label key={name}>{name}<input type={type === "int" ? "number" : type === "bool" ? "checkbox" : "text"} checked={type === "bool" ? Boolean(configuration[key]?.[name]) : undefined} value={type === "bool" ? undefined : String(configuration[key]?.[name] ?? "")} onChange={(event) => setConfiguration((current) => ({ ...current, [key]: { ...current[key], [name]: type === "bool" ? event.target.checked : event.target.value } }))} /></label>)}{manifest?.ConfigSchema && <button onClick={() => configurePlugin(installation)}>{text.configure}</button>}<small>{manifest?.Capabilities?.map((capability) => <span className="capability-action" key={capability}><code>{capability}</code><button onClick={() => runPluginAction("plugin.grant", installation, capability)}>{text.grantCapability}</button><button onClick={() => runPluginAction("plugin.revoke", installation, capability)}>{text.revokeCapability}</button></span>)}</small></span><span className="lifecycle-actions">{!installation.Ready && <button onClick={() => runPluginAction("plugin.readiness", installation)}>{text.markReady}</button>}{!installation.Enabled && <button onClick={() => runPluginAction("plugin.enable", installation)}>{text.enable}</button>}{installation.Enabled && <button onClick={() => runPluginAction("plugin.promote", installation)}>{text.promote}</button>}<button onClick={() => disablePlugin(installation)}>{text.disable}</button><button onClick={() => runPluginAction("plugin.drain", installation)}>{text.drain}</button><button onClick={() => runPluginAction("plugin.resume", installation)}>{text.resume}</button><button onClick={() => runPluginAction("plugin.stop", installation)}>{text.stop}</button><button onClick={() => runPluginAction("plugin.recover", installation)}>{text.recover}</button><button onClick={() => runPluginAction("plugin.rollback", installation)}>{text.rollback}</button><button className="danger" onClick={() => runPluginAction("plugin.remove", installation)}>{text.remove}</button></span></div>; })}</div></section>
         <section className="section" id="audit"><div className="section-heading"><div><p className="eyebrow">{text.audit}</p><h2>{text.audit}</h2></div><span className="count">{audit.length}</span></div><div className="audit-list">{audit.length ? audit.slice().reverse().slice(0, 20).map((record, index) => <div className="audit" key={`${record.action}-${index}`}><span className={record.success ? "success" : "failure"}>{record.success ? "✓" : "!"}</span><div><strong>{record.action}</strong><small>{record.source}{record.plugin_id ? ` · ${record.plugin_id}@${record.version}` : ""}{record.project_id ? ` · ${record.project_id}` : ""}</small></div></div>) : <p className="muted">{text.noAudit}</p>}</div></section>
