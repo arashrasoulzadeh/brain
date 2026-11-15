@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `13d6415` — 2026-11-15 19:07:57 +0330 — fix local operator login setup
+  Files: admin-nextjs/app/page.tsx,docs/admins.md scripts/start-local.sh
+- `1ef4bac` — 2026-11-15 15:35:59 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `4ba054c` — 2026-11-15 19:04:00 +0330 — finish shared admin shell across all pages
   Files: admin-nextjs/app/components/admin-chrome.tsx,admin-nextjs/app/functions/new/page.tsx admin-nextjs/app/functions/page.tsx,admin-nextjs/app/plugins/[plugin]/page.tsx admin-nextjs/app/workers/page.tsx,admin-nextjs/app/workflows/page.tsx
 - `9e392cc` — 2026-11-15 15:27:42 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `3c63b7b` — 2026-11-15 17:01:43 +0330 — start plugin workers with dependency ordering
   Files: cmd/brain/main.go,internal/plugin/worker.go
 - `c2508f8` — 2026-11-15 13:30:42 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `da82034` — 2026-11-15 17:00:29 +0330 — bind local workers when plugins enable
-  Files: cmd/brain/main.go,internal/plugin/plugin.go internal/plugin/typescript_worker.go,scripts/typescript-worker.mjs
-- `a94e65b` — 2026-11-15 13:28:48 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
