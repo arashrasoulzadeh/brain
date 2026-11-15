@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `c88c541` — 2026-11-15 13:18:04 +0330 — target plugin actions at selected project
+  Files: admin-nextjs/app/page.tsx
+- `fd8d888` — 2026-11-15 09:45:58 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `6f9356a` — 2026-11-15 13:15:45 +0330 — add live admin panel refresh
   Files: admin-nextjs/app/page.tsx
 - `5aad36c` — 2026-11-15 09:45:30 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `ec00c8d` — 2026-11-15 12:38:45 +0330 — compose production operator admin server
   Files: cmd/brain/main.go,internal/app/admin.go internal/app/app.go,tests/app/admin_test.go
 - `222ccf4` — 2026-11-15 09:07:47 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `729e411` — 2026-11-15 12:37:32 +0330 — document authenticated admin sessions
-  Files: docs/admins.html,docs/admins.md
-- `e99ed11` — 2026-11-15 09:07:13 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
