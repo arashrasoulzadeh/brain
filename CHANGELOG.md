@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `8ef5720` — 2026-11-15 12:13:42 +0330 — audit durable data deletion
+  Files: internal/admin/lifecycle.go,tests/admin/lifecycle_test.go
+- `c6ee526` — 2026-11-15 08:43:25 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `a5a65c7` — 2026-11-15 12:13:11 +0330 — add audited admin lifecycle service
   Files: internal/admin/lifecycle.go,tests/admin/lifecycle_test.go
 - `8b1e024` — 2026-11-15 08:42:23 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `cb290d6` — 2026-11-15 02:21:37 +0330 — harden subscription authorization boundaries
   Files: plugins/subscriptions/subscription-authorization.ts,plugins/subscriptions/subscription-owner-invalidator.ts plugins/subscriptions/subscription-ticket-validator.ts,tests/subscriptions/subscriptions.test.ts
 - `f2196af` — 2026-11-14 22:49:52 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `697474f` — 2026-11-15 02:19:37 +0330 — validate function publication rollback inputs
-  Files: plugins/functions/function-publication-rollback.ts,tests/functions/functions.test.ts
-- `c76cd21` — 2026-11-14 22:49:18 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
