@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `a5a65c7` — 2026-11-15 12:13:11 +0330 — add audited admin lifecycle service
+  Files: internal/admin/lifecycle.go,tests/admin/lifecycle_test.go
+- `8b1e024` — 2026-11-15 08:42:23 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `4658128` — 2026-11-15 12:12:09 +0330 — add audited operator action boundary
   Files: internal/operator/operator.go,tests/operator/operator_test.go
 - `16ec3fc` — 2026-11-15 08:41:24 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `697474f` — 2026-11-15 02:19:37 +0330 — validate function publication rollback inputs
   Files: plugins/functions/function-publication-rollback.ts,tests/functions/functions.test.ts
 - `c76cd21` — 2026-11-14 22:49:18 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `781d419` — 2026-11-15 02:19:00 +0330 — close numeric direct https SSRF bypasses
-  Files: plugins/functions/invoke-direct-https.ts,tests/functions/functions.test.ts
-- `864ee7f` — 2026-11-14 22:48:19 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
