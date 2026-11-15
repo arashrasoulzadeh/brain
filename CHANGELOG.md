@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `2cec502` — 2026-11-15 13:24:45 +0330 — add safe plugin disable control
+  Files: admin-nextjs/app/page.tsx
+- `c15c3a6` — 2026-11-15 09:53:37 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `607a192` — 2026-11-15 13:23:22 +0330 — wire safe plugin disable lifecycle
   Files: internal/admin/lifecycle.go,internal/app/admin.go tests/app/admin_test.go
 - `bf0296a` — 2026-11-15 09:52:19 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `91b82bc` — 2026-11-15 12:51:05 +0330 — move admin panel to nextjs
   Files: admin-nextjs/app/layout.tsx,admin-nextjs/app/page.tsx admin-nextjs/app/styles.css,admin-nextjs/next-env.d.ts admin-nextjs/next.config.ts,admin-nextjs/package.json admin-nextjs/tsconfig.json,cmd/brain/main.go internal/admin/lifecycle.go,internal/app/admin.go internal/app/app.go,internal/project/project.go plugins/dashboard/admin-panel.html,plugins/dashboard/plugin.yaml tests/app/admin_test.go
 - `74597af` — 2026-11-15 09:18:45 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `ede74b7` — 2026-11-15 12:48:31 +0330 — add browser admin login panel
-  Files: cmd/brain/main.go,internal/app/app.go plugins/dashboard/admin-panel.html,plugins/dashboard/plugin.yaml tests/app/admin_test.go
-- `54a2560` — 2026-11-15 09:13:22 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
