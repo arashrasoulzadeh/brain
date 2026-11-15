@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `199a380` — 2026-11-15 12:11:11 +0330 — separate sensitive operator setup
+  Files: internal/operator/mfa.go,internal/operator/operator.go tests/operator/operator_test.go
+- `34836ca` — 2026-11-15 08:40:21 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `57ee8e1` — 2026-11-15 12:10:07 +0330 — reject compose host isolation bypasses
   Files: internal/deploy/compose.go,tests/deploy/compose_test.go
 - `7054dcd` — 2026-11-15 08:39:45 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `ab8f75f` — 2026-11-15 02:18:03 +0330 — serialize concurrent idempotent workflows
   Files: plugins/functions/run-idempotent-workflow.ts,tests/functions/functions.test.ts
 - `913c0b0` — 2026-11-14 22:47:19 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `fcca6c6` — 2026-11-15 02:17:02 +0330 — harden sandbox path traversal validation
-  Files: plugins/functions/reject-sandbox-escape.ts,tests/functions/functions.test.ts
-- `c9a7ffb` — 2026-11-14 22:46:35 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
