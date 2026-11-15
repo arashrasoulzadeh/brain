@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `0ad50f4` — 2026-11-15 13:44:26 +0330 — highlight active admin route
+  Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css
+- `0b6d767` — 2026-11-15 10:13:34 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `1c01bb5` — 2026-11-15 13:43:18 +0330 — label admin pages by active domain
   Files: admin-nextjs/app/page.tsx
 - `95725fa` — 2026-11-15 10:12:34 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `614ef5c` — 2026-11-15 13:14:37 +0330 — avoid duplicate project inventory request
   Files: admin-nextjs/app/page.tsx
 - `a3c7fea` — 2026-11-15 09:44:23 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `018e005` — 2026-11-15 13:14:04 +0330 — bind admin actions to selected project
-  Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css
-- `805f435` — 2026-11-15 09:43:33 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
