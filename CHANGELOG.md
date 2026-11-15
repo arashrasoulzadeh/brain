@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `fee2da8` — 2026-11-15 13:04:30 +0330 — add plugin install controls to admin
+  Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css internal/admin/lifecycle.go,internal/app/admin.go tests/admin/lifecycle_test.go
+- `d270b7a` — 2026-11-15 09:33:32 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `4a5970e` — 2026-11-15 13:03:14 +0330 — add plugin inventory to admin panel
   Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css internal/admin/lifecycle.go,internal/app/admin.go internal/app/app.go,internal/plugin/plugin.go tests/app/admin_test.go
 - `42f6abe` — 2026-11-15 09:26:12 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `57724d8` — 2026-11-15 12:29:26 +0330 — record verified recovery gate
   Files: roadmap_backend.md
 - `9ced1dd` — 2026-11-15 08:59:12 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `c84040f` — 2026-11-15 12:28:59 +0330 — harden malformed authentication digests
-  Files: plugins/auth/email-otp-verifier.ts,plugins/auth/recovery-token-consumer.ts plugins/auth/sms-otp-verifier.ts,tests/auth/auth.test.ts
-- `06167ad` — 2026-11-15 08:58:11 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
