@@ -205,6 +205,63 @@ type adminCommand struct {
 	Confirmed  bool           `json:"confirmed"`
 	Revision   uint64         `json:"revision"`
 	Dependents []string       `json:"dependents"`
+	Name       string         `json:"name"`
+	Source     string         `json:"source"`
+}
+
+func AuthenticatedFunctionsHandler(service *admin.LifecycleService, sessions *operator.Store) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if service == nil || sessions == nil || !strings.HasPrefix(r.Header.Get("Authorization"), "Bearer ") {
+			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+			return
+		}
+		actor, ok := sessions.ValidateSession(strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer "))
+		if !ok {
+			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+			return
+		}
+		projectID := r.URL.Query().Get("project_id")
+		if r.Method == http.MethodGet {
+			drafts, err := service.ListFunctionDrafts(actor, projectID)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			_ = json.NewEncoder(w).Encode(drafts)
+			return
+		}
+		if r.Method != http.MethodPost {
+			http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+			return
+		}
+		var command adminCommand
+		if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<20)).Decode(&command); err != nil {
+			http.Error(w, "invalid function request", http.StatusBadRequest)
+			return
+		}
+		if command.Operation == "functions.test" {
+			result, err := service.TestFunctionDraft(actor, command.ProjectID, command.Name, command.Source)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			_ = json.NewEncoder(w).Encode(result)
+			return
+		}
+		if command.Operation != "functions.create" {
+			http.Error(w, "unsupported function operation", http.StatusBadRequest)
+			return
+		}
+		draft, err := service.CreateFunctionDraft(actor, command.ProjectID, command.Name, command.Source)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(draft)
+	})
 }
 
 func AdminHandler(service *admin.LifecycleService) http.Handler {
