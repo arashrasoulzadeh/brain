@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `2bd1147` — 2026-11-15 12:35:04 +0330 — record admin isolation release gates
+  Files: roadmap_admin.md
+- `e39e00b` — 2026-11-15 09:04:54 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `640915a` — 2026-11-15 12:34:40 +0330 — record administrator runbooks complete
   Files: roadmap_admin.md
 - `52d00a6` — 2026-11-15 09:04:31 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `487b4f9` — 2026-11-15 12:15:57 +0330 — audit plugin permission actions
   Files: internal/admin/lifecycle.go,tests/admin/lifecycle_test.go
 - `8e5eb31` — 2026-11-15 08:45:14 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `b03ada6` — 2026-11-15 12:15:00 +0330 — audit migration and rollback actions
-  Files: internal/admin/lifecycle.go,tests/admin/lifecycle_test.go
-- `33f0aba` — 2026-11-15 08:44:31 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
