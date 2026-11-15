@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `b79bb16` — 2026-11-15 13:57:06 +0330 — persist local projects and recover stale sessions
+  Files: .gitignore,admin-nextjs/app/page.tsx cmd/brain/main.go,internal/project/project.go tests/project/project_test.go
+- `df5a9ea` — 2026-11-15 10:25:10 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `b9095e7` — 2026-11-15 13:54:57 +0330 — keep project table details authoritative
   Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css
 - `3ecbfb4` — 2026-11-15 10:24:27 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `2cec502` — 2026-11-15 13:24:45 +0330 — add safe plugin disable control
   Files: admin-nextjs/app/page.tsx
 - `c15c3a6` — 2026-11-15 09:53:37 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `607a192` — 2026-11-15 13:23:22 +0330 — wire safe plugin disable lifecycle
-  Files: internal/admin/lifecycle.go,internal/app/admin.go tests/app/admin_test.go
-- `bf0296a` — 2026-11-15 09:52:19 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
