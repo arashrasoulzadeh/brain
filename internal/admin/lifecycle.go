@@ -138,6 +138,12 @@ func (s *LifecycleService) EnablePlugin(actor operator.Actor, projectID, pluginI
 	})
 }
 
+func (s *LifecycleService) StartPluginWorker(actor operator.Actor, projectID, pluginID, version string) error {
+	return s.execute(actor, "plugin.worker.start", func() error {
+		return s.registry.StartWorker(projectID, pluginID, version)
+	})
+}
+
 func (s *LifecycleService) InvokePlugin(actor operator.Actor, invocation PluginInvocation) (plugin.WorkerResponse, error) {
 	var response plugin.WorkerResponse
 	err := s.execute(actor, "plugin.invoke", func() error {

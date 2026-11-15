@@ -143,3 +143,4 @@ export { rejectPluginHostResources } from "./reject-plugin-host-resources.js";
 export { validateDeploymentWorkflow } from "./validate-deployment-workflow.js";
 export { invoke } from "./invoke-route.js";
 export { publish } from "./publish-route.js";
+export { call } from "./call-route.js";

@@ -1024,6 +1024,47 @@ func (r *Registry) Enable(projectID, id, version string) error {
 	return nil
 }
 
+// StartWorker starts a worker for an already enabled installation that lost its
+// runtime process. Lifecycle and grants are rechecked before the worker starts.
+func (r *Registry) StartWorker(projectID, id, version string) error {
+	r.installationMu.RLock()
+	installation, installed := r.installations[projectID+":"+id+"@"+version]
+	r.installationMu.RUnlock()
+	if !installed {
+		return ErrNotInstalled
+	}
+	if !installation.Enabled {
+		return ErrDisabled
+	}
+	r.readinessMu.RLock()
+	ready := r.readiness[id+"@"+version]
+	r.readinessMu.RUnlock()
+	if !ready {
+		return ErrNotReady
+	}
+	if r.workerFactory == nil {
+		return ErrWorkerUnavailable
+	}
+	key := projectID + ":" + id + "@" + version
+	r.workerMu.RLock()
+	worker := r.workers[key]
+	r.workerMu.RUnlock()
+	if worker != nil && worker.Ready() {
+		return nil
+	}
+	worker, err := r.workerFactory(projectID, id, version)
+	if err != nil {
+		return err
+	}
+	if err := worker.Start(); err != nil {
+		return err
+	}
+	r.workerMu.Lock()
+	r.workers[key] = worker
+	r.workerMu.Unlock()
+	return nil
+}
+
 func (r *Registry) Promote(projectID, id, version string) error {
 	r.lifecycleMu.Lock()
 	defer r.lifecycleMu.Unlock()

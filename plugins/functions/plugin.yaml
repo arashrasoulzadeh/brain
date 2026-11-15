@@ -93,6 +93,7 @@ source_files:
   - retry-invocation.ts
   - invoke-route.ts
   - publish-route.ts
+  - call-route.ts
 imports:
   - ../sdk-typescript/src/index.js
   - node:fs
@@ -191,6 +192,7 @@ imports:
   - ./index.js
   - ./invoke-route.js
   - ./publish-route.js
+  - ./call-route.js
 plugin_imports:
 title: Functions
 description: Project-scoped serverless function compilation and invocation controls.
@@ -200,6 +202,7 @@ dependencies: []
 capabilities:
   - functions.invoke
   - functions.publish
+  - functions.call
 extension_points: []
 config_schema:
   maxSourceBytes: int
@@ -210,3 +213,6 @@ routes:
   - operation: functions.publish
     function: publish
     capability: functions.publish
+  - operation: functions.call
+    function: call
+    capability: functions.call

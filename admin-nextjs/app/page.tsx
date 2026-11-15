@@ -1,6 +1,8 @@
 "use client";
 import { FormEvent, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
+import { AdminFooter, AdminHeader, AdminSidebar } from "./components/admin-chrome";
 type Project = { ID: string; Active: boolean };
 type PluginManifest = { ID: string; Title: string; Description: string; Version: string; Capabilities: string[]; ConfigSchema?: Record<string, string> };
 type PluginStatus = { ProjectID: string; PluginID: string; Version: string; Enabled: boolean; Ready: boolean; WorkerReady?: boolean; Draining: boolean };
@@ -61,6 +63,7 @@ const copy = {
     liveSessions: "Live sessions",
     routesPage: "Routes",
     monitoring: "Monitoring",
+    workers: "Workers",
     playground: "Playground",
     selectRoute: "Select a route",
     payload: "JSON payload",
@@ -127,6 +130,7 @@ const copy = {
     liveSessions: "جلسه‌های زنده",
     routesPage: "مسیرها",
     monitoring: "پایش",
+    workers: "کارگرها",
     playground: "محیط آزمایش",
     selectRoute: "انتخاب مسیر",
     payload: "داده JSON",
@@ -168,6 +172,9 @@ export default function AdminPage() {
   const [functionSource, setFunctionSource] = useState("export default async function handler(input) {\n  return input;\n}\n");
   const [functionMessage, setFunctionMessage] = useState("");
   const [functionInput, setFunctionInput] = useState("{}");
+  const [functionVersion, setFunctionVersion] = useState("1");
+  const [functionPublic, setFunctionPublic] = useState(false);
+  const [functionPermissions, setFunctionPermissions] = useState("functions.invoke");
   const [functionDrafts, setFunctionDrafts] = useState<FunctionDraft[]>([]);
   const [databaseOperation, setDatabaseOperation] = useState("tables.schema");
   const [databasePayload, setDatabasePayload] = useState("{}");
@@ -182,7 +189,8 @@ export default function AdminPage() {
   const [sessionPayload, setSessionPayload] = useState("{}");
   const [sessionMessage, setSessionMessage] = useState("");
   const text = copy[language];
-  const pageTitle = ({ projects: text.projects, plugins: text.plugins, system: text.system, audit: text.audit, database: text.database, functions: text.functions, workflows: text.workflows, files: text.files, "live-sessions": text.liveSessions, routes: text.routesPage, monitoring: text.monitoring } as Record<string, string>)[activePage] ?? text.projects;
+  const pageTitle = ({ projects: text.projects, plugins: text.plugins, system: text.system, audit: text.audit, database: text.database, functions: text.functions, workflows: text.workflows, files: text.files, "live-sessions": text.liveSessions, routes: text.routesPage, monitoring: text.monitoring, workers: text.workers } as Record<string, string>)[activePage] ?? text.projects;
+  const activePluginIDs = new Set(installations.filter((installation) => installation.Enabled && installation.Ready).map((installation) => installation.PluginID));
   useEffect(() => {
     if (!session) return;
     const refresh = () => Promise.all([loadProjects(session), loadPlugins(session, selectedProjectID), loadAudit(session), loadSystem(session), loadFunctionDrafts(session, selectedProjectID)]).catch(() => undefined);
@@ -192,6 +200,12 @@ export default function AdminPage() {
   useEffect(() => {
     const savedSession = window.sessionStorage.getItem("brain-admin-session");
     if (!savedSession) { setHydratingSession(false); return; }
+    const hydrationTimeout = window.setTimeout(() => {
+      window.sessionStorage.removeItem("brain-admin-session");
+      setSession("");
+      setError("The operator session could not be restored. Please sign in again.");
+      setHydratingSession(false);
+    }, 5000);
     setSession(savedSession);
     loadProjects(savedSession).then((loadedProjects) => {
       const activeProjectID = loadedProjects.find((project) => project.Active)?.ID ?? "";
@@ -201,7 +215,8 @@ export default function AdminPage() {
       window.sessionStorage.removeItem("brain-admin-session");
       setSession("");
       setError("Your operator session expired. Please sign in again.");
-    }).finally(() => setHydratingSession(false));
+    }).finally(() => { window.clearTimeout(hydrationTimeout); setHydratingSession(false); });
+    return () => window.clearTimeout(hydrationTimeout);
   }, []);
   async function loadProjects(token: string): Promise<Project[]> {
     const response = await fetch("/api/admin/projects", {
@@ -372,7 +387,7 @@ export default function AdminPage() {
     if (!selectedProjectID || !functionName.trim() || !functionSource.trim()) { setFunctionMessage("Select an active project, name the function, and provide source."); return; }
     let input: unknown = {};
     try { input = JSON.parse(functionInput || "{}"); } catch { setFunctionMessage("Input must be valid JSON."); return; }
-    const response = await fetch("/api/admin/functions", { method: "POST", headers: { authorization: `Bearer ${session}`, "content-type": "application/json" }, body: JSON.stringify({ operation, project_id: selectedProjectID, name: functionName, source: functionSource, input }) });
+    const response = await fetch("/api/admin/functions", { method: "POST", headers: { authorization: `Bearer ${session}`, "content-type": "application/json" }, body: JSON.stringify({ operation, project_id: selectedProjectID, name: functionName, source: functionSource, input, function_version: Number(functionVersion) || 1, public: functionPublic, permissions: functionPermissions.split(",").map((permission) => permission.trim()).filter(Boolean) }) });
     if (!response.ok) { setFunctionMessage(await response.text()); return; }
     const result = await response.json(); setFunctionMessage(operation === "functions.create" ? "Function draft saved." : JSON.stringify(result));
     if (operation === "functions.create") await loadFunctionDrafts(session, selectedProjectID);
@@ -464,32 +479,9 @@ export default function AdminPage() {
   return (
     <main className="shell" dir={language === "fa" ? "rtl" : "ltr"}>
       <div className="workspace">
-        <aside className="sidebar">
-          <p className="eyebrow">{text.eyebrow}</p>
-          <h2>{text.projects}</h2>
-          <nav className="sidebar-nav" aria-label={text.navigation}>
-            <a className={activePage === "projects" ? "active" : ""} href="/projects">{text.projects}</a>
-            {manifests.length > 0 && <a className={activePage === "plugins" ? "active" : ""} href="/plugins">{text.plugins}</a>}
-            {system.length > 0 && <a className={activePage === "system" ? "active" : ""} href="/system">{text.system}</a>}
-            {audit.length > 0 && <a className={activePage === "audit" ? "active" : ""} href="/audit">{text.audit}</a>}
-            {system.some((manifest) => manifest.ID === "tables") && <a className={activePage === "database" ? "active" : ""} href="/database">{text.database}</a>}
-            {system.some((manifest) => manifest.ID === "functions") && <a className={activePage === "functions" ? "active" : ""} href="/functions">{text.functions}</a>}
-            {system.some((manifest) => manifest.ID === "functions") && <a className={activePage === "workflows" ? "active" : ""} href="/workflows">{text.workflows}</a>}
-            {system.some((manifest) => manifest.ID === "files") && <a className={activePage === "files" ? "active" : ""} href="/files">{text.files}</a>}
-            {system.some((manifest) => ["rooms", "matchmaking"].includes(manifest.ID)) && <a className={activePage === "live-sessions" ? "active" : ""} href="/live-sessions">{text.liveSessions}</a>}
-            {system.length > 0 && <a className={activePage === "routes" ? "active" : ""} href="/routes">{text.routesPage}</a>}
-            {system.length > 0 && <a className={activePage === "monitoring" ? "active" : ""} href="/monitoring">{text.monitoring}</a>}
-          </nav>
-          <label className="sidebar-project" htmlFor="sidebar-project">{text.project}<select id="sidebar-project" value={selectedProjectID} onChange={(event) => { const nextProjectID = event.target.value; setSelectedProjectID(nextProjectID); void loadPlugins(session, nextProjectID); }}><option value="">—</option>{projects.map((project) => <option key={project.ID} value={project.ID} disabled={!project.Active}>{project.ID}</option>)}</select></label>
-          <div className="sidebar-actions">{switcher}<button className="secondary" onClick={() => void signOut()}>{text.signOut}</button></div>
-        </aside>
+        <AdminSidebar activePage={activePage} projectID={selectedProjectID} onSignOut={() => void signOut()} visiblePages={["projects", ...(manifests.length ? ["plugins"] : []), ...(activePluginIDs.has("dashboard") ? ["system"] : []), ...(audit.length ? ["audit"] : []), ...(activePluginIDs.has("tables") ? ["database"] : []), ...(activePluginIDs.has("functions") ? ["functions", "workflows"] : []), ...(activePluginIDs.has("files") ? ["files"] : []), ...(activePluginIDs.has("rooms") || activePluginIDs.has("matchmaking") ? ["live-sessions"] : []), ...(activePluginIDs.size ? ["routes", "monitoring", "workers"] : [])]} />
         <section className="card">
-        <div className="top">
-          <div>
-            <p className="eyebrow">{text.eyebrow}</p>
-            <h1>{pageTitle}</h1>
-          </div>
-        </div>
+        <AdminHeader title={pageTitle} eyebrow={text.eyebrow} />
         <div className={activePage === "projects" ? "project-selector" : "project-selector page-hidden"}><label htmlFor="selected-project">{text.project}</label><select id="selected-project" value={selectedProjectID} onChange={(event) => { const nextProjectID = event.target.value; setSelectedProjectID(nextProjectID); void loadPlugins(session, nextProjectID); }}><option value="">—</option>{projects.map((project) => <option key={project.ID} value={project.ID} disabled={!project.Active}>{project.ID}{project.Active ? "" : " (inactive)"}</option>)}</select></div>
         <form className={activePage === "projects" ? "create" : "create page-hidden"} onSubmit={createProject}>
           <input
@@ -521,6 +513,7 @@ export default function AdminPage() {
         <section className={`section ${activePage !== "routes" ? "page-hidden" : ""}`}><div className="section-heading"><div><p className="eyebrow">{text.playground}</p><h2>{text.playground}</h2></div></div><div className="playground"><label>{text.selectRoute}<select value={playgroundRoute} onChange={(event) => setPlaygroundRoute(event.target.value)}><option value="">—</option>{system.flatMap((manifest) => manifest.Routes?.map((route) => <option key={`${manifest.ID}:${route.Operation}`} value={`${manifest.ID}:${route.Operation}`}>{manifest.ID} · {route.Operation}</option>) ?? [])}</select></label><label>{text.payload}<textarea value={playgroundPayload} onChange={(event) => setPlaygroundPayload(event.target.value)} rows={8} /></label><div className="playground-actions"><button type="button" onClick={testPlayground}>{text.test}</button><button type="button" onClick={sendPlayground}>{text.send}</button><small>{playgroundMessage}</small></div><pre>{playgroundRoute ? JSON.stringify({ project_id: selectedProjectID, operation: playgroundRoute.split(":")[1], payload: playgroundPayload }, null, 2) : text.selectRoute}</pre></div><div className="section-heading"><div><p className="eyebrow">{text.routesPage}</p><h2>{text.routesPage}</h2></div><span className="count">{system.reduce((total, manifest) => total + (manifest.Routes?.length ?? 0), 0)}</span></div><div className="plugin-grid">{system.map((manifest) => <article className="plugin" key={`routes-${manifest.ID}`}><h3>{manifest.Title}</h3><div className="route-list">{manifest.Routes?.map((route) => <div key={route.Operation}><code>{route.Operation}</code><small>{route.Capability}</small></div>)}</div></article>)}</div></section>
         <section className={`section ${activePage !== "monitoring" ? "page-hidden" : ""}`}><div className="section-heading"><div><p className="eyebrow">{text.monitoring}</p><h2>{text.monitoring}</h2></div><span className="count">{manifests.length}</span></div><div className="audit-list">{manifests.map((manifest) => { const installation = installations.find((candidate) => candidate.PluginID === manifest.ID && candidate.Version === manifest.Version); const state = !installation ? "not installed" : installation.Draining ? "draining" : !installation.Ready ? text.notReady : !installation.Enabled ? text.disabled : installation.WorkerReady === false ? "worker unavailable" : text.ready; const healthy = Boolean(installation?.Enabled && installation?.Ready && installation.WorkerReady !== false && !installation.Draining); const statusClass = !installation ? "neutral" : healthy ? "success" : "failure"; return <div className="audit" key={`monitor-${manifest.ID}@${manifest.Version}`}><span className={statusClass}>{healthy ? "✓" : !installation ? "—" : "!"}</span><div><strong>{manifest.Title || manifest.ID}</strong><small>{manifest.ID}@{manifest.Version} · {state}</small></div></div>; })}</div></section>
         <section className="page-hidden"><div className="playground" /></section>
+        <AdminFooter />
         </section>
       </div>
     </main>

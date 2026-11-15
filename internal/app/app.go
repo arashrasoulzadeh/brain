@@ -44,6 +44,8 @@ func NewServerWithOperatorAdmin(adminService *admin.LifecycleService, sessions *
 		mux.Handle("GET /admin/system", AuthenticatedSystemHandler(adminService, sessions))
 		mux.Handle("GET /admin/functions", AuthenticatedFunctionsHandler(adminService, sessions))
 		mux.Handle("POST /admin/functions", AuthenticatedFunctionsHandler(adminService, sessions))
+		mux.Handle("GET /admin/function-logs", AuthenticatedFunctionLogsHandler(adminService, sessions))
+		mux.Handle("/public/{project_id}/{function_name}", PublicFunctionHandler(adminService))
 		mux.Handle("POST /admin/actions", AuthenticatedAdminHandler(adminService, sessions))
 	}
 	return &Server{mux: mux}
