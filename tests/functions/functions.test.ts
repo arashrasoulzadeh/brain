@@ -247,6 +247,12 @@ const drafts = createFunctionDraftStore();
 drafts.save("dev", "hello", "package main", 1000);
 if (drafts.get("dev", "hello")?.source !== "package main" || drafts.get("prod", "hello"))
   throw new Error("function draft isolation failed");
+try {
+  drafts.get("bad/project", "hello");
+  throw new Error("function draft reader accepted invalid project");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "invalid project id") throw error;
+}
 const packages = createSharedPackageStore();
 packages.save("dev", "helper", "package helper");
 if (packages.load("dev", "helper") !== "package helper")
@@ -256,6 +262,12 @@ try {
   throw new Error("cross-project package loaded");
 } catch (error) {
   if (!(error instanceof Error) || error.message !== "shared package not found") throw error;
+}
+try {
+  packages.load("bad/project", "helper");
+  throw new Error("shared package reader accepted invalid project");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "invalid project id") throw error;
 }
 if (
   diagnoseSource('package main\nimport "os"').length !== 1 ||
@@ -334,6 +346,12 @@ if (publications.active("dev", "hello")?.version !== 1)
 try {
   publications.rollback("bad/project", "hello", 1);
   throw new Error("rollback accepted an invalid project identity");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "invalid project id") throw error;
+}
+try {
+  publications.get("bad/project", "hello", 1);
+  throw new Error("publication reader accepted invalid project");
 } catch (error) {
   if (!(error instanceof Error) || error.message !== "invalid project id") throw error;
 }

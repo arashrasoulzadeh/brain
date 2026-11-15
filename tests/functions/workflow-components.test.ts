@@ -3,6 +3,7 @@ import {
   createRecordChangeTriggerStore,
   evaluateCondition,
   authorizeDeploymentPlugin,
+  authorizeProjectWorkflowAction,
   registerProjectWorkflowAction,
 } from "../../plugins/functions/index.js";
 
@@ -47,6 +48,12 @@ try {
 } catch (error) {
   if (!(error instanceof Error) || error.message !== "deployment plugin grant required")
     throw error;
+}
+try {
+  authorizeProjectWorkflowAction(new Map(), new Set(), "bad/project", "notify-owner");
+  throw new Error("workflow authorization accepted invalid project");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "invalid project id") throw error;
 }
 
 const approvals = createApprovalStore();
