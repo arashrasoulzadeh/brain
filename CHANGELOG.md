@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `cc9f26e` — 2026-11-15 13:09:36 +0330 — discover plugins for admin runtime
+  Files: cmd/brain/main.go
+- `25f84c3` — 2026-11-15 09:38:34 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `ea3e8fc` — 2026-11-15 13:08:20 +0330 — add plugin readiness control
   Files: admin-nextjs/app/page.tsx,internal/admin/lifecycle.go internal/app/admin.go,tests/admin/lifecycle_test.go
 - `2768bf2` — 2026-11-15 09:37:27 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `227a014` — 2026-11-15 12:31:42 +0330 — expose audited admin lifecycle operations
   Files: internal/app/admin.go,tests/app/admin_test.go
 - `0f37015` — 2026-11-15 09:01:07 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `b7571e2` — 2026-11-15 12:30:54 +0330 — complete plugin security audit gate
-  Files: roadmap_backend.md
-- `c451bc2` — 2026-11-15 09:00:26 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
