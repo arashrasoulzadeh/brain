@@ -15,6 +15,9 @@ source_files:
   - record-edit-page.ts
   - table-management-page.ts
   - file-management-page.ts
+  - function-management-page.ts
+  - workflow-management-page.ts
+  - live-session-page.ts
   - host-owned-admin-view.ts
   - project-overview-contribution.ts
   - plugin-health-contribution.ts
@@ -37,6 +40,9 @@ imports:
   - ./auth-settings-page.js
   - ./browser-quickstart.js
   - ./file-management-page.js
+  - ./function-management-page.js
+  - ./workflow-management-page.js
+  - ./live-session-page.js
   - ./host-owned-admin-view.js
   - ./project-overview-contribution.js
   - ./plugin-health-contribution.js

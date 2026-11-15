@@ -8,6 +8,9 @@ import {
   customAdminView,
   customViewOrigin,
   fileManagementPage,
+  functionManagementPage,
+  workflowManagementPage,
+  liveSessionPage,
   hostOwnedAdminView,
   pluginHealthContribution,
   projectCreateRequest,
@@ -232,6 +235,18 @@ if (edit.patch.name !== "bob" || edit.patch.secret !== undefined || edit.expecte
   throw new Error("record edit validation failed");
 if (tableManagementPage("dev", ["users", "orders"]).tables.length !== 2)
   throw new Error("table management page failed");
+if (
+  functionManagementPage("dev", [{ id: "hello", version: 1, status: "published" }]).functions
+    .length !== 1
+)
+  throw new Error("function management page failed");
+if (workflowManagementPage("dev", [{ id: "sync", status: "idle" }]).workflows.length !== 1)
+  throw new Error("workflow management page failed");
+if (
+  liveSessionPage("dev", [{ id: "room-1", kind: "room", status: "active", participantCount: 2 }])
+    .sessions.length !== 1
+)
+  throw new Error("live session page failed");
 for (const invalidProjectId of ["dev/other", " dev", "dev."]) {
   for (const operation of [
     () =>

@@ -4,6 +4,9 @@ export { FormAuditReader } from "./form-audit-reader.js";
 export { browserQuickstart } from "./browser-quickstart.js";
 export { authSettingsPage } from "./auth-settings-page.js";
 export { fileManagementPage } from "./file-management-page.js";
+export { functionManagementPage } from "./function-management-page.js";
+export { workflowManagementPage } from "./workflow-management-page.js";
+export { liveSessionPage } from "./live-session-page.js";
 export {
   pluginPromoteRequest,
   pluginRollbackRequest,
@@ -17,7 +20,14 @@ export { recordBrowserPage } from "./record-browser-page.js";
 export { recordEditPage } from "./record-edit-page.js";
 export { signupSettingsPage } from "./signup-settings-page.js";
 export { tableManagementPage } from "./table-management-page.js";
-export type { AuthSettings, FormAudit, SignupSettings } from "./types.js";
+export type {
+  AuthSettings,
+  FormAudit,
+  FunctionSummary,
+  LiveSessionSummary,
+  SignupSettings,
+  WorkflowSummary,
+} from "./types.js";
 export { hostOwnedAdminView } from "./host-owned-admin-view.js";
 export { projectOverviewContribution } from "./project-overview-contribution.js";
 export { pluginHealthContribution } from "./plugin-health-contribution.js";
