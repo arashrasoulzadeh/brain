@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `4658128` — 2026-11-15 12:12:09 +0330 — add audited operator action boundary
+  Files: internal/operator/operator.go,tests/operator/operator_test.go
+- `16ec3fc` — 2026-11-15 08:41:24 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `199a380` — 2026-11-15 12:11:11 +0330 — separate sensitive operator setup
   Files: internal/operator/mfa.go,internal/operator/operator.go tests/operator/operator_test.go
 - `34836ca` — 2026-11-15 08:40:21 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `781d419` — 2026-11-15 02:19:00 +0330 — close numeric direct https SSRF bypasses
   Files: plugins/functions/invoke-direct-https.ts,tests/functions/functions.test.ts
 - `864ee7f` — 2026-11-14 22:48:19 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `ab8f75f` — 2026-11-15 02:18:03 +0330 — serialize concurrent idempotent workflows
-  Files: plugins/functions/run-idempotent-workflow.ts,tests/functions/functions.test.ts
-- `913c0b0` — 2026-11-14 22:47:19 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
