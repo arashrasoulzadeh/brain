@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `dbb1983` — 2026-11-15 12:27:30 +0330 — complete project boundary audit pass
+  Files: plugins/functions/record-trigger-matcher.ts,plugins/functions/shared-helper-publisher.ts plugins/matchmaking/matchmaking-config-reader.ts,plugins/matchmaking/matchmaking-config-status.ts plugins/rooms/authorized-room-snapshot.ts,plugins/rooms/authorized-tic-tac-toe-state.ts plugins/rooms/reconnect-tic-tac-toe.ts,tests/matchmaking/matchmaking.test.ts tests/rooms/rooms.test.ts
+- `2b97bcf` — 2026-11-15 08:56:14 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `873210b` — 2026-11-15 12:26:00 +0330 — harden function state project boundaries
   Files: plugins/functions/authorize-project-workflow-action.ts,plugins/functions/function-draft-reader.ts plugins/functions/function-publication-reader.ts,plugins/functions/shared-package-reader.ts tests/functions/functions.test.ts,tests/functions/workflow-components.test.ts
 - `f9d36eb` — 2026-11-15 08:55:13 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `bcdb15d` — 2026-11-15 12:06:20 +0330 — require digest pinned release images
   Files: internal/deploy/manifest.go,tests/deploy/healthy_manifest_test.go tests/deploy/manifest_test.go,tests/deploy/rollback_test.go
 - `5ec4f7d` — 2026-11-15 08:35:39 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `41710ac` — 2026-11-15 12:05:12 +0330 — bound measured capacity memory
-  Files: internal/deploy/capacity_profile.go,tests/deploy/capacity_profile_test.go
-- `efd8b75` — 2026-11-14 23:00:04 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
