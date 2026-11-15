@@ -12,6 +12,7 @@ var ErrAlreadyBootstrapped = errors.New("operator already bootstrapped")
 var ErrInvalidBootstrap = errors.New("operator bootstrap requires username and secret")
 var ErrInvalidCredentials = errors.New("invalid operator credentials")
 var ErrOperatorRequired = errors.New("operator access required")
+var ErrInvalidOperatorAction = errors.New("invalid operator action")
 
 type ActorKind string
 
@@ -85,6 +86,22 @@ func (s *Store) AuthorizeAction(actor Actor, action string) error {
 	if actor.ID == "" || action == "" || actor.Kind != ActorOperator || s.account == nil || actor.ID != s.account.Username || actor.ID != s.authenticatedOperator {
 		return ErrOperatorRequired
 	}
+	return nil
+}
+
+func (s *Store) ExecuteAction(actor Actor, action string, operation func() error) error {
+	if operation == nil {
+		return ErrInvalidOperatorAction
+	}
+	if err := s.AuthorizeAction(actor, action); err != nil {
+		s.record(action, actor.ID, false, err.Error())
+		return err
+	}
+	if err := operation(); err != nil {
+		s.record(action, actor.ID, false, err.Error())
+		return err
+	}
+	s.record(action, actor.ID, true, "")
 	return nil
 }
 

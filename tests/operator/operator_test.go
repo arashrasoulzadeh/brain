@@ -107,6 +107,37 @@ func TestStoreRejectsForgedOperatorBeforeAuthentication(t *testing.T) {
 	}
 }
 
+func TestExecuteActionAuthorizesAndAuditsOperation(t *testing.T) {
+	store := &operator.Store{}
+	digest := func(string) string { return "digest" }
+	_, _ = store.Bootstrap("admin", "secret", digest)
+	if err := store.Authenticate("admin", "secret", digest); err != nil {
+		t.Fatal(err)
+	}
+	actor := operator.Actor{ID: "admin", Kind: operator.ActorOperator}
+	called := false
+	if err := store.ExecuteAction(actor, "plugin.remove", func() error {
+		called = true
+		return nil
+	}); err != nil || !called {
+		t.Fatalf("authorized action = %v, called=%v", err, called)
+	}
+	if err := store.ExecuteAction(actor, "migration.apply", func() error { return errors.New("migration failed") }); err == nil {
+		t.Fatal("failed operation was accepted")
+	}
+	events := store.Audit()
+	if len(events) != 3 || events[1].Action != "plugin.remove" || !events[1].Success || events[2].Action != "migration.apply" || events[2].Success {
+		t.Fatalf("action audit = %#v", events)
+	}
+}
+
+func TestExecuteActionRejectsMissingOperation(t *testing.T) {
+	store := &operator.Store{}
+	if err := store.ExecuteAction(operator.Actor{}, "plugin.remove", nil); !errors.Is(err, operator.ErrInvalidOperatorAction) {
+		t.Fatalf("missing operation = %v", err)
+	}
+}
+
 func TestRecoveryRevokesAuthenticatedOperatorAccess(t *testing.T) {
 	store := &operator.Store{}
 	digest := func(value string) string { return "digest:" + value }
