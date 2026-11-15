@@ -40,11 +40,12 @@ func TestRequireEnabledPluginRejectsDirectAPIAccessUntilLifecycleIsComplete(t *t
 func TestFunctionDraftPreservesMethodAndUpdatesSourceBeforePublish(t *testing.T) {
 	service := admin.NewLifecycleService(nil, nil)
 	actor := operator.Actor{ID: "admin", Kind: operator.ActorOperator}
-	draft, err := service.CreateFunctionDraftWithSettings(actor, "dev", "method_contract", "export default (input) => input", 1, false, []string{"functions.invoke"}, "GET")
+	source := "export const config = { method: 'GET' };\nexport default (input) => input"
+	draft, err := service.CreateFunctionDraftWithSettings(actor, "dev", "method_contract", source, 1, false, []string{"functions.invoke"}, "POST")
 	if err != nil || draft.Method != "GET" {
 		t.Fatalf("created draft = %#v, err = %v", draft, err)
 	}
-	updated, err := service.UpdateFunctionDraft(actor, "dev", "method_contract", "export default (input) => ({updated: input})", 2)
+	updated, err := service.UpdateFunctionDraft(actor, "dev", "method_contract", "export const config = { method: 'GET' };\nexport default (input) => ({updated: input})", 2)
 	if err != nil || updated.Version != 2 || updated.Source == draft.Source {
 		t.Fatalf("updated draft = %#v, err = %v", updated, err)
 	}
@@ -65,7 +66,7 @@ func TestFunctionDraftPreflightRejectsUnsafeSource(t *testing.T) {
 func TestFunctionDraftPreflightAcceptsExportedHandler(t *testing.T) {
 	service := admin.NewLifecycleService(nil, nil)
 	actor := operator.Actor{ID: "admin", Kind: operator.ActorOperator}
-	result, err := service.TestFunctionDraft(actor, "dev", "echo", "export default (input) => input")
+	result, err := service.TestFunctionDraft(actor, "dev", "echo", "export const config = { method: 'POST' };\nexport default (input) => input")
 	if err != nil || result["valid"] != true {
 		t.Fatalf("preflight result = %#v, err = %v", result, err)
 	}

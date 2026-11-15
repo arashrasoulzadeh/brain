@@ -12,6 +12,10 @@ const nextConfig: NextConfig = {
         source: "/api/:path*",
         destination: `${process.env.BRAIN_API_ORIGIN ?? "http://127.0.0.1:18082"}/:path*`,
       },
+      {
+        source: "/public/:path*",
+        destination: `${process.env.BRAIN_API_ORIGIN ?? "http://127.0.0.1:18082"}/public/:path*`,
+      },
     ];
   },
 };

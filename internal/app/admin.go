@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"brain/internal/admin"
@@ -216,6 +217,14 @@ type adminCommand struct {
 	Method          string          `json:"method"`
 }
 
+func publicFunctionURL(r *http.Request, projectID, functionName string) string {
+	scheme := "http"
+	if r.TLS != nil {
+		scheme = "https"
+	}
+	return scheme + "://" + r.Host + "/public/" + url.PathEscape(projectID) + "/" + url.PathEscape(functionName)
+}
+
 func AuthenticatedFunctionsHandler(service *admin.LifecycleService, sessions *operator.Store) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if service == nil || sessions == nil || !strings.HasPrefix(r.Header.Get("Authorization"), "Bearer ") {
@@ -300,7 +309,7 @@ func AuthenticatedFunctionsHandler(service *admin.LifecycleService, sessions *op
 				return
 			}
 			w.Header().Set("Content-Type", "application/json")
-			_ = json.NewEncoder(w).Encode(map[string]any{"published": true, "project_id": command.ProjectID, "name": command.Name, "version": draft.Version, "method": draft.Method, "published_at": draft.PublishedAt, "route": "/public/" + command.ProjectID + "/" + command.Name})
+			_ = json.NewEncoder(w).Encode(map[string]any{"published": true, "project_id": command.ProjectID, "name": command.Name, "version": draft.Version, "method": draft.Method, "published_at": draft.PublishedAt, "route": publicFunctionURL(r, command.ProjectID, command.Name)})
 			return
 		}
 		if command.Operation != "functions.create" {

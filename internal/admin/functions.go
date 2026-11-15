@@ -21,6 +21,7 @@ var ErrFunctionSourceInvalid = errors.New("function source must export a handler
 var functionExportPattern = regexp.MustCompile(`(?m)\bexport\s+default\b`)
 var functionUnsafePattern = regexp.MustCompile(`(?m)\b(import|require|process|child_process|fs|net|fetch|Deno)\b`)
 var functionNamePattern = regexp.MustCompile(`^[A-Za-z][A-Za-z0-9_-]{0,63}$`)
+var functionMethodPattern = regexp.MustCompile(`(?s)export\s+const\s+config\s*=\s*\{.*?\bmethod\s*:\s*["'](GET|POST|PUT|PATCH)["']`)
 
 const maxFunctionSourceBytes = 256 * 1024
 
@@ -128,6 +129,14 @@ func normalizeFunctionMethod(method string) (string, error) {
 	return method, nil
 }
 
+func functionMethodFromSource(source string) (string, error) {
+	matches := functionMethodPattern.FindStringSubmatch(source)
+	if len(matches) != 2 {
+		return "", errors.New("function config must export method as GET, POST, PUT, or PATCH")
+	}
+	return normalizeFunctionMethod(matches[1])
+}
+
 func (s *LifecycleService) CreateFunctionDraftWithSettings(actor operator.Actor, projectID, name, source string, version int, public bool, permissions []string, method string) (FunctionDraft, error) {
 	if actor.Kind != operator.ActorOperator || strings.TrimSpace(projectID) == "" || !functionNamePattern.MatchString(strings.TrimSpace(name)) || strings.TrimSpace(source) == "" || len(source) > maxFunctionSourceBytes {
 		return FunctionDraft{}, ErrFunctionDraftInvalid
@@ -138,7 +147,7 @@ func (s *LifecycleService) CreateFunctionDraftWithSettings(actor operator.Actor,
 	if version < 1 {
 		return FunctionDraft{}, ErrFunctionDraftInvalid
 	}
-	method, err := normalizeFunctionMethod(method)
+	method, err := functionMethodFromSource(source)
 	if err != nil {
 		return FunctionDraft{}, err
 	}
@@ -172,6 +181,11 @@ func (s *LifecycleService) UpdateFunctionDraft(actor operator.Actor, projectID, 
 		return FunctionDraft{}, ErrFunctionDraftInvalid
 	}
 	draft.Source = source
+	method, err := functionMethodFromSource(source)
+	if err != nil {
+		return FunctionDraft{}, err
+	}
+	draft.Method = method
 	draft.Version = version
 	functionDrafts.items[key] = draft
 	if err := persistFunctionDraftsLocked(); err != nil {
@@ -222,10 +236,6 @@ func (s *LifecycleService) PublishFunction(actor operator.Actor, projectID, name
 	if actor.Kind != operator.ActorOperator || strings.TrimSpace(projectID) == "" || !functionNamePattern.MatchString(strings.TrimSpace(name)) {
 		return FunctionDraft{}, ErrFunctionDraftInvalid
 	}
-	method, err := normalizeFunctionMethod(method)
-	if err != nil {
-		return FunctionDraft{}, err
-	}
 	functionDrafts.Lock()
 	defer functionDrafts.Unlock()
 	loadFunctionDraftsLocked()
@@ -233,8 +243,9 @@ func (s *LifecycleService) PublishFunction(actor operator.Actor, projectID, name
 	if !ok {
 		return FunctionDraft{}, ErrFunctionDraftInvalid
 	}
-	if draft.Method == "" {
-		draft.Method = "POST"
+	method, err := functionMethodFromSource(draft.Source)
+	if err != nil {
+		return FunctionDraft{}, err
 	}
 	now := time.Now().UTC()
 	draft.Public = true
@@ -256,7 +267,11 @@ func (s *LifecycleService) PublicInvokeFunction(projectID, name, method string, 
 		return nil, ErrFunctionDraftInvalid
 	}
 	if draft.Method == "" {
-		draft.Method = "POST"
+		var err error
+		draft.Method, err = functionMethodFromSource(draft.Source)
+		if err != nil {
+			return nil, err
+		}
 	}
 	if strings.ToUpper(strings.TrimSpace(method)) != draft.Method {
 		return nil, errors.New("function method not allowed")
@@ -275,6 +290,9 @@ func (s *LifecycleService) TestFunctionDraft(actor operator.Actor, projectID, na
 	}
 	if !functionExportPattern.MatchString(source) || functionUnsafePattern.MatchString(source) {
 		return nil, ErrFunctionSourceInvalid
+	}
+	if _, err := functionMethodFromSource(source); err != nil {
+		return nil, err
 	}
 	return map[string]any{"valid": true, "project_id": projectID, "name": strings.TrimSpace(name), "source_bytes": len(source), "message": "source passed the host preflight and is ready for sandbox compilation"}, nil
 }

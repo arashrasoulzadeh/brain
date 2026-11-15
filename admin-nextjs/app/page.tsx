@@ -169,7 +169,7 @@ export default function AdminPage() {
   const [playgroundPayload, setPlaygroundPayload] = useState("{}");
   const [playgroundMessage, setPlaygroundMessage] = useState("");
   const [functionName, setFunctionName] = useState("");
-  const [functionSource, setFunctionSource] = useState("export default async function handler(input) {\n  return input;\n}\n");
+  const [functionSource, setFunctionSource] = useState("export const config = { method: 'POST' };\n\nexport default async function handler(input) {\n  return input;\n}\n");
   const [functionMessage, setFunctionMessage] = useState("");
   const [functionInput, setFunctionInput] = useState("{}");
   const [functionVersion, setFunctionVersion] = useState("1");
