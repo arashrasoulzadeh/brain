@@ -18,6 +18,10 @@ import {
   protectedDownloadHeaders,
   reconcileOrphanedObjects,
   requireExplicitPublication,
+  upload,
+  download,
+  metadata,
+  publish,
 } from "../../plugins/files/index.js";
 import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 
@@ -32,6 +36,13 @@ if (
   ])(request) !== "object"
 )
   throw new Error("files handler contract failed");
+upload({ key: "avatar", data: "bytes" });
+if ((metadata({ key: "avatar" }) as { size: number }).size !== 5)
+  throw new Error("files metadata route failed");
+if (!(publish({ key: "avatar" }) as { published: boolean }).published)
+  throw new Error("files publish route failed");
+if ((download({ key: "avatar" }) as { data: string }).data !== "bytes")
+  throw new Error("files download route failed");
 if (
   configurePrivateBucket({
     endpoint: "https://s3.example.com",

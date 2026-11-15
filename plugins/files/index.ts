@@ -18,3 +18,8 @@ export { PendingUploadReader } from "./pending-upload-reader.js";
 export { PendingUploadPublisher } from "./pending-upload-publisher.js";
 export { PendingUploadReconciler } from "./pending-upload-reconciler.js";
 export type { PendingUpload, PrivateBucketConfig } from "./types.js";
+export { FileRouteStore, fileRouteStore } from "./file-route-store.js";
+export { upload } from "./files-upload.js";
+export { download } from "./files-download.js";
+export { metadata } from "./files-metadata.js";
+export { publish } from "./files-publish.js";

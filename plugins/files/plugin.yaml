@@ -7,6 +7,11 @@ entrypoint: index.ts
 source_files:
   - index.ts
   - types.ts
+  - file-route-store.ts
+  - files-upload.ts
+  - files-download.ts
+  - files-metadata.ts
+  - files-publish.ts
   - file-request.ts
   - bucket.ts
   - object-key.ts
@@ -48,6 +53,11 @@ imports:
   - ./pending-upload-publisher.js
   - ./pending-upload-reconciler.js
   - ./types.js
+  - ./file-route-store.js
+  - ./files-upload.js
+  - ./files-download.js
+  - ./files-metadata.js
+  - ./files-publish.js
 plugin_imports:
 dependencies: []
 capabilities:
