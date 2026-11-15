@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `84e45a3` — 2026-11-15 13:49:41 +0330 — add global admin project context
+  Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css
+- `ee540be` — 2026-11-15 10:18:47 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `d9616af` — 2026-11-15 13:48:31 +0330 — add admin audit search
   Files: admin-nextjs/app/page.tsx
 - `8f8a056` — 2026-11-15 10:17:53 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `8319f63` — 2026-11-15 13:20:49 +0330 — add manifest driven plugin configuration
   Files: admin-nextjs/app/page.tsx
 - `f577901` — 2026-11-15 09:49:36 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `ffad212` — 2026-11-15 13:19:21 +0330 — scope admin plugin inventory by project
-  Files: admin-nextjs/app/page.tsx
-- `3d96c29` — 2026-11-15 09:48:27 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
