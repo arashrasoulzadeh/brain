@@ -5,3 +5,8 @@ export { createMatchmakingQueue } from "./queue.js";
 export { matchmakingRequest } from "./matchmaking-request.js";
 export { validateConfig } from "./validate-config.js";
 export type { AssignmentDecision, MatchmakingConfig, MatchmakingTicket } from "./types.js";
+export { MatchmakingRouteStore, matchmakingRouteStore } from "./matchmaking-route-store.js";
+export { queue } from "./matchmaking-queue-route.js";
+export { cancel } from "./matchmaking-cancel-route.js";
+export { status } from "./matchmaking-status-route.js";
+export { assign } from "./matchmaking-assign-route.js";

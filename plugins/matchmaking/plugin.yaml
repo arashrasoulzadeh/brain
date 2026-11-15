@@ -25,6 +25,11 @@ source_files:
   - pause-project-assignments.ts
   - resume-project-assignments.ts
   - is-project-assignments-paused.ts
+  - matchmaking-route-store.ts
+  - matchmaking-queue-route.ts
+  - matchmaking-cancel-route.ts
+  - matchmaking-status-route.ts
+  - matchmaking-assign-route.ts
 imports:
   - ../sdk-typescript/src/index.js
   - ./matchmaking-config-writer.js
@@ -46,6 +51,11 @@ imports:
   - ./is-project-assignments-paused.js
   - ./validate-config.js
   - ./types.js
+  - ./matchmaking-route-store.js
+  - ./matchmaking-queue-route.js
+  - ./matchmaking-cancel-route.js
+  - ./matchmaking-status-route.js
+  - ./matchmaking-assign-route.js
 plugin_imports:
   - rooms@0.1.0
 dependencies:
