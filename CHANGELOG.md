@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `d246728` — 2026-11-15 12:08:40 +0330 — validate rehearsal compose projects
+  Files: scripts/clean-environment-rehearsal.sh,tests/deploy/clean_environment_script_test.go
+- `a4e3ebc` — 2026-11-15 08:38:23 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `d58d684` — 2026-11-15 12:08:06 +0330 — validate compose project names
   Files: scripts/rollback-compose.sh,scripts/start-compose-no-build.sh tests/deploy/compose_script_test.go,tests/deploy/rollback_compose_test.go
 - `b227c0b` — 2026-11-15 08:37:40 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `6a82173` — 2026-11-15 02:15:23 +0330 — validate file object identities at access boundaries
   Files: plugins/files/authorized-upload-writer.ts,plugins/files/file-access-deleter.ts plugins/files/file-access-reader.ts,plugins/files/pending-upload-publisher.ts plugins/files/pending-upload-reader.ts,tests/files/files.test.ts
 - `992991f` — 2026-11-14 22:44:07 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `ee5a470` — 2026-11-15 02:13:48 +0330 — validate project identity in auth token consumers
-  Files: plugins/auth/email-otp-verifier.ts,plugins/auth/recovery-token-consumer.ts plugins/auth/sms-otp-verifier.ts,tests/auth/auth.test.ts
-- `f290136` — 2026-11-14 22:43:06 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
