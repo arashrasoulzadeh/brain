@@ -53,5 +53,6 @@ test("authenticated route content is mounted below the persistent root shell", a
   const frame = await readFile(join(root, "admin-nextjs/app/components/admin-chrome.tsx"), "utf8");
   assert.match(layout, /<AdminShell>\{children\}<\/AdminShell>/);
   assert.match(shell, /export function AdminShell/);
+  assert.match(shell, /!authenticated/);
   assert.doesNotMatch(frame, /return <main className="shell">/);
 });

@@ -1757,7 +1757,6 @@ export default function AdminPage() {
       <section className="page-hidden">
         <div className="playground" />
       </section>
-      <AdminFooter />
     </>
   );
   if (pathname !== "/") return pageContent;
@@ -1785,6 +1784,7 @@ export default function AdminPage() {
         <section className="card">
           <AdminHeader title={pageTitle} eyebrow={text.eyebrow} />
           {pageContent}
+          <AdminFooter />
         </section>
       </div>
     </main>
