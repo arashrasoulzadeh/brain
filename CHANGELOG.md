@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `3c615ba` — 2026-11-15 14:56:39 +0330 — add project scoped custom function drafts
+  Files: admin-nextjs/app/page.tsx,admin-nextjs/app/plugins/[plugin]/page.tsx admin-nextjs/app/styles.css,internal/admin/functions.go internal/app/admin.go,internal/app/app.go
+- `a9bb7f4` — 2026-11-15 11:19:04 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `9a9d3e9` — 2026-11-15 14:47:45 +0330 — match plugin page shell and prevent route flash
   Files: admin-nextjs/app/plugins/[plugin]/page.tsx
 - `55142a5` — 2026-11-15 11:15:57 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `9a823fb` — 2026-11-15 13:41:21 +0330 — add domain admin pages
   Files: admin-nextjs/app/database/page.tsx,admin-nextjs/app/files/page.tsx admin-nextjs/app/functions/page.tsx,admin-nextjs/app/live-sessions/page.tsx admin-nextjs/app/page.tsx,admin-nextjs/app/workflows/page.tsx
-- `936b138` — 2026-11-15 10:09:51 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `d3fb806` — 2026-11-15 13:39:37 +0330 — isolate project controls to projects page
-  Files: admin-nextjs/app/page.tsx
