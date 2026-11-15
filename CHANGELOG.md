@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `c46295c` — 2026-11-15 19:39:04 +0330 — test shared admin shell across pages
+  Files: tests/admin/admin-shell.test.ts
+- `9a06b67` — 2026-11-15 16:06:12 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `969581e` — 2026-11-15 19:35:56 +0330 — document admin pages and shared shell
   Files: docs/admin-pages/README.md,docs/admin-pages/audit.md docs/admin-pages/database.md,docs/admin-pages/files.md docs/admin-pages/function-detail.md,docs/admin-pages/function-new.md docs/admin-pages/functions.md,docs/admin-pages/live-sessions.md docs/admin-pages/monitoring.md,docs/admin-pages/plugin-detail.md docs/admin-pages/plugins.md,docs/admin-pages/projects.md docs/admin-pages/routes.md,docs/admin-pages/system.md docs/admin-pages/workers.md,docs/admin-pages/workflows.md
 - `fe9c9f7` — 2026-11-15 16:04:47 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `c32d1c7` — 2026-11-15 17:12:45 +0330 — implement matchmaking admin routes
   Files: plugins/matchmaking/index.ts,plugins/matchmaking/matchmaking-assign-route.ts plugins/matchmaking/matchmaking-cancel-route.ts,plugins/matchmaking/matchmaking-queue-route.ts plugins/matchmaking/matchmaking-route-store.ts,plugins/matchmaking/matchmaking-status-route.ts plugins/matchmaking/plugin.yaml
 - `7abd628` — 2026-11-15 13:41:57 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `70eb9f3` — 2026-11-15 17:11:36 +0330 — add workflow and live session consoles
-  Files: admin-nextjs/app/page.tsx
-- `42e9e40` — 2026-11-15 13:40:50 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
