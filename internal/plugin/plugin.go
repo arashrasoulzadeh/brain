@@ -1,6 +1,7 @@
 package plugin
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/url"
@@ -277,6 +278,7 @@ type Registry struct {
 	workerMu          sync.RWMutex
 	workers           map[string]ContractWorker
 	workerFactory     func(projectID, pluginID, version string) (ContractWorker, error)
+	storage           *SQLiteStorage
 	webSockets        *WebSocketRegistry
 }
 
@@ -292,6 +294,12 @@ func (r *Registry) BindWorkerFactory(factory func(projectID, pluginID, version s
 	r.workerMu.Lock()
 	defer r.workerMu.Unlock()
 	r.workerFactory = factory
+}
+
+func (r *Registry) BindSQLiteStorage(storage *SQLiteStorage) {
+	r.workerMu.Lock()
+	defer r.workerMu.Unlock()
+	r.storage = storage
 }
 
 type AuditEvent struct {
@@ -345,6 +353,7 @@ func (r *Registry) UnbindWorker(projectID, id, version string) {
 
 // Invoke executes only an installed, ready, enabled and fully granted plugin.
 func (r *Registry) Invoke(request WorkerRequest) (WorkerResponse, error) {
+	request = r.prepareStorageRequest(request)
 	key := request.ProjectID + ":" + request.PluginID + "@" + request.Version
 	r.installationMu.RLock()
 	installation, installed := r.installations[key]
@@ -380,6 +389,32 @@ func (r *Registry) Invoke(request WorkerRequest) (WorkerResponse, error) {
 	worker := r.workers[key]
 	r.workerMu.RUnlock()
 	return InvokeForProject(worker, request, r.HostAPI, request.ProjectID)
+}
+
+func (r *Registry) prepareStorageRequest(request WorkerRequest) WorkerRequest {
+	if request.PluginID != "tables" || r.storage == nil {
+		return request
+	}
+	var payload map[string]any
+	if json.Unmarshal(request.Payload, &payload) != nil {
+		return request
+	}
+	table, _ := payload["table"].(string)
+	if table == "" {
+		return request
+	}
+	if request.Operation == "tables.write" {
+		if row, ok := payload["row"].(map[string]any); ok {
+			_ = r.storage.Append(request.ProjectID, table, row)
+		}
+	}
+	if request.Operation == "tables.read" {
+		if rows, err := r.storage.Rows(request.ProjectID, table); err == nil {
+			payload["rows"] = rows
+			request.Payload, _ = json.Marshal(payload)
+		}
+	}
+	return request
 }
 
 func (r *Registry) RegisteredManifests() []Manifest {

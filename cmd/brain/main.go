@@ -66,6 +66,11 @@ func productionServer() *app.Server {
 		log.Printf("project store unavailable: %v", err)
 		projects = project.NewStore()
 	}
+	if storage, storageErr := plugin.OpenSQLiteStorage(projectsPath); storageErr == nil {
+		registry.BindSQLiteStorage(storage)
+	} else {
+		log.Printf("plugin storage unavailable: %v", storageErr)
+	}
 	return app.NewServerWithOperatorAdmin(admin.NewLifecycleServiceWithProjects(operators, registry, projects), operators, digest)
 }
 
