@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `4c522b0` — 2026-11-15 13:27:30 +0330 — expose complete plugin contract in admin
+  Files: admin-nextjs/app/page.tsx
+- `64259ab` — 2026-11-15 09:56:42 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `c3188d7` — 2026-11-15 13:26:25 +0330 — complete declared plugin lifecycle controls
   Files: admin-nextjs/app/page.tsx,internal/admin/lifecycle.go internal/app/admin.go,tests/app/admin_test.go
 - `88f790b` — 2026-11-15 09:54:59 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `9200be3` — 2026-11-15 12:54:20 +0330 — polish localized nextjs admin panel
   Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css admin-nextjs/next.config.ts
 - `4ef9725` — 2026-11-15 09:21:40 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `a9e2257` — 2026-11-15 12:51:25 +0330 — keep go host api only
-  Files: cmd/brain/main.go,internal/app/app.go
-- `48bb3b8` — 2026-11-15 09:21:18 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
