@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `1ab7ef7` — 2026-11-15 14:33:12 +0330 — show readiness controls for installed plugins
+  Files: admin-nextjs/app/page.tsx
+- `335b2d2` — 2026-11-15 11:01:29 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `ada9840` — 2026-11-15 14:31:13 +0330 — expose plugin readiness controls
   Files: admin-nextjs/app/page.tsx
 - `b391400` — 2026-11-15 10:49:02 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `cf3c26d` — 2026-11-15 13:32:46 +0330 — revoke admin sessions on sign out
   Files: admin-nextjs/app/page.tsx,internal/app/admin.go internal/app/app.go,tests/app/admin_test.go
 - `19d3c94` — 2026-11-15 10:01:00 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `ede08fd` — 2026-11-15 13:30:45 +0330 — polish dynamic admin plugin views
-  Files: admin-nextjs/app/styles.css
-- `c1cfba9` — 2026-11-15 10:00:08 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
