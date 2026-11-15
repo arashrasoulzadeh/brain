@@ -392,11 +392,40 @@ func (r *Registry) Invoke(request WorkerRequest) (WorkerResponse, error) {
 }
 
 func (r *Registry) prepareStorageRequest(request WorkerRequest) WorkerRequest {
-	if request.PluginID != "tables" || r.storage == nil {
+	if r.storage == nil {
 		return request
 	}
 	var payload map[string]any
 	if json.Unmarshal(request.Payload, &payload) != nil {
+		return request
+	}
+	if request.PluginID == "files" {
+		key, _ := payload["key"].(string)
+		if key == "" {
+			return request
+		}
+		if request.Operation == "files.upload" {
+			if data, ok := payload["data"].(string); ok {
+				_ = r.storage.PutFile(request.ProjectID, key, data, false)
+			}
+		}
+		if request.Operation == "files.publish" {
+			if data, _, err := r.storage.File(request.ProjectID, key); err == nil && data != "" {
+				_ = r.storage.PutFile(request.ProjectID, key, data, true)
+				payload["published"] = true
+				request.Payload, _ = json.Marshal(payload)
+			}
+		}
+		if request.Operation == "files.download" || request.Operation == "files.metadata" {
+			if data, published, err := r.storage.File(request.ProjectID, key); err == nil && data != "" {
+				payload["data"] = data
+				payload["published"] = published
+				request.Payload, _ = json.Marshal(payload)
+			}
+		}
+		return request
+	}
+	if request.PluginID != "tables" {
 		return request
 	}
 	table, _ := payload["table"].(string)

@@ -6,5 +6,7 @@ export function publish(input: unknown): unknown {
       ? (input as { key: string }).key.trim()
       : "";
   if (!key) throw new Error("file key is required");
+  if ((input as { published?: unknown } | null)?.published === true)
+    return { key, published: true };
   return fileRouteStore.execute("publish", key);
 }

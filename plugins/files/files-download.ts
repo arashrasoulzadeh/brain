@@ -6,5 +6,11 @@ export function download(input: unknown): unknown {
       ? (input as { key: string }).key.trim()
       : "";
   if (!key) throw new Error("file key is required");
+  if (typeof (input as { data?: unknown } | null)?.data === "string")
+    return {
+      key,
+      data: (input as { data: string }).data,
+      published: Boolean((input as { published?: unknown }).published),
+    };
   return fileRouteStore.execute("download", key);
 }
