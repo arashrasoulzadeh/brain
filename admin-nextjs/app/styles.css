@@ -33,6 +33,8 @@
 @media (max-width: 800px) { .log-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .log-detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .log-entry-heading { display: grid; } .log-entry-heading time { order: -1; } }
 .editor-diagnostic { display: flex; gap: 10px; align-items: baseline; grid-column: 1/-1; padding: 10px 14px; background: #fff3f2; color: #9c2f28; font-size: 12px; }
 .editor-diagnostic.valid { background: #edfaf3; color: #247345; }
+.rich-editor { border-radius: 8px; }
+.editor-toolbar, .editor-body, .editor-completion-menu, .editor-status { border-radius: 0; }
 * {
   box-sizing: border-box;
 }

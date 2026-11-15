@@ -60,8 +60,8 @@ export function FunctionEditor({
   const [showCompletions, setShowCompletions] = useState(false);
   const [query, setQuery] = useState("");
   const lines = useMemo(() => source.split("\n"), [source]);
-  const visibleCompletions = completions.filter((completion) =>
-    completion.label.includes(query.toLowerCase()),
+  const visibleCompletions = completions.filter(
+    (completion) => query.length < 2 || completion.label.includes(query.toLowerCase()),
   );
   const localDiagnostic = useMemo(() => {
     const stack: string[] = [];
@@ -73,6 +73,14 @@ export function FunctionEditor({
     }
     if (stack.length) return "Unclosed bracket or brace";
     if (!/\bexport\s+default\b/.test(source)) return "A default exported handler is required";
+    if (/\b(import|require|process|child_process|fs|net|fetch|Deno)\b/.test(source))
+      return "Host law: imports, network access, process, and filesystem access are not allowed";
+    if (
+      !/export\s+const\s+config\s*=\s*\{[\s\S]*\bmethod\s*:\s*["'](GET|POST|PUT|PATCH)["']/.test(
+        source,
+      )
+    )
+      return "Host law: export config with method GET, POST, PUT, or PATCH";
     return "";
   }, [source]);
 
@@ -165,7 +173,9 @@ export function FunctionEditor({
               setQuery(
                 event.target.value.slice(0, event.target.selectionStart).split(/\s/).pop() ?? "",
               );
+              setShowCompletions(true);
             }}
+            onFocus={() => setShowCompletions(true)}
             onKeyDown={handleKeyDown}
             onScroll={(event) => {
               const pre = event.currentTarget.previousElementSibling as HTMLElement | null;
