@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `e1e28f6` — 2026-11-15 19:34:27 +0330 — unify admin sidebar and persist plugin lifecycle
+  Files: admin-nextjs/app/functions/[name]/page.tsx,internal/plugin/plugin.go internal/plugin/sqlite_storage.go,tests/plugin/lifecycle_persistence_test.go
+- `e761fbc` — 2026-11-15 15:59:14 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `f91cdd3` — 2026-11-15 19:28:51 +0330 — explain public function method mismatch
   Files: internal/admin/functions.go,internal/app/admin.go tests/admin/functions_test.go
 - `8a9aafb` — 2026-11-15 15:57:06 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `6c3dc6b` — 2026-11-15 17:10:36 +0330 — add files operation console
   Files: admin-nextjs/app/page.tsx
 - `966ce9b` — 2026-11-15 13:40:01 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `094f8e4` — 2026-11-15 17:09:47 +0330 — implement file admin routes
-  Files: plugins/files/file-route-store.ts,plugins/files/files-download.ts plugins/files/files-metadata.ts,plugins/files/files-publish.ts plugins/files/files-upload.ts,plugins/files/index.ts plugins/files/plugin.yaml,tests/files/files.test.ts
-- `e581f88` — 2026-11-15 13:38:37 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
