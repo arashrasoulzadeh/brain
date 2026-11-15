@@ -101,6 +101,13 @@ func TestCapacityProfileRequiresResourceAndTrafficMeasurements(t *testing.T) {
 	}
 }
 
+func TestCapacityProfileRejectsMeasuredMemoryAboveBudget(t *testing.T) {
+	profile := deploy.CapacityProfile{CPUCores: 4, MemoryBytes: 1 << 30, PlayersPerRoom: 8, ConservativeRoomCap: 6, RepresentativeAppRequests: 100, UploadRequests: 10, BackgroundJobs: 10, EyeExportJobs: 5, SimulatedRTTMs: 40, PacketLossPercent: 1, P95InputSnapshotLatencyMs: 120, TickDelayMs: 20, MeasuredCPUPercent: 45, MeasuredMemoryBytes: 2 << 30, TrafficBytes: 1 << 20}
+	if !errors.Is(profile.Validate(), deploy.ErrInvalidCapacityProfile) {
+		t.Fatal("capacity profile accepted measured memory above budget")
+	}
+}
+
 func TestCapacityProfileRequiresEyeExportActivity(t *testing.T) {
 	profile := deploy.CapacityProfile{CPUCores: 4, MemoryBytes: 1 << 30, PlayersPerRoom: 8, RepresentativeAppRequests: 100, UploadRequests: 10, BackgroundJobs: 10, EyeExportJobs: 5, SimulatedRTTMs: 40, PacketLossPercent: 1, P95InputSnapshotLatencyMs: 120, TickDelayMs: 20, MeasuredCPUPercent: 45, MeasuredMemoryBytes: 512 << 20, TrafficBytes: 1 << 20}
 	profile.ConservativeRoomCap = 6
