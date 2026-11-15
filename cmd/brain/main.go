@@ -54,7 +54,15 @@ func productionServer() *app.Server {
 	}
 	registry := plugin.NewRegistry(1)
 	registerDiscoveredPlugins(registry)
-	projects := project.NewStore()
+	projectsPath := os.Getenv("PROJECTS_FILE")
+	if projectsPath == "" {
+		projectsPath = ".local/projects.json"
+	}
+	projects, err := project.NewPersistentStore(projectsPath)
+	if err != nil {
+		log.Printf("project store unavailable: %v", err)
+		projects = project.NewStore()
+	}
 	return app.NewServerWithOperatorAdmin(admin.NewLifecycleServiceWithProjects(operators, registry, projects), operators, digest)
 }
 

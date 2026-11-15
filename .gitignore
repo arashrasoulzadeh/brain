@@ -1,3 +1,1 @@
-node_modules/
-clients/flutter/.dart_tool/
-clients/flutter/build/
+.local/

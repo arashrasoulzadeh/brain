@@ -3,6 +3,7 @@ package project_test
 import (
 	"errors"
 	"fmt"
+	"path/filepath"
 	"sync"
 	"testing"
 
@@ -55,6 +56,28 @@ func TestSetActiveChangesProjectStatus(t *testing.T) {
 	}
 	if got := store.List()[0].Active; !got {
 		t.Fatal("project remained inactive")
+	}
+}
+
+func TestPersistentStoreSurvivesReopen(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "projects.json")
+	first, err := project.NewPersistentStore(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := first.Create("dev"); err != nil {
+		t.Fatal(err)
+	}
+	if err := first.SetActive("dev", false); err != nil {
+		t.Fatal(err)
+	}
+	second, err := project.NewPersistentStore(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	projects := second.List()
+	if len(projects) != 1 || projects[0].ID != "dev" || projects[0].Active {
+		t.Fatalf("reopened projects = %#v", projects)
 	}
 }
 

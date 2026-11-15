@@ -159,7 +159,11 @@ export default function AdminPage() {
       const activeProjectID = loadedProjects.find((project) => project.Active)?.ID ?? "";
       setSelectedProjectID(activeProjectID);
       return Promise.all([loadPlugins(savedSession, activeProjectID), loadAudit(savedSession), loadSystem(savedSession)]);
-    }).catch(() => setError("Could not restore operator session"));
+    }).catch(() => {
+      window.sessionStorage.removeItem("brain-admin-session");
+      setSession("");
+      setError("Your operator session expired. Please sign in again.");
+    });
   }, []);
   async function loadProjects(token: string): Promise<Project[]> {
     const response = await fetch("/api/admin/projects", {

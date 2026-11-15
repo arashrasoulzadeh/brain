@@ -1,7 +1,10 @@
 package project
 
 import (
+	"encoding/json"
 	"errors"
+	"os"
+	"path/filepath"
 	"regexp"
 	"sort"
 	"sync"
@@ -38,12 +41,13 @@ func (s *Store) Create(id string) error {
 		return ErrDuplicate
 	}
 	s.projects[id] = Project{ID: id, Active: true}
-	return nil
+	return s.persistLocked()
 }
 
 type Store struct {
 	mu       sync.RWMutex
 	projects map[string]Project
+	path     string
 }
 
 func NewStore(projects ...Project) *Store {
@@ -55,6 +59,28 @@ func NewStore(projects ...Project) *Store {
 		s.projects[p.ID] = p
 	}
 	return s
+}
+
+func NewPersistentStore(path string) (*Store, error) {
+	store := NewStore()
+	store.path = path
+	data, err := os.ReadFile(path)
+	if errors.Is(err, os.ErrNotExist) {
+		return store, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	var projects []Project
+	if err := json.Unmarshal(data, &projects); err != nil {
+		return nil, err
+	}
+	for _, item := range projects {
+		if ValidateID(item.ID) == nil {
+			store.projects[item.ID] = item
+		}
+	}
+	return store, nil
 }
 
 func (s *Store) Resolve(id string) (Project, error) {
@@ -96,5 +122,28 @@ func (s *Store) SetActive(id string, active bool) error {
 	}
 	project.Active = active
 	s.projects[id] = project
-	return nil
+	return s.persistLocked()
+}
+
+func (s *Store) persistLocked() error {
+	if s.path == "" {
+		return nil
+	}
+	projects := make([]Project, 0, len(s.projects))
+	for _, item := range s.projects {
+		projects = append(projects, item)
+	}
+	sort.Slice(projects, func(left, right int) bool { return projects[left].ID < projects[right].ID })
+	data, err := json.MarshalIndent(projects, "", "  ")
+	if err != nil {
+		return err
+	}
+	if err := os.MkdirAll(filepath.Dir(s.path), 0o755); err != nil {
+		return err
+	}
+	temporaryPath := s.path + ".tmp"
+	if err := os.WriteFile(temporaryPath, append(data, '\n'), 0o600); err != nil {
+		return err
+	}
+	return os.Rename(temporaryPath, s.path)
 }
