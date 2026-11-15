@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `355ec53` — 2026-11-15 12:14:17 +0330 — audit plugin recovery actions
+  Files: internal/admin/lifecycle.go,tests/admin/lifecycle_test.go
+- `b0150a4` — 2026-11-15 08:43:56 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `8ef5720` — 2026-11-15 12:13:42 +0330 — audit durable data deletion
   Files: internal/admin/lifecycle.go,tests/admin/lifecycle_test.go
 - `c6ee526` — 2026-11-15 08:43:25 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `e466e09` — 2026-11-15 02:22:03 +0330 — validate room connection ticket context
   Files: plugins/rooms/connection-ticket-consumer.ts,tests/rooms/rooms.test.ts
 - `2dd5de8` — 2026-11-14 22:51:48 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `cb290d6` — 2026-11-15 02:21:37 +0330 — harden subscription authorization boundaries
-  Files: plugins/subscriptions/subscription-authorization.ts,plugins/subscriptions/subscription-owner-invalidator.ts plugins/subscriptions/subscription-ticket-validator.ts,tests/subscriptions/subscriptions.test.ts
-- `f2196af` — 2026-11-14 22:49:52 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
