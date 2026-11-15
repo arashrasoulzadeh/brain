@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `7f314b3` — 2026-11-15 17:07:48 +0330 — persist table operations within plugin worker
+  Files: plugins/tables/index.ts,plugins/tables/plugin.yaml plugins/tables/table-store.ts,plugins/tables/tables-read.ts plugins/tables/tables-schema.ts,plugins/tables/tables-write.ts tests/tables/tables.test.ts
+- `0d467e1` — 2026-11-15 13:36:48 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `0f9ea2c` — 2026-11-15 17:06:34 +0330 — implement tables admin routes
   Files: plugins/tables/index.ts,plugins/tables/plugin.yaml plugins/tables/tables-read.ts,plugins/tables/tables-schema.ts plugins/tables/tables-write.ts,tests/tables/tables.test.ts
 - `e8b71c8` — 2026-11-15 13:35:51 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `6360d74` — 2026-11-15 11:03:28 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
 - `1ab7ef7` — 2026-11-15 14:33:12 +0330 — show readiness controls for installed plugins
-  Files: admin-nextjs/app/page.tsx
-- `335b2d2` — 2026-11-15 11:01:29 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `ada9840` — 2026-11-15 14:31:13 +0330 — expose plugin readiness controls
   Files: admin-nextjs/app/page.tsx
