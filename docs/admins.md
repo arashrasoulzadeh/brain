@@ -24,6 +24,10 @@ Promotion rechecks readiness, configuration compatibility, grants, approvals, an
 
 ## Authenticated admin API
 
+### Local development
+
+Run `./scripts/start-local.sh` from the repository root. It uses SQLite at `.local/brain.sqlite` and creates the local operator `admin` with secret `secret` unless `OPERATOR_USERNAME` and `OPERATOR_SECRET` are explicitly provided. Never use these development defaults in production.
+
 The packaged admin boundary uses a Go operator session in the trusted host. After operator authentication, send the returned session as `Authorization: Bearer <session>` to `POST /admin/actions`. The host hashes session tokens, rejects missing or revoked sessions, and invalidates all operator sessions during recovery. Destructive operations additionally require `"confirmed": true` and are audited.
 
 ## Security checklist

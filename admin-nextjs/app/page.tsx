@@ -259,7 +259,17 @@ export default function AdminPage() {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ username, secret }),
       });
-      if (!response.ok) throw new Error(text.invalid);
+      if (!response.ok) {
+        const body = await response.text();
+        let message = body || text.invalid;
+        try {
+          const parsed = JSON.parse(body) as { message?: string };
+          message = parsed.message || text.invalid;
+        } catch {
+          // The host should return JSON, but preserve useful legacy text during upgrades.
+        }
+        throw new Error(message);
+      }
       const token = ((await response.json()) as { session: string }).session;
       setSession(token);
       window.sessionStorage.setItem("brain-admin-session", token);
