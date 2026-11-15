@@ -6,6 +6,7 @@ import (
 	"errors"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"sync"
@@ -35,6 +36,37 @@ var functionDrafts = struct {
 	items map[string]FunctionDraft
 }{items: make(map[string]FunctionDraft)}
 
+const functionDraftsPath = ".local/function-drafts.json"
+
+func loadFunctionDraftsLocked() {
+	data, err := os.ReadFile(functionDraftsPath)
+	if err != nil {
+		return
+	}
+	var drafts []FunctionDraft
+	if json.Unmarshal(data, &drafts) != nil {
+		return
+	}
+	for _, draft := range drafts {
+		functionDrafts.items[draft.ProjectID+":"+draft.Name] = draft
+	}
+}
+
+func persistFunctionDraftsLocked() error {
+	if err := os.MkdirAll(filepath.Dir(functionDraftsPath), 0o750); err != nil {
+		return err
+	}
+	drafts := make([]FunctionDraft, 0, len(functionDrafts.items))
+	for _, draft := range functionDrafts.items {
+		drafts = append(drafts, draft)
+	}
+	data, err := json.MarshalIndent(drafts, "", "  ")
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(functionDraftsPath, data, 0o640)
+}
+
 func (s *LifecycleService) CreateFunctionDraft(actor operator.Actor, projectID, name, source string) (FunctionDraft, error) {
 	if actor.Kind != operator.ActorOperator || strings.TrimSpace(projectID) == "" || !functionNamePattern.MatchString(strings.TrimSpace(name)) || strings.TrimSpace(source) == "" || len(source) > maxFunctionSourceBytes {
 		return FunctionDraft{}, ErrFunctionDraftInvalid
@@ -46,7 +78,12 @@ func (s *LifecycleService) CreateFunctionDraft(actor operator.Actor, projectID, 
 	}
 	draft := FunctionDraft{ProjectID: projectID, Name: strings.TrimSpace(name), Source: source, CreatedAt: time.Now().UTC()}
 	functionDrafts.Lock()
+	loadFunctionDraftsLocked()
 	functionDrafts.items[projectID+":"+draft.Name] = draft
+	if err := persistFunctionDraftsLocked(); err != nil {
+		functionDrafts.Unlock()
+		return FunctionDraft{}, err
+	}
 	functionDrafts.Unlock()
 	return draft, nil
 }
@@ -60,8 +97,9 @@ func (s *LifecycleService) ListFunctionDrafts(actor operator.Actor, projectID st
 			return nil, err
 		}
 	}
-	functionDrafts.RLock()
-	defer functionDrafts.RUnlock()
+	functionDrafts.Lock()
+	defer functionDrafts.Unlock()
+	loadFunctionDraftsLocked()
 	drafts := make([]FunctionDraft, 0)
 	for _, draft := range functionDrafts.items {
 		if draft.ProjectID == projectID {
