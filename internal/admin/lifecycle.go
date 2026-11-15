@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"brain/internal/deploy"
 	"brain/internal/operator"
 	"brain/internal/plugin"
 )
@@ -72,6 +73,23 @@ func (s *LifecycleService) RollbackPlugin(actor operator.Actor, projectID, plugi
 	return s.execute(actor, "plugin.rollback", func() error {
 		return s.registry.Rollback(projectID, pluginID, version)
 	})
+}
+
+func (s *LifecycleService) RunMigration(actor operator.Actor, version string, operation func() error) error {
+	if version == "" {
+		return operator.ErrInvalidOperatorAction
+	}
+	return s.execute(actor, "migration.apply", operation)
+}
+
+func (s *LifecycleService) SelectRollbackManifest(actor operator.Actor, manifest deploy.ReleaseManifest, schemaCompatible bool) (deploy.ReleaseManifest, error) {
+	var selected deploy.ReleaseManifest
+	err := s.execute(actor, "release.rollback", func() error {
+		var err error
+		selected, err = deploy.SelectRollbackManifest(manifest, schemaCompatible)
+		return err
+	})
+	return selected, err
 }
 
 func (s *LifecycleService) execute(actor operator.Actor, action string, operation func() error) error {

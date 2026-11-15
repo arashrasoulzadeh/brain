@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"brain/internal/admin"
+	"brain/internal/deploy"
 	"brain/internal/operator"
 	"brain/internal/plugin"
 )
@@ -85,5 +86,34 @@ func TestLifecycleServiceAuditsRecoveryOperation(t *testing.T) {
 	events := operators.Audit()
 	if len(events) != 2 || events[1].Action != "plugin.recover" || events[1].Success {
 		t.Fatalf("recovery audit = %#v", events)
+	}
+}
+
+func TestLifecycleServiceAuditsMigrationAndRollback(t *testing.T) {
+	operators := &operator.Store{}
+	digest := func(string) string { return "digest" }
+	_, _ = operators.Bootstrap("admin", "secret", digest)
+	if err := operators.Authenticate("admin", "secret", digest); err != nil {
+		t.Fatal(err)
+	}
+	service := admin.NewLifecycleService(operators, plugin.NewRegistry(1))
+	actor := operator.Actor{ID: "admin", Kind: operator.ActorOperator}
+	if err := service.RunMigration(actor, "42", func() error { return nil }); err != nil {
+		t.Fatal(err)
+	}
+	manifest := deploy.ReleaseManifest{
+		CommitSHA:                  "0123456789abcdef0123456789abcdef01234567",
+		Backend:                    "backend@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+		Compiler:                   "compiler@sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+		Runner:                     "runner@sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+		PackagedIsolationVerified:  true,
+		PackagedRevocationVerified: true,
+	}
+	if _, err := service.SelectRollbackManifest(actor, manifest, false); !errors.Is(err, deploy.ErrIncompatibleRollbackSchema) {
+		t.Fatalf("rollback result = %v", err)
+	}
+	events := operators.Audit()
+	if len(events) != 3 || events[1].Action != "migration.apply" || !events[1].Success || events[2].Action != "release.rollback" || events[2].Success {
+		t.Fatalf("migration/rollback audit = %#v", events)
 	}
 }
