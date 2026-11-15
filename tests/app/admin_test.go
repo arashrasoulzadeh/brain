@@ -54,3 +54,28 @@ func TestServerWiresAuthenticatedAdminCommand(t *testing.T) {
 		t.Fatalf("admin command audit = %#v", events)
 	}
 }
+
+func TestAdminHandlerRecognizesLifecycleOperations(t *testing.T) {
+	operators := &operator.Store{}
+	digest := func(string) string { return "digest" }
+	if _, err := operators.Bootstrap("admin", "secret", digest); err != nil {
+		t.Fatal(err)
+	}
+	if err := operators.Authenticate("admin", "secret", digest); err != nil {
+		t.Fatal(err)
+	}
+	service := admin.NewLifecycleService(operators, plugin.NewRegistry(1))
+	actor := operator.Actor{ID: "admin", Kind: operator.ActorOperator}
+	for _, operation := range []string{
+		"plugin.revoke", "plugin.promote", "plugin.drain", "plugin.stop-immediate",
+		"plugin.recover", "plugin.rollback", "project.uninstall", "durable-data.delete",
+	} {
+		request := httptest.NewRequest(http.MethodPost, "/admin/actions", strings.NewReader(`{"operation":"`+operation+`","project_id":"dev","plugin_id":"rooms","version":"1.0.0","key":"state"}`))
+		request = request.WithContext(operator.WithActor(context.Background(), actor))
+		recorder := httptest.NewRecorder()
+		app.AdminHandler(service).ServeHTTP(recorder, request)
+		if recorder.Code == http.StatusBadRequest {
+			t.Fatalf("operation %q was not recognized", operation)
+		}
+	}
+}

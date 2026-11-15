@@ -15,6 +15,7 @@ type adminCommand struct {
 	Version    string         `json:"version"`
 	Capability string         `json:"capability"`
 	Resource   string         `json:"resource"`
+	Key        string         `json:"key"`
 	Values     map[string]any `json:"values"`
 }
 
@@ -47,6 +48,22 @@ func AdminHandler(service *admin.LifecycleService) http.Handler {
 			err = service.GrantResource(actor, command.ProjectID, command.PluginID, command.Version, command.Capability, command.Resource)
 		case "plugin.configure":
 			err = service.ConfigurePlugin(actor, command.ProjectID, command.PluginID, command.Version, command.Values)
+		case "plugin.revoke":
+			err = service.RevokeCapability(actor, command.ProjectID, command.PluginID, command.Version, command.Capability)
+		case "plugin.promote":
+			err = service.PromotePlugin(actor, command.ProjectID, command.PluginID, command.Version)
+		case "plugin.drain":
+			err = service.DrainPlugin(actor, command.ProjectID, command.PluginID, command.Version)
+		case "plugin.stop-immediate":
+			err = service.StopPluginImmediately(actor, command.ProjectID, command.PluginID, command.Version)
+		case "plugin.recover":
+			err = service.RecoverPlugin(actor, command.ProjectID, command.PluginID, command.Version)
+		case "plugin.rollback":
+			err = service.RollbackPlugin(actor, command.ProjectID, command.PluginID, command.Version)
+		case "project.uninstall":
+			err = service.UninstallProject(actor, command.ProjectID)
+		case "durable-data.delete":
+			err = service.DeleteDurableData(actor, command.ProjectID, command.PluginID, command.Key)
 		default:
 			http.Error(w, "unsupported admin operation", http.StatusBadRequest)
 			return
