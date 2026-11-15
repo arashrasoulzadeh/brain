@@ -27,6 +27,8 @@ const copy = {
     enabled: "Enabled",
     disabled: "Disabled",
     invalid: "Invalid operator credentials",
+    install: "Install",
+    installedLabel: "Installed",
   },
   fa: {
     eyebrow: "پنل مدیریت برین",
@@ -50,6 +52,8 @@ const copy = {
     enabled: "فعال",
     disabled: "غیرفعال",
     invalid: "اطلاعات ورود نادرست است",
+    install: "نصب",
+    installedLabel: "نصب‌شده",
   },
 };
 export default function AdminPage() {
@@ -110,6 +114,16 @@ export default function AdminPage() {
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Could not create project");
     }
+  }
+  async function installPlugin(manifest: PluginManifest) {
+    setError("");
+    const project = projects.find((candidate) => candidate.Active);
+    if (!project) { setError("Create an active project first"); return; }
+    try {
+      const response = await fetch("/api/admin/actions", { method: "POST", headers: { authorization: `Bearer ${session}`, "content-type": "application/json" }, body: JSON.stringify({ operation: "plugin.install", project_id: project.ID, plugin_id: manifest.ID, version: manifest.Version }) });
+      if (!response.ok) throw new Error(await response.text());
+      await loadPlugins(session);
+    } catch (reason) { setError(reason instanceof Error ? reason.message : "Could not install plugin"); }
   }
   const switcher = (
     <button
@@ -191,7 +205,7 @@ export default function AdminPage() {
         </div>
         <section className="section">
           <div className="section-heading"><div><p className="eyebrow">{text.plugins}</p><h2>{text.registered}</h2></div><span className="count">{manifests.length}</span></div>
-          <div className="plugin-grid">{manifests.length ? manifests.map((manifest) => <article className="plugin" key={`${manifest.ID}@${manifest.Version}`}><div><h3>{manifest.Title || manifest.ID}</h3><p className="muted">{manifest.Description}</p></div><small>{manifest.ID}@{manifest.Version}</small><div className="capabilities">{manifest.Capabilities?.slice(0, 3).map((capability) => <span key={capability}>{capability}</span>)}</div></article>) : <p className="muted">{text.empty}</p>}</div>
+          <div className="plugin-grid">{manifests.length ? manifests.map((manifest) => { const installed = installations.some((item) => item.PluginID === manifest.ID && item.Version === manifest.Version); return <article className="plugin" key={`${manifest.ID}@${manifest.Version}`}><div><h3>{manifest.Title || manifest.ID}</h3><p className="muted">{manifest.Description}</p></div><small>{manifest.ID}@{manifest.Version}</small><div className="capabilities">{manifest.Capabilities?.slice(0, 3).map((capability) => <span key={capability}>{capability}</span>)}</div><button className="plugin-action" disabled={installed} onClick={() => installPlugin(manifest)}>{installed ? text.installedLabel : text.install}</button></article>; }) : <p className="muted">{text.empty}</p>}</div>
         </section>
         <section className="section"><div className="section-heading"><div><p className="eyebrow">{text.plugins}</p><h2>{text.installed}</h2></div><span className="count">{installations.length}</span></div><div>{installations.map((installation) => <div className="project" key={`${installation.PluginID}@${installation.Version}`}><span>{installation.PluginID}@{installation.Version}</span><small>{installation.Enabled ? text.enabled : text.disabled} · {installation.Ready ? text.ready : text.notReady}</small></div>)}</div></section>
       </section>

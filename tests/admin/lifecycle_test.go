@@ -26,6 +26,31 @@ func TestLifecycleServiceRequiresAuthenticatedOperator(t *testing.T) {
 	}
 }
 
+func TestLifecycleServiceInstallsPluginAndAuditsAction(t *testing.T) {
+	operators := &operator.Store{}
+	digest := func(string) string { return "digest" }
+	if _, err := operators.Bootstrap("admin", "secret", digest); err != nil {
+		t.Fatal(err)
+	}
+	if err := operators.Authenticate("admin", "secret", digest); err != nil {
+		t.Fatal(err)
+	}
+	registry := plugin.NewRegistry(1)
+	if err := registry.Register(plugin.Manifest{ID: "rooms", Version: "1.0.0", HostAPI: 1, Entry: "index.ts", SourceFiles: []string{"index.ts"}}); err != nil {
+		t.Fatal(err)
+	}
+	service := admin.NewLifecycleService(operators, registry)
+	if err := service.InstallPlugin(operator.Actor{ID: "admin", Kind: operator.ActorOperator}, "dev", "rooms", "1.0.0"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := registry.Status("dev", "rooms", "1.0.0"); err != nil {
+		t.Fatal(err)
+	}
+	if events := operators.Audit(); len(events) != 2 || events[1].Action != "plugin.install" || !events[1].Success {
+		t.Fatalf("install audit = %#v", events)
+	}
+}
+
 func TestLifecycleServiceRoutesAuthorizedActionAndAuditsFailure(t *testing.T) {
 	operators := &operator.Store{}
 	digest := func(string) string { return "digest" }

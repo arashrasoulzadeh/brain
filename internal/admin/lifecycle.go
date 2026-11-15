@@ -46,6 +46,12 @@ func (s *LifecycleService) ListPlugins(actor operator.Actor, projectID string) (
 	return s.registry.RegisteredManifests(), s.registry.InstallationStatuses(projectID), nil
 }
 
+func (s *LifecycleService) InstallPlugin(actor operator.Actor, projectID, pluginID, version string) error {
+	return s.execute(actor, "plugin.install", func() error {
+		return s.registry.Install(projectID, pluginID, version)
+	})
+}
+
 func (s *LifecycleService) GrantCapability(actor operator.Actor, projectID, pluginID, version, capability string) error {
 	return s.execute(actor, "plugin.grant", func() error {
 		return s.registry.Grant(projectID, pluginID, version, capability)

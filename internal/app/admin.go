@@ -158,6 +158,8 @@ func AdminHandler(service *admin.LifecycleService) http.Handler {
 		switch command.Operation {
 		case "project.create":
 			err = service.CreateProject(actor, command.ProjectID)
+		case "plugin.install":
+			err = service.InstallPlugin(actor, command.ProjectID, command.PluginID, command.Version)
 		case "plugin.enable":
 			err = service.EnablePlugin(actor, command.ProjectID, command.PluginID, command.Version)
 		case "plugin.remove":
