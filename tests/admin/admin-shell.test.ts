@@ -44,4 +44,5 @@ test("the shared shell owns the only sidebar implementation", async () => {
   const source = await readFile(join(root, "admin-nextjs/app/components/admin-chrome.tsx"), "utf8");
   assert.equal(source.match(/export function AdminSidebar\b/g)?.length ?? 0, 1);
   assert.equal(source.match(/<aside className="sidebar">/g)?.length ?? 0, 1);
+  assert.match(source, /setDiscoveredPages\(\["projects".*"audit"/s);
 });

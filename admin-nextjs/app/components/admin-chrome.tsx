@@ -21,7 +21,7 @@ export function AdminSidebar({ activePage, projectID, onSignOut, title = "Projec
       if (!response.ok) return;
       const payload = await response.json() as { manifests: Array<{ ID: string }>; installations: Array<{ PluginID: string; Enabled: boolean; Ready: boolean }> };
       const enabled = new Set(payload.installations.filter((installation) => installation.Enabled && installation.Ready).map((installation) => installation.PluginID));
-      setDiscoveredPages(["projects", ...(payload.manifests.length ? ["plugins"] : []), ...(enabled.has("dashboard") ? ["system"] : []), ...(enabled.has("tables") ? ["database"] : []), ...(enabled.has("functions") ? ["functions", "workflows"] : []), ...(enabled.has("files") ? ["files"] : []), ...(enabled.has("rooms") || enabled.has("matchmaking") ? ["live-sessions"] : []), ...(enabled.size ? ["routes", "monitoring", "workers"] : [])]);
+      setDiscoveredPages(["projects", ...(payload.manifests.length ? ["plugins"] : []), "audit", ...(enabled.has("dashboard") ? ["system"] : []), ...(enabled.has("tables") ? ["database"] : []), ...(enabled.has("functions") ? ["functions", "workflows"] : []), ...(enabled.has("files") ? ["files"] : []), ...(enabled.has("rooms") || enabled.has("matchmaking") ? ["live-sessions"] : []), ...(enabled.size ? ["routes", "monitoring", "workers"] : [])]);
     }).catch(() => undefined);
   }, [visiblePages]);
   const allowedPages = visiblePages ?? discoveredPages;
