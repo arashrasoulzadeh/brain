@@ -106,10 +106,10 @@ export default function AdminPage() {
   const text = copy[language];
   useEffect(() => {
     if (!session) return;
-    const refresh = () => Promise.all([loadProjects(session), loadPlugins(session), loadAudit(session), loadSystem(session)]).catch(() => undefined);
+    const refresh = () => Promise.all([loadProjects(session), loadPlugins(session, selectedProjectID), loadAudit(session), loadSystem(session)]).catch(() => undefined);
     const timer = window.setInterval(refresh, 10000);
     return () => window.clearInterval(timer);
-  }, [session]);
+  }, [session, selectedProjectID]);
   async function loadProjects(token: string): Promise<Project[]> {
     const response = await fetch("/api/admin/projects", {
       headers: { authorization: `Bearer ${token}` },
@@ -119,8 +119,9 @@ export default function AdminPage() {
     setProjects(loadedProjects);
     return loadedProjects;
   }
-  async function loadPlugins(token: string) {
-    const response = await fetch("/api/admin/plugins", { headers: { authorization: `Bearer ${token}` } });
+  async function loadPlugins(token: string, projectID = selectedProjectID) {
+    const query = projectID ? `?project_id=${encodeURIComponent(projectID)}` : "";
+    const response = await fetch(`/api/admin/plugins${query}`, { headers: { authorization: `Bearer ${token}` } });
     if (!response.ok) throw new Error("Could not load plugins");
     const result = (await response.json()) as { manifests: PluginManifest[]; installations: PluginStatus[] };
     setManifests(result.manifests);
@@ -150,7 +151,7 @@ export default function AdminPage() {
       setSession(token);
       const loadedProjects = await loadProjects(token);
       setSelectedProjectID(loadedProjects.find((project) => project.Active)?.ID ?? "");
-      await loadPlugins(token);
+      await loadPlugins(token, loadedProjects.find((project) => project.Active)?.ID ?? "");
       await loadAudit(token);
       await loadSystem(token);
     } catch (reason) {
@@ -180,7 +181,7 @@ export default function AdminPage() {
     try {
       const response = await fetch("/api/admin/actions", { method: "POST", headers: { authorization: `Bearer ${session}`, "content-type": "application/json" }, body: JSON.stringify({ operation: "plugin.install", project_id: project.ID, plugin_id: manifest.ID, version: manifest.Version }) });
       if (!response.ok) throw new Error(await response.text());
-      await loadPlugins(session);
+      await loadPlugins(session, selectedProjectID);
     } catch (reason) { setError(reason instanceof Error ? reason.message : "Could not install plugin"); }
   }
   async function uninstallProject(project: Project) {
@@ -190,7 +191,7 @@ export default function AdminPage() {
     if (!response.ok) { setError(await response.text()); return; }
     const loadedProjects = await loadProjects(session);
     setSelectedProjectID(loadedProjects.find((candidate) => candidate.Active)?.ID ?? "");
-    await loadPlugins(session); await loadAudit(session);
+    await loadPlugins(session, loadedProjects.find((candidate) => candidate.Active)?.ID ?? ""); await loadAudit(session);
   }
   async function runPluginAction(operation: string, installation: PluginStatus) {
     setError("");
@@ -201,7 +202,7 @@ export default function AdminPage() {
     if ((operation === "plugin.remove" || operation === "plugin.rollback" || operation === "plugin.stop-immediate") && !window.confirm(`${operation} ${installation.PluginID}@${installation.Version}?`)) return;
     const response = await fetch("/api/admin/actions", { method: "POST", headers: { authorization: `Bearer ${session}`, "content-type": "application/json" }, body: JSON.stringify({ operation, project_id: project.ID, plugin_id: installation.PluginID, version: installation.Version, capability, ready: operation === "plugin.readiness", confirmed: ["plugin.remove", "plugin.rollback", "plugin.stop-immediate"].includes(operation) }) });
     if (!response.ok) { setError(await response.text()); return; }
-    await loadPlugins(session); await loadAudit(session);
+    await loadPlugins(session, selectedProjectID); await loadAudit(session);
   }
   const switcher = (
     <button
@@ -260,7 +261,7 @@ export default function AdminPage() {
           </div>
         </div>
         <nav className="admin-nav" aria-label={text.navigation}><a href="#projects">{text.projects}</a><a href="#plugins">{text.plugins}</a><a href="#system">{text.system}</a><a href="#audit">{text.audit}</a></nav>
-        <div className="project-selector"><label htmlFor="selected-project">{text.project}</label><select id="selected-project" value={selectedProjectID} onChange={(event) => setSelectedProjectID(event.target.value)}><option value="">—</option>{projects.map((project) => <option key={project.ID} value={project.ID} disabled={!project.Active}>{project.ID}{project.Active ? "" : " (inactive)"}</option>)}</select></div>
+        <div className="project-selector"><label htmlFor="selected-project">{text.project}</label><select id="selected-project" value={selectedProjectID} onChange={(event) => { const nextProjectID = event.target.value; setSelectedProjectID(nextProjectID); void loadPlugins(session, nextProjectID); }}><option value="">—</option>{projects.map((project) => <option key={project.ID} value={project.ID} disabled={!project.Active}>{project.ID}{project.Active ? "" : " (inactive)"}</option>)}</select></div>
         <form className="create" onSubmit={createProject}>
           <input
             placeholder={text.newProject}
