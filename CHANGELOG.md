@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `805c0de` — 2026-11-15 13:36:11 +0330 — show complete plugin manifest catalog
+  Files: admin-nextjs/app/page.tsx
+- `35d7bfe` — 2026-11-15 10:05:22 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `a8b84db` — 2026-11-15 13:35:08 +0330 — gate admin actions by plugin capabilities
   Files: admin-nextjs/app/page.tsx
 - `74b8735` — 2026-11-15 10:04:11 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `ea3e8fc` — 2026-11-15 13:08:20 +0330 — add plugin readiness control
   Files: admin-nextjs/app/page.tsx,internal/admin/lifecycle.go internal/app/admin.go,tests/admin/lifecycle_test.go
 - `2768bf2` — 2026-11-15 09:37:27 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `d38d7f5` — 2026-11-15 13:07:14 +0330 — add plugin lifecycle controls
-  Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css
-- `52f77ca` — 2026-11-15 09:36:32 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
