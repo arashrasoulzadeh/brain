@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `e6fe011` — 2026-11-15 13:22:05 +0330 — expose complete plugin capability controls
+  Files: admin-nextjs/app/page.tsx
+- `daf9d9a` — 2026-11-15 09:51:02 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `8319f63` — 2026-11-15 13:20:49 +0330 — add manifest driven plugin configuration
   Files: admin-nextjs/app/page.tsx
 - `f577901` — 2026-11-15 09:49:36 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `7984810` — 2026-11-15 12:43:09 +0330 — add dashboard admin panel and login client
   Files: clients/javascript/src/admin.ts,clients/javascript/src/index.ts plugins/dashboard/admin-panel.ts,plugins/dashboard/index.ts plugins/dashboard/plugin.yaml,tests/client/admin-client.test.ts tests/dashboard/dashboard.test.ts
 - `60b0376` — 2026-11-15 09:09:45 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `88f7b87` — 2026-11-15 12:39:23 +0330 — mark packaged admin verification complete
-  Files: roadmap_admin.md
-- `64162e9` — 2026-11-15 09:09:26 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
