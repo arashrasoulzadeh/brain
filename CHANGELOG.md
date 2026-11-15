@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `b49cb7d` — 2026-11-15 12:24:56 +0330 — mark operator session isolation complete
+  Files: roadmap_backend.md
+- `df33381` — 2026-11-15 08:54:56 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `a51ac81` — 2026-11-15 12:24:41 +0330 — verify operator session isolation
   Files: tests/auth/auth.test.ts
 - `8084f95` — 2026-11-15 08:54:19 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `ef5fe97` — 2026-11-15 02:29:50 +0330 — validate caller project context
   Files: internal/project/transaction_context.go,tests/project/transaction_context_test.go
 - `9b74e34` — 2026-11-14 22:59:23 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `132673c` — 2026-11-15 02:29:05 +0330 — reap terminated typescript workers
-  Files: internal/plugin/typescript_worker.go,tests/plugin/typescript_worker_test.go
-- `1efb3ad` — 2026-11-14 22:58:37 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
