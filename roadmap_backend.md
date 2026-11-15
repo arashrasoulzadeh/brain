@@ -9,7 +9,7 @@ Backend infrastructure, release, deployment, backup, capacity, and security work
 - [x] Require host-authenticated execution context for every production plugin handler. Verified by project middleware trust checks, broker authorization, worker invocation binding, credential tamper/replay tests, and publish-credential boundary tests.
 - [x] Bind every production commit to a single-use host-issued invocation credential. Verified by credential project/operation binding, tamper rejection, replay rejection, concurrent single-use, and revoked-grant recheck tests; raw host-call commits remain test-only.
 - [ ] Complete a deep security audit across every plugin and add regression tests for every finding.
-- [ ] Keep operator access separate from end-user access.
+- [x] Keep operator access separate from end-user access. Verified by isolated operator/end-user token stores, cross-use rejection tests, and operator revocation coverage in `tests/auth/auth.test.ts`.
 - [ ] Treat destructive actions, migrations, releases, and permission changes as audited operations.
 
 ## Backup and restore
