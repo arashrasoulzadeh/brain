@@ -18,5 +18,23 @@ func ValidateComposeConfig(raw []byte) error {
 	if len(document.Services["brain"]) == 0 || len(document.Services["postgres"]) == 0 {
 		return ErrInvalidComposeConfig
 	}
+	for _, service := range []map[string]any{document.Services["brain"], document.Services["postgres"]} {
+		if serviceUsesHostIsolation(service) {
+			return ErrInvalidComposeConfig
+		}
+	}
 	return nil
+}
+
+func serviceUsesHostIsolation(service map[string]any) bool {
+	if privileged, ok := service["privileged"].(bool); ok && privileged {
+		return true
+	}
+	if networkMode, ok := service["network_mode"].(string); ok && networkMode == "host" {
+		return true
+	}
+	if pidMode, ok := service["pid"].(string); ok && pidMode == "host" {
+		return true
+	}
+	return false
 }
