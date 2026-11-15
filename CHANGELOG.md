@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `f678310` — 2026-11-15 13:54:11 +0330 — refine project management screen
+  Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css internal/admin/lifecycle.go,internal/app/admin.go internal/project/project.go,tests/app/admin_test.go tests/project/project_test.go
+- `9a3af4c` — 2026-11-15 10:19:55 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `84e45a3` — 2026-11-15 13:49:41 +0330 — add global admin project context
   Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css
 - `ee540be` — 2026-11-15 10:18:47 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `e6fe011` — 2026-11-15 13:22:05 +0330 — expose complete plugin capability controls
   Files: admin-nextjs/app/page.tsx
 - `daf9d9a` — 2026-11-15 09:51:02 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `8319f63` — 2026-11-15 13:20:49 +0330 — add manifest driven plugin configuration
-  Files: admin-nextjs/app/page.tsx
-- `f577901` — 2026-11-15 09:49:36 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
