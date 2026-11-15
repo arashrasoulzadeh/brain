@@ -71,3 +71,17 @@ func TestFunctionDraftPreflightAcceptsExportedHandler(t *testing.T) {
 		t.Fatalf("preflight result = %#v, err = %v", result, err)
 	}
 }
+
+func TestPublicFunctionUsesMethodDeclaredInSource(t *testing.T) {
+	service := admin.NewLifecycleService(nil, nil)
+	actor := operator.Actor{ID: "admin", Kind: operator.ActorOperator}
+	if _, err := service.CreateFunctionDraftWithSettings(actor, "dev", "public_method", "export const config = { method: 'POST' };\nexport default (input) => input", 1, false, nil, "GET"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := service.PublishFunction(actor, "dev", "public_method", "GET"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := service.PublicInvokeFunction("dev", "public_method", "GET", nil); !errors.Is(err, admin.ErrFunctionMethodNotAllowed) {
+		t.Fatalf("GET error = %v, want method denial", err)
+	}
+}

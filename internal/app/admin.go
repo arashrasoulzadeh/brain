@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/url"
 	"strings"
@@ -358,6 +359,11 @@ func PublicFunctionHandler(service *admin.LifecycleService) http.Handler {
 		}
 		result, err := service.PublicInvokeFunction(r.PathValue("project_id"), r.PathValue("function_name"), r.Method, input)
 		if err != nil {
+			if errors.Is(err, admin.ErrFunctionMethodNotAllowed) {
+				w.Header().Set("Allow", "GET, POST, PUT, PATCH")
+				http.Error(w, err.Error(), http.StatusMethodNotAllowed)
+				return
+			}
 			http.Error(w, "public function unavailable", http.StatusNotFound)
 			return
 		}

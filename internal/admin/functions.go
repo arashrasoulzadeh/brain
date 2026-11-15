@@ -17,6 +17,7 @@ import (
 
 var ErrFunctionDraftInvalid = errors.New("function draft requires a name and source")
 var ErrFunctionSourceInvalid = errors.New("function source must export a handler and may not use host or network access")
+var ErrFunctionMethodNotAllowed = errors.New("function method not allowed")
 
 var functionExportPattern = regexp.MustCompile(`(?m)\bexport\s+default\b`)
 var functionUnsafePattern = regexp.MustCompile(`(?m)\b(import|require|process|child_process|fs|net|fetch|Deno)\b`)
@@ -274,7 +275,7 @@ func (s *LifecycleService) PublicInvokeFunction(projectID, name, method string, 
 		}
 	}
 	if strings.ToUpper(strings.TrimSpace(method)) != draft.Method {
-		return nil, errors.New("function method not allowed")
+		return nil, ErrFunctionMethodNotAllowed
 	}
 	return s.RunFunctionDraft(operator.Actor{Kind: operator.ActorOperator}, projectID, draft.Name, draft.Source, input)
 }
