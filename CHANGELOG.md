@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `b24f115` — 2026-11-15 19:16:22 +0330 — guard plugin pages by lifecycle state
+  Files: admin-nextjs/app/components/admin-chrome.tsx,admin-nextjs/app/functions/[name]/page.tsx admin-nextjs/app/functions/new/page.tsx,admin-nextjs/app/functions/page.tsx admin-nextjs/app/page.tsx,admin-nextjs/app/workflows/page.tsx
+- `58242df` — 2026-11-15 15:38:12 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `13d6415` — 2026-11-15 19:07:57 +0330 — fix local operator login setup
   Files: admin-nextjs/app/page.tsx,docs/admins.md scripts/start-local.sh
 - `1ef4bac` — 2026-11-15 15:35:59 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `31ab0b1` — 2026-11-15 17:02:58 +0330 — report runtime worker health in admin
   Files: admin-nextjs/app/page.tsx,internal/plugin/plugin.go
 - `f6f8c50` — 2026-11-15 13:32:03 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `3c63b7b` — 2026-11-15 17:01:43 +0330 — start plugin workers with dependency ordering
-  Files: cmd/brain/main.go,internal/plugin/worker.go
-- `c2508f8` — 2026-11-15 13:30:42 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
