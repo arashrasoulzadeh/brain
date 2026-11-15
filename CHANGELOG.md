@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `4680c1f` — 2026-11-15 12:24:06 +0330 — harden data and deployment project boundaries
+  Files: plugins/functions/authorize-deployment-plugin.ts,plugins/tables/api-change-writer.ts plugins/tables/plan-schema-change.ts,plugins/tables/sql-change-writer.ts plugins/tables/transaction-change-writer.ts,tests/functions/workflow-components.test.ts tests/tables/tables.test.ts
+- `38c9c5d` — 2026-11-15 08:53:21 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `dd932b3` — 2026-11-15 12:23:09 +0330 — harden dashboard project boundaries
   Files: plugins/dashboard/auth-settings-page.ts,plugins/dashboard/browser-quickstart.ts plugins/dashboard/form-audit-recorder.ts,plugins/dashboard/host-owned-admin-view.ts plugins/dashboard/plugin-health-contribution.ts,plugins/dashboard/project-overview-contribution.ts plugins/dashboard/record-browser-page.ts,plugins/dashboard/record-edit-page.ts plugins/dashboard/signup-settings-page.ts,plugins/dashboard/table-management-page.ts tests/dashboard/dashboard.test.ts
 - `39688df` — 2026-11-15 08:52:04 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `abe7af7` — 2026-11-15 02:28:26 +0330 — validate supervisor project teardown
   Files: internal/plugin/supervisor.go,tests/plugin/supervisor_test.go
 - `cf64875` — 2026-11-14 22:58:07 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `958cd76` — 2026-11-15 02:27:51 +0330 — harden websocket project boundaries
-  Files: internal/plugin/websocket_endpoint.go,internal/plugin/websocket_registry.go tests/plugin/websocket_endpoint_test.go,tests/plugin/websocket_registry_test.go
-- `f2cbb2b` — 2026-11-14 22:57:28 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
