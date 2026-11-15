@@ -148,3 +148,29 @@ func TestOperatorSessionHandlerIssuesBearerSession(t *testing.T) {
 		t.Fatal("issued session was not valid")
 	}
 }
+
+func TestAuthenticatedPluginsHandlerReturnsInventory(t *testing.T) {
+	operators := &operator.Store{}
+	digest := func(string) string { return "digest" }
+	if _, err := operators.Bootstrap("admin", "secret", digest); err != nil {
+		t.Fatal(err)
+	}
+	if err := operators.Authenticate("admin", "secret", digest); err != nil {
+		t.Fatal(err)
+	}
+	token, err := operators.IssueSession(func() string { return "plugin-inventory-token" })
+	if err != nil {
+		t.Fatal(err)
+	}
+	service := admin.NewLifecycleServiceWithProjects(operators, plugin.NewRegistry(1), nil)
+	request := httptest.NewRequest(http.MethodGet, "/admin/plugins", nil)
+	request.Header.Set("Authorization", "Bearer "+token)
+	recorder := httptest.NewRecorder()
+	app.AuthenticatedPluginsHandler(service, operators).ServeHTTP(recorder, request)
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("plugin inventory status = %d, want %d", recorder.Code, http.StatusOK)
+	}
+	if !strings.Contains(recorder.Body.String(), "manifests") || !strings.Contains(recorder.Body.String(), "installations") {
+		t.Fatalf("plugin inventory body = %q", recorder.Body.String())
+	}
+}

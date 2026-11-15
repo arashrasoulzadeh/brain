@@ -100,6 +100,7 @@ button {
 .project small {
   color: #2c8a62;
 }
+.section{margin-top:40px}.section-heading{display:flex;justify-content:space-between;align-items:center}.section-heading h2{margin:4px 0 16px;font-size:22px}.count{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#eef3fc;color:#3569d4;font-weight:800}.plugin-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.plugin{border:1px solid #e1e7f0;border-radius:14px;padding:18px}.plugin h3{margin:0 0 8px}.plugin p{font-size:14px;min-height:40px}.plugin small{color:#53627b}.capabilities{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}.capabilities span{font-size:11px;padding:4px 7px;border-radius:999px;background:#f0f4fa;color:#52627c}
 .error {
   color: #b42318;
 }

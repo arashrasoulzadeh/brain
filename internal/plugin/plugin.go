@@ -314,6 +314,51 @@ func NewRegistry(hostAPI int) *Registry {
 	return &Registry{HostAPI: hostAPI, registered: map[string]Registered{}, installations: map[string]Installation{}, readiness: map[string]bool{}, active: map[string]string{}, pins: map[string]string{}, artifacts: map[string]string{}, approvals: map[string]bool{}, durableData: map[string][]byte{}}
 }
 
+func (r *Registry) RegisteredManifests() []Manifest {
+	r.readinessMu.RLock()
+	defer r.readinessMu.RUnlock()
+	manifests := make([]Manifest, 0, len(r.registered))
+	for _, registered := range r.registered {
+		manifests = append(manifests, registered.Manifest)
+	}
+	sort.Slice(manifests, func(left, right int) bool {
+		if manifests[left].ID == manifests[right].ID {
+			return manifests[left].Version < manifests[right].Version
+		}
+		return manifests[left].ID < manifests[right].ID
+	})
+	return manifests
+}
+
+func (r *Registry) InstallationStatuses(projectID string) []InstallationStatus {
+	r.installationMu.RLock()
+	keys := make([]string, 0, len(r.installations))
+	for key, installation := range r.installations {
+		if projectID == "" || installation.ProjectID == projectID {
+			keys = append(keys, key)
+		}
+	}
+	installations := make([]Installation, 0, len(keys))
+	for _, key := range keys {
+		installations = append(installations, r.installations[key])
+	}
+	r.installationMu.RUnlock()
+	sort.Slice(installations, func(left, right int) bool {
+		if installations[left].PluginID == installations[right].PluginID {
+			return installations[left].Version < installations[right].Version
+		}
+		return installations[left].PluginID < installations[right].PluginID
+	})
+	statuses := make([]InstallationStatus, 0, len(installations))
+	for _, installation := range installations {
+		status, err := r.Status(installation.ProjectID, installation.PluginID, installation.Version)
+		if err == nil {
+			statuses = append(statuses, status)
+		}
+	}
+	return statuses
+}
+
 func (r *Registry) SaveDurableData(projectID, pluginID, key string, value []byte) error {
 	if !isValidProjectID(projectID) || pluginID == "" || key == "" {
 		return ErrProjectInvalid

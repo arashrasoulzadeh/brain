@@ -94,6 +94,33 @@ func AuthenticatedProjectsHandler(service *admin.LifecycleService, sessions *ope
 	})
 }
 
+func AuthenticatedPluginsHandler(service *admin.LifecycleService, sessions *operator.Store) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet || service == nil || sessions == nil {
+			http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+			return
+		}
+		const prefix = "Bearer "
+		header := r.Header.Get("Authorization")
+		if !strings.HasPrefix(header, prefix) {
+			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+			return
+		}
+		actor, ok := sessions.ValidateSession(strings.TrimPrefix(header, prefix))
+		if !ok {
+			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+			return
+		}
+		manifests, installations, err := service.ListPlugins(actor, r.URL.Query().Get("project_id"))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusForbidden)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]any{"manifests": manifests, "installations": installations})
+	})
+}
+
 type adminCommand struct {
 	Operation  string         `json:"operation"`
 	ProjectID  string         `json:"project_id"`

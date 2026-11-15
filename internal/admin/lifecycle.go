@@ -39,6 +39,13 @@ func (s *LifecycleService) ListProjects(actor operator.Actor) ([]project.Project
 	return s.projects.List(), nil
 }
 
+func (s *LifecycleService) ListPlugins(actor operator.Actor, projectID string) ([]plugin.Manifest, []plugin.InstallationStatus, error) {
+	if actor.Kind != operator.ActorOperator || s.registry == nil {
+		return nil, nil, operator.ErrInvalidOperatorAction
+	}
+	return s.registry.RegisteredManifests(), s.registry.InstallationStatuses(projectID), nil
+}
+
 func (s *LifecycleService) GrantCapability(actor operator.Actor, projectID, pluginID, version, capability string) error {
 	return s.execute(actor, "plugin.grant", func() error {
 		return s.registry.Grant(projectID, pluginID, version, capability)

@@ -1,6 +1,8 @@
 "use client";
 import { FormEvent, useState } from "react";
 type Project = { ID: string; Active: boolean };
+type PluginManifest = { ID: string; Title: string; Description: string; Version: string; Capabilities: string[] };
+type PluginStatus = { PluginID: string; Version: string; Enabled: boolean; Ready: boolean; Draining: boolean };
 type Language = "en" | "fa";
 const copy = {
   en: {
@@ -17,6 +19,13 @@ const copy = {
     empty: "No projects yet.",
     active: "Active",
     inactive: "Inactive",
+    plugins: "Plugins",
+    registered: "Registered plugins",
+    installed: "Installed versions",
+    ready: "Ready",
+    notReady: "Not ready",
+    enabled: "Enabled",
+    disabled: "Disabled",
     invalid: "Invalid operator credentials",
   },
   fa: {
@@ -33,6 +42,13 @@ const copy = {
     empty: "هنوز پروژه‌ای وجود ندارد.",
     active: "فعال",
     inactive: "غیرفعال",
+    plugins: "افزونه‌ها",
+    registered: "افزونه‌های ثبت‌شده",
+    installed: "نسخه‌های نصب‌شده",
+    ready: "آماده",
+    notReady: "آماده نیست",
+    enabled: "فعال",
+    disabled: "غیرفعال",
     invalid: "اطلاعات ورود نادرست است",
   },
 };
@@ -40,6 +56,8 @@ export default function AdminPage() {
   const [language, setLanguage] = useState<Language>("en");
   const [session, setSession] = useState("");
   const [projects, setProjects] = useState<Project[]>([]);
+  const [manifests, setManifests] = useState<PluginManifest[]>([]);
+  const [installations, setInstallations] = useState<PluginStatus[]>([]);
   const [username, setUsername] = useState("");
   const [secret, setSecret] = useState("");
   const [projectID, setProjectID] = useState("");
@@ -51,6 +69,13 @@ export default function AdminPage() {
     });
     if (!response.ok) throw new Error("Could not load projects");
     setProjects((await response.json()) as Project[]);
+  }
+  async function loadPlugins(token: string) {
+    const response = await fetch("/api/admin/plugins", { headers: { authorization: `Bearer ${token}` } });
+    if (!response.ok) throw new Error("Could not load plugins");
+    const result = (await response.json()) as { manifests: PluginManifest[]; installations: PluginStatus[] };
+    setManifests(result.manifests);
+    setInstallations(result.installations);
   }
   async function signIn(event: FormEvent) {
     event.preventDefault();
@@ -65,6 +90,7 @@ export default function AdminPage() {
       const token = ((await response.json()) as { session: string }).session;
       setSession(token);
       await loadProjects(token);
+      await loadPlugins(token);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Sign in failed");
     }
@@ -163,6 +189,11 @@ export default function AdminPage() {
             <p className="muted">{text.empty}</p>
           )}
         </div>
+        <section className="section">
+          <div className="section-heading"><div><p className="eyebrow">{text.plugins}</p><h2>{text.registered}</h2></div><span className="count">{manifests.length}</span></div>
+          <div className="plugin-grid">{manifests.length ? manifests.map((manifest) => <article className="plugin" key={`${manifest.ID}@${manifest.Version}`}><div><h3>{manifest.Title || manifest.ID}</h3><p className="muted">{manifest.Description}</p></div><small>{manifest.ID}@{manifest.Version}</small><div className="capabilities">{manifest.Capabilities?.slice(0, 3).map((capability) => <span key={capability}>{capability}</span>)}</div></article>) : <p className="muted">{text.empty}</p>}</div>
+        </section>
+        <section className="section"><div className="section-heading"><div><p className="eyebrow">{text.plugins}</p><h2>{text.installed}</h2></div><span className="count">{installations.length}</span></div><div>{installations.map((installation) => <div className="project" key={`${installation.PluginID}@${installation.Version}`}><span>{installation.PluginID}@{installation.Version}</span><small>{installation.Enabled ? text.enabled : text.disabled} · {installation.Ready ? text.ready : text.notReady}</small></div>)}</div></section>
       </section>
     </main>
   );

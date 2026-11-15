@@ -38,6 +38,7 @@ func NewServerWithOperatorAdmin(adminService *admin.LifecycleService, sessions *
 	if adminService != nil && sessions != nil {
 		mux.Handle("POST /admin/session", OperatorSessionHandler(sessions, digest))
 		mux.Handle("GET /admin/projects", AuthenticatedProjectsHandler(adminService, sessions))
+		mux.Handle("GET /admin/plugins", AuthenticatedPluginsHandler(adminService, sessions))
 		mux.Handle("POST /admin/actions", AuthenticatedAdminHandler(adminService, sessions))
 	}
 	return &Server{mux: mux}
