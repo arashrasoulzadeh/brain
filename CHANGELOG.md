@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `cf3c26d` — 2026-11-15 13:32:46 +0330 — revoke admin sessions on sign out
+  Files: admin-nextjs/app/page.tsx,internal/app/admin.go internal/app/app.go,tests/app/admin_test.go
+- `19d3c94` — 2026-11-15 10:01:00 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `ede08fd` — 2026-11-15 13:30:45 +0330 — polish dynamic admin plugin views
   Files: admin-nextjs/app/styles.css
 - `c1cfba9` — 2026-11-15 10:00:08 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `fee2da8` — 2026-11-15 13:04:30 +0330 — add plugin install controls to admin
   Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css internal/admin/lifecycle.go,internal/app/admin.go tests/admin/lifecycle_test.go
 - `d270b7a` — 2026-11-15 09:33:32 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `4a5970e` — 2026-11-15 13:03:14 +0330 — add plugin inventory to admin panel
-  Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css internal/admin/lifecycle.go,internal/app/admin.go internal/app/app.go,internal/plugin/plugin.go tests/app/admin_test.go
-- `42f6abe` — 2026-11-15 09:26:12 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
