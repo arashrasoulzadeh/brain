@@ -22,6 +22,10 @@ flowchart TD
 
 Promotion rechecks readiness, configuration compatibility, grants, approvals, and pinned work. Removal and uninstall stop project workers and close project-scoped sockets.
 
+## Authenticated admin API
+
+The packaged admin boundary uses a Go operator session in the trusted host. After operator authentication, send the returned session as `Authorization: Bearer <session>` to `POST /admin/actions`. The host hashes session tokens, rejects missing or revoked sessions, and invalidates all operator sessions during recovery. Destructive operations additionally require `"confirmed": true` and are audited.
+
 ## Security checklist
 
 - Host-authenticate project identity before invoking a plugin.
