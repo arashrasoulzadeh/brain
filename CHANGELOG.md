@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `dad83b2` — 2026-11-15 13:11:27 +0330 — show plugin operations in admin
+  Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css
+- `fbafc59` — 2026-11-15 09:40:57 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `63e749b` — 2026-11-15 13:10:43 +0330 — add system capabilities admin view
   Files: admin-nextjs/app/page.tsx,internal/admin/lifecycle.go internal/app/admin.go,internal/app/app.go tests/app/admin_test.go
 - `0a7ba00` — 2026-11-15 09:39:50 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `7519519` — 2026-11-15 12:33:03 +0330 — mark dashboard routine operations complete
   Files: roadmap_admin.md
 - `00e528d` — 2026-11-15 09:03:01 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `1e442c2` — 2026-11-15 12:32:48 +0330 — add routine dashboard operation pages
-  Files: plugins/dashboard/function-management-page.ts,plugins/dashboard/index.ts plugins/dashboard/live-session-page.ts,plugins/dashboard/plugin.yaml plugins/dashboard/types.ts,plugins/dashboard/workflow-management-page.ts tests/dashboard/dashboard.test.ts
-- `734a219` — 2026-11-15 09:01:57 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
