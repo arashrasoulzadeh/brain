@@ -2,6 +2,7 @@ package admin
 
 import (
 	"errors"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -10,6 +11,10 @@ import (
 )
 
 var ErrFunctionDraftInvalid = errors.New("function draft requires a name and source")
+var ErrFunctionSourceInvalid = errors.New("function source must export a handler and may not use host or network access")
+
+var functionExportPattern = regexp.MustCompile(`(?m)\bexport\s+default\b`)
+var functionUnsafePattern = regexp.MustCompile(`(?m)\b(import|require|process|child_process|fs|net|fetch|Deno)\b`)
 
 type FunctionDraft struct {
 	ProjectID string    `json:"project_id"`
@@ -53,5 +58,8 @@ func (s *LifecycleService) TestFunctionDraft(actor operator.Actor, projectID, na
 	if actor.Kind != operator.ActorOperator || strings.TrimSpace(projectID) == "" || strings.TrimSpace(name) == "" || strings.TrimSpace(source) == "" {
 		return nil, ErrFunctionDraftInvalid
 	}
-	return map[string]any{"valid": true, "project_id": projectID, "name": strings.TrimSpace(name), "source_bytes": len(source), "message": "draft accepted for host compilation"}, nil
+	if !functionExportPattern.MatchString(source) || functionUnsafePattern.MatchString(source) {
+		return nil, ErrFunctionSourceInvalid
+	}
+	return map[string]any{"valid": true, "project_id": projectID, "name": strings.TrimSpace(name), "source_bytes": len(source), "message": "source passed the host preflight and is ready for sandbox compilation"}, nil
 }
