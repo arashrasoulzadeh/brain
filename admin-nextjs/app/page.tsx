@@ -102,12 +102,14 @@ export default function AdminPage() {
   const [selectedProjectID, setSelectedProjectID] = useState("");
   const [error, setError] = useState("");
   const text = copy[language];
-  async function loadProjects(token: string) {
+  async function loadProjects(token: string): Promise<Project[]> {
     const response = await fetch("/api/admin/projects", {
       headers: { authorization: `Bearer ${token}` },
     });
     if (!response.ok) throw new Error("Could not load projects");
-    setProjects((await response.json()) as Project[]);
+    const loadedProjects = (await response.json()) as Project[];
+    setProjects(loadedProjects);
+    return loadedProjects;
   }
   async function loadPlugins(token: string) {
     const response = await fetch("/api/admin/plugins", { headers: { authorization: `Bearer ${token}` } });
@@ -138,8 +140,7 @@ export default function AdminPage() {
       if (!response.ok) throw new Error(text.invalid);
       const token = ((await response.json()) as { session: string }).session;
       setSession(token);
-      await loadProjects(token);
-      const loadedProjects = await (async () => { const response = await fetch("/api/admin/projects", { headers: { authorization: `Bearer ${token}` } }); return (await response.json()) as Project[]; })();
+      const loadedProjects = await loadProjects(token);
       setSelectedProjectID(loadedProjects.find((project) => project.Active)?.ID ?? "");
       await loadPlugins(token);
       await loadAudit(token);
