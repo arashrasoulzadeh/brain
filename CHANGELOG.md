@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `6a00395` — 2026-11-15 14:40:26 +0330 — fix admin login proxy and centering
+  Files: admin-nextjs/app/styles.css,admin-nextjs/next.config.ts
+- `d942b3b` — 2026-11-15 11:06:23 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `a5937ac` — 2026-11-15 14:36:08 +0330 — redirect unauthenticated plugin pages to login
   Files: admin-nextjs/app/plugins/[plugin]/page.tsx
 - `98ce14a` — 2026-11-15 14:34:48 +0330 — add project scoped plugin settings pages
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `a8b84db` — 2026-11-15 13:35:08 +0330 — gate admin actions by plugin capabilities
   Files: admin-nextjs/app/page.tsx
-- `74b8735` — 2026-11-15 10:04:11 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `4f6539b` — 2026-11-15 13:33:51 +0330 — add full width admin sidebar layout
-  Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css
