@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `7519519` — 2026-11-15 12:33:03 +0330 — mark dashboard routine operations complete
+  Files: roadmap_admin.md
+- `00e528d` — 2026-11-15 09:03:01 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `1e442c2` — 2026-11-15 12:32:48 +0330 — add routine dashboard operation pages
   Files: plugins/dashboard/function-management-page.ts,plugins/dashboard/index.ts plugins/dashboard/live-session-page.ts,plugins/dashboard/plugin.yaml plugins/dashboard/types.ts,plugins/dashboard/workflow-management-page.ts tests/dashboard/dashboard.test.ts
 - `734a219` — 2026-11-15 09:01:57 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `a5a65c7` — 2026-11-15 12:13:11 +0330 — add audited admin lifecycle service
   Files: internal/admin/lifecycle.go,tests/admin/lifecycle_test.go
 - `8b1e024` — 2026-11-15 08:42:23 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `4658128` — 2026-11-15 12:12:09 +0330 — add audited operator action boundary
-  Files: internal/operator/operator.go,tests/operator/operator_test.go
-- `16ec3fc` — 2026-11-15 08:41:24 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
