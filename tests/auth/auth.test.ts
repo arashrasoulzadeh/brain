@@ -338,6 +338,14 @@ if (
   new OperatorSessionValidator(operatorSessions, revokedOperators).valid(operatorToken, "other")
 )
   throw new Error("operator session isolation failed");
+if (new OperatorSessionValidator(operatorSessions, revokedOperators).valid(session.token, "admin"))
+  throw new Error("end-user session accepted as operator");
+try {
+  service.session("project-a", operatorToken);
+  throw new Error("operator session accepted as end user");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "invalid session") throw error;
+}
 new OperatorSessionRevoker(operatorSessions, revokedOperators).revoke(operatorToken);
 if (new OperatorSessionValidator(operatorSessions, revokedOperators).valid(operatorToken, "admin"))
   throw new Error("operator session revocation failed");
