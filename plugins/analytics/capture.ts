@@ -1,9 +1,10 @@
 import type { AnalyticsEvent, EventSink } from "./types.js";
 import { validateEvent } from "./validate-event.js";
+import { analyticsRouteSink } from "./analytics-route-sink.js";
 
 export function capture(
   event: AnalyticsEvent,
-  sink: EventSink,
+  sink: EventSink = analyticsRouteSink,
   allowedFields: readonly string[] = [],
 ) {
   validateEvent(event, allowedFields);
