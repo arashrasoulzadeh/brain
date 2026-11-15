@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `31ab0b1` — 2026-11-15 17:02:58 +0330 — report runtime worker health in admin
+  Files: admin-nextjs/app/page.tsx,internal/plugin/plugin.go
+- `f6f8c50` — 2026-11-15 13:32:03 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `3c63b7b` — 2026-11-15 17:01:43 +0330 — start plugin workers with dependency ordering
   Files: cmd/brain/main.go,internal/plugin/worker.go
 - `c2508f8` — 2026-11-15 13:30:42 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `8421762` — 2026-11-15 14:09:34 +0330 — fix monitoring status and add route playground
   Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css
-- `8ffa19e` — 2026-11-15 10:37:37 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `f4402f6` — 2026-11-15 14:07:21 +0330 — add admin routes and monitoring pages
-  Files: admin-nextjs/app/monitoring/page.tsx,admin-nextjs/app/page.tsx admin-nextjs/app/routes/page.tsx
