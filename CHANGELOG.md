@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `6cf468c` — 2026-11-15 12:06:53 +0330 — validate deployment project identity
+  Files: internal/deploy/sequence.go,tests/deploy/sequence_test.go
+- `d6660fa` — 2026-11-15 08:36:34 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `bcdb15d` — 2026-11-15 12:06:20 +0330 — require digest pinned release images
   Files: internal/deploy/manifest.go,tests/deploy/healthy_manifest_test.go tests/deploy/manifest_test.go,tests/deploy/rollback_test.go
 - `5ec4f7d` — 2026-11-15 08:35:39 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `33a5162` — 2026-11-15 02:11:52 +0330 — validate dashboard project ids before html rendering
   Files: docs/admins.md,docs/developers.md plugins/dashboard/custom-admin-view.ts,plugins/dashboard/plugin.yaml tests/dashboard/dashboard.test.ts
 - `d26605e` — 2026-11-14 22:37:26 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `6ffa6ed` — 2026-11-15 02:07:11 +0330 — verify single use commit credentials
-  Files: roadmap_backend.md
-- `063afca` — 2026-11-14 22:37:09 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
