@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `63e749b` — 2026-11-15 13:10:43 +0330 — add system capabilities admin view
+  Files: admin-nextjs/app/page.tsx,internal/admin/lifecycle.go internal/app/admin.go,internal/app/app.go tests/app/admin_test.go
+- `0a7ba00` — 2026-11-15 09:39:50 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `cc9f26e` — 2026-11-15 13:09:36 +0330 — discover plugins for admin runtime
   Files: cmd/brain/main.go
 - `25f84c3` — 2026-11-15 09:38:34 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `1e442c2` — 2026-11-15 12:32:48 +0330 — add routine dashboard operation pages
   Files: plugins/dashboard/function-management-page.ts,plugins/dashboard/index.ts plugins/dashboard/live-session-page.ts,plugins/dashboard/plugin.yaml plugins/dashboard/types.ts,plugins/dashboard/workflow-management-page.ts tests/dashboard/dashboard.test.ts
 - `734a219` — 2026-11-15 09:01:57 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `227a014` — 2026-11-15 12:31:42 +0330 — expose audited admin lifecycle operations
-  Files: internal/app/admin.go,tests/app/admin_test.go
-- `0f37015` — 2026-11-15 09:01:07 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
