@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `76c9c49` — 2026-11-15 19:26:48 +0330 — remove editable method control from function detail
+  Files: admin-nextjs/app/functions/[name]/page.tsx
+- `2d154c1` — 2026-11-15 15:56:02 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `1b9b96f` — 2026-11-15 19:25:41 +0330 — complete public function routes and source methods
   Files: admin-nextjs/app/functions/[name]/page.tsx,admin-nextjs/app/functions/new/page.tsx admin-nextjs/app/page.tsx,admin-nextjs/next.config.ts internal/admin/functions.go,internal/app/admin.go tests/admin/functions_test.go
 - `c009559` — 2026-11-15 15:48:42 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `7f314b3` — 2026-11-15 17:07:48 +0330 — persist table operations within plugin worker
   Files: plugins/tables/index.ts,plugins/tables/plugin.yaml plugins/tables/table-store.ts,plugins/tables/tables-read.ts plugins/tables/tables-schema.ts,plugins/tables/tables-write.ts tests/tables/tables.test.ts
 - `0d467e1` — 2026-11-15 13:36:48 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `0f9ea2c` — 2026-11-15 17:06:34 +0330 — implement tables admin routes
-  Files: plugins/tables/index.ts,plugins/tables/plugin.yaml plugins/tables/tables-read.ts,plugins/tables/tables-schema.ts plugins/tables/tables-write.ts,tests/tables/tables.test.ts
-- `e8b71c8` — 2026-11-15 13:35:51 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
