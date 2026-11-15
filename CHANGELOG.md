@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `0ff5867` — 2026-11-15 13:46:16 +0330 — restore selected project across admin pages
+  Files: admin-nextjs/app/page.tsx
+- `0504d80` — 2026-11-15 10:15:42 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `7937f78` — 2026-11-15 13:45:22 +0330 — remove admin workspace width cap
   Files: admin-nextjs/app/styles.css
 - `bd9352b` — 2026-11-15 10:14:39 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `6f9356a` — 2026-11-15 13:15:45 +0330 — add live admin panel refresh
   Files: admin-nextjs/app/page.tsx
 - `5aad36c` — 2026-11-15 09:45:30 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `d4d1f56` — 2026-11-15 13:15:16 +0330 — add project uninstall control
-  Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css
-- `c08d4e6` — 2026-11-15 09:44:52 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
