@@ -14,7 +14,16 @@ type Draft = {
   method?: string;
   published_at?: string;
 };
-type Log = { status: string; duration_ms: number; created_at: string; message?: string };
+type Log = {
+  status: string;
+  duration_ms: number;
+  created_at: string;
+  message?: string;
+  reason?: string;
+  error?: string;
+  method?: string;
+  request_id?: string;
+};
 type Deployment = { version: number; method: string; route: string; published_at: string };
 export default function FunctionDetailPage() {
   const params = useParams<{ name: string }>();
@@ -202,7 +211,13 @@ export default function FunctionDetailPage() {
       const response = await fetch("/api/admin/functions", {
         method: "POST",
         headers: { authorization: `Bearer ${session}`, "content-type": "application/json" },
-        body: JSON.stringify({ operation: "functions.update", project_id: project, name: draft.name, source: draft.source, function_version: draft.version ?? 1 }),
+        body: JSON.stringify({
+          operation: "functions.update",
+          project_id: project,
+          name: draft.name,
+          source: draft.source,
+          function_version: draft.version ?? 1,
+        }),
       });
       setMessage(response.ok ? "Changes saved." : await response.text());
       if (response.ok) await refresh(session);
@@ -228,197 +243,263 @@ export default function FunctionDetailPage() {
     ? Math.round(logs.reduce((sum, log) => sum + log.duration_ms, 0) / logs.length)
     : 0;
   return (
-    <AdminPageFrame activePage="functions" title={draft.name} projectID={project} requiredPluginID="functions">
-          <div className="section-heading">
-            <Link href="/functions">Back to functions</Link>
+    <AdminPageFrame
+      activePage="functions"
+      title={draft.name}
+      projectID={project}
+      requiredPluginID="functions"
+    >
+      <div className="section-heading">
+        <Link href="/functions">Back to functions</Link>
+      </div>
+      <div className="function-tabs">
+        {[
+          ["editor", "Editor"],
+          ["deployments", "Deployments"],
+          ["analytics", "Analytics"],
+          ["logs", "Logs"],
+        ].map(([value, label]) => (
+          <button
+            type="button"
+            className={`${tab === value ? "active" : ""} rounded-lg px-4 py-2 text-sm font-semibold transition-colors`}
+            onClick={() => setTab(value)}
+            key={value}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+      {tab === "editor" && (
+        <>
+          <div className="setting-toolbar flex flex-wrap items-end gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div className="rounded-lg bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700">
+              Version {draft.version ?? 1}
+            </div>
+            <div
+              className={`rounded-lg px-3 py-2 text-sm font-semibold ${draft.public ? "bg-emerald-100 text-emerald-800" : "bg-slate-100 text-slate-700"}`}
+            >
+              {draft.public ? "Public" : "Private"}
+            </div>
+            <div className="rounded-lg bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700">
+              Method {draft.method ?? "—"} · set in source config
+            </div>
+            <button
+              type="button"
+              disabled={publishing}
+              className="h-10 rounded-lg bg-slate-700 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+              onClick={() => void saveDraft()}
+            >
+              {publishing ? "Saving…" : "Save changes"}
+            </button>
+            <button
+              type="button"
+              disabled={publishing}
+              className="h-10 rounded-lg bg-indigo-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+              onClick={() => void publish()}
+            >
+              {publishing ? "Publishing…" : "Publish current version"}
+            </button>
           </div>
-          <div className="function-tabs">
-            {[
-              ["editor", "Editor"],
-              ["deployments", "Deployments"],
-              ["analytics", "Analytics"],
-              ["logs", "Logs"],
-            ].map(([value, label]) => (
-              <button
-                type="button"
-                className={`${tab === value ? "active" : ""} rounded-lg px-4 py-2 text-sm font-semibold transition-colors`}
-                onClick={() => setTab(value)}
-                key={value}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-          {tab === "editor" && (
-            <>
-              <div className="setting-toolbar flex flex-wrap items-end gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                <div className="rounded-lg bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700">
-                  Version {draft.version ?? 1}
-                </div>
-                <div
-                  className={`rounded-lg px-3 py-2 text-sm font-semibold ${draft.public ? "bg-emerald-100 text-emerald-800" : "bg-slate-100 text-slate-700"}`}
-                >
-                  {draft.public ? "Public" : "Private"}
-                </div>
-                <div className="rounded-lg bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700">
-                  Method {draft.method ?? "—"} · set in source config
-                </div>
+          {message && (
+            <p className="notice" role="status" aria-live="polite">
+              {message}
+            </p>
+          )}
+          {route && (
+            <p className="notice">
+              Public route: <code>{route}</code>
+            </p>
+          )}
+          <FunctionEditor
+            source={draft.source}
+            onChange={(source) => setDraft({ ...draft, source })}
+          />
+          <div className="permission-panel">
+            <h2>Function settings</h2>
+            {permissions.map((permission) => (
+              <div className="permission-row" key={permission}>
+                <code>{permission}</code>
                 <button
-                  type="button"
-                  disabled={publishing}
-                  className="h-10 rounded-lg bg-slate-700 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
-                  onClick={() => void saveDraft()}
-                >
-                  {publishing ? "Saving…" : "Save changes"}
-                </button>
-                <button
-                  type="button"
-                  disabled={publishing}
-                  className="h-10 rounded-lg bg-indigo-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
-                  onClick={() => void publish()}
-                >
-                  {publishing ? "Publishing…" : "Publish current version"}
-                </button>
-              </div>
-              {message && <p className="notice" role="status" aria-live="polite">{message}</p>}
-              {route && (
-                <p className="notice">
-                  Public route: <code>{route}</code>
-                </p>
-              )}
-              <FunctionEditor
-                source={draft.source}
-                onChange={(source) => setDraft({ ...draft, source })}
-              />
-              <div className="permission-panel">
-                <h2>Function settings</h2>
-                {permissions.map((permission) => (
-                  <div className="permission-row" key={permission}>
-                    <code>{permission}</code>
-                    <button
-                      className="danger"
-                      onClick={() =>
-                        void savePermissions(
-                          permissions.filter((candidate) => candidate !== permission),
-                          Boolean(draft.public),
-                        )
-                      }
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ))}
-                <button
+                  className="danger"
                   onClick={() =>
                     void savePermissions(
-                      [...permissions, "functions.invoke"],
+                      permissions.filter((candidate) => candidate !== permission),
                       Boolean(draft.public),
                     )
                   }
                 >
-                  Add invoke permission
+                  Remove
                 </button>
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={Boolean(draft.public)}
-                    onChange={(event) => void savePermissions(permissions, event.target.checked)}
-                  />{" "}
-                  Public route enabled
-                </label>
-                <small>{message}</small>
               </div>
-            </>
+            ))}
+            <button
+              onClick={() =>
+                void savePermissions([...permissions, "functions.invoke"], Boolean(draft.public))
+              }
+            >
+              Add invoke permission
+            </button>
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={Boolean(draft.public)}
+                onChange={(event) => void savePermissions(permissions, event.target.checked)}
+              />{" "}
+              Public route enabled
+            </label>
+            <small>{message}</small>
+          </div>
+        </>
+      )}
+      {tab === "deployments" && (
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Version</th>
+                <th>Method</th>
+                <th>Public URL</th>
+                <th>Published</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              {deployments.map((deployment, index) => (
+                <tr key={`${deployment.version}-${index}`}>
+                  <td>{deployment.version}</td>
+                  <td>{deployment.method}</td>
+                  <td>
+                    <code>{deployment.route}</code>
+                  </td>
+                  <td>{new Date(deployment.published_at).toLocaleString()}</td>
+                  <td>
+                    <button
+                      onClick={() =>
+                        void navigator.clipboard.writeText(
+                          `${window.location.origin}${deployment.route}`,
+                        )
+                      }
+                    >
+                      Copy URL
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {!deployments.length && (
+            <p className="muted">No deployments yet. Publish the current version to create one.</p>
           )}
-          {tab === "deployments" && (
-            <div className="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Version</th>
-                    <th>Method</th>
-                    <th>Public URL</th>
-                    <th>Published</th>
-                    <th />
-                  </tr>
-                </thead>
-                <tbody>
-                  {deployments.map((deployment, index) => (
-                    <tr key={`${deployment.version}-${index}`}>
-                      <td>{deployment.version}</td>
-                      <td>{deployment.method}</td>
-                      <td>
-                        <code>{deployment.route}</code>
-                      </td>
-                      <td>{new Date(deployment.published_at).toLocaleString()}</td>
-                      <td>
-                        <button
-                          onClick={() =>
-                            void navigator.clipboard.writeText(
-                              `${window.location.origin}${deployment.route}`,
-                            )
-                          }
-                        >
-                          Copy URL
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {!deployments.length && (
-                <p className="muted">
-                  No deployments yet. Publish the current version to create one.
-                </p>
-              )}
+        </div>
+      )}
+      {tab === "analytics" && (
+        <div className="metric-grid">
+          <article>
+            <strong>{logs.length}</strong>
+            <span>Requests</span>
+          </article>
+          <article>
+            <strong>
+              {logs.length ? `${Math.round((successful / logs.length) * 100)}%` : "—"}
+            </strong>
+            <span>Success rate</span>
+          </article>
+          <article>
+            <strong>{logs.length ? `${average} ms` : "—"}</strong>
+            <span>Average latency</span>
+          </article>
+        </div>
+      )}
+      {tab === "logs" && (
+        <section className="function-log-page">
+          <div className="log-summary-grid">
+            <article>
+              <span>Total executions</span>
+              <strong>{logs.length}</strong>
+            </article>
+            <article>
+              <span>Successful</span>
+              <strong className="log-success">{successful}</strong>
+            </article>
+            <article>
+              <span>Failed</span>
+              <strong className="log-failure">{logs.length - successful}</strong>
+            </article>
+            <article>
+              <span>Average latency</span>
+              <strong>{logs.length ? `${average} ms` : "—"}</strong>
+            </article>
+          </div>
+          {!logs.length && (
+            <div className="empty-panel">
+              <strong>No executions yet</strong>
+              <p className="muted">
+                Every invocation will appear here with its lifecycle status, timing, reason, and
+                error details.
+              </p>
             </div>
           )}
-          {tab === "analytics" && (
-            <div className="metric-grid">
-              <article>
-                <strong>{logs.length}</strong>
-                <span>Requests</span>
-              </article>
-              <article>
-                <strong>
-                  {logs.length ? `${Math.round((successful / logs.length) * 100)}%` : "—"}
-                </strong>
-                <span>Success rate</span>
-              </article>
-              <article>
-                <strong>{logs.length ? `${average} ms` : "—"}</strong>
-                <span>Average latency</span>
-              </article>
-            </div>
-          )}
-          {tab === "logs" && (
-            <div className="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Status</th>
-                    <th>Latency</th>
-                    <th>Time</th>
-                    <th>Message</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {logs
-                    .slice()
-                    .reverse()
-                    .map((log, index) => (
-                      <tr key={`${log.created_at}-${index}`}>
-                        <td>{log.status}</td>
-                        <td>{log.duration_ms} ms</td>
-                        <td>{new Date(log.created_at).toLocaleString()}</td>
-                        <td>{log.message ?? "—"}</td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
-              {!logs.length && <p className="muted">No request logs recorded yet.</p>}
-            </div>
-          )}
+          <div className="log-timeline">
+            {logs
+              .slice()
+              .reverse()
+              .map((log, index) => {
+                const failed = log.status.toLowerCase() !== "success";
+                const reason =
+                  log.reason ?? (failed ? "Execution failed" : "Completed successfully");
+                return (
+                  <article
+                    className={`log-entry ${failed ? "failed" : "succeeded"}`}
+                    key={`${log.created_at}-${index}`}
+                  >
+                    <div className="log-entry-marker">{failed ? "!" : "✓"}</div>
+                    <div className="log-entry-content">
+                      <div className="log-entry-heading">
+                        <div>
+                          <strong>{failed ? "Failed execution" : "Successful execution"}</strong>
+                          <span className={`log-status ${failed ? "failure" : "success"}`}>
+                            {log.status}
+                          </span>
+                        </div>
+                        <time dateTime={log.created_at}>
+                          {new Date(log.created_at).toLocaleString()}
+                        </time>
+                      </div>
+                      <div className="log-detail-grid">
+                        <div>
+                          <small>Reason</small>
+                          <strong>{reason}</strong>
+                        </div>
+                        <div>
+                          <small>Duration</small>
+                          <strong>{log.duration_ms} ms</strong>
+                        </div>
+                        <div>
+                          <small>Method</small>
+                          <strong>{log.method ?? draft.method ?? "—"}</strong>
+                        </div>
+                        <div>
+                          <small>Request ID</small>
+                          <strong>{log.request_id ?? "Not recorded"}</strong>
+                        </div>
+                      </div>
+                      <div className={`log-message ${failed ? "error" : "info"}`}>
+                        <small>{failed ? "Error details" : "Execution details"}</small>
+                        <code>
+                          {log.error ??
+                            log.message ??
+                            (failed
+                              ? "No error details recorded."
+                              : "Function completed without a message.")}
+                        </code>
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
+          </div>
+        </section>
+      )}
     </AdminPageFrame>
   );
 }

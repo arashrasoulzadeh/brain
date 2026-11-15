@@ -5,6 +5,32 @@
   background: #eef2f8;
   color: #182238;
 }
+
+.function-log-page { display: grid; gap: 18px; }
+.log-summary-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.log-summary-grid article { padding: 16px; border: 1px solid #e1e7f0; border-radius: 14px; background: #f8faff; }
+.log-summary-grid span, .log-detail-grid small { display: block; color: #65728a; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+.log-summary-grid strong { display: block; margin-top: 7px; color: #315da9; font-size: 25px; }
+.log-summary-grid .log-success { color: #247345; }
+.log-summary-grid .log-failure { color: #b42318; }
+.log-timeline { display: grid; gap: 12px; }
+.log-entry { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 12px; padding: 16px; border: 1px solid #dfe6f1; border-left: 4px solid #2c8a62; border-radius: 14px; background: #fff; }
+.log-entry.failed { border-left-color: #d04a42; }
+.log-entry-marker { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #def7eb; color: #16734b; font-weight: 800; }
+.log-entry.failed .log-entry-marker { background: #fee4e2; color: #b42318; }
+.log-entry-content { min-width: 0; }
+.log-entry-heading { display: flex; justify-content: space-between; gap: 12px; align-items: start; }
+.log-entry-heading > div { display: flex; align-items: center; gap: 9px; }
+.log-entry-heading time { color: #65728a; font-size: 12px; }
+.log-status { display: inline-block !important; padding: 4px 8px; border-radius: 999px; font-size: 10px !important; text-transform: uppercase; }
+.log-detail-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+.log-detail-grid strong { display: block; margin-top: 5px; overflow-wrap: anywhere; font-size: 13px; }
+.log-message { display: grid; gap: 6px; margin-top: 14px; padding: 11px 13px; border-radius: 10px; }
+.log-message small { font-weight: 800; text-transform: uppercase; letter-spacing: .06em; }
+.log-message code { overflow: auto; white-space: pre-wrap; color: inherit; }
+.log-message.error { background: #fff3f2; color: #9c2f28; }
+.log-message.info { background: #eef4ff; color: #315da9; }
+@media (max-width: 800px) { .log-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .log-detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .log-entry-heading { display: grid; } .log-entry-heading time { order: -1; } }
 * {
   box-sizing: border-box;
 }
