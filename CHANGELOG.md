@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `ada9840` — 2026-11-15 14:31:13 +0330 — expose plugin readiness controls
+  Files: admin-nextjs/app/page.tsx
+- `b391400` — 2026-11-15 10:49:02 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `eb9bea9` — 2026-11-15 14:18:45 +0330 — fix route playground and monitoring states
   Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css
 - `f0c408e` — 2026-11-15 10:39:54 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `ede08fd` — 2026-11-15 13:30:45 +0330 — polish dynamic admin plugin views
   Files: admin-nextjs/app/styles.css
 - `c1cfba9` — 2026-11-15 10:00:08 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `1e0e33c` — 2026-11-15 13:29:54 +0330 — add searchable admin plugin catalog
-  Files: admin-nextjs/app/page.tsx
-- `648e5ef` — 2026-11-15 09:58:56 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
