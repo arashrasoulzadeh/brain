@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `d9616af` — 2026-11-15 13:48:31 +0330 — add admin audit search
+  Files: admin-nextjs/app/page.tsx
+- `8f8a056` — 2026-11-15 10:17:53 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `ba9a526` — 2026-11-15 13:47:39 +0330 — show complete admin audit history
   Files: admin-nextjs/app/page.tsx
 - `4d2c90e` — 2026-11-15 10:16:28 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `ffad212` — 2026-11-15 13:19:21 +0330 — scope admin plugin inventory by project
   Files: admin-nextjs/app/page.tsx
 - `3d96c29` — 2026-11-15 09:48:27 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `c88c541` — 2026-11-15 13:18:04 +0330 — target plugin actions at selected project
-  Files: admin-nextjs/app/page.tsx
-- `fd8d888` — 2026-11-15 09:45:58 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
