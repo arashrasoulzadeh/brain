@@ -124,6 +124,12 @@ try {
 }
 if (authorizedRoomSnapshot(rooms.get("dev", "room-new"), "dev", "user-1").projectId !== "dev")
   throw new Error("authorized snapshot missing");
+try {
+  authorizedRoomSnapshot(rooms.get("dev", "room-new"), "bad/project", "user-1");
+  throw new Error("room snapshot accepted invalid project");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "room membership required") throw error;
+}
 if (!authorizeRoomCommand(rooms.get("dev", "room-new"), "dev", "user-1", "room.action"))
   throw new Error("authorized command rejected");
 try {

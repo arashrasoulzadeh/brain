@@ -32,6 +32,18 @@ configWriter.set({
 if (configReader.get("dev", "ranked").matchSize !== 2)
   throw new Error("matchmaking config was not stored");
 try {
+  configReader.get("bad/project", "ranked");
+  throw new Error("matchmaking reader accepted invalid project");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "invalid project id") throw error;
+}
+try {
+  configStatus.isEnabled("bad/project", "ranked");
+  throw new Error("matchmaking status accepted invalid project");
+} catch (error) {
+  if (!(error instanceof Error) || error.message !== "invalid project id") throw error;
+}
+try {
   configReader.get("prod", "ranked");
   throw new Error("cross-project matchmaking config accepted");
 } catch (error) {

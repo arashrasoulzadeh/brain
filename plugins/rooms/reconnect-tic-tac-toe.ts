@@ -1,10 +1,12 @@
 import { validateTicTacToeRuleResult } from "./validate-tic-tac-toe-rule-result.js";
+import { validateProjectId } from "../sdk-typescript/src/index.js";
 import type { TicTacToeState } from "./index.js";
 export function reconnectTicTacToe(
   serialized: string,
   projectId: string,
   playerId: string,
 ): TicTacToeState {
+  validateProjectId(projectId, "game authorization required");
   let parsed: unknown;
   try {
     parsed = JSON.parse(serialized);

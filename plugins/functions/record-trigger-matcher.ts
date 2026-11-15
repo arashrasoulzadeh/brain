@@ -1,8 +1,10 @@
 import type { RecordChangeTrigger } from "./index.js";
 import type { RecordTriggerState } from "./record-trigger-state.js";
+import { validateProjectId } from "../sdk-typescript/src/index.js";
 export class RecordTriggerMatcher {
   constructor(private readonly state: RecordTriggerState) {}
   match(projectId: string, collection: string, operation: string): RecordChangeTrigger[] {
+    validateProjectId(projectId);
     return this.state.triggers
       .filter(
         (trigger) =>

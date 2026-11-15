@@ -1,4 +1,5 @@
 import type { FunctionDraft, FunctionPublication } from "./index.js";
+import { validateProjectId } from "../sdk-typescript/src/index.js";
 export function publishSharedHelperArtifact(
   projectId: string,
   packageId: string,
@@ -13,6 +14,7 @@ export function publishSharedHelperArtifact(
     at: number,
   ) => FunctionPublication,
 ): FunctionPublication {
+  validateProjectId(projectId);
   if (!packageId || !source.includes("package helper"))
     throw new Error("invalid shared helper artifact");
   return publish(
