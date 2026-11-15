@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `d9e5077` — 2026-11-15 13:42:19 +0330 — preserve admin session across pages
+  Files: admin-nextjs/app/page.tsx
+- `3ccf80f` — 2026-11-15 10:11:35 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `9a823fb` — 2026-11-15 13:41:21 +0330 — add domain admin pages
   Files: admin-nextjs/app/database/page.tsx,admin-nextjs/app/files/page.tsx admin-nextjs/app/functions/page.tsx,admin-nextjs/app/live-sessions/page.tsx admin-nextjs/app/page.tsx,admin-nextjs/app/workflows/page.tsx
 - `936b138` — 2026-11-15 10:09:51 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `aadc7b2` — 2026-11-15 13:13:21 +0330 — add admin capability navigation
   Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css
 - `e70b897` — 2026-11-15 09:42:28 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `dc136f1` — 2026-11-15 13:12:12 +0330 — complete plugin lifecycle actions
-  Files: admin-nextjs/app/page.tsx
-- `56ce16e` — 2026-11-15 09:41:40 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
