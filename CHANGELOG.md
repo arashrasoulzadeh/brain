@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `dd18ac1` — 2026-11-15 16:58:27 +0330 — execute playground requests through host
+  Files: admin-nextjs/app/page.tsx,internal/admin/lifecycle.go internal/app/admin.go,internal/plugin/plugin.go scripts/typescript-worker.mjs,tests/plugin/registry_invoke_test.go
+- `65153c6` — 2026-11-15 13:25:05 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `fa151a6` — 2026-11-15 16:54:48 +0330 — route manifest functions through plugin workers
   Files: admin-nextjs/app/styles.css,internal/plugin/typescript_worker.go scripts/typescript-worker.mjs,tests/plugin/typescript-worker.test.ts
 - `510f630` — 2026-11-15 11:37:14 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `b79bb16` — 2026-11-15 13:57:06 +0330 — persist local projects and recover stale sessions
   Files: .gitignore,admin-nextjs/app/page.tsx cmd/brain/main.go,internal/project/project.go tests/project/project_test.go
-- `df5a9ea` — 2026-11-15 10:25:10 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `b9095e7` — 2026-11-15 13:54:57 +0330 — keep project table details authoritative
-  Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css
