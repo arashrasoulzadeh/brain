@@ -60,6 +60,10 @@ const copy = {
     liveSessions: "Live sessions",
     routesPage: "Routes",
     monitoring: "Monitoring",
+    playground: "Playground",
+    selectRoute: "Select a route",
+    payload: "JSON payload",
+    previewRequest: "Preview request",
     remove: "Remove",
     markReady: "Mark ready",
     promote: "Promote",
@@ -120,6 +124,10 @@ const copy = {
     liveSessions: "جلسه‌های زنده",
     routesPage: "مسیرها",
     monitoring: "پایش",
+    playground: "محیط آزمایش",
+    selectRoute: "انتخاب مسیر",
+    payload: "داده JSON",
+    previewRequest: "پیش‌نمایش درخواست",
     remove: "حذف",
     markReady: "اعلام آمادگی",
     promote: "ارتقا",
@@ -148,6 +156,8 @@ export default function AdminPage() {
   const [configuration, setConfiguration] = useState<Record<string, Record<string, string | boolean>>>({});
   const [pluginFilter, setPluginFilter] = useState("");
   const [auditFilter, setAuditFilter] = useState("");
+  const [playgroundRoute, setPlaygroundRoute] = useState("");
+  const [playgroundPayload, setPlaygroundPayload] = useState("{}");
   const text = copy[language];
   const pageTitle = ({ projects: text.projects, plugins: text.plugins, system: text.system, audit: text.audit, database: text.database, functions: text.functions, workflows: text.workflows, files: text.files, "live-sessions": text.liveSessions, routes: text.routesPage, monitoring: text.monitoring } as Record<string, string>)[activePage] ?? text.projects;
   useEffect(() => {
@@ -400,7 +410,8 @@ export default function AdminPage() {
         <section className={`section ${activePage !== "files" ? "page-hidden" : ""}`}><div className="section-heading"><div><p className="eyebrow">{text.files}</p><h2>{text.files}</h2></div></div><div className="plugin-grid">{system.filter((manifest) => manifest.ID === "files").map((manifest) => <article className="plugin" key={`files-${manifest.ID}`}><h3>{manifest.Title}</h3><p className="muted">{manifest.Description}</p><div className="route-list">{manifest.Routes?.map((route) => <div key={route.Operation}><code>{route.Operation}</code><small>{route.Capability}</small></div>)}</div></article>)}</div></section>
         <section className={`section ${activePage !== "live-sessions" ? "page-hidden" : ""}`}><div className="section-heading"><div><p className="eyebrow">{text.liveSessions}</p><h2>{text.liveSessions}</h2></div></div><div className="plugin-grid">{system.filter((manifest) => ["rooms", "matchmaking"].includes(manifest.ID)).map((manifest) => <article className="plugin" key={`live-${manifest.ID}`}><h3>{manifest.Title}</h3><p className="muted">{manifest.Description}</p><div className="route-list">{manifest.Routes?.map((route) => <div key={route.Operation}><code>{route.Operation}</code><small>{route.Capability}</small></div>)}</div></article>)}</div></section>
         <section className={`section ${activePage !== "routes" ? "page-hidden" : ""}`}><div className="section-heading"><div><p className="eyebrow">{text.routesPage}</p><h2>{text.routesPage}</h2></div><span className="count">{system.reduce((total, manifest) => total + (manifest.Routes?.length ?? 0), 0)}</span></div><div className="plugin-grid">{system.map((manifest) => <article className="plugin" key={`routes-${manifest.ID}`}><h3>{manifest.Title}</h3><div className="route-list">{manifest.Routes?.map((route) => <div key={route.Operation}><code>{route.Operation}</code><small>{route.Capability}</small></div>)}</div></article>)}</div></section>
-        <section className={`section ${activePage !== "monitoring" ? "page-hidden" : ""}`}><div className="section-heading"><div><p className="eyebrow">{text.monitoring}</p><h2>{text.monitoring}</h2></div><span className="count">{installations.length}</span></div><div className="audit-list">{installations.map((installation) => <div className="audit" key={`${installation.ProjectID}-${installation.PluginID}@${installation.Version}`}><span className={installation.Enabled && installation.Ready ? "success" : "failure"}>{installation.Enabled && installation.Ready ? "✓" : "!"}</span><div><strong>{installation.PluginID}@{installation.Version}</strong><small>{installation.ProjectID} · {installation.Enabled ? text.enabled : text.disabled} · {installation.Ready ? text.ready : text.notReady}{installation.Draining ? " · draining" : ""}</small></div></div>)}</div></section>
+        <section className={`section ${activePage !== "monitoring" ? "page-hidden" : ""}`}><div className="section-heading"><div><p className="eyebrow">{text.monitoring}</p><h2>{text.monitoring}</h2></div><span className="count">{manifests.length}</span></div><div className="audit-list">{manifests.map((manifest) => { const installation = installations.find((candidate) => candidate.PluginID === manifest.ID && candidate.Version === manifest.Version); const state = !installation ? "not installed" : installation.Enabled && installation.Ready ? text.ready : installation.Draining ? "draining" : text.disabled; const healthy = Boolean(installation?.Enabled && installation?.Ready && !installation.Draining); return <div className="audit" key={`monitor-${manifest.ID}@${manifest.Version}`}><span className={healthy ? "success" : "failure"}>{healthy ? "✓" : "!"}</span><div><strong>{manifest.Title || manifest.ID}</strong><small>{manifest.ID}@{manifest.Version} · {state}</small></div></div>; })}</div></section>
+        <section className={`section ${activePage !== "routes" ? "page-hidden" : ""}`}><div className="section-heading"><div><p className="eyebrow">{text.playground}</p><h2>{text.playground}</h2></div></div><div className="playground"><label>{text.selectRoute}<select value={playgroundRoute} onChange={(event) => setPlaygroundRoute(event.target.value)}><option value="">—</option>{system.flatMap((manifest) => manifest.Routes?.map((route) => <option key={`${manifest.ID}:${route.Operation}`} value={`${manifest.ID}:${route.Operation}`}>{manifest.ID} · {route.Operation}</option>) ?? [])}</select></label><label>{text.payload}<textarea value={playgroundPayload} onChange={(event) => setPlaygroundPayload(event.target.value)} rows={8} /></label><pre>{playgroundRoute ? JSON.stringify({ project_id: selectedProjectID, operation: playgroundRoute.split(":")[1], payload: playgroundPayload }, null, 2) : text.selectRoute}</pre></div></section>
         </section>
       </div>
     </main>
