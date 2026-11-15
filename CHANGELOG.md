@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `6f9356a` — 2026-11-15 13:15:45 +0330 — add live admin panel refresh
+  Files: admin-nextjs/app/page.tsx
+- `5aad36c` — 2026-11-15 09:45:30 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `d4d1f56` — 2026-11-15 13:15:16 +0330 — add project uninstall control
   Files: admin-nextjs/app/page.tsx,admin-nextjs/app/styles.css
 - `c08d4e6` — 2026-11-15 09:44:52 +0000 — docs: update changelog [skip ci]
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `729e411` — 2026-11-15 12:37:32 +0330 — document authenticated admin sessions
   Files: docs/admins.html,docs/admins.md
 - `e99ed11` — 2026-11-15 09:07:13 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `baa2d17` — 2026-11-15 12:37:00 +0330 — wire operator sessions to admin boundary
-  Files: internal/app/admin.go,internal/operator/operator.go internal/operator/session.go,tests/app/admin_test.go tests/operator/operator_test.go
-- `b051ca7` — 2026-11-15 09:05:17 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
