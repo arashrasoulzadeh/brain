@@ -35,6 +35,8 @@
 .editor-diagnostic.valid { background: #edfaf3; color: #247345; }
 .monaco-editor-shell { display: block; width: 100%; max-width: none; overflow: hidden; padding: 0; }
 .monaco-editor-shell > div { width: 100% !important; }
+.monaco-editor-instance { width: 100% !important; min-height: 520px; }
+.monaco-editor-instance .monaco-editor { width: 100% !important; }
 .monaco-editor-shell .editor-toolbar { border-bottom: 1px solid #34476b; }
 .monaco-editor-shell .editor-diagnostic { margin: 0; }
 .rich-editor { border-radius: 8px; }

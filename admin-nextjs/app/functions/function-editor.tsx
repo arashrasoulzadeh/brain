@@ -53,7 +53,7 @@ export function FunctionEditor({
       <MonacoEditor
         height="520px"
         language="typescript"
-        theme="vs-dark"
+        theme="vs"
         value={source}
         onChange={(value) => onChange(value ?? "")}
         options={{
