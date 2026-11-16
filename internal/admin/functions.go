@@ -2,6 +2,7 @@ package admin
 
 import (
 	"context"
+	"crypto/rand"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -47,6 +48,7 @@ type FunctionLog struct {
 	CreatedAt  time.Time         `json:"created_at"`
 	Steps      []FunctionLogStep `json:"steps,omitempty"`
 	Error      string            `json:"error,omitempty"`
+	RequestID  string            `json:"request_id"`
 }
 type FunctionLogStep struct {
 	Name       string `json:"name"`
@@ -321,6 +323,7 @@ func (s *LifecycleService) RunFunctionDraft(actor operator.Actor, projectID, nam
 
 func (s *LifecycleService) runFunctionDraft(actor operator.Actor, projectID, name, source string, input json.RawMessage, initialSteps []FunctionLogStep) (map[string]any, error) {
 	started := time.Now()
+	requestID := createFunctionRequestID()
 	steps := append([]FunctionLogStep{}, initialSteps...)
 	addStep := func(name, status, reason string, stepStarted time.Time, stepError error) {
 		step := FunctionLogStep{Name: name, Status: status, Reason: reason, DurationMs: time.Since(stepStarted).Milliseconds()}
@@ -330,7 +333,7 @@ func (s *LifecycleService) runFunctionDraft(actor operator.Actor, projectID, nam
 		steps = append(steps, step)
 	}
 	writeLog := func(status, message string) {
-		entry := FunctionLog{ProjectID: projectID, Name: name, Status: status, Message: message, DurationMs: time.Since(started).Milliseconds(), CreatedAt: time.Now().UTC(), Steps: steps}
+		entry := FunctionLog{ProjectID: projectID, Name: name, Status: status, Message: message, DurationMs: time.Since(started).Milliseconds(), CreatedAt: time.Now().UTC(), Steps: steps, RequestID: requestID}
 		if status == "failed" {
 			entry.Error = message
 		}
@@ -419,4 +422,12 @@ func (s *LifecycleService) runFunctionDraft(actor operator.Actor, projectID, nam
 	addStep("response serialization", "success", "JSON response encoded for the caller", responseStarted, nil)
 	writeLog("success", "function completed successfully")
 	return map[string]any{"valid": true, "project_id": projectID, "name": name, "result": result}, nil
+}
+
+func createFunctionRequestID() string {
+	bytes := make([]byte, 12)
+	if _, err := rand.Read(bytes); err != nil {
+		return fmt.Sprintf("function-%d", time.Now().UnixNano())
+	}
+	return fmt.Sprintf("function-%x", bytes)
 }
