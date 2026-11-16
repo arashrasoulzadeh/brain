@@ -77,6 +77,13 @@ export default function FunctionDetailPage() {
         },
       ]);
   }
+  async function refreshLogs(token: string, projectID: string) {
+    const response = await fetch(
+      `/api/admin/function-logs?project_id=${encodeURIComponent(projectID)}&name=${encodeURIComponent(name)}`,
+      { headers: { authorization: `Bearer ${token}` } },
+    );
+    if (response.ok) setLogs((await response.json()) as Log[]);
+  }
   useEffect(() => {
     const token = window.sessionStorage.getItem("brain-admin-session") ?? "";
     setSession(token);
@@ -84,7 +91,6 @@ export default function FunctionDetailPage() {
       router.replace("/");
       return;
     }
-    const refreshTimer = window.setInterval(() => void refresh(token), 1000);
     void fetch("/api/admin/projects", { headers: { authorization: `Bearer ${token}` } })
       .then(async (response) => {
         if (!response.ok) throw new Error("session expired");
@@ -112,8 +118,12 @@ export default function FunctionDetailPage() {
         void refresh(token);
       })
       .catch(() => router.replace("/"));
-    return () => window.clearInterval(refreshTimer);
   }, [name, router]);
+  useEffect(() => {
+    if (pluginAccess !== "allowed" || !session || !project) return;
+    const refreshTimer = window.setInterval(() => void refreshLogs(session, project), 1000);
+    return () => window.clearInterval(refreshTimer);
+  }, [pluginAccess, project, session, name]);
   async function savePermissions(permissions: string[], publicRoute: boolean) {
     if (!draft) return;
     const response = await fetch("/api/admin/functions", {
