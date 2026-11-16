@@ -40,16 +40,15 @@ export function FunctionEditor({
   }, [source]);
 
   return (
-    <section className="rich-editor monaco-editor-shell" aria-label="Function source code editor">
-      <header className="editor-toolbar">
-        <span>Function source</span>
-        <small>Monaco Editor · TypeScript</small>
+    <section className="monaco-function-editor" aria-label="Function source code editor">
+      <div className="monaco-editor-actions">
+        <span>Function source · Monaco</span>
         {onValidate && (
           <button type="button" disabled={validating} onClick={onValidate}>
             {validating ? "Checking…" : "Check syntax"}
           </button>
         )}
-      </header>
+      </div>
       <MonacoEditor
         height="520px"
         language="typescript"

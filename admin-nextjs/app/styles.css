@@ -33,10 +33,11 @@
 @media (max-width: 800px) { .log-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .log-detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .log-entry-heading { display: grid; } .log-entry-heading time { order: -1; } }
 .editor-diagnostic { display: flex; gap: 10px; align-items: baseline; grid-column: 1/-1; padding: 10px 14px; background: #fff3f2; color: #9c2f28; font-size: 12px; }
 .editor-diagnostic.valid { background: #edfaf3; color: #247345; }
-.monaco-editor-shell { display: block; width: 100%; max-width: none; overflow: hidden; padding: 0; }
-.monaco-editor-shell > div { width: 100% !important; }
-.monaco-editor-instance { width: 100% !important; min-height: 520px; }
-.monaco-editor-instance .monaco-editor { width: 100% !important; }
+.monaco-function-editor { display: block; width: 100%; max-width: none; overflow: hidden; border: 1px solid #34476b; border-radius: 8px; background: #fff; }
+.monaco-function-editor > div:not(.monaco-editor-actions) { width: 100% !important; }
+.monaco-function-editor .monaco-editor { width: 100% !important; }
+.monaco-editor-actions { display: flex; align-items: center; justify-content: space-between; min-height: 42px; padding: 8px 12px; background: #111b31; color: #dbe8ff; font-size: 12px; }
+.monaco-editor-actions button { margin: 0; padding: 6px 10px; font-size: 11px; }
 .monaco-editor-shell .editor-toolbar { border-bottom: 1px solid #34476b; }
 .monaco-editor-shell .editor-diagnostic { margin: 0; }
 .rich-editor { border-radius: 8px; }
