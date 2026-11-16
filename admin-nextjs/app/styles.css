@@ -43,6 +43,8 @@
 .log-step-status.failure { background: #fee4e2; color: #b42318; }
 .log-step > span:nth-child(3) { color: #315da9; font-family: ui-monospace, monospace; }
 .log-step small { overflow-wrap: anywhere; color: #65728a; }
+.log-pagination { display: flex; align-items: center; justify-content: center; gap: 14px; color: #65728a; font-size: 12px; }
+.log-pagination button { margin: 0; padding: 8px 12px; }
 * {
   box-sizing: border-box;
 }

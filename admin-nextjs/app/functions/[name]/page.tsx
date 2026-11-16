@@ -42,6 +42,7 @@ export default function FunctionDetailPage() {
   const [publishing, setPublishing] = useState(false);
   const [validating, setValidating] = useState(false);
   const [validationMessage, setValidationMessage] = useState("");
+  const [logPage, setLogPage] = useState(0);
   async function refresh(token: string) {
     const headers = { authorization: `Bearer ${token}` };
     const projectsResponse = await fetch("/api/admin/projects", { headers });
@@ -82,6 +83,7 @@ export default function FunctionDetailPage() {
       router.replace("/");
       return;
     }
+    const refreshTimer = window.setInterval(() => void refresh(token), 1000);
     void fetch("/api/admin/projects", { headers: { authorization: `Bearer ${token}` } })
       .then(async (response) => {
         if (!response.ok) throw new Error("session expired");
@@ -109,6 +111,7 @@ export default function FunctionDetailPage() {
         void refresh(token);
       })
       .catch(() => router.replace("/"));
+    return () => window.clearInterval(refreshTimer);
   }, [name, router]);
   async function savePermissions(permissions: string[], publicRoute: boolean) {
     if (!draft) return;
@@ -275,6 +278,9 @@ export default function FunctionDetailPage() {
   const average = logs.length
     ? Math.round(logs.reduce((sum, log) => sum + log.duration_ms, 0) / logs.length)
     : 0;
+  const orderedLogs = logs.slice().reverse();
+  const visibleLogs = orderedLogs.slice(logPage * 10, logPage * 10 + 10);
+  const logPageCount = Math.max(1, Math.ceil(orderedLogs.length / 10));
   return (
     <AdminPageFrame
       activePage="functions"
@@ -476,81 +482,99 @@ export default function FunctionDetailPage() {
             </div>
           )}
           <div className="log-timeline">
-            {logs
-              .slice()
-              .reverse()
-              .map((log, index) => {
-                const failed = log.status.toLowerCase() !== "success";
-                const reason =
-                  log.reason ?? (failed ? "Execution failed" : "Completed successfully");
-                return (
-                  <article
-                    className={`log-entry ${failed ? "failed" : "succeeded"}`}
-                    key={`${log.created_at}-${index}`}
-                  >
-                    <div className="log-entry-marker">{failed ? "!" : "✓"}</div>
-                    <div className="log-entry-content">
-                      <div className="log-entry-heading">
-                        <div>
-                          <strong>{failed ? "Failed execution" : "Successful execution"}</strong>
-                          <span className={`log-status ${failed ? "failure" : "success"}`}>
-                            {log.status}
-                          </span>
-                        </div>
-                        <time dateTime={log.created_at}>
-                          {new Date(log.created_at).toLocaleString()}
-                        </time>
+            {visibleLogs.map((log, index) => {
+              const failed = log.status.toLowerCase() !== "success";
+              const reason = log.reason ?? (failed ? "Execution failed" : "Completed successfully");
+              return (
+                <article
+                  className={`log-entry ${failed ? "failed" : "succeeded"}`}
+                  key={`${log.created_at}-${logPage}-${index}`}
+                >
+                  <div className="log-entry-marker">{failed ? "!" : "✓"}</div>
+                  <div className="log-entry-content">
+                    <div className="log-entry-heading">
+                      <div>
+                        <strong>{failed ? "Failed execution" : "Successful execution"}</strong>
+                        <span className={`log-status ${failed ? "failure" : "success"}`}>
+                          {log.status}
+                        </span>
                       </div>
-                      <div className="log-detail-grid">
-                        <div>
-                          <small>Reason</small>
-                          <strong>{reason}</strong>
-                        </div>
-                        <div>
-                          <small>Duration</small>
-                          <strong>{log.duration_ms} ms</strong>
-                        </div>
-                        <div>
-                          <small>Method</small>
-                          <strong>{log.method ?? draft.method ?? "—"}</strong>
-                        </div>
-                        <div>
-                          <small>Request ID</small>
-                          <strong>{log.request_id ?? "Not recorded"}</strong>
-                        </div>
-                      </div>
-                      <div className={`log-message ${failed ? "error" : "info"}`}>
-                        <small>{failed ? "Error details" : "Execution details"}</small>
-                        <code>
-                          {log.error ??
-                            log.message ??
-                            (failed
-                              ? "No error details recorded."
-                              : "Function completed without a message.")}
-                        </code>
-                      </div>
-                      {log.steps?.length ? (
-                        <div className="log-steps">
-                          <small>Workflow steps and latency</small>
-                          {log.steps.map((step) => (
-                            <div className="log-step" key={`${step.name}-${step.duration_ms}`}>
-                              <span
-                                className={`log-step-status ${step.status === "success" ? "success" : "failure"}`}
-                              >
-                                {step.status === "success" ? "✓" : "!"}
-                              </span>
-                              <strong>{step.name}</strong>
-                              <span>{step.duration_ms} ms</span>
-                              <small>{step.reason ?? step.error ?? "—"}</small>
-                            </div>
-                          ))}
-                        </div>
-                      ) : null}
+                      <time dateTime={log.created_at}>
+                        {new Date(log.created_at).toLocaleString()}
+                      </time>
                     </div>
-                  </article>
-                );
-              })}
+                    <div className="log-detail-grid">
+                      <div>
+                        <small>Reason</small>
+                        <strong>{reason}</strong>
+                      </div>
+                      <div>
+                        <small>Duration</small>
+                        <strong>{log.duration_ms} ms</strong>
+                      </div>
+                      <div>
+                        <small>Method</small>
+                        <strong>{log.method ?? draft.method ?? "—"}</strong>
+                      </div>
+                      <div>
+                        <small>Request ID</small>
+                        <strong>{log.request_id ?? "Not recorded"}</strong>
+                      </div>
+                    </div>
+                    <div className={`log-message ${failed ? "error" : "info"}`}>
+                      <small>{failed ? "Error details" : "Execution details"}</small>
+                      <code>
+                        {log.error ??
+                          log.message ??
+                          (failed
+                            ? "No error details recorded."
+                            : "Function completed without a message.")}
+                      </code>
+                    </div>
+                    {log.steps?.length ? (
+                      <div className="log-steps">
+                        <small>Workflow steps and latency</small>
+                        {log.steps.map((step) => (
+                          <div className="log-step" key={`${step.name}-${step.duration_ms}`}>
+                            <span
+                              className={`log-step-status ${step.status === "success" ? "success" : "failure"}`}
+                            >
+                              {step.status === "success" ? "✓" : "!"}
+                            </span>
+                            <strong>{step.name}</strong>
+                            <span>{step.duration_ms} ms</span>
+                            <small>{step.reason ?? step.error ?? "—"}</small>
+                          </div>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+                </article>
+              );
+            })}
           </div>
+          {orderedLogs.length > 10 && (
+            <div className="log-pagination">
+              <button
+                type="button"
+                disabled={logPage === 0}
+                onClick={() => setLogPage((page) => Math.max(0, page - 1))}
+              >
+                Newer
+              </button>
+              <span>
+                Page {logPage + 1} of {logPageCount} · Showing {visibleLogs.length} of{" "}
+                {orderedLogs.length}
+              </span>
+              <button
+                type="button"
+                disabled={logPage >= logPageCount - 1}
+                onClick={() => setLogPage((page) => Math.min(logPageCount - 1, page + 1))}
+              >
+                Older
+              </button>
+            </div>
+          )}
         </section>
       )}
     </AdminPageFrame>
