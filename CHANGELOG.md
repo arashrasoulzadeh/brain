@@ -3,6 +3,54 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `24bf1f1` — 2026-11-16 15:39:15 +0330 — silence error toasts from background function-draft polling and add CLAUDE.md
+  Files: CLAUDE.md,admin-nextjs/app/components/toast-provider.tsx admin-nextjs/app/page.tsx
+- `222dd25` — 2026-11-16 04:00:43 +0330 — show raw function execution records
+  Files: admin-nextjs/app/functions/[name]/page.tsx,admin-nextjs/app/styles.css
+- `bf4bdc9` — 2026-11-16 04:00:02 +0330 — isolate function editor in Monaco container
+  Files: admin-nextjs/app/functions/function-editor.tsx,admin-nextjs/app/styles.css
+- `64e5032` — 2026-11-16 03:59:01 +0330 — make Monaco text layer visible
+  Files: admin-nextjs/app/functions/function-editor.tsx,admin-nextjs/app/styles.css
+- `023651a` — 2026-11-16 03:57:49 +0330 — fit Monaco and identify function executions
+  Files: admin-nextjs/app/styles.css,internal/admin/functions.go
+- `25064bf` — 2026-11-16 03:54:16 +0330 — fit Monaco editor to function workspace
+  Files: admin-nextjs/app/functions/function-editor.tsx,admin-nextjs/app/styles.css
+- `90c0225` — 2026-11-16 03:53:26 +0330 — capture real sandbox latency breakdown
+  Files: admin-nextjs/app/functions/function-editor.tsx,internal/admin/functions.go
+- `af4f73e` — 2026-11-16 03:51:45 +0330 — use Monaco for function code editing
+  Files: admin-nextjs/app/functions/function-editor.tsx,admin-nextjs/app/styles.css admin-nextjs/package-lock.json,admin-nextjs/package.json
+- `887da3e` — 2026-11-16 03:49:48 +0330 — poll logs without overwriting editor drafts
+  Files: admin-nextjs/app/functions/[name]/page.tsx
+- `f07da06` — 2026-11-16 03:48:19 +0330 — show compatibility latency for legacy logs
+  Files: admin-nextjs/app/functions/[name]/page.tsx
+- `fe7902c` — 2026-11-16 03:47:00 +0330 — simplify function editor input
+  Files: admin-nextjs/app/functions/[name]/page.tsx,admin-nextjs/app/functions/function-editor.tsx admin-nextjs/app/styles.css
+- `cc83f16` — 2026-11-16 03:45:32 +0330 — remove function editor autocomplete
+  Files: admin-nextjs/app/functions/function-editor.tsx
+- `a6d1f58` — 2026-11-16 03:44:11 +0330 — trace function calls from edge to response
+  Files: admin-nextjs/app/functions/function-editor.tsx,internal/admin/functions.go
+- `8e3f0f5` — 2026-11-16 03:42:24 +0330 — restore reliable function editor typing
+  Files: admin-nextjs/app/functions/function-editor.tsx,admin-nextjs/app/styles.css
+- `8c6f950` — 2026-11-16 03:41:28 +0330 — show rich function log details in modal
+  Files: admin-nextjs/app/functions/[name]/page.tsx,admin-nextjs/app/styles.css
+- `2f0c0c7` — 2026-11-16 03:39:31 +0330 — separate compact log list from details
+  Files: admin-nextjs/app/functions/[name]/page.tsx,admin-nextjs/app/styles.css
+- `b39facf` — 2026-11-16 03:36:21 +0330 — refresh and paginate function logs
+  Files: admin-nextjs/app/functions/[name]/page.tsx,admin-nextjs/app/styles.css
+- `811e023` — 2026-11-16 03:33:42 +0330 — record function workflow latency details
+  Files: admin-nextjs/app/functions/[name]/page.tsx,admin-nextjs/app/styles.css internal/admin/functions.go
+- `c899520` — 2026-11-16 03:23:15 +0330 — fix editor completions and function law checks
+  Files: admin-nextjs/app/functions/function-editor.tsx,admin-nextjs/app/styles.css
+- `d6ae06f` — 2026-11-16 03:22:27 +0330 — validate function source before publish
+  Files: admin-nextjs/app/functions/[name]/page.tsx,admin-nextjs/app/functions/function-editor.tsx admin-nextjs/app/styles.css
+- `e0ae963` — 2026-11-16 03:21:20 +0330 — expand function execution logs
+  Files: admin-nextjs/app/functions/[name]/page.tsx,admin-nextjs/app/styles.css
+- `07beafc` — 2026-11-16 03:19:29 +0330 — add rich function editor experience
+  Files: admin-nextjs/app/functions/function-editor.tsx,admin-nextjs/app/styles.css
+- `158b524` — 2026-11-16 03:16:13 +0330 — keep login outside persistent admin shell
+  Files: admin-nextjs/app/components/admin-shell.tsx,admin-nextjs/app/page.tsx tests/admin/admin-shell.test.ts
+- `34415f7` — 2026-11-15 16:19:58 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `782abbb` — 2026-11-15 19:49:42 +0330 — show precise function publish validation errors
   Files: admin-nextjs/app/functions/[name]/page.tsx,internal/admin/functions.go
 - `fd03fa3` — 2026-11-15 16:18:15 +0000 — docs: update changelog [skip ci]
@@ -54,52 +102,4 @@ Automatically generated from commits on main.
 - `b24f115` — 2026-11-15 19:16:22 +0330 — guard plugin pages by lifecycle state
   Files: admin-nextjs/app/components/admin-chrome.tsx,admin-nextjs/app/functions/[name]/page.tsx admin-nextjs/app/functions/new/page.tsx,admin-nextjs/app/functions/page.tsx admin-nextjs/app/page.tsx,admin-nextjs/app/workflows/page.tsx
 - `58242df` — 2026-11-15 15:38:12 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `13d6415` — 2026-11-15 19:07:57 +0330 — fix local operator login setup
-  Files: admin-nextjs/app/page.tsx,docs/admins.md scripts/start-local.sh
-- `1ef4bac` — 2026-11-15 15:35:59 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `4ba054c` — 2026-11-15 19:04:00 +0330 — finish shared admin shell across all pages
-  Files: admin-nextjs/app/components/admin-chrome.tsx,admin-nextjs/app/functions/new/page.tsx admin-nextjs/app/functions/page.tsx,admin-nextjs/app/plugins/[plugin]/page.tsx admin-nextjs/app/workers/page.tsx,admin-nextjs/app/workflows/page.tsx
-- `9e392cc` — 2026-11-15 15:27:42 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `86f77a3` — 2026-11-15 18:57:17 +0330 — return json for every api response
-  Files: internal/app/api_response.go
-- `a512f26` — 2026-11-15 18:55:52 +0330 — make cross-cutting changes project-wide law
-  Files: AGENTS.md,docs/developers.md
-- `2f03e16` — 2026-11-15 15:24:48 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `31ab1e7` — 2026-11-15 18:54:33 +0330 — wire api envelope into server handler
-  Files: internal/app/app.go
-- `4a9a60b` — 2026-11-15 18:54:14 +0330 — standardize api messages and add admin toasts
-  Files: admin-nextjs/app/components/toast-provider.tsx,admin-nextjs/app/layout.tsx internal/app/api_response.go,tests/app/admin_test.go
-- `e038b0c` — 2026-11-15 15:22:27 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `f1cef48` — 2026-11-15 18:52:06 +0330 — apply tailwind component layer across admin ui
-  Files: admin-nextjs/app/styles.css
-- `539f29e` — 2026-11-15 15:19:14 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `c44ecc0` — 2026-11-15 18:48:53 +0330 — fix function publish flow and tailwind controls
-  Files: admin-nextjs/app/functions/[name]/page.tsx,admin-nextjs/app/styles.css admin-nextjs/package-lock.json,admin-nextjs/package.json admin-nextjs/postcss.config.mjs
-- `60556fc` — 2026-11-15 15:14:38 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `f48bead` — 2026-11-15 18:44:07 +0330 — fix function deployment method and source publishing
-  Files: admin-nextjs/.gitignore,admin-nextjs/app/components/admin-chrome.tsx admin-nextjs/app/functions/[name]/page.tsx,admin-nextjs/app/functions/function-editor.tsx admin-nextjs/app/functions/new/page.tsx,admin-nextjs/app/functions/page.tsx admin-nextjs/app/page.tsx,admin-nextjs/app/plugins/[plugin]/page.tsx admin-nextjs/app/styles.css,admin-nextjs/app/workers/page.tsx admin-nextjs/next.config.ts,admin-nextjs/tsconfig.json internal/admin/functions.go,internal/admin/lifecycle.go internal/app/admin.go,internal/app/app.go internal/plugin/plugin.go,plugins/functions/call-route.ts plugins/functions/index.ts,plugins/functions/plugin.yaml tests/admin/functions_test.go,tests/functions/public-call.test.ts
-- `7db93a4` — 2026-11-15 13:51:16 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `fa0fc43` — 2026-11-15 17:21:01 +0330 — persist analytics events in sqlite
-  Files: internal/plugin/plugin.go
-- `49424e3` — 2026-11-15 13:50:48 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `45b3a9a` — 2026-11-15 17:20:32 +0330 — persist room state in sqlite
-  Files: internal/plugin/plugin.go,plugins/rooms/rooms-create-route.ts plugins/rooms/rooms-join-route.ts,plugins/rooms/rooms-reconnect-route.ts plugins/rooms/rooms-result-route.ts
-- `5d01aa3` — 2026-11-15 13:49:58 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `7860a8d` — 2026-11-15 17:19:43 +0330 — persist matchmaking tickets in sqlite
-  Files: internal/plugin/plugin.go,internal/plugin/sqlite_storage.go plugins/matchmaking/matchmaking-assign-route.ts,plugins/matchmaking/matchmaking-cancel-route.ts plugins/matchmaking/matchmaking-status-route.ts
-- `3eaa5ae` — 2026-11-15 13:47:51 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `2d57b95` — 2026-11-15 17:17:36 +0330 — persist file routes in sqlite
-  Files: internal/plugin/plugin.go,internal/plugin/sqlite_storage.go plugins/files/files-download.ts,plugins/files/files-metadata.ts plugins/files/files-publish.ts
-- `02df869` — 2026-11-15 13:46:31 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
