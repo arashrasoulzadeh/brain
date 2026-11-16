@@ -116,22 +116,6 @@ export function FunctionEditor({
       requestAnimationFrame(() => editor.setSelectionRange(start + 2, start + 2));
       return;
     }
-    const pairs: Record<string, string> = { "(": ")", "[": "]", "{": "}", '"': '"', "'": "'" };
-    if (
-      pairs[event.key] &&
-      event.currentTarget.selectionStart === event.currentTarget.selectionEnd
-    ) {
-      const editor = event.currentTarget;
-      const cursor = editor.selectionStart;
-      if (source[cursor] === pairs[event.key]) {
-        event.preventDefault();
-        editor.setSelectionRange(cursor + 1, cursor + 1);
-        return;
-      }
-      event.preventDefault();
-      onChange(`${source.slice(0, cursor)}${event.key}${pairs[event.key]}${source.slice(cursor)}`);
-      requestAnimationFrame(() => editor.setSelectionRange(cursor + 1, cursor + 1));
-    }
   }
 
   return (

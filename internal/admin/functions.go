@@ -271,6 +271,7 @@ func (s *LifecycleService) PublishFunction(actor operator.Actor, projectID, name
 }
 
 func (s *LifecycleService) PublicInvokeFunction(projectID, name, method string, input json.RawMessage) (map[string]any, error) {
+	edgeStarted := time.Now()
 	functionDrafts.Lock()
 	loadFunctionDraftsLocked()
 	draft, ok := functionDrafts.items[projectID+":"+strings.TrimSpace(name)]
@@ -288,7 +289,10 @@ func (s *LifecycleService) PublicInvokeFunction(projectID, name, method string, 
 	if strings.ToUpper(strings.TrimSpace(method)) != draft.Method {
 		return nil, ErrFunctionMethodNotAllowed
 	}
-	return s.RunFunctionDraft(operator.Actor{Kind: operator.ActorOperator}, projectID, draft.Name, draft.Source, input)
+	return s.runFunctionDraft(operator.Actor{Kind: operator.ActorOperator}, projectID, draft.Name, draft.Source, input, []FunctionLogStep{
+		{Name: "edge router", Status: "success", Reason: "public route resolved and function version selected", DurationMs: time.Since(edgeStarted).Milliseconds()},
+		{Name: "method authorization", Status: "success", Reason: "request method matched function source config", DurationMs: 0},
+	})
 }
 
 func (s *LifecycleService) TestFunctionDraft(actor operator.Actor, projectID, name, source string) (map[string]any, error) {
@@ -310,8 +314,12 @@ func (s *LifecycleService) TestFunctionDraft(actor operator.Actor, projectID, na
 }
 
 func (s *LifecycleService) RunFunctionDraft(actor operator.Actor, projectID, name, source string, input json.RawMessage) (map[string]any, error) {
+	return s.runFunctionDraft(actor, projectID, name, source, input, nil)
+}
+
+func (s *LifecycleService) runFunctionDraft(actor operator.Actor, projectID, name, source string, input json.RawMessage, initialSteps []FunctionLogStep) (map[string]any, error) {
 	started := time.Now()
-	steps := make([]FunctionLogStep, 0, 4)
+	steps := append([]FunctionLogStep{}, initialSteps...)
 	addStep := func(name, status, reason string, stepStarted time.Time, stepError error) {
 		step := FunctionLogStep{Name: name, Status: status, Reason: reason, DurationMs: time.Since(stepStarted).Milliseconds()}
 		if stepError != nil {
@@ -370,6 +378,13 @@ func (s *LifecycleService) RunFunctionDraft(actor operator.Actor, projectID, nam
 		return nil, resultError
 	}
 	addStep("result validation", "success", "result conforms to the JSON return contract", resultStarted, nil)
+	responseStarted := time.Now()
+	if _, err := json.Marshal(result); err != nil {
+		addStep("response serialization", "failed", "result could not be encoded for the edge response", responseStarted, err)
+		writeLog("failed", "function response serialization failed")
+		return nil, errors.New("function response serialization failed")
+	}
+	addStep("response serialization", "success", "JSON response encoded for the caller", responseStarted, nil)
 	writeLog("success", "function completed successfully")
 	return map[string]any{"valid": true, "project_id": projectID, "name": name, "result": result}, nil
 }
