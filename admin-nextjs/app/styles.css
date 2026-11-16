@@ -33,6 +33,9 @@
 @media (max-width: 800px) { .log-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .log-detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .log-entry-heading { display: grid; } .log-entry-heading time { order: -1; } }
 .editor-diagnostic { display: flex; gap: 10px; align-items: baseline; grid-column: 1/-1; padding: 10px 14px; background: #fff3f2; color: #9c2f28; font-size: 12px; }
 .editor-diagnostic.valid { background: #edfaf3; color: #247345; }
+.monaco-editor-shell { overflow: hidden; padding: 0; }
+.monaco-editor-shell .editor-toolbar { border-bottom: 1px solid #34476b; }
+.monaco-editor-shell .editor-diagnostic { margin: 0; }
 .rich-editor { border-radius: 8px; }
 .editor-toolbar, .editor-body, .editor-completion-menu, .editor-status { border-radius: 0; }
 .log-steps { display: grid; gap: 7px; margin-top: 14px; padding: 12px; border: 1px solid #e1e7f0; border-radius: 10px; background: #f8faff; }

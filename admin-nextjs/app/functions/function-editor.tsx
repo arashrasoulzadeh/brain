@@ -1,7 +1,9 @@
 "use client";
 
-import { useMemo, useRef } from "react";
-import type { KeyboardEvent } from "react";
+import dynamic from "next/dynamic";
+import { useMemo } from "react";
+
+const MonacoEditor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
 
 export function FunctionEditor({
   source,
@@ -16,8 +18,6 @@ export function FunctionEditor({
   validating?: boolean;
   validationMessage?: string;
 }) {
-  const editorRef = useRef<HTMLTextAreaElement>(null);
-  const lines = source.split("\n");
   const localDiagnostic = useMemo(() => {
     const stack: string[] = [];
     const pairs: Record<string, string> = { "(": ")", "[": "]", "{": "}" };
@@ -39,54 +39,37 @@ export function FunctionEditor({
     return "";
   }, [source]);
 
-  function handleKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
-    if (event.key === "Tab") {
-      event.preventDefault();
-      const editor = event.currentTarget;
-      const start = editor.selectionStart;
-      onChange(`${source.slice(0, start)}  ${source.slice(editor.selectionEnd)}`);
-      requestAnimationFrame(() => editor.setSelectionRange(start + 2, start + 2));
-      return;
-    }
-  }
-
   return (
-    <section className="rich-editor" aria-label="TypeScript function editor">
+    <section className="rich-editor monaco-editor-shell" aria-label="Function source code editor">
       <header className="editor-toolbar">
-        <span>Source editor</span>
-        <small>Tab to indent</small>
+        <span>Function source</span>
+        <small>Monaco Editor · TypeScript</small>
         {onValidate && (
           <button type="button" disabled={validating} onClick={onValidate}>
             {validating ? "Checking…" : "Check syntax"}
           </button>
         )}
       </header>
-      <div className="editor-body">
-        <div className="editor-gutter">
-          {lines.map((_, index) => (
-            <span key={index}>{String(index + 1).padStart(2, "0")}</span>
-          ))}
-        </div>
-        <div className="editor-code">
-          <textarea
-            ref={editorRef}
-            aria-label="Function source code"
-            value={source}
-            onChange={(event) => {
-              onChange(event.target.value);
-            }}
-            onKeyDown={handleKeyDown}
-            onScroll={(event) => {
-              const pre = event.currentTarget.previousElementSibling as HTMLElement | null;
-              if (pre) {
-                pre.scrollTop = event.currentTarget.scrollTop;
-                pre.scrollLeft = event.currentTarget.scrollLeft;
-              }
-            }}
-            spellCheck={false}
-          />
-        </div>
-      </div>
+      <MonacoEditor
+        height="520px"
+        language="typescript"
+        theme="vs-dark"
+        value={source}
+        onChange={(value) => onChange(value ?? "")}
+        options={{
+          automaticLayout: true,
+          minimap: { enabled: true },
+          lineNumbers: "on",
+          folding: true,
+          wordWrap: "on",
+          tabSize: 2,
+          insertSpaces: true,
+          scrollBeyondLastLine: false,
+          fontSize: 14,
+          suggestOnTriggerCharacters: true,
+          quickSuggestions: true,
+        }}
+      />
       {(localDiagnostic || validationMessage) && (
         <div
           className={`editor-diagnostic ${validationMessage && !localDiagnostic ? "valid" : "invalid"}`}
@@ -96,10 +79,6 @@ export function FunctionEditor({
           <span>{validationMessage || localDiagnostic}</span>
         </div>
       )}
-      <footer className="editor-status">
-        <span>TypeScript · {lines.length} lines</span>
-        <span>{source.length} characters</span>
-      </footer>
     </section>
   );
 }
