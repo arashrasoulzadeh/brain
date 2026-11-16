@@ -15,6 +15,8 @@ function parseMessage(body: string, fallback: string): string {
   }
 }
 
+export const QUIET_REQUEST_HEADER = "x-brain-quiet";
+
 export function showToast(kind: ToastKind, message: string): void {
   window.dispatchEvent(new CustomEvent<ToastEvent>("brain:toast", { detail: { kind, message } }));
 }
@@ -30,9 +32,13 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       window.setTimeout(() => setToasts((current) => current.filter((item) => item.id !== id)), 5000);
     };
     const originalFetch = window.fetch.bind(window);
-    window.fetch = async (...args) => {
-      const response = await originalFetch(...args);
-      if (response.url.includes("/api/")) {
+    window.fetch = async (input, init) => {
+      // Background polling opts out of error toasts; the marker never leaves the browser.
+      const headers = new Headers(init?.headers);
+      const quiet = headers.has(QUIET_REQUEST_HEADER);
+      headers.delete(QUIET_REQUEST_HEADER);
+      const response = await originalFetch(input, quiet ? { ...init, headers } : init);
+      if (!quiet && response.url.includes("/api/")) {
         const body = await response.clone().text();
         if (!response.ok) showToast("error", parseMessage(body, `Request failed (${response.status})`));
         else if (body) {

@@ -3,6 +3,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { AdminFooter, AdminHeader, AdminSidebar } from "./components/admin-chrome";
+import { QUIET_REQUEST_HEADER } from "./components/toast-provider";
 type Project = { ID: string; Active: boolean };
 type PluginManifest = {
   ID: string;
@@ -348,7 +349,7 @@ export default function AdminPage() {
     }
     const response = await fetch(
       `/api/admin/functions?project_id=${encodeURIComponent(projectID)}`,
-      { headers: { authorization: `Bearer ${token}` } },
+      { headers: { authorization: `Bearer ${token}`, [QUIET_REQUEST_HEADER]: "1" } },
     );
     if (response.ok) setFunctionDrafts((await response.json()) as FunctionDraft[]);
   }
