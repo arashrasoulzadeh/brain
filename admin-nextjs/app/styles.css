@@ -972,12 +972,13 @@ button {
   background: #202f50;
 }
 .editor-code textarea {
-  z-index: 1;
+  z-index: 2;
   color: transparent;
   background: transparent;
   caret-color: #fff;
   border: 0;
   outline: 0;
+  pointer-events: auto;
   resize: none;
 }
 .editor-code textarea::selection {

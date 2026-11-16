@@ -173,9 +173,7 @@ export function FunctionEditor({
               setQuery(
                 event.target.value.slice(0, event.target.selectionStart).split(/\s/).pop() ?? "",
               );
-              setShowCompletions(true);
             }}
-            onFocus={() => setShowCompletions(true)}
             onKeyDown={handleKeyDown}
             onScroll={(event) => {
               const pre = event.currentTarget.previousElementSibling as HTMLElement | null;
