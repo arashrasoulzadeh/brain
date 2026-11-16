@@ -528,86 +528,137 @@ export default function FunctionDetailPage() {
             </table>
           </div>
           <div className="log-timeline">
-            {selectedLog
-              ? [selectedLog].map((log, index) => {
-                  const failed = log.status.toLowerCase() !== "success";
-                  const reason =
-                    log.reason ?? (failed ? "Execution failed" : "Completed successfully");
-                  return (
-                    <article
-                      className={`log-entry ${failed ? "failed" : "succeeded"}`}
-                      key={`${log.created_at}-${logPage}-${index}`}
-                    >
-                      <div className="log-entry-marker">{failed ? "!" : "✓"}</div>
-                      <div className="log-entry-content">
-                        <div className="log-entry-heading">
-                          <div>
-                            <strong>{failed ? "Failed execution" : "Successful execution"}</strong>
-                            <span className={`log-status ${failed ? "failure" : "success"}`}>
-                              {log.status}
-                            </span>
+            {selectedLog ? (
+              <div
+                className="log-modal-backdrop"
+                role="presentation"
+                onClick={() => setSelectedLog(null)}
+              >
+                <div
+                  className="log-modal"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-label="Function execution details"
+                  onClick={(event) => event.stopPropagation()}
+                >
+                  {" "}
+                  {[selectedLog].map((log, index) => {
+                    const failed = log.status.toLowerCase() !== "success";
+                    const reason =
+                      log.reason ?? (failed ? "Execution failed" : "Completed successfully");
+                    return (
+                      <article
+                        className={`log-entry ${failed ? "failed" : "succeeded"}`}
+                        key={`${log.created_at}-${logPage}-${index}`}
+                      >
+                        <div className="log-entry-marker">{failed ? "!" : "✓"}</div>
+                        <div className="log-entry-content">
+                          <div className="log-entry-heading">
+                            <div>
+                              <strong>
+                                {failed ? "Failed execution" : "Successful execution"}
+                              </strong>
+                              <span className={`log-status ${failed ? "failure" : "success"}`}>
+                                {log.status}
+                              </span>
+                            </div>
+                            <time dateTime={log.created_at}>
+                              {new Date(log.created_at).toLocaleString()}
+                            </time>
+                            <button
+                              type="button"
+                              className="log-view-action"
+                              onClick={() => setSelectedLog(null)}
+                            >
+                              Close details
+                            </button>
                           </div>
-                          <time dateTime={log.created_at}>
-                            {new Date(log.created_at).toLocaleString()}
-                          </time>
-                          <button
-                            type="button"
-                            className="log-view-action"
-                            onClick={() => setSelectedLog(null)}
-                          >
-                            Close details
-                          </button>
-                        </div>
-                        <div className="log-detail-grid">
-                          <div>
-                            <small>Reason</small>
-                            <strong>{reason}</strong>
+                          <div className="log-detail-grid">
+                            <div>
+                              <small>Reason</small>
+                              <strong>{reason}</strong>
+                            </div>
+                            <div>
+                              <small>Duration</small>
+                              <strong>{log.duration_ms} ms</strong>
+                            </div>
+                            <div>
+                              <small>Method</small>
+                              <strong>{log.method ?? draft.method ?? "—"}</strong>
+                            </div>
+                            <div>
+                              <small>Request ID</small>
+                              <strong>{log.request_id ?? "Not recorded"}</strong>
+                            </div>
                           </div>
-                          <div>
-                            <small>Duration</small>
-                            <strong>{log.duration_ms} ms</strong>
-                          </div>
-                          <div>
-                            <small>Method</small>
-                            <strong>{log.method ?? draft.method ?? "—"}</strong>
-                          </div>
-                          <div>
-                            <small>Request ID</small>
-                            <strong>{log.request_id ?? "Not recorded"}</strong>
-                          </div>
-                        </div>
-                        <div className={`log-message ${failed ? "error" : "info"}`}>
-                          <small>{failed ? "Error details" : "Execution details"}</small>
-                          <code>
-                            {log.error ??
-                              log.message ??
-                              (failed
-                                ? "No error details recorded."
-                                : "Function completed without a message.")}
-                          </code>
-                        </div>
-                        {log.steps?.length ? (
-                          <div className="log-steps">
-                            <small>Workflow steps and latency</small>
-                            {log.steps.map((step) => (
-                              <div className="log-step" key={`${step.name}-${step.duration_ms}`}>
-                                <span
-                                  className={`log-step-status ${step.status === "success" ? "success" : "failure"}`}
+                          <div className="log-latency-breakdown">
+                            <small>Latency breakdown</small>
+                            {log.steps?.length ? (
+                              log.steps.map((step) => (
+                                <div
+                                  className="latency-row"
+                                  key={`latency-${step.name}-${step.duration_ms}`}
                                 >
-                                  {step.status === "success" ? "✓" : "!"}
-                                </span>
-                                <strong>{step.name}</strong>
-                                <span>{step.duration_ms} ms</span>
-                                <small>{step.reason ?? step.error ?? "—"}</small>
-                              </div>
-                            ))}
+                                  <span>{step.name}</span>
+                                  <div>
+                                    <i
+                                      style={{
+                                        width: `${Math.min(100, log.duration_ms ? Math.max(2, (step.duration_ms / log.duration_ms) * 100) : 2)}%`,
+                                      }}
+                                    />
+                                  </div>
+                                  <strong>{step.duration_ms} ms</strong>
+                                  <em>
+                                    {log.duration_ms
+                                      ? `${Math.round((step.duration_ms / log.duration_ms) * 100)}%`
+                                      : "—"}
+                                  </em>
+                                </div>
+                              ))
+                            ) : (
+                              <p className="muted">
+                                No structured latency steps were recorded for this execution.
+                              </p>
+                            )}
+                            <div className="latency-total">
+                              <span>Total workflow latency</span>
+                              <strong>{log.duration_ms} ms</strong>
+                            </div>
                           </div>
-                        ) : null}
-                      </div>
-                    </article>
-                  );
-                })
-              : null}
+                          <div className={`log-message ${failed ? "error" : "info"}`}>
+                            <small>{failed ? "Error details" : "Execution details"}</small>
+                            <code>
+                              {log.error ??
+                                log.message ??
+                                (failed
+                                  ? "No error details recorded."
+                                  : "Function completed without a message.")}
+                            </code>
+                          </div>
+                          {log.steps?.length ? (
+                            <div className="log-steps">
+                              <small>Workflow steps and latency</small>
+                              {log.steps.map((step) => (
+                                <div className="log-step" key={`${step.name}-${step.duration_ms}`}>
+                                  <span
+                                    className={`log-step-status ${step.status === "success" ? "success" : "failure"}`}
+                                  >
+                                    {step.status === "success" ? "✓" : "!"}
+                                  </span>
+                                  <strong>{step.name}</strong>
+                                  <span>{step.duration_ms} ms</span>
+                                  <small>{step.reason ?? step.error ?? "—"}</small>
+                                </div>
+                              ))}
+                            </div>
+                          ) : null}
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : null}
           </div>
           {orderedLogs.length > 10 && (
             <div className="log-pagination">
