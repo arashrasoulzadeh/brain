@@ -1,26 +1,7 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef } from "react";
 import type { KeyboardEvent } from "react";
-
-type Completion = { label: string; insert: string; detail: string };
-
-const completions: Completion[] = [
-  {
-    label: "async function",
-    insert: "async function handler(input) {\n  \n}",
-    detail: "Function declaration",
-  },
-  { label: "console.log", insert: "console.log(value);", detail: "Write a diagnostic log" },
-  { label: "JSON.stringify", insert: "JSON.stringify(value)", detail: "Serialize a value" },
-  { label: "return", insert: "return value;", detail: "Return from the function" },
-  {
-    label: "try / catch",
-    insert: "try {\n  \n} catch (error) {\n  console.error(error);\n}",
-    detail: "Error boundary",
-  },
-  { label: "fetch", insert: 'fetch(url, { method: "POST" })', detail: "Make an HTTP request" },
-];
 
 function escapeHtml(value: string) {
   return value.replace(
@@ -57,12 +38,7 @@ export function FunctionEditor({
   validationMessage?: string;
 }) {
   const editorRef = useRef<HTMLTextAreaElement>(null);
-  const [showCompletions, setShowCompletions] = useState(false);
-  const [query, setQuery] = useState("");
   const lines = useMemo(() => source.split("\n"), [source]);
-  const visibleCompletions = completions.filter(
-    (completion) => query.length < 2 || completion.label.includes(query.toLowerCase()),
-  );
   const localDiagnostic = useMemo(() => {
     const stack: string[] = [];
     const pairs: Record<string, string> = { "(": ")", "[": "]", "{": "}" };
@@ -84,30 +60,7 @@ export function FunctionEditor({
     return "";
   }, [source]);
 
-  function insertCompletion(completion: Completion) {
-    const editor = editorRef.current;
-    if (!editor) return;
-    const start = editor.selectionStart;
-    onChange(`${source.slice(0, start)}${completion.insert}${source.slice(editor.selectionEnd)}`);
-    setShowCompletions(false);
-    requestAnimationFrame(() => {
-      editor.focus();
-      const cursor = start + completion.insert.length;
-      editor.setSelectionRange(cursor, cursor);
-    });
-  }
-
   function handleKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
-    if ((event.ctrlKey || event.metaKey) && event.code === "Space") {
-      event.preventDefault();
-      setQuery("");
-      setShowCompletions(true);
-      return;
-    }
-    if (event.key === "Escape") {
-      setShowCompletions(false);
-      return;
-    }
     if (event.key === "Tab") {
       event.preventDefault();
       const editor = event.currentTarget;
@@ -124,21 +77,12 @@ export function FunctionEditor({
         <span>
           <i className="editor-dot" /> TypeScript
         </span>
-        <small>⌘/Ctrl + Space for completions · Tab to indent</small>
+        <small>Tab to indent · TypeScript source</small>
         {onValidate && (
           <button type="button" disabled={validating} onClick={onValidate}>
             {validating ? "Checking…" : "Check syntax"}
           </button>
         )}
-        <button
-          type="button"
-          onClick={() => {
-            setQuery("");
-            setShowCompletions((visible) => !visible);
-          }}
-        >
-          Completions
-        </button>
       </header>
       <div className="editor-body">
         <div className="editor-gutter">
@@ -154,9 +98,6 @@ export function FunctionEditor({
             value={source}
             onChange={(event) => {
               onChange(event.target.value);
-              setQuery(
-                event.target.value.slice(0, event.target.selectionStart).split(/\s/).pop() ?? "",
-              );
             }}
             onKeyDown={handleKeyDown}
             onScroll={(event) => {
@@ -170,25 +111,6 @@ export function FunctionEditor({
           />
         </div>
       </div>
-      {showCompletions && (
-        <div className="editor-completion-menu" role="listbox">
-          <div className="completion-heading">
-            Suggestions <kbd>Esc</kbd>
-          </div>
-          {visibleCompletions.map((completion) => (
-            <button
-              type="button"
-              role="option"
-              key={completion.label}
-              onClick={() => insertCompletion(completion)}
-            >
-              <strong>{completion.label}</strong>
-              <span>{completion.detail}</span>
-            </button>
-          ))}
-          {!visibleCompletions.length && <small className="muted">No matching completions.</small>}
-        </div>
-      )}
       {(localDiagnostic || validationMessage) && (
         <div
           className={`editor-diagnostic ${validationMessage && !localDiagnostic ? "valid" : "invalid"}`}
