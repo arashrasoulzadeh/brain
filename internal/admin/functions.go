@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -45,6 +46,7 @@ type FunctionLog struct {
 	Message    string            `json:"message,omitempty"`
 	CreatedAt  time.Time         `json:"created_at"`
 	Steps      []FunctionLogStep `json:"steps,omitempty"`
+	Error      string            `json:"error,omitempty"`
 }
 type FunctionLogStep struct {
 	Name       string `json:"name"`
@@ -328,7 +330,11 @@ func (s *LifecycleService) runFunctionDraft(actor operator.Actor, projectID, nam
 		steps = append(steps, step)
 	}
 	writeLog := func(status, message string) {
-		appendFunctionLog(FunctionLog{ProjectID: projectID, Name: name, Status: status, Message: message, DurationMs: time.Since(started).Milliseconds(), CreatedAt: time.Now().UTC(), Steps: steps})
+		entry := FunctionLog{ProjectID: projectID, Name: name, Status: status, Message: message, DurationMs: time.Since(started).Milliseconds(), CreatedAt: time.Now().UTC(), Steps: steps}
+		if status == "failed" {
+			entry.Error = message
+		}
+		appendFunctionLog(entry)
 	}
 	validationStarted := time.Now()
 	if _, err := s.TestFunctionDraft(actor, projectID, name, source); err != nil {
@@ -348,23 +354,49 @@ func (s *LifecycleService) runFunctionDraft(actor operator.Actor, projectID, nam
 		return nil, err
 	}
 	addStep("input validation", "success", "request input is valid JSON", inputStarted, nil)
-	const runner = `const vm=await import("node:vm");const source=process.env.BRAIN_FUNCTION_SOURCE;const input=JSON.parse(process.env.BRAIN_FUNCTION_INPUT);const context=vm.createContext(Object.create(null));const module=new vm.SourceTextModule(source,{context});await module.link(()=>{throw new Error("imports are not permitted")});await module.evaluate({timeout:450});const handler=module.namespace.default;if(typeof handler!=="function")throw new Error("default export must be a function");const result=await Promise.race([Promise.resolve(handler(input)),new Promise((_,reject)=>setTimeout(()=>reject(new Error("function execution timed out")),400))]);process.stdout.write(JSON.stringify(result??null));`
+	const runner = `const vm=await import("node:vm");const clock=()=>Number(process.hrtime.bigint())/1e6;const source=process.env.BRAIN_FUNCTION_SOURCE;const input=JSON.parse(process.env.BRAIN_FUNCTION_INPUT);const context=vm.createContext(Object.create(null));const compileStart=clock();const module=new vm.SourceTextModule(source,{context});await module.link(()=>{throw new Error("imports are not permitted")});const compileMs=clock()-compileStart;const evaluateStart=clock();await module.evaluate({timeout:450});const evaluateMs=clock()-evaluateStart;const handler=module.namespace.default;if(typeof handler!=="function")throw new Error("default export must be a function");const invokeStart=clock();const result=await Promise.race([Promise.resolve(handler(input)),new Promise((_,reject)=>setTimeout(()=>reject(new Error("function execution timed out")),400))]);const invokeMs=clock()-invokeStart;process.stdout.write(JSON.stringify({result:result??null,timings:{compile_ms:compileMs,evaluate_ms:evaluateMs,invoke_ms:invokeMs}}));`
 	commandContext, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 	command := exec.CommandContext(commandContext, "node", "--experimental-vm-modules", "--input-type=module", "-e", runner)
 	command.Env = append(os.Environ(), "BRAIN_FUNCTION_SOURCE="+source, "BRAIN_FUNCTION_INPUT="+string(input))
 	executionStarted := time.Now()
-	output, err := command.Output()
+	output, err := command.CombinedOutput()
 	if err != nil {
+		detail := strings.TrimSpace(string(output))
+		if len(detail) > 4096 {
+			detail = detail[:4096]
+		}
 		executionError := errors.New("function execution failed")
+		if detail != "" {
+			executionError = fmt.Errorf("function execution failed: %s", detail)
+		}
 		addStep("sandbox execution", "failed", "sandbox did not produce a result", executionStarted, executionError)
 		writeLog("failed", executionError.Error())
 		return nil, executionError
 	}
 	addStep("sandbox execution", "success", "sandbox returned a JSON payload", executionStarted, nil)
 	resultStarted := time.Now()
-	var result any
-	if err := json.Unmarshal(output, &result); err != nil {
+	var envelope struct {
+		Result  json.RawMessage `json:"result"`
+		Timings struct {
+			CompileMs  float64 `json:"compile_ms"`
+			EvaluateMs float64 `json:"evaluate_ms"`
+			InvokeMs   float64 `json:"invoke_ms"`
+		} `json:"timings"`
+	}
+	if err := json.Unmarshal(output, &envelope); err != nil {
+		resultError := errors.New("function must return a JSON object, array, or null")
+		addStep("result validation", "failed", "function returned malformed JSON", resultStarted, resultError)
+		writeLog("failed", resultError.Error())
+		return nil, resultError
+	}
+	steps = append(steps,
+		FunctionLogStep{Name: "sandbox compile", Status: "success", Reason: "module compiled inside the sandbox", DurationMs: int64(envelope.Timings.CompileMs)},
+		FunctionLogStep{Name: "sandbox evaluate", Status: "success", Reason: "module evaluated inside the sandbox", DurationMs: int64(envelope.Timings.EvaluateMs)},
+		FunctionLogStep{Name: "handler execution", Status: "success", Reason: "default handler completed inside the sandbox", DurationMs: int64(envelope.Timings.InvokeMs)},
+	)
+	result := any(nil)
+	if err := json.Unmarshal(envelope.Result, &result); err != nil {
 		resultError := errors.New("function must return a JSON object, array, or null")
 		addStep("result validation", "failed", "function returned malformed JSON", resultStarted, resultError)
 		writeLog("failed", resultError.Error())

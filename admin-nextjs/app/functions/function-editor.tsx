@@ -51,7 +51,7 @@ export function FunctionEditor({
         )}
       </header>
       <MonacoEditor
-        height="520px"
+        height="420px"
         language="typescript"
         theme="vs-dark"
         value={source}
@@ -65,7 +65,8 @@ export function FunctionEditor({
           tabSize: 2,
           insertSpaces: true,
           scrollBeyondLastLine: false,
-          fontSize: 14,
+          fontSize: 13,
+          lineHeight: 20,
           suggestOnTriggerCharacters: true,
           quickSuggestions: true,
         }}
