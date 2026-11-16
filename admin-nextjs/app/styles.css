@@ -67,6 +67,9 @@
 .latency-row strong { color: #315da9; font-family: ui-monospace, monospace; }
 .latency-row em { color: #65728a; font-style: normal; }
 .latency-total { display: flex; justify-content: space-between; margin-top: 5px; padding-top: 10px; border-top: 1px solid #dfe6f1; font-weight: 800; }
+.log-raw-record { margin-top: 14px; border: 1px solid #dfe6f1; border-radius: 10px; background: #f8faff; }
+.log-raw-record summary { padding: 10px 12px; cursor: pointer; color: #315da9; font-size: 12px; font-weight: 800; }
+.log-raw-record pre { max-height: 240px; overflow: auto; margin: 0; padding: 12px; border-top: 1px solid #dfe6f1; color: #263653; font: 11px/1.5 ui-monospace, monospace; white-space: pre-wrap; }
 * {
   box-sizing: border-box;
 }

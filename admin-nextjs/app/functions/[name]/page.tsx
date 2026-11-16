@@ -650,6 +650,10 @@ export default function FunctionDetailPage() {
                                   : "Function completed without a message.")}
                             </code>
                           </div>
+                          <details className="log-raw-record" open>
+                            <summary>Raw execution record</summary>
+                            <pre>{JSON.stringify(log, null, 2)}</pre>
+                          </details>
                           {log.steps?.length ? (
                             <div className="log-steps">
                               <small>Workflow steps and latency</small>
