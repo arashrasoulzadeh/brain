@@ -45,6 +45,10 @@
 .log-step small { overflow-wrap: anywhere; color: #65728a; }
 .log-pagination { display: flex; align-items: center; justify-content: center; gap: 14px; color: #65728a; font-size: 12px; }
 .log-pagination button { margin: 0; padding: 8px 12px; }
+.compact-log-table { margin-top: 4px; }
+.compact-log-table th, .compact-log-table td { white-space: nowrap; }
+.log-view-action { margin: 0; padding: 7px 10px; background: #eef4ff; color: #315da9; font-size: 11px; }
+.log-view-action:hover { background: #dbe8ff; }
 * {
   box-sizing: border-box;
 }
