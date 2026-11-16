@@ -616,9 +616,14 @@ export default function FunctionDetailPage() {
                                 </div>
                               ))
                             ) : (
-                              <p className="muted">
-                                Legacy log: this execution was recorded before end-to-end step tracing was enabled. Run the function again after restarting the API to create a full breakdown.
-                              </p>
+                              <div className="latency-row legacy-latency-row">
+                                <span>legacy execution</span>
+                                <div>
+                                  <i style={{ width: "100%" }} />
+                                </div>
+                                <strong>{log.duration_ms} ms</strong>
+                                <em>100%</em>
+                              </div>
                             )}
                             <div className="latency-total">
                               <span>Total workflow latency</span>
