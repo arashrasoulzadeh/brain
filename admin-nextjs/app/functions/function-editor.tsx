@@ -51,22 +51,22 @@ export function FunctionEditor({
         )}
       </header>
       <MonacoEditor
-        height="420px"
+        height="520px"
         language="typescript"
         theme="vs-dark"
         value={source}
         onChange={(value) => onChange(value ?? "")}
         options={{
           automaticLayout: true,
-          minimap: { enabled: true },
+          minimap: { enabled: false },
           lineNumbers: "on",
           folding: true,
           wordWrap: "on",
           tabSize: 2,
           insertSpaces: true,
           scrollBeyondLastLine: false,
-          fontSize: 13,
-          lineHeight: 20,
+          fontSize: 12,
+          lineHeight: 18,
           suggestOnTriggerCharacters: true,
           quickSuggestions: true,
         }}
