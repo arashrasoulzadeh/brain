@@ -617,7 +617,7 @@ export default function FunctionDetailPage() {
                               ))
                             ) : (
                               <p className="muted">
-                                No structured latency steps were recorded for this execution.
+                                Legacy log: this execution was recorded before end-to-end step tracing was enabled. Run the function again after restarting the API to create a full breakdown.
                               </p>
                             )}
                             <div className="latency-total">

@@ -973,8 +973,8 @@ button {
 }
 .editor-code textarea {
   z-index: 2;
-  color: transparent;
-  background: transparent;
+  color: #f3f7ff;
+  background: #202f50;
   caret-color: #fff;
   border: 0;
   outline: 0;

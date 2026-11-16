@@ -3,27 +3,6 @@
 import { useMemo, useRef } from "react";
 import type { KeyboardEvent } from "react";
 
-function escapeHtml(value: string) {
-  return value.replace(
-    /[&<>"']/g,
-    (character) =>
-      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character] ??
-      character,
-  );
-}
-
-function highlight(source: string) {
-  return escapeHtml(source)
-    .replace(/(\/\/.*)$/gm, '<span class="token-comment">$1</span>')
-    .replace(/(&quot;.*?&quot;|&#39;.*?&#39;|`.*?`)/g, '<span class="token-string">$1</span>')
-    .replace(
-      /\b(export|default|async|await|function|return|const|let|if|else|try|catch|throw|new|import|from)\b/g,
-      '<span class="token-keyword">$1</span>',
-    )
-    .replace(/\b(console|JSON|Math|Promise|fetch)\b/g, '<span class="token-global">$1</span>')
-    .replace(/\b(true|false|null|undefined)\b/g, '<span class="token-value">$1</span>');
-}
-
 export function FunctionEditor({
   source,
   onChange,
@@ -38,7 +17,7 @@ export function FunctionEditor({
   validationMessage?: string;
 }) {
   const editorRef = useRef<HTMLTextAreaElement>(null);
-  const lines = useMemo(() => source.split("\n"), [source]);
+  const lines = source.split("\n");
   const localDiagnostic = useMemo(() => {
     const stack: string[] = [];
     const pairs: Record<string, string> = { "(": ")", "[": "]", "{": "}" };
@@ -74,10 +53,8 @@ export function FunctionEditor({
   return (
     <section className="rich-editor" aria-label="TypeScript function editor">
       <header className="editor-toolbar">
-        <span>
-          <i className="editor-dot" /> TypeScript
-        </span>
-        <small>Tab to indent · TypeScript source</small>
+        <span>Source editor</span>
+        <small>Tab to indent</small>
         {onValidate && (
           <button type="button" disabled={validating} onClick={onValidate}>
             {validating ? "Checking…" : "Check syntax"}
@@ -91,7 +68,6 @@ export function FunctionEditor({
           ))}
         </div>
         <div className="editor-code">
-          <pre aria-hidden="true" dangerouslySetInnerHTML={{ __html: `${highlight(source)}\n` }} />
           <textarea
             ref={editorRef}
             aria-label="Function source code"
