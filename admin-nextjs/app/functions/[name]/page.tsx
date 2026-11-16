@@ -23,6 +23,7 @@ type Log = {
   error?: string;
   method?: string;
   request_id?: string;
+  steps?: { name: string; status: string; duration_ms: number; reason?: string; error?: string }[];
 };
 type Deployment = { version: number; method: string; route: string; published_at: string };
 export default function FunctionDetailPage() {
@@ -528,6 +529,23 @@ export default function FunctionDetailPage() {
                               : "Function completed without a message.")}
                         </code>
                       </div>
+                      {log.steps?.length ? (
+                        <div className="log-steps">
+                          <small>Workflow steps and latency</small>
+                          {log.steps.map((step) => (
+                            <div className="log-step" key={`${step.name}-${step.duration_ms}`}>
+                              <span
+                                className={`log-step-status ${step.status === "success" ? "success" : "failure"}`}
+                              >
+                                {step.status === "success" ? "✓" : "!"}
+                              </span>
+                              <strong>{step.name}</strong>
+                              <span>{step.duration_ms} ms</span>
+                              <small>{step.reason ?? step.error ?? "—"}</small>
+                            </div>
+                          ))}
+                        </div>
+                      ) : null}
                     </div>
                   </article>
                 );

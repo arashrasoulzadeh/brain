@@ -35,6 +35,14 @@
 .editor-diagnostic.valid { background: #edfaf3; color: #247345; }
 .rich-editor { border-radius: 8px; }
 .editor-toolbar, .editor-body, .editor-completion-menu, .editor-status { border-radius: 0; }
+.log-steps { display: grid; gap: 7px; margin-top: 14px; padding: 12px; border: 1px solid #e1e7f0; border-radius: 10px; background: #f8faff; }
+.log-steps > small { color: #65728a; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; }
+.log-step { display: grid; grid-template-columns: 22px minmax(110px, 1fr) 70px minmax(160px, 2fr); gap: 9px; align-items: center; padding: 7px 0; border-top: 1px solid #e8edf5; font-size: 12px; }
+.log-step-status { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; font-size: 11px; }
+.log-step-status.success { background: #def7eb; color: #16734b; }
+.log-step-status.failure { background: #fee4e2; color: #b42318; }
+.log-step > span:nth-child(3) { color: #315da9; font-family: ui-monospace, monospace; }
+.log-step small { overflow-wrap: anywhere; color: #65728a; }
 * {
   box-sizing: border-box;
 }

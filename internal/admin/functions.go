@@ -38,12 +38,20 @@ type FunctionDraft struct {
 	CreatedAt   time.Time  `json:"created_at"`
 }
 type FunctionLog struct {
-	ProjectID  string    `json:"project_id"`
-	Name       string    `json:"name"`
-	Status     string    `json:"status"`
-	DurationMs int64     `json:"duration_ms"`
-	Message    string    `json:"message,omitempty"`
-	CreatedAt  time.Time `json:"created_at"`
+	ProjectID  string            `json:"project_id"`
+	Name       string            `json:"name"`
+	Status     string            `json:"status"`
+	DurationMs int64             `json:"duration_ms"`
+	Message    string            `json:"message,omitempty"`
+	CreatedAt  time.Time         `json:"created_at"`
+	Steps      []FunctionLogStep `json:"steps,omitempty"`
+}
+type FunctionLogStep struct {
+	Name       string `json:"name"`
+	Status     string `json:"status"`
+	DurationMs int64  `json:"duration_ms"`
+	Reason     string `json:"reason,omitempty"`
+	Error      string `json:"error,omitempty"`
 }
 
 var functionDrafts = struct {
@@ -303,32 +311,65 @@ func (s *LifecycleService) TestFunctionDraft(actor operator.Actor, projectID, na
 
 func (s *LifecycleService) RunFunctionDraft(actor operator.Actor, projectID, name, source string, input json.RawMessage) (map[string]any, error) {
 	started := time.Now()
+	steps := make([]FunctionLogStep, 0, 4)
+	addStep := func(name, status, reason string, stepStarted time.Time, stepError error) {
+		step := FunctionLogStep{Name: name, Status: status, Reason: reason, DurationMs: time.Since(stepStarted).Milliseconds()}
+		if stepError != nil {
+			step.Error = stepError.Error()
+		}
+		steps = append(steps, step)
+	}
+	writeLog := func(status, message string) {
+		appendFunctionLog(FunctionLog{ProjectID: projectID, Name: name, Status: status, Message: message, DurationMs: time.Since(started).Milliseconds(), CreatedAt: time.Now().UTC(), Steps: steps})
+	}
+	validationStarted := time.Now()
 	if _, err := s.TestFunctionDraft(actor, projectID, name, source); err != nil {
-		appendFunctionLog(FunctionLog{ProjectID: projectID, Name: name, Status: "failed", Message: err.Error(), DurationMs: time.Since(started).Milliseconds(), CreatedAt: time.Now().UTC()})
+		addStep("host validation", "failed", "source rejected before execution", validationStarted, err)
+		writeLog("failed", err.Error())
 		return nil, err
 	}
+	addStep("host validation", "success", "source and execution policy accepted", validationStarted, nil)
 	if len(input) == 0 {
 		input = json.RawMessage(`null`)
 	}
+	inputStarted := time.Now()
 	if !json.Valid(input) {
-		appendFunctionLog(FunctionLog{ProjectID: projectID, Name: name, Status: "failed", Message: "invalid JSON input", DurationMs: time.Since(started).Milliseconds(), CreatedAt: time.Now().UTC()})
-		return nil, errors.New("function input must be valid JSON")
+		err := errors.New("function input must be valid JSON")
+		addStep("input validation", "failed", "request input is not valid JSON", inputStarted, err)
+		writeLog("failed", err.Error())
+		return nil, err
 	}
+	addStep("input validation", "success", "request input is valid JSON", inputStarted, nil)
 	const runner = `const vm=await import("node:vm");const source=process.env.BRAIN_FUNCTION_SOURCE;const input=JSON.parse(process.env.BRAIN_FUNCTION_INPUT);const context=vm.createContext(Object.create(null));const module=new vm.SourceTextModule(source,{context});await module.link(()=>{throw new Error("imports are not permitted")});await module.evaluate({timeout:450});const handler=module.namespace.default;if(typeof handler!=="function")throw new Error("default export must be a function");const result=await Promise.race([Promise.resolve(handler(input)),new Promise((_,reject)=>setTimeout(()=>reject(new Error("function execution timed out")),400))]);process.stdout.write(JSON.stringify(result??null));`
 	commandContext, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 	command := exec.CommandContext(commandContext, "node", "--experimental-vm-modules", "--input-type=module", "-e", runner)
 	command.Env = append(os.Environ(), "BRAIN_FUNCTION_SOURCE="+source, "BRAIN_FUNCTION_INPUT="+string(input))
+	executionStarted := time.Now()
 	output, err := command.Output()
 	if err != nil {
-		appendFunctionLog(FunctionLog{ProjectID: projectID, Name: name, Status: "failed", Message: "function execution failed", DurationMs: time.Since(started).Milliseconds(), CreatedAt: time.Now().UTC()})
-		return nil, errors.New("function execution failed")
+		executionError := errors.New("function execution failed")
+		addStep("sandbox execution", "failed", "sandbox did not produce a result", executionStarted, executionError)
+		writeLog("failed", executionError.Error())
+		return nil, executionError
 	}
+	addStep("sandbox execution", "success", "sandbox returned a JSON payload", executionStarted, nil)
+	resultStarted := time.Now()
 	var result any
 	if err := json.Unmarshal(output, &result); err != nil {
-		appendFunctionLog(FunctionLog{ProjectID: projectID, Name: name, Status: "failed", Message: "invalid JSON result", DurationMs: time.Since(started).Milliseconds(), CreatedAt: time.Now().UTC()})
-		return nil, errors.New("function returned invalid JSON")
+		resultError := errors.New("function must return a JSON object, array, or null")
+		addStep("result validation", "failed", "function returned malformed JSON", resultStarted, resultError)
+		writeLog("failed", resultError.Error())
+		return nil, resultError
 	}
-	appendFunctionLog(FunctionLog{ProjectID: projectID, Name: name, Status: "success", DurationMs: time.Since(started).Milliseconds(), CreatedAt: time.Now().UTC()})
+	switch result.(type) {
+	case string, float64, bool:
+		resultError := errors.New("function must return a JSON object, array, or null")
+		addStep("result validation", "failed", "scalar and string returns are not allowed", resultStarted, resultError)
+		writeLog("failed", resultError.Error())
+		return nil, resultError
+	}
+	addStep("result validation", "success", "result conforms to the JSON return contract", resultStarted, nil)
+	writeLog("success", "function completed successfully")
 	return map[string]any{"valid": true, "project_id": projectID, "name": name, "result": result}, nil
 }
