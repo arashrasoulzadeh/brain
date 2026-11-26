@@ -36,6 +36,12 @@ events:
     fields:
       roomId: string
       reconnected: boolean
+  - name: created
+    fields: {roomId: string}
+  - name: reconnected
+    fields: {roomId: string}
+  - name: result.committed
+    fields: {roomId: string}
 routes:
   - operation: rooms.create
     function: create

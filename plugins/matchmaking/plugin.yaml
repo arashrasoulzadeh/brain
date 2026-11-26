@@ -30,6 +30,13 @@ extension_points:
 config_schema:
   ticketTtlSeconds: int
   matchSize: int
+events:
+  - name: queued
+    fields: {status: string}
+  - name: assigned
+    fields: {status: string}
+  - name: cancelled
+    fields: {status: string}
 routes:
   - operation: matchmaking.queue
     function: queue
