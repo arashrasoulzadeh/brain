@@ -10,8 +10,7 @@ source_files:
   - sign-up-request.ts
   - oidc-state-issuer.ts
   - oidc-state-consumer.ts
-  - delivery-writer.ts
-  - delivery-reader.ts
+  - delivery.ts
   - oidc-config-writer.ts
   - oidc-config-reader.ts
   - authorization-code-issuer.ts
@@ -21,13 +20,7 @@ source_files:
   - operator-session-validator.ts
   - operator-session-revoker.ts
   - session-token-digest.ts
-  - otp-types.ts
-  - email-otp-issuer.ts
-  - email-otp-verifier.ts
-  - sms-otp-issuer.ts
-  - sms-otp-verifier.ts
-  - recovery-token-issuer.ts
-  - recovery-token-consumer.ts
+  - otp.ts
   - auth-state.ts
   - create-auth-state.ts
   - validate-account.ts
@@ -46,15 +39,11 @@ source_files:
   - guest-account-upgrader.ts
   - create-pkce-challenge.ts
   - verify-pkce.ts
-  - normalize-phone-number.ts
   - oidc-types.ts
   - validate-oidc-token.ts
   - require-recent-authentication.ts
   - public-auth-error.ts
-  - validate-delivery-config.ts
-  - otp-limiter.ts
-  - account-rate-limiter.ts
-  - project-rate-limiter.ts
+  - rate-limits.ts
   - identity-linker.ts
   - create-auth-operations.ts
   - auth-functions.ts
@@ -68,8 +57,7 @@ imports:
   - ./sign-up-request.js
   - ./oidc-state-issuer.js
   - ./oidc-state-consumer.js
-  - ./delivery-writer.js
-  - ./delivery-reader.js
+  - ./delivery.js
   - ./oidc-config-writer.js
   - ./oidc-config-reader.js
   - ./authorization-code-issuer.js
@@ -79,13 +67,7 @@ imports:
   - ./operator-session-validator.js
   - ./operator-session-revoker.js
   - ./session-token-digest.js
-  - ./otp-types.js
-  - ./email-otp-issuer.js
-  - ./email-otp-verifier.js
-  - ./sms-otp-issuer.js
-  - ./sms-otp-verifier.js
-  - ./recovery-token-issuer.js
-  - ./recovery-token-consumer.js
+  - ./otp.js
   - ./auth-state.js
   - ./create-auth-state.js
   - ./validate-account.js
@@ -104,15 +86,11 @@ imports:
   - ./guest-account-upgrader.js
   - ./create-pkce-challenge.js
   - ./verify-pkce.js
-  - ./normalize-phone-number.js
   - ./oidc-types.js
   - ./validate-oidc-token.js
   - ./require-recent-authentication.js
   - ./public-auth-error.js
-  - ./validate-delivery-config.js
-  - ./otp-limiter.js
-  - ./account-rate-limiter.js
-  - ./project-rate-limiter.js
+  - ./rate-limits.js
   - ./identity-linker.js
   - ./create-auth-operations.js
   - ./auth-functions.js

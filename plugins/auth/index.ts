@@ -10,20 +10,20 @@ export { createPKCEChallenge } from "./create-pkce-challenge.js";
 export { verifyPKCE } from "./verify-pkce.js";
 export { OIDCStateIssuer } from "./oidc-state-issuer.js";
 export { OIDCStateConsumer } from "./oidc-state-consumer.js";
-export { DeliveryWriter } from "./delivery-writer.js";
-export { DeliveryReader } from "./delivery-reader.js";
-export { EmailOTPIssuer } from "./email-otp-issuer.js";
-export { EmailOTPVerifier } from "./email-otp-verifier.js";
-export { SMSOTPIssuer } from "./sms-otp-issuer.js";
-export { SMSOTPVerifier } from "./sms-otp-verifier.js";
-export { normalizePhoneNumber } from "./normalize-phone-number.js";
-export { OTPLimiter } from "./otp-limiter.js";
-export { RecoveryTokenIssuer } from "./recovery-token-issuer.js";
-export { RecoveryTokenConsumer } from "./recovery-token-consumer.js";
+export { DeliveryWriter } from "./delivery.js";
+export { DeliveryReader } from "./delivery.js";
+export { EmailOTPIssuer } from "./otp.js";
+export { EmailOTPVerifier } from "./otp.js";
+export { SMSOTPIssuer } from "./otp.js";
+export { SMSOTPVerifier } from "./otp.js";
+export { normalizePhoneNumber } from "./otp.js";
+export { OTPLimiter } from "./rate-limits.js";
+export { RecoveryTokenIssuer } from "./otp.js";
+export { RecoveryTokenConsumer } from "./otp.js";
 
-export { AccountRateLimiter } from "./account-rate-limiter.js";
+export { AccountRateLimiter } from "./rate-limits.js";
 
-export { ProjectRateLimiter } from "./project-rate-limiter.js";
+export { ProjectRateLimiter } from "./rate-limits.js";
 
 export { OperatorSessionIssuer } from "./operator-session-issuer.js";
 export { OperatorSessionValidator } from "./operator-session-validator.js";
@@ -38,7 +38,7 @@ export { OIDCConfigReader } from "./oidc-config-reader.js";
 export { validateOIDCToken } from "./validate-oidc-token.js";
 export { requireRecentAuthentication } from "./require-recent-authentication.js";
 export { publicAuthError } from "./public-auth-error.js";
-export { validateDeliveryConfig } from "./validate-delivery-config.js";
+export { validateDeliveryConfig } from "./delivery.js";
 
 export { AuthorizationCodeIssuer } from "./authorization-code-issuer.js";
 export { AuthorizationCodeConsumer } from "./authorization-code-consumer.js";

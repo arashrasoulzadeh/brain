@@ -1,5 +1,0 @@
-export function validateDeliveryConfig(environment: string, provider: string): void {
-  if (environment === "production" && ["local", "fake", "test"].includes(provider))
-    throw new Error("fake delivery forbidden in production");
-  if (!environment || !provider) throw new Error("invalid delivery configuration");
-}

@@ -46,3 +46,5 @@ export { validateProjectId, validateIdentifier, requiredString, trimmedString } 
 export type { PayloadHandler } from "./routes.js";
 export { createProjectMap } from "./project-store.js";
 export { commitWithGrant, createCommitRollback, createTransactionGate, runCappedRetries, runWithTimeout } from "./execution.js";
+
+export { createFixedWindowLimiter } from "./execution.js";
