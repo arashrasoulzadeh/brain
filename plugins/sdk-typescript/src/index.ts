@@ -46,3 +46,5 @@ export { request } from "./request.js";
 export { pluginRequest } from "./plugin-request.js";
 export { validateProjectId } from "./validate-project-id.js";
 export { validateIdentifier } from "./validate-identifier.js";
+export { createRouteDispatcher, requiredString, trimmedString } from "./routes.js";
+export type { PayloadHandler } from "./routes.js";

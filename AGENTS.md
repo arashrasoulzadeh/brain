@@ -20,7 +20,7 @@ This repository is building a Go multi-tenant mobile backend. The complete produ
 - Do not add auth, files, tables, subscriptions, rooms, matchmaking, analytics, workflows, dashboard features, or client-facing product behavior directly to the core host.
 - Every plugin must have a manifest, implementation, focused tests, permissions, configuration schema, developer notes, and administrator notes.
 - Each plugin may contain multiple TypeScript files, but every file must be listed in `plugin.yaml` `source_files`; do not add plugin-local `package.json` or README files. `index.ts` is only the public export/bootstrap boundary.
-- Each handler/function file must expose one product function and one responsibility. Classes with multiple unrelated responsibilities are prohibited; split them into focused modules. Shared logic must be imported from the SDK or an explicitly declared plugin-local shared file.
+- Keep one cohesive responsibility per module; related functions and methods may share a file. Classes with unrelated responsibilities are prohibited. Shared logic must be imported from the SDK or an explicitly declared plugin-local shared file.
 - Plugin implementations must stay clean and readable: audit all plugins for repeated request builders, validation helpers, handlers, and contracts; move genuinely shared behavior into `plugins/sdk-typescript/src/` and keep plugin `index.ts` focused on product behavior.
 - TypeScript lint is mandatory: run `npm run lint:ts` with typecheck and tests; lint failures block a checkbox or phase gate.
 - Apply SOLID and DRY across plugins: one responsibility per service/helper, explicit boundary interfaces, and no duplicated generic validation, request, or handler logic.
@@ -28,7 +28,7 @@ This repository is building a Go multi-tenant mobile backend. The complete produ
 - `plugin.yaml` is authoritative for plugin title, description, version, routes, function names, capabilities, extension points, and configuration; TypeScript must not duplicate manifest metadata or route allowlists.
 - `plugin.yaml` is also the import boundary: declare every plugin source file in `source_files`, every runtime/module import in `imports`, and every plugin-to-plugin dependency in both `dependencies` and `plugin_imports`; the host must reject undeclared files, imports, or plugin dependencies before execution.
 - Manifest lists must use block YAML sequences (`source_files:`/`imports:`/`plugin_imports:` followed by `-` entries), never inline flow lists; this keeps diffs readable and makes generated/automated edits safe.
-- The host discovers YAML routes and denies undeclared operations or capability mismatches before invoking a plugin function. Documentation is generated from the YAML contract.
+- The host discovers YAML routes and denies undeclared operations or capability mismatches before invoking a plugin function. Documentation is generated from the YAML contract. Routes may opt into the allowlisted `helper: sdk.dispatch` to invoke a named operation through the plugin's SDK dispatcher; unknown helpers and undeclared routes are rejected.
 - TypeScript plugins communicate with the Go host through the versioned RPC contract and may not bypass the permission broker or project boundary.
 - Plugins remain dynamically replaceable: version, enable, disable, promote, rollback, drain, and remove them through host lifecycle contracts.
 - All tests for every layer—unit, contract, API, admin, plugin, integration, and end-to-end—must live under the top-level `tests/` directory. Never add test files beside implementation packages.
@@ -54,8 +54,8 @@ This repository is building a Go multi-tenant mobile backend. The complete produ
 - Never authorize from a request builder's project ID, payload, route parameter, or object key; rebind identity from the host context and reject mismatches.
 - Production broker commits must use a single-use invocation credential bound to the originally authorized `HostCall`; raw host-call commits are test-only.
 - Every plugin security change requires a deep audit of project binding, authorization, replay/idempotency, input/path validation, network targets, secret handling, and manifest boundaries, with a regression test for each finding before the plugin is considered complete.
-- Every plugin source file has one focused callable responsibility: one exported function, or one class with one public business method. Additional responsibilities must be split into separate files, imported through `index.ts`, and declared in `plugin.yaml`.
-- Permanent plugin decomposition law: before implementing or extending any feature, decompose all affected plugin code into focused one-callable files and one-public-method classes; never add a new multi-responsibility plugin class, handler, helper, or facade.
+- Every plugin source module has one cohesive responsibility. Prefer the shared SDK and manifest-selected helpers to repetitive per-operation wrappers. Declare all remaining modules in `plugin.yaml`.
+- Consolidate related operations into cohesive domain modules rather than mechanically creating one file per callable. Keep unrelated responsibilities separate and avoid duplicating SDK behavior.
 - Never trust project IDs, plugin grants, room membership, or caller permissions from client input.
 - Recheck lifecycle, grants, versions, and idempotency at commit time.
 - Keep operator sessions separate from end-user sessions.

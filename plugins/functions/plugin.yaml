@@ -1,6 +1,7 @@
 id: functions
 entrypoint: index.ts
 source_files:
+  - routes.ts
   - index.ts
   - function-request.ts
   - approval-state.ts
@@ -91,10 +92,8 @@ source_files:
   - compiler-limits.ts
   - create-invocation-request.ts
   - retry-invocation.ts
-  - invoke-route.ts
-  - publish-route.ts
-  - call-route.ts
 imports:
+  - ./routes.js
   - ../sdk-typescript/src/index.js
   - node:fs
   - node:os
@@ -190,9 +189,6 @@ imports:
   - ./create-invocation-request.js
   - ./retry-invocation.js
   - ./index.js
-  - ./invoke-route.js
-  - ./publish-route.js
-  - ./call-route.js
 plugin_imports:
 title: Functions
 description: Project-scoped serverless function compilation and invocation controls.
@@ -209,10 +205,13 @@ config_schema:
 routes:
   - operation: functions.invoke
     function: invoke
+    helper: sdk.dispatch
     capability: functions.invoke
   - operation: functions.publish
     function: publish
+    helper: sdk.dispatch
     capability: functions.publish
   - operation: functions.call
     function: call
+    helper: sdk.dispatch
     capability: functions.call
