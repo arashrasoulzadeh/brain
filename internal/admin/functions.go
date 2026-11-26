@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"brain/internal/operator"
+	pluginsdk "brain/plugins/sdk-typescript"
 )
 
 var ErrFunctionDraftInvalid = errors.New("function draft requires a name and source")
@@ -357,11 +358,36 @@ func (s *LifecycleService) runFunctionDraft(actor operator.Actor, projectID, nam
 		return nil, err
 	}
 	addStep("input validation", "success", "request input is valid JSON", inputStarted, nil)
-	const runner = `const vm=await import("node:vm");const clock=()=>Number(process.hrtime.bigint())/1e6;const source=process.env.BRAIN_FUNCTION_SOURCE;const input=JSON.parse(process.env.BRAIN_FUNCTION_INPUT);const context=vm.createContext(Object.create(null));const compileStart=clock();const module=new vm.SourceTextModule(source,{context});await module.link(()=>{throw new Error("imports are not permitted")});const compileMs=clock()-compileStart;const evaluateStart=clock();await module.evaluate({timeout:450});const evaluateMs=clock()-evaluateStart;const handler=module.namespace.default;if(typeof handler!=="function")throw new Error("default export must be a function");const invokeStart=clock();const result=await Promise.race([Promise.resolve(handler(input)),new Promise((_,reject)=>setTimeout(()=>reject(new Error("function execution timed out")),400))]);const invokeMs=clock()-invokeStart;process.stdout.write(JSON.stringify({result:result??null,timings:{compile_ms:compileMs,evaluate_ms:evaluateMs,invoke_ms:invokeMs}}));`
+	const runner = `const vm=await import("node:vm");
+const clock=()=>Number(process.hrtime.bigint())/1e6;
+const sandbox=vm.createContext(Object.create(null),{codeGeneration:{strings:false,wasm:false}});
+const helpers=new vm.SourceTextModule(process.env.BRAIN_PURE_HELPERS,{context:sandbox});
+await helpers.link(()=>{throw new Error("helper imports are not permitted")});
+await helpers.evaluate({timeout:450});
+sandbox.__brainHelper=helpers.namespace.callHelper;
+sandbox.__brainInput=vm.runInContext("JSON.parse("+JSON.stringify(process.env.BRAIN_FUNCTION_INPUT)+")",sandbox);
+sandbox.__brainContext=vm.runInContext("Object.freeze({project:Object.freeze({id:"+JSON.stringify(process.env.BRAIN_PROJECT_ID)+"}),execution:Object.freeze({invocationId:"+JSON.stringify(process.env.BRAIN_INVOCATION_ID)+"}),helpers:Object.freeze({call:__brainHelper})})",sandbox);
+const compileStart=clock();
+const module=new vm.SourceTextModule(process.env.BRAIN_FUNCTION_SOURCE,{context:sandbox});
+await module.link(()=>{throw new Error("imports are not permitted")});
+const compileMs=clock()-compileStart;
+const evaluateStart=clock();
+await module.evaluate({timeout:450});
+const evaluateMs=clock()-evaluateStart;
+const handler=module.namespace.default;
+if(typeof handler!=="function")throw new Error("default export must be a function");
+sandbox.__brainHandler=handler;
+const invokeStart=clock();
+let timer;
+try {
+const result=await Promise.race([Promise.resolve(vm.runInContext("__brainHandler(__brainInput,__brainContext)",sandbox,{timeout:450})),new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error("function execution timed out")),400)})]);
+const invokeMs=clock()-invokeStart;
+process.stdout.write(JSON.stringify({result:result??null,timings:{compile_ms:compileMs,evaluate_ms:evaluateMs,invoke_ms:invokeMs}}));
+} finally {clearTimeout(timer);}`
 	commandContext, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
-	command := exec.CommandContext(commandContext, "node", "--experimental-vm-modules", "--input-type=module", "-e", runner)
-	command.Env = append(os.Environ(), "BRAIN_FUNCTION_SOURCE="+source, "BRAIN_FUNCTION_INPUT="+string(input))
+	command := exec.CommandContext(commandContext, "node", "--no-warnings", "--experimental-vm-modules", "--input-type=module", "-e", runner)
+	command.Env = []string{"PATH=" + os.Getenv("PATH"), "BRAIN_FUNCTION_SOURCE=" + source, "BRAIN_FUNCTION_INPUT=" + string(input), "BRAIN_PROJECT_ID=" + projectID, "BRAIN_INVOCATION_ID=" + requestID, "BRAIN_PURE_HELPERS=" + pluginsdk.PureHelperSource}
 	executionStarted := time.Now()
 	output, err := command.CombinedOutput()
 	if err != nil {

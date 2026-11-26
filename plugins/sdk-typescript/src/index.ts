@@ -1,3 +1,5 @@
+import type { PureHelperName } from "./helpers.mjs";
+
 export type WorkerParams = {
   protocol: number;
   projectId: string;
@@ -16,13 +18,15 @@ export type RpcRequest = {
   context?: PluginContext;
 };
 
-export type ProjectContext = Readonly<{ id: string }>;
+export type ProjectContext = Readonly<{ id: string; active?: true }>;
 
 export type PluginContext = Readonly<{
   project: ProjectContext;
   plugin: Readonly<{ id: string; version: string }>;
-  execution: Readonly<{ operation: string }>;
-  plugins: Readonly<{ observe: Readonly<{ fire(event: string, payload: Readonly<Record<string, string | number | boolean>>): void }> }>;
+  execution: Readonly<{ operation: string; invocationId?: string }>;
+  config?: Readonly<Record<string, string | number | boolean>>;
+  helpers?: Readonly<{ call: (name: PureHelperName, input: unknown) => unknown }>;
+  plugins: Readonly<{ has?: (id: string) => boolean; observe: Readonly<{ fire(event: string, payload: Readonly<Record<string, string | number | boolean>>): void }> }>;
 }>;
 
 export type Observation<T = unknown> = Readonly<{ projectId: string; pluginId: string; version: string; event: string; payload: T }>;
@@ -42,8 +46,10 @@ export type PluginRoute = {
   operation: string;
   function: string;
   capability: string;
-  helper?: "sdk.dispatch" | "sdk.request" | "sdk.response" | "sdk.context";
+  helper?: "sdk.dispatch" | "sdk.request" | "sdk.response" | "sdk.context" | "sdk.pipeline" | "host.model";
   response?: DeclarativeResponse;
+  pipeline?: DeclarativePipeline;
+  model?: Readonly<{ name: string; action: "create" | "read" | "list" | "update" | "delete" | "transition"; transition?: string }>;
 };
 
 export type DeclarativeResponse = {
@@ -76,3 +82,13 @@ export { createProjectMap } from "./project-store.js";
 export { commitWithGrant, createCommitRollback, createTransactionGate, runCappedRetries, runWithTimeout } from "./execution.js";
 
 export { createFixedWindowLimiter } from "./execution.js";
+
+export type DeclarativePipeline = Readonly<{
+  steps: readonly Readonly<{ helper: PureHelperName | "observe.fire"; input: string; save: string }>[];
+  return: string;
+}>;
+export { validateModel, transitionState } from "./declarative.js";
+export type { ModelSchema, StateMachine } from "./declarative.js";
+
+export { callHelper, hasHelper, helperNames } from "./helpers.mjs";
+export type { PureHelperName } from "./helpers.mjs";

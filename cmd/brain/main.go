@@ -23,6 +23,24 @@ import (
 )
 
 func main() {
+	if len(os.Args) > 1 && os.Args[1] == "plugin-contract" {
+		if len(os.Args) != 4 {
+			log.Fatal("usage: brain plugin-contract <plugin.yaml> <markdown|typescript>")
+		}
+		manifest, err := plugin.LoadManifest(os.Args[2])
+		if err != nil {
+			log.Fatal(err)
+		}
+		switch os.Args[3] {
+		case "markdown":
+			fmt.Print(plugin.Documentation(manifest))
+		case "typescript":
+			fmt.Print(plugin.TypeScriptContract(manifest))
+		default:
+			log.Fatal("unknown contract format")
+		}
+		return
+	}
 	if len(os.Args) > 1 && os.Args[1] == "bootstrap-operator" {
 		bootstrapOperator()
 		return
@@ -95,6 +113,10 @@ func productionServer() (*app.Server, error) {
 		_ = projects.Close()
 		return nil, fmt.Errorf("registry state unavailable: %w", err)
 	}
+	registry.BindProjectResolver(func(id string) error {
+		_, err := projects.Resolve(id)
+		return err
+	})
 	for _, installation := range registry.InstallationStatuses("") {
 		if installation.Enabled && installation.Ready && !installation.Draining {
 			if err := registry.StartWorker(installation.ProjectID, installation.PluginID, installation.Version); err != nil {

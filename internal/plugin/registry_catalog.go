@@ -107,7 +107,7 @@ func (r *Registry) ApprovedArtifact(id, version string) (string, bool) {
 
 func (r *Registry) Register(m Manifest) error {
 	validationManifest := m
-	if len(validationManifest.SourceFiles) == 0 && validationManifest.Entry == "" && len(validationManifest.Imports) == 0 && len(validationManifest.PluginImports) == 0 {
+	if !validationManifest.Declarative && len(validationManifest.SourceFiles) == 0 && validationManifest.Entry == "" && len(validationManifest.Imports) == 0 && len(validationManifest.PluginImports) == 0 {
 		validationManifest.Entry = "index.ts"
 		validationManifest.SourceFiles = []string{"index.ts"}
 	}
@@ -271,4 +271,11 @@ func (r *Registry) Unregister(id, version string) error {
 	}
 	r.appendAudit(AuditEvent{Action: "unregister", PluginID: id, Version: version})
 	return nil
+}
+
+// BindProjectResolver installs a trusted active-project lookup for invocations.
+func (r *Registry) BindProjectResolver(resolve func(string) error) {
+	r.readinessMu.Lock()
+	defer r.readinessMu.Unlock()
+	r.projectResolver = resolve
 }
