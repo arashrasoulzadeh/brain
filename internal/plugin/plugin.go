@@ -3,6 +3,7 @@ package plugin
 import (
 	"errors"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -79,6 +80,7 @@ type Registry struct {
 	storagePlanner     InvocationStoragePlanner
 	storagePlannerMu   sync.RWMutex
 	storageInvocations [64]sync.Mutex
+	storageFailed      atomic.Bool
 	webSockets         *WebSocketRegistry
 }
 

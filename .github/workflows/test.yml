@@ -16,7 +16,10 @@ jobs:
         with:
           go-version-file: go.mod
       - name: Check formatting
-        run: test -z "$(gofmt -l -- $(find cmd internal tests -name '*.go' -type f))"
+        run: |
+          unformatted="$(gofmt -l -- $(find cmd internal tests -name '*.go' -type f))"
+          printf '%s\n' "$unformatted"
+          test -z "$unformatted"
       - name: Test
         run: go test ./...
       - name: Check operator session races
@@ -56,6 +59,12 @@ jobs:
           OBJECT_MANIFEST: ${{ secrets.BRAIN_OBJECT_MANIFEST }}
           BRAIN_BIN: ./brain
         run: sh scripts/clean-environment-rehearsal.sh
+  production-runtime:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test packaged production startup and sandboxed invocation
+        run: timeout 300s bash scripts/test-production-runtime.sh
   typescript:
     runs-on: ubuntu-24.04
     steps:
@@ -74,7 +83,7 @@ jobs:
           -v "${GITHUB_WORKSPACE}:/workspace"
           -w /workspace
           node:20-bookworm
-          bash -lc 'apt-get update && apt-get install --yes bubblewrap nodejs && NODE_BIN=/usr/bin/nodejs timeout 30s bash scripts/test-sandboxed-typescript-worker.sh'
+          bash -lc 'apt-get update && apt-get install --yes bubblewrap && NODE_BIN=/usr/local/bin/node TEST_TYPESCRIPT_RUNTIME=1 timeout 60s bash scripts/test-sandboxed-typescript-worker.sh'
   admin:
     runs-on: ubuntu-24.04
     defaults:

@@ -1,6 +1,7 @@
 package plugin
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"errors"
@@ -122,6 +123,14 @@ func (s *SQLiteStorage) Append(projectID, table string, row map[string]any) erro
 	}
 	_, err = s.db.Exec(`INSERT INTO plugin_table_rows(project_id, table_name, rows_json) VALUES (?, ?, ?) ON CONFLICT(project_id, table_name) DO UPDATE SET rows_json=excluded.rows_json`, projectID, table, string(encoded))
 	return err
+}
+
+// CheckHealth verifies that the plugin database connection is reachable.
+func (s *SQLiteStorage) CheckHealth(ctx context.Context) error {
+	if s == nil || s.db == nil {
+		return errors.New("plugin storage unavailable")
+	}
+	return s.db.PingContext(ctx)
 }
 
 // The two historical tables remain readable by the existing storage API.

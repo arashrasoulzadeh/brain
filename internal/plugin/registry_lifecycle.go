@@ -35,20 +35,29 @@ func (r *Registry) PreviewDisable(projectID, id, version string) (DisablePreview
 func (r *Registry) ApplyDisablePreview(preview DisablePreview) error {
 	r.lifecycleMu.Lock()
 	defer r.lifecycleMu.Unlock()
-	r.installationMu.RLock()
-	defer r.installationMu.RUnlock()
+	r.readinessMu.RLock()
+	defer r.readinessMu.RUnlock()
+	r.installationMu.Lock()
+	defer r.installationMu.Unlock()
 	if preview.ProjectID == "" {
 		return ErrProjectInvalid
 	}
 	if preview.Revision != r.lifecycleRevision {
 		return ErrStalePreview
 	}
-	if _, ok := r.installations[preview.ProjectID+":"+preview.PluginID+"@"+preview.Version]; !ok {
+	key := preview.ProjectID + ":" + preview.PluginID + "@" + preview.Version
+	installation, ok := r.installations[key]
+	if !ok {
 		return ErrNotInstalled
 	}
-	var transitionError error
+	installation.Enabled = false
+	r.installations[key] = installation
+	transitionError := r.persistLifecycleState()
+	if err := r.stopBoundWorker(key); err != nil && transitionError == nil {
+		transitionError = err
+	}
 	if r.supervisor != nil {
-		if err := r.supervisor.StopProjectPlugin(preview.ProjectID, preview.PluginID, preview.Version); err != nil && !errors.Is(err, ErrWorkerNotRunning) {
+		if err := r.supervisor.StopProjectPlugin(preview.ProjectID, preview.PluginID, preview.Version); err != nil && !errors.Is(err, ErrWorkerNotRunning) && transitionError == nil {
 			transitionError = err
 		}
 	}
@@ -84,24 +93,34 @@ func (r *Registry) Enable(projectID, id, version string) error {
 			return ErrGrantDenied
 		}
 	}
-	i.Enabled = true
-	r.installations[key] = i
-	r.persistLifecycleState()
+	if err := r.LifecycleStorageHealth(); err != nil {
+		return err
+	}
+	r.workerMu.Lock()
+	defer r.workerMu.Unlock()
+	var started ContractWorker
 	if r.workerFactory != nil {
-		worker, err := r.workerFactory(projectID, id, version)
-		if err != nil {
-			i.Enabled = false
-			r.installations[key] = i
-			return err
+		existing := r.workers[key]
+		if existing == nil || !existing.Ready() {
+			worker, err := r.workerFactory(projectID, id, version)
+			if err != nil {
+				return err
+			}
+			if err := worker.Start(); err != nil {
+				return err
+			}
+			started = worker
 		}
-		if err := worker.Start(); err != nil {
-			i.Enabled = false
-			r.installations[key] = i
-			return err
+	}
+	i.Enabled = true
+	if err := r.saveInstallationLocked(key, i); err != nil {
+		if started != nil {
+			_ = started.Stop()
 		}
-		r.workerMu.Lock()
-		r.workers[key] = worker
-		r.workerMu.Unlock()
+		return err
+	}
+	if started != nil {
+		r.workers[key] = started
 	}
 	r.appendAudit(AuditEvent{Action: "enable", ProjectID: projectID, PluginID: id, Version: version})
 	return nil
@@ -114,6 +133,8 @@ func (r *Registry) Drain(projectID, id, version string) error {
 func (r *Registry) DrainUntil(projectID, id, version string, deadline time.Time) error {
 	r.lifecycleMu.Lock()
 	defer r.lifecycleMu.Unlock()
+	r.readinessMu.RLock()
+	defer r.readinessMu.RUnlock()
 	r.installationMu.Lock()
 	defer r.installationMu.Unlock()
 	if !isValidProjectID(projectID) {
@@ -127,6 +148,9 @@ func (r *Registry) DrainUntil(projectID, id, version string, deadline time.Time)
 	i.Draining = true
 	i.DrainUntil = deadline
 	r.installations[key] = i
+	if err := r.persistLifecycleState(); err != nil {
+		return err
+	}
 	r.appendAudit(AuditEvent{Action: "drain", ProjectID: projectID, PluginID: id, Version: version})
 	return nil
 }
@@ -134,6 +158,8 @@ func (r *Registry) DrainUntil(projectID, id, version string, deadline time.Time)
 func (r *Registry) StopImmediately(projectID, id, version string) error {
 	r.lifecycleMu.Lock()
 	defer r.lifecycleMu.Unlock()
+	r.readinessMu.RLock()
+	defer r.readinessMu.RUnlock()
 	r.installationMu.Lock()
 	defer r.installationMu.Unlock()
 	if !isValidProjectID(projectID) {
@@ -148,10 +174,15 @@ func (r *Registry) StopImmediately(projectID, id, version string) error {
 	i.DrainUntil = time.Unix(0, 0)
 	r.installations[key] = i
 	r.lifecycleRevision++
-	r.appendAudit(AuditEvent{Action: "stop_immediate", ProjectID: projectID, PluginID: id, Version: version})
-	var stopError error
+	stopError := r.persistLifecycleState()
+	if stopError == nil {
+		r.appendAudit(AuditEvent{Action: "stop_immediate", ProjectID: projectID, PluginID: id, Version: version})
+	}
+	if err := r.stopBoundWorker(key); err != nil && stopError == nil {
+		stopError = err
+	}
 	if r.supervisor != nil {
-		if err := r.supervisor.StopProjectPlugin(projectID, id, version); err != nil && !errors.Is(err, ErrWorkerNotRunning) {
+		if err := r.supervisor.StopProjectPlugin(projectID, id, version); err != nil && !errors.Is(err, ErrWorkerNotRunning) && stopError == nil {
 			stopError = err
 		}
 	}
@@ -166,6 +197,8 @@ func (r *Registry) StopImmediately(projectID, id, version string) error {
 func (r *Registry) Recover(projectID, id, version string) error {
 	r.lifecycleMu.Lock()
 	defer r.lifecycleMu.Unlock()
+	r.readinessMu.RLock()
+	defer r.readinessMu.RUnlock()
 	r.installationMu.Lock()
 	defer r.installationMu.Unlock()
 	if !isValidProjectID(projectID) {
@@ -192,7 +225,9 @@ func (r *Registry) Recover(projectID, id, version string) error {
 	}
 	i.Draining = false
 	i.DrainUntil = time.Time{}
-	r.installations[key] = i
+	if err := r.saveInstallationLocked(key, i); err != nil {
+		return err
+	}
 	r.lifecycleRevision++
 	r.appendAudit(AuditEvent{Action: "recover", ProjectID: projectID, PluginID: id, Version: version})
 	return nil
@@ -249,6 +284,8 @@ func (r *Registry) CanReconnect(projectID, id, version string, now time.Time) er
 func (r *Registry) Remove(projectID, id, version string) error {
 	r.lifecycleMu.Lock()
 	defer r.lifecycleMu.Unlock()
+	r.readinessMu.RLock()
+	defer r.readinessMu.RUnlock()
 	r.installationMu.Lock()
 	defer r.installationMu.Unlock()
 	if !isValidProjectID(projectID) {
@@ -266,15 +303,19 @@ func (r *Registry) Remove(projectID, id, version string) error {
 	if r.active[projectID+":"+id] == version {
 		return ErrVersionReferenced
 	}
-	var removalError error
+	removalError := r.stopBoundWorker(key)
 	if r.supervisor != nil {
-		if err := r.supervisor.StopProjectPlugin(projectID, id, version); err != nil && !errors.Is(err, ErrWorkerNotRunning) {
+		if err := r.supervisor.StopProjectPlugin(projectID, id, version); err != nil && !errors.Is(err, ErrWorkerNotRunning) && removalError == nil {
 			removalError = err
 		}
 	}
 	delete(r.installations, key)
 	r.lifecycleRevision++
-	r.appendAudit(AuditEvent{Action: "remove", ProjectID: projectID, PluginID: id, Version: version})
+	if err := r.persistLifecycleState(); err != nil {
+		removalError = err
+	} else {
+		r.appendAudit(AuditEvent{Action: "remove", ProjectID: projectID, PluginID: id, Version: version})
+	}
 	if r.webSockets != nil {
 		if err := r.webSockets.CloseProject(projectID); err != nil && removalError == nil {
 			removalError = err
@@ -286,6 +327,8 @@ func (r *Registry) Remove(projectID, id, version string) error {
 func (r *Registry) UninstallProject(projectID string) error {
 	r.lifecycleMu.Lock()
 	defer r.lifecycleMu.Unlock()
+	r.readinessMu.RLock()
+	defer r.readinessMu.RUnlock()
 	r.installationMu.Lock()
 	defer r.installationMu.Unlock()
 	if !isValidProjectID(projectID) {
@@ -304,6 +347,9 @@ func (r *Registry) UninstallProject(projectID string) error {
 	}
 	for key, installation := range r.installations {
 		if installation.ProjectID == projectID {
+			if err := r.stopBoundWorker(key); err != nil && uninstallError == nil {
+				uninstallError = err
+			}
 			if r.supervisor != nil {
 				if err := r.supervisor.StopProjectPlugin(projectID, installation.PluginID, installation.Version); err != nil && !errors.Is(err, ErrWorkerNotRunning) && uninstallError == nil {
 					uninstallError = err
@@ -316,7 +362,11 @@ func (r *Registry) UninstallProject(projectID string) error {
 		}
 	}
 	r.lifecycleRevision++
-	r.appendAudit(AuditEvent{Action: "uninstall_project", ProjectID: projectID})
+	if err := r.persistLifecycleState(); err != nil {
+		uninstallError = err
+	} else {
+		r.appendAudit(AuditEvent{Action: "uninstall_project", ProjectID: projectID})
+	}
 	if r.webSockets != nil {
 		if err := r.webSockets.CloseProject(projectID); err != nil && uninstallError == nil {
 			uninstallError = err

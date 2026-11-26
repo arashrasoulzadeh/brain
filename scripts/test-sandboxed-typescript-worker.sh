@@ -1,23 +1,68 @@
 #!/usr/bin/env bash
-set -eu
+set -euo pipefail
 
 root=$(mktemp -d)
-trap 'rm -rf "$root"' EXIT
-cat > "$root/index.mjs" <<'EOF'
-import { writeFile } from "node:fs/promises";
+server_pid=""
+cleanup() {
+  if [ -n "$server_pid" ]; then kill "$server_pid" 2>/dev/null || true; fi
+  rm -rf "$root"
+}
+trap cleanup EXIT
+mkdir "$root/plugin"
+printf 'outside secret' > "$root/host-secret"
+printf 'undeclared secret' > "$root/plugin/undeclared"
+node_bin="${NODE_BIN:-node}"
+"$node_bin" -e 'const fs=require("node:fs");require("node:http").createServer((req,res)=>res.end("reachable")).listen(0,"127.0.0.1",function(){fs.writeFileSync(process.argv[1],String(this.address().port))})' "$root/port" &
+server_pid=$!
+for attempt in $(seq 1 50); do
+  [ -s "$root/port" ] && break
+  sleep 0.1
+done
+port=$(cat "$root/port")
+cat > "$root/plugin/index.mjs" <<EOF
+import { readFile, writeFile } from "node:fs/promises";
 export async function handle() {
   let networkBlocked = false;
   let filesystemBlocked = false;
-  try { await fetch("http://127.0.0.1:9", { signal: AbortSignal.timeout(100) }); } catch { networkBlocked = true; }
-  try { await writeFile("/plugin/should-not-write", "blocked"); } catch { filesystemBlocked = true; }
-  return { accepted: networkBlocked && filesystemBlocked };
+  let hostSecretBlocked = false;
+  let undeclaredBlocked = false;
+  try { const response = await fetch("http://127.0.0.1:$port", { signal: AbortSignal.timeout(1000) }); await response.text(); } catch { networkBlocked = true; }
+  try { await writeFile(new URL("./should-not-write", import.meta.url), "blocked"); } catch { filesystemBlocked = true; }
+  try { await readFile(new URL("../host-secret", import.meta.url)); } catch { hostSecretBlocked = true; }
+  try { await readFile(new URL("./undeclared", import.meta.url)); } catch { undeclaredBlocked = true; }
+  return { networkBlocked, filesystemBlocked, hostSecretBlocked, undeclaredBlocked, envBlocked: !process.env.BRAIN_TEST_SECRET };
 }
 EOF
 cat > "$root/execution.json" <<EOF
-{"entrypoint":"$root/index.mjs","pluginId":"sample","version":"1.0.0","projectId":"project","routes":[{"operation":"health","function":"handle"}]}
+{"entrypoint":"$root/plugin/index.mjs","pluginId":"sample","version":"1.0.0","projectId":"project","routes":[{"operation":"health","function":"handle"}]}
 EOF
-response=$(WORKER_SCRIPT="$PWD/scripts/typescript-worker.mjs" EXECUTION_DESCRIPTOR="$root/execution.json" PLUGIN_ROOT="$root" CPU_MILLIS=1000 MEMORY_BYTES=2147483648 PROCESS_LIMIT=16 bash scripts/run-sandboxed-typescript-worker.sh <<'EOF'
-{"jsonrpc":"2.0","id":"one","params":{"protocol":1,"pluginId":"sample","version":"1.0.0","projectId":"project","operation":"health"}}
+request='{"jsonrpc":"2.0","id":"one","params":{"protocol":1,"pluginId":"sample","version":"1.0.0","projectId":"project","operation":"health"}}'
+# Positive controls: all probes are accessible without the sandbox.
+control=$(printf '%s\n' "$request" | BRAIN_TEST_SECRET=fixture "$node_bin" scripts/typescript-worker.mjs "$root/execution.json")
+for field in networkBlocked filesystemBlocked hostSecretBlocked undeclaredBlocked envBlocked; do
+  printf '%s\n' "$control" | grep -F "\"$field\":false"
+done
+test -f "$root/plugin/should-not-write"
+rm "$root/plugin/should-not-write"
+response=$(printf '%s\n' "$request" | BRAIN_TEST_SECRET=fixture WORKER_SCRIPT="$PWD/scripts/typescript-worker.mjs" EXECUTION_DESCRIPTOR="$root/execution.json" PLUGIN_ROOT="$root/plugin" WORKER_SOURCE_FILES=index.mjs REQUIRE_DECLARED_SOURCES=1 CPU_MILLIS=1000 MEMORY_BYTES=2147483648 PROCESS_LIMIT=16 bash scripts/run-sandboxed-typescript-worker.sh)
+for field in networkBlocked filesystemBlocked hostSecretBlocked undeclaredBlocked envBlocked; do
+  printf '%s\n' "$response" | grep -F "\"$field\":true"
+done
+test ! -e "$root/plugin/should-not-write"
+
+# Exercise the real TypeScript loader and Wasm allocation with the same memory
+# cap as production, not just a JavaScript fixture on the distro's Node.
+if [ "${TEST_TYPESCRIPT_RUNTIME:-0}" = 1 ]; then
+  cat > "$root/plugin/index.mts" <<'TS'
+export function handle(): { pages: number } {
+  const memory = new WebAssembly.Memory({ initial: 1, maximum: 2 });
+  return { pages: memory.buffer.byteLength / 65536 };
+}
+TS
+  cat > "$root/execution.json" <<EOF
+{"entrypoint":"$root/plugin/index.mts","pluginId":"sample","version":"1.0.0","projectId":"project","routes":[{"operation":"health","function":"handle"}]}
 EOF
-)
-printf '%s\n' "$response" | grep -F '"accepted":true'
+  response=$(printf '%s\n' "$request" | NODE_BIN="$node_bin" WORKER_RUNTIME_ROOT="$PWD" WORKER_SCRIPT="$PWD/scripts/typescript-worker.mjs" EXECUTION_DESCRIPTOR="$root/execution.json" PLUGIN_ROOT="$root/plugin" WORKER_SOURCE_FILES=index.mts REQUIRE_DECLARED_SOURCES=1 CPU_MILLIS=30000 MEMORY_BYTES=2147483648 PROCESS_LIMIT=64 bash scripts/run-sandboxed-typescript-worker.sh)
+  printf '%s\n' "$response" | grep -F '"success":true'
+  printf '%s\n' "$response" | grep -F '"pages":1'
+fi

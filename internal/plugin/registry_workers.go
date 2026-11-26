@@ -1,5 +1,10 @@
 package plugin
 
+import (
+	"errors"
+	"time"
+)
+
 func (r *Registry) BindSupervisor(supervisor *Supervisor) {
 	r.supervisor = supervisor
 }
@@ -99,12 +104,15 @@ func (r *Registry) authorizeInvocation(request WorkerRequest) error {
 }
 
 func (r *Registry) authorizeInvocationLocked(request WorkerRequest) error {
+	if err := r.LifecycleStorageHealth(); err != nil {
+		return err
+	}
 	manifestKey := request.PluginID + "@" + request.Version
 	installation, installed := r.installations[request.ProjectID+":"+manifestKey]
 	if !installed {
 		return ErrNotInstalled
 	}
-	if !installation.Enabled {
+	if !installation.Enabled || (installation.Draining && (installation.DrainUntil.IsZero() || !time.Now().Before(installation.DrainUntil))) {
 		return ErrDisabled
 	}
 	if !r.readiness[manifestKey] {
@@ -129,28 +137,39 @@ func (r *Registry) authorizeInvocationLocked(request WorkerRequest) error {
 // StartWorker starts a worker for an already enabled installation that lost its
 // runtime process. Lifecycle and grants are rechecked before the worker starts.
 func (r *Registry) StartWorker(projectID, id, version string) error {
+	r.readinessMu.RLock()
+	defer r.readinessMu.RUnlock()
 	r.installationMu.RLock()
+	defer r.installationMu.RUnlock()
+	if err := r.LifecycleStorageHealth(); err != nil {
+		return err
+	}
 	installation, installed := r.installations[projectID+":"+id+"@"+version]
-	r.installationMu.RUnlock()
 	if !installed {
 		return ErrNotInstalled
 	}
-	if !installation.Enabled {
+	if !installation.Enabled || installation.Draining {
 		return ErrDisabled
 	}
-	r.readinessMu.RLock()
-	ready := r.readiness[id+"@"+version]
-	r.readinessMu.RUnlock()
-	if !ready {
+	if !r.readiness[id+"@"+version] {
 		return ErrNotReady
 	}
+	registered, ok := r.registered[id+"@"+version]
+	if !ok {
+		return ErrNotRegistered
+	}
+	for _, capability := range registered.Manifest.Capabilities {
+		if !installation.Grants[capability] {
+			return ErrGrantDenied
+		}
+	}
+	r.workerMu.Lock()
+	defer r.workerMu.Unlock()
 	if r.workerFactory == nil {
 		return ErrWorkerUnavailable
 	}
 	key := projectID + ":" + id + "@" + version
-	r.workerMu.RLock()
 	worker := r.workers[key]
-	r.workerMu.RUnlock()
 	if worker != nil && worker.Ready() {
 		return nil
 	}
@@ -161,9 +180,23 @@ func (r *Registry) StartWorker(projectID, id, version string) error {
 	if err := worker.Start(); err != nil {
 		return err
 	}
-	r.workerMu.Lock()
 	r.workers[key] = worker
-	r.workerMu.Unlock()
+	return nil
+}
+
+// stopBoundWorker removes the actual runtime worker, not just supervisor state.
+// The caller holds the installation lock so no new invocation can be admitted.
+func (r *Registry) stopBoundWorker(key string) error {
+	r.workerMu.Lock()
+	defer r.workerMu.Unlock()
+	worker := r.workers[key]
+	delete(r.workers, key)
+	if worker == nil {
+		return nil
+	}
+	if err := worker.Stop(); err != nil && !errors.Is(err, ErrTypeScriptWorkerStopped) {
+		return err
+	}
 	return nil
 }
 
