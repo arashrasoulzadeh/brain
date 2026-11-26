@@ -40,7 +40,8 @@ export function createMatchmakingQueue(configs?: QueueRuntime["configs"]) {
   const runtime = createQueueRuntime(configs);
 
   function queueKey(projectId: string, scope: string): string {
-    const scopedKey = queueKey(projectId, scope);
+    validateProjectId(projectId);
+    validateIdentifier(scope, "invalid matchmaking scope");
     return `${projectId}:${scope}`;
   }
 
@@ -51,13 +52,12 @@ export function createMatchmakingQueue(configs?: QueueRuntime["configs"]) {
     now = Date.now(),
     pluginVersion = "unknown",
   ) {
-    const scopedKey = queueKey(projectId, scope);
+    const key = queueKey(projectId, scope);
     if (!scope || !playerId || !pluginVersion) throw new Error("invalid matchmaking ticket");
     if (isProjectAssignmentsPaused(runtime, projectId))
       throw new Error("matchmaking assignments paused");
     if (runtime.configs && !runtime.configs.status.isEnabled(projectId, scope))
       throw new Error("matchmaking scope disabled");
-    const key = scopedKey;
     const queue = runtime.queues.get(key) ?? [];
     if (queue.some((ticket) => ticket.playerId === playerId))
       throw new Error("active ticket already exists");
@@ -76,13 +76,12 @@ export function createMatchmakingQueue(configs?: QueueRuntime["configs"]) {
   }
 
   function peek(projectId: string, scope: string) {
-    const scopedKey = queueKey(projectId, scope);
-    return [...(runtime.queues.get(scopedKey) ?? [])];
+    const key = queueKey(projectId, scope);
+    return (runtime.queues.get(key) ?? []).map((ticket) => ({ ...ticket }));
   }
 
   function match(projectId: string, scope: string, matchSize: number) {
-    const scopedKey = queueKey(projectId, scope);
-    const key = scopedKey;
+    const key = queueKey(projectId, scope);
     const queue = runtime.queues.get(key) ?? [];
     if (!Number.isSafeInteger(matchSize) || matchSize < 1 || queue.length < matchSize) return [];
     const matched = queue.slice(0, matchSize);
@@ -131,6 +130,7 @@ export function createMatchmakingQueue(configs?: QueueRuntime["configs"]) {
       throw new Error("matchmaking assignments paused");
     if (expectedRevision !== runtime.lifecycleRevision)
       throw new Error("stale matchmaking lifecycle revision");
+    if (!Number.isSafeInteger(matchSize) || matchSize < 1) return null;
     const tickets = match(projectId, scope, matchSize);
     if (tickets.length !== matchSize) return null;
     if (expectedRevision !== runtime.lifecycleRevision)
@@ -145,9 +145,8 @@ export function createMatchmakingQueue(configs?: QueueRuntime["configs"]) {
   }
 
   function cancelIncompatible(projectId: string, scope: string, compatibleVersion: string) {
-    const scopedKey = queueKey(projectId, scope);
+    const key = queueKey(projectId, scope);
     if (!scope || !compatibleVersion) throw new Error("invalid matchmaking cancellation");
-    const key = scopedKey;
     const queue = runtime.queues.get(key) ?? [];
     const cancelled = queue.filter((ticket) => ticket.pluginVersion !== compatibleVersion);
     runtime.queues.set(

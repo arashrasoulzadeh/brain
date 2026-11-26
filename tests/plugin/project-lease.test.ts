@@ -1,0 +1,21 @@
+import { equal, throws } from "node:assert/strict";
+import { createProjectLeaseStore, createProjectSet } from "../../plugins/sdk-typescript/src/index.js";
+import { createMatchmakingQueue } from "../../plugins/matchmaking/index.js";
+
+const lease = createProjectLeaseStore();
+equal(lease.acquire("a", "job", "one", 0, 10), true);
+equal(lease.acquire("a", "job", "two", 9, 10), false);
+equal(lease.acquire("b", "job", "two", 9, 10), true);
+equal(lease.renew("a", "job", "two", 9, 10), false);
+equal(lease.renew("a", "job", "one", 9, 10), true);
+equal(lease.acquire("a", "job", "two", 19, 10), true);
+throws(() => lease.acquire("a", "bad", "one", 1, Infinity), /invalid job lease/);
+const seen = createProjectSet<number>();
+equal(seen("a", "key", 1), true);
+equal(seen("a", "key", 1), false);
+equal(seen("b", "key", 1), true);
+const queue = createMatchmakingQueue();
+queue.enqueue("a", "scope", "player", 0);
+equal(queue.assign("a", "scope", 0), null);
+equal(queue.peek("a", "scope").length, 1);
+equal(queue.match("a", "scope", 1).length, 1);

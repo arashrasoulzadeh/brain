@@ -41,9 +41,10 @@ export class AccountSessionRotator {
     if (!session && this.state.rotated.has(digest)) throw new Error("refresh token reuse detected");
     if (!isActiveToken(session, now) || session.projectId !== projectId)
       throw new Error("invalid session");
+    const rotated = newSession(this.state, projectId, session.username, now).token;
     this.state.sessions.delete(digest);
     this.state.rotated.add(digest);
-    return newSession(this.state, projectId, session.username, now).token;
+    return rotated;
   }
 }
 
@@ -113,6 +114,6 @@ export function requireRecentAuthentication(
   now: number,
   maxAgeMs: number,
 ): void {
-  if (maxAgeMs <= 0 || now - authenticatedAt > maxAgeMs)
+  if (![authenticatedAt, now, maxAgeMs].every(Number.isFinite) || maxAgeMs <= 0 || authenticatedAt > now || now - authenticatedAt > maxAgeMs)
     throw new Error("recent authentication required");
 }
