@@ -4,7 +4,7 @@ Go multi-tenant backend for apps, websites, and games.
 
 ## Status
 
-Phase 00 foundation is in progress. The current verified code includes:
+The host, plugin runtime, and administration surface are implemented and covered by automated checks. See the roadmap for the remaining release and client work. The codebase includes:
 
 - Go HTTP host with `/livez`.
 - Configuration validation and isolated local test settings.
@@ -13,7 +13,7 @@ Phase 00 foundation is in progress. The current verified code includes:
 - Runtime DDL protection policy.
 - Project resolution with active/inactive isolation.
 - Scoped plugin registration, installation, grants, and authorization.
-- GitHub Actions formatting and Go test checks.
+- Go formatting, unit tests, operator race checks, TypeScript lint and tests, admin type checks, and Docker integration checks in GitHub Actions.
 
 See the [roadmap](roadmap.md), [developer guide](docs/developers.md), and [admin guide](docs/admins.md).
 
