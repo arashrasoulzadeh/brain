@@ -376,9 +376,13 @@ func (s *LifecycleService) runFunctionDraft(actor operator.Actor, projectID, nam
 	command := exec.CommandContext(commandContext, "node", "--experimental-vm-modules", "--input-type=module", "-e", runner)
 	command.Env = append(os.Environ(), "BRAIN_FUNCTION_SOURCE="+source, "BRAIN_FUNCTION_INPUT="+string(input), "BRAIN_FUNCTION_PROJECT="+string(projectJSON))
 	executionStarted := time.Now()
-	output, err := command.CombinedOutput()
+	output, err := command.Output()
 	if err != nil {
-		detail := strings.TrimSpace(string(output))
+		var exitError *exec.ExitError
+		detail := ""
+		if errors.As(err, &exitError) {
+			detail = strings.TrimSpace(string(exitError.Stderr))
+		}
 		if len(detail) > 4096 {
 			detail = detail[:4096]
 		}
