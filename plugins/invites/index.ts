@@ -1,4 +1,4 @@
-import { createResourceRequest, validateProjectId } from "../sdk-typescript/src/index.js";
+import { consumeOnce, expiresAt, createResourceRequest, validateProjectId } from "../sdk-typescript/src/index.js";
 
 export type Invite = {
   id: string;
@@ -38,7 +38,7 @@ export class InviteCreator {
       projectId,
       roomId,
       targetPlayerId,
-      expiresAt: now + ttlSeconds * 1000,
+      expiresAt: expiresAt(now, ttlSeconds * 1000, "invalid invite"),
       used: false,
     };
     this.invites.set(id, invite);
@@ -51,16 +51,10 @@ export class InviteAccepter {
   accept(inviteId: string, projectId: string, playerId: string, now = Date.now()): Invite {
     validateProjectId(projectId, "invite unavailable");
     if (!inviteId || !playerId || !Number.isFinite(now)) throw new Error("invite unavailable");
-    const invite = this.invites.get(inviteId);
-    if (
-      !invite ||
-      invite.projectId !== projectId ||
-      invite.targetPlayerId !== playerId ||
-      invite.used ||
-      invite.expiresAt <= now
-    )
-      throw new Error("invite unavailable");
-    invite.used = true;
+    const invite = consumeOnce(this.invites.get(inviteId), now, (invite) =>
+      invite.projectId === projectId && invite.targetPlayerId === playerId,
+    );
+    if (!invite) throw new Error("invite unavailable");
     return { ...invite };
   }
 }

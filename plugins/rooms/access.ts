@@ -1,5 +1,5 @@
 import { type Room, type ConnectionTicket, type TicTacToeState } from "./index.js";
-import { validateProjectId } from "../sdk-typescript/src/index.js";
+import { consumeOnce, expiresAt, validateProjectId } from "../sdk-typescript/src/index.js";
 import { projectRoomID } from "./directory.js";
 import { randomUUID } from "node:crypto";
 
@@ -32,18 +32,9 @@ export class ConnectionTicketConsumer {
   ): boolean {
     projectRoomID(projectId, roomId);
     if (!token.trim() || !playerId.trim() || !Number.isFinite(now)) return false;
-    const ticket = this.tickets.get(token);
-    if (
-      !ticket ||
-      ticket.used ||
-      ticket.expiresAt <= now ||
-      ticket.projectId !== projectId ||
-      ticket.roomId !== roomId ||
-      ticket.playerId !== playerId
-    )
-      return false;
-    ticket.used = true;
-    return true;
+    return !!consumeOnce(this.tickets.get(token), now, (ticket) =>
+      ticket.projectId === projectId && ticket.roomId === roomId && ticket.playerId === playerId,
+    );
   }
 }
 
@@ -69,7 +60,7 @@ export class ConnectionTicketIssuer {
       projectId,
       roomId,
       playerId,
-      expiresAt: now + ttlSeconds * 1000,
+      expiresAt: expiresAt(now, ttlSeconds * 1000, "invalid connection ticket"),
       used: false,
     };
     this.tickets.set(ticket.token, ticket);

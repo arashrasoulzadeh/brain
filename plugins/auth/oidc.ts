@@ -1,5 +1,5 @@
-import { randomBytes, createHash, timingSafeEqual } from "node:crypto";
-import { validateProjectId } from "../sdk-typescript/src/index.js";
+import { createHash } from "node:crypto";
+import { consumeOnce, expiresAt, randomToken, secretsEqual, validateProjectId } from "../sdk-typescript/src/index.js";
 
 export type AuthorizationCode = {
   projectId: string;
@@ -23,13 +23,13 @@ export class AuthorizationCodeIssuer {
     validateProjectId(projectId);
     if (!clientId || !redirectUri || !userId || ttlSeconds <= 0)
       throw new Error("invalid authorization code");
-    const code = randomBytes(24).toString("base64url");
+    const code = randomToken();
     this.codes.set(code, {
       projectId,
       clientId,
       redirectUri,
       userId,
-      expiresAt: now + ttlSeconds * 1000,
+      expiresAt: expiresAt(now, ttlSeconds * 1000, "invalid authorization code"),
       used: false,
     });
     return code;
@@ -45,17 +45,10 @@ export class AuthorizationCodeConsumer {
     redirectUri: string,
     now: number,
   ): { userId: string } {
-    const record = this.codes.get(code);
-    if (
-      !record ||
-      record.used ||
-      record.expiresAt <= now ||
-      record.projectId !== projectId ||
-      record.clientId !== clientId ||
-      record.redirectUri !== redirectUri
-    )
-      throw new Error("authorization code unavailable");
-    record.used = true;
+    const record = consumeOnce(this.codes.get(code), now, (record) =>
+      record.projectId === projectId && record.clientId === clientId && record.redirectUri === redirectUri,
+    );
+    if (!record) throw new Error("authorization code unavailable");
     return { userId: record.userId };
   }
 }
@@ -66,9 +59,7 @@ export function createPKCEChallenge(verifier: string): string {
 
 export function verifyPKCE(verifier: string, challenge: string, method: string): boolean {
   if (method !== "S256") return false;
-  const expected = Buffer.from(createPKCEChallenge(verifier));
-  const received = Buffer.from(challenge);
-  return expected.length === received.length && timingSafeEqual(expected, received);
+  return secretsEqual(createPKCEChallenge(verifier), challenge);
 }
 
 export type OIDCConfig = {
@@ -114,7 +105,7 @@ export class OIDCStateIssuer {
   constructor(private readonly states: Map<string, OIDCState>) {}
   issue(projectId: string, clientId: string, redirectUri: string): string {
     validateProjectId(projectId);
-    const state = randomBytes(24).toString("base64url");
+    const state = randomToken();
     this.states.set(state, { projectId, clientId, redirectUri });
     return state;
   }

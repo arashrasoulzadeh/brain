@@ -77,3 +77,6 @@ export { createProjectMap } from "./project-store.js";
 export { commitWithGrant, createCommitRollback, createTransactionGate, runCappedRetries, runWithTimeout } from "./execution.js";
 
 export { createFixedWindowLimiter } from "./execution.js";
+
+export { consumeDigestToken, consumeOnce, createDigestToken, expiresAt, isActiveToken, numericOTP, randomToken, secretsEqual, tokenDigest } from "./tokens.js";
+export type { DigestToken, ExpiringToken } from "./tokens.js";
