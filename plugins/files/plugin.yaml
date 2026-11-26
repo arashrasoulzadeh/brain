@@ -50,7 +50,11 @@ admin:
   version: 1
   pages:
     - id: operations
-      title: File operations
+      title: Files operations
       actions:
         - title: metadata
           operation: files.metadata
+          fields:
+            - name: key
+              type: string
+              required: true

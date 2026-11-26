@@ -86,7 +86,13 @@ admin:
   version: 1
   pages:
     - id: operations
-      title: Function operations
+      title: Functions operations
       actions:
         - title: invoke
           operation: functions.invoke
+          fields:
+            - name: name
+              type: string
+              required: true
+            - name: input
+              type: json

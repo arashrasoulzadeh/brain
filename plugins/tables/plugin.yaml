@@ -46,9 +46,17 @@ admin:
   version: 1
   pages:
     - id: operations
-      title: Table operations
+      title: Tables operations
       actions:
         - title: read
           operation: tables.read
+          fields:
+            - name: table
+              type: string
+              required: true
         - title: schema
           operation: tables.schema
+          fields:
+            - name: table
+              type: string
+              required: true

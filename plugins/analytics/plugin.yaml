@@ -38,3 +38,10 @@ admin:
       actions:
         - title: capture
           operation: analytics.capture
+          fields:
+            - name: name
+              type: string
+              required: true
+            - name: fields
+              type: json
+              required: true

@@ -51,6 +51,11 @@ admin:
   pages:
     - id: operations
       title: Matchmaking operations
+      extends: rooms/operations
       actions:
         - title: status
           operation: matchmaking.status
+          fields:
+            - name: id
+              type: string
+              required: true
