@@ -6,9 +6,8 @@ export type AuthState = {
   rotated: Set<string>;
   sessionTtlMs: number;
 };
-export { createAuthState } from "./create-auth-state.js";
-export { validateAccount } from "./validate-account.js";
-export { passwordHash } from "./password-hash.js";
-export { newSession } from "./new-session.js";
-export { accountProject } from "./account-project.js";
-export { projectUserID } from "./project-user-id.js";
+
+export function createAuthState(sessionTtlMs = 24 * 60 * 60 * 1000): AuthState {
+  if (sessionTtlMs <= 0) throw new Error("invalid session ttl");
+  return { accounts: new Map(), sessions: new Map(), rotated: new Set(), sessionTtlMs };
+}

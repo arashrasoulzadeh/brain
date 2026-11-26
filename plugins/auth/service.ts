@@ -1,5 +1,20 @@
 import { createRequestDispatcher, type PluginFunction } from "../sdk-typescript/src/index.js";
-import { createAuthOperations } from "./create-auth-operations.js";
+import { createAuthState, type AuthState } from "./state.js";
+import { AccountSignup, AccountSignin } from "./accounts.js";
+import { AccountSessionReader, GuestSessionIssuer } from "./sessions.js";
+
+export function createAuthOperations(state: AuthState = createAuthState()) {
+  const signup = new AccountSignup(state);
+  const signin = new AccountSignin(state);
+  const session = new AccountSessionReader(state);
+  const guest = new GuestSessionIssuer(state);
+  return {
+    signup: signup.signup.bind(signup),
+    signin: signin.signin.bind(signin),
+    session: session.session.bind(session),
+    guest: guest.guest.bind(guest),
+  };
+}
 
 export type AuthOperations = ReturnType<typeof createAuthOperations>;
 

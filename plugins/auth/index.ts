@@ -1,15 +1,15 @@
-export { guestRequest } from "./guest-request.js";
-export { signInRequest } from "./sign-in-request.js";
-export { signUpRequest } from "./sign-up-request.js";
+export { guestRequest } from "./requests.js";
+export { signInRequest } from "./requests.js";
+export { signUpRequest } from "./requests.js";
 
-export { projectUserID } from "./project-user-id.js";
-export { accountProject } from "./account-project.js";
+export { projectUserID } from "./accounts.js";
+export { accountProject } from "./accounts.js";
 
-export { sessionTokenDigest } from "./session-token-digest.js";
-export { createPKCEChallenge } from "./create-pkce-challenge.js";
-export { verifyPKCE } from "./verify-pkce.js";
-export { OIDCStateIssuer } from "./oidc-state-issuer.js";
-export { OIDCStateConsumer } from "./oidc-state-consumer.js";
+export { sessionTokenDigest } from "./sessions.js";
+export { createPKCEChallenge } from "./oidc.js";
+export { verifyPKCE } from "./oidc.js";
+export { OIDCStateIssuer } from "./oidc.js";
+export { OIDCStateConsumer } from "./oidc.js";
 export { DeliveryWriter } from "./delivery.js";
 export { DeliveryReader } from "./delivery.js";
 export { EmailOTPIssuer } from "./otp.js";
@@ -25,35 +25,35 @@ export { AccountRateLimiter } from "./rate-limits.js";
 
 export { ProjectRateLimiter } from "./rate-limits.js";
 
-export { OperatorSessionIssuer } from "./operator-session-issuer.js";
-export { OperatorSessionValidator } from "./operator-session-validator.js";
-export { OperatorSessionRevoker } from "./operator-session-revoker.js";
+export { OperatorSessionIssuer } from "./sessions.js";
+export { OperatorSessionValidator } from "./sessions.js";
+export { OperatorSessionRevoker } from "./sessions.js";
 
-export { IdentityLinker } from "./identity-linker.js";
+export { IdentityLinker } from "./accounts.js";
 
-export type { OIDCConfig, OIDCTokenClaims } from "./oidc-types.js";
-export { OIDCConfigWriter } from "./oidc-config-writer.js";
-export { OIDCConfigReader } from "./oidc-config-reader.js";
+export type { OIDCConfig, OIDCTokenClaims } from "./oidc.js";
+export { OIDCConfigWriter } from "./oidc.js";
+export { OIDCConfigReader } from "./oidc.js";
 
-export { validateOIDCToken } from "./validate-oidc-token.js";
-export { requireRecentAuthentication } from "./require-recent-authentication.js";
-export { publicAuthError } from "./public-auth-error.js";
+export { validateOIDCToken } from "./oidc.js";
+export { requireRecentAuthentication } from "./sessions.js";
+export { publicAuthError } from "./accounts.js";
 export { validateDeliveryConfig } from "./delivery.js";
 
-export { AuthorizationCodeIssuer } from "./authorization-code-issuer.js";
-export { AuthorizationCodeConsumer } from "./authorization-code-consumer.js";
-export type { AuthorizationCode } from "./authorization-code-types.js";
+export { AuthorizationCodeIssuer } from "./oidc.js";
+export { AuthorizationCodeConsumer } from "./oidc.js";
+export type { AuthorizationCode } from "./oidc.js";
 
-export { createAuthState } from "./auth-state.js";
-export { AccountSignup } from "./account-signup.js";
-export { AccountSignin } from "./account-signin.js";
-export { AccountSessionReader } from "./account-session-reader.js";
-export { AccountSessionRotator } from "./account-session-rotator.js";
-export { AccountSessionRevoker } from "./account-session-revoker.js";
-export { AccountPasswordResetter } from "./account-password-resetter.js";
-export { GuestSessionIssuer } from "./guest-session-issuer.js";
-export { firstPartySessionCookie } from "./first-party-session-cookie.js";
-export { GuestAccountUpgrader } from "./guest-account-upgrader.js";
-export { createAuthOperations } from "./create-auth-operations.js";
-export { dispatchRequest, functions } from "./auth-functions.js";
-export type { AuthOperations } from "./auth-functions.js";
+export { createAuthState } from "./state.js";
+export { AccountSignup } from "./accounts.js";
+export { AccountSignin } from "./accounts.js";
+export { AccountSessionReader } from "./sessions.js";
+export { AccountSessionRotator } from "./sessions.js";
+export { AccountSessionRevoker } from "./sessions.js";
+export { AccountPasswordResetter } from "./accounts.js";
+export { GuestSessionIssuer } from "./sessions.js";
+export { firstPartySessionCookie } from "./sessions.js";
+export { GuestAccountUpgrader } from "./accounts.js";
+export { createAuthOperations } from "./service.js";
+export { dispatchRequest, functions } from "./service.js";
+export type { AuthOperations } from "./service.js";

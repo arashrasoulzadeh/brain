@@ -1,5 +1,5 @@
 import { createFixedWindowLimiter, validateProjectId } from "../sdk-typescript/src/index.js";
-import { projectUserID } from "./project-user-id.js";
+import { projectUserID } from "./accounts.js";
 
 export class AccountRateLimiter {
   private readonly allowKey: (key: string, now: number) => boolean;

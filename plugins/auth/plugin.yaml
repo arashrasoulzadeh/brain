@@ -6,94 +6,28 @@ host_api: 1
 entrypoint: index.ts
 source_files:
   - index.ts
-  - sign-in-request.ts
-  - sign-up-request.ts
-  - oidc-state-issuer.ts
-  - oidc-state-consumer.ts
+  - requests.ts
+  - oidc.ts
   - delivery.ts
-  - oidc-config-writer.ts
-  - oidc-config-reader.ts
-  - authorization-code-issuer.ts
-  - authorization-code-consumer.ts
-  - authorization-code-types.ts
-  - operator-session-issuer.ts
-  - operator-session-validator.ts
-  - operator-session-revoker.ts
-  - session-token-digest.ts
+  - sessions.ts
   - otp.ts
-  - auth-state.ts
-  - create-auth-state.ts
-  - validate-account.ts
-  - password-hash.ts
-  - new-session.ts
-  - account-project.ts
-  - project-user-id.ts
-  - account-signup.ts
-  - account-signin.ts
-  - account-session-reader.ts
-  - account-session-rotator.ts
-  - account-session-revoker.ts
-  - account-password-resetter.ts
-  - guest-session-issuer.ts
-  - first-party-session-cookie.ts
-  - guest-account-upgrader.ts
-  - create-pkce-challenge.ts
-  - verify-pkce.ts
-  - oidc-types.ts
-  - validate-oidc-token.ts
-  - require-recent-authentication.ts
-  - public-auth-error.ts
+  - state.ts
+  - accounts.ts
   - rate-limits.ts
-  - identity-linker.ts
-  - create-auth-operations.ts
-  - auth-functions.ts
-  - guest-request.ts
+  - service.ts
 imports:
   - ../sdk-typescript/src/index.js
   - node:crypto
   - "@node-rs/argon2"
-  - ./guest-request.js
-  - ./sign-in-request.js
-  - ./sign-up-request.js
-  - ./oidc-state-issuer.js
-  - ./oidc-state-consumer.js
+  - ./requests.js
+  - ./oidc.js
   - ./delivery.js
-  - ./oidc-config-writer.js
-  - ./oidc-config-reader.js
-  - ./authorization-code-issuer.js
-  - ./authorization-code-consumer.js
-  - ./authorization-code-types.js
-  - ./operator-session-issuer.js
-  - ./operator-session-validator.js
-  - ./operator-session-revoker.js
-  - ./session-token-digest.js
+  - ./sessions.js
   - ./otp.js
-  - ./auth-state.js
-  - ./create-auth-state.js
-  - ./validate-account.js
-  - ./password-hash.js
-  - ./new-session.js
-  - ./account-project.js
-  - ./project-user-id.js
-  - ./account-signup.js
-  - ./account-signin.js
-  - ./account-session-reader.js
-  - ./account-session-rotator.js
-  - ./account-session-revoker.js
-  - ./account-password-resetter.js
-  - ./guest-session-issuer.js
-  - ./first-party-session-cookie.js
-  - ./guest-account-upgrader.js
-  - ./create-pkce-challenge.js
-  - ./verify-pkce.js
-  - ./oidc-types.js
-  - ./validate-oidc-token.js
-  - ./require-recent-authentication.js
-  - ./public-auth-error.js
+  - ./state.js
+  - ./accounts.js
   - ./rate-limits.js
-  - ./identity-linker.js
-  - ./create-auth-operations.js
-  - ./auth-functions.js
+  - ./service.js
   - ./index.js
 plugin_imports:
 dependencies: []
