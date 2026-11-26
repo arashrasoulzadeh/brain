@@ -34,6 +34,19 @@ config_schema:
 routes:
   - operation: rooms.create
     function: create
+    response:
+      input:
+        - name: id
+          type: string
+          trim: true
+          required: true
+          error: room id is required
+        - name: room
+          type: object
+          required: true
+          error: room not found
+      result: $input.room
+
     helper: sdk.dispatch
     capability: rooms.create
     storage:
@@ -45,6 +58,27 @@ routes:
         members: []
   - operation: rooms.join
     function: join
+    response:
+      input:
+        - name: id
+          type: string
+          trim: true
+          required: true
+          error: room id and member are required
+        - name: member
+          type: string
+          trim: true
+          required: true
+          error: room id and member are required
+        - name: room
+          type: object
+          required: true
+          error: room not found
+      merge: room
+      output:
+        member: $input.member
+        reconnected: false
+
     helper: sdk.dispatch
     capability: rooms.join
     storage:
@@ -55,6 +89,27 @@ routes:
       input: member
   - operation: rooms.reconnect
     function: reconnect
+    response:
+      input:
+        - name: id
+          type: string
+          trim: true
+          required: true
+          error: room id and member are required
+        - name: member
+          type: string
+          trim: true
+          required: true
+          error: room id and member are required
+        - name: room
+          type: object
+          required: true
+          error: room not found
+      merge: room
+      output:
+        member: $input.member
+        reconnected: true
+
     helper: sdk.dispatch
     capability: rooms.reconnect
     storage:
@@ -65,6 +120,19 @@ routes:
       input: member
   - operation: rooms.result
     function: result
+    response:
+      input:
+        - name: id
+          type: string
+          trim: true
+          required: true
+          error: room id is required
+        - name: room
+          type: object
+          required: true
+          error: room not found
+      result: $input.room
+
     helper: sdk.dispatch
     capability: rooms.result
     storage:

@@ -14,7 +14,8 @@ if ((declarative ? Boolean(descriptor.entrypoint) : !descriptor.entrypoint) || !
   process.stderr.write("invalid execution descriptor\n");
   process.exit(65);
 }
-const plugin = declarative ? Object.freeze({}) : await import(pathToFileURL(descriptor.entrypoint).href);
+const codeRequired = descriptor.routes.some((route) => route.helper !== "sdk.response" && route.helper !== "sdk.resource");
+const plugin = declarative || !codeRequired ? Object.freeze({}) : await import(pathToFileURL(descriptor.entrypoint).href);
 const handler = plugin.handle ?? plugin.createHandler?.();
 const routeHelpers = new Map([
   ["sdk.dispatch", { exported: "dispatchRoute", input: (request) => request.params.payload ?? null }],

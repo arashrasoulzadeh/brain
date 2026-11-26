@@ -32,6 +32,22 @@ config_schema:
 routes:
   - operation: files.upload
     function: upload
+    response:
+      input:
+        - name: key
+          type: string
+          trim: true
+          required: true
+          error: file key is required
+        - name: data
+          type: string
+          required: true
+          error: file data is required
+      output:
+        key: $input.key
+        uploaded: true
+        published: false
+
     helper: sdk.dispatch
     capability: files.upload
     storage:
@@ -40,6 +56,26 @@ routes:
       input: data
   - operation: files.download
     function: download
+    response:
+      input:
+        - name: key
+          type: string
+          trim: true
+          required: true
+          error: file key is required
+        - name: data
+          type: string
+          required: true
+          error: file data is required
+        - name: published
+          type: boolean
+          required: true
+          error: file not found
+      output:
+        key: $input.key
+        data: $input.data
+        published: $input.published
+
     helper: sdk.dispatch
     capability: files.download
     storage:
@@ -49,6 +85,26 @@ routes:
       field: published
   - operation: files.metadata
     function: metadata
+    response:
+      input:
+        - name: key
+          type: string
+          trim: true
+          required: true
+          error: file key is required
+        - name: data
+          type: string
+          required: true
+          error: file data is required
+        - name: published
+          type: boolean
+          required: true
+          error: file not found
+      output:
+        key: $input.key
+        published: $input.published
+        size: $length.data
+
     helper: sdk.dispatch
     capability: files.metadata
     storage:
@@ -58,6 +114,21 @@ routes:
       field: published
   - operation: files.publish
     function: publish
+    response:
+      input:
+        - name: key
+          type: string
+          trim: true
+          required: true
+          error: file key is required
+        - name: published
+          type: boolean
+          required: true
+          error: file not found
+      output:
+        key: $input.key
+        published: $input.published
+
     helper: sdk.dispatch
     capability: files.publish
     storage:

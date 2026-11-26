@@ -32,6 +32,19 @@ config_schema:
 routes:
   - operation: matchmaking.queue
     function: queue
+    response:
+      input:
+        - name: id
+          type: string
+          trim: true
+          required: true
+          error: ticket id is required
+        - name: ticket
+          type: object
+          required: true
+          error: ticket not found
+      result: $input.ticket
+
     helper: sdk.dispatch
     capability: matchmaking.queue
     storage:
@@ -43,6 +56,19 @@ routes:
         status: queued
   - operation: matchmaking.cancel
     function: cancel
+    response:
+      input:
+        - name: id
+          type: string
+          trim: true
+          required: true
+          error: ticket id is required
+        - name: ticket
+          type: object
+          required: true
+          error: ticket not found
+      result: $input.ticket
+
     helper: sdk.dispatch
     capability: matchmaking.cancel
     storage:
@@ -53,6 +79,19 @@ routes:
         status: cancelled
   - operation: matchmaking.status
     function: status
+    response:
+      input:
+        - name: id
+          type: string
+          trim: true
+          required: true
+          error: ticket id is required
+        - name: ticket
+          type: object
+          required: true
+          error: ticket not found
+      result: $input.ticket
+
     helper: sdk.dispatch
     capability: matchmaking.status
     storage:
@@ -61,6 +100,19 @@ routes:
       target: ticket
   - operation: matchmaking.assign
     function: assign
+    response:
+      input:
+        - name: id
+          type: string
+          trim: true
+          required: true
+          error: ticket id is required
+        - name: ticket
+          type: object
+          required: true
+          error: ticket not found
+      result: $input.ticket
+
     helper: sdk.dispatch
     capability: matchmaking.assign
     storage:

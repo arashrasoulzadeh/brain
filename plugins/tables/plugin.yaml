@@ -32,6 +32,21 @@ config_schema:
 routes:
   - operation: tables.read
     function: read
+    response:
+      input:
+        - name: table
+          type: string
+          trim: true
+          required: true
+          error: table is required
+        - name: rows
+          type: array
+          required: true
+          error: rows unavailable
+      output:
+        table: $input.table
+        rows: $input.rows
+
     helper: sdk.dispatch
     capability: tables.read
     storage:
@@ -40,6 +55,22 @@ routes:
       target: rows
   - operation: tables.write
     function: write
+    response:
+      input:
+        - name: table
+          type: string
+          trim: true
+          required: true
+          error: table is required
+        - name: row
+          type: object
+          required: true
+          error: row is required
+      output:
+        table: $input.table
+        row: $input.row
+        written: true
+
     helper: sdk.dispatch
     capability: tables.write
     storage:

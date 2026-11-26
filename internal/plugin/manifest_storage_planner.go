@@ -42,7 +42,7 @@ func (p manifestStoragePlanner) Prepare(request WorkerRequest) (WorkerRequest, f
 	}
 	var payload map[string]any
 	if json.Unmarshal(request.Payload, &payload) != nil || payload == nil {
-		return request, nil, nil
+		return request, nil, ErrInvalidWorkerRequest
 	}
 	key := spec.FixedKey
 	if spec.Key != "" {
@@ -51,7 +51,7 @@ func (p manifestStoragePlanner) Prepare(request WorkerRequest) (WorkerRequest, f
 		payload[spec.Key] = key
 	}
 	if key == "" {
-		return request, nil, nil
+		return request, nil, ErrInvalidWorkerRequest
 	}
 	// Derived response fields are never accepted from the caller.
 	if spec.Target != "" {
@@ -64,7 +64,7 @@ func (p manifestStoragePlanner) Prepare(request WorkerRequest) (WorkerRequest, f
 	var commit func() error
 	switch spec.Action {
 	case "blob.put":
-		if data, ok := payload[spec.Input].(string); ok {
+		if data, ok := payload[spec.Input].(string); ok && data != "" {
 			commit = func() error { return p.storage.putScopedFile(project, namespace, key, data, false) }
 		}
 	case "blob.read", "blob.publish":

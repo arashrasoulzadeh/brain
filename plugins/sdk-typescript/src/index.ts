@@ -29,6 +29,18 @@ export type PluginRoute = {
   capability: string;
   helper?: "sdk.dispatch" | "sdk.request" | "sdk.response" | "sdk.resource";
   response?: DeclarativeResponse;
+  storage?: DeclarativeStorage;
+};
+
+export type DeclarativeStorage = {
+  action: "blob.put" | "blob.read" | "blob.publish" | "rows.append" | "rows.read" |
+    "state.create" | "state.read" | "state.patch" | "state.add_unique" | "state.append";
+  key?: string;
+  fixed_key?: string;
+  target?: string;
+  field?: string;
+  input?: string;
+  values?: Readonly<Record<string, string | number | boolean | null | readonly []>>;
 };
 
 export type DeclarativeResponse = {
