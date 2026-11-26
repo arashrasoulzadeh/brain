@@ -6,6 +6,8 @@ import (
 	"encoding/hex"
 	"errors"
 	"strings"
+	"sync"
+	"time"
 )
 
 var ErrAlreadyBootstrapped = errors.New("operator already bootstrapped")
@@ -22,8 +24,9 @@ const (
 )
 
 type Actor struct {
-	ID   string
-	Kind ActorKind
+	ID         string
+	Kind       ActorKind
+	sessionKey string
 }
 
 type AuditEvent struct {
@@ -41,6 +44,8 @@ type Account struct {
 }
 
 func (s *Store) CreateRecoveryToken(tokenSource func() string) (string, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	if s.account == nil || s.authenticatedOperator == "" || tokenSource == nil {
 		return "", ErrInvalidCredentials
 	}
@@ -54,7 +59,9 @@ func (s *Store) CreateRecoveryToken(tokenSource func() string) (string, error) {
 }
 
 func (s *Store) Recover(token, newSecret string, digest func(string) string) error {
-	if s.account == nil || token == "" || newSecret == "" || s.account.RecoveryDigest == "" {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.account == nil || token == "" || newSecret == "" || digest == nil || s.account.RecoveryDigest == "" {
 		return ErrInvalidCredentials
 	}
 	tokenSum := sha256.Sum256([]byte(token))
@@ -67,25 +74,46 @@ func (s *Store) Recover(token, newSecret string, digest func(string) string) err
 	s.account.MFASecret = ""
 	s.authenticatedOperator = ""
 	s.sessions = nil
-	s.record("operator.recovery", s.account.Username, true, s.account.Username)
+	s.recordLocked("operator.recovery", s.account.Username, true, s.account.Username)
 	return nil
 }
 
 type Store struct {
+	mu                    sync.RWMutex
 	account               *Account
 	audit                 []AuditEvent
 	authenticatedOperator string
-	sessions              map[string]string
+	sessions              map[string]operatorSession
+	clock                 func() time.Time
 }
 
-func (s *Store) Audit() []AuditEvent { return append([]AuditEvent(nil), s.audit...) }
+func (s *Store) Audit() []AuditEvent {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return append([]AuditEvent(nil), s.audit...)
+}
 
 func (s *Store) record(action, actorID string, success bool, detail string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.recordLocked(action, actorID, success, detail)
+}
+
+func (s *Store) recordLocked(action, actorID string, success bool, detail string) {
 	s.audit = append(s.audit, AuditEvent{Action: action, ActorID: actorID, Success: success, Detail: detail})
 }
 
 func (s *Store) AuthorizeAction(actor Actor, action string) error {
-	if actor.ID == "" || action == "" || actor.Kind != ActorOperator || s.account == nil || actor.ID != s.account.Username || actor.ID != s.authenticatedOperator {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	if actor.ID == "" || action == "" || actor.Kind != ActorOperator || s.account == nil || actor.ID != s.account.Username {
+		return ErrOperatorRequired
+	}
+	if actor.sessionKey != "" {
+		if !s.sessionValidLocked(actor.sessionKey, actor.ID) {
+			return ErrOperatorRequired
+		}
+	} else if actor.ID != s.authenticatedOperator {
 		return ErrOperatorRequired
 	}
 	return nil
@@ -108,6 +136,8 @@ func (s *Store) ExecuteAction(actor Actor, action string, operation func() error
 }
 
 func (s *Store) Bootstrap(username, secret string, digest func(string) string) (Account, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	if s.account != nil {
 		return Account{}, ErrAlreadyBootstrapped
 	}
@@ -120,25 +150,35 @@ func (s *Store) Bootstrap(username, secret string, digest func(string) string) (
 }
 
 func (s *Store) Account() (Account, bool) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	if s.account == nil {
 		return Account{}, false
 	}
 	return *s.account, true
 }
 
+// Authenticate supports trusted in-process operator setup. HTTP callers must
+// use AuthenticateSession instead, so independent logins cannot alter sessions.
 func (s *Store) Authenticate(username, secret string, digest func(string) string) error {
-	if s.account == nil || digest == nil || username != s.account.Username {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if err := s.authenticateLocked(username, secret, digest); err != nil {
 		s.authenticatedOperator = ""
-		s.record("operator.signin", username, false, "")
-		return ErrInvalidCredentials
-	}
-	got := digest(secret)
-	if subtle.ConstantTimeCompare([]byte(got), []byte(s.account.SecretDigest)) != 1 {
-		s.authenticatedOperator = ""
-		s.record("operator.signin", username, false, "")
-		return ErrInvalidCredentials
+		return err
 	}
 	s.authenticatedOperator = username
-	s.record("operator.signin", username, true, "")
+	return nil
+}
+
+func (s *Store) authenticateLocked(username, secret string, digest func(string) string) error {
+	valid := s.account != nil && digest != nil && username == s.account.Username
+	if valid {
+		valid = subtle.ConstantTimeCompare([]byte(digest(secret)), []byte(s.account.SecretDigest)) == 1
+	}
+	s.recordLocked("operator.signin", username, valid, "")
+	if !valid {
+		return ErrInvalidCredentials
+	}
 	return nil
 }

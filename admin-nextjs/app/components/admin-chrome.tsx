@@ -1,4 +1,6 @@
 "use client";
+import { adminHeaders, readAdminSession } from "../lib/admin-api";
+import { enabledPluginIDs, visibleAdminPages } from "../lib/admin-navigation";
 
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -37,9 +39,9 @@ export function AdminSidebar({
   const [discoveredPages, setDiscoveredPages] = useState<string[]>(["projects"]);
   useEffect(() => {
     if (visiblePages) return;
-    const token = window.sessionStorage.getItem("brain-admin-session") ?? "";
+    const token = readAdminSession();
     if (!token) return;
-    void fetch("/api/admin/projects", { headers: { authorization: `Bearer ${token}` } })
+    void fetch("/api/admin/projects", { headers: adminHeaders(token) })
       .then((response) =>
         response.ok ? (response.json() as Promise<Array<{ ID: string; Active: boolean }>>) : [],
       )
@@ -48,29 +50,14 @@ export function AdminSidebar({
         if (!active) return;
         const response = await fetch(
           `/api/admin/plugins?project_id=${encodeURIComponent(active)}`,
-          { headers: { authorization: `Bearer ${token}` } },
+          { headers: adminHeaders(token) },
         );
         if (!response.ok) return;
         const payload = (await response.json()) as {
           manifests: Array<{ ID: string }>;
           installations: Array<{ PluginID: string; Enabled: boolean; Ready: boolean }>;
         };
-        const enabled = new Set(
-          payload.installations
-            .filter((installation) => installation.Enabled && installation.Ready)
-            .map((installation) => installation.PluginID),
-        );
-        setDiscoveredPages([
-          "projects",
-          ...(payload.manifests.length ? ["plugins"] : []),
-          "audit",
-          ...(enabled.has("dashboard") ? ["system"] : []),
-          ...(enabled.has("tables") ? ["database"] : []),
-          ...(enabled.has("functions") ? ["functions", "workflows"] : []),
-          ...(enabled.has("files") ? ["files"] : []),
-          ...(enabled.has("rooms") || enabled.has("matchmaking") ? ["live-sessions"] : []),
-          ...(enabled.size ? ["routes", "monitoring", "workers"] : []),
-        ]);
+        setDiscoveredPages(visibleAdminPages(payload.manifests.length, enabledPluginIDs(payload.installations)));
       })
       .catch(() => undefined);
   }, [visiblePages]);
@@ -147,12 +134,12 @@ export function AdminPageFrame({
   const [access, setAccess] = useState(requiredPluginID ? "checking" : "allowed");
   useEffect(() => {
     if (!requiredPluginID) return;
-    const token = window.sessionStorage.getItem("brain-admin-session") ?? "";
+    const token = readAdminSession();
     if (!token) {
       router.replace("/");
       return;
     }
-    void fetch("/api/admin/projects", { headers: { authorization: `Bearer ${token}` } })
+    void fetch("/api/admin/projects", { headers: adminHeaders(token) })
       .then(async (projectsResponse) => {
         if (!projectsResponse.ok) throw new Error("session expired");
         const projects = (await projectsResponse.json()) as Array<{ ID: string; Active: boolean }>;
@@ -160,7 +147,7 @@ export function AdminPageFrame({
         if (!activeProject) throw new Error("no active project");
         const pluginsResponse = await fetch(
           `/api/admin/plugins?project_id=${encodeURIComponent(activeProject)}`,
-          { headers: { authorization: `Bearer ${token}` } },
+          { headers: adminHeaders(token) },
         );
         if (!pluginsResponse.ok) throw new Error("plugin access unavailable");
         const payload = (await pluginsResponse.json()) as {

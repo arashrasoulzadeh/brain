@@ -9,6 +9,7 @@ fun interface AndroidTransport {
 class BrainClient(private val projectId: String, private val transport: AndroidTransport) {
     init {
         require(projectId.isNotBlank()) { "client project required" }
+        require(Regex("[a-zA-Z0-9][a-zA-Z0-9_-]*").matches(projectId)) { "invalid client project ID" }
     }
 
     suspend fun signIn(username: String, password: String): SignInResponse {

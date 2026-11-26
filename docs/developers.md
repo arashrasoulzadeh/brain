@@ -5,9 +5,12 @@
 ```bash
 GOCACHE=/tmp/brain-go-cache go test ./...
 go vet ./...
+go test -race ./tests/operator
+npm ci
 npm run lint:ts
 npm run typecheck
 npm run test:ts
+(cd admin-nextjs && npm ci && npm run typecheck)
 ```
 
 These commands do not start Docker. Use Docker/Compose only for an explicit PostgreSQL or release integration check.
@@ -22,7 +25,7 @@ plugins/<plugin-id>/
   plugin.yaml
 ```
 
-`plugin.yaml` is authoritative for title, description, version, routes, functions, capabilities, source files, imports, and plugin dependencies. Every source and runtime import must be declared. `index.ts` is the public boundary; focused files own one callable responsibility.
+`plugin.yaml` is authoritative for title, description, version, routes, functions, capabilities, source files, imports, and plugin dependencies. Every source and runtime import must be declared. `index.ts` is the public boundary; cohesive modules own related responsibilities and reuse shared SDK helpers.
 
 The Go host does not implement product capabilities. Keep product behavior in `plugins/<plugin-id>/`; keep Go host changes limited to shared infrastructure, lifecycle, permissions, storage primitives, worker supervision, and versioned contracts.
 
@@ -44,6 +47,24 @@ routes:
     function: listNotes
     capability: notes.read
 ```
+
+## Shared boundaries
+
+- Go: `internal/plugin/registry_*.go` separates lifecycle, catalog, permissions,
+  invocation, storage, and worker management. Keep behavior in the owning module
+  rather than adding another registry-wide helper.
+- Persistence: bind a `RegistryStateStore` and an `InvocationStoragePlanner`
+  during host setup. A planner must preserve the trusted request identity and
+  prepare writes without performing them. The registry commits only after a
+  successful worker response and a second authorization check. The existing
+  SQLite product adapter is transitional; see [refactoring notes](refactoring.md).
+- TypeScript: use the SDK route and host-context validation instead of resolving
+  operations separately in each handler.
+- Admin: use `app/lib/admin-api.ts` for session/request handling,
+  `admin-navigation.ts` for visibility, and focused components for page rendering.
+  The root page coordinates state and actions; do not duplicate console flows.
+- Clients: enforce the host's project ID grammar before transport; this validation
+  does not replace host authorization.
 
 ## Request flow
 

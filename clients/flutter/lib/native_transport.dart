@@ -1,3 +1,5 @@
+import 'project_identity.dart';
+
 typedef NativeRequest = Future<Object?> Function(
   String operation,
   String projectId,
@@ -6,7 +8,7 @@ typedef NativeRequest = Future<Object?> Function(
 
 class NativeTransport {
   NativeTransport(this._request, this.projectId) {
-    if (projectId.isEmpty) throw ArgumentError('project required');
+    validateProjectId(projectId);
   }
 
   final NativeRequest _request;

@@ -12,6 +12,8 @@ import (
 )
 
 func (s *Store) EnableMFA(secret string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	if s.account == nil || s.authenticatedOperator == "" || strings.TrimSpace(secret) == "" {
 		return ErrInvalidCredentials
 	}
@@ -20,6 +22,8 @@ func (s *Store) EnableMFA(secret string) error {
 }
 
 func (s *Store) VerifyMFA(code string, now time.Time) bool {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 	if s.account == nil || s.account.MFASecret == "" {
 		return false
 	}

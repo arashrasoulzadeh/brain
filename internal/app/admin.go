@@ -1,53 +1,13 @@
 package app
 
 import (
-	"crypto/rand"
-	"encoding/hex"
 	"encoding/json"
-	"errors"
 	"net/http"
-	"net/url"
-	"strings"
 
 	"brain/internal/admin"
 	"brain/internal/operator"
 	"brain/internal/plugin"
 )
-
-type operatorLogin struct {
-	Username string `json:"username"`
-	Secret   string `json:"secret"`
-}
-
-func OperatorSessionHandler(sessions *operator.Store, digest func(string) string) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if sessions == nil || digest == nil || r.Method != http.MethodPost {
-			http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-			return
-		}
-		var login operatorLogin
-		if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 16<<10)).Decode(&login); err != nil {
-			http.Error(w, "invalid operator login", http.StatusBadRequest)
-			return
-		}
-		if err := sessions.Authenticate(login.Username, login.Secret, digest); err != nil {
-			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
-			return
-		}
-		tokenBytes := make([]byte, 32)
-		if _, err := rand.Read(tokenBytes); err != nil {
-			http.Error(w, "operator session unavailable", http.StatusInternalServerError)
-			return
-		}
-		token, err := sessions.IssueSession(func() string { return hex.EncodeToString(tokenBytes) })
-		if err != nil {
-			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
-			return
-		}
-		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(map[string]string{"session": token})
-	})
-}
 
 func AuthenticatedAdminHandler(service *admin.LifecycleService, sessions *operator.Store) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -55,34 +15,12 @@ func AuthenticatedAdminHandler(service *admin.LifecycleService, sessions *operat
 			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 			return
 		}
-		const prefix = "Bearer "
-		header := r.Header.Get("Authorization")
-		if !strings.HasPrefix(header, prefix) {
-			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
-			return
-		}
-		actor, ok := sessions.ValidateSession(strings.TrimPrefix(header, prefix))
+		actor, ok := operatorActorFromRequest(sessions, r)
 		if !ok {
 			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 			return
 		}
 		AdminHandler(service).ServeHTTP(w, r.WithContext(operator.WithActor(r.Context(), actor)))
-	})
-}
-
-func OperatorLogoutHandler(sessions *operator.Store) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if sessions == nil || r.Method != http.MethodDelete {
-			http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-			return
-		}
-		const prefix = "Bearer "
-		header := r.Header.Get("Authorization")
-		if !strings.HasPrefix(header, prefix) || sessions.RevokeSession(strings.TrimPrefix(header, prefix)) != nil {
-			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
-			return
-		}
-		w.WriteHeader(http.StatusNoContent)
 	})
 }
 
@@ -92,13 +30,7 @@ func AuthenticatedProjectsHandler(service *admin.LifecycleService, sessions *ope
 			http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 			return
 		}
-		const prefix = "Bearer "
-		header := r.Header.Get("Authorization")
-		if !strings.HasPrefix(header, prefix) {
-			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
-			return
-		}
-		actor, ok := sessions.ValidateSession(strings.TrimPrefix(header, prefix))
+		actor, ok := operatorActorFromRequest(sessions, r)
 		if !ok {
 			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 			return
@@ -119,13 +51,7 @@ func AuthenticatedPluginsHandler(service *admin.LifecycleService, sessions *oper
 			http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 			return
 		}
-		const prefix = "Bearer "
-		header := r.Header.Get("Authorization")
-		if !strings.HasPrefix(header, prefix) {
-			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
-			return
-		}
-		actor, ok := sessions.ValidateSession(strings.TrimPrefix(header, prefix))
+		actor, ok := operatorActorFromRequest(sessions, r)
 		if !ok {
 			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 			return
@@ -146,13 +72,7 @@ func AuthenticatedAuditHandler(service *admin.LifecycleService, sessions *operat
 			http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 			return
 		}
-		const prefix = "Bearer "
-		header := r.Header.Get("Authorization")
-		if !strings.HasPrefix(header, prefix) {
-			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
-			return
-		}
-		actor, ok := sessions.ValidateSession(strings.TrimPrefix(header, prefix))
+		actor, ok := operatorActorFromRequest(sessions, r)
 		if !ok {
 			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 			return
@@ -173,13 +93,7 @@ func AuthenticatedSystemHandler(service *admin.LifecycleService, sessions *opera
 			http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 			return
 		}
-		const prefix = "Bearer "
-		header := r.Header.Get("Authorization")
-		if !strings.HasPrefix(header, prefix) {
-			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
-			return
-		}
-		actor, ok := sessions.ValidateSession(strings.TrimPrefix(header, prefix))
+		actor, ok := operatorActorFromRequest(sessions, r)
 		if !ok {
 			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 			return
@@ -216,160 +130,6 @@ type adminCommand struct {
 	Public          bool            `json:"public"`
 	Permissions     []string        `json:"permissions"`
 	Method          string          `json:"method"`
-}
-
-func publicFunctionURL(r *http.Request, projectID, functionName string) string {
-	scheme := "http"
-	if r.TLS != nil {
-		scheme = "https"
-	}
-	return scheme + "://" + r.Host + "/public/" + url.PathEscape(projectID) + "/" + url.PathEscape(functionName)
-}
-
-func AuthenticatedFunctionsHandler(service *admin.LifecycleService, sessions *operator.Store) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if service == nil || sessions == nil || !strings.HasPrefix(r.Header.Get("Authorization"), "Bearer ") {
-			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
-			return
-		}
-		actor, ok := sessions.ValidateSession(strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer "))
-		if !ok {
-			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
-			return
-		}
-		projectID := r.URL.Query().Get("project_id")
-		if r.Method == http.MethodGet {
-			if err := service.RequireEnabledPlugin(actor, projectID, "functions"); err != nil {
-				http.Error(w, err.Error(), http.StatusForbidden)
-				return
-			}
-			drafts, err := service.ListFunctionDrafts(actor, projectID)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusBadRequest)
-				return
-			}
-			w.Header().Set("Content-Type", "application/json")
-			_ = json.NewEncoder(w).Encode(drafts)
-			return
-		}
-		if r.Method != http.MethodPost {
-			http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-			return
-		}
-		var command adminCommand
-		if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<20)).Decode(&command); err != nil {
-			http.Error(w, "invalid function request", http.StatusBadRequest)
-			return
-		}
-		if err := service.RequireEnabledPlugin(actor, command.ProjectID, "functions"); err != nil {
-			http.Error(w, err.Error(), http.StatusForbidden)
-			return
-		}
-		if command.Operation == "functions.test" {
-			result, err := service.TestFunctionDraft(actor, command.ProjectID, command.Name, command.Source)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusBadRequest)
-				return
-			}
-			w.Header().Set("Content-Type", "application/json")
-			_ = json.NewEncoder(w).Encode(result)
-			return
-		}
-		if command.Operation == "functions.run" {
-			result, err := service.RunFunctionDraft(actor, command.ProjectID, command.Name, command.Source, command.Input)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusBadRequest)
-				return
-			}
-			w.Header().Set("Content-Type", "application/json")
-			_ = json.NewEncoder(w).Encode(result)
-			return
-		}
-		if command.Operation == "functions.permissions" {
-			if err := service.UpdateFunctionPermissions(actor, command.ProjectID, command.Name, command.Permissions, command.Public); err != nil {
-				http.Error(w, err.Error(), http.StatusBadRequest)
-				return
-			}
-			w.WriteHeader(http.StatusNoContent)
-			return
-		}
-		if command.Operation == "functions.update" {
-			draft, err := service.UpdateFunctionDraft(actor, command.ProjectID, command.Name, command.Source, command.FunctionVersion)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusBadRequest)
-				return
-			}
-			w.Header().Set("Content-Type", "application/json")
-			_ = json.NewEncoder(w).Encode(draft)
-			return
-		}
-		if command.Operation == "functions.publish" {
-			draft, err := service.PublishFunction(actor, command.ProjectID, command.Name, command.Method)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusBadRequest)
-				return
-			}
-			w.Header().Set("Content-Type", "application/json")
-			_ = json.NewEncoder(w).Encode(map[string]any{"published": true, "project_id": command.ProjectID, "name": command.Name, "version": draft.Version, "method": draft.Method, "published_at": draft.PublishedAt, "route": publicFunctionURL(r, command.ProjectID, command.Name)})
-			return
-		}
-		if command.Operation != "functions.create" {
-			http.Error(w, "unsupported function operation", http.StatusBadRequest)
-			return
-		}
-		draft, err := service.CreateFunctionDraftWithSettings(actor, command.ProjectID, command.Name, command.Source, command.FunctionVersion, command.Public, command.Permissions, command.Method)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(draft)
-	})
-}
-
-func AuthenticatedFunctionLogsHandler(service *admin.LifecycleService, sessions *operator.Store) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		actor, ok := sessions.ValidateSession(strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer "))
-		if !ok {
-			http.Error(w, "forbidden", http.StatusForbidden)
-			return
-		}
-		if err := service.RequireEnabledPlugin(actor, r.URL.Query().Get("project_id"), "functions"); err != nil {
-			http.Error(w, err.Error(), http.StatusForbidden)
-			return
-		}
-		logs, err := service.ListFunctionLogs(actor, r.URL.Query().Get("project_id"), r.URL.Query().Get("name"))
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(logs)
-	})
-}
-
-func PublicFunctionHandler(service *admin.LifecycleService) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var input json.RawMessage
-		if r.Method != http.MethodGet {
-			if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<20)).Decode(&input); err != nil {
-				http.Error(w, "invalid JSON input", http.StatusBadRequest)
-				return
-			}
-		}
-		result, err := service.PublicInvokeFunction(r.PathValue("project_id"), r.PathValue("function_name"), r.Method, input)
-		if err != nil {
-			if errors.Is(err, admin.ErrFunctionMethodNotAllowed) {
-				w.Header().Set("Allow", "GET, POST, PUT, PATCH")
-				http.Error(w, err.Error(), http.StatusMethodNotAllowed)
-				return
-			}
-			http.Error(w, "public function unavailable", http.StatusNotFound)
-			return
-		}
-		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(result)
-	})
 }
 
 func AdminHandler(service *admin.LifecycleService) http.Handler {

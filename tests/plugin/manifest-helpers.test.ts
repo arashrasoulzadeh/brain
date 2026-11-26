@@ -68,7 +68,7 @@ try {
       { operation: "sample.context", function: "context", helper: "sdk.request" },
     ],
   }));
-  const params = { pluginId: "sample", version: "1", projectId: "project", operation: "sample.read", payload: { ok: true } };
+  const params = { protocol: 1, pluginId: "sample", version: "1", projectId: "project", operation: "sample.read", payload: { ok: true } };
   const lines = [
     { id: "ok", params },
     { id: "context", params: { ...params, operation: "sample.context" } },
@@ -78,8 +78,8 @@ try {
   const worker = spawnSync(process.execPath, ["scripts/typescript-worker.mjs", descriptor], { input: lines, encoding: "utf8", timeout: 5000 });
   equal(worker.status, 0, worker.stderr);
   const [accepted, context, denied, undeclared] = worker.stdout.trim().split("\n").map((line) => JSON.parse(line) as { result?: unknown; errorCode?: string });
-  deepEqual(accepted.result, { name: "read", input: { ok: true } });
-  deepEqual(context.result, { name: "context", projectId: "project", input: { ok: true } });
+  deepEqual(accepted.result, { protocol: 1, success: true, payload: { name: "read", input: { ok: true } } });
+  deepEqual(context.result, { protocol: 1, success: true, payload: { name: "context", projectId: "project", input: { ok: true } } });
   equal(denied.errorCode, "execution context mismatch");
   equal(undeclared.errorCode, "operation not declared in plugin manifest");
   await writeFile(descriptor, JSON.stringify({ entrypoint, pluginId: "sample", version: "1", projectId: "project", routes: [{ operation: "sample.read", function: "read", helper: "unknown.helper" }] }));

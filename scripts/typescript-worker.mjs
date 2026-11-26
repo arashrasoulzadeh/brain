@@ -48,7 +48,7 @@ for await (const line of input) {
     const result = helper
       ? await plugin[helper.exported](route.function, helper.input(request))
       : typeof handler === "function" ? await handler(request) : await invokeDeclaredRoute(plugin, route.function, request);
-    process.stdout.write(`${JSON.stringify({ jsonrpc: "2.0", id: request.id, result })}\n`);
+    process.stdout.write(`${JSON.stringify({ jsonrpc: "2.0", id: request.id, result: { protocol: params.protocol, success: true, payload: result } })}\n`);
   } catch (error) {
     process.stdout.write(`${JSON.stringify({ jsonrpc: "2.0", id: request?.id ?? "", errorCode: error instanceof Error ? error.message : "plugin execution failed" })}\n`);
   }

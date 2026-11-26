@@ -1,4 +1,5 @@
 "use client";
+import { adminHeaders, readAdminSession } from "../../lib/admin-api";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -45,7 +46,7 @@ export default function FunctionDetailPage() {
   const [logPage, setLogPage] = useState(0);
   const [selectedLog, setSelectedLog] = useState<Log | null>(null);
   async function refresh(token: string) {
-    const headers = { authorization: `Bearer ${token}` };
+    const headers = adminHeaders(token);
     const projectsResponse = await fetch("/api/admin/projects", { headers });
     if (!projectsResponse.ok)
       throw new Error((await projectsResponse.text()) || "Could not load projects.");
@@ -80,18 +81,18 @@ export default function FunctionDetailPage() {
   async function refreshLogs(token: string, projectID: string) {
     const response = await fetch(
       `/api/admin/function-logs?project_id=${encodeURIComponent(projectID)}&name=${encodeURIComponent(name)}`,
-      { headers: { authorization: `Bearer ${token}` } },
+      { headers: adminHeaders(token) },
     );
     if (response.ok) setLogs((await response.json()) as Log[]);
   }
   useEffect(() => {
-    const token = window.sessionStorage.getItem("brain-admin-session") ?? "";
+    const token = readAdminSession();
     setSession(token);
     if (!token) {
       router.replace("/");
       return;
     }
-    void fetch("/api/admin/projects", { headers: { authorization: `Bearer ${token}` } })
+    void fetch("/api/admin/projects", { headers: adminHeaders(token) })
       .then(async (response) => {
         if (!response.ok) throw new Error("session expired");
         const projects = (await response.json()) as { ID: string; Active: boolean }[];
@@ -99,7 +100,7 @@ export default function FunctionDetailPage() {
         if (!active) throw new Error("no active project");
         const pluginsResponse = await fetch(
           `/api/admin/plugins?project_id=${encodeURIComponent(active)}`,
-          { headers: { authorization: `Bearer ${token}` } },
+          { headers: adminHeaders(token) },
         );
         if (!pluginsResponse.ok) throw new Error("plugin access unavailable");
         const payload = (await pluginsResponse.json()) as {
@@ -128,7 +129,7 @@ export default function FunctionDetailPage() {
     if (!draft) return;
     const response = await fetch("/api/admin/functions", {
       method: "POST",
-      headers: { authorization: `Bearer ${session}`, "content-type": "application/json" },
+      headers: adminHeaders(session, { "content-type": "application/json" }),
       body: JSON.stringify({
         operation: "functions.permissions",
         project_id: project,
@@ -152,7 +153,7 @@ export default function FunctionDetailPage() {
     setPublishing(true);
     setMessage("Saving source and publishing…");
     try {
-      const headers = { authorization: `Bearer ${session}`, "content-type": "application/json" };
+      const headers = adminHeaders(session, { "content-type": "application/json" });
       const update = await fetch("/api/admin/functions", {
         method: "POST",
         headers,
@@ -224,7 +225,7 @@ export default function FunctionDetailPage() {
     try {
       const response = await fetch("/api/admin/functions", {
         method: "POST",
-        headers: { authorization: `Bearer ${session}`, "content-type": "application/json" },
+        headers: adminHeaders(session, { "content-type": "application/json" }),
         body: JSON.stringify({
           operation: "functions.test",
           project_id: project,
@@ -257,7 +258,7 @@ export default function FunctionDetailPage() {
     try {
       const response = await fetch("/api/admin/functions", {
         method: "POST",
-        headers: { authorization: `Bearer ${session}`, "content-type": "application/json" },
+        headers: adminHeaders(session, { "content-type": "application/json" }),
         body: JSON.stringify({
           operation: "functions.update",
           project_id: project,
