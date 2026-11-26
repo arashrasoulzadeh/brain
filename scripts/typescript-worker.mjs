@@ -21,6 +21,8 @@ if (typeof handler !== "function" && typeof plugin.functions !== "function" && d
   process.exit(65);
 }
 
+if (process.env.BRAIN_WORKER_READY === "1") process.stdout.write('{"ready":true}\\n');
+
 const input = readline.createInterface({ input: process.stdin, crlfDelay: Infinity });
 for await (const line of input) {
   if (!line.trim()) continue;

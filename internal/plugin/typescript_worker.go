@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -39,13 +40,16 @@ type TypeScriptWorkerOptions struct {
 }
 
 type TypeScriptWorker struct {
-	command *exec.Cmd
-	env     []string
-	stdin   io.WriteCloser
-	reader  *bufio.Reader
-	options TypeScriptWorkerOptions
-	mutex   sync.Mutex
-	ready   bool
+	command          *exec.Cmd
+	env              []string
+	stdin            io.WriteCloser
+	reader           *bufio.Reader
+	options          TypeScriptWorkerOptions
+	mutex            sync.Mutex
+	ready            bool
+	startupHandshake bool
+	descriptorPath   string
+	done             chan struct{}
 }
 
 func NewTypeScriptWorker(command string, arguments ...string) *TypeScriptWorker {
@@ -78,6 +82,9 @@ func NewManifestBubblewrapTypeScriptWorker(launcher, workerScript, descriptor, p
 		return nil, err
 	}
 	worker.command = exec.Command(launcher)
+	worker.startupHandshake = true
+	worker.descriptorPath = descriptor
+	runtimeRoot := filepath.Dir(filepath.Dir(workerScript))
 	worker.env = []string{
 		"PATH=/usr/local/bin:/usr/bin:/bin",
 		"WORKER_SCRIPT=" + workerScript,
@@ -86,6 +93,8 @@ func NewManifestBubblewrapTypeScriptWorker(launcher, workerScript, descriptor, p
 		"CPU_MILLIS=" + strconv.Itoa(policy.CPUMillis),
 		"MEMORY_BYTES=" + strconv.FormatInt(policy.MemoryBytes, 10),
 		"PROCESS_LIMIT=" + strconv.Itoa(policy.ProcessLimit),
+		"WORKER_RUNTIME_ROOT=" + runtimeRoot,
+		"BRAIN_WORKER_READY=1",
 	}
 	return worker, nil
 }
@@ -123,6 +132,9 @@ func (w *TypeScriptWorker) Start() error {
 	if w.ready {
 		return ErrTypeScriptWorkerStarted
 	}
+	if w.descriptorPath != "" {
+		defer os.Remove(w.descriptorPath)
+	}
 	if w.env != nil {
 		w.command.Env = w.env
 	}
@@ -141,6 +153,36 @@ func (w *TypeScriptWorker) Start() error {
 	}
 	w.stdin = stdin
 	w.reader = bufio.NewReader(stdout)
+	if w.startupHandshake {
+		ack := make(chan string, 1)
+		go func() {
+			line, err := w.reader.ReadSlice('\n')
+			if err != nil {
+				ack <- ""
+				return
+			}
+			ack <- string(line)
+		}()
+		timer := time.NewTimer(15 * time.Second)
+		defer timer.Stop()
+		select {
+		case line := <-ack:
+			if line != "{\"ready\":true}\n" {
+				_ = w.command.Process.Kill()
+				w.reapProcess()
+				return fmt.Errorf("sandbox worker did not acknowledge startup")
+			}
+		case <-timer.C:
+			_ = w.command.Process.Kill()
+			w.reapProcess()
+			return fmt.Errorf("sandbox worker startup timed out")
+		}
+		w.done = make(chan struct{})
+		go func() {
+			_ = w.command.Wait()
+			close(w.done)
+		}()
+	}
 	w.ready = true
 	return nil
 }
@@ -162,7 +204,9 @@ func (w *TypeScriptWorker) Stop() error {
 }
 
 func (w *TypeScriptWorker) reapProcess() {
-	if w.command.Process != nil {
+	if w.done != nil {
+		<-w.done
+	} else if w.command.Process != nil {
 		_ = w.command.Wait()
 	}
 }
@@ -170,6 +214,13 @@ func (w *TypeScriptWorker) reapProcess() {
 func (w *TypeScriptWorker) Ready() bool {
 	w.mutex.Lock()
 	defer w.mutex.Unlock()
+	if w.done != nil {
+		select {
+		case <-w.done:
+			return false
+		default:
+		}
+	}
 	return w.ready
 }
 
@@ -198,46 +249,59 @@ func (w *TypeScriptWorker) Handle(request WorkerRequest) WorkerResponse {
 	if err != nil {
 		return WorkerResponse{Protocol: request.Protocol, ErrorCode: err.Error()}
 	}
-	if _, err := w.stdin.Write(append(data, '\n')); err != nil {
-		w.ready = false
-		w.reapProcess()
-		return WorkerResponse{Protocol: request.Protocol, ErrorCode: err.Error()}
+	const maxMessage = 1 << 20
+	if len(data) >= maxMessage {
+		return WorkerResponse{Protocol: request.Protocol, ErrorCode: ErrInvalidRPCMessage.Error()}
 	}
-	responseLine := make(chan []byte, 1)
-	readError := make(chan error, 1)
+	type exchangeResult struct {
+		line []byte
+		err  error
+	}
+	result := make(chan exchangeResult, 1)
 	go func() {
-		line, err := w.reader.ReadBytes('\n')
-		if err != nil {
-			readError <- err
+		if _, err := w.stdin.Write(append(data, '\n')); err != nil {
+			result <- exchangeResult{err: err}
 			return
 		}
-		responseLine <- line
+		var line []byte
+		for {
+			part, err := w.reader.ReadSlice('\n')
+			if len(line)+len(part) > maxMessage {
+				result <- exchangeResult{err: ErrInvalidRPCMessage}
+				return
+			}
+			line = append(line, part...)
+			if errors.Is(err, bufio.ErrBufferFull) {
+				continue
+			}
+			result <- exchangeResult{line: line, err: err}
+			return
+		}
 	}()
-	var line []byte
-	var readErr error
+	var exchange exchangeResult
 	if w.options.InvocationTimeout > 0 {
 		ctx, cancel := context.WithTimeout(context.Background(), w.options.InvocationTimeout)
 		defer cancel()
 		select {
-		case line = <-responseLine:
-		case readErr = <-readError:
+		case exchange = <-result:
 		case <-ctx.Done():
 			w.ready = false
 			_ = w.command.Process.Kill()
+			_ = w.stdin.Close()
 			w.reapProcess()
 			return WorkerResponse{Protocol: request.Protocol, ErrorCode: ErrTypeScriptWorkerTimedOut.Error()}
 		}
 	} else {
-		select {
-		case line = <-responseLine:
-		case readErr = <-readError:
-		}
+		exchange = <-result
 	}
-	if readErr != nil {
+	if exchange.err != nil {
 		w.ready = false
+		_ = w.command.Process.Kill()
+		_ = w.stdin.Close()
 		w.reapProcess()
-		return WorkerResponse{Protocol: request.Protocol, ErrorCode: readErr.Error()}
+		return WorkerResponse{Protocol: request.Protocol, ErrorCode: exchange.err.Error()}
 	}
+	line := exchange.line
 	var response struct {
 		Result *struct {
 			Protocol  int             `json:"protocol"`

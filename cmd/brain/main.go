@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"time"
 
@@ -66,7 +67,9 @@ func productionServer() (*app.Server, error) {
 	if err != nil {
 		return nil, err
 	}
-	bindLocalTypeScriptWorkers(registry, locations)
+	if err := bindSandboxedTypeScriptWorkers(registry, locations); err != nil {
+		return nil, err
+	}
 	projectsPath := os.Getenv("PROJECTS_FILE")
 	if projectsPath == "" {
 		projectsPath = ".local/brain.sqlite"
@@ -87,6 +90,13 @@ func productionServer() (*app.Server, error) {
 		_ = storage.Close()
 		_ = projects.Close()
 		return nil, fmt.Errorf("registry state unavailable: %w", err)
+	}
+	for _, installation := range registry.InstallationStatuses("") {
+		if installation.Enabled && installation.Ready && !installation.Draining {
+			if err := registry.StartWorker(installation.ProjectID, installation.PluginID, installation.Version); err != nil {
+				log.Printf("restored worker unavailable: %s@%s", installation.PluginID, installation.Version)
+			}
+		}
 	}
 	server := app.NewServerWithOperatorAdmin(admin.NewLifecycleServiceWithProjects(operators, registry, projects), operators, digest)
 	server.SetReadinessCheck(func(ctx context.Context) error {
@@ -152,11 +162,48 @@ func registerDiscoveredPlugins(registry *plugin.Registry) (map[string]plugin.Plu
 	return registered, nil
 }
 
-func bindLocalTypeScriptWorkers(registry *plugin.Registry, locations map[string]plugin.PluginLocation) {
-	command := filepath.Join("node_modules", ".bin", "tsx")
-	workerScript := filepath.Join("scripts", "typescript-worker.mjs")
-	policy := plugin.IsolationPolicy{FilesystemReadOnly: true, NetworkEnabled: false, CPUMillis: 1000, MemoryBytes: 128 << 20, ProcessLimit: 16, WallTime: 2 * time.Second}
-	_ = os.MkdirAll(".local", 0o700)
+func bindSandboxedTypeScriptWorkers(registry *plugin.Registry, locations map[string]plugin.PluginLocation) error {
+	launcher, err := filepath.Abs("scripts/run-sandboxed-typescript-worker.sh")
+	if err != nil {
+		return err
+	}
+	workerScript, err := filepath.Abs("scripts/typescript-worker.mjs")
+	if err != nil {
+		return err
+	}
+	for _, binary := range []string{"bwrap", "node"} {
+		if _, err := exec.LookPath(binary); err != nil {
+			return fmt.Errorf("sandbox runtime requires %s: %w", binary, err)
+		}
+	}
+	if _, err := os.Stat("node_modules/tsx/dist/loader.mjs"); err != nil {
+		return fmt.Errorf("sandbox TypeScript loader unavailable: %w", err)
+	}
+	// The address-space limit includes V8's reservations. The launcher also
+	// caps the JavaScript heap; CPU limits apply over a worker's lifetime.
+	policy := plugin.IsolationPolicy{FilesystemReadOnly: true, NetworkEnabled: false, CPUMillis: 30000, MemoryBytes: 2 << 30, ProcessLimit: 64, WallTime: 2 * time.Second}
+	probeRoot, err := os.MkdirTemp("", "brain-sandbox-probe-")
+	if err != nil {
+		return err
+	}
+	defer os.RemoveAll(probeRoot)
+	probeSource := []byte("export function health(): { accepted: boolean } { return { accepted: true }; }\n")
+	if err := os.WriteFile(filepath.Join(probeRoot, "index.ts"), probeSource, 0o600); err != nil {
+		return err
+	}
+	probeManifest := plugin.Manifest{ID: "sandbox-probe", Version: "1.0.0", HostAPI: 1, Entry: "index.ts", SourceFiles: []string{"index.ts"}, Capabilities: []string{"health"}, Routes: []plugin.Route{{Operation: "health", Function: "health", Capability: "health"}}}
+	probe, err := plugin.NewManifestBubblewrapTypeScriptWorker(launcher, workerScript, filepath.Join(probeRoot, "execution.json"), probeRoot, "sandbox-probe", probeManifest, policy)
+	if err != nil {
+		return fmt.Errorf("sandbox probe configuration failed: %w", err)
+	}
+	if err := probe.Start(); err != nil {
+		return fmt.Errorf("sandbox startup probe failed: %w", err)
+	}
+	response, err := plugin.InvokeForProject(probe, plugin.WorkerRequest{Protocol: 1, ProjectID: "sandbox-probe", PluginID: probeManifest.ID, Version: probeManifest.Version, Operation: "health"}, 1, "sandbox-probe")
+	_ = probe.Stop()
+	if err != nil || !response.Success {
+		return fmt.Errorf("sandbox invocation probe failed")
+	}
 	registry.BindWorkerFactory(func(projectID, pluginID, version string) (plugin.ContractWorker, error) {
 		location, ok := locations[pluginID+"@"+version]
 		if !ok {
@@ -166,13 +213,23 @@ func bindLocalTypeScriptWorkers(registry *plugin.Registry, locations map[string]
 		if err != nil {
 			return nil, err
 		}
-		descriptor, err := os.CreateTemp(".local", "worker-*.json")
+		root, err := filepath.Abs(location.Directory)
+		if err != nil {
+			return nil, err
+		}
+		descriptor, err := os.CreateTemp("", "brain-worker-*.json")
 		if err != nil {
 			return nil, err
 		}
 		_ = descriptor.Close()
-		return plugin.NewManifestTypeScriptWorker(command, workerScript, descriptor.Name(), location.Directory, projectID, manifest, policy)
+		worker, err := plugin.NewManifestBubblewrapTypeScriptWorker(launcher, workerScript, descriptor.Name(), root, projectID, manifest, policy)
+		if err != nil {
+			_ = os.Remove(descriptor.Name())
+			return nil, err
+		}
+		return worker, nil
 	})
+	return nil
 }
 
 func verifyObjectManifest(path string) {
