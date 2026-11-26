@@ -57,26 +57,34 @@ const directory = await mkdtemp(join(tmpdir(), "brain-manifest-helper-"));
 try {
   const entrypoint = join(directory, "plugin.mjs");
   const descriptor = join(directory, "descriptor.json");
-  await writeFile(entrypoint, 'export function dispatchRoute(name, input) { return { name, input }; }\nexport function handle() { throw new Error("legacy handler called"); }\n');
+  await writeFile(entrypoint, 'export function dispatchRoute(name, input) { return { name, input }; }\nexport function dispatchRequest(name, request) { return { name, projectId: request.params.projectId, input: request.params.payload }; }\nexport function handle() { throw new Error("legacy handler called"); }\n');
   await writeFile(descriptor, JSON.stringify({
     entrypoint,
     pluginId: "sample",
     version: "1",
     projectId: "project",
-    routes: [{ operation: "sample.read", function: "read", helper: "sdk.dispatch" }],
+    routes: [
+      { operation: "sample.read", function: "read", helper: "sdk.dispatch" },
+      { operation: "sample.context", function: "context", helper: "sdk.request" },
+    ],
   }));
   const params = { pluginId: "sample", version: "1", projectId: "project", operation: "sample.read", payload: { ok: true } };
   const lines = [
     { id: "ok", params },
+    { id: "context", params: { ...params, operation: "sample.context" } },
     { id: "cross-project", params: { ...params, projectId: "other" } },
     { id: "undeclared", params: { ...params, operation: "sample.write" } },
   ].map((request) => JSON.stringify(request)).join("\n") + "\n";
   const worker = spawnSync(process.execPath, ["scripts/typescript-worker.mjs", descriptor], { input: lines, encoding: "utf8", timeout: 5000 });
   equal(worker.status, 0, worker.stderr);
-  const [accepted, denied, undeclared] = worker.stdout.trim().split("\n").map((line) => JSON.parse(line) as { result?: unknown; errorCode?: string });
+  const [accepted, context, denied, undeclared] = worker.stdout.trim().split("\n").map((line) => JSON.parse(line) as { result?: unknown; errorCode?: string });
   deepEqual(accepted.result, { name: "read", input: { ok: true } });
+  deepEqual(context.result, { name: "context", projectId: "project", input: { ok: true } });
   equal(denied.errorCode, "execution context mismatch");
   equal(undeclared.errorCode, "operation not declared in plugin manifest");
+  await writeFile(descriptor, JSON.stringify({ entrypoint, pluginId: "sample", version: "1", projectId: "project", routes: [{ operation: "sample.read", function: "read", helper: "unknown.helper" }] }));
+  const invalid = spawnSync(process.execPath, ["scripts/typescript-worker.mjs", descriptor], { input: lines, encoding: "utf8", timeout: 5000 });
+  equal(invalid.status, 65);
 } finally {
   await rm(directory, { recursive: true, force: true });
 }

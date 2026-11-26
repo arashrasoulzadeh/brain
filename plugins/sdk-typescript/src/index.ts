@@ -27,7 +27,7 @@ export type PluginRoute = {
   operation: string;
   function: string;
   capability: string;
-  helper?: "sdk.dispatch";
+  helper?: "sdk.dispatch" | "sdk.request";
 };
 
 export type HostInvoker = {
@@ -47,7 +47,7 @@ export { request } from "./request.js";
 export { pluginRequest } from "./plugin-request.js";
 export { validateProjectId } from "./validate-project-id.js";
 export { validateIdentifier } from "./validate-identifier.js";
-export { createOperationRoutes, createRouteDispatcher, requiredString, trimmedString } from "./routes.js";
+export { createOperationRoutes, createRequestDispatcher, createRouteDispatcher, requiredString, trimmedString } from "./routes.js";
 export type { PayloadHandler } from "./routes.js";
 export { createProjectMap } from "./project-store.js";
 export { commitWithGrant, createCommitRollback, createTransactionGate, runCappedRetries, runWithTimeout } from "./execution.js";

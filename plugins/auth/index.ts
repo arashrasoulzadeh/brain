@@ -1,5 +1,3 @@
-import { sessionTokenDigest } from "./session-token-digest.js";
-
 export { guestRequest } from "./guest-request.js";
 export { signInRequest } from "./sign-in-request.js";
 export { signUpRequest } from "./sign-up-request.js";
@@ -57,5 +55,5 @@ export { GuestSessionIssuer } from "./guest-session-issuer.js";
 export { firstPartySessionCookie } from "./first-party-session-cookie.js";
 export { GuestAccountUpgrader } from "./guest-account-upgrader.js";
 export { createAuthOperations } from "./create-auth-operations.js";
-export { functions } from "./auth-functions.js";
+export { dispatchRequest, functions } from "./auth-functions.js";
 export type { AuthOperations } from "./auth-functions.js";

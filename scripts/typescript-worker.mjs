@@ -16,9 +16,15 @@ if (!descriptor.entrypoint || !descriptor.pluginId || !descriptor.version || !de
 const modulePath = pathToFileURL(descriptor.entrypoint).href;
 const plugin = await import(modulePath);
 const handler = plugin.handle ?? plugin.createHandler?.();
+const routeHelpers = new Map([
+  ["sdk.dispatch", { exported: "dispatchRoute", input: (request) => request.params.payload ?? null }],
+  ["sdk.request", { exported: "dispatchRequest", input: (request) => request }],
+]);
 if (descriptor.routes.some((route) => {
-  if (route.helper === "sdk.dispatch") return typeof plugin.dispatchRoute !== "function";
-  if (route.helper) return true;
+  if (route.helper) {
+    const helper = routeHelpers.get(route.helper);
+    return !helper || typeof plugin[helper.exported] !== "function";
+  }
   return typeof handler !== "function" && typeof plugin.functions !== "function" && typeof plugin[route.function] !== "function";
 })) {
   process.stderr.write("plugin must export handle or createHandler\n");
@@ -38,8 +44,9 @@ for await (const line of input) {
     }
     const route = descriptor.routes.find((candidate) => candidate.operation === params.operation);
     if (!route) throw new Error("operation not declared in plugin manifest");
-    const result = route.helper === "sdk.dispatch"
-      ? await plugin.dispatchRoute(route.function, request.params.payload ?? null)
+    const helper = routeHelpers.get(route.helper);
+    const result = helper
+      ? await plugin[helper.exported](route.function, helper.input(request))
       : typeof handler === "function" ? await handler(request) : await invokeDeclaredRoute(plugin, route.function, request);
     process.stdout.write(`${JSON.stringify({ jsonrpc: "2.0", id: request.id, result })}\n`);
   } catch (error) {
@@ -52,6 +59,6 @@ async function invokeDeclaredRoute(plugin, functionName, request) {
   if (typeof directExport === "function") return directExport(request.params.payload ?? null);
   const functionMap = typeof plugin.functions === "function" ? plugin.functions() : null;
   const mappedExport = functionMap?.[functionName];
-  if (typeof mappedExport === "function") return mappedExport(request);
+  if (functionMap && Object.hasOwn(functionMap, functionName) && typeof mappedExport === "function") return mappedExport(request);
   throw new Error(`declared plugin function is not exported: ${functionName}`);
 }

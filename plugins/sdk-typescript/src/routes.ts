@@ -1,10 +1,26 @@
+import type { PluginFunction, RpcRequest } from "./index.js";
+
 export type PayloadHandler = (input: unknown) => unknown;
 
 export function createRouteDispatcher(handlers: Readonly<Record<string, PayloadHandler>>) {
+  return createDispatcher<unknown>(handlers);
+}
+
+export function createRequestDispatcher(
+  handlers: Readonly<Record<string, PluginFunction>>,
+  missingHandlerError?: string,
+) {
+  return createDispatcher<RpcRequest>(handlers, missingHandlerError);
+}
+
+function createDispatcher<Input>(
+  handlers: Readonly<Record<string, (input: Input) => unknown>>,
+  missingHandlerError?: string,
+) {
   const registered = Object.freeze({ ...handlers });
-  return (name: string, input: unknown): unknown => {
+  return (name: string, input: Input): unknown => {
     if (!Object.hasOwn(registered, name) || typeof registered[name] !== "function")
-      throw new Error("declared plugin function is not exported: " + name);
+      throw new Error(missingHandlerError ?? "declared plugin function is not exported: " + name);
     return registered[name](input);
   };
 }
