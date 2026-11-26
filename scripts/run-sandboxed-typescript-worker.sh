@@ -67,7 +67,9 @@ else
 fi
 mounts+=(--ro-bind "$descriptor" "$descriptor")
 if [ -n "$source_files" ]; then mounts+=(--remount-ro "$plugin_root"); fi
-node_args=(--max-old-space-size=128)
+# V8's default Wasm guard region exceeds our address-space limit, even for
+# plain JavaScript (Node's built-in HTTP client uses Wasm).
+node_args=(--max-old-space-size=128 --disable-wasm-trap-handler)
 if [ -n "$runtime_root" ]; then
   runtime_root=$(realpath "$runtime_root")
   loader="$runtime_root/node_modules/tsx/dist/loader.mjs"
@@ -81,9 +83,7 @@ if [ -n "$runtime_root" ]; then
   if [ -f "$runtime_root/tsconfig.json" ]; then
     mounts+=(--ro-bind "$runtime_root/tsconfig.json" "$runtime_root/tsconfig.json")
   fi
-  # V8's default Wasm guard region exceeds our address-space limit.
-  # Use inline Wasm bounds checks instead; keep the OS memory cap intact.
-  node_args+=(--disable-wasm-trap-handler --import "$loader")
+  node_args+=(--import "$loader")
 fi
 
 ulimit -t "$(( (cpu_millis + 999) / 1000 ))"
