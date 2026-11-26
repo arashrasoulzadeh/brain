@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `4a550df` — 2026-11-27 02:48:06 +0330 — fix(sandbox): allow bounded WebAssembly allocation without raising memory cap
+  Files: .github/workflows/test.yml,cmd/brain/main.go docs/deployment-runbook.md,scripts/run-sandboxed-typescript-worker.sh scripts/test-sandboxed-typescript-worker.sh
+- `c3c3006` — 2026-11-26 23:13:00 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `43b7dc0` — 2026-11-27 02:42:47 +0330 — Merge pull request #3 from arashrasoulzadeh/fix/production-safety
   Files: 
 - `0ef81fb` — 2026-11-27 02:40:37 +0330 — Merge main and preserve declarative manifest responses in hardened worker
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: admin-nextjs/app/components/audit-panel.tsx,admin-nextjs/app/components/monitoring-panel.tsx admin-nextjs/app/components/plugin-console.tsx,admin-nextjs/app/components/system-panel.tsx admin-nextjs/app/lib/admin-copy.ts,admin-nextjs/app/lib/admin-types.ts admin-nextjs/app/page.tsx
 - `beb3cac` — 2026-11-27 02:13:42 +0330 — refactor: introduce manifest-selected plugin SDK dispatch
   Files: AGENTS.md,internal/plugin/plugin.go internal/plugin/typescript_worker.go,plugins/functions/call-route.ts plugins/functions/index.ts,plugins/functions/invoke-route.ts plugins/functions/plugin.yaml,plugins/functions/publish-route.ts plugins/functions/routes.ts,plugins/matchmaking/index.ts plugins/matchmaking/matchmaking-assign-route.ts,plugins/matchmaking/matchmaking-cancel-route.ts plugins/matchmaking/matchmaking-queue-route.ts,plugins/matchmaking/matchmaking-status-route.ts plugins/matchmaking/plugin.yaml,plugins/matchmaking/routes.ts plugins/sdk-typescript/src/index.ts,plugins/sdk-typescript/src/routes.ts scripts/typescript-worker.mjs,tests/functions/public-call.test.ts tests/plugin/manifest-helpers.test.ts,tests/plugin/manifest_helpers_test.go tests/plugin/sdk.test.ts
-- `078d996` — 2026-11-27 02:13:18 +0330 — refactor(admin): centralize session storage and authenticated request headers
-  Files: admin-nextjs/app/components/admin-chrome.tsx,admin-nextjs/app/components/admin-shell.tsx admin-nextjs/app/functions/[name]/page.tsx,admin-nextjs/app/functions/new/page.tsx admin-nextjs/app/functions/page.tsx,admin-nextjs/app/lib/admin-api.ts admin-nextjs/app/page.tsx,admin-nextjs/app/plugins/[plugin]/page.tsx admin-nextjs/app/workers/page.tsx,admin-nextjs/app/workflows/page.tsx tests/admin/admin-api.test.ts
-- `b9e97c1` — 2026-11-27 02:12:14 +0330 — refactor(sdk): share manifest route and host context validation
-  Files: plugins/sdk-typescript/src/create-function-handler.ts,plugins/sdk-typescript/src/create-host-handler.ts plugins/sdk-typescript/src/create-route-handler.ts,plugins/sdk-typescript/src/require-host-context.ts plugins/sdk-typescript/src/require-route.ts,tests/plugin/sdk-handler-contract.test.ts
