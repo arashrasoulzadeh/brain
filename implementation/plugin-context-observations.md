@@ -38,3 +38,5 @@ Each row requires context and relevant sanitized domain events, focused tests an
 - Functions draft execution now receives a read-only project context as the second argument. The plugin call route emits an acceptance event only; actual function publication, execution, workflow and scheduler events remain open.
 - Arena, dashboard, invites and subscriptions have existing manifest routes without matching executable exports; implement their actual domain adapters before declaring migration complete.
 - Analytics observation capture remains in-memory; durable storage and delivery/retry policies are still open. Initial delivery is synchronous, bounded, best-effort, and non-recursive.
+
+- Arena: context-first start/input/snapshot/result adapters and sanitized start/finish events added to its existing state machine; cross-project and invalid-transition regression coverage added. Operator route only; realtime actor binding, durable results, and CI verification remain open.

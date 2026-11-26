@@ -73,7 +73,7 @@ export type HostExecutionContext = {
 export type PluginFunction = (request: RpcRequest, context?: PluginContext) => unknown;
 export { createRouteHandler, createHostHandler, createFunctionHandler, createOperationRoutes, createRequestDispatcher, createRouteDispatcher } from "./routes.js";
 export { request, pluginRequest, createResourceRequest } from "./request.js";
-export { validateProjectId, validateIdentifier, requiredString, trimmedString, validateBoundedInteger, requireAllowedValues } from "./validation.js";
+export { validateProjectId, requireProjectInput, validateIdentifier, requiredString, trimmedString, validateBoundedInteger, requireAllowedValues } from "./validation.js";
 export type { PayloadHandler } from "./routes.js";
 export { createProjectMap } from "./project-store.js";
 export { commitWithGrant, createCommitRollback, createTransactionGate, runCappedRetries, runWithTimeout } from "./execution.js";
