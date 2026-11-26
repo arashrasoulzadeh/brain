@@ -21,7 +21,7 @@ const routeHelpers = new Map([
   ["sdk.request", { exported: "dispatchRequest", input: (request) => request }],
 ]);
 if (descriptor.routes.some((route) => {
-  if (route.helper === "host.model") return false; // Executed exclusively by the Go registry.
+  if (route.helper === "host.model" || route.helper === "host.call") return false; // Executed exclusively by the Go registry.
   if (route.helper === "sdk.pipeline") return !validPipeline(route.pipeline);
   if (route.helper === "sdk.response") return !validResponse(route.response);
   if (route.helper === "sdk.context") return typeof plugin[route.function] !== "function";
@@ -75,7 +75,7 @@ for await (const line of input) {
     request = { ...request, context };
     const route = descriptor.routes.find((candidate) => candidate.operation === params.operation);
     if (!route) throw new Error("operation not declared in plugin manifest");
-    if (route.helper === "host.model") throw new Error("host-only model operation");
+    if (route.helper === "host.model" || route.helper === "host.call") throw new Error("host-only operation");
     const helper = routeHelpers.get(route.helper);
     const result = route.helper === "sdk.pipeline"
       ? await executePipeline(route.pipeline, params.payload ?? null, context)

@@ -39,6 +39,9 @@ func (r *Registry) UnbindWorker(projectID, id, version string) {
 
 // Invoke executes only an installed, ready, enabled and fully granted plugin.
 func (r *Registry) Invoke(request WorkerRequest) (WorkerResponse, error) {
+	if response, handled, err := r.invokePluginCall(request); handled {
+		return response, err
+	}
 	response, err := r.invokeOnce(request, false)
 	intents := response.Observations
 	response.Observations = nil
