@@ -22,12 +22,13 @@ var ErrTypeScriptWorkerTimedOut = errors.New("typescript worker invocation timed
 var ErrTypeScriptWorkerManifest = errors.New("invalid typescript worker manifest")
 
 type executionDescriptor struct {
-	Entrypoint string           `json:"entrypoint"`
-	PluginID   string           `json:"pluginId"`
-	Version    string           `json:"version"`
-	ProjectID  string           `json:"projectId"`
-	Routes     []executionRoute `json:"routes"`
-	Events     []EventSpec      `json:"events,omitempty"`
+	Entrypoint  string           `json:"entrypoint"`
+	Declarative bool             `json:"declarative,omitempty"`
+	PluginID    string           `json:"pluginId"`
+	Version     string           `json:"version"`
+	ProjectID   string           `json:"projectId"`
+	Routes      []executionRoute `json:"routes"`
+	Events      []EventSpec      `json:"events,omitempty"`
 }
 
 type executionRoute struct {
@@ -103,6 +104,7 @@ func NewManifestBubblewrapTypeScriptWorker(launcher, workerScript, descriptor, p
 		"WORKER_RUNTIME_ROOT=" + runtimeRoot,
 		"WORKER_SOURCE_FILES=" + strings.Join(manifest.SourceFiles, "\n"),
 		"REQUIRE_DECLARED_SOURCES=1",
+		"DECLARATIVE_PLUGIN=" + strconv.FormatBool(manifest.Declarative),
 		"BRAIN_WORKER_READY=1",
 	}
 	return worker, nil
@@ -118,7 +120,10 @@ func NewManifestTypeScriptWorker(command, workerScript, descriptor, pluginRoot, 
 	if err := ValidatePluginSources(pluginRoot, manifest); err != nil {
 		return nil, err
 	}
-	entrypoint := filepath.Join(pluginRoot, manifest.EntryPoint())
+	entrypoint := ""
+	if !manifest.Declarative {
+		entrypoint = filepath.Join(pluginRoot, manifest.EntryPoint())
+	}
 	routes := make([]executionRoute, 0, len(manifest.Routes))
 	for _, route := range manifest.Routes {
 		routes = append(routes, executionRoute{Operation: route.Operation, Function: route.Function, Helper: route.Helper, Response: route.Response, Pipeline: route.Pipeline})
@@ -126,7 +131,7 @@ func NewManifestTypeScriptWorker(command, workerScript, descriptor, pluginRoot, 
 	for _, observer := range manifest.Observers {
 		routes = append(routes, executionRoute{Operation: observer.operation(), Function: observer.Function, Helper: "sdk.context"})
 	}
-	data, err := json.Marshal(executionDescriptor{Entrypoint: entrypoint, PluginID: manifest.ID, Version: manifest.Version, ProjectID: projectID, Routes: routes, Events: manifest.Events})
+	data, err := json.Marshal(executionDescriptor{Entrypoint: entrypoint, Declarative: manifest.Declarative, PluginID: manifest.ID, Version: manifest.Version, ProjectID: projectID, Routes: routes, Events: manifest.Events})
 	if err != nil {
 		return nil, err
 	}

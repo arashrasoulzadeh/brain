@@ -25,7 +25,7 @@ func TypeScriptContract(m Manifest) string {
 			fields := fmt.Sprintf("Models[%q]", route.Model.Name)
 			switch route.Model.Action {
 			case "create":
-				input = "{ fields: " + fields + " }"
+				input = "{ id: string; fields: " + fields + " }"
 			case "read":
 				input = "{ id: string }"
 			case "list":

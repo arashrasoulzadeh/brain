@@ -15,6 +15,7 @@ type Manifest struct {
 	Description          string               `yaml:"description"`
 	ID                   string               `yaml:"id"`
 	Entry                string               `yaml:"entrypoint"`
+	Declarative          bool                 `yaml:"declarative,omitempty"`
 	Version              string               `yaml:"version"`
 	HostAPI              int                  `yaml:"host_api"`
 	Dependencies         []string             `yaml:"dependencies"`
@@ -57,7 +58,7 @@ func LoadManifest(path string) (Manifest, error) {
 }
 
 func ValidateManifestContract(manifest Manifest) error {
-	if manifest.EntryPoint() == "" {
+	if manifest.Declarative && (manifest.Entry != "" || len(manifest.SourceFiles) != 0 || len(manifest.Imports) != 0 || len(manifest.PluginImports) != 0 || len(manifest.Observers) != 0) {
 		return ErrInvalidManifest
 	}
 	seenFiles := map[string]bool{}
@@ -70,7 +71,7 @@ func ValidateManifestContract(manifest Manifest) error {
 		}
 		seenFiles[file] = true
 	}
-	if !seenFiles[manifest.EntryPoint()] {
+	if !manifest.Declarative && !seenFiles[manifest.EntryPoint()] {
 		return ErrInvalidManifest
 	}
 	seenImports := map[string]bool{}
@@ -103,6 +104,9 @@ func ValidateManifestContract(manifest Manifest) error {
 	}
 	seenRoutes := map[string]bool{}
 	for _, route := range manifest.Routes {
+		if manifest.Declarative && route.Helper != "sdk.response" && route.Helper != "sdk.pipeline" && route.Helper != "host.model" {
+			return ErrInvalidManifest
+		}
 		if strings.HasPrefix(route.Operation, observationPrefix) || route.Operation == "" || route.Function == "" || route.Capability == "" || seenRoutes[route.Operation] || !declaredCapabilities[route.Capability] || (route.Helper != "" && route.Helper != "sdk.dispatch" && route.Helper != "sdk.request" && route.Helper != "sdk.response" && route.Helper != "sdk.context" && route.Helper != "sdk.pipeline" && route.Helper != "host.model") {
 			return ErrInvalidManifest
 		}
@@ -121,6 +125,9 @@ func ValidateManifestContract(manifest Manifest) error {
 }
 
 func (m Manifest) EntryPoint() string {
+	if m.Declarative {
+		return ""
+	}
 	if m.Entry == "" {
 		return "index.ts"
 	}

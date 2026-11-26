@@ -13,6 +13,7 @@ runtime_root="${WORKER_RUNTIME_ROOT:-}"
 ready="${BRAIN_WORKER_READY:-0}"
 source_files="${WORKER_SOURCE_FILES:-}"
 require_sources="${REQUIRE_DECLARED_SOURCES:-0}"
+declarative="${DECLARATIVE_PLUGIN:-false}"
 
 if ! command -v "$bwrap_bin" >/dev/null 2>&1; then
   echo "sandbox launcher requires bubblewrap (set BWRAP_BIN)" >&2
@@ -67,6 +68,8 @@ if [ -n "$source_files" ]; then
     fi
     mounts+=(--ro-bind "$source_path" "$source_path")
   done <<< "$source_files"
+elif [ "$declarative" = true ]; then
+  mounts+=(--tmpfs "$plugin_root")
 elif [ "$require_sources" = 1 ]; then
   echo "sandbox requires manifest-declared source files" >&2
   exit 78
@@ -75,7 +78,7 @@ else
   mounts+=(--ro-bind "$plugin_root" "$plugin_root")
 fi
 mounts+=(--ro-bind "$descriptor" "$descriptor")
-if [ -n "$source_files" ]; then mounts+=(--remount-ro "$plugin_root"); fi
+if [ -n "$source_files" ] || [ "$declarative" = true ]; then mounts+=(--remount-ro "$plugin_root"); fi
 # V8's default Wasm guard region exceeds our address-space limit, even for
 # plain JavaScript (Node's built-in HTTP client uses Wasm).
 node_args=(--max-old-space-size=128 --disable-wasm-trap-handler)

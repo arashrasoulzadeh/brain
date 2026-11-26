@@ -10,12 +10,11 @@ if (!descriptorPath) {
 }
 
 const descriptor = JSON.parse(await readFile(descriptorPath, "utf8"));
-if (!descriptor.entrypoint || !descriptor.pluginId || !descriptor.version || !descriptor.projectId || !Array.isArray(descriptor.routes)) {
+if ((!descriptor.entrypoint && descriptor.declarative !== true) || !descriptor.pluginId || !descriptor.version || !descriptor.projectId || !Array.isArray(descriptor.routes)) {
   process.stderr.write("invalid execution descriptor\n");
   process.exit(65);
 }
-const modulePath = pathToFileURL(descriptor.entrypoint).href;
-const plugin = await import(modulePath);
+const plugin = descriptor.declarative === true ? Object.freeze({}) : await import(pathToFileURL(descriptor.entrypoint).href);
 const handler = plugin.handle ?? plugin.createHandler?.();
 const routeHelpers = new Map([
   ["sdk.dispatch", { exported: "dispatchRoute", input: (request) => request.params.payload ?? null }],
