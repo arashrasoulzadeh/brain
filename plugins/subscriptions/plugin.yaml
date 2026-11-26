@@ -8,38 +8,14 @@ source_files:
   - index.ts
   - types.ts
   - subscription-request.ts
-  - subscription-ticket-issuer.ts
-  - subscription-ticket-validator.ts
-  - subscription-ticket-consumer.ts
-  - origin.ts
-  - subscription-grant-store.ts
-  - subscription-authorization.ts
-  - subscription-owner-invalidator.ts
-  - initial-fetch-writer.ts
-  - initial-fetch-completer.ts
-  - slow-consumer-pusher.ts
-  - slow-consumer-shifter.ts
-  - slow-consumer-size.ts
-  - subscription-event-appender.ts
-  - subscription-event-reader.ts
+  - authorization.ts
+  - stream.ts
 imports:
   - ../sdk-typescript/src/index.js
   - node:crypto
-  - ./subscription-grant-store.js
-  - ./subscription-authorization.js
-  - ./subscription-owner-invalidator.js
-  - ./initial-fetch-writer.js
-  - ./initial-fetch-completer.js
-  - ./slow-consumer-pusher.js
-  - ./slow-consumer-shifter.js
-  - ./slow-consumer-size.js
-  - ./origin.js
-  - ./subscription-event-appender.js
-  - ./subscription-event-reader.js
+  - ./authorization.js
+  - ./stream.js
   - ./subscription-request.js
-  - ./subscription-ticket-issuer.js
-  - ./subscription-ticket-validator.js
-  - ./subscription-ticket-consumer.js
   - ./types.js
 plugin_imports:
 dependencies: []

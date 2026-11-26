@@ -7,93 +7,19 @@ entrypoint: index.ts
 source_files:
   - routes.ts
   - index.ts
-  - room-request.ts
-  - project-room-id.ts
-  - room-transition.ts
-  - validate-membership.ts
-  - initialize-tic-tac-toe.ts
-  - validate-tic-tac-toe-move.ts
-  - expire-tic-tac-toe-turn.ts
-  - tic-tac-toe-winner.ts
-  - tic-tac-toe-draw.ts
-  - validate-tic-tac-toe-rule-result.ts
-  - connection-ticket-issuer.ts
-  - connection-ticket-consumer.ts
-  - room-runtime.ts
-  - start-room-drain.ts
-  - stop-room-drain.ts
-  - is-room-draining.ts
-  - room-creator.ts
-  - room-reader.ts
-  - room-membership-reader.ts
-  - room-joiner.ts
-  - room-leaver.ts
-  - room-event-reader.ts
-  - authorized-room-snapshot.ts
-  - authorize-room-command.ts
-  - create-room-directory.ts
-  - pause-tic-tac-toe-turn.ts
-  - resume-tic-tac-toe-turn.ts
-  - tic-tac-toe-runtime.ts
-  - tic-tac-toe-revision-reader.ts
-  - tic-tac-toe-mover.ts
-  - reconstruct-tic-tac-toe-history.ts
-  - publish-tic-tac-toe-rules.ts
-  - authorized-tic-tac-toe-state.ts
-  - authorize-tic-tac-toe-command.ts
-  - command-deduplicator.ts
-  - validate-tic-tac-toe-command-payload.ts
-  - create-tic-tac-toe-coordinator.ts
-  - serialize-tic-tac-toe-state.ts
-  - reconnect-tic-tac-toe.ts
-  - hidden-tic-tac-toe-view.ts
-  - room-route-store.ts
+  - directory.ts
+  - gameplay.ts
+  - recovery.ts
+  - access.ts
 imports:
   - ./routes.js
   - ../sdk-typescript/src/index.js
   - node:crypto
-  - ./room-request.js
-  - ./project-room-id.js
-  - ./room-transition.js
-  - ./validate-membership.js
-  - ./initialize-tic-tac-toe.js
-  - ./validate-tic-tac-toe-move.js
-  - ./expire-tic-tac-toe-turn.js
-  - ./tic-tac-toe-winner.js
-  - ./tic-tac-toe-draw.js
-  - ./validate-tic-tac-toe-rule-result.js
-  - ./connection-ticket-issuer.js
-  - ./connection-ticket-consumer.js
-  - ./room-runtime.js
-  - ./start-room-drain.js
-  - ./stop-room-drain.js
-  - ./is-room-draining.js
-  - ./room-creator.js
-  - ./room-reader.js
-  - ./room-membership-reader.js
-  - ./room-joiner.js
-  - ./room-leaver.js
-  - ./room-event-reader.js
-  - ./authorized-room-snapshot.js
-  - ./authorize-room-command.js
-  - ./create-room-directory.js
-  - ./pause-tic-tac-toe-turn.js
-  - ./resume-tic-tac-toe-turn.js
-  - ./tic-tac-toe-runtime.js
-  - ./tic-tac-toe-revision-reader.js
-  - ./tic-tac-toe-mover.js
-  - ./reconstruct-tic-tac-toe-history.js
-  - ./publish-tic-tac-toe-rules.js
-  - ./authorized-tic-tac-toe-state.js
-  - ./authorize-tic-tac-toe-command.js
-  - ./command-deduplicator.js
-  - ./validate-tic-tac-toe-command-payload.js
-  - ./create-tic-tac-toe-coordinator.js
-  - ./serialize-tic-tac-toe-state.js
-  - ./reconnect-tic-tac-toe.js
-  - ./hidden-tic-tac-toe-view.js
+  - ./directory.js
+  - ./gameplay.js
+  - ./recovery.js
+  - ./access.js
   - ./index.js
-  - ./room-route-store.js
 plugin_imports:
 dependencies: []
 capabilities:

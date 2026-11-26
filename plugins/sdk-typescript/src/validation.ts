@@ -20,3 +20,12 @@ export function requiredString(value: unknown, message: string): string {
   if (!result) throw new Error(message);
   return result;
 }
+
+export function validateBoundedInteger(value: number, maximum: number, error: string, minimumMaximum = 0): void {
+  if (!Number.isSafeInteger(value) || !Number.isSafeInteger(maximum) || value < 0 || maximum < minimumMaximum || value > maximum)
+    throw new Error(error);
+}
+
+export function requireAllowedValues(values: readonly string[], allowed: readonly string[], error: string): void {
+  if (values.some((value) => !allowed.includes(value))) throw new Error(error);
+}

@@ -30,9 +30,10 @@ type executionDescriptor struct {
 }
 
 type executionRoute struct {
-	Operation string `json:"operation"`
-	Function  string `json:"function"`
-	Helper    string `json:"helper,omitempty"`
+	Operation string        `json:"operation"`
+	Function  string        `json:"function"`
+	Helper    string        `json:"helper,omitempty"`
+	Response  *ResponseSpec `json:"response,omitempty"`
 }
 
 type TypeScriptWorkerOptions struct {
@@ -118,7 +119,7 @@ func NewManifestTypeScriptWorker(command, workerScript, descriptor, pluginRoot, 
 	entrypoint := filepath.Join(pluginRoot, manifest.EntryPoint())
 	routes := make([]executionRoute, 0, len(manifest.Routes))
 	for _, route := range manifest.Routes {
-		routes = append(routes, executionRoute{Operation: route.Operation, Function: route.Function, Helper: route.Helper})
+		routes = append(routes, executionRoute{Operation: route.Operation, Function: route.Function, Helper: route.Helper, Response: route.Response})
 	}
 	data, err := json.Marshal(executionDescriptor{Entrypoint: entrypoint, PluginID: manifest.ID, Version: manifest.Version, ProjectID: projectID, Routes: routes})
 	if err != nil {

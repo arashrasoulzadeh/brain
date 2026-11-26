@@ -61,3 +61,17 @@ export function createCommitRollback(onCommit: () => void) {
     rollback: () => gate.finish(() => undefined),
   };
 }
+
+export function createFixedWindowLimiter(limit: number, windowMs: number) {
+  const attempts = new Map<string, { startedAt: number; count: number }>();
+  return (key: string, now: number): boolean => {
+    const current = attempts.get(key);
+    if (!current || now - current.startedAt >= windowMs) {
+      attempts.set(key, { startedAt: now, count: 1 });
+      return true;
+    }
+    if (current.count >= limit) return false;
+    current.count += 1;
+    return true;
+  };
+}

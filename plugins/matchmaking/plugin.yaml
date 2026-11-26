@@ -8,52 +8,17 @@ source_files:
   - routes.ts
   - index.ts
   - types.ts
-  - validate-config.ts
-  - matchmaking-config-writer.ts
-  - matchmaking-config-reader.ts
-  - matchmaking-config-status.ts
+  - config.ts
   - queue.ts
-  - matchmaking-request.ts
-  - queue-runtime.ts
-  - ticket-enqueuer.ts
-  - ticket-reader.ts
-  - ticket-matcher.ts
-  - ticket-expirer.ts
-  - ticket-requeuer.ts
-  - assignment-creator.ts
-  - ticket-canceller.ts
-  - scope-ticket-canceller.ts
-  - pause-project-assignments.ts
-  - resume-project-assignments.ts
-  - is-project-assignments-paused.ts
-  - matchmaking-route-store.ts
 imports:
   - ./routes.js
   - ../sdk-typescript/src/index.js
-  - ./matchmaking-config-writer.js
-  - ./matchmaking-config-reader.js
-  - ./matchmaking-config-status.js
+  - ./config.js
   - ./queue.js
-  - ./matchmaking-request.js
-  - ./queue-runtime.js
-  - ./ticket-enqueuer.js
-  - ./ticket-reader.js
-  - ./ticket-matcher.js
-  - ./ticket-expirer.js
-  - ./ticket-requeuer.js
-  - ./assignment-creator.js
-  - ./ticket-canceller.js
-  - ./scope-ticket-canceller.js
-  - ./pause-project-assignments.js
-  - ./resume-project-assignments.js
-  - ./is-project-assignments-paused.js
-  - ./validate-config.js
   - ./types.js
-  - ./matchmaking-route-store.js
 plugin_imports:
   - rooms@0.1.0
 dependencies:
-  - rooms@0.1.0
 capabilities:
   - matchmaking.queue
   - matchmaking.cancel
