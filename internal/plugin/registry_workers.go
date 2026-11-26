@@ -34,42 +34,57 @@ func (r *Registry) UnbindWorker(projectID, id, version string) {
 
 // Invoke executes only an installed, ready, enabled and fully granted plugin.
 func (r *Registry) Invoke(request WorkerRequest) (WorkerResponse, error) {
-	request = r.prepareStorageRequest(request)
+	if err := ValidateWorkerRequest(request, r.HostAPI); err != nil {
+		return WorkerResponse{}, err
+	}
+	if err := r.authorizeInvocation(request); err != nil {
+		return WorkerResponse{}, err
+	}
 	key := request.ProjectID + ":" + request.PluginID + "@" + request.Version
-	r.installationMu.RLock()
-	installation, installed := r.installations[key]
-	r.installationMu.RUnlock()
-	if !installed {
-		return WorkerResponse{}, ErrNotInstalled
-	}
-	if !installation.Enabled {
-		return WorkerResponse{}, ErrDisabled
-	}
-	r.readinessMu.RLock()
-	ready := r.readiness[request.PluginID+"@"+request.Version]
-	r.readinessMu.RUnlock()
-	if !ready {
-		return WorkerResponse{}, ErrNotReady
-	}
-	r.grantMu.RLock()
-	registered, exists := r.registered[request.PluginID+"@"+request.Version]
-	granted := exists
-	if exists {
-		for _, capability := range registered.Manifest.Capabilities {
-			if !installation.Grants[capability] {
-				granted = false
-				break
-			}
-		}
-	}
-	r.grantMu.RUnlock()
-	if !granted {
-		return WorkerResponse{}, ErrGrantDenied
-	}
 	r.workerMu.RLock()
 	worker := r.workers[key]
 	r.workerMu.RUnlock()
+	if worker == nil || !worker.Ready() {
+		return WorkerResponse{}, ErrWorkerNotReady
+	}
+
+	// Storage preparation can mutate durable state. Never run it for a request
+	// that has failed validation, lifecycle, route, grant or readiness checks.
+	request = r.prepareStorageRequest(request)
 	return InvokeForProject(worker, request, r.HostAPI, request.ProjectID)
+}
+
+func (r *Registry) authorizeInvocation(request WorkerRequest) error {
+	manifestKey := request.PluginID + "@" + request.Version
+	r.readinessMu.RLock()
+	defer r.readinessMu.RUnlock()
+	r.installationMu.RLock()
+	defer r.installationMu.RUnlock()
+
+	installation, installed := r.installations[request.ProjectID+":"+manifestKey]
+	if !installed {
+		return ErrNotInstalled
+	}
+	if !installation.Enabled {
+		return ErrDisabled
+	}
+	if !r.readiness[manifestKey] {
+		return ErrNotReady
+	}
+	registered, exists := r.registered[manifestKey]
+	if !exists {
+		return ErrGrantDenied
+	}
+	route, declared := registered.Manifest.Route(request.Operation)
+	if !declared || !installation.Grants[route.Capability] {
+		return ErrGrantDenied
+	}
+	for _, capability := range registered.Manifest.Capabilities {
+		if !installation.Grants[capability] {
+			return ErrGrantDenied
+		}
+	}
+	return nil
 }
 
 // StartWorker starts a worker for an already enabled installation that lost its
