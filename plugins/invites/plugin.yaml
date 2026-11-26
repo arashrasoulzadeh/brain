@@ -23,9 +23,12 @@ routes:
   - operation: invites.create
     function: create
     capability: invites.create
+    resource_field: roomId
   - operation: invites.accept
     function: accept
     capability: invites.accept
+    resource_field: roomId
   - operation: invites.cancel
     function: cancel
     capability: invites.cancel
+    resource_field: roomId

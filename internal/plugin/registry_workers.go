@@ -89,6 +89,18 @@ func (r *Registry) invokeOnce(request WorkerRequest, observer bool) (WorkerRespo
 		if prepared.ProjectID != request.ProjectID || prepared.PluginID != request.PluginID || prepared.Version != request.Version || prepared.Operation != request.Operation || prepared.Protocol != request.Protocol {
 			return WorkerResponse{}, ErrInvalidWorkerRequest
 		}
+		// A trusted storage planner may enrich a payload but must never
+		// substitute a different resource after authorization.
+		r.readinessMu.RLock()
+		route, _ := r.registered[request.PluginID+"@"+request.Version].Manifest.Route(request.Operation)
+		r.readinessMu.RUnlock()
+		if route.ResourceField != "" {
+			before, beforeErr := invocationResource(request, route)
+			after, afterErr := invocationResource(prepared, route)
+			if beforeErr != nil || afterErr != nil || before != after {
+				return WorkerResponse{}, ErrInvalidWorkerRequest
+			}
+		}
 	}
 	hostContext, err := r.invocationContext(request, observer)
 	if err != nil {
@@ -150,6 +162,7 @@ func (r *Registry) authorizeInvocationLocked(request WorkerRequest, observer boo
 		return ErrGrantDenied
 	}
 	route, declared := registered.Manifest.Route(request.Operation)
+	observerResource := ""
 	if observer {
 		if installation.Draining {
 			return ErrDisabled
@@ -157,6 +170,7 @@ func (r *Registry) authorizeInvocationLocked(request WorkerRequest, observer boo
 		for _, subscription := range registered.Manifest.Observers {
 			if subscription.operation() == request.Operation {
 				route, declared = Route{Capability: subscription.Capability}, true
+				observerResource = subscription.Plugin + "." + subscription.Event
 				if resources := installation.Resources[route.Capability]; len(resources) > 0 && !resources[subscription.Plugin+"."+subscription.Event] {
 					return ErrGrantDenied
 				}
@@ -172,7 +186,16 @@ func (r *Registry) authorizeInvocationLocked(request WorkerRequest, observer boo
 			return ErrGrantDenied
 		}
 	}
-	return r.authorizeAccessLocked(request.ProjectID, request.accessPrincipal, request.PluginID, request.Version, request.Operation, route.Capability)
+	resource, scopeErr := invocationResource(request, route)
+	if observer {
+		resource = observerResource
+	}
+	if r.accessInstalledLocked(request.ProjectID) && request.PluginID != accessPluginID {
+		if resources := installation.Resources[route.Capability]; len(resources) > 0 && (scopeErr != nil || resource == "" || !resources[resource]) {
+			return ErrGrantDenied
+		}
+	}
+	return r.authorizeAccessLocked(request.ProjectID, request.accessPrincipal, request.PluginID, request.Version, request.Operation, route.Capability, resource, scopeErr)
 }
 
 // StartWorker starts a worker for an already enabled installation that lost its

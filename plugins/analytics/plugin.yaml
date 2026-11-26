@@ -30,6 +30,7 @@ routes:
     function: captureForProject
     helper: sdk.context
     capability: analytics.capture
+    resource_field: name
 admin:
   version: 1
   pages:

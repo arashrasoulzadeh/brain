@@ -24,6 +24,7 @@ models:
       version: string
       operation: string
       capability: string
+      resource: string
       allowed: boolean
     initial: active
     transitions:

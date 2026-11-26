@@ -18,6 +18,7 @@ var accessRuleSpec = ModelSpec{
 		"version":    "string",
 		"operation":  "string",
 		"capability": "string",
+		"resource":   "string",
 		"allowed":    "boolean",
 	},
 	Initial: "active",
@@ -62,6 +63,9 @@ func (r *Registry) InvokeWithCredential(broker *Broker, credential InvocationCre
 	if err := ValidateWorkerRequest(request, r.HostAPI); err != nil {
 		return WorkerResponse{}, err
 	}
+	if err := r.validateCredentialResource(request, credential.Call); err != nil {
+		return WorkerResponse{}, err
+	}
 	if err := broker.CommitCredential(credential, now); err != nil {
 		return WorkerResponse{}, err
 	}
@@ -74,14 +78,80 @@ func (r *Registry) authorizeActorAccess(call HostCall) error {
 	defer r.readinessMu.RUnlock()
 	r.installationMu.RLock()
 	defer r.installationMu.RUnlock()
-	return r.authorizeAccessLocked(call.ProjectID, "user:"+call.ActorID, call.PluginID, call.Version, call.Operation, call.Capability)
+	var scopeErr error
+	if r.accessInstalledLocked(call.ProjectID) {
+		registered, ok := r.registered[call.PluginID+"@"+call.Version]
+		route, declared := registered.Manifest.Route(call.Operation)
+		if !ok || !declared || !validRuleResource(route, call.Resource, false) {
+			scopeErr = ErrActorDenied
+		}
+	}
+	return r.authorizeAccessLocked(call.ProjectID, "user:"+call.ActorID, call.PluginID, call.Version, call.Operation, call.Capability, call.Resource, scopeErr)
+}
+
+// accessInstalledLocked is called with the installation lock held.
+func (r *Registry) accessInstalledLocked(projectID string) bool {
+	for _, installation := range r.installations {
+		if installation.ProjectID == projectID && installation.PluginID == accessPluginID {
+			return true
+		}
+	}
+	return false
+}
+
+func (r *Registry) accessInstalled(projectID string) bool {
+	r.installationMu.RLock()
+	defer r.installationMu.RUnlock()
+	return r.accessInstalledLocked(projectID)
+}
+
+func validRuleResource(route Route, resource string, rule bool) bool {
+	if route.Model != nil {
+		return resource == route.Model.Name || (rule && resource == "*")
+	}
+	if route.ResourceField == "" {
+		return resource == ""
+	}
+	return validAccessIdentity(resource) && (rule || resource != "*")
+}
+
+func invocationResource(request WorkerRequest, route Route) (string, error) {
+	if route.Model != nil {
+		return route.Model.Name, nil
+	}
+	if route.ResourceField == "" {
+		return "", nil
+	}
+	var fields map[string]json.RawMessage
+	var resource string
+	if json.Unmarshal(request.Payload, &fields) != nil || json.Unmarshal(fields[route.ResourceField], &resource) != nil || !validRuleResource(route, resource, false) {
+		return "", ErrActorDenied
+	}
+	return resource, nil
+}
+
+// Credentials must match the actual resource consumed by the declared route.
+// Never authorize a resource supplied independently of the invocation payload.
+func (r *Registry) validateCredentialResource(request WorkerRequest, call HostCall) error {
+	r.readinessMu.RLock()
+	defer r.readinessMu.RUnlock()
+	registered, ok := r.registered[request.PluginID+"@"+request.Version]
+	route, declared := registered.Manifest.Route(request.Operation)
+	if !ok || !declared || route.Capability != call.Capability {
+		return ErrInvocationCredentialMismatch
+	}
+	resource, err := invocationResource(request, route)
+	if err != nil || resource != call.Resource {
+		return ErrInvocationCredentialMismatch
+	}
+	return nil
 }
 
 // authorizeAccessLocked is a second, project-specific layer over the existing
 // host installation, capability and resource checks. Callers hold readiness
 // and installation locks. Installing the policy plugin opts the project in;
 // an installed but unavailable policy provider fails closed.
-func (r *Registry) authorizeAccessLocked(projectID, principal, id, version, operation, capability string) error {
+func (r *Registry) authorizeAccessLocked(projectID, principal, id, version, operation, capability, resource string, scopeErr error) error {
 	if id == accessPluginID {
 		// Management is reserved for an authenticated operator, not for
 		// ordinary users, observation handlers or delegated plugin calls.
@@ -114,7 +184,7 @@ func (r *Registry) authorizeAccessLocked(projectID, principal, id, version, oper
 	if !installed {
 		return nil
 	}
-	if available != 1 || r.LifecycleStorageHealth() != nil {
+	if scopeErr != nil || available != 1 || r.LifecycleStorageHealth() != nil {
 		return ErrActorDenied
 	}
 	if principal == "" {
@@ -127,7 +197,7 @@ func (r *Registry) authorizeAccessLocked(projectID, principal, id, version, oper
 	if !ok || storage == nil {
 		return ErrActorDenied
 	}
-	allowed, err := storage.accessRuleAllows(projectID, principal, id, version, operation, capability)
+	allowed, err := storage.accessRuleAllows(projectID, principal, id, version, operation, capability, resource)
 	if err != nil || !allowed {
 		return ErrActorDenied
 	}
@@ -146,25 +216,26 @@ func (r *Registry) validateAccessRuleLocked(req WorkerRequest) error {
 	version := input.Fields["version"].(string)
 	operation := input.Fields["operation"].(string)
 	capability := input.Fields["capability"].(string)
+	resource := input.Fields["resource"].(string)
 	if !validAccessPrincipal(principal) || id == accessPluginID {
 		return ErrInvalidWorkerRequest
 	}
 	registered, ok := r.registered[id+"@"+version]
-	if !ok {
+	if !ok || registered.Manifest.ID != id || registered.Manifest.Version != version {
 		return ErrInvalidWorkerRequest
 	}
-	if route, ok := registered.Manifest.Route(operation); ok && route.Capability == capability {
+	if route, ok := registered.Manifest.Route(operation); ok && route.Capability == capability && validRuleResource(route, resource, true) {
 		return nil
 	}
 	for _, observer := range registered.Manifest.Observers {
-		if observer.operation() == operation && observer.Capability == capability {
+		if observer.operation() == operation && observer.Capability == capability && (resource == observer.Plugin+"."+observer.Event || resource == "*") {
 			return nil
 		}
 	}
 	return ErrInvalidWorkerRequest
 }
 
-func (s *SQLiteStorage) accessRuleAllows(projectID, principal, id, version, operation, capability string) (bool, error) {
+func (s *SQLiteStorage) accessRuleAllows(projectID, principal, id, version, operation, capability, resource string) (bool, error) {
 	const query = `SELECT record_id,schema_version,revision,state,fields_json
 FROM plugin_model_records
 WHERE project_id=? AND plugin_id=? AND model_name=? AND state='active'
@@ -172,8 +243,13 @@ AND json_extract(fields_json,'$.principal')=?
 AND json_extract(fields_json,'$.plugin')=?
 AND json_extract(fields_json,'$.version')=?
 AND json_extract(fields_json,'$.operation')=?
-AND json_extract(fields_json,'$.capability')=?`
-	rows, err := s.db.Query(query, projectID, accessPluginID, accessRuleModel, principal, id, version, operation, capability)
+AND json_extract(fields_json,'$.capability')=?
+AND (json_extract(fields_json,'$.resource')=? OR json_extract(fields_json,'$.resource')=?)`
+	wildcard := ""
+	if resource != "" {
+		wildcard = "*"
+	}
+	rows, err := s.db.Query(query, projectID, accessPluginID, accessRuleModel, principal, id, version, operation, capability, resource, wildcard)
 	if err != nil {
 		return false, err
 	}

@@ -41,6 +41,7 @@ routes:
     function: invoke
     helper: sdk.response
     capability: functions.invoke
+    resource_field: name
     response:
       input:
         - name: name
@@ -58,6 +59,7 @@ routes:
     function: publish
     helper: sdk.response
     capability: functions.publish
+    resource_field: name
     response:
       input:
         - name: name
@@ -82,6 +84,7 @@ routes:
     function: call
     helper: sdk.dispatch
     capability: functions.call
+    resource_field: name
 admin:
   version: 1
   pages:
