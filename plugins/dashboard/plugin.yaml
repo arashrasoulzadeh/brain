@@ -34,7 +34,6 @@ source_files:
   - browser-quickstart.ts
 imports:
   - ../sdk-typescript/src/index.js
-  - ../sdk-typescript/src/validate-project-id.js
   - ./admin-request.js
   - ./admin-panel.js
   - ./form-audit-recorder.js
