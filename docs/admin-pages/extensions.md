@@ -7,3 +7,5 @@ The shared sidebar discovers pages for the selected project, exact enabled/ready
 Existing specialized pages remain available. This is the first migration layer, not a replacement for existing resource browsers, function editors, or lifecycle controls. Automatic data sources, schema-driven forms, event-driven refresh, cross-plugin slots and custom visual components are follow-up work. Never use a mutating route as an automatic refresh source.
 
 Only plugins with implemented runtime handlers contribute action pages. Arena, invites and subscriptions require runtime route implementations before their admin pages can be enabled.
+
+Actions may declare typed fields (`string`, `number`, `boolean`, `json`); the host validates fields and rejects extras. A page may declare `extends: rooms/operations` to add a link on another independently authorized plugin page.

@@ -22,7 +22,7 @@ Admin-panel and operator documentation work after backend release gates pass.
 
 - [x] Versioned admin metadata and generic action discovery.
 - [x] Explicit server-side action confirmation and manifest authorization.
-- [ ] Typed forms and cross-plugin extensions.
+- [x] Typed forms and cross-plugin extension links.
 - [ ] Automatic read-only resource sources, richer components and pagination.
 - [ ] Authenticated observation-driven invalidation and refresh.
 - [ ] Complete specialized-page migration and remove hard-coded navigation.

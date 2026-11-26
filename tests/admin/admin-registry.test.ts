@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { adminContributions } from "../../admin-nextjs/app/lib/admin-registry.js";
+import { adminContributions, adminPageExtensions } from "../../admin-nextjs/app/lib/admin-registry.js";
 import type { AdminCatalog } from "../../admin-nextjs/app/lib/admin-registry.js";
 
 test("admin contributions require exact project, version, readiness and grants", () => {
@@ -14,4 +14,11 @@ test("admin contributions require exact project, version, readiness and grants",
   for (const change of [{ Version: "2" }, { Ready: false }, { Enabled: false }, { Draining: true }, { Grants: [] }]) {
     assert.deepEqual(adminContributions("one", { ...catalog, installations: [{ ...installation, ...change }] }), []);
   }
+});
+
+test("cross-plugin contributions remain project scoped", () => {
+  const page = { id: "list", title: "Rooms", actions: [] };
+  const target = { projectID: "one", pluginID: "rooms", version: "1", page, href: "/rooms" };
+  const extension = { ...target, pluginID: "custom", href: "/custom", page: { ...page, extends: "rooms/list" } };
+  assert.deepEqual(adminPageExtensions(target, [extension, { ...extension, projectID: "two" }]), [extension]);
 });

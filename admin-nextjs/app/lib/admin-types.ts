@@ -8,8 +8,9 @@ export type PluginManifest = {
   ConfigSchema?: Record<string, string>;
   Admin?: AdminSpec | null;
 };
-export type AdminAction = { title: string; operation: string };
-export type AdminPage = { id: string; title: string; actions: AdminAction[] };
+export type AdminField = { name: string; type: "string" | "number" | "boolean" | "json"; required?: boolean };
+export type AdminAction = { title: string; operation: string; fields?: AdminField[] };
+export type AdminPage = { id: string; title: string; actions: AdminAction[]; extends?: string };
 export type AdminSpec = { version: number; pages: AdminPage[] };
 export type PluginStatus = {
   ProjectID: string;

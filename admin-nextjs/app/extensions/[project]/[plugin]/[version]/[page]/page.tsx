@@ -1,13 +1,17 @@
 "use client";
 import { useParams } from "next/navigation";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { AdminPageFrame } from "../../../../../components/admin-chrome";
 import { adminHeaders, readAdminSession } from "../../../../../lib/admin-api";
-import { adminContributions } from "../../../../../lib/admin-registry";
+import { adminContributions, adminPageExtensions } from "../../../../../lib/admin-registry";
 import type { AdminCatalog, AdminContribution } from "../../../../../lib/admin-registry";
 import { invokeAdminAction } from "../../../../../lib/admin-sdk";
 
 function Result({ value }: { value: unknown }) {
+  if (value && typeof value === "object" && !Array.isArray(value) && "rows" in value && Array.isArray(value.rows)) {
+    return <><pre>{JSON.stringify(Object.fromEntries(Object.entries(value).filter(([key]) => key !== "rows")), null, 2)}</pre><Result value={value.rows} /></>;
+  }
   if (Array.isArray(value) && value.length && value.every(row => row && typeof row === "object" && !Array.isArray(row))) {
     const rows = value as Record<string, unknown>[];
     const columns = [...new Set(rows.flatMap(row => Object.keys(row)))];
@@ -20,6 +24,8 @@ function Result({ value }: { value: unknown }) {
 function ActionForm({ contribution }: { contribution: AdminContribution }) {
   const [operation, setOperation] = useState(contribution.page.actions[0].operation);
   const [payload, setPayload] = useState("{}");
+  const [values, setValues] = useState<Record<string, string>>({});
+  const fields = contribution.page.actions.find(action => action.operation === operation)?.fields ?? [];
   const [result, setResult] = useState<unknown>(undefined);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -28,7 +34,13 @@ function ActionForm({ contribution }: { contribution: AdminContribution }) {
   async function run() {
     setError(""); setResult(undefined);
     try {
-      const parsed: unknown = JSON.parse(payload);
+      const parsed: unknown = fields.length ? Object.fromEntries(fields.flatMap(field => {
+        const value = values[field.name] ?? "";
+        if (value === "" && !field.required) return [];
+        if (value === "") throw new Error(field.name + " is required");
+        if (field.type === "number" && !Number.isFinite(Number(value))) throw new Error("Invalid number");
+        return [[field.name, field.type === "json" ? JSON.parse(value) : field.type === "number" ? Number(value) : field.type === "boolean" ? value === "true" : value]];
+      })) : JSON.parse(payload);
       if (!window.confirm("Run " + operation + " in project " + contribution.projectID + "?")) return;
       setBusy(true);
       const controller = new AbortController();
@@ -40,10 +52,15 @@ function ActionForm({ contribution }: { contribution: AdminContribution }) {
   return <section className="section">
     <h2>{contribution.page.title}</h2><p>{contribution.projectID} · {contribution.pluginID}@{contribution.version}</p>
     <form onSubmit={event => { event.preventDefault(); if (!busy) void run(); }}>
-      <label>Operation<select disabled={busy} value={operation} onChange={event => { setOperation(event.target.value); setResult(undefined); setError(""); }}>
+      <label>Operation<select disabled={busy} value={operation} onChange={event => { setOperation(event.target.value); setResult(undefined); setError(""); setValues({}); setPayload("{}"); }}>
         {contribution.page.actions.map(action => <option key={action.operation} value={action.operation}>{action.title}</option>)}
       </select></label>
-      <label>JSON payload<textarea disabled={busy} rows={10} value={payload} onChange={event => setPayload(event.target.value)} /></label>
+      {fields.length ? fields.map(field => <label key={field.name}>{field.name}{field.required ? " *" : ""}
+        {field.type === "boolean" ? <select disabled={busy} required={field.required} value={values[field.name] ?? ""} onChange={event => setValues(previous => ({ ...previous, [field.name]: event.target.value }))}>
+          <option value="">Select</option><option value="true">True</option><option value="false">False</option>
+        </select> : field.type === "json" ? <textarea disabled={busy} required={field.required} rows={5} value={values[field.name] ?? ""} onChange={event => setValues(previous => ({ ...previous, [field.name]: event.target.value }))} />
+        : <input disabled={busy} required={field.required} type={field.type === "number" ? "number" : "text"} step={field.type === "number" ? "any" : undefined} value={values[field.name] ?? ""} onChange={event => setValues(previous => ({ ...previous, [field.name]: event.target.value }))} />}
+      </label>) : <label>JSON payload<textarea disabled={busy} rows={10} value={payload} onChange={event => setPayload(event.target.value)} /></label>}
       <button disabled={busy} type="submit">{busy ? "Running…" : "Run action"}</button>
     </form>
     {error && <p role="alert">{error}</p>}
@@ -54,10 +71,11 @@ function ActionForm({ contribution }: { contribution: AdminContribution }) {
 export default function ExtensionPage() {
   const { project, plugin, version, page } = useParams<{ project: string; plugin: string; version: string; page: string }>();
   const [contribution, setContribution] = useState<AdminContribution>();
+  const [extensions, setExtensions] = useState<AdminContribution[]>([]);
   const [error, setError] = useState("");
   useEffect(() => {
     const controller = new AbortController();
-    setContribution(undefined); setError("");
+    setContribution(undefined); setExtensions([]); setError("");
     void (async () => {
       const token = readAdminSession();
       if (!token) throw new Error("Sign in to continue");
@@ -67,14 +85,15 @@ export default function ExtensionPage() {
       const response = await fetch("/api/admin/plugins?project_id=" + encodeURIComponent(project), { headers, signal });
       if (!response.ok) throw new Error("Plugin catalog unavailable");
       const catalog = await response.json() as AdminCatalog;
-      const found = adminContributions(project, catalog).find(item => item.pluginID === plugin && item.version === version && item.page.id === page);
+      const contributions = adminContributions(project, catalog);
+      const found = contributions.find(item => item.pluginID === plugin && item.version === version && item.page.id === page);
       if (!found) throw new Error("Page unavailable or permission revoked");
-      if (!signal.aborted) setContribution(found);
+      if (!signal.aborted) { setContribution(found); setExtensions(adminPageExtensions(found, contributions)); }
     })().catch(reason => { if (!controller.signal.aborted) setError(String(reason)); });
     return () => controller.abort();
   }, [project, plugin, version, page]);
   const current = contribution?.projectID === project && contribution.pluginID === plugin && contribution.version === version && contribution.page.id === page ? contribution : undefined;
   return <AdminPageFrame activePage="extensions" title={current?.page.title ?? "Plugin administration"}>
-    {error ? <p role="alert">{error}</p> : current ? <ActionForm key={current.href} contribution={current} /> : <p>Loading plugin page…</p>}
+    {error ? <p role="alert">{error}</p> : current ? <><ActionForm key={current.href} contribution={current} />{extensions.length > 0 && <section><h2>Plugin extensions</h2>{extensions.map(item => <p key={item.href}><Link href={item.href}>{item.page.title} · {item.pluginID}</Link></p>)}</section>}</> : <p>Loading plugin page…</p>}
   </AdminPageFrame>;
 }

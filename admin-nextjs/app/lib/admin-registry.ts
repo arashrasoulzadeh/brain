@@ -22,3 +22,8 @@ export function adminContributions(projectID: string, catalog: AdminCatalog): Ad
   }
   return result.sort((a, b) => a.page.title.localeCompare(b.page.title) || a.href.localeCompare(b.href));
 }
+
+export function adminPageExtensions(target: AdminContribution, contributions: readonly AdminContribution[]): AdminContribution[] {
+  return contributions.filter(item => item.projectID === target.projectID && item.pluginID !== target.pluginID &&
+    item.page.extends === target.pluginID + "/" + target.page.id);
+}

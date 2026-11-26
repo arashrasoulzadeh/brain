@@ -190,8 +190,8 @@ func (s *LifecycleService) InvokeAdminPage(actor operator.Actor, pageID string, 
 			if manifest.ID != invocation.PluginID || manifest.Version != invocation.Version {
 				continue
 			}
-			if !manifest.AdminOperation(pageID, invocation.Operation) {
-				return plugin.ErrGrantDenied
+			if err := manifest.ValidateAdminPayload(pageID, invocation.Operation, invocation.Payload); err != nil {
+				return err
 			}
 			// Registry.Invoke rechecks the route grants and worker lifecycle.
 			response, err = s.registry.Invoke(plugin.WorkerRequest{Protocol: s.registry.HostAPI, ProjectID: invocation.ProjectID, PluginID: invocation.PluginID, Version: invocation.Version, Operation: invocation.Operation, Payload: invocation.Payload})
