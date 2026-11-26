@@ -3,8 +3,20 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `43b7dc0` — 2026-11-27 02:42:47 +0330 — Merge pull request #3 from arashrasoulzadeh/fix/production-safety
+  Files: 
+- `0ef81fb` — 2026-11-27 02:40:37 +0330 — Merge main and preserve declarative manifest responses in hardened worker
+  Files: internal/plugin/typescript_worker.go,scripts/typescript-worker.mjs
+- `18f22d6` — 2026-11-27 02:39:48 +0330 — fix(plugin): persist restrictive transitions and stop bound workers
+  Files: .github/workflows/test.yml,docs/deployment-runbook.md internal/plugin/registry_lifecycle.go,internal/plugin/registry_permissions.go internal/plugin/registry_workers.go,tests/plugin/lifecycle_runtime_persistence_test.go
+- `3ec3726` — 2026-11-26 23:08:54 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
+- `d78a0fb` — 2026-11-27 02:38:49 +0330 — fix(plugin): fail closed on lifecycle persistence errors and persist enable after startup
+  Files: cmd/brain/main.go,internal/plugin/plugin.go internal/plugin/registry_catalog.go,internal/plugin/registry_lifecycle.go internal/plugin/registry_permissions.go,internal/plugin/registry_storage.go internal/plugin/registry_workers.go,tests/plugin/lifecycle_storage_failure_test.go
 - `0f995c3` — 2026-11-27 02:38:43 +0330 — Merge pull request #4 from arashrasoulzadeh/refactor/compact-plugin-domains
   Files: 
+- `8c5fcbd` — 2026-11-27 02:37:45 +0330 — fix(runtime): expose trusted sandbox probe diagnostics and correct smoke response contract
+  Files: cmd/brain/main.go,internal/plugin/typescript_worker.go scripts/run-sandboxed-typescript-worker.sh,scripts/test-production-runtime.sh
 - `028dfc5` — 2026-11-27 02:34:57 +0330 — Merge main and preserve concurrent dashboard SDK import fix and changelog
   Files: 
 - `4b56685` — 2026-11-27 02:34:42 +0330 — test(plugins): cover declarative descriptor and shared resource contracts
@@ -25,14 +37,22 @@ Automatically generated from commits on main.
   Files: plugins/auth/account-password-resetter.ts,plugins/auth/account-project.ts plugins/auth/account-session-reader.ts,plugins/auth/account-session-revoker.ts plugins/auth/account-session-rotator.ts,plugins/auth/account-signin.ts plugins/auth/account-signup.ts,plugins/auth/accounts.ts plugins/auth/authorization-code-consumer.ts,plugins/auth/authorization-code-issuer.ts plugins/auth/authorization-code-types.ts,plugins/auth/create-auth-operations.ts plugins/auth/create-auth-state.ts,plugins/auth/create-pkce-challenge.ts plugins/auth/first-party-session-cookie.ts,plugins/auth/guest-account-upgrader.ts plugins/auth/guest-request.ts,plugins/auth/guest-session-issuer.ts plugins/auth/identity-linker.ts,plugins/auth/index.ts plugins/auth/new-session.ts,plugins/auth/oidc-config-reader.ts plugins/auth/oidc-config-writer.ts,plugins/auth/oidc-state-consumer.ts plugins/auth/oidc-state-issuer.ts,plugins/auth/oidc-types.ts plugins/auth/oidc.ts,plugins/auth/operator-session-issuer.ts plugins/auth/operator-session-revoker.ts,plugins/auth/operator-session-validator.ts plugins/auth/password-hash.ts,plugins/auth/plugin.yaml plugins/auth/project-user-id.ts,plugins/auth/public-auth-error.ts plugins/auth/rate-limits.ts,plugins/auth/requests.ts plugins/auth/require-recent-authentication.ts,plugins/auth/service.ts plugins/auth/session-token-digest.ts,plugins/auth/sessions.ts plugins/auth/sign-in-request.ts,plugins/auth/sign-up-request.ts plugins/auth/state.ts,plugins/auth/validate-account.ts plugins/auth/validate-oidc-token.ts,plugins/auth/verify-pkce.ts
 - `85d92a5` — 2026-11-27 02:27:51 +0330 — refactor(functions): organize compiler, invocation, publication and workflows by domain
   Files: plugins/functions/authorize-deployment-plugin.ts,plugins/functions/authorize-project-workflow-action.ts plugins/functions/compiler-environment.ts,plugins/functions/compiler-limits.ts plugins/functions/compiler.ts,plugins/functions/create-approval-store.ts plugins/functions/create-deployment-hook-set.ts,plugins/functions/create-function-draft-store.ts plugins/functions/create-function-publication-store.ts,plugins/functions/create-invocation-commit-store.ts plugins/functions/create-invocation-effects.ts,plugins/functions/create-invocation-request.ts plugins/functions/create-job-lease-store.ts,plugins/functions/create-record-change-trigger-store.ts plugins/functions/create-shared-package-store.ts,plugins/functions/diagnose-source.ts plugins/functions/diagnostic-cap.ts,plugins/functions/disposable-compiler-workspace.ts plugins/functions/evaluate-workflow-condition.ts,plugins/functions/execute-fixture.ts plugins/functions/function-input-validation.ts,plugins/functions/function-request.ts plugins/functions/index.ts,plugins/functions/invocation-types.ts plugins/functions/invocation.ts,plugins/functions/invoke-direct-https.ts plugins/functions/parse-invocation-result.ts,plugins/functions/plugin.yaml plugins/functions/publication.ts,plugins/functions/redact-run-status.ts plugins/functions/register-project-workflow-action.ts,plugins/functions/reject-plugin-credentials.ts plugins/functions/reject-plugin-host-resources.ts,plugins/functions/reject-sandbox-escape.ts plugins/functions/replace-project-workflow-step.ts,plugins/functions/require-sdk-imports.ts plugins/functions/retry-invocation.ts,plugins/functions/run-idempotent-workflow.ts plugins/functions/sandbox.ts,plugins/functions/scheduling.ts plugins/functions/shared-helper-publisher.ts,plugins/functions/validate-build-overrides.ts plugins/functions/validate-compiler-environment.ts,plugins/functions/validate-deployment-workflow.ts plugins/functions/validate-execution-limits.ts,plugins/functions/validate-function-limits.ts plugins/functions/validate-invocation-result.ts,plugins/functions/validate-sandbox-capabilities.ts plugins/functions/validate-sdk-imports.ts,plugins/functions/validate-source-project.ts plugins/functions/validate-stale-input-versions.ts,plugins/functions/validate-startup-duration.ts plugins/functions/validate-wasi-imports.ts,plugins/functions/validate-workflow-graph.ts plugins/functions/wasm-build-settings.ts,plugins/functions/workflow.ts plugins/functions/write-intent-validation.ts
+- `89627c8` — 2026-11-27 02:26:46 +0330 — test(host): verify startup rejection and require packaged runtime release gate
+  Files: .github/workflows/release-backend.yml,cmd/brain/main_test.go scripts/test-production-runtime.sh,tests/deploy/production_startup_test.go
 - `ae975c5` — 2026-11-27 02:26:35 +0330 — refactor(subscriptions): group authorization and stream operations
   Files: plugins/subscriptions/authorization.ts,plugins/subscriptions/index.ts plugins/subscriptions/initial-fetch-completer.ts,plugins/subscriptions/initial-fetch-writer.ts plugins/subscriptions/origin.ts,plugins/subscriptions/plugin.yaml plugins/subscriptions/slow-consumer-pusher.ts,plugins/subscriptions/slow-consumer-shifter.ts plugins/subscriptions/slow-consumer-size.ts,plugins/subscriptions/stream.ts plugins/subscriptions/subscription-authorization.ts,plugins/subscriptions/subscription-event-appender.ts plugins/subscriptions/subscription-event-reader.ts,plugins/subscriptions/subscription-grant-store.ts plugins/subscriptions/subscription-owner-invalidator.ts,plugins/subscriptions/subscription-ticket-consumer.ts plugins/subscriptions/subscription-ticket-issuer.ts,plugins/subscriptions/subscription-ticket-validator.ts
 - `5df305c` — 2026-11-27 02:26:18 +0330 — refactor(arena): group state machine and durable result operations
   Files: plugins/arena/arena-action-recorder.ts,plugins/arena/arena-finisher.ts plugins/arena/arena-measurer.ts,plugins/arena/arena-request.ts plugins/arena/arena-start.ts,plugins/arena/arena-starter.ts plugins/arena/arena-state-reader.ts,plugins/arena/arena-state.ts plugins/arena/eye-event.ts,plugins/arena/index.ts plugins/arena/interrupt-expired-action-room.ts,plugins/arena/match-result-reader.ts plugins/arena/match-result-saver.ts,plugins/arena/match-results.ts plugins/arena/plugin.yaml,plugins/arena/state-machine.ts plugins/arena/validate-result.ts
+- `5257703` — 2026-11-27 02:26:12 +0330 — fix(sandbox): remount declared-source filesystem read-only after descriptor bind
+  Files: scripts/run-sandboxed-typescript-worker.sh
+- `d0d3354` — 2026-11-27 02:25:58 +0330 — fix(security): restrict sandbox mounts to declared sources and clean descriptors
+  Files: Dockerfile.runner,cmd/brain/main.go docs/deployment-runbook.md,internal/plugin/typescript_worker.go scripts/run-sandboxed-typescript-worker.sh,scripts/test-production-runtime.sh scripts/test-sandboxed-typescript-worker.sh
 - `fa1a0d2` — 2026-11-27 02:25:55 +0330 — refactor(dashboard): consolidate page builders and fix stale SDK import
   Files: plugins/dashboard/admin-panel.ts,plugins/dashboard/auth-settings-page.ts plugins/dashboard/browser-quickstart.ts,plugins/dashboard/custom-admin-view.ts plugins/dashboard/file-management-page.ts,plugins/dashboard/function-management-page.ts plugins/dashboard/index.ts,plugins/dashboard/live-session-page.ts plugins/dashboard/pages.ts,plugins/dashboard/plugin.yaml plugins/dashboard/record-browser-page.ts,plugins/dashboard/record-edit-page.ts plugins/dashboard/signup-settings-page.ts,plugins/dashboard/table-management-page.ts plugins/dashboard/workflow-management-page.ts,plugins/sdk-typescript/src/index.ts
 - `917feb0` — 2026-11-27 02:25:18 +0330 — feat(plugins): add bounded declarative response routes to manifest worker
   Files: docs/developers.md,internal/plugin/manifest.go internal/plugin/manifest_response.go,internal/plugin/typescript_worker.go plugins/functions/plugin.yaml,scripts/typescript-worker.mjs tests/plugin/manifest-response.test.ts,tests/plugin/manifest_response_test.go
+- `1f78ac5` — 2026-11-27 02:25:08 +0330 — test(security): verify sandbox isolation and integrate current manifest dispatch contracts
+  Files: .github/workflows/test.yml,cmd/brain/main.go docs/deployment-runbook.md,internal/plugin/registry_workers.go internal/plugin/typescript_worker.go,internal/project/sqlite.go scripts/test-production-runtime.sh,scripts/test-sandboxed-typescript-worker.sh scripts/typescript-worker.mjs,tests/plugin/production_worker_test.go
 - `6a303ac` — 2026-11-27 02:24:35 +0330 — refactor(plugins): collapse analytics and invites into cohesive modules
   Files: plugins/analytics/analytics-route-sink.ts,plugins/analytics/capture-request.ts plugins/analytics/capture.ts,plugins/analytics/index.ts plugins/analytics/plugin.yaml,plugins/analytics/types.ts plugins/analytics/validate-event.ts,plugins/invites/index.ts plugins/invites/invite-accepter.ts,plugins/invites/invite-code-accepter.ts plugins/invites/invite-creator.ts,plugins/invites/invite-request.ts plugins/invites/plugin.yaml,plugins/invites/types.ts
 - `2b2a31f` — 2026-11-26 22:54:07 +0000 — docs: update changelog [skip ci]
@@ -41,8 +61,12 @@ Automatically generated from commits on main.
   Files: plugins/auth/account-rate-limiter.ts,plugins/auth/delivery-reader.ts plugins/auth/delivery-writer.ts,plugins/auth/delivery.ts plugins/auth/email-otp-issuer.ts,plugins/auth/email-otp-verifier.ts plugins/auth/index.ts,plugins/auth/normalize-phone-number.ts plugins/auth/otp-limiter.ts,plugins/auth/otp-types.ts plugins/auth/otp.ts,plugins/auth/plugin.yaml plugins/auth/project-rate-limiter.ts,plugins/auth/rate-limits.ts plugins/auth/recovery-token-consumer.ts,plugins/auth/recovery-token-issuer.ts plugins/auth/sms-otp-issuer.ts,plugins/auth/sms-otp-verifier.ts plugins/auth/validate-delivery-config.ts,plugins/sdk-typescript/src/execution.ts plugins/sdk-typescript/src/index.ts,tests/plugin/rate-limiter.test.ts
 - `86cf113` — 2026-11-27 02:23:56 +0330 — fix(ci): import dashboard project validation through public SDK
   Files: plugins/dashboard/custom-admin-view.ts,plugins/dashboard/plugin.yaml
+- `de3baeb` — 2026-11-27 02:22:52 +0330 — fix(security): require sandboxed worker startup and package the runtime
+  Files: Dockerfile,Dockerfile.runner cmd/brain/main.go,internal/plugin/typescript_worker.go scripts/run-sandboxed-typescript-worker.sh,scripts/typescript-worker.mjs
 - `f311d19` — 2026-11-26 22:52:28 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
+- `5e9187f` — 2026-11-27 02:22:14 +0330 — fix(host): fail closed at startup and separate readiness from liveness
+  Files: cmd/brain/main.go,compose.test.yml internal/app/app.go,internal/plugin/registry_storage.go internal/plugin/sqlite_storage.go,internal/project/sqlite.go scripts/check-api-readiness.sh,tests/app/readiness_test.go tests/deploy/readiness_script_test.go
 - `39fa867` — 2026-11-27 02:21:46 +0330 — Merge pull request #2 from arashrasoulzadeh/refactor/plugin-sdk-yaml-helpers
   Files: 
 - `ad1afc4` — 2026-11-27 02:20:32 +0330 — Merge current main while preserving SDK helpers and JSON worker contract
@@ -79,27 +103,3 @@ Automatically generated from commits on main.
   Files: admin-nextjs/app/components/admin-chrome.tsx,admin-nextjs/app/components/admin-shell.tsx admin-nextjs/app/functions/[name]/page.tsx,admin-nextjs/app/functions/new/page.tsx admin-nextjs/app/functions/page.tsx,admin-nextjs/app/lib/admin-api.ts admin-nextjs/app/page.tsx,admin-nextjs/app/plugins/[plugin]/page.tsx admin-nextjs/app/workers/page.tsx,admin-nextjs/app/workflows/page.tsx tests/admin/admin-api.test.ts
 - `b9e97c1` — 2026-11-27 02:12:14 +0330 — refactor(sdk): share manifest route and host context validation
   Files: plugins/sdk-typescript/src/create-function-handler.ts,plugins/sdk-typescript/src/create-host-handler.ts plugins/sdk-typescript/src/create-route-handler.ts,plugins/sdk-typescript/src/require-host-context.ts plugins/sdk-typescript/src/require-route.ts,tests/plugin/sdk-handler-contract.test.ts
-- `ca0ae0a` — 2026-11-27 02:12:04 +0330 — ci: enforce mandatory TypeScript lint and format registry fields
-  Files: .github/workflows/test.yml,internal/plugin/plugin.go
-- `ba6fb7c` — 2026-11-27 02:11:31 +0330 — fix(plugin): defer durable writes until successful authorized execution
-  Files: internal/plugin/legacy_storage_adapter.go,internal/plugin/plugin.go internal/plugin/registry_storage.go,internal/plugin/registry_workers.go tests/plugin/registry_storage_commit_test.go
-- `974d1f2` — 2026-11-27 02:10:50 +0330 — fix(plugin): align Go and TypeScript worker JSON contracts
-  Files: internal/plugin/typescript_worker.go,scripts/test-sandboxed-typescript-worker.sh scripts/typescript-worker.mjs,tests/plugin/typescript-worker.test.ts tests/plugin/typescript_worker_json_test.go
-- `f213b2c` — 2026-11-27 02:09:28 +0330 — fix(plugin): authorize invocations before preparing durable storage
-  Files: internal/plugin/registry_workers.go,tests/plugin/registry_storage_authorization_test.go
-- `d37647d` — 2026-11-27 02:08:07 +0330 — refactor(plugin): separate registry and manifest responsibilities
-  Files: internal/plugin/manifest.go,internal/plugin/manifest_sources.go internal/plugin/plugin.go,internal/plugin/registry_audit.go internal/plugin/registry_catalog.go,internal/plugin/registry_lifecycle.go internal/plugin/registry_permissions.go,internal/plugin/registry_storage.go internal/plugin/registry_versions.go,internal/plugin/registry_workers.go
-- `5cafb71` — 2026-11-27 02:05:54 +0330 — refactor(operator): isolate HTTP sessions and synchronize store access
-  Files: .github/workflows/test.yml,internal/app/operator_auth.go internal/operator/mfa.go,internal/operator/operator.go internal/operator/session.go,tests/app/operator_session_isolation_test.go tests/operator/session_isolation_test.go
-- `fe2be80` — 2026-11-27 02:03:42 +0330 — refactor(app): centralize operator authorization and split function routes
-  Files: internal/app/admin.go,internal/app/admin_functions.go internal/app/operator_auth.go,tests/app/operator_auth_test.go
-- `4475c14` — 2026-11-26 22:31:50 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `7224a1a` — 2026-11-27 02:01:39 +0330 — fix(ci): align sandbox fixture with worker route contract
-  Files: scripts/test-sandboxed-typescript-worker.sh
-- `9036e93` — 2026-11-16 12:40:59 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `24bf1f1` — 2026-11-16 15:39:15 +0330 — silence error toasts from background function-draft polling and add CLAUDE.md
-  Files: CLAUDE.md,admin-nextjs/app/components/toast-provider.tsx admin-nextjs/app/page.tsx
-- `222dd25` — 2026-11-16 04:00:43 +0330 — show raw function execution records
-  Files: admin-nextjs/app/functions/[name]/page.tsx,admin-nextjs/app/styles.css
