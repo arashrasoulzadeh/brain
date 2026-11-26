@@ -1,4 +1,5 @@
 "use client";
+import { adminHeaders, readAdminSession, clearAdminSession, signOutAdminSession } from "../../lib/admin-api";
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -20,13 +21,13 @@ export default function PluginSettingsPage() {
   const [message, setMessage] = useState("");
 
   async function load(token: string) {
-    const projectsResponse = await fetch("/api/admin/projects", { headers: { authorization: `Bearer ${token}` } });
+    const projectsResponse = await fetch("/api/admin/projects", { headers: adminHeaders(token) });
     if (!projectsResponse.ok) throw new Error("session expired");
     const projects = await projectsResponse.json() as Project[];
     const activeProject = projects.find((candidate) => candidate.Active) ?? null;
     setProject(activeProject);
     if (!activeProject) return;
-    const response = await fetch(`/api/admin/plugins?project_id=${encodeURIComponent(activeProject.ID)}`, { headers: { authorization: `Bearer ${token}` } });
+    const response = await fetch(`/api/admin/plugins?project_id=${encodeURIComponent(activeProject.ID)}`, { headers: adminHeaders(token) });
     if (!response.ok) throw new Error("plugin data unavailable");
     const payload = await response.json() as { manifests: Manifest[]; installations: Installation[] };
     const [pluginID, version] = pluginKey.split("@");
@@ -35,23 +36,22 @@ export default function PluginSettingsPage() {
   }
 
   useEffect(() => {
-    const token = window.sessionStorage.getItem("brain-admin-session") ?? "";
+    const token = readAdminSession();
     if (!token) { router.replace("/"); return; }
     setSession(token);
-    void load(token).catch(() => { window.sessionStorage.removeItem("brain-admin-session"); router.replace("/"); });
+    void load(token).catch(() => { clearAdminSession(); router.replace("/"); });
   }, [pluginKey, router]);
 
   async function lifecycle(operation: string, capability = "") {
     if (!session || !project || !installation) return;
     if (operation === "plugin.revoke" && !window.confirm(`Revoke ${capability}?`)) return;
-    const response = await fetch("/api/admin/actions", { method: "POST", headers: { authorization: `Bearer ${session}`, "content-type": "application/json" }, body: JSON.stringify({ operation, project_id: project.ID, plugin_id: installation.PluginID, version: installation.Version, capability, ready: operation === "plugin.readiness", confirmed: operation === "plugin.revoke" }) });
+    const response = await fetch("/api/admin/actions", { method: "POST", headers: adminHeaders(session, { "content-type": "application/json" }), body: JSON.stringify({ operation, project_id: project.ID, plugin_id: installation.PluginID, version: installation.Version, capability, ready: operation === "plugin.readiness", confirmed: operation === "plugin.revoke" }) });
     setMessage(response.ok ? `${operation} completed` : await response.text());
     if (response.ok) await load(session);
   }
 
   function signOut() {
-    window.sessionStorage.removeItem("brain-admin-session");
-    router.replace("/");
+    void signOutAdminSession().finally(() => router.replace("/"));
   }
 
   return <AdminPageFrame activePage="plugins" title={manifest?.Title ?? pluginKey} eyebrow="Plugin settings" projectID={project?.ID} onSignOut={signOut}><div className="section-heading"><Link href="/plugins">Back to plugins</Link></div><p className="muted">Project: {project?.ID ?? "—"}</p>{manifest && <><p>{manifest.Description}</p><p><code>{manifest.ID}@{manifest.Version}</code> · {installation?.Ready ? "Ready" : "Not ready"} · {installation?.Enabled ? "Enabled" : "Disabled"}</p><div className="lifecycle-actions">{installation && !installation.Ready && <button onClick={() => lifecycle("plugin.readiness")}>Mark ready</button>}{installation?.Ready && !installation.Enabled && <button onClick={() => lifecycle("plugin.enable")}>Enable</button>}</div>{message && <p className="notice">{message}</p>}<h2>Capabilities</h2><div className="capabilities">{manifest.Capabilities.map((capability) => <span key={capability}><code>{capability}</code>{installation?.Grants?.includes(capability) ? <><small>Granted</small><button className="danger" onClick={() => lifecycle("plugin.revoke", capability)}>Revoke</button></> : <button onClick={() => lifecycle("plugin.grant", capability)}>Grant</button>}</span>)}</div></>}</AdminPageFrame>;

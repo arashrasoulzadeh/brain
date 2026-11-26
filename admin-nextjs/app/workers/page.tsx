@@ -1,4 +1,5 @@
 "use client";
+import { adminHeaders, readAdminSession, clearAdminSession, signOutAdminSession } from "../lib/admin-api";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -14,29 +15,29 @@ export default function WorkersPage() {
   const [message, setMessage] = useState("");
 
   async function load(token: string) {
-    const projectsResponse = await fetch("/api/admin/projects", { headers: { authorization: `Bearer ${token}` } });
+    const projectsResponse = await fetch("/api/admin/projects", { headers: adminHeaders(token) });
     if (!projectsResponse.ok) throw new Error("session expired");
     const projects = await projectsResponse.json() as { ID: string; Active: boolean }[];
     const activeProject = projects.find((candidate) => candidate.Active)?.ID ?? "";
     setProject(activeProject);
     if (!activeProject) return;
-    const pluginsResponse = await fetch(`/api/admin/plugins?project_id=${encodeURIComponent(activeProject)}`, { headers: { authorization: `Bearer ${token}` } });
+    const pluginsResponse = await fetch(`/api/admin/plugins?project_id=${encodeURIComponent(activeProject)}`, { headers: adminHeaders(token) });
     if (!pluginsResponse.ok) throw new Error("worker status unavailable");
     setWorkers((await pluginsResponse.json() as { installations: Installation[] }).installations);
   }
 
   useEffect(() => {
-    const token = window.sessionStorage.getItem("brain-admin-session") ?? "";
+    const token = readAdminSession();
     if (!token) { router.replace("/"); return; }
     setSession(token);
-    void load(token).catch(() => { window.sessionStorage.removeItem("brain-admin-session"); router.replace("/"); });
+    void load(token).catch(() => { clearAdminSession(); router.replace("/"); });
   }, [router]);
 
   async function spinUp(worker: Installation) {
-    const response = await fetch("/api/admin/actions", { method: "POST", headers: { authorization: `Bearer ${session}`, "content-type": "application/json" }, body: JSON.stringify({ operation: "plugin.worker.start", project_id: project, plugin_id: worker.PluginID, version: worker.Version }) });
+    const response = await fetch("/api/admin/actions", { method: "POST", headers: adminHeaders(session, { "content-type": "application/json" }), body: JSON.stringify({ operation: "plugin.worker.start", project_id: project, plugin_id: worker.PluginID, version: worker.Version }) });
     setMessage(response.ok ? `${worker.PluginID}@${worker.Version} worker started.` : await response.text());
     if (response.ok) await load(session);
   }
 
-  return <AdminPageFrame activePage="workers" title="Workers" projectID={project} onSignOut={() => { window.sessionStorage.removeItem("brain-admin-session"); router.replace("/"); }}><p className="muted">Project: {project || "—"}. A plugin is executable only after its worker is ready.</p>{message && <p className="notice">{message}</p>}<div className="audit-list">{workers.map((worker) => <div className="audit" key={`${worker.PluginID}@${worker.Version}`}><span className={worker.WorkerReady ? "success" : "failure"}>{worker.WorkerReady ? "✓" : "!"}</span><div><strong>{worker.PluginID}@{worker.Version}</strong><small>{worker.WorkerReady ? "Worker ready" : "Worker not ready"}</small></div>{worker.Enabled && worker.Ready && !worker.WorkerReady && <button type="button" onClick={() => void spinUp(worker)}>Spin up worker</button>}</div>)}</div></AdminPageFrame>;
+  return <AdminPageFrame activePage="workers" title="Workers" projectID={project} onSignOut={() => { void signOutAdminSession().finally(() => router.replace("/")); }}><p className="muted">Project: {project || "—"}. A plugin is executable only after its worker is ready.</p>{message && <p className="notice">{message}</p>}<div className="audit-list">{workers.map((worker) => <div className="audit" key={`${worker.PluginID}@${worker.Version}`}><span className={worker.WorkerReady ? "success" : "failure"}>{worker.WorkerReady ? "✓" : "!"}</span><div><strong>{worker.PluginID}@{worker.Version}</strong><small>{worker.WorkerReady ? "Worker ready" : "Worker not ready"}</small></div>{worker.Enabled && worker.Ready && !worker.WorkerReady && <button type="button" onClick={() => void spinUp(worker)}>Spin up worker</button>}</div>)}</div></AdminPageFrame>;
 }

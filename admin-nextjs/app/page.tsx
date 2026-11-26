@@ -1,4 +1,5 @@
 "use client";
+import { adminHeaders, readAdminSession, saveAdminSession, clearAdminSession, signOutAdminSession } from "./lib/admin-api";
 import { FormEvent, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
@@ -272,13 +273,13 @@ export default function AdminPage() {
     return () => window.clearInterval(timer);
   }, [session, selectedProjectID]);
   useEffect(() => {
-    const savedSession = window.sessionStorage.getItem("brain-admin-session");
+    const savedSession = readAdminSession();
     if (!savedSession) {
       setHydratingSession(false);
       return;
     }
     const hydrationTimeout = window.setTimeout(() => {
-      window.sessionStorage.removeItem("brain-admin-session");
+      clearAdminSession();
       setSession("");
       setError("The operator session could not be restored. Please sign in again.");
       setHydratingSession(false);
@@ -296,7 +297,7 @@ export default function AdminPage() {
         ]);
       })
       .catch(() => {
-        window.sessionStorage.removeItem("brain-admin-session");
+        clearAdminSession();
         setSession("");
         setError("Your operator session expired. Please sign in again.");
       })
@@ -308,7 +309,7 @@ export default function AdminPage() {
   }, []);
   async function loadProjects(token: string): Promise<Project[]> {
     const response = await fetch("/api/admin/projects", {
-      headers: { authorization: `Bearer ${token}` },
+      headers: adminHeaders(token),
     });
     if (!response.ok) throw new Error("Could not load projects");
     const loadedProjects = (await response.json()) as Project[];
@@ -318,7 +319,7 @@ export default function AdminPage() {
   async function loadPlugins(token: string, projectID = selectedProjectID) {
     const query = projectID ? `?project_id=${encodeURIComponent(projectID)}` : "";
     const response = await fetch(`/api/admin/plugins${query}`, {
-      headers: { authorization: `Bearer ${token}` },
+      headers: adminHeaders(token),
     });
     if (!response.ok) throw new Error("Could not load plugins");
     const result = (await response.json()) as {
@@ -330,14 +331,14 @@ export default function AdminPage() {
   }
   async function loadAudit(token: string) {
     const response = await fetch("/api/admin/audit", {
-      headers: { authorization: `Bearer ${token}` },
+      headers: adminHeaders(token),
     });
     if (!response.ok) throw new Error("Could not load audit log");
     setAudit((await response.json()) as AuditRecord[]);
   }
   async function loadSystem(token: string) {
     const response = await fetch("/api/admin/system", {
-      headers: { authorization: `Bearer ${token}` },
+      headers: adminHeaders(token),
     });
     if (!response.ok) throw new Error("Could not load system capabilities");
     setSystem((await response.json()) as SystemManifest[]);
@@ -349,7 +350,7 @@ export default function AdminPage() {
     }
     const response = await fetch(
       `/api/admin/functions?project_id=${encodeURIComponent(projectID)}`,
-      { headers: { authorization: `Bearer ${token}`, [QUIET_REQUEST_HEADER]: "1" } },
+      { headers: adminHeaders(token, { [QUIET_REQUEST_HEADER]: "1" }) },
     );
     if (response.ok) setFunctionDrafts((await response.json()) as FunctionDraft[]);
   }
@@ -375,7 +376,7 @@ export default function AdminPage() {
       }
       const token = ((await response.json()) as { session: string }).session;
       setSession(token);
-      window.sessionStorage.setItem("brain-admin-session", token);
+      saveAdminSession(token);
       const loadedProjects = await loadProjects(token);
       setSelectedProjectID(loadedProjects.find((project) => project.Active)?.ID ?? "");
       await loadPlugins(token, loadedProjects.find((project) => project.Active)?.ID ?? "");
@@ -386,11 +387,7 @@ export default function AdminPage() {
     }
   }
   async function signOut() {
-    await fetch("/api/admin/session", {
-      method: "DELETE",
-      headers: { authorization: `Bearer ${session}` },
-    }).catch(() => undefined);
-    window.sessionStorage.removeItem("brain-admin-session");
+    await signOutAdminSession();
     setSession("");
   }
   async function createProject(event: FormEvent) {
@@ -399,7 +396,7 @@ export default function AdminPage() {
     try {
       const response = await fetch("/api/admin/actions", {
         method: "POST",
-        headers: { authorization: `Bearer ${session}`, "content-type": "application/json" },
+        headers: adminHeaders(session, { "content-type": "application/json" }),
         body: JSON.stringify({ operation: "project.create", project_id: projectID }),
       });
       if (!response.ok) throw new Error(await response.text());
@@ -413,7 +410,7 @@ export default function AdminPage() {
     if (!active && !window.confirm(`${text.deactivate} ${project.ID}?`)) return;
     const response = await fetch("/api/admin/actions", {
       method: "POST",
-      headers: { authorization: `Bearer ${session}`, "content-type": "application/json" },
+      headers: adminHeaders(session, { "content-type": "application/json" }),
       body: JSON.stringify({
         operation: active ? "project.activate" : "project.deactivate",
         project_id: project.ID,
@@ -464,7 +461,7 @@ export default function AdminPage() {
     setPlaygroundMessage("Executing through the host...");
     const response = await fetch("/api/admin/actions", {
       method: "POST",
-      headers: { authorization: `Bearer ${session}`, "content-type": "application/json" },
+      headers: adminHeaders(session, { "content-type": "application/json" }),
       body: JSON.stringify({
         operation: "plugin.invoke",
         project_id: selectedProjectID,
@@ -514,7 +511,7 @@ export default function AdminPage() {
     setDatabaseMessage("Executing through the host...");
     const response = await fetch("/api/admin/actions", {
       method: "POST",
-      headers: { authorization: `Bearer ${session}`, "content-type": "application/json" },
+      headers: adminHeaders(session, { "content-type": "application/json" }),
       body: JSON.stringify({
         operation: "plugin.invoke",
         project_id: selectedProjectID,
@@ -566,7 +563,7 @@ export default function AdminPage() {
     setFileMessage("Executing through the host...");
     const response = await fetch("/api/admin/actions", {
       method: "POST",
-      headers: { authorization: `Bearer ${session}`, "content-type": "application/json" },
+      headers: adminHeaders(session, { "content-type": "application/json" }),
       body: JSON.stringify({
         operation: "plugin.invoke",
         project_id: selectedProjectID,
@@ -643,7 +640,7 @@ export default function AdminPage() {
     setMessage("Executing through the host...");
     const response = await fetch("/api/admin/actions", {
       method: "POST",
-      headers: { authorization: `Bearer ${session}`, "content-type": "application/json" },
+      headers: adminHeaders(session, { "content-type": "application/json" }),
       body: JSON.stringify({
         operation: "plugin.invoke",
         project_id: selectedProjectID,
@@ -687,7 +684,7 @@ export default function AdminPage() {
     try {
       const response = await fetch("/api/admin/actions", {
         method: "POST",
-        headers: { authorization: `Bearer ${session}`, "content-type": "application/json" },
+        headers: adminHeaders(session, { "content-type": "application/json" }),
         body: JSON.stringify({
           operation: "plugin.install",
           project_id: project.ID,
@@ -717,7 +714,7 @@ export default function AdminPage() {
     }
     const response = await fetch("/api/admin/functions", {
       method: "POST",
-      headers: { authorization: `Bearer ${session}`, "content-type": "application/json" },
+      headers: adminHeaders(session, { "content-type": "application/json" }),
       body: JSON.stringify({
         operation,
         project_id: selectedProjectID,
@@ -747,7 +744,7 @@ export default function AdminPage() {
     setError("");
     const response = await fetch("/api/admin/actions", {
       method: "POST",
-      headers: { authorization: `Bearer ${session}`, "content-type": "application/json" },
+      headers: adminHeaders(session, { "content-type": "application/json" }),
       body: JSON.stringify({
         operation: "project.uninstall",
         project_id: project.ID,
@@ -792,7 +789,7 @@ export default function AdminPage() {
       return;
     const response = await fetch("/api/admin/actions", {
       method: "POST",
-      headers: { authorization: `Bearer ${session}`, "content-type": "application/json" },
+      headers: adminHeaders(session, { "content-type": "application/json" }),
       body: JSON.stringify({
         operation,
         project_id: project.ID,
@@ -835,7 +832,7 @@ export default function AdminPage() {
     );
     const response = await fetch("/api/admin/actions", {
       method: "POST",
-      headers: { authorization: `Bearer ${session}`, "content-type": "application/json" },
+      headers: adminHeaders(session, { "content-type": "application/json" }),
       body: JSON.stringify({
         operation: "plugin.configure",
         project_id: selectedProjectID,
@@ -857,7 +854,7 @@ export default function AdminPage() {
     }
     const previewResponse = await fetch("/api/admin/actions", {
       method: "POST",
-      headers: { authorization: `Bearer ${session}`, "content-type": "application/json" },
+      headers: adminHeaders(session, { "content-type": "application/json" }),
       body: JSON.stringify({
         operation: "plugin.disable.preview",
         project_id: selectedProjectID,
@@ -881,7 +878,7 @@ export default function AdminPage() {
       return;
     const applyResponse = await fetch("/api/admin/actions", {
       method: "POST",
-      headers: { authorization: `Bearer ${session}`, "content-type": "application/json" },
+      headers: adminHeaders(session, { "content-type": "application/json" }),
       body: JSON.stringify({
         operation: "plugin.disable.apply",
         project_id: selectedProjectID,
