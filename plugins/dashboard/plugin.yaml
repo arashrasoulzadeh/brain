@@ -38,43 +38,63 @@ extension_points:
   - admin.page
 config_schema:
   title: string
+events:
+  - name: lifecycleChanged
+    source: host
+    fields:
+      action: string
+      targetPlugin: string
+      targetVersion: string
 routes:
   - operation: project.create
     function: createProject
+    helper: host.admin
     capability: project.manage
   - operation: plugin.install
     function: installPlugin
+    helper: host.admin
     capability: plugin.install
   - operation: plugin.grant
     function: grantCapability
+    helper: host.admin
     capability: plugin.grant
   - operation: plugin.enable
     function: enablePlugin
+    helper: host.admin
     capability: plugin.enable
   - operation: plugin.promote
     function: promotePlugin
+    helper: host.admin
     capability: plugin.promote
   - operation: plugin.rollback
     function: rollbackPlugin
+    helper: host.admin
     capability: plugin.rollback
   - operation: plugin.disable.preview
     function: previewPluginDisable
+    helper: host.admin
     capability: plugin.disable
   - operation: plugin.disable.apply
     function: applyPluginDisable
+    helper: host.admin
     capability: plugin.disable
   - operation: plugin.drain
     function: drainPlugin
+    helper: host.admin
     capability: plugin.lifecycle
   - operation: plugin.resume
     function: resumePlugin
+    helper: host.admin
     capability: plugin.lifecycle
   - operation: plugin.stop
     function: stopPlugin
+    helper: host.admin
     capability: plugin.lifecycle
   - operation: plugin.uninstall
     function: uninstallPlugin
+    helper: host.admin
     capability: plugin.uninstall
   - operation: plugin.readiness
     function: showReadiness
+    helper: host.admin
     capability: plugin.readiness

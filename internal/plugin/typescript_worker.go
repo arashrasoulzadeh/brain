@@ -120,6 +120,9 @@ func NewManifestTypeScriptWorker(command, workerScript, descriptor, pluginRoot, 
 	entrypoint := filepath.Join(pluginRoot, manifest.EntryPoint())
 	routes := make([]executionRoute, 0, len(manifest.Routes))
 	for _, route := range manifest.Routes {
+		if route.Helper == "host.admin" {
+			continue
+		}
 		routes = append(routes, executionRoute{Operation: route.Operation, Function: route.Function, Helper: route.Helper, Response: route.Response})
 	}
 	for _, observer := range manifest.Observers {

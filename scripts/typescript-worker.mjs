@@ -51,7 +51,7 @@ for await (const line of input) {
     const fire = (event, payload) => {
       if (!acceptingObservations || params.operation.startsWith("@observe/")) throw new Error("observation cannot be published outside a publisher invocation");
       if (observations.length >= 16) throw new Error("observation event limit exceeded");
-      const spec = (descriptor.events ?? []).find((item) => item.name === event);
+      const spec = (descriptor.events ?? []).find((item) => item.name === event && !item.source);
       if (!spec || !payload || typeof payload !== "object" || Array.isArray(payload)) throw new Error("undeclared or invalid observation");
       const serialized = JSON.stringify(payload);
       if (!serialized || Buffer.byteLength(serialized, "utf8") > 16 * 1024) throw new Error("observation payload too large");

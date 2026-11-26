@@ -179,7 +179,7 @@ func (r *Registry) authorizeInvocationLocked(request WorkerRequest, observer boo
 			}
 		}
 	}
-	if !declared || !installation.Grants[route.Capability] {
+	if !declared || route.Helper == "host.admin" || !installation.Grants[route.Capability] {
 		return ErrGrantDenied
 	}
 	for _, capability := range registered.Manifest.Capabilities {

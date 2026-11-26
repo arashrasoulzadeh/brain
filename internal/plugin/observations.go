@@ -17,6 +17,7 @@ var eventIdentifier = regexp.MustCompile(`^[a-zA-Z][a-zA-Z0-9_.-]{0,63}$`)
 type EventSpec struct {
 	Name   string            `yaml:"name" json:"name"`
 	Fields map[string]string `yaml:"fields" json:"fields"`
+	Source string            `yaml:"source,omitempty" json:"source,omitempty"`
 }
 
 type ObserverSpec struct {
@@ -46,7 +47,7 @@ func (s ObserverSpec) operation() string {
 func validateObservationContract(m Manifest, capabilities map[string]bool) error {
 	events := map[string]bool{}
 	for _, event := range m.Events {
-		if !eventIdentifier.MatchString(event.Name) || events[event.Name] || len(event.Fields) > 32 {
+		if !eventIdentifier.MatchString(event.Name) || events[event.Name] || len(event.Fields) > 32 || (event.Source != "" && event.Source != "host") {
 			return ErrInvalidManifest
 		}
 		events[event.Name] = true
@@ -69,7 +70,7 @@ func validateObservationContract(m Manifest, capabilities map[string]bool) error
 	return nil
 }
 
-func (m Manifest) acceptsObservation(intent ObservationIntent) bool {
+func (m Manifest) acceptsObservation(intent ObservationIntent, source string) bool {
 	if len(intent.Payload) == 0 || len(intent.Payload) > maxObservationPayload {
 		return false
 	}
@@ -78,7 +79,7 @@ func (m Manifest) acceptsObservation(intent ObservationIntent) bool {
 		return false
 	}
 	for _, event := range m.Events {
-		if event.Name != intent.Event || len(event.Fields) != len(payload) {
+		if event.Name != intent.Event || event.Source != source || len(event.Fields) != len(payload) {
 			continue
 		}
 		for name, kind := range event.Fields {
@@ -121,9 +122,49 @@ func (r *Registry) deliverObservations(publisher WorkerRequest, intents []Observ
 	if !exists || r.authorizeInvocation(publisher, false) != nil {
 		return
 	}
+	r.dispatchObservations(publisher, registered.Manifest, intents, "")
+}
+
+// PublishHostObservation is called only by trusted, already-authorized host services
+// after their effect succeeds. It cannot be reached through worker RPC. A host
+// event is explicitly distinguished from worker-published events in the manifest.
+func (r *Registry) PublishHostObservation(projectID, pluginID, event string, payload map[string]any) {
+	if !isValidProjectID(projectID) || r.LifecycleStorageHealth() != nil {
+		return
+	}
+	if _, err := r.resolveProject(projectID); err != nil {
+		return
+	}
+	manifests := r.RegisteredManifests()
+	var selected Manifest
+	for _, manifest := range manifests {
+		if manifest.ID != pluginID {
+			continue
+		}
+		for _, spec := range manifest.Events {
+			if spec.Name == event && spec.Source == "host" {
+				if selected.ID != "" {
+					return // Do not guess a publisher version.
+				}
+				selected = manifest
+			}
+		}
+	}
+	if selected.ID == "" {
+		return
+	}
+	encoded, err := json.Marshal(payload)
+	if err != nil {
+		return
+	}
+	publisher := WorkerRequest{Protocol: r.HostAPI, ProjectID: projectID, PluginID: selected.ID, Version: selected.Version}
+	r.dispatchObservations(publisher, selected, []ObservationIntent{{Event: event, Payload: encoded}}, "host")
+}
+
+func (r *Registry) dispatchObservations(publisher WorkerRequest, manifest Manifest, intents []ObservationIntent, source string) {
 	deliveries := 0
 	for _, intent := range intents {
-		if !registered.Manifest.acceptsObservation(intent) {
+		if !manifest.acceptsObservation(intent, source) {
 			r.recordObservation("observation_rejected", publisher, "invalid event")
 			continue
 		}

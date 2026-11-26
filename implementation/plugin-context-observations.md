@@ -42,3 +42,5 @@ Each row requires context and relevant sanitized domain events, focused tests an
 - Arena: context-first start/input/snapshot/result adapters and sanitized start/finish events added to its existing state machine; cross-project and invalid-transition regression coverage added. Operator route only; realtime actor binding, durable results, and CI verification remain open.
 
 - Invites: operator route adapters added with host project context, random identifiers, bounded TTL, replay/cancellation checks, and sanitized lifecycle observations. Client actor authorization and durable invitation storage are still open.
+
+- Dashboard: declared host-only admin routes (never executable in workers); authenticated project lifecycle actions publish sanitized host observations after success. Global readiness and inactive-project actions are not delivered to project workers. Host-origin schemas prevent worker spoofing.
