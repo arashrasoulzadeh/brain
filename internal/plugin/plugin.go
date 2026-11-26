@@ -83,6 +83,9 @@ type Registry struct {
 	storageInvocations [64]sync.Mutex
 	storageFailed      atomic.Bool
 	webSockets         *WebSocketRegistry
+	observationStore   *SQLiteStorage
+	observationMu      sync.RWMutex
+	observationDrainMu sync.Mutex
 }
 
 func NewRegistry(hostAPI int) *Registry {

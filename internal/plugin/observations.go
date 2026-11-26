@@ -1,10 +1,13 @@
 package plugin
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"math"
 	"regexp"
 	"sort"
+	"time"
 )
 
 const observationPrefix = "@observe/"
@@ -25,6 +28,7 @@ type ObserverSpec struct {
 	Event      string `yaml:"event"`
 	Function   string `yaml:"function"`
 	Capability string `yaml:"capability"`
+	Persist    bool   `yaml:"persist,omitempty"`
 }
 
 type ObservationIntent struct {
@@ -33,6 +37,7 @@ type ObservationIntent struct {
 }
 
 type Observation struct {
+	ID        string          `json:"id"`
 	ProjectID string          `json:"projectId"`
 	PluginID  string          `json:"pluginId"`
 	Version   string          `json:"version"`
@@ -105,7 +110,8 @@ func (m Manifest) acceptsObservation(intent ObservationIntent, source string) bo
 	return false
 }
 
-// Delivery is best effort, bounded, and post-commit. Observer functions cannot
+// Delivery is bounded and post-commit. With SQLite, the host queues durable
+// deliveries instead of blocking the publisher on observer execution. Observer functions cannot
 // recursively publish events in this first implementation. No worker-provided
 // identity is trusted: the envelope is constructed from the authorized request.
 func (r *Registry) deliverObservations(publisher WorkerRequest, intents []ObservationIntent) {
@@ -168,7 +174,13 @@ func (r *Registry) dispatchObservations(publisher WorkerRequest, manifest Manife
 			r.recordObservation("observation_rejected", publisher, "invalid event")
 			continue
 		}
-		payload, err := json.Marshal(Observation{ProjectID: publisher.ProjectID, PluginID: publisher.PluginID, Version: publisher.Version, Event: intent.Event, Payload: intent.Payload})
+		var randomID [16]byte
+		if _, err := rand.Read(randomID[:]); err != nil {
+			r.recordObservation("observation_rejected", publisher, "identity unavailable")
+			continue
+		}
+		id := hex.EncodeToString(randomID[:])
+		payload, err := json.Marshal(Observation{ID: id, ProjectID: publisher.ProjectID, PluginID: publisher.PluginID, Version: publisher.Version, Event: intent.Event, Payload: intent.Payload})
 		if err != nil {
 			continue
 		}
@@ -179,6 +191,17 @@ func (r *Registry) dispatchObservations(publisher WorkerRequest, manifest Manife
 			}
 			deliveries++
 			target.Payload = payload
+			if store := r.observationStorage(); store != nil {
+				metadata := publisher
+				metadata.Payload, metadata.Project = nil, nil
+				delivery := observationDelivery{ID: id, Publisher: metadata, Target: target, Source: source}
+				if err := store.enqueueObservation(delivery, time.Now()); err != nil {
+					r.recordObservation("observation_enqueue_failed", target, publisher.PluginID+"."+intent.Event)
+				} else {
+					r.recordObservation("observation_queued", target, publisher.PluginID+"."+intent.Event)
+				}
+				continue
+			}
 			result, err := r.invokeOnce(target, true)
 			if err != nil || !result.Success || result.ErrorCode != "" {
 				r.recordObservation("observation_failed", target, publisher.PluginID+"."+intent.Event)

@@ -28,7 +28,12 @@ func OpenSQLiteStorage(path string) (*SQLiteStorage, error) {
 		_ = db.Close()
 		return nil, err
 	}
-	return &SQLiteStorage{db: db}, nil
+	storage := &SQLiteStorage{db: db}
+	if err := storage.initializeObservationStorage(); err != nil {
+		_ = db.Close()
+		return nil, err
+	}
+	return storage, nil
 }
 
 func (s *SQLiteStorage) SaveRegistryState(installations map[string]Installation, readiness map[string]bool) error {

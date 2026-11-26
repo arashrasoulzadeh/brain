@@ -4,7 +4,7 @@ import { SubscriptionEventAppender, SubscriptionEventReader } from "./stream.js"
 import type { SubscriptionEvent, SubscriptionTicket } from "./types.js";
 
 type RoomConnection = Readonly<{ roomId: string; reconnected: boolean }>;
-type Stream = { sequence: number; events: SubscriptionEvent<RoomConnection>[] };
+type Stream = { sequence: number; events: SubscriptionEvent<RoomConnection>[]; seen: Set<string> };
 
 const channelName = "rooms.connected";
 const retention = 256;
@@ -57,6 +57,14 @@ export function observeRoomConnected(context: PluginContext, input: unknown) {
       typeof event.payload.roomId !== "string" || typeof event.payload.reconnected !== "boolean")
     throw new Error("invalid room observation");
   const stream = streamFor(context.project.id);
+  if (event.id && stream.seen.has(event.id)) return { recorded: true };
+  if (event.id) {
+    stream.seen.add(event.id);
+    if (stream.seen.size > retention * 2) {
+      const oldest = stream.seen.values().next().value;
+      if (oldest) stream.seen.delete(oldest);
+    }
+  }
   new SubscriptionEventAppender(stream.events, () => ++stream.sequence).append({
     roomId: event.payload.roomId, reconnected: event.payload.reconnected,
   });
@@ -77,7 +85,7 @@ function authorizedStream(context: PluginContext, payload: Record<string, unknow
 function streamFor(projectId: string): Stream {
   let stream = streams.get(projectId);
   if (!stream) {
-    stream = { sequence: 0, events: [] };
+    stream = { sequence: 0, events: [], seen: new Set<string>() };
     streams.set(projectId, stream);
   }
   return stream;

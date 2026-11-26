@@ -63,12 +63,14 @@ func (r *Registry) BindSQLiteStorage(storage *SQLiteStorage) error {
 			return err
 		}
 		r.BindInvocationStorage(nil)
+		r.bindObservationStorage(nil)
 		return nil
 	}
 	if err := r.BindRegistryStorage(storage); err != nil {
 		return err
 	}
 	r.BindInvocationStorage(legacyStoragePlanner{storage: storage})
+	r.bindObservationStorage(storage)
 	return nil
 }
 

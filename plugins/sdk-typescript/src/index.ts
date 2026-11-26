@@ -26,7 +26,7 @@ export type PluginContext = Readonly<{
   plugins: Readonly<{ observe: Readonly<{ fire(event: string, payload: Readonly<Record<string, string | number | boolean>>): void }> }>;
 }>;
 
-export type Observation<T = unknown> = Readonly<{ projectId: string; pluginId: string; version: string; event: string; payload: T }>;
+export type Observation<T = unknown> = Readonly<{ id: string; projectId: string; pluginId: string; version: string; event: string; payload: T }>;
 
 export type ObservationIntent = Readonly<{ event: string; payload: Readonly<Record<string, string | number | boolean>> }>;
 

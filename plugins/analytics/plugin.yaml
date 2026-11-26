@@ -25,6 +25,7 @@ observe:
     event: connected
     function: observeRoomConnected
     capability: observe.rooms.connected
+    persist: true
 routes:
   - operation: analytics.capture
     function: captureForProject
