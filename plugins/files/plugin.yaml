@@ -8,50 +8,16 @@ source_files:
   - routes.ts
   - index.ts
   - types.ts
-  - file-route-store.ts
-  - file-request.ts
-  - bucket.ts
-  - object-key.ts
-  - pending-upload-creator.ts
-  - pending-upload-reader.ts
-  - pending-upload-publisher.ts
-  - pending-upload-reconciler.ts
-  - quota-reserver.ts
-  - quota-releaser.ts
-  - quota-reader.ts
-  - file-grant-store.ts
-  - file-access-reader.ts
-  - file-access-deleter.ts
-  - upload-grant-store.ts
-  - authorized-upload-writer.ts
-  - enforce-upload-size.ts
-  - protected-download-headers.ts
-  - reconcile-orphaned-objects.ts
-  - require-explicit-publication.ts
+  - access.ts
+  - uploads.ts
+  - quota.ts
 imports:
   - ./routes.js
   - ../sdk-typescript/src/index.js
-  - ./bucket.js
-  - ./enforce-upload-size.js
-  - ./protected-download-headers.js
-  - ./reconcile-orphaned-objects.js
-  - ./require-explicit-publication.js
-  - ./file-request.js
-  - ./object-key.js
-  - ./quota-reserver.js
-  - ./quota-releaser.js
-  - ./quota-reader.js
-  - ./file-grant-store.js
-  - ./file-access-reader.js
-  - ./file-access-deleter.js
-  - ./upload-grant-store.js
-  - ./authorized-upload-writer.js
-  - ./pending-upload-creator.js
-  - ./pending-upload-reader.js
-  - ./pending-upload-publisher.js
-  - ./pending-upload-reconciler.js
+  - ./access.js
+  - ./uploads.js
+  - ./quota.js
   - ./types.js
-  - ./file-route-store.js
 plugin_imports:
 dependencies: []
 capabilities:
