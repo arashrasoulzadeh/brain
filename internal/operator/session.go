@@ -4,9 +4,31 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
+	"time"
 )
 
 var ErrInvalidSession = errors.New("invalid operator session")
+
+// DefaultSessionLifetime is the absolute lifetime of an operator bearer token.
+const DefaultSessionLifetime = 8 * time.Hour
+
+type operatorSession struct {
+	operatorID string
+	expiresAt  time.Time
+}
+
+// NewStoreWithClock constructs an operator store with a controlled clock.
+// A zero-value Store uses the system clock.
+func NewStoreWithClock(clock func() time.Time) *Store {
+	return &Store{clock: clock}
+}
+
+func (s *Store) now() time.Time {
+	if s.clock != nil {
+		return s.clock()
+	}
+	return time.Now()
+}
 
 // AuthenticateSession verifies credentials and issues a session in one operation.
 // It never changes authentication state for other sessions.
@@ -37,14 +59,20 @@ func (s *Store) issueSessionLocked(username string, tokenSource func() string) (
 	if token == "" {
 		return "", ErrInvalidSession
 	}
+	now := s.now()
+	for key, existing := range s.sessions {
+		if !existing.expiresAt.After(now) {
+			delete(s.sessions, key)
+		}
+	}
 	key := sessionKey(token)
 	if _, exists := s.sessions[key]; exists {
 		return "", ErrInvalidSession
 	}
 	if s.sessions == nil {
-		s.sessions = make(map[string]string)
+		s.sessions = make(map[string]operatorSession)
 	}
-	s.sessions[key] = username
+	s.sessions[key] = operatorSession{operatorID: username, expiresAt: now.Add(DefaultSessionLifetime)}
 	return token, nil
 }
 
@@ -55,11 +83,15 @@ func (s *Store) ValidateSession(token string) (Actor, bool) {
 		return Actor{}, false
 	}
 	key := sessionKey(token)
-	operatorID, ok := s.sessions[key]
-	if !ok || operatorID == "" || operatorID != s.account.Username {
+	if !s.sessionValidLocked(key, s.account.Username) {
 		return Actor{}, false
 	}
-	return Actor{ID: operatorID, Kind: ActorOperator, sessionKey: key}, true
+	return Actor{ID: s.account.Username, Kind: ActorOperator, sessionKey: key}, true
+}
+
+func (s *Store) sessionValidLocked(key, operatorID string) bool {
+	session, ok := s.sessions[key]
+	return ok && operatorID != "" && session.operatorID == operatorID && session.expiresAt.After(s.now())
 }
 
 func (s *Store) RevokeSession(token string) error {

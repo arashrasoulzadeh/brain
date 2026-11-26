@@ -7,6 +7,7 @@ import (
 	"errors"
 	"strings"
 	"sync"
+	"time"
 )
 
 var ErrAlreadyBootstrapped = errors.New("operator already bootstrapped")
@@ -82,7 +83,8 @@ type Store struct {
 	account               *Account
 	audit                 []AuditEvent
 	authenticatedOperator string
-	sessions              map[string]string
+	sessions              map[string]operatorSession
+	clock                 func() time.Time
 }
 
 func (s *Store) Audit() []AuditEvent {
@@ -108,7 +110,7 @@ func (s *Store) AuthorizeAction(actor Actor, action string) error {
 		return ErrOperatorRequired
 	}
 	if actor.sessionKey != "" {
-		if s.sessions[actor.sessionKey] != actor.ID {
+		if !s.sessionValidLocked(actor.sessionKey, actor.ID) {
 			return ErrOperatorRequired
 		}
 	} else if actor.ID != s.authenticatedOperator {
