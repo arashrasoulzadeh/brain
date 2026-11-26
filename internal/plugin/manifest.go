@@ -26,6 +26,7 @@ type Manifest struct {
 	PluginImports   []string          `yaml:"plugin_imports"`
 	Events          []EventSpec       `yaml:"events"`
 	Observers       []ObserverSpec    `yaml:"observe"`
+	Models          map[string]ModelSpec `yaml:"models,omitempty"`
 }
 
 type Route struct {
@@ -35,6 +36,7 @@ type Route struct {
 	Helper     string        `yaml:"helper,omitempty"`
 	Response   *ResponseSpec `yaml:"response,omitempty"`
 	Pipeline *PipelineSpec `yaml:"pipeline,omitempty"`
+	Model *ModelRoute `yaml:"model,omitempty"`
 }
 
 func LoadManifest(path string) (Manifest, error) {
@@ -94,9 +96,10 @@ func ValidateManifestContract(manifest Manifest) error {
 		}
 		declaredCapabilities[capability] = true
 	}
+	if !validModels(manifest.Models) { return ErrInvalidManifest }
 	seenRoutes := map[string]bool{}
 	for _, route := range manifest.Routes {
-		if strings.HasPrefix(route.Operation, observationPrefix) || route.Operation == "" || route.Function == "" || route.Capability == "" || seenRoutes[route.Operation] || !declaredCapabilities[route.Capability] || (route.Helper != "" && route.Helper != "sdk.dispatch" && route.Helper != "sdk.request" && route.Helper != "sdk.response" && route.Helper != "sdk.context" && route.Helper != "sdk.pipeline") {
+		if strings.HasPrefix(route.Operation, observationPrefix) || route.Operation == "" || route.Function == "" || route.Capability == "" || seenRoutes[route.Operation] || !declaredCapabilities[route.Capability] || (route.Helper != "" && route.Helper != "sdk.dispatch" && route.Helper != "sdk.request" && route.Helper != "sdk.response" && route.Helper != "sdk.context" && route.Helper != "sdk.pipeline" && route.Helper != "host.model") {
 			return ErrInvalidManifest
 		}
 		if (route.Helper == "sdk.response" && !route.Response.valid()) || (route.Helper != "sdk.response" && route.Response != nil) {
@@ -105,6 +108,7 @@ func ValidateManifestContract(manifest Manifest) error {
 		if (route.Helper == "sdk.pipeline" && !route.Pipeline.valid()) || (route.Helper != "sdk.pipeline" && route.Pipeline != nil) {
 			return ErrInvalidManifest
 		}
+		if (route.Helper == "host.model" && !route.Model.valid(manifest.Models)) || (route.Helper != "host.model" && route.Model != nil) { return ErrInvalidManifest }
 		seenRoutes[route.Operation] = true
 	}
 	return validateObservationContract(manifest, declaredCapabilities)

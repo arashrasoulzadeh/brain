@@ -2,7 +2,7 @@ package plugin
 
 import "strings"
 
-// PipelineSpec is a bounded sequence of allowlisted, allowlisted helper invocations.
+// PipelineSpec is a bounded sequence of allowlisted helper invocations.
 type PipelineSpec struct {
  Steps []PipelineStep `yaml:"steps" json:"steps"`
  Return string `yaml:"return" json:"return"`

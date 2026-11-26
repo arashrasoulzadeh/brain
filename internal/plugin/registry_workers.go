@@ -67,6 +67,10 @@ func (r *Registry) invokeOnce(request WorkerRequest, observer bool) (WorkerRespo
 		return WorkerResponse{}, ErrWorkerNotReady
 	}
 
+	if !observer {
+		if result, handled, err := r.invokeModel(request); handled { return result, err }
+	}
+
 	// Prepare reads and proposed writes, but do not mutate durable state until
 	// the worker has succeeded and lifecycle and grants have been rechecked.
 	prepared := request
