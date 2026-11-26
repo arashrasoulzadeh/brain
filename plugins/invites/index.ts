@@ -1,4 +1,4 @@
-import { pluginRequest, validateProjectId } from "../sdk-typescript/src/index.js";
+import { createResourceRequest, validateProjectId } from "../sdk-typescript/src/index.js";
 
 export type Invite = {
   id: string;
@@ -77,21 +77,4 @@ export class InviteCodeAccepter {
   }
 }
 
-export function inviteRequest(
-  projectId: string,
-  pluginId: string,
-  version: string,
-  operation: "invites.create" | "invites.accept" | "invites.cancel",
-  roomId: string,
-  payload: unknown = {},
-) {
-  return pluginRequest(
-    "invites",
-    projectId,
-    pluginId,
-    version,
-    operation,
-    { roomId, ...(payload as Record<string, unknown>) },
-    roomId,
-  );
-}
+export const inviteRequest = createResourceRequest<"invites.create" | "invites.accept" | "invites.cancel">("invites", "roomId");

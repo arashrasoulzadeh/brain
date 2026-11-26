@@ -1,6 +1,7 @@
 import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { validateBoundedInteger, requireAllowedValues } from "../sdk-typescript/src/index.js";
 
 export function compilerEnvironment(): Readonly<Record<string, string>> {
   return { GOOS: "wasip1", GOARCH: "wasm", CGO_ENABLED: "0", GOPROXY: "off", GOSUMDB: "off" };
@@ -106,45 +107,21 @@ export function validateFunctionLimits(
 }
 
 export function validateLinearMemory(bytes: number, maxBytes: number): void {
-  if (
-    !Number.isSafeInteger(bytes) ||
-    !Number.isSafeInteger(maxBytes) ||
-    bytes < 0 ||
-    maxBytes < 1 ||
-    bytes > maxBytes
-  )
-    throw new Error("linear memory limit exceeded");
+  validateBoundedInteger(bytes, maxBytes, "linear memory limit exceeded", 1);
 }
 
 export function validateStartupDuration(durationMs: number, maxDurationMs: number): void {
-  if (
-    !Number.isSafeInteger(durationMs) ||
-    !Number.isSafeInteger(maxDurationMs) ||
-    durationMs < 0 ||
-    maxDurationMs < 1 ||
-    durationMs > maxDurationMs
-  )
-    throw new Error("startup timeout exceeded");
+  validateBoundedInteger(durationMs, maxDurationMs, "startup timeout exceeded", 1);
 }
 
 export const APPROVED_WASI_IMPORTS = ["wasi_snapshot_preview1"] as const;
 export function validateWasiImports(imports: readonly string[]): void {
-  if (
-    imports.some(
-      (name) => !APPROVED_WASI_IMPORTS.includes(name as (typeof APPROVED_WASI_IMPORTS)[number]),
-    )
-  )
-    throw new Error("unexpected WASI import");
+  requireAllowedValues(imports, APPROVED_WASI_IMPORTS, "unexpected WASI import");
 }
 
 export const APPROVED_SDK_IMPORTS = ["brain/sdk", "brain/project", "brain/storage"] as const;
 export function validateSDKImports(imports: readonly string[]): void {
-  if (
-    imports.some(
-      (name) => !APPROVED_SDK_IMPORTS.includes(name as (typeof APPROVED_SDK_IMPORTS)[number]),
-    )
-  )
-    throw new Error("unsupported SDK import");
+  requireAllowedValues(imports, APPROVED_SDK_IMPORTS, "unsupported SDK import");
 }
 
 export function requireSDKImports(imports: readonly string[], required: readonly string[]): void {

@@ -1,5 +1,5 @@
 import { projectObjectKey } from "./access.js";
-import { validateProjectId } from "../sdk-typescript/src/index.js";
+import { validateProjectId, validateBoundedInteger } from "../sdk-typescript/src/index.js";
 import { type PendingUpload } from "./types.js";
 
 export class AuthorizedUploadWriter {
@@ -101,12 +101,5 @@ export function reconcileOrphanedObjects(
 }
 
 export function enforceUploadSize(size: number, maxSize: number): void {
-  if (
-    !Number.isSafeInteger(size) ||
-    !Number.isSafeInteger(maxSize) ||
-    size < 0 ||
-    maxSize < 0 ||
-    size > maxSize
-  )
-    throw new Error("upload size exceeded");
+  validateBoundedInteger(size, maxSize, "upload size exceeded");
 }
