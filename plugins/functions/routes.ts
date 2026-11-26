@@ -12,7 +12,7 @@ type FunctionInput = {
   permission?: unknown;
 };
 
-const dispatch = createRouteDispatcher({ invoke, publish, call });
+export const dispatchRoute = createRouteDispatcher({ invoke, publish, call });
 
 export function invoke(input: unknown): unknown {
   const payload = (input ?? {}) as FunctionInput;
@@ -37,9 +37,5 @@ export function call(input: unknown): unknown {
   const permission = trimmedString(payload.permission, "public");
   if (permission !== "public") throw new Error("function is not public");
   return { name, version, input: payload.input ?? null, accepted: true, route: "public" };
-}
-
-export function dispatchRoute(name: string, input: unknown): unknown {
-  return dispatch(name, input);
 }
 

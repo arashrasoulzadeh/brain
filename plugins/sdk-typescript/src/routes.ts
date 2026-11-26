@@ -18,3 +18,15 @@ export function requiredString(value: unknown, message: string): string {
   if (!result) throw new Error(message);
   return result;
 }
+
+export function createOperationRoutes<Operation extends string>(
+  operations: readonly Operation[],
+  execute: (operation: Operation, input: unknown) => unknown,
+) {
+  const handlers = Object.freeze(
+    Object.fromEntries(
+      operations.map((operation) => [operation, (input: unknown) => execute(operation, input)]),
+    ) as Record<Operation, PayloadHandler>,
+  );
+  return { handlers, dispatch: createRouteDispatcher(handlers) };
+}

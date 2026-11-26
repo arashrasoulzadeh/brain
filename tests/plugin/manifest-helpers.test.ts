@@ -3,6 +3,8 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
+import { dispatchRoute as dispatchFile } from "../../plugins/files/index.js";
+import { dispatchRoute as dispatchRoom } from "../../plugins/rooms/index.js";
 import { dispatchRoute as dispatchFunction } from "../../plugins/functions/index.js";
 import { dispatchRoute as dispatchTicket } from "../../plugins/matchmaking/index.js";
 
@@ -21,6 +23,26 @@ deepEqual(dispatchTicket("cancel", { id: "ticket-sdk-test" }), {
   id: "ticket-sdk-test",
   status: "cancelled",
 });
+
+deepEqual(dispatchFile("upload", { key: " file ", data: "content" }), {
+  key: "file",
+  uploaded: true,
+  published: false,
+});
+deepEqual(dispatchFile("metadata", { key: "file" }), {
+  key: "file",
+  published: false,
+  size: 7,
+});
+throws(() => dispatchFile("download", { key: " " }), /file key is required/);
+deepEqual(dispatchRoom("create", { id: "room-sdk-test" }), { id: "room-sdk-test", members: [] });
+deepEqual(dispatchRoom("join", { id: "room-sdk-test", member: " player " }), {
+  id: "room-sdk-test",
+  member: "player",
+  reconnected: false,
+  members: ["player"],
+});
+throws(() => dispatchRoom("join", { id: "room-sdk-test" }), /room id and member are required/);
 
 const directory = await mkdtemp(join(tmpdir(), "brain-manifest-helper-"));
 try {
