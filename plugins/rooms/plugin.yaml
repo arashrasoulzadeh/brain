@@ -32,6 +32,10 @@ extension_points:
 config_schema:
   maxPlayers: int
 events:
+  - name: created
+    fields: {}
+  - name: resultCommitted
+    fields: {}
   - name: connected
     fields:
       roomId: string

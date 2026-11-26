@@ -25,22 +25,30 @@ export function functions(
   service: AuthOperations = createAuthOperations(),
 ): Readonly<Record<string, PluginFunction>> {
   return {
-    signup: (rpc) => {
+    signup: async (rpc, context) => {
       const payload = rpc.params.payload as Record<string, string> | undefined;
-      return service.signup(rpc.params.projectId, payload?.username ?? "", payload?.password ?? "");
+      const result = await service.signup(context?.project.id ?? rpc.params.projectId, payload?.username ?? "", payload?.password ?? "");
+      context?.plugins.observe.fire("accountCreated", {});
+      return result;
     },
-    signin: (rpc) => {
+    signin: async (rpc, context) => {
       const payload = rpc.params.payload as Record<string, string> | undefined;
-      return service.signin(
-        rpc.params.projectId,
+      const result = await service.signin(
+        context?.project.id ?? rpc.params.projectId,
         payload?.username ?? payload?.provider ?? "",
         payload?.password ?? String(payload?.credential ?? ""),
       );
+      context?.plugins.observe.fire("signedIn", {});
+      return result;
     },
-    session: (rpc) => {
+    session: (rpc, context) => {
       const payload = rpc.params.payload as Record<string, string> | undefined;
-      return service.session(rpc.params.projectId, payload?.token ?? "");
+      return service.session(context?.project.id ?? rpc.params.projectId, payload?.token ?? "");
     },
-    guest: (rpc) => service.guest(rpc.params.projectId),
+    guest: (rpc, context) => {
+      const result = service.guest(context?.project.id ?? rpc.params.projectId);
+      context?.plugins.observe.fire("guestSessionCreated", {});
+      return result;
+    },
   };
 }

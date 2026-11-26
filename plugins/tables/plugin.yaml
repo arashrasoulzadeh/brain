@@ -29,6 +29,9 @@ extension_points:
   - data.policy
 config_schema:
   exposure: string
+events:
+  - name: recordWritten
+    fields: {}
 routes:
   - operation: tables.read
     function: read

@@ -29,6 +29,11 @@ extension_points:
   - files.storage
 config_schema:
   bucket: string
+events:
+  - name: uploaded
+    fields: {}
+  - name: published
+    fields: {}
 routes:
   - operation: files.upload
     function: upload

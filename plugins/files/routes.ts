@@ -1,4 +1,4 @@
-import { createResourceRequest, createOperationRoutes, requiredString } from "../sdk-typescript/src/index.js";
+import { createResourceRequest, createOperationRoutes, requiredString, type PluginContext } from "../sdk-typescript/src/index.js";
 
 export const fileRequest = createResourceRequest<"files.upload" | "files.download" | "files.metadata" | "files.publish">("files", "objectId");
 
@@ -39,17 +39,25 @@ const routes = createOperationRoutes(["upload", "download", "metadata", "publish
 export const { upload, download, metadata, publish } = routes.handlers;
 export const dispatchRoute = routes.dispatch;
 
-function executeFileRoute(operation: FileOperation, input: unknown): unknown {
+function executeFileRoute(operation: FileOperation, input: unknown, context?: PluginContext): unknown {
   const payload = (input ?? {}) as FileInput;
   const key = requiredString(payload.key, "file key is required");
-  if (operation === "upload")
-    return fileRouteStore.execute(operation, key, typeof payload.data === "string" ? payload.data : undefined);
-  if (operation === "publish" && payload.published === true) return { key, published: true };
+  if (operation === "upload") {
+    const result = fileRouteStore.execute(operation, key, typeof payload.data === "string" ? payload.data : undefined);
+    context?.plugins.observe.fire("uploaded", {});
+    return result;
+  }
+  if (operation === "publish" && payload.published === true) {
+    context?.plugins.observe.fire("published", {});
+    return { key, published: true };
+  }
   if (typeof payload.data === "string") {
     if (operation === "download")
       return { key, data: payload.data, published: Boolean(payload.published) };
     if (operation === "metadata")
       return { key, published: Boolean(payload.published), size: payload.data.length };
   }
-  return fileRouteStore.execute(operation, key);
+  const result = fileRouteStore.execute(operation, key);
+  if (operation === "publish") context?.plugins.observe.fire("published", {});
+  return result;
 }

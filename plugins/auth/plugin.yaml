@@ -40,6 +40,13 @@ extension_points:
   - auth.provider
 config_schema:
   registration: string
+events:
+  - name: accountCreated
+    fields: {}
+  - name: signedIn
+    fields: {}
+  - name: guestSessionCreated
+    fields: {}
 routes:
   - operation: auth.signup
     function: signup
