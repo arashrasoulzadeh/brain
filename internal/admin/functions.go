@@ -252,6 +252,22 @@ func (s *LifecycleService) PublishFunction(actor operator.Actor, projectID, name
 	if actor.Kind != operator.ActorOperator || strings.TrimSpace(projectID) == "" || !functionNamePattern.MatchString(strings.TrimSpace(name)) {
 		return FunctionDraft{}, ErrFunctionDraftInvalid
 	}
+	if s.projects != nil {
+		if _, err := s.projects.Resolve(projectID); err != nil {
+			return FunctionDraft{}, err
+		}
+	}
+	draft, err := persistPublishedFunction(projectID, name)
+	if err != nil {
+		return FunctionDraft{}, err
+	}
+	if s.registry != nil {
+		s.registry.PublishHostObservation(projectID, "functions", "published", map[string]any{"name": draft.Name, "version": draft.Version})
+	}
+	return draft, nil
+}
+
+func persistPublishedFunction(projectID, name string) (FunctionDraft, error) {
 	functionDrafts.Lock()
 	defer functionDrafts.Unlock()
 	loadFunctionDraftsLocked()
@@ -370,11 +386,11 @@ func (s *LifecycleService) runFunctionDraft(actor operator.Actor, projectID, nam
 	if err != nil {
 		return nil, err
 	}
-	const runner = `const vm=await import("node:vm");const clock=()=>Number(process.hrtime.bigint())/1e6;const source=process.env.BRAIN_FUNCTION_SOURCE;const context=vm.createContext(Object.create(null));const input=vm.runInContext("JSON.parse("+JSON.stringify(process.env.BRAIN_FUNCTION_INPUT)+")",context);const executionContext=vm.runInContext("Object.freeze({project:Object.freeze(JSON.parse("+JSON.stringify(process.env.BRAIN_FUNCTION_PROJECT)+"))})",context);const compileStart=clock();const module=new vm.SourceTextModule(source,{context});await module.link(()=>{throw new Error("imports are not permitted")});const compileMs=clock()-compileStart;const evaluateStart=clock();await module.evaluate({timeout:450});const evaluateMs=clock()-evaluateStart;const handler=module.namespace.default;if(typeof handler!=="function")throw new Error("default export must be a function");const invokeStart=clock();let timer;let result;try{result=await Promise.race([Promise.resolve(handler(input,executionContext)),new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error("function execution timed out")),400)})]);}finally{clearTimeout(timer);}const invokeMs=clock()-invokeStart;process.stdout.write(JSON.stringify({result:result??null,timings:{compile_ms:compileMs,evaluate_ms:evaluateMs,invoke_ms:invokeMs}}));`
+	const runner = `const vm=await import("node:vm");const clock=()=>Number(process.hrtime.bigint())/1e6;const source=process.env.BRAIN_FUNCTION_SOURCE;const context=vm.createContext(Object.create(null));const input=vm.runInContext("JSON.parse("+JSON.stringify(process.env.BRAIN_FUNCTION_INPUT)+")",context);const executionContext=vm.runInContext("Object.freeze({project:Object.freeze(JSON.parse("+JSON.stringify(process.env.BRAIN_FUNCTION_PROJECT)+")),plugin:Object.freeze({id:'functions'}),execution:Object.freeze({operation:'functions.invoke',id:"+JSON.stringify(process.env.BRAIN_FUNCTION_EXECUTION_ID)+"})})",context);const compileStart=clock();const module=new vm.SourceTextModule(source,{context});await module.link(()=>{throw new Error("imports are not permitted")});const compileMs=clock()-compileStart;const evaluateStart=clock();await module.evaluate({timeout:450});const evaluateMs=clock()-evaluateStart;const handler=module.namespace.default;if(typeof handler!=="function")throw new Error("default export must be a function");const invokeStart=clock();let timer;let result;try{result=await Promise.race([Promise.resolve(handler(input,executionContext)),new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error("function execution timed out")),400)})]);}finally{clearTimeout(timer);}const invokeMs=clock()-invokeStart;process.stdout.write(JSON.stringify({result:result??null,timings:{compile_ms:compileMs,evaluate_ms:evaluateMs,invoke_ms:invokeMs}}));`
 	commandContext, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 	command := exec.CommandContext(commandContext, "node", "--experimental-vm-modules", "--input-type=module", "-e", runner)
-	command.Env = append(os.Environ(), "BRAIN_FUNCTION_SOURCE="+source, "BRAIN_FUNCTION_INPUT="+string(input), "BRAIN_FUNCTION_PROJECT="+string(projectJSON))
+	command.Env = append(os.Environ(), "BRAIN_FUNCTION_SOURCE="+source, "BRAIN_FUNCTION_INPUT="+string(input), "BRAIN_FUNCTION_PROJECT="+string(projectJSON), "BRAIN_FUNCTION_EXECUTION_ID="+requestID)
 	executionStarted := time.Now()
 	output, err := command.Output()
 	if err != nil {
@@ -438,6 +454,9 @@ func (s *LifecycleService) runFunctionDraft(actor operator.Actor, projectID, nam
 	}
 	addStep("response serialization", "success", "JSON response encoded for the caller", responseStarted, nil)
 	writeLog("success", "function completed successfully")
+	if s.registry != nil {
+		s.registry.PublishHostObservation(projectID, "functions", "invoked", map[string]any{"name": name, "executionId": requestID})
+	}
 	return map[string]any{"valid": true, "project_id": projectID, "name": name, "result": result}, nil
 }
 

@@ -90,7 +90,7 @@ func TestPublicFunctionUsesMethodDeclaredInSource(t *testing.T) {
 func TestFunctionDraftReceivesTrustedProjectContext(t *testing.T) {
 	service := admin.NewLifecycleService(nil, nil)
 	actor := operator.Actor{ID: "admin", Kind: operator.ActorOperator}
-	source := "export const config = { method: 'POST' };\nexport default (input, ctx) => ({id: ctx.project.id, active: ctx.project.active, frozen: Object.isFrozen(ctx.project), input})"
+	source := "export const config = { method: 'POST' };\nexport default (input, ctx) => ({id: ctx.project.id, active: ctx.project.active, frozen: Object.isFrozen(ctx.project), plugin: ctx.plugin.id, operation: ctx.execution.operation, input})"
 	result, err := service.RunFunctionDraft(actor, "dev", "context_contract", source, json.RawMessage(`{"projectId":"forged"}`))
 	if err != nil {
 		t.Fatal(err)

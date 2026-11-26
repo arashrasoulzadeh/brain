@@ -1,5 +1,6 @@
 import {
   createRouteDispatcher,
+  requireProjectInput,
   requiredString,
   trimmedString,
   type PluginContext,
@@ -32,7 +33,7 @@ export function publish(input: unknown): unknown {
 }
 
 export function call(input: unknown, context?: PluginContext): unknown {
-  const payload = (input ?? {}) as FunctionInput;
+  const payload = (context ? requireProjectInput(context, input) : input ?? {}) as FunctionInput;
   const name = requiredString(payload.name, "function name is required");
   const version = trimmedString(payload.version, "latest");
   const permission = trimmedString(payload.permission, "public");
