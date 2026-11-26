@@ -1,6 +1,9 @@
 package plugin
 
-import "strings"
+import (
+	"math"
+	"strings"
+)
 
 // ResponseSpec describes bounded input validation and response mapping, not executable code.
 type ResponseSpec struct {
@@ -50,7 +53,11 @@ func (s *ResponseSpec) valid() bool {
 			if strings.HasPrefix(value, "$") && (!strings.HasPrefix(value, "$input.") || !fields[strings.TrimPrefix(value, "$input.")]) {
 				return false
 			}
-		case bool, int, int64, uint64, float64, nil:
+		case float64:
+			if math.IsNaN(value) || math.IsInf(value, 0) {
+				return false
+			}
+		case bool, int, int64, uint64, nil:
 		default:
 			return false
 		}

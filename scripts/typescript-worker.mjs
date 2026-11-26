@@ -71,7 +71,7 @@ function responseKey(key) {
 }
 
 function validResponse(spec) {
-  if (!spec || !Array.isArray(spec.input) && spec.input !== null || !spec.output || typeof spec.output !== "object" || Array.isArray(spec.output)) return false;
+  if (!spec || (!Array.isArray(spec.input) && spec.input !== null) || !spec.output || typeof spec.output !== "object" || Array.isArray(spec.output)) return false;
   const fields = spec.input ?? [];
   const output = Object.entries(spec.output);
   if (fields.length > 32 || !output.length || output.length > 32) return false;
@@ -80,11 +80,13 @@ function validResponse(spec) {
     if (!field || !responseKey(field.name) || names.has(field.name) || !["string", "value"].includes(field.type) ||
         (field.type !== "string" && (field.trim || field.default !== undefined)) ||
         (field.default !== undefined && typeof field.default !== "string") ||
+        (field.trim !== undefined && typeof field.trim !== "boolean") ||
+        (field.required !== undefined && typeof field.required !== "boolean") ||
         (field.required && (typeof field.error !== "string" || !field.error))) return false;
     names.add(field.name);
   }
   return output.every(([key, value]) => responseKey(key) &&
-    (value === null || typeof value === "boolean" || typeof value === "number" ||
+    (value === null || typeof value === "boolean" || (typeof value === "number" && Number.isFinite(value)) ||
       (typeof value === "string" && (!value.startsWith("$") || (value.startsWith("$input.") && names.has(value.slice(7)))))));
 }
 
