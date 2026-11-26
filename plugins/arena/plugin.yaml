@@ -7,43 +7,18 @@ entrypoint: index.ts
 source_files:
   - index.ts
   - types.ts
-  - validate-result.ts
-  - eye-event.ts
-  - match-result-saver.ts
-  - match-result-reader.ts
+  - match-results.ts
   - state-machine.ts
-  - arena-state.ts
-  - arena-state-reader.ts
-  - arena-starter.ts
-  - arena-action-recorder.ts
-  - arena-measurer.ts
-  - arena-finisher.ts
-  - interrupt-expired-action-room.ts
-  - arena-start.ts
-  - arena-request.ts
 imports:
   - ../sdk-typescript/src/index.js
-  - ./arena-request.js
-  - ./arena-start.js
-  - ./eye-event.js
-  - ./match-result-saver.js
-  - ./match-result-reader.js
+  - ./index.js
   - ./state-machine.js
-  - ./arena-state.js
-  - ./arena-state-reader.js
-  - ./arena-starter.js
-  - ./arena-action-recorder.js
-  - ./arena-measurer.js
-  - ./arena-finisher.js
-  - ./interrupt-expired-action-room.js
-  - ./validate-result.js
+  - ./match-results.js
   - ./types.js
 plugin_imports:
   - rooms@0.1.0
   - matchmaking@0.1.0
 dependencies:
-  - rooms@0.1.0
-  - matchmaking@0.1.0
 capabilities:
   - arena.start
   - arena.input
