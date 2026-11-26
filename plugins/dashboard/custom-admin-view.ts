@@ -1,4 +1,4 @@
-import { validateProjectId } from "../sdk-typescript/src/validate-project-id.js";
+import { validateProjectId } from "../sdk-typescript/src/index.js";
 
 export function customAdminView(projectId: string) {
   validateProjectId(projectId);

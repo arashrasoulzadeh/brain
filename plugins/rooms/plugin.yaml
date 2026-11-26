@@ -5,6 +5,7 @@ version: 0.1.0
 host_api: 1
 entrypoint: index.ts
 source_files:
+  - routes.ts
   - index.ts
   - room-request.ts
   - project-room-id.ts
@@ -47,11 +48,8 @@ source_files:
   - reconnect-tic-tac-toe.ts
   - hidden-tic-tac-toe-view.ts
   - room-route-store.ts
-  - rooms-create-route.ts
-  - rooms-join-route.ts
-  - rooms-reconnect-route.ts
-  - rooms-result-route.ts
 imports:
+  - ./routes.js
   - ../sdk-typescript/src/index.js
   - node:crypto
   - ./room-request.js
@@ -96,10 +94,6 @@ imports:
   - ./hidden-tic-tac-toe-view.js
   - ./index.js
   - ./room-route-store.js
-  - ./rooms-create-route.js
-  - ./rooms-join-route.js
-  - ./rooms-reconnect-route.js
-  - ./rooms-result-route.js
 plugin_imports:
 dependencies: []
 capabilities:
@@ -114,13 +108,17 @@ config_schema:
 routes:
   - operation: rooms.create
     function: create
+    helper: sdk.dispatch
     capability: rooms.create
   - operation: rooms.join
     function: join
+    helper: sdk.dispatch
     capability: rooms.join
   - operation: rooms.reconnect
     function: reconnect
+    helper: sdk.dispatch
     capability: rooms.reconnect
   - operation: rooms.result
     function: result
+    helper: sdk.dispatch
     capability: rooms.result

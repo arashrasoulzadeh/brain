@@ -16,7 +16,10 @@ jobs:
         with:
           go-version-file: go.mod
       - name: Check formatting
-        run: test -z "$(gofmt -l -- $(find cmd internal tests -name '*.go' -type f))"
+        run: |
+          unformatted="$(gofmt -l -- $(find cmd internal tests -name '*.go' -type f))"
+          printf '%s\n' "$unformatted"
+          test -z "$unformatted"
       - name: Test
         run: go test ./...
       - name: Check operator session races
@@ -30,6 +33,8 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: false
           tags: brain:test
+      - name: Test packaged production startup and sandboxed invocation
+        run: timeout 300s bash scripts/test-production-runtime.sh
       - name: Compose smoke test
         run: sh scripts/smoke-compose.sh
       - name: Compose compiler and runner isolation tests

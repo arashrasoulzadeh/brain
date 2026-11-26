@@ -32,6 +32,7 @@ type executionDescriptor struct {
 type executionRoute struct {
 	Operation string `json:"operation"`
 	Function  string `json:"function"`
+	Helper    string `json:"helper,omitempty"`
 }
 
 type TypeScriptWorkerOptions struct {
@@ -48,7 +49,6 @@ type TypeScriptWorker struct {
 	mutex            sync.Mutex
 	ready            bool
 	startupHandshake bool
-	descriptorPath   string
 	done             chan struct{}
 }
 
@@ -83,7 +83,6 @@ func NewManifestBubblewrapTypeScriptWorker(launcher, workerScript, descriptor, p
 	}
 	worker.command = exec.Command(launcher)
 	worker.startupHandshake = true
-	worker.descriptorPath = descriptor
 	runtimeRoot := filepath.Dir(filepath.Dir(workerScript))
 	worker.env = []string{
 		"PATH=/usr/local/bin:/usr/bin:/bin",
@@ -112,7 +111,7 @@ func NewManifestTypeScriptWorker(command, workerScript, descriptor, pluginRoot, 
 	entrypoint := filepath.Join(pluginRoot, manifest.EntryPoint())
 	routes := make([]executionRoute, 0, len(manifest.Routes))
 	for _, route := range manifest.Routes {
-		routes = append(routes, executionRoute{Operation: route.Operation, Function: route.Function})
+		routes = append(routes, executionRoute{Operation: route.Operation, Function: route.Function, Helper: route.Helper})
 	}
 	data, err := json.Marshal(executionDescriptor{Entrypoint: entrypoint, PluginID: manifest.ID, Version: manifest.Version, ProjectID: projectID, Routes: routes})
 	if err != nil {
@@ -131,9 +130,6 @@ func (w *TypeScriptWorker) Start() error {
 	defer w.mutex.Unlock()
 	if w.ready {
 		return ErrTypeScriptWorkerStarted
-	}
-	if w.descriptorPath != "" {
-		defer os.Remove(w.descriptorPath)
 	}
 	if w.env != nil {
 		w.command.Env = w.env

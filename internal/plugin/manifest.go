@@ -30,6 +30,7 @@ type Route struct {
 	Operation  string `yaml:"operation"`
 	Function   string `yaml:"function"`
 	Capability string `yaml:"capability"`
+	Helper     string `yaml:"helper,omitempty"`
 }
 
 func LoadManifest(path string) (Manifest, error) {
@@ -91,7 +92,7 @@ func ValidateManifestContract(manifest Manifest) error {
 	}
 	seenRoutes := map[string]bool{}
 	for _, route := range manifest.Routes {
-		if route.Operation == "" || route.Function == "" || route.Capability == "" || seenRoutes[route.Operation] || !declaredCapabilities[route.Capability] {
+		if route.Operation == "" || route.Function == "" || route.Capability == "" || seenRoutes[route.Operation] || !declaredCapabilities[route.Capability] || (route.Helper != "" && route.Helper != "sdk.dispatch" && route.Helper != "sdk.request") {
 			return ErrInvalidManifest
 		}
 		seenRoutes[route.Operation] = true

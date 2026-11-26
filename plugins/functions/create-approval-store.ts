@@ -1,15 +1,22 @@
-import { createApprovalState } from "./approval-state.js";
-import { ApprovalRequester } from "./approval-requester.js";
-import { ApprovalGranter } from "./approval-granter.js";
-import { ApprovalReader } from "./approval-reader.js";
+type Approval = { requester: string; approved: boolean };
+
 export function createApprovalStore() {
-  const state = createApprovalState();
-  const requester = new ApprovalRequester(state);
-  const granter = new ApprovalGranter(state);
-  const reader = new ApprovalReader(state);
+  const approvals = new Map<string, Approval>();
   return {
-    request: requester.request.bind(requester),
-    approve: granter.approve.bind(granter),
-    isApproved: reader.isApproved.bind(reader),
+    request(runId: string, requester: string): void {
+      if (!runId || !requester || approvals.has(runId))
+        throw new Error("invalid approval request");
+      approvals.set(runId, { requester, approved: false });
+    },
+    approve(runId: string, approver: string): boolean {
+      const approval = approvals.get(runId);
+      if (!approval || approval.approved || !approver || approver === approval.requester)
+        return false;
+      approval.approved = true;
+      return true;
+    },
+    isApproved(runId: string): boolean {
+      return approvals.get(runId)?.approved === true;
+    },
   };
 }

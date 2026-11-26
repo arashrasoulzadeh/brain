@@ -1,4 +1,4 @@
-import { runCappedRetries } from "./run-capped-retries.js";
+import { runCappedRetries } from "../sdk-typescript/src/index.js";
 import type { createInvocationCommitStore } from "./create-invocation-commit-store.js";
 
 const inFlightWorkflows = new WeakMap<object, Map<string, Promise<unknown>>>();

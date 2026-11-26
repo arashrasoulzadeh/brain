@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"brain/internal/admin"
@@ -54,6 +55,13 @@ func productionServer() (*app.Server, error) {
 	if username == "" || secret == "" {
 		return nil, fmt.Errorf("OPERATOR_USERNAME and OPERATOR_SECRET are required")
 	}
+	if os.Getenv("RUNTIME_DSN") != "" || os.Getenv("MIGRATION_DSN") != "" {
+		return nil, fmt.Errorf("PostgreSQL application storage is not wired; refusing implicit SQLite fallback")
+	}
+	projectsPath := os.Getenv("PROJECTS_FILE")
+	if strings.TrimSpace(projectsPath) == "" || projectsPath == ":memory:" || strings.HasPrefix(projectsPath, "file:") {
+		return nil, fmt.Errorf("PROJECTS_FILE must name an explicit durable SQLite file")
+	}
 	operators := &operator.Store{}
 	digest := func(value string) string {
 		sum := sha256.Sum256([]byte(value))
@@ -69,10 +77,6 @@ func productionServer() (*app.Server, error) {
 	}
 	if err := bindSandboxedTypeScriptWorkers(registry, locations); err != nil {
 		return nil, err
-	}
-	projectsPath := os.Getenv("PROJECTS_FILE")
-	if projectsPath == "" {
-		projectsPath = ".local/brain.sqlite"
 	}
 	if err := os.MkdirAll(filepath.Dir(projectsPath), 0o700); err != nil {
 		return nil, fmt.Errorf("project storage directory unavailable: %w", err)
@@ -188,10 +192,10 @@ func bindSandboxedTypeScriptWorkers(registry *plugin.Registry, locations map[str
 	}
 	defer os.RemoveAll(probeRoot)
 	probeSource := []byte("export function health(): { accepted: boolean } { return { accepted: true }; }\n")
-	if err := os.WriteFile(filepath.Join(probeRoot, "index.ts"), probeSource, 0o600); err != nil {
+	if err := os.WriteFile(filepath.Join(probeRoot, "index.mts"), probeSource, 0o600); err != nil {
 		return err
 	}
-	probeManifest := plugin.Manifest{ID: "sandbox-probe", Version: "1.0.0", HostAPI: 1, Entry: "index.ts", SourceFiles: []string{"index.ts"}, Capabilities: []string{"health"}, Routes: []plugin.Route{{Operation: "health", Function: "health", Capability: "health"}}}
+	probeManifest := plugin.Manifest{ID: "sandbox-probe", Version: "1.0.0", HostAPI: 1, Entry: "index.mts", SourceFiles: []string{"index.mts"}, Capabilities: []string{"health"}, Routes: []plugin.Route{{Operation: "health", Function: "health", Capability: "health"}}}
 	probe, err := plugin.NewManifestBubblewrapTypeScriptWorker(launcher, workerScript, filepath.Join(probeRoot, "execution.json"), probeRoot, "sandbox-probe", probeManifest, policy)
 	if err != nil {
 		return fmt.Errorf("sandbox probe configuration failed: %w", err)

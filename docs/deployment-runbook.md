@@ -36,3 +36,27 @@ Record the operator, change ID, release SHA, image digests, migration result, pa
 ## Local development boundary
 
 Do not run Docker or Compose during ordinary local development. Use the in-process and SQLite-compatible checks locally; run Compose, PostgreSQL, image, and packaged-release checks through explicit CI or release workflows.
+
+## Application startup safety
+
+The default backend process requires operator credentials, an explicit durable
+`PROJECTS_FILE` SQLite path, valid plugin manifests and sources, and a working
+Bubblewrap/Node/TypeScript runtime. Mount a persistent writable data directory
+owned by the image's non-root user. The host currently uses SQLite for project
+and plugin state: configuring PostgreSQL DSNs now fails startup rather than
+silently ignoring them. PostgreSQL application storage wiring remains separate
+release work.
+
+The runtime must support unprivileged user, PID, IPC, UTS and network namespaces
+for Bubblewrap. Do not grant the production container privileged mode or mount
+host directories to bypass this requirement. The startup probe verifies a real
+sandboxed TypeScript invocation; if it fails, do not route traffic to the host.
+The runner image requires the launcher inputs documented in its entrypoint.
+
+Use `/livez` for liveness and `/readyz` for traffic readiness. Readiness checks
+both SQLite connections and enabled non-draining workers. The explicit
+`health-only` command used by the legacy Compose fixture exposes liveness but
+never readiness or admin routes; it is not an application deployment. CI has a
+separate packaged runtime smoke test with disposable, network-isolated test
+containers. A production namespace configuration must still be verified on the
+target deployment host.

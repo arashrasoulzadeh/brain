@@ -5,13 +5,10 @@ version: 0.1.0
 host_api: 1
 entrypoint: index.ts
 source_files:
+  - routes.ts
   - index.ts
   - types.ts
   - file-route-store.ts
-  - files-upload.ts
-  - files-download.ts
-  - files-metadata.ts
-  - files-publish.ts
   - file-request.ts
   - bucket.ts
   - object-key.ts
@@ -32,6 +29,7 @@ source_files:
   - reconcile-orphaned-objects.ts
   - require-explicit-publication.ts
 imports:
+  - ./routes.js
   - ../sdk-typescript/src/index.js
   - ./bucket.js
   - ./enforce-upload-size.js
@@ -54,10 +52,6 @@ imports:
   - ./pending-upload-reconciler.js
   - ./types.js
   - ./file-route-store.js
-  - ./files-upload.js
-  - ./files-download.js
-  - ./files-metadata.js
-  - ./files-publish.js
 plugin_imports:
 dependencies: []
 capabilities:
@@ -72,13 +66,17 @@ config_schema:
 routes:
   - operation: files.upload
     function: upload
+    helper: sdk.dispatch
     capability: files.upload
   - operation: files.download
     function: download
+    helper: sdk.dispatch
     capability: files.download
   - operation: files.metadata
     function: metadata
+    helper: sdk.dispatch
     capability: files.metadata
   - operation: files.publish
     function: publish
+    helper: sdk.dispatch
     capability: files.publish

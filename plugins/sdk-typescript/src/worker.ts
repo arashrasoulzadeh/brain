@@ -1,7 +1,6 @@
 import { createInterface } from "node:readline";
-import type { RpcRequest, RpcResponse } from "./index.js";
-
-export type PluginHandler = (request: RpcRequest) => Promise<unknown> | unknown;
+import type { PluginHandler, RpcRequest, RpcResponse } from "./index.js";
+export type { PluginHandler } from "./index.js";
 
 export function startWorker(handler: PluginHandler): void {
   const input = createInterface({ input: process.stdin, crlfDelay: Infinity });
