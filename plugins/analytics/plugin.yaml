@@ -20,6 +20,10 @@ event_fields:
   - roomId
   - players
   - reconnected
+events:
+  - name: captured
+    fields:
+      name: string
 observe:
   - plugin: rooms
     event: connected

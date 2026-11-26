@@ -12,11 +12,18 @@ host_api: 1
 dependencies: []
 capabilities:
   - example.plugin.example
+  - observe.rooms.connected
 extension_points: []
 config_schema: {}
 events:
   - name: exampleCompleted
     fields: {}
+observe:
+  - plugin: rooms
+    event: connected
+    function: observeRoomConnected
+    capability: observe.rooms.connected
+    persist: true
 routes:
   - operation: example.plugin.example
     function: example
