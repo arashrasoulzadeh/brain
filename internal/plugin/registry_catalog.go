@@ -7,6 +7,13 @@ import (
 	"strings"
 )
 
+func (r *Registry) RegisteredManifest(id, version string) (Manifest, bool) {
+	r.readinessMu.RLock()
+	defer r.readinessMu.RUnlock()
+	registered, ok := r.registered[id+"@"+version]
+	return registered.Manifest, ok
+}
+
 func (r *Registry) RegisteredManifests() []Manifest {
 	r.readinessMu.RLock()
 	defer r.readinessMu.RUnlock()

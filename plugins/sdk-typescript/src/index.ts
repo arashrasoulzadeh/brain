@@ -78,5 +78,5 @@ export { commitWithGrant, createCommitRollback, createTransactionGate, runCapped
 
 export { createFixedWindowLimiter } from "./execution.js";
 
-export { consumeDigestToken, consumeOnce, createDigestToken, expiresAt, isActiveToken, numericOTP, randomToken, secretsEqual, tokenDigest } from "./tokens.js";
-export type { DigestToken, ExpiringToken } from "./tokens.js";
+export { consumeOnce, expiresAt, isActiveToken } from "./validation.js";
+export type { ExpiringToken } from "./validation.js";

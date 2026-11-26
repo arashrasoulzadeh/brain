@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
-import { consumeOnce, expiresAt, randomToken, secretsEqual, validateProjectId } from "../sdk-typescript/src/index.js";
+import { consumeOnce, expiresAt, validateProjectId } from "../sdk-typescript/src/index.js";
+import { randomToken, secretsEqual } from "../sdk-typescript/src/tokens.js";
 
 export type AuthorizationCode = {
   projectId: string;

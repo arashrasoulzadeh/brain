@@ -1,4 +1,5 @@
-import { createDigestToken, consumeDigestToken, numericOTP, randomToken, type DigestToken, validateProjectId } from "../sdk-typescript/src/index.js";
+import { createDigestToken, consumeDigestToken, numericOTP, randomToken, type DigestToken } from "../sdk-typescript/src/tokens.js";
+import { validateProjectId } from "../sdk-typescript/src/index.js";
 
 export type OTPChallenge = DigestToken;
 export type RecoveryToken = OTPChallenge;

@@ -128,9 +128,9 @@ func bindLocalTypeScriptWorkers(registry *plugin.Registry, locations map[string]
 		if !ok {
 			return nil, fmt.Errorf("plugin location unavailable: %s@%s", pluginID, version)
 		}
-		manifest, err := plugin.LoadManifest(location.ManifestPath)
-		if err != nil {
-			return nil, err
+		manifest, registered := registry.RegisteredManifest(pluginID, version)
+		if !registered {
+			return nil, plugin.ErrNotRegistered
 		}
 		descriptor, err := os.CreateTemp(".local", "worker-*.json")
 		if err != nil {

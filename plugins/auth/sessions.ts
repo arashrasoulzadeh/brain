@@ -1,4 +1,5 @@
-import { expiresAt, isActiveToken, randomToken, tokenDigest, validateProjectId } from "../sdk-typescript/src/index.js";
+import { expiresAt, isActiveToken, validateProjectId } from "../sdk-typescript/src/index.js";
+import { randomToken, tokenDigest } from "../sdk-typescript/src/tokens.js";
 import { projectUserID } from "./accounts.js";
 import type { AuthState } from "./state.js";
 

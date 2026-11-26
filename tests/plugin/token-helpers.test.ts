@@ -1,5 +1,6 @@
 import { equal, match, throws } from "node:assert/strict";
-import { consumeDigestToken, consumeOnce, createDigestToken, expiresAt, isActiveToken, numericOTP, randomToken, secretsEqual } from "../../plugins/sdk-typescript/src/index.js";
+import { consumeOnce, expiresAt, isActiveToken } from "../../plugins/sdk-typescript/src/index.js";
+import { consumeDigestToken, createDigestToken, numericOTP, randomToken, secretsEqual } from "../../plugins/sdk-typescript/src/tokens.js";
 
 const token = { expiresAt: 100, used: false, projectId: "p" };
 equal(consumeOnce(token, 0, (value) => value.projectId === "other"), undefined);

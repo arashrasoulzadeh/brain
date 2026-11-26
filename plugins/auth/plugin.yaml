@@ -17,6 +17,7 @@ source_files:
   - service.ts
 imports:
   - ../sdk-typescript/src/index.js
+  - ../sdk-typescript/src/tokens.js
   - node:crypto
   - "@node-rs/argon2"
   - ./requests.js
