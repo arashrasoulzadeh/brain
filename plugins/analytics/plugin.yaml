@@ -12,12 +12,19 @@ host_api: 1
 dependencies: []
 capabilities:
   - analytics.capture
+  - observe.rooms.connected
 extension_points: []
 config_schema:
   maxFields: int
 event_fields:
   - roomId
   - players
+  - reconnected
+observe:
+  - plugin: rooms
+    event: connected
+    function: observeRoomConnected
+    capability: observe.rooms.connected
 routes:
   - operation: analytics.capture
     function: captureForProject

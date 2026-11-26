@@ -23,6 +23,7 @@ type WorkerResponse struct {
 	Success   bool
 	Payload   []byte
 	ErrorCode string
+	Observations []ObservationIntent `json:"observations,omitempty"`
 }
 
 type ContractWorker interface {

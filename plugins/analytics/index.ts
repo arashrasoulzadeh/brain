@@ -1,4 +1,4 @@
-import { pluginRequest, validateProjectId, type PluginContext } from "../sdk-typescript/src/index.js";
+import { pluginRequest, validateProjectId, type PluginContext, type Observation } from "../sdk-typescript/src/index.js";
 
 export type AnalyticsEvent = {
   projectId: string;
@@ -63,6 +63,13 @@ export function captureForProject(context: PluginContext, input: unknown) {
       typeof event.name !== "string" || !event.fields || typeof event.fields !== "object")
     throw new Error("invalid analytics event or project context");
   return capture({ projectId: context.project.id, name: event.name, fields: event.fields });
+}
+
+export function observeRoomConnected(context: PluginContext, input: unknown) {
+  const observation = input as Observation<{ roomId: string; reconnected: boolean }>;
+  if (!observation || observation.projectId !== context.project.id || observation.pluginId !== "rooms" || observation.event !== "connected")
+    throw new Error("invalid room observation");
+  return captureForProject(context, { name: "rooms.connected", fields: observation.payload });
 }
 
 export function captureRequest(

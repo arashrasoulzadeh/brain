@@ -39,13 +39,24 @@ func (r *Registry) UnbindWorker(projectID, id, version string) {
 
 // Invoke executes only an installed, ready, enabled and fully granted plugin.
 func (r *Registry) Invoke(request WorkerRequest) (WorkerResponse, error) {
+	response, err := r.invokeOnce(request, false)
+	intents := response.Observations
+	response.Observations = nil
+	// invokeOnce releases storage, installation and readiness locks before delivery.
+	if err == nil && response.Success && response.ErrorCode == "" {
+		r.deliverObservations(request, intents)
+	}
+	return response, err
+}
+
+func (r *Registry) invokeOnce(request WorkerRequest, observer bool) (WorkerResponse, error) {
 	if err := ValidateWorkerRequest(request, r.HostAPI); err != nil {
 		return WorkerResponse{}, err
 	}
 	// Serialize read/modify/write plans for the same project and plugin.
 	planner, unlock := r.lockStorageInvocation(request)
 	defer unlock()
-	if err := r.authorizeInvocation(request); err != nil {
+	if err := r.authorizeInvocation(request, observer); err != nil {
 		return WorkerResponse{}, err
 	}
 	key := request.ProjectID + ":" + request.PluginID + "@" + request.Version
@@ -81,7 +92,7 @@ func (r *Registry) Invoke(request WorkerRequest) (WorkerResponse, error) {
 	defer r.readinessMu.RUnlock()
 	r.installationMu.RLock()
 	defer r.installationMu.RUnlock()
-	if err := r.authorizeInvocationLocked(request); err != nil {
+	if err := r.authorizeInvocationLocked(request, observer); err != nil {
 		return WorkerResponse{}, err
 	}
 	if commit != nil {
@@ -92,15 +103,15 @@ func (r *Registry) Invoke(request WorkerRequest) (WorkerResponse, error) {
 	return response, nil
 }
 
-func (r *Registry) authorizeInvocation(request WorkerRequest) error {
+func (r *Registry) authorizeInvocation(request WorkerRequest, observer bool) error {
 	r.readinessMu.RLock()
 	defer r.readinessMu.RUnlock()
 	r.installationMu.RLock()
 	defer r.installationMu.RUnlock()
-	return r.authorizeInvocationLocked(request)
+	return r.authorizeInvocationLocked(request, observer)
 }
 
-func (r *Registry) authorizeInvocationLocked(request WorkerRequest) error {
+func (r *Registry) authorizeInvocationLocked(request WorkerRequest, observer bool) error {
 	if err := r.LifecycleStorageHealth(); err != nil {
 		return err
 	}
@@ -120,6 +131,20 @@ func (r *Registry) authorizeInvocationLocked(request WorkerRequest) error {
 		return ErrGrantDenied
 	}
 	route, declared := registered.Manifest.Route(request.Operation)
+	if observer {
+		if installation.Draining {
+			return ErrDisabled
+		}
+		for _, subscription := range registered.Manifest.Observers {
+			if subscription.operation() == request.Operation {
+				route, declared = Route{Capability: subscription.Capability}, true
+				if resources := installation.Resources[route.Capability]; len(resources) > 0 && !resources[subscription.Plugin+"."+subscription.Event] {
+					return ErrGrantDenied
+				}
+				break
+			}
+		}
+	}
 	if !declared || !installation.Grants[route.Capability] {
 		return ErrGrantDenied
 	}

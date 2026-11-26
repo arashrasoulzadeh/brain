@@ -22,7 +22,10 @@ export type PluginContext = Readonly<{
   project: ProjectContext;
   plugin: Readonly<{ id: string; version: string }>;
   execution: Readonly<{ operation: string }>;
+  plugins: Readonly<{ observe: Readonly<{ fire(event: string, payload: Readonly<Record<string, string | number | boolean>>): void }> }>;
 }>;
+
+export type Observation<T = unknown> = Readonly<{ projectId: string; pluginId: string; version: string; event: string; payload: T }>;
 
 export type ContextualPluginFunction = (context: PluginContext, input: unknown) => unknown;
 

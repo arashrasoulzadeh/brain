@@ -31,6 +31,11 @@ extension_points:
   - rooms.runtime
 config_schema:
   maxPlayers: int
+events:
+  - name: connected
+    fields:
+      roomId: string
+      reconnected: boolean
 routes:
   - operation: rooms.create
     function: create

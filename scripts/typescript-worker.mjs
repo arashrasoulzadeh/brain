@@ -39,6 +39,7 @@ const input = readline.createInterface({ input: process.stdin, crlfDelay: Infini
 for await (const line of input) {
   if (!line.trim()) continue;
   let request;
+  let acceptingObservations = true;
   try {
     request = JSON.parse(line);
     if (JSON.stringify(request).length > 1_048_576) throw new Error("request too large");
@@ -46,10 +47,23 @@ for await (const line of input) {
     if (params.pluginId !== descriptor.pluginId || params.version !== descriptor.version || params.projectId !== descriptor.projectId) {
       throw new Error("execution context mismatch");
     }
+    const observations = [];
+    const fire = (event, payload) => {
+      if (!acceptingObservations || params.operation.startsWith("@observe/")) throw new Error("observation cannot be published outside a publisher invocation");
+      if (observations.length >= 16) throw new Error("observation event limit exceeded");
+      const spec = (descriptor.events ?? []).find((item) => item.name === event);
+      if (!spec || !payload || typeof payload !== "object" || Array.isArray(payload)) throw new Error("undeclared or invalid observation");
+      const serialized = JSON.stringify(payload);
+      if (!serialized || Buffer.byteLength(serialized, "utf8") > 16 * 1024) throw new Error("observation payload too large");
+      const snapshot = JSON.parse(serialized);
+      if (!validEventPayload(spec, snapshot)) throw new Error("invalid observation fields");
+      observations.push({ event, payload: snapshot });
+    };
     const context = Object.freeze({
       project: Object.freeze({ id: descriptor.projectId }),
       plugin: Object.freeze({ id: descriptor.pluginId, version: descriptor.version }),
       execution: Object.freeze({ operation: params.operation }),
+      plugins: Object.freeze({ observe: Object.freeze({ fire }) }),
     });
     // Never accept a context supplied by the request or payload.
     request = { ...request, context };
@@ -63,8 +77,10 @@ for await (const line of input) {
       : helper
       ? await plugin[helper.exported](route.function, helper.input(request), context)
       : typeof handler === "function" ? await handler(request, context) : await invokeDeclaredRoute(plugin, route.function, request);
-    process.stdout.write(`${JSON.stringify({ jsonrpc: "2.0", id: request.id, result: { protocol: params.protocol, success: true, payload: result } })}\n`);
+    acceptingObservations = false;
+    process.stdout.write(`${JSON.stringify({ jsonrpc: "2.0", id: request.id, result: { protocol: params.protocol, success: true, payload: result, ...(observations.length ? { observations } : {}) } })}\n`);
   } catch (error) {
+    acceptingObservations = false;
     process.stdout.write(`${JSON.stringify({ jsonrpc: "2.0", id: request?.id ?? "", errorCode: error instanceof Error ? error.message : "plugin execution failed" })}\n`);
   }
 }
@@ -76,6 +92,16 @@ async function invokeDeclaredRoute(plugin, functionName, request) {
   const mappedExport = functionMap?.[functionName];
   if (functionMap && Object.hasOwn(functionMap, functionName) && typeof mappedExport === "function") return mappedExport(request, request.context);
   throw new Error(`declared plugin function is not exported: ${functionName}`);
+}
+
+function validEventPayload(spec, payload) {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) return false;
+  const fields = Object.entries(spec.fields ?? {});
+  return Object.keys(payload).length === fields.length && fields.every(([key, kind]) => {
+    if (!Object.hasOwn(payload, key) || typeof payload[key] !== kind) return false;
+    if (kind === "string") return Buffer.byteLength(payload[key], "utf8") <= 1024;
+    return kind === "boolean" || (kind === "number" && Number.isFinite(payload[key]));
+  });
 }
 
 function responseKey(key) {

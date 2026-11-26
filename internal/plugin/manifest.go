@@ -24,6 +24,8 @@ type Manifest struct {
 	SourceFiles     []string          `yaml:"source_files"`
 	Imports         []string          `yaml:"imports"`
 	PluginImports   []string          `yaml:"plugin_imports"`
+	Events          []EventSpec       `yaml:"events"`
+	Observers       []ObserverSpec    `yaml:"observe"`
 }
 
 type Route struct {
@@ -93,7 +95,7 @@ func ValidateManifestContract(manifest Manifest) error {
 	}
 	seenRoutes := map[string]bool{}
 	for _, route := range manifest.Routes {
-		if route.Operation == "" || route.Function == "" || route.Capability == "" || seenRoutes[route.Operation] || !declaredCapabilities[route.Capability] || (route.Helper != "" && route.Helper != "sdk.dispatch" && route.Helper != "sdk.request" && route.Helper != "sdk.response" && route.Helper != "sdk.context") {
+		if strings.HasPrefix(route.Operation, observationPrefix) || route.Operation == "" || route.Function == "" || route.Capability == "" || seenRoutes[route.Operation] || !declaredCapabilities[route.Capability] || (route.Helper != "" && route.Helper != "sdk.dispatch" && route.Helper != "sdk.request" && route.Helper != "sdk.response" && route.Helper != "sdk.context") {
 			return ErrInvalidManifest
 		}
 		if (route.Helper == "sdk.response" && !route.Response.valid()) || (route.Helper != "sdk.response" && route.Response != nil) {
@@ -101,7 +103,7 @@ func ValidateManifestContract(manifest Manifest) error {
 		}
 		seenRoutes[route.Operation] = true
 	}
-	return nil
+	return validateObservationContract(manifest, declaredCapabilities)
 }
 
 func (m Manifest) EntryPoint() string {
