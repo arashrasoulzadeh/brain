@@ -46,3 +46,47 @@ routes:
     function: publish
     helper: sdk.dispatch
     capability: files.publish
+admin:
+  version: 1
+  pages:
+    - id: operations
+      title: Files
+      legacy_route: files
+      actions:
+        - title: File metadata
+          operation: files.metadata
+          read_only: true
+          result:
+            type: grid
+            children:
+              - type: metric
+                title: Size (bytes)
+                path: size
+              - type: detail
+                title: File metadata
+          fields:
+            - name: key
+              type: string
+              required: true
+        - title: Download file
+          operation: files.download
+          read_only: true
+          fields:
+            - name: key
+              type: string
+              required: true
+        - title: Upload file
+          operation: files.upload
+          fields:
+            - name: key
+              type: string
+              required: true
+            - name: data
+              type: string
+              required: true
+        - title: Publish file
+          operation: files.publish
+          fields:
+            - name: key
+              type: string
+              required: true

@@ -46,3 +46,36 @@ routes:
     function: assign
     helper: sdk.dispatch
     capability: matchmaking.assign
+admin:
+  version: 1
+  pages:
+    - id: operations
+      title: Matchmaking
+      legacy_route: live-sessions
+      extends: rooms/operations
+      actions:
+        - title: Get ticket status
+          operation: matchmaking.status
+          read_only: true
+          fields:
+            - name: id
+              type: string
+              required: true
+        - title: Queue ticket
+          operation: matchmaking.queue
+          fields:
+            - name: id
+              type: string
+              required: true
+        - title: Cancel ticket
+          operation: matchmaking.cancel
+          fields:
+            - name: id
+              type: string
+              required: true
+        - title: Assign ticket
+          operation: matchmaking.assign
+          fields:
+            - name: id
+              type: string
+              required: true
