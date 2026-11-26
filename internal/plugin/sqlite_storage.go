@@ -24,7 +24,7 @@ func OpenSQLiteStorage(path string) (*SQLiteStorage, error) {
 	if err != nil {
 		return nil, err
 	}
-	if _, err = db.Exec(`CREATE TABLE IF NOT EXISTS plugin_table_rows (project_id TEXT NOT NULL, table_name TEXT NOT NULL, rows_json TEXT NOT NULL, PRIMARY KEY(project_id, table_name)); CREATE TABLE IF NOT EXISTS plugin_file_rows (project_id TEXT NOT NULL, file_key TEXT NOT NULL, data TEXT NOT NULL, published INTEGER NOT NULL, PRIMARY KEY(project_id, file_key)); CREATE TABLE IF NOT EXISTS plugin_state (project_id TEXT NOT NULL, namespace TEXT NOT NULL, state_key TEXT NOT NULL, value_json TEXT NOT NULL, PRIMARY KEY(project_id, namespace, state_key))`); err != nil {
+	if _, err = db.Exec(`CREATE TABLE IF NOT EXISTS plugin_table_rows (project_id TEXT NOT NULL, table_name TEXT NOT NULL, rows_json TEXT NOT NULL, PRIMARY KEY(project_id, table_name)); CREATE TABLE IF NOT EXISTS plugin_file_rows (project_id TEXT NOT NULL, file_key TEXT NOT NULL, data TEXT NOT NULL, published INTEGER NOT NULL, PRIMARY KEY(project_id, file_key)); CREATE TABLE IF NOT EXISTS plugin_state (project_id TEXT NOT NULL, namespace TEXT NOT NULL, state_key TEXT NOT NULL, value_json TEXT NOT NULL, PRIMARY KEY(project_id, namespace, state_key)); CREATE TABLE IF NOT EXISTS plugin_model_records (project_id TEXT NOT NULL, plugin_id TEXT NOT NULL, model_name TEXT NOT NULL, record_id TEXT NOT NULL, schema_version INTEGER NOT NULL, revision TEXT NOT NULL, state TEXT NOT NULL, fields_json TEXT NOT NULL, PRIMARY KEY(project_id, plugin_id, model_name, record_id))`); err != nil {
 		_ = db.Close()
 		return nil, err
 	}

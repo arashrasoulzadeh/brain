@@ -1,0 +1,36 @@
+id: example.catalog
+title: Declarative catalog
+description: A plugin without executable source files.
+version: 0.1.0
+host_api: 1
+declarative: true
+capabilities: [catalog.read, catalog.write]
+models:
+  item:
+    version: 1
+    fields: {name: string, count: integer}
+    initial: draft
+    transitions:
+      publish: {from: draft, to: published}
+routes:
+  - operation: catalog.create
+    function: create
+    capability: catalog.write
+    helper: host.model
+    model: {name: item, action: create}
+  - operation: catalog.list
+    function: list
+    capability: catalog.read
+    helper: host.model
+    model: {name: item, action: list}
+  - operation: catalog.publish
+    function: publish
+    capability: catalog.write
+    helper: host.model
+    model: {name: item, action: transition, transition: publish}
+  - operation: catalog.project
+    function: project
+    capability: catalog.read
+    helper: sdk.response
+    response:
+      output: {projectId: $project.id}

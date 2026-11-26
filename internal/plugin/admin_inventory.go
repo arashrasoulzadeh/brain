@@ -73,6 +73,9 @@ func (r *Registry) AdminInventory(projectID, pluginID, version, pageID, after st
 	if err := r.LifecycleStorageHealth(); err != nil {
 		return AdminInventoryPage{}, err
 	}
+	if r.projectResolver != nil && r.projectResolver(projectID) != nil {
+		return AdminInventoryPage{}, ErrProjectInvalid
+	}
 	key := pluginID + "@" + version
 	registered, exists := r.registered[key]
 	if !exists {

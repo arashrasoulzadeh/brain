@@ -29,6 +29,9 @@ extension_points:
   - data.policy
 config_schema:
   exposure: string
+events:
+  - name: record.written
+    fields: {written: boolean}
 routes:
   - operation: tables.read
     function: read
@@ -53,6 +56,8 @@ admin:
         capability: tables.read
         title: Tables
         select_field: table
+      refresh_on:
+        - tables.record.written
       actions:
         - title: Table schema
           operation: tables.schema

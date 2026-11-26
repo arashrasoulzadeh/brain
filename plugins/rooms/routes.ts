@@ -45,11 +45,14 @@ function executeRoomRoute(operation: RoomOperation, input: unknown, context?: Pl
       ? { ...(value.room as object), member, reconnected: operation === "reconnect" }
       : roomRouteStore.execute(operation, id, member);
     context?.plugins.observe.fire("connected", { roomId: id, reconnected: operation === "reconnect" });
+    if (operation === "reconnect") context?.plugins.observe.fire("reconnected", { roomId: id });
     return result;
   }
   const id = requiredString(value.id, "room id is required");
-  if (value.room && typeof value.room === "object") return value.room;
-  return operation === "create"
+  const result = value.room && typeof value.room === "object" ? value.room : operation === "create"
     ? roomRouteStore.execute(operation, id)
     : roomRouteStore.execute(operation, id, undefined, value.result);
+  if (operation === "create") context?.plugins.observe.fire("created", { roomId: id });
+  if (operation === "result" && value.result !== undefined) context?.plugins.observe.fire("result.committed", { roomId: id });
+  return result;
 }

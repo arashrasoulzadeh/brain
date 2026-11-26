@@ -3,6 +3,7 @@ package plugin
 import (
 	"errors"
 	"fmt"
+	"math"
 	"time"
 )
 
@@ -138,8 +139,14 @@ func configTypeMatches(want string, value any) bool {
 		_, ok := value.(bool)
 		return ok
 	case "int":
-		_, ok := value.(int)
-		return ok
+		switch number := value.(type) {
+		case int:
+			return math.Abs(float64(number)) <= 9007199254740991
+		case float64:
+			return math.Trunc(number) == number && math.Abs(number) <= 9007199254740991
+		default:
+			return false
+		}
 	default:
 		return false
 	}

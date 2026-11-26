@@ -39,6 +39,9 @@ func (r *Registry) UnbindWorker(projectID, id, version string) {
 
 // Invoke executes only an installed, ready, enabled and fully granted plugin.
 func (r *Registry) Invoke(request WorkerRequest) (WorkerResponse, error) {
+	if response, handled, err := r.invokePluginCall(request); handled {
+		return response, err
+	}
 	response, err := r.invokeOnce(request, false)
 	intents := response.Observations
 	response.Observations = nil
@@ -67,6 +70,12 @@ func (r *Registry) invokeOnce(request WorkerRequest, observer bool) (WorkerRespo
 		return WorkerResponse{}, ErrWorkerNotReady
 	}
 
+	if !observer {
+		if result, handled, err := r.invokeModel(request); handled {
+			return result, err
+		}
+	}
+
 	// Prepare reads and proposed writes, but do not mutate durable state until
 	// the worker has succeeded and lifecycle and grants have been rechecked.
 	prepared := request
@@ -81,6 +90,11 @@ func (r *Registry) invokeOnce(request WorkerRequest, observer bool) (WorkerRespo
 			return WorkerResponse{}, ErrInvalidWorkerRequest
 		}
 	}
+	hostContext, err := r.invocationContext(request, observer)
+	if err != nil {
+		return WorkerResponse{}, err
+	}
+	prepared.HostContext = hostContext
 	response, err := InvokeForProject(worker, prepared, r.HostAPI, request.ProjectID)
 	if err != nil || !response.Success || response.ErrorCode != "" {
 		return response, err
@@ -114,6 +128,11 @@ func (r *Registry) authorizeInvocation(request WorkerRequest, observer bool) err
 func (r *Registry) authorizeInvocationLocked(request WorkerRequest, observer bool) error {
 	if err := r.LifecycleStorageHealth(); err != nil {
 		return err
+	}
+	if r.projectResolver != nil {
+		if err := r.projectResolver(request.ProjectID); err != nil {
+			return ErrProjectInvalid
+		}
 	}
 	manifestKey := request.PluginID + "@" + request.Version
 	installation, installed := r.installations[request.ProjectID+":"+manifestKey]

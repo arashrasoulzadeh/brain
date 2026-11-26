@@ -33,7 +33,7 @@ test("worker injects project and plugin context across manifest execution modes"
     equal(worker.status, 0, worker.stderr);
     const results = worker.stdout.trim().split("\n").map((line) => JSON.parse(line) as { result?: { payload: unknown }; errorCode?: string });
     for (const [index, operation] of ["dispatch", "request", "context", "handle"].entries()) {
-      deepEqual(results[index].result?.payload, { project: { id: "trusted" }, plugin: { id: "sample", version: "1" }, execution: { operation }, plugins: { observe: {} } });
+      deepEqual(results[index].result?.payload, { project: { id: "trusted" }, plugin: { id: "sample", version: "1" }, execution: { operation }, helpers: {}, plugins: { observe: {} } });
     }
     deepEqual(results[4].result?.payload, { project: "trusted", plugin: "sample" });
     equal(results[5].errorCode, "execution context mismatch");

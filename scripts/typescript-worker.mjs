@@ -1,6 +1,7 @@
 import readline from "node:readline";
 import { readFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
+import { callHelper, hasHelper } from "../plugins/sdk-typescript/src/helpers.mjs";
 
 const descriptorPath = process.argv[2];
 if (!descriptorPath) {
@@ -9,18 +10,19 @@ if (!descriptorPath) {
 }
 
 const descriptor = JSON.parse(await readFile(descriptorPath, "utf8"));
-if (!descriptor.entrypoint || !descriptor.pluginId || !descriptor.version || !descriptor.projectId || !Array.isArray(descriptor.routes)) {
+if ((!descriptor.entrypoint && descriptor.declarative !== true) || !descriptor.pluginId || !descriptor.version || !descriptor.projectId || !Array.isArray(descriptor.routes)) {
   process.stderr.write("invalid execution descriptor\n");
   process.exit(65);
 }
-const modulePath = pathToFileURL(descriptor.entrypoint).href;
-const plugin = await import(modulePath);
+const plugin = descriptor.declarative === true ? Object.freeze({}) : await import(pathToFileURL(descriptor.entrypoint).href);
 const handler = plugin.handle ?? plugin.createHandler?.();
 const routeHelpers = new Map([
   ["sdk.dispatch", { exported: "dispatchRoute", input: (request) => request.params.payload ?? null }],
   ["sdk.request", { exported: "dispatchRequest", input: (request) => request }],
 ]);
 if (descriptor.routes.some((route) => {
+  if (route.helper === "host.model" || route.helper === "host.call") return false; // Executed exclusively by the Go registry.
+  if (route.helper === "sdk.pipeline") return !validPipeline(route.pipeline);
   if (route.helper === "sdk.response") return !validResponse(route.response);
   if (route.helper === "sdk.context") return typeof plugin[route.function] !== "function";
   if (route.helper) {
@@ -59,18 +61,25 @@ for await (const line of input) {
       if (!validEventPayload(spec, snapshot)) throw new Error("invalid observation fields");
       observations.push({ event, payload: snapshot });
     };
+    const hostContext = params.hostContext;
+    const available = new Set(Array.isArray(hostContext?.available) ? hostContext.available : []);
     const context = Object.freeze({
-      project: Object.freeze({ id: descriptor.projectId }),
+      project: Object.freeze({ id: descriptor.projectId, ...(hostContext?.projectVerified ? { active: true } : {}) }),
       plugin: Object.freeze({ id: descriptor.pluginId, version: descriptor.version }),
-      execution: Object.freeze({ operation: params.operation }),
-      plugins: Object.freeze({ observe: Object.freeze({ fire }) }),
+      execution: Object.freeze({ operation: params.operation, ...(hostContext?.invocationId ? { invocationId: hostContext.invocationId } : {}) }),
+      ...(hostContext ? { config: Object.freeze({ ...hostContext.config }) } : {}),
+      helpers: Object.freeze({ call: callHelper }),
+      plugins: Object.freeze({ observe: Object.freeze({ fire }), has: (id) => typeof id === "string" && [...available].some((dependency) => dependency === id || dependency.split("@")[0] === id) }),
     });
     // Never accept a context supplied by the request or payload.
     request = { ...request, context };
     const route = descriptor.routes.find((candidate) => candidate.operation === params.operation);
     if (!route) throw new Error("operation not declared in plugin manifest");
+    if (route.helper === "host.model" || route.helper === "host.call") throw new Error("host-only operation");
     const helper = routeHelpers.get(route.helper);
-    const result = route.helper === "sdk.response"
+    const result = route.helper === "sdk.pipeline"
+      ? await executePipeline(route.pipeline, params.payload ?? null, context)
+      : route.helper === "sdk.response"
       ? mapResponse(route.response, params.payload, context)
       : route.helper === "sdk.context"
       ? await plugin[route.function](context, params.payload ?? null)
@@ -143,4 +152,52 @@ function mapResponse(spec, payload, context) {
   return Object.fromEntries(Object.entries(spec.output).map(([key, value]) =>
     [key, value === "$project.id" ? context.project.id : value === "$plugin.id" ? context.plugin.id :
       typeof value === "string" && value.startsWith("$input.") ? values.get(value.slice(7)) : value]));
+}
+
+
+
+function pipelineReference(value, available) {
+  if (value === "$input" || value === "$project.id" || value === "$plugin.id") return true;
+  if (typeof value !== "string") return false;
+  const parts = value.split(".");
+  if (parts[0] === "$input") return parts.length <= 8 && parts.slice(1).every(responseKey);
+  return parts[0] === "$steps" && parts.length >= 2 && parts.length <= 8 &&
+    available.has(parts[1]) && parts.slice(1).every(responseKey);
+}
+
+function validPipeline(spec) {
+  if (!spec || !Array.isArray(spec.steps) || spec.steps.length > 32) return false;
+  const names = new Set();
+  for (const step of spec.steps) {
+    if (!step || !responseKey(step.save) || names.has(step.save) ||
+        !(hasHelper(step.helper) || step.helper === "observe.fire") || !pipelineReference(step.input, names)) return false;
+    names.add(step.save);
+  }
+  return pipelineReference(spec.return, names);
+}
+
+async function executePipeline(spec, input, context) {
+  const values = new Map();
+  const resolve = (reference) => {
+    if (reference === "$project.id") return context.project.id;
+    if (reference === "$plugin.id") return context.plugin.id;
+    const parts = reference.split(".");
+    let value = parts[0] === "$input" ? input : values.get(parts[1]);
+    for (const key of parts.slice(parts[0] === "$input" ? 1 : 2)) {
+      if (!value || typeof value !== "object" || !Object.hasOwn(value, key)) throw new Error("missing pipeline value");
+      value = value[key];
+    }
+    return value;
+  };
+  for (const step of spec.steps) {
+    const value = resolve(step.input);
+    if (step.helper === "observe.fire") {
+      if (!value || typeof value !== "object" || !Object.hasOwn(value, "event") || !Object.hasOwn(value, "payload")) throw new Error("invalid observation input");
+      context.plugins.observe.fire(value.event, value.payload);
+      values.set(step.save, null);
+    } else {
+      values.set(step.save, await callHelper(step.helper, value));
+    }
+  }
+  return resolve(spec.return);
 }

@@ -19,6 +19,7 @@ plugin_imports:
   - rooms@0.1.0
   - matchmaking@0.1.0
 dependencies:
+optional_dependencies: [rooms@0.1.0, matchmaking@0.1.0]
 capabilities:
   - arena.start
   - arena.input
