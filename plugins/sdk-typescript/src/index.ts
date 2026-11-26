@@ -27,20 +27,22 @@ export type PluginRoute = {
   operation: string;
   function: string;
   capability: string;
-  helper?: "sdk.dispatch" | "sdk.request" | "sdk.response";
+  helper?: "sdk.dispatch" | "sdk.request" | "sdk.response" | "sdk.resource";
   response?: DeclarativeResponse;
 };
 
 export type DeclarativeResponse = {
   input: readonly {
     name: string;
-    type: "string" | "value";
+    type: "string" | "value" | "object" | "array" | "boolean" | "number";
     trim?: boolean;
     required?: boolean;
     default?: string;
     error?: string;
   }[];
-  output: Readonly<Record<string, string | number | boolean | null>>;
+  output?: Readonly<Record<string, string | number | boolean | null>>;
+  result?: string;
+  merge?: string;
 };
 
 export type HostInvoker = {

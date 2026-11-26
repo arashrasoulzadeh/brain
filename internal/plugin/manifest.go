@@ -14,6 +14,7 @@ type Manifest struct {
 	Description     string            `yaml:"description"`
 	ID              string            `yaml:"id"`
 	Entry           string            `yaml:"entrypoint"`
+	Runtime         string            `yaml:"runtime,omitempty"`
 	Version         string            `yaml:"version"`
 	HostAPI         int               `yaml:"host_api"`
 	Dependencies    []string          `yaml:"dependencies"`
@@ -51,7 +52,10 @@ func LoadManifest(path string) (Manifest, error) {
 }
 
 func ValidateManifestContract(manifest Manifest) error {
-	if manifest.EntryPoint() == "" {
+	if manifest.Runtime != "" && manifest.Runtime != "typescript" && manifest.Runtime != "declarative" {
+		return ErrInvalidManifest
+	}
+	if manifest.Runtime == "declarative" && (manifest.Entry != "" || len(manifest.SourceFiles) != 0 || len(manifest.Imports) != 0 || len(manifest.PluginImports) != 0 || len(manifest.Routes) == 0) {
 		return ErrInvalidManifest
 	}
 	seenFiles := map[string]bool{}
@@ -64,7 +68,7 @@ func ValidateManifestContract(manifest Manifest) error {
 		}
 		seenFiles[file] = true
 	}
-	if !seenFiles[manifest.EntryPoint()] {
+	if manifest.Runtime != "declarative" && !seenFiles[manifest.EntryPoint()] {
 		return ErrInvalidManifest
 	}
 	seenImports := map[string]bool{}
@@ -94,10 +98,11 @@ func ValidateManifestContract(manifest Manifest) error {
 	}
 	seenRoutes := map[string]bool{}
 	for _, route := range manifest.Routes {
-		if route.Operation == "" || route.Function == "" || route.Capability == "" || seenRoutes[route.Operation] || !declaredCapabilities[route.Capability] || (route.Helper != "" && route.Helper != "sdk.dispatch" && route.Helper != "sdk.request" && route.Helper != "sdk.response") {
+		if route.Operation == "" || route.Function == "" || route.Capability == "" || seenRoutes[route.Operation] || !declaredCapabilities[route.Capability] || (route.Helper != "" && route.Helper != "sdk.dispatch" && route.Helper != "sdk.request" && route.Helper != "sdk.response" && route.Helper != "sdk.resource") {
 			return ErrInvalidManifest
 		}
-		if (route.Helper == "sdk.response" && !route.Response.valid()) || (route.Helper != "sdk.response" && route.Response != nil) {
+		declarative := route.Helper == "sdk.response" || route.Helper == "sdk.resource"
+		if (declarative && !route.Response.valid()) || (!declarative && route.Response != nil) || (manifest.Runtime == "declarative" && !declarative) || (route.Helper == "sdk.resource" && route.Storage == nil) {
 			return ErrInvalidManifest
 		}
 		if !route.Storage.valid() || (route.Storage != nil && !isValidProjectID(manifest.ID)) {
@@ -109,6 +114,9 @@ func ValidateManifestContract(manifest Manifest) error {
 }
 
 func (m Manifest) EntryPoint() string {
+	if m.Runtime == "declarative" {
+		return ""
+	}
 	if m.Entry == "" {
 		return "index.ts"
 	}

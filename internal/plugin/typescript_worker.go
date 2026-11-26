@@ -21,7 +21,8 @@ var ErrTypeScriptWorkerTimedOut = errors.New("typescript worker invocation timed
 var ErrTypeScriptWorkerManifest = errors.New("invalid typescript worker manifest")
 
 type executionDescriptor struct {
-	Entrypoint string           `json:"entrypoint"`
+	Entrypoint string           `json:"entrypoint,omitempty"`
+	Runtime    string           `json:"runtime,omitempty"`
 	PluginID   string           `json:"pluginId"`
 	Version    string           `json:"version"`
 	ProjectID  string           `json:"projectId"`
@@ -102,12 +103,15 @@ func NewManifestTypeScriptWorker(command, workerScript, descriptor, pluginRoot, 
 	if err := ValidatePluginSources(pluginRoot, manifest); err != nil {
 		return nil, err
 	}
-	entrypoint := filepath.Join(pluginRoot, manifest.EntryPoint())
+	entrypoint := ""
+	if manifest.Runtime != "declarative" {
+		entrypoint = filepath.Join(pluginRoot, manifest.EntryPoint())
+	}
 	routes := make([]executionRoute, 0, len(manifest.Routes))
 	for _, route := range manifest.Routes {
 		routes = append(routes, executionRoute{Operation: route.Operation, Function: route.Function, Helper: route.Helper, Response: route.Response})
 	}
-	data, err := json.Marshal(executionDescriptor{Entrypoint: entrypoint, PluginID: manifest.ID, Version: manifest.Version, ProjectID: projectID, Routes: routes})
+	data, err := json.Marshal(executionDescriptor{Entrypoint: entrypoint, Runtime: manifest.Runtime, PluginID: manifest.ID, Version: manifest.Version, ProjectID: projectID, Routes: routes})
 	if err != nil {
 		return nil, err
 	}

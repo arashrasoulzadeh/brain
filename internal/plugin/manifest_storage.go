@@ -1,9 +1,12 @@
 package plugin
 
 import (
+	"errors"
 	"math"
 	"strings"
 )
+
+var ErrManifestStorageUnavailable = errors.New("manifest storage unavailable")
 
 // StorageSpec selects a bounded storage primitive. Namespaces and project
 // identity are assigned by the host, never by the manifest or request payload.

@@ -9,19 +9,20 @@ if (!descriptorPath) {
 }
 
 const descriptor = JSON.parse(await readFile(descriptorPath, "utf8"));
-if (!descriptor.entrypoint || !descriptor.pluginId || !descriptor.version || !descriptor.projectId || !Array.isArray(descriptor.routes)) {
+const declarative = descriptor.runtime === "declarative";
+if ((declarative ? Boolean(descriptor.entrypoint) : !descriptor.entrypoint) || !descriptor.pluginId || !descriptor.version || !descriptor.projectId || !Array.isArray(descriptor.routes)) {
   process.stderr.write("invalid execution descriptor\n");
   process.exit(65);
 }
-const modulePath = pathToFileURL(descriptor.entrypoint).href;
-const plugin = await import(modulePath);
+const plugin = declarative ? Object.freeze({}) : await import(pathToFileURL(descriptor.entrypoint).href);
 const handler = plugin.handle ?? plugin.createHandler?.();
 const routeHelpers = new Map([
   ["sdk.dispatch", { exported: "dispatchRoute", input: (request) => request.params.payload ?? null }],
   ["sdk.request", { exported: "dispatchRequest", input: (request) => request }],
 ]);
 if (descriptor.routes.some((route) => {
-  if (route.helper === "sdk.response") return !validResponse(route.response);
+  if (route.helper === "sdk.response" || route.helper === "sdk.resource") return !validResponse(route.response);
+  if (declarative) return true;
   if (route.helper) {
     const helper = routeHelpers.get(route.helper);
     return !helper || typeof plugin[helper.exported] !== "function";
@@ -46,7 +47,7 @@ for await (const line of input) {
     const route = descriptor.routes.find((candidate) => candidate.operation === params.operation);
     if (!route) throw new Error("operation not declared in plugin manifest");
     const helper = routeHelpers.get(route.helper);
-    const result = route.helper === "sdk.response"
+    const result = (route.helper === "sdk.response" || route.helper === "sdk.resource")
       ? mapResponse(route.response, params.payload)
       : helper
       ? await plugin[helper.exported](route.function, helper.input(request))
@@ -71,23 +72,39 @@ function responseKey(key) {
 }
 
 function validResponse(spec) {
-  if (!spec || (!Array.isArray(spec.input) && spec.input !== null) || !spec.output || typeof spec.output !== "object" || Array.isArray(spec.output)) return false;
+  if (!spec || (!Array.isArray(spec.input) && spec.input !== null) ||
+      (spec.output !== undefined && (!spec.output || typeof spec.output !== "object" || Array.isArray(spec.output)))) return false;
   const fields = spec.input ?? [];
-  const output = Object.entries(spec.output);
-  if (fields.length > 32 || !output.length || output.length > 32) return false;
-  const names = new Set();
+  const output = Object.entries(spec.output ?? {});
+  if (fields.length > 32 || output.length > 32 || (output.length === 0) === !spec.result || (spec.merge && spec.result)) return false;
+  const names = new Map();
   for (const field of fields) {
-    if (!field || !responseKey(field.name) || names.has(field.name) || !["string", "value"].includes(field.type) ||
+    if (!field || !responseKey(field.name) || names.has(field.name) || !["string", "value", "object", "array", "boolean", "number"].includes(field.type) ||
         (field.type !== "string" && (field.trim || field.default !== undefined)) ||
         (field.default !== undefined && typeof field.default !== "string") ||
         (field.trim !== undefined && typeof field.trim !== "boolean") ||
         (field.required !== undefined && typeof field.required !== "boolean") ||
         (field.required && (typeof field.error !== "string" || !field.error))) return false;
-    names.add(field.name);
+    names.set(field.name, field.type);
   }
+  if ((spec.result && !validReference(spec.result, names)) || (spec.merge && names.get(spec.merge) !== "object")) return false;
   return output.every(([key, value]) => responseKey(key) &&
     (value === null || typeof value === "boolean" || (typeof value === "number" && Number.isFinite(value)) ||
-      (typeof value === "string" && (!value.startsWith("$") || (value.startsWith("$input.") && names.has(value.slice(7)))))));
+      (typeof value === "string" && (!value.startsWith("$") || validReference(value, names)))));
+}
+
+function validReference(value, fields) {
+  if (typeof value !== "string") return false;
+  if (value.startsWith("$input.")) return fields.has(value.slice(7));
+  if (value.startsWith("$length.")) return ["string", "array"].includes(fields.get(value.slice(8)));
+  return false;
+}
+
+function readReference(value, values) {
+  if (typeof value !== "string") return value;
+  if (value.startsWith("$input.")) return values.get(value.slice(7));
+  if (value.startsWith("$length.")) return values.get(value.slice(8))?.length ?? 0;
+  return value;
 }
 
 function mapResponse(spec, payload) {
@@ -98,10 +115,21 @@ function mapResponse(spec, payload) {
     if (field.type === "string") {
       value = typeof raw === "string" ? raw : field.default ?? "";
       if (field.trim) value = value.trim();
+    } else if (field.type === "object" && (value === null || typeof value !== "object" || Array.isArray(value))) {
+      value = null;
+    } else if (field.type === "array" && !Array.isArray(value)) {
+      value = null;
+    } else if (field.type === "boolean" && typeof value !== "boolean") {
+      value = null;
+    } else if (field.type === "number" && (typeof value !== "number" || !Number.isFinite(value))) {
+      value = null;
     }
     if (field.required && (value === null || value === "")) throw new Error(field.error);
     values.set(field.name, value);
   }
-  return Object.fromEntries(Object.entries(spec.output).map(([key, value]) =>
-    [key, typeof value === "string" && value.startsWith("$input.") ? values.get(value.slice(7)) : value]));
+  if (spec.result) return readReference(spec.result, values);
+  return Object.fromEntries([
+    ...Object.entries(spec.merge ? values.get(spec.merge) ?? {} : {}),
+    ...Object.entries(spec.output).map(([key, value]) => [key, readReference(value, values)]),
+  ]);
 }

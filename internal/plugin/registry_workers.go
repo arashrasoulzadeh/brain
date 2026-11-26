@@ -43,6 +43,9 @@ func (r *Registry) Invoke(request WorkerRequest) (WorkerResponse, error) {
 	if err := r.authorizeInvocation(request); err != nil {
 		return WorkerResponse{}, err
 	}
+	if planner == nil && r.requiresManifestStorage(request) {
+		return WorkerResponse{}, ErrManifestStorageUnavailable
+	}
 	key := request.ProjectID + ":" + request.PluginID + "@" + request.Version
 	r.workerMu.RLock()
 	worker := r.workers[key]
@@ -162,4 +165,12 @@ func (r *Registry) StartWorker(projectID, id, version string) error {
 	r.workers[key] = worker
 	r.workerMu.Unlock()
 	return nil
+}
+
+func (r *Registry) requiresManifestStorage(request WorkerRequest) bool {
+	r.readinessMu.RLock()
+	defer r.readinessMu.RUnlock()
+	registered := r.registered[request.PluginID+"@"+request.Version]
+	route, ok := registered.Manifest.Route(request.Operation)
+	return ok && route.Storage != nil
 }
