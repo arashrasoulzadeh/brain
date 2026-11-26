@@ -2,18 +2,8 @@ id: analytics
 entrypoint: index.ts
 source_files:
   - index.ts
-  - types.ts
-  - validate-event.ts
-  - capture.ts
-  - capture-request.ts
-  - analytics-route-sink.ts
 imports:
   - ../sdk-typescript/src/index.js
-  - ./capture.js
-  - ./capture-request.js
-  - ./validate-event.js
-  - ./types.js
-  - ./analytics-route-sink.js
 plugin_imports:
 title: Analytics
 description: Project-scoped validated event capture.
