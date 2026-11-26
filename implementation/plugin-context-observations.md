@@ -30,3 +30,11 @@ Each row requires context and relevant sanitized domain events, focused tests an
 - [ ] Two-project isolation, forged identity, failed commit, disabled/revoked subscriber, recursive events, bounded payload and fanout, manifest validation, no observer dependency on publisher.
 - [ ] Run npm run lint:ts, npm run typecheck, npm run test:ts, go test ./... and sandboxed worker tests.
 - [ ] Update developer/operator documentation and changelog; no completion claim until verification.
+
+## Implementation progress (pending full verification)
+
+- Shared worker context, trusted project resolver, manifest contracts, and post-commit observer dispatch implemented on this branch.
+- Auth, files, matchmaking, rooms, tables, and analytics have observation integration; template has a context-first publisher example.
+- Functions draft execution now receives a read-only project context as the second argument. The plugin call route emits an acceptance event only; actual function publication, execution, workflow and scheduler events remain open.
+- Arena, dashboard, invites and subscriptions have existing manifest routes without matching executable exports; implement their actual domain adapters before declaring migration complete.
+- Analytics observation capture remains in-memory; durable storage and delivery/retry policies are still open. Initial delivery is synchronous, bounded, best-effort, and non-recursive.

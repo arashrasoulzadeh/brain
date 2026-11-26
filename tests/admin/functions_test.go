@@ -1,6 +1,7 @@
 package admin_test
 
 import (
+	"encoding/json"
 	"errors"
 	"testing"
 
@@ -83,5 +84,32 @@ func TestPublicFunctionUsesMethodDeclaredInSource(t *testing.T) {
 	}
 	if _, err := service.PublicInvokeFunction("dev", "public_method", "GET", nil); !errors.Is(err, admin.ErrFunctionMethodNotAllowed) {
 		t.Fatalf("GET error = %v, want method denial", err)
+	}
+}
+
+func TestFunctionDraftReceivesTrustedProjectContext(t *testing.T) {
+	service := admin.NewLifecycleService(nil, nil)
+	actor := operator.Actor{ID: "admin", Kind: operator.ActorOperator}
+	source := "export const config = { method: 'POST' };\nexport default (input, ctx) => ({id: ctx.project.id, active: ctx.project.active, frozen: Object.isFrozen(ctx.project), input})"
+	result, err := service.RunFunctionDraft(actor, "dev", "context_contract", source, json.RawMessage(`{"projectId":"forged"}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result == nil {
+		t.Fatal("expected function execution result")
+	}
+	encoded, err := json.Marshal(result)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var output struct {
+		Result struct {
+			ID     string `json:"id"`
+			Active bool   `json:"active"`
+			Frozen bool   `json:"frozen"`
+		} `json:"result"`
+	}
+	if err := json.Unmarshal(encoded, &output); err != nil || output.Result.ID != "dev" || !output.Result.Active || !output.Result.Frozen {
+		t.Fatalf("project context = %s, err = %v", encoded, err)
 	}
 }

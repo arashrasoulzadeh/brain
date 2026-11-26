@@ -36,6 +36,9 @@ capabilities:
 extension_points: []
 config_schema:
   maxSourceBytes: int
+events:
+  - name: callAccepted
+    fields: {}
 routes:
   - operation: functions.invoke
     function: invoke

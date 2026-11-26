@@ -10,6 +10,15 @@ description: Minimal host-discovered TypeScript plugin template.
 version: 0.1.0
 host_api: 1
 dependencies: []
-capabilities: []
+capabilities:
+  - example.plugin.example
 extension_points: []
 config_schema: {}
+events:
+  - name: exampleCompleted
+    fields: {}
+routes:
+  - operation: example.plugin.example
+    function: example
+    helper: sdk.context
+    capability: example.plugin.example
