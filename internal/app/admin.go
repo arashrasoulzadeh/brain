@@ -178,12 +178,25 @@ func AdminHandler(service *admin.LifecycleService) http.Handler {
 			err = service.GrantResource(actor, command.ProjectID, command.PluginID, command.Version, command.Capability, command.Resource)
 		case "plugin.configure":
 			err = service.ConfigurePlugin(actor, command.ProjectID, command.PluginID, command.Version, command.Values)
-		case "plugin.admin.invoke":
-			if !command.Confirmed {
+		case "plugin.admin.revision":
+			revision, revisionErr := service.AdminPageRevision(actor, command.PageID, admin.PluginInvocation{ProjectID: command.ProjectID, PluginID: command.PluginID, Version: command.Version})
+			if revisionErr != nil {
+				http.Error(w, revisionErr.Error(), http.StatusForbidden)
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			_ = json.NewEncoder(w).Encode(map[string]uint64{"revision": revision})
+			return
+		case "plugin.admin.invoke", "plugin.admin.query":
+			if command.Operation == "plugin.admin.invoke" && !command.Confirmed {
 				http.Error(w, "explicit confirmation required", http.StatusBadRequest)
 				return
 			}
-			response, invokeErr := service.InvokeAdminPage(actor, command.PageID, admin.PluginInvocation{ProjectID: command.ProjectID, PluginID: command.PluginID, Version: command.Version, Operation: command.TargetOperation, Payload: command.Payload})
+			invoke := service.InvokeAdminPage
+			if command.Operation == "plugin.admin.query" {
+				invoke = service.QueryAdminPage
+			}
+			response, invokeErr := invoke(actor, command.PageID, admin.PluginInvocation{ProjectID: command.ProjectID, PluginID: command.PluginID, Version: command.Version, Operation: command.TargetOperation, Payload: command.Payload})
 			if invokeErr != nil {
 				http.Error(w, invokeErr.Error(), http.StatusForbidden)
 				return

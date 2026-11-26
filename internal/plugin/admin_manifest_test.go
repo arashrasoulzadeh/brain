@@ -30,3 +30,13 @@ func TestAdminFormPayload(t *testing.T) {
 		}
 	}
 }
+
+func TestAdminReadOnlyActionDoesNotAcceptUndeclaredInput(t *testing.T) {
+	m := Manifest{Admin: &AdminSpec{Version: 1, Pages: []AdminPage{{ID: "list", Title: "List", Actions: []AdminAction{{Title: "List", Operation: "records.list", ReadOnly: true}}}}}, Routes: []Route{{Operation: "records.list"}}}
+	if !m.AdminReadOnly("list", "records.list") || m.AdminReadOnly("list", "records.write") {
+		t.Fatal("invalid read-only operation classification")
+	}
+	if m.ValidateAdminPayload("list", "records.list", json.RawMessage(`{"write":true}`)) == nil {
+		t.Fatal("undeclared read input accepted")
+	}
+}

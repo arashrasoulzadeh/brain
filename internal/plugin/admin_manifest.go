@@ -13,16 +13,18 @@ type AdminSpec struct {
 }
 
 type AdminPage struct {
-	ID      string        `yaml:"id" json:"id"`
-	Title   string        `yaml:"title" json:"title"`
-	Actions []AdminAction `yaml:"actions" json:"actions"`
-	Extends string        `yaml:"extends,omitempty" json:"extends,omitempty"`
+	ID        string        `yaml:"id" json:"id"`
+	Title     string        `yaml:"title" json:"title"`
+	Actions   []AdminAction `yaml:"actions" json:"actions"`
+	Extends   string        `yaml:"extends,omitempty" json:"extends,omitempty"`
+	RefreshOn []string      `yaml:"refresh_on,omitempty" json:"refresh_on,omitempty"`
 }
 
 type AdminAction struct {
 	Title     string       `yaml:"title" json:"title"`
 	Operation string       `yaml:"operation" json:"operation"`
 	Fields    []AdminField `yaml:"fields,omitempty" json:"fields,omitempty"`
+	ReadOnly  bool         `yaml:"read_only,omitempty" json:"read_only,omitempty"`
 }
 
 type AdminField struct {
@@ -49,6 +51,16 @@ func validateAdminSpec(m Manifest) error {
 		}
 		if page.Extends != "" && (!adminTarget.MatchString(page.Extends) || strings.HasPrefix(page.Extends, m.ID+"/")) {
 			return ErrInvalidManifest
+		}
+		if len(page.RefreshOn) > 16 {
+			return ErrInvalidManifest
+		}
+		events := map[string]bool{}
+		for _, name := range page.RefreshOn {
+			if events[name] || !m.adminObservationAllowed(name) {
+				return ErrInvalidManifest
+			}
+			events[name] = true
 		}
 		pages[page.ID] = true
 		actions := map[string]bool{}
@@ -102,7 +114,7 @@ func (m Manifest) ValidateAdminPayload(pageID, operation string, payload json.Ra
 			if action.Operation != operation {
 				continue
 			}
-			if len(action.Fields) == 0 {
+			if len(action.Fields) == 0 && !action.ReadOnly {
 				if !json.Valid(payload) {
 					return ErrInvalidWorkerRequest
 				}
@@ -144,4 +156,41 @@ func (m Manifest) ValidateAdminPayload(pageID, operation string, payload json.Ra
 		}
 	}
 	return ErrGrantDenied
+}
+
+func (m Manifest) adminObservationAllowed(name string) bool {
+	for _, event := range m.Events {
+		if m.ID+"."+event.Name == name {
+			return true
+		}
+	}
+	for _, observer := range m.Observers {
+		if observer.Plugin+"."+observer.Event == name {
+			return true
+		}
+	}
+	return false
+}
+
+func (m Manifest) AdminPageSpec(pageID string) (AdminPage, bool) {
+	if m.Admin != nil && m.Admin.Version == 1 {
+		for _, page := range m.Admin.Pages {
+			if page.ID == pageID {
+				return page, true
+			}
+		}
+	}
+	return AdminPage{}, false
+}
+
+func (m Manifest) AdminReadOnly(pageID, operation string) bool {
+	page, ok := m.AdminPageSpec(pageID)
+	if ok {
+		for _, action := range page.Actions {
+			if action.Operation == operation {
+				return action.ReadOnly
+			}
+		}
+	}
+	return false
 }

@@ -172,37 +172,82 @@ func (s *LifecycleService) InvokePlugin(actor operator.Actor, invocation PluginI
 	return response, err
 }
 
-// InvokeAdminPage verifies the page contribution and exact installation on every action.
+// adminPageManifest resolves an exact, currently authorized installation.
+func (s *LifecycleService) adminPageManifest(actor operator.Actor, pageID string, invocation PluginInvocation) (plugin.Manifest, error) {
+	if s == nil || s.registry == nil || s.projects == nil || actor.Kind != operator.ActorOperator {
+		return plugin.Manifest{}, operator.ErrInvalidOperatorAction
+	}
+	if _, err := s.projects.Resolve(invocation.ProjectID); err != nil {
+		return plugin.Manifest{}, plugin.ErrProjectInvalid
+	}
+	status, err := s.registry.Status(invocation.ProjectID, invocation.PluginID, invocation.Version)
+	if err != nil || !status.Enabled || !status.Ready || status.Draining {
+		return plugin.Manifest{}, ErrPluginUnavailable
+	}
+	grants := map[string]bool{}
+	for _, grant := range status.Grants {
+		grants[grant] = true
+	}
+	for _, manifest := range s.registry.RegisteredManifests() {
+		if manifest.ID != invocation.PluginID || manifest.Version != invocation.Version {
+			continue
+		}
+		if _, ok := manifest.AdminPageSpec(pageID); !ok {
+			return plugin.Manifest{}, plugin.ErrGrantDenied
+		}
+		for _, capability := range manifest.Capabilities {
+			if !grants[capability] {
+				return plugin.Manifest{}, plugin.ErrGrantDenied
+			}
+		}
+		return manifest, nil
+	}
+	return plugin.Manifest{}, plugin.ErrNotRegistered
+}
+
 func (s *LifecycleService) InvokeAdminPage(actor operator.Actor, pageID string, invocation PluginInvocation) (plugin.WorkerResponse, error) {
+	return s.invokeAdminPage(actor, pageID, invocation, false)
+}
+
+func (s *LifecycleService) QueryAdminPage(actor operator.Actor, pageID string, invocation PluginInvocation) (plugin.WorkerResponse, error) {
+	return s.invokeAdminPage(actor, pageID, invocation, true)
+}
+
+func (s *LifecycleService) invokeAdminPage(actor operator.Actor, pageID string, invocation PluginInvocation, query bool) (plugin.WorkerResponse, error) {
 	var response plugin.WorkerResponse
-	err := s.execute(actor, "plugin.admin.invoke", func() error {
-		if s.projects == nil || invocation.ProjectID == "" {
-			return operator.ErrInvalidOperatorAction
-		}
-		if _, err := s.projects.Resolve(invocation.ProjectID); err != nil {
-			return plugin.ErrProjectInvalid
-		}
-		status, err := s.registry.Status(invocation.ProjectID, invocation.PluginID, invocation.Version)
-		if err != nil || !status.Enabled || !status.Ready || status.Draining {
-			return ErrPluginUnavailable
-		}
-		for _, manifest := range s.registry.RegisteredManifests() {
-			if manifest.ID != invocation.PluginID || manifest.Version != invocation.Version {
-				continue
-			}
-			if err := manifest.ValidateAdminPayload(pageID, invocation.Operation, invocation.Payload); err != nil {
-				return err
-			}
-			// Registry.Invoke rechecks the route grants and worker lifecycle.
-			response, err = s.registry.Invoke(plugin.WorkerRequest{Protocol: s.registry.HostAPI, ProjectID: invocation.ProjectID, PluginID: invocation.PluginID, Version: invocation.Version, Operation: invocation.Operation, Payload: invocation.Payload})
-			if err == nil && (!response.Success || response.ErrorCode != "") {
-				return errors.New("plugin admin action failed")
-			}
+	auditAction := "plugin.admin.invoke"
+	if query {
+		auditAction = "plugin.admin.query"
+	}
+	err := s.execute(actor, auditAction, func() error {
+		manifest, err := s.adminPageManifest(actor, pageID, invocation)
+		if err != nil {
 			return err
 		}
-		return plugin.ErrNotRegistered
+		if query && !manifest.AdminReadOnly(pageID, invocation.Operation) {
+			return plugin.ErrGrantDenied
+		}
+		if err := manifest.ValidateAdminPayload(pageID, invocation.Operation, invocation.Payload); err != nil {
+			return err
+		}
+		response, err = s.registry.Invoke(plugin.WorkerRequest{Protocol: s.registry.HostAPI, ProjectID: invocation.ProjectID, PluginID: invocation.PluginID, Version: invocation.Version, Operation: invocation.Operation, Payload: invocation.Payload})
+		if err == nil && (!response.Success || response.ErrorCode != "") {
+			return errors.New("plugin admin action failed")
+		}
+		return err
 	})
 	return response, err
+}
+
+// AdminPageRevision is an authenticated read like ListPlugins. No event payload
+// is exposed, and every poll rechecks project and plugin authorization.
+func (s *LifecycleService) AdminPageRevision(actor operator.Actor, pageID string, invocation PluginInvocation) (uint64, error) {
+	manifest, err := s.adminPageManifest(actor, pageID, invocation)
+	if err != nil {
+		return 0, err
+	}
+	page, _ := manifest.AdminPageSpec(pageID)
+	return s.registry.AdminObservationRevision(invocation.ProjectID, page.RefreshOn), nil
 }
 
 func (s *LifecycleService) PromotePlugin(actor operator.Actor, projectID, pluginID, version string) error {
