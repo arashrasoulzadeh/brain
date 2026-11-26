@@ -51,7 +51,10 @@ The runtime must support unprivileged user, PID, IPC, UTS and network namespaces
 for Bubblewrap. Do not grant the production container privileged mode or mount
 host directories to bypass this requirement. The startup probe verifies a real
 sandboxed TypeScript invocation; if it fails, do not route traffic to the host.
-The runner image requires the launcher inputs documented in its entrypoint.
+The runner image requires WORKER_SCRIPT, EXECUTION_DESCRIPTOR, PLUGIN_ROOT,
+CPU_MILLIS, MEMORY_BYTES, PROCESS_LIMIT, and WORKER_SOURCE_FILES (newline-separated
+manifest source paths). The runtime root defaults to /workspace. The Go host
+sets these inputs directly; no host environment secrets are inherited.
 
 Use `/livez` for liveness and `/readyz` for traffic readiness. Readiness checks
 both SQLite connections and enabled non-draining workers. The explicit

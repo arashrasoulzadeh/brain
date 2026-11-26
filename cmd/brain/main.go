@@ -221,6 +221,10 @@ func bindSandboxedTypeScriptWorkers(registry *plugin.Registry, locations map[str
 		if err != nil {
 			return nil, err
 		}
+		root, err = filepath.EvalSymlinks(root)
+		if err != nil {
+			return nil, err
+		}
 		descriptor, err := os.CreateTemp("", "brain-worker-*.json")
 		if err != nil {
 			return nil, err
@@ -231,9 +235,20 @@ func bindSandboxedTypeScriptWorkers(registry *plugin.Registry, locations map[str
 			_ = os.Remove(descriptor.Name())
 			return nil, err
 		}
-		return worker, nil
+		return &temporaryDescriptorWorker{TypeScriptWorker: worker, descriptor: descriptor.Name()}, nil
 	})
 	return nil
+}
+
+// The descriptor is needed only until the sandbox acknowledges module startup.
+type temporaryDescriptorWorker struct {
+	*plugin.TypeScriptWorker
+	descriptor string
+}
+
+func (w *temporaryDescriptorWorker) Start() error {
+	defer os.Remove(w.descriptor)
+	return w.TypeScriptWorker.Start()
 }
 
 func verifyObjectManifest(path string) {

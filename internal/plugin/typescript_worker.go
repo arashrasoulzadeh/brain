@@ -77,6 +77,11 @@ func NewBubblewrapTypeScriptWorker(launcher, workerScript, descriptor, pluginRoo
 }
 
 func NewManifestBubblewrapTypeScriptWorker(launcher, workerScript, descriptor, pluginRoot, projectID string, manifest Manifest, policy IsolationPolicy) (*TypeScriptWorker, error) {
+	for _, source := range manifest.SourceFiles {
+		if strings.ContainsAny(source, "\r\n") {
+			return nil, ErrInvalidManifest
+		}
+	}
 	worker, err := NewManifestTypeScriptWorker("", workerScript, descriptor, pluginRoot, projectID, manifest, policy)
 	if err != nil {
 		return nil, err
@@ -93,6 +98,8 @@ func NewManifestBubblewrapTypeScriptWorker(launcher, workerScript, descriptor, p
 		"MEMORY_BYTES=" + strconv.FormatInt(policy.MemoryBytes, 10),
 		"PROCESS_LIMIT=" + strconv.Itoa(policy.ProcessLimit),
 		"WORKER_RUNTIME_ROOT=" + runtimeRoot,
+		"WORKER_SOURCE_FILES=" + strings.Join(manifest.SourceFiles, "\n"),
+		"REQUIRE_DECLARED_SOURCES=1",
 		"BRAIN_WORKER_READY=1",
 	}
 	return worker, nil

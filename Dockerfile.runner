@@ -6,6 +6,6 @@ RUN npm ci --ignore-scripts
 COPY tsconfig.json ./
 COPY scripts/typescript-worker.mjs scripts/run-sandboxed-typescript-worker.sh ./scripts/
 COPY plugins ./plugins
-ENV WORKER_SCRIPT=/workspace/scripts/typescript-worker.mjs WORKER_RUNTIME_ROOT=/workspace
+ENV WORKER_SCRIPT=/workspace/scripts/typescript-worker.mjs WORKER_RUNTIME_ROOT=/workspace REQUIRE_DECLARED_SOURCES=1
 USER node
 ENTRYPOINT ["/workspace/scripts/run-sandboxed-typescript-worker.sh"]

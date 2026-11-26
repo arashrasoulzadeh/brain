@@ -2,10 +2,16 @@
 set -euo pipefail
 image="${BRAIN_TEST_IMAGE:-brain:production-smoke}"
 docker build -t "$image" .
-if docker run --rm --network none -e HTTP_ADDRESS=:8080 "$image"; then
+if output=$(docker run --rm --network none -e HTTP_ADDRESS=:8080 "$image" 2>&1); then
   echo "host accepted missing operator credentials" >&2
   exit 1
 fi
+printf '%s\n' "$output" | grep -F 'OPERATOR_USERNAME and OPERATOR_SECRET are required'
+if output=$(docker run --rm --network none -e HTTP_ADDRESS=:8080 -e OPERATOR_USERNAME=ci-operator -e OPERATOR_SECRET=ci-fixture-only -e PROJECTS_FILE=:memory: "$image" 2>&1); then
+  echo "host accepted non-durable production storage" >&2
+  exit 1
+fi
+printf '%s\n' "$output" | grep -F 'PROJECTS_FILE must name an explicit durable SQLite file'
 
 # Privileged namespace access is used only in this isolated CI test, never in
 # production deployment. No host paths, credentials, or network are attached.
