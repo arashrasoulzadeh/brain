@@ -1,0 +1,92 @@
+id: access-management
+title: Access Management
+description: Durable project-scoped invocation rules with exact principal, plugin, version, operation and capability matching.
+version: 0.1.0
+host_api: 1
+entrypoint: index.ts
+source_files:
+  - index.ts
+imports:
+  - ../sdk-typescript/src/index.js
+plugin_imports:
+dependencies: []
+capabilities:
+  - access.rules.read
+  - access.rules.manage
+extension_points: []
+config_schema: {}
+models:
+  rule:
+    version: 1
+    fields:
+      principal: string
+      plugin: string
+      version: string
+      operation: string
+      capability: string
+      allowed: boolean
+    initial: active
+    transitions:
+      revoke: {from: active, to: revoked}
+routes:
+  - operation: access.describe
+    function: describe
+    helper: sdk.context
+    capability: access.rules.read
+  - operation: access.rules.create
+    function: createRule
+    helper: host.model
+    capability: access.rules.manage
+    model: {name: rule, action: create}
+  - operation: access.rules.read
+    function: readRule
+    helper: host.model
+    capability: access.rules.read
+    model: {name: rule, action: read}
+  - operation: access.rules.list
+    function: listRules
+    helper: host.model
+    capability: access.rules.read
+    model: {name: rule, action: list}
+  - operation: access.rules.revoke
+    function: revokeRule
+    helper: host.model
+    capability: access.rules.manage
+    model: {name: rule, action: transition, transition: revoke}
+admin:
+  version: 1
+  pages:
+    - id: rules
+      title: Access rules
+      actions:
+        - title: List rules
+          operation: access.rules.list
+          read_only: true
+          fields:
+            - name: after
+              type: string
+        - title: Read rule
+          operation: access.rules.read
+          read_only: true
+          fields:
+            - name: id
+              type: string
+              required: true
+        - title: Create rule
+          operation: access.rules.create
+          fields:
+            - name: id
+              type: string
+              required: true
+            - name: fields
+              type: json
+              required: true
+        - title: Revoke rule
+          operation: access.rules.revoke
+          fields:
+            - name: id
+              type: string
+              required: true
+            - name: revision
+              type: string
+              required: true

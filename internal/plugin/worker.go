@@ -17,6 +17,9 @@ type WorkerRequest struct {
 	Operation   string             `json:"operation"`
 	Payload     []byte             `json:"payload"`
 	HostContext *InvocationContext `json:"-"`
+
+	// Set only by trusted host entry points; never serialized to a worker.
+	accessPrincipal string
 }
 
 type WorkerResponse struct {

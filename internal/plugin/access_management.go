@@ -1,0 +1,193 @@
+package plugin
+
+import (
+	"encoding/json"
+	"maps"
+	"strings"
+	"time"
+)
+
+const accessPluginID = "access-management"
+const accessRuleModel = "rule"
+
+var accessRuleSpec = ModelSpec{
+	Version: 1,
+	Fields: map[string]string{
+		"principal":  "string",
+		"plugin":     "string",
+		"version":    "string",
+		"operation":  "string",
+		"capability": "string",
+		"allowed":    "boolean",
+	},
+	Initial: "active",
+	Transitions: map[string]ModelTransition{
+		"revoke": {From: "active", To: "revoked"},
+	},
+}
+
+func validAccessIdentity(value string) bool {
+	return value != "" && len(value) <= 1000 && strings.TrimSpace(value) == value && !strings.ContainsAny(value, "\x00\r\n")
+}
+
+func validAccessPrincipal(value string) bool {
+	if value == "host" {
+		return true
+	}
+	kind, id, ok := strings.Cut(value, ":")
+	return ok && (kind == "operator" || kind == "user" || kind == "plugin") && validAccessIdentity(id)
+}
+
+func pluginAccessPrincipal(id, version string) string {
+	return "plugin:" + id + "@" + version
+}
+
+// InvokeAsOperator is called by the authenticated operator service only.
+// The actor is never read from an RPC payload or from a worker result.
+func (r *Registry) InvokeAsOperator(request WorkerRequest, actorID string) (WorkerResponse, error) {
+	if !validAccessIdentity(actorID) {
+		return WorkerResponse{}, ErrActorDenied
+	}
+	request.accessPrincipal = "operator:" + actorID
+	return r.Invoke(request)
+}
+
+// InvokeWithCredential is the registry-backed user invocation boundary. It
+// consumes the credential and rechecks the access policy on the registry's
+// normal admission and commit paths, including model and delegated operations.
+func (r *Registry) InvokeWithCredential(broker *Broker, credential InvocationCredential, request WorkerRequest, now time.Time) (WorkerResponse, error) {
+	if broker == nil || broker.Registry != r || credential.Call.ProjectID != request.ProjectID || credential.Call.PluginID != request.PluginID || credential.Call.Version != request.Version || credential.Call.Operation != request.Operation {
+		return WorkerResponse{}, ErrInvalidWorkerRequest
+	}
+	if err := ValidateWorkerRequest(request, r.HostAPI); err != nil {
+		return WorkerResponse{}, err
+	}
+	if err := broker.CommitCredential(credential, now); err != nil {
+		return WorkerResponse{}, err
+	}
+	request.accessPrincipal = "user:" + credential.Call.ActorID
+	return r.Invoke(request)
+}
+
+func (r *Registry) authorizeActorAccess(call HostCall) error {
+	r.readinessMu.RLock()
+	defer r.readinessMu.RUnlock()
+	r.installationMu.RLock()
+	defer r.installationMu.RUnlock()
+	return r.authorizeAccessLocked(call.ProjectID, "user:"+call.ActorID, call.PluginID, call.Version, call.Operation, call.Capability)
+}
+
+// authorizeAccessLocked is a second, project-specific layer over the existing
+// host installation, capability and resource checks. Callers hold readiness
+// and installation locks. Installing the policy plugin opts the project in;
+// an installed but unavailable policy provider fails closed.
+func (r *Registry) authorizeAccessLocked(projectID, principal, id, version, operation, capability string) error {
+	if id == accessPluginID {
+		// Management is reserved for an authenticated operator, not for
+		// ordinary users, observation handlers or delegated plugin calls.
+		if strings.HasPrefix(principal, "operator:") && validAccessPrincipal(principal) {
+			return nil
+		}
+		return ErrActorDenied
+	}
+
+	installed, available := false, 0
+	for _, installation := range r.installations {
+		if installation.ProjectID != projectID || installation.PluginID != accessPluginID {
+			continue
+		}
+		installed = true
+		key := accessPluginID + "@" + installation.Version
+		registered, ok := r.registered[key]
+		if !ok || !installation.Enabled || installation.Draining || !r.readiness[key] {
+			continue
+		}
+		spec, ok := registered.Manifest.Models[accessRuleModel]
+		if !ok || spec.Version != accessRuleSpec.Version || spec.Initial != accessRuleSpec.Initial || !maps.Equal(spec.Fields, accessRuleSpec.Fields) || !maps.Equal(spec.Transitions, accessRuleSpec.Transitions) {
+			continue
+		}
+		if !installation.Grants["access.rules.read"] || !installation.Grants["access.rules.manage"] {
+			continue
+		}
+		available++
+	}
+	if !installed {
+		return nil
+	}
+	if available != 1 || r.LifecycleStorageHealth() != nil {
+		return ErrActorDenied
+	}
+	if principal == "" {
+		principal = "host"
+	}
+	if !validAccessPrincipal(principal) || operation == "" || capability == "" {
+		return ErrActorDenied
+	}
+	storage, ok := r.storage.(*SQLiteStorage)
+	if !ok || storage == nil {
+		return ErrActorDenied
+	}
+	allowed, err := storage.accessRuleAllows(projectID, principal, id, version, operation, capability)
+	if err != nil || !allowed {
+		return ErrActorDenied
+	}
+	return nil
+}
+
+// Rules are immutable except for the revision-checked revoke transition.
+// Reject invalid target routes instead of persisting unusable grants.
+func (r *Registry) validateAccessRuleLocked(req WorkerRequest) error {
+	var input modelInput
+	if json.Unmarshal(req.Payload, &input) != nil || !modelFieldsValid(accessRuleSpec, input.Fields) {
+		return ErrInvalidWorkerRequest
+	}
+	principal := input.Fields["principal"].(string)
+	id := input.Fields["plugin"].(string)
+	version := input.Fields["version"].(string)
+	operation := input.Fields["operation"].(string)
+	capability := input.Fields["capability"].(string)
+	if !validAccessPrincipal(principal) || id == accessPluginID {
+		return ErrInvalidWorkerRequest
+	}
+	registered, ok := r.registered[id+"@"+version]
+	if !ok {
+		return ErrInvalidWorkerRequest
+	}
+	if route, ok := registered.Manifest.Route(operation); ok && route.Capability == capability {
+		return nil
+	}
+	for _, observer := range registered.Manifest.Observers {
+		if observer.operation() == operation && observer.Capability == capability {
+			return nil
+		}
+	}
+	return ErrInvalidWorkerRequest
+}
+
+func (s *SQLiteStorage) accessRuleAllows(projectID, principal, id, version, operation, capability string) (bool, error) {
+	const query = `SELECT record_id,schema_version,revision,state,fields_json
+FROM plugin_model_records
+WHERE project_id=? AND plugin_id=? AND model_name=? AND state='active'
+AND json_extract(fields_json,'$.principal')=?
+AND json_extract(fields_json,'$.plugin')=?
+AND json_extract(fields_json,'$.version')=?
+AND json_extract(fields_json,'$.operation')=?
+AND json_extract(fields_json,'$.capability')=?`
+	rows, err := s.db.Query(query, projectID, accessPluginID, accessRuleModel, principal, id, version, operation, capability)
+	if err != nil {
+		return false, err
+	}
+	defer rows.Close()
+	allowed := false
+	for rows.Next() {
+		record, err := scanModel(rows, accessRuleSpec)
+		if err != nil {
+			return false, err
+		}
+		if !record.Fields["allowed"].(bool) {
+			return false, nil // explicit deny overrides every allow
+		}
+		allowed = true
+	}
+	return allowed, rows.Err()
+}

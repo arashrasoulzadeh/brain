@@ -172,7 +172,7 @@ func (r *Registry) authorizeInvocationLocked(request WorkerRequest, observer boo
 			return ErrGrantDenied
 		}
 	}
-	return nil
+	return r.authorizeAccessLocked(request.ProjectID, request.accessPrincipal, request.PluginID, request.Version, request.Operation, route.Capability)
 }
 
 // StartWorker starts a worker for an already enabled installation that lost its

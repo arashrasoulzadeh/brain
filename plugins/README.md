@@ -16,6 +16,7 @@ plugins/<plugin-id>/
 |---|---|---:|
 | `dashboard` | Operator UI and project administration | 01/05 |
 | `auth` | End-user identity and sessions | 01/03 |
+| `access-management` | Project-scoped durable invocation access rules | 05 |
 | `tables` | Project PostgreSQL tables and CRUD | 03 |
 | `files` | Private object storage | 03 |
 | `subscriptions` | App realtime subscriptions | 03 |
