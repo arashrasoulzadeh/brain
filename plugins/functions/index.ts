@@ -27,7 +27,6 @@ export { type FunctionWriteIntent, validateWriteIntents } from "./write-intent-v
 export { capDiagnostics } from "./diagnostic-cap.js";
 export { APPROVED_WASI_IMPORTS, validateWasiImports } from "./validate-wasi-imports.js";
 export { validateSandboxCapabilities } from "./validate-sandbox-capabilities.js";
-export { runWithTimeout } from "./run-with-timeout.js";
 export { validateLinearMemory } from "./validate-execution-limits.js";
 export { validateStartupDuration } from "./validate-startup-duration.js";
 export { rejectSandboxEscapeAttempt } from "./reject-sandbox-escape.js";
@@ -55,8 +54,7 @@ export type RecordChangeTrigger = {
 };
 export { createRecordChangeTriggerStore } from "./create-record-change-trigger-store.js";
 export { createJobLeaseStore } from "./create-job-lease-store.js";
-export { commitWithGrant } from "./commit-with-grant.js";
-export { runCappedRetries } from "./run-capped-retries.js";
+export { commitWithGrant, runCappedRetries, runWithTimeout } from "../sdk-typescript/src/index.js";
 export { runIdempotentWorkflow } from "./run-idempotent-workflow.js";
 export { redactRunStatus } from "./redact-run-status.js";
 export { type WorkflowNode, validateWorkflowGraph } from "./validate-workflow-graph.js";

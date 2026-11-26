@@ -1,9 +1,17 @@
-import { createSharedPackageState } from "./shared-package-state.js";
-import { SharedPackageWriter } from "./shared-package-writer.js";
-import { SharedPackageReader } from "./shared-package-reader.js";
+import { createProjectMap, validateProjectId } from "../sdk-typescript/src/index.js";
+
 export function createSharedPackageStore() {
-  const state = createSharedPackageState();
-  const writer = new SharedPackageWriter(state);
-  const reader = new SharedPackageReader(state);
-  return { save: writer.save.bind(writer), load: reader.load.bind(reader) };
+  const packages = createProjectMap<string>();
+  return {
+    save(projectId: string, packageId: string, source: string): void {
+      validateProjectId(projectId);
+      if (!packageId || !source) throw new Error("invalid shared package");
+      packages.set(projectId, packageId, source);
+    },
+    load(projectId: string, packageId: string): string {
+      const source = packages.get(projectId, packageId);
+      if (!source) throw new Error("shared package not found");
+      return source;
+    },
+  };
 }

@@ -48,3 +48,5 @@ export { validateProjectId } from "./validate-project-id.js";
 export { validateIdentifier } from "./validate-identifier.js";
 export { createRouteDispatcher, requiredString, trimmedString } from "./routes.js";
 export type { PayloadHandler } from "./routes.js";
+export { createProjectMap } from "./project-store.js";
+export { commitWithGrant, runCappedRetries, runWithTimeout } from "./execution.js";
