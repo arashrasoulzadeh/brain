@@ -3,6 +3,7 @@ package plugin
 import (
 	"errors"
 	"fmt"
+	"time"
 )
 
 func (r *Registry) ApproveCapability(projectID, id, version, capability string) error {
@@ -59,13 +60,21 @@ func (r *Registry) GrantResource(projectID, id, version, capability, resource st
 	if !allowed {
 		return ErrGrantDenied
 	}
+	i = cloneInstallation(i)
+	if i.Resources == nil {
+		i.Resources = map[string]map[string]bool{}
+	}
+	if i.Grants == nil {
+		i.Grants = map[string]bool{}
+	}
 	if i.Resources[capability] == nil {
 		i.Resources[capability] = map[string]bool{}
 	}
 	i.Grants[capability] = true
 	i.Resources[capability][resource] = true
-	r.installations[projectID+":"+id+"@"+version] = i
-	r.persistLifecycleState()
+	if err := r.saveInstallationLocked(projectID+":"+id+"@"+version, i); err != nil {
+		return err
+	}
 	r.appendAudit(AuditEvent{Action: "grant_resource", ProjectID: projectID, PluginID: id, Version: version, Detail: capability + ":" + resource})
 	return nil
 }
@@ -102,6 +111,10 @@ func (r *Registry) Configure(projectID, id, version string, values map[string]an
 		return ErrNotInstalled
 	}
 	m := r.registered[id+"@"+version].Manifest
+	i = cloneInstallation(i)
+	if i.Config == nil {
+		i.Config = map[string]any{}
+	}
 	for name, value := range values {
 		want, declared := m.ConfigSchema[name]
 		if !declared || !configTypeMatches(want, value) {
@@ -109,8 +122,9 @@ func (r *Registry) Configure(projectID, id, version string, values map[string]an
 		}
 		i.Config[name] = value
 	}
-	r.installations[key] = i
-	r.persistLifecycleState()
+	if err := r.saveInstallationLocked(key, i); err != nil {
+		return err
+	}
 	r.appendAudit(AuditEvent{Action: "configure", ProjectID: projectID, PluginID: id, Version: version})
 	return nil
 }
@@ -147,9 +161,14 @@ func (r *Registry) Grant(projectID, id, version, capability string) error {
 	}
 	for _, requested := range r.registered[id+"@"+version].Manifest.Capabilities {
 		if requested == capability {
+			i = cloneInstallation(i)
+			if i.Grants == nil {
+				i.Grants = map[string]bool{}
+			}
 			i.Grants[capability] = true
-			r.installations[projectID+":"+id+"@"+version] = i
-			r.persistLifecycleState()
+			if err := r.saveInstallationLocked(projectID+":"+id+"@"+version, i); err != nil {
+				return err
+			}
 			r.appendAudit(AuditEvent{Action: "grant", ProjectID: projectID, PluginID: id, Version: version, Detail: capability})
 			return nil
 		}
@@ -178,14 +197,21 @@ func (r *Registry) Revoke(projectID, id, version, capability string) error {
 	if !i.Grants[capability] {
 		return ErrGrantDenied
 	}
+	i = cloneInstallation(i)
 	delete(i.Grants, capability)
 	delete(i.Resources, capability)
 	r.installations[key] = i
-	r.persistLifecycleState()
-	r.appendAudit(AuditEvent{Action: "revoke", ProjectID: projectID, PluginID: id, Version: version, Detail: capability})
-	var transitionError error
+	// A failed revoke must remain denied in memory. Report failure and block
+	// authorization until the revocation has been durably saved.
+	transitionError := r.persistLifecycleState()
+	if transitionError == nil {
+		r.appendAudit(AuditEvent{Action: "revoke", ProjectID: projectID, PluginID: id, Version: version, Detail: capability})
+	}
+	if err := r.stopBoundWorker(key); err != nil && transitionError == nil {
+		transitionError = err
+	}
 	if r.supervisor != nil {
-		if err := r.supervisor.StopProjectPlugin(projectID, id, version); err != nil && !errors.Is(err, ErrWorkerNotRunning) {
+		if err := r.supervisor.StopProjectPlugin(projectID, id, version); err != nil && !errors.Is(err, ErrWorkerNotRunning) && transitionError == nil {
 			transitionError = err
 		}
 	}
@@ -210,6 +236,9 @@ func (r *Registry) authorizeGrant(projectID, id, version, capability string) err
 }
 
 func (r *Registry) authorizeGrantLocked(projectID, id, version, capability string) error {
+	if err := r.LifecycleStorageHealth(); err != nil {
+		return err
+	}
 	if !isValidProjectID(projectID) {
 		return ErrProjectInvalid
 	}
@@ -217,7 +246,7 @@ func (r *Registry) authorizeGrantLocked(projectID, id, version, capability strin
 	if !ok {
 		return ErrNotInstalled
 	}
-	if !i.Enabled {
+	if !i.Enabled || (i.Draining && (i.DrainUntil.IsZero() || !time.Now().Before(i.DrainUntil))) {
 		return ErrDisabled
 	}
 	if !i.Grants[capability] {

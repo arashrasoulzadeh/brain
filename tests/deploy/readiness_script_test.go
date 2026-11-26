@@ -12,7 +12,7 @@ func TestReadinessScriptUsesBoundedHealthRetries(t *testing.T) {
 		t.Fatal(err)
 	}
 	script := string(content)
-	for _, required := range []string{"curl", "READINESS_ATTEMPTS", "READINESS_DELAY_SECONDS", "/livez"} {
+	for _, required := range []string{"curl", "READINESS_ATTEMPTS", "READINESS_DELAY_SECONDS", "/readyz"} {
 		if !strings.Contains(script, required) {
 			t.Fatalf("readiness script missing %q", required)
 		}

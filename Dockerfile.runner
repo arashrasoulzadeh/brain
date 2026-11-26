@@ -1,5 +1,11 @@
 FROM node:20-bookworm-slim
+RUN apt-get update && apt-get install -y --no-install-recommends bubblewrap bash && rm -rf /var/lib/apt/lists/*
 WORKDIR /workspace
-COPY scripts/typescript-worker.mjs ./scripts/typescript-worker.mjs
+COPY package.json package-lock.json ./
+RUN npm ci --ignore-scripts
+COPY tsconfig.json ./
+COPY scripts/typescript-worker.mjs scripts/run-sandboxed-typescript-worker.sh ./scripts/
 COPY plugins ./plugins
-ENTRYPOINT ["node", "scripts/typescript-worker.mjs"]
+ENV WORKER_SCRIPT=/workspace/scripts/typescript-worker.mjs WORKER_RUNTIME_ROOT=/workspace REQUIRE_DECLARED_SOURCES=1
+USER node
+ENTRYPOINT ["/workspace/scripts/run-sandboxed-typescript-worker.sh"]

@@ -36,3 +36,39 @@ Record the operator, change ID, release SHA, image digests, migration result, pa
 ## Local development boundary
 
 Do not run Docker or Compose during ordinary local development. Use the in-process and SQLite-compatible checks locally; run Compose, PostgreSQL, image, and packaged-release checks through explicit CI or release workflows.
+
+## Application startup safety
+
+The default backend process requires operator credentials, an explicit durable
+`PROJECTS_FILE` SQLite path, valid plugin manifests and sources, and a working
+Bubblewrap/Node/TypeScript runtime. Mount a persistent writable data directory
+owned by the image's non-root user. The host currently uses SQLite for project
+and plugin state: configuring PostgreSQL DSNs now fails startup rather than
+silently ignoring them. PostgreSQL application storage wiring remains separate
+release work.
+
+The runtime must support unprivileged user, PID, IPC, UTS and network namespaces
+for Bubblewrap. Do not grant the production container privileged mode or mount
+host directories to bypass this requirement. The startup probe verifies a real
+sandboxed TypeScript invocation; if it fails, do not route traffic to the host.
+The runner image requires WORKER_SCRIPT, EXECUTION_DESCRIPTOR, PLUGIN_ROOT,
+CPU_MILLIS, MEMORY_BYTES, PROCESS_LIMIT, and WORKER_SOURCE_FILES (newline-separated
+manifest source paths). The runtime root defaults to /workspace. The Go host
+sets these inputs directly; no host environment secrets are inherited.
+
+Use `/livez` for liveness and `/readyz` for traffic readiness. Readiness checks
+both SQLite connections and enabled non-draining workers. The explicit
+`health-only` command used by the legacy Compose fixture exposes liveness but
+never readiness or admin routes; it is not an application deployment. CI has a
+separate packaged runtime smoke test with disposable, network-isolated test
+containers. A production namespace configuration must still be verified on the
+target deployment host.
+
+Lifecycle writes that fail return an error and close plugin authorization until a
+complete snapshot is successfully saved. Do not restart a host with an
+unconfirmed revocation: the previous durable snapshot may still grant access.
+Restore storage access, retry or flush the lifecycle snapshot, and verify
+readiness before allowing traffic. An activation is saved only after its worker
+starts successfully. Disable, stop, removal, and grant revocation stop the
+bound runtime worker; restrictive state is retained in memory even if its
+persistence fails.

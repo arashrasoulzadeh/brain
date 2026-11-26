@@ -184,8 +184,15 @@ func (r *Registry) SetReadiness(id, version string, ready bool) error {
 	if _, ok := r.registered[key]; !ok {
 		return ErrNotRegistered
 	}
+	previous := r.readiness[key]
 	r.readiness[key] = ready
-	r.persistLifecycleState()
+	if err := r.persistLifecycleState(); err != nil {
+		// Never restore readiness on a failed attempt to make a worker unready.
+		if ready {
+			r.readiness[key] = previous
+		}
+		return err
+	}
 	r.appendAudit(AuditEvent{Action: "readiness", PluginID: id, Version: version, Detail: fmt.Sprintf("ready=%t", ready)})
 	return nil
 }
@@ -206,8 +213,10 @@ func (r *Registry) Install(projectID, id, version string) error {
 	if _, exists := r.installations[installKey]; exists {
 		return ErrDuplicate
 	}
-	r.installations[installKey] = Installation{ProjectID: projectID, PluginID: id, Version: version, Grants: map[string]bool{}, Resources: map[string]map[string]bool{}, Config: map[string]any{}}
-	r.persistLifecycleState()
+	installation := Installation{ProjectID: projectID, PluginID: id, Version: version, Grants: map[string]bool{}, Resources: map[string]map[string]bool{}, Config: map[string]any{}}
+	if err := r.saveInstallationLocked(installKey, installation); err != nil {
+		return err
+	}
 	r.appendAudit(AuditEvent{Action: "install", ProjectID: projectID, PluginID: id, Version: version})
 	return nil
 }
