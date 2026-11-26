@@ -116,6 +116,7 @@ func (m Manifest) acceptsObservation(intent ObservationIntent, source string) bo
 // recursively publish events in this first implementation. No worker-provided
 // identity is trusted: the envelope is constructed from the authorized request.
 func (r *Registry) deliverObservations(publisher WorkerRequest, intents []ObservationIntent) {
+	r.recordCommittedAdminObservations(publisher, intents, "")
 	r.executeObservationPlan(r.planWorkerObservations(publisher, intents))
 }
 
@@ -169,7 +170,9 @@ func (r *Registry) PublishHostObservation(projectID, pluginID, event string, pay
 		return
 	}
 	publisher := WorkerRequest{Protocol: r.HostAPI, ProjectID: projectID, PluginID: selected.ID, Version: selected.Version}
-	r.executeObservationPlan(r.planObservations(publisher, selected, []ObservationIntent{{Event: event, Payload: encoded}}, "host"))
+	intents := []ObservationIntent{{Event: event, Payload: encoded}}
+	r.recordCommittedAdminObservations(publisher, intents, "host")
+	r.executeObservationPlan(r.planObservations(publisher, selected, intents, "host"))
 }
 
 func (r *Registry) planObservations(publisher WorkerRequest, manifest Manifest, intents []ObservationIntent, source string) []observationDelivery {
@@ -268,4 +271,25 @@ func (r *Registry) observationTargets(publisher WorkerRequest, event string) []W
 
 func (r *Registry) recordObservation(action string, request WorkerRequest, detail string) {
 	r.appendAudit(AuditEvent{Action: action, ProjectID: request.ProjectID, PluginID: request.PluginID, Version: request.Version, Detail: detail})
+}
+
+func (r *Registry) recordCommittedAdminObservations(publisher WorkerRequest, intents []ObservationIntent, source string) {
+	r.readinessMu.RLock()
+	defer r.readinessMu.RUnlock()
+	r.recordCommittedAdminObservationsLocked(publisher, intents, source)
+}
+
+func (r *Registry) recordCommittedAdminObservationsLocked(publisher WorkerRequest, intents []ObservationIntent, source string) {
+	if len(intents) > maxObservationEvents {
+		return
+	}
+	registered, ok := r.registered[publisher.PluginID+"@"+publisher.Version]
+	if !ok {
+		return
+	}
+	for _, intent := range intents {
+		if registered.Manifest.acceptsObservation(intent, source) {
+			r.recordAdminObservation(publisher.ProjectID, publisher.PluginID+"."+intent.Event)
+		}
+	}
 }

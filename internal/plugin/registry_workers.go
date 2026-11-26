@@ -174,6 +174,9 @@ func (r *Registry) invokeUsingWorker(request WorkerRequest, observer bool, overr
 		for _, delivery := range deliveries {
 			r.recordObservation("observation_queued", delivery.Target, delivery.detail())
 		}
+		if !observer {
+			r.recordCommittedAdminObservationsLocked(request, response.Observations, "")
+		}
 		response.Observations = nil
 	} else if commit != nil {
 		if err := commit(); err != nil {

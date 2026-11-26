@@ -27,6 +27,7 @@ type Manifest struct {
 	PluginImports   []string          `yaml:"plugin_imports"`
 	Events          []EventSpec       `yaml:"events"`
 	Observers       []ObserverSpec    `yaml:"observe"`
+	Admin           *AdminSpec        `yaml:"admin,omitempty" json:",omitempty"`
 }
 
 type Route struct {
@@ -106,6 +107,9 @@ func ValidateManifestContract(manifest Manifest) error {
 			return ErrInvalidManifest
 		}
 		seenRoutes[route.Operation] = true
+	}
+	if err := validateAdminSpec(manifest); err != nil {
+		return err
 	}
 	return validateObservationContract(manifest, declaredCapabilities)
 }
