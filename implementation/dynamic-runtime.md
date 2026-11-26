@@ -15,3 +15,5 @@ Status: incremental; not production-ready until full CI passes.
 - [ ] Run full Go, TypeScript, lint and sandbox gates.
 
 First increment: sdk.pipeline supports up to 32 ordered pure steps, explicit inputs and saved outputs, and trusted project/plugin identity references. The example plugin demonstrates it. No storage, network, cross-plugin calls or arbitrary code are exposed by this increment.
+
+Second increment: fixes worker initialization order; adds typed pipeline SDK declarations, integer/boolean helpers, staged observation helper, pure model validation and state transition primitives. Model persistence, YAML schema integration, transactional state updates and generated dashboard remain open.

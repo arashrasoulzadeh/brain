@@ -2,7 +2,7 @@ package plugin
 
 import "strings"
 
-// PipelineSpec is a bounded sequence of allowlisted, pure helper invocations.
+// PipelineSpec is a bounded sequence of allowlisted, allowlisted helper invocations.
 type PipelineSpec struct {
  Steps []PipelineStep `yaml:"steps" json:"steps"`
  Return string `yaml:"return" json:"return"`
@@ -34,7 +34,7 @@ func (s *PipelineSpec) valid() bool {
  names := map[string]bool{}
  for _, step := range s.Steps {
   switch step.Helper {
-  case "string.trim", "string.nonempty", "value.identity":
+  case "string.trim", "string.nonempty", "value.identity", "number.integer", "boolean.require", "observe.fire":
   default: return false
   }
   if !validResponseKey(step.Save) || names[step.Save] || !pipelineReference(step.Input, names) { return false }

@@ -42,8 +42,9 @@ export type PluginRoute = {
   operation: string;
   function: string;
   capability: string;
-  helper?: "sdk.dispatch" | "sdk.request" | "sdk.response" | "sdk.context";
+  helper?: "sdk.dispatch" | "sdk.request" | "sdk.response" | "sdk.context" | "sdk.pipeline";
   response?: DeclarativeResponse;
+  pipeline?: DeclarativePipeline;
 };
 
 export type DeclarativeResponse = {
@@ -76,3 +77,10 @@ export { createProjectMap } from "./project-store.js";
 export { commitWithGrant, createCommitRollback, createTransactionGate, runCappedRetries, runWithTimeout } from "./execution.js";
 
 export { createFixedWindowLimiter } from "./execution.js";
+
+export type DeclarativePipeline = Readonly<{
+  steps: readonly Readonly<{ helper: "string.trim" | "string.nonempty" | "value.identity" | "number.integer" | "boolean.require" | "observe.fire"; input: string; save: string }>[];
+  return: string;
+}>;
+export { validateModel, transitionState } from "./declarative.js";
+export type { ModelSchema, StateMachine } from "./declarative.js";

@@ -148,11 +148,13 @@ function mapResponse(spec, payload, context) {
       typeof value === "string" && value.startsWith("$input.") ? values.get(value.slice(7)) : value]));
 }
 
-const pipelineHelpers = () => new Map([
+function pipelineHelpers() { return new Map([
   ["string.trim", (value) => { if (typeof value !== "string") throw new Error("expected string"); return value.trim(); }],
   ["string.nonempty", (value) => { if (typeof value !== "string" || !value.trim()) throw new Error("expected nonempty string"); return value; }],
   ["value.identity", (value) => value],
-]);
+  ["number.integer", (value) => { if (!Number.isSafeInteger(value)) throw new Error("expected integer"); return value; }],
+  ["boolean.require", (value) => { if (typeof value !== "boolean") throw new Error("expected boolean"); return value; }],
+]); }
 
 function pipelineReference(value, available) {
   if (value === "$input" || value === "$project.id" || value === "$plugin.id") return true;
@@ -168,7 +170,7 @@ function validPipeline(spec) {
   const names = new Set();
   for (const step of spec.steps) {
     if (!step || !responseKey(step.save) || names.has(step.save) ||
-        !pipelineHelpers().has(step.helper) || !pipelineReference(step.input, names)) return false;
+        !(pipelineHelpers().has(step.helper) || step.helper === "observe.fire") || !pipelineReference(step.input, names)) return false;
     names.add(step.save);
   }
   return pipelineReference(spec.return, names);
@@ -188,6 +190,15 @@ async function executePipeline(spec, input, context) {
     }
     return value;
   };
-  for (const step of spec.steps) values.set(step.save, await helpers.get(step.helper)(resolve(step.input)));
+  for (const step of spec.steps) {
+    const value = resolve(step.input);
+    if (step.helper === "observe.fire") {
+      if (!value || typeof value !== "object" || !Object.hasOwn(value, "event") || !Object.hasOwn(value, "payload")) throw new Error("invalid observation input");
+      context.plugins.observe.fire(value.event, value.payload);
+      values.set(step.save, null);
+    } else {
+      values.set(step.save, await helpers.get(step.helper)(value));
+    }
+  }
   return resolve(spec.return);
 }
