@@ -27,7 +27,20 @@ export type PluginRoute = {
   operation: string;
   function: string;
   capability: string;
-  helper?: "sdk.dispatch" | "sdk.request";
+  helper?: "sdk.dispatch" | "sdk.request" | "sdk.response";
+  response?: DeclarativeResponse;
+};
+
+export type DeclarativeResponse = {
+  input: readonly {
+    name: string;
+    type: "string" | "value";
+    trim?: boolean;
+    required?: boolean;
+    default?: string;
+    error?: string;
+  }[];
+  output: Readonly<Record<string, string | number | boolean | null>>;
 };
 
 export type HostInvoker = {

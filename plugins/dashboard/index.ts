@@ -1,14 +1,14 @@
 export { adminRequest } from "./admin-request.js";
-export { adminPanel } from "./admin-panel.js";
-export type { AdminPanelSection } from "./admin-panel.js";
+export { adminPanel } from "./pages.js";
+export type { AdminPanelSection } from "./pages.js";
 export { FormAuditRecorder } from "./form-audit-recorder.js";
 export { FormAuditReader } from "./form-audit-reader.js";
-export { browserQuickstart } from "./browser-quickstart.js";
-export { authSettingsPage } from "./auth-settings-page.js";
-export { fileManagementPage } from "./file-management-page.js";
-export { functionManagementPage } from "./function-management-page.js";
-export { workflowManagementPage } from "./workflow-management-page.js";
-export { liveSessionPage } from "./live-session-page.js";
+export { browserQuickstart } from "./pages.js";
+export { authSettingsPage } from "./pages.js";
+export { fileManagementPage } from "./pages.js";
+export { functionManagementPage } from "./pages.js";
+export { workflowManagementPage } from "./pages.js";
+export { liveSessionPage } from "./pages.js";
 export {
   pluginPromoteRequest,
   pluginRollbackRequest,
@@ -18,10 +18,10 @@ export {
   pluginUninstallRequest,
   projectCreateRequest,
 } from "./project-request.js";
-export { recordBrowserPage } from "./record-browser-page.js";
-export { recordEditPage } from "./record-edit-page.js";
-export { signupSettingsPage } from "./signup-settings-page.js";
-export { tableManagementPage } from "./table-management-page.js";
+export { recordBrowserPage } from "./pages.js";
+export { recordEditPage } from "./pages.js";
+export { signupSettingsPage } from "./pages.js";
+export { tableManagementPage } from "./pages.js";
 export type {
   AuthSettings,
   FormAudit,
