@@ -39,16 +39,12 @@ func OperatorSessionHandler(sessions *operator.Store, digest func(string) string
 			http.Error(w, "invalid operator login", http.StatusBadRequest)
 			return
 		}
-		if err := sessions.Authenticate(login.Username, login.Secret, digest); err != nil {
-			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
-			return
-		}
 		tokenBytes := make([]byte, 32)
 		if _, err := rand.Read(tokenBytes); err != nil {
 			http.Error(w, "operator session unavailable", http.StatusInternalServerError)
 			return
 		}
-		token, err := sessions.IssueSession(func() string { return hex.EncodeToString(tokenBytes) })
+		token, err := sessions.AuthenticateSession(login.Username, login.Secret, digest, func() string { return hex.EncodeToString(tokenBytes) })
 		if err != nil {
 			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 			return
