@@ -57,21 +57,47 @@ admin:
   version: 1
   pages:
     - id: operations
-      title: Rooms operations
+      title: Room details
+      legacy_route: live-sessions
       refresh_on:
         - rooms.connected
       actions:
-        - title: result
+        - title: Get room result
           operation: rooms.result
           read_only: true
           fields:
             - name: id
               type: string
               required: true
-    - id: submit-result
-      title: Submit room result
+    - id: manage
+      title: Manage rooms
+      legacy_route: live-sessions
       actions:
-        - title: submit result
+        - title: Create room
+          operation: rooms.create
+          fields:
+            - name: id
+              type: string
+              required: true
+        - title: Join room
+          operation: rooms.join
+          fields:
+            - name: id
+              type: string
+              required: true
+            - name: member
+              type: string
+              required: true
+        - title: Reconnect member
+          operation: rooms.reconnect
+          fields:
+            - name: id
+              type: string
+              required: true
+            - name: member
+              type: string
+              required: true
+        - title: Submit result
           operation: rooms.result
           fields:
             - name: id

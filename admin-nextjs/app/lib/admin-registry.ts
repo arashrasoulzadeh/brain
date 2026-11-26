@@ -27,3 +27,7 @@ export function adminPageExtensions(target: AdminContribution, contributions: re
   return contributions.filter(item => item.projectID === target.projectID && item.pluginID !== target.pluginID &&
     item.page.extends === target.pluginID + "/" + target.page.id);
 }
+
+export function adminLegacyContributions(projectID: string, catalog: AdminCatalog, route: string): AdminContribution[] {
+  return adminContributions(projectID, catalog).filter(item => item.page.legacy_route === route);
+}

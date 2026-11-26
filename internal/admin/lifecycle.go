@@ -242,6 +242,12 @@ func (s *LifecycleService) invokeAdminPage(actor operator.Actor, pageID string, 
 // AdminPageRevision is an authenticated read like ListPlugins. No event payload
 // is exposed, and every poll rechecks project and plugin authorization.
 func (s *LifecycleService) AdminPageRevision(actor operator.Actor, pageID string, invocation PluginInvocation) (uint64, error) {
+	if s == nil || s.operators == nil {
+		return 0, operator.ErrInvalidOperatorAction
+	}
+	if err := s.operators.AuthorizeAction(actor, "plugin.admin.revision"); err != nil {
+		return 0, err
+	}
 	manifest, err := s.adminPageManifest(actor, pageID, invocation)
 	if err != nil {
 		return 0, err

@@ -86,9 +86,10 @@ admin:
   version: 1
   pages:
     - id: operations
-      title: Functions operations
+      title: Function operations
+      legacy_route: workflows
       actions:
-        - title: invoke
+        - title: Invoke function
           operation: functions.invoke
           fields:
             - name: name
@@ -96,3 +97,15 @@ admin:
               required: true
             - name: input
               type: json
+        - title: Publish function
+          operation: functions.publish
+          fields:
+            - name: name
+              type: string
+              required: true
+            - name: source
+              type: string
+              required: true
+            - name: version
+              type: string
+              required: true

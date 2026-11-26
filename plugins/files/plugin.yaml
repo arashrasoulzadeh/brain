@@ -50,11 +50,34 @@ admin:
   version: 1
   pages:
     - id: operations
-      title: Files operations
+      title: Files
+      legacy_route: files
       actions:
-        - title: metadata
+        - title: File metadata
           operation: files.metadata
           read_only: true
+          fields:
+            - name: key
+              type: string
+              required: true
+        - title: Download file
+          operation: files.download
+          read_only: true
+          fields:
+            - name: key
+              type: string
+              required: true
+        - title: Upload file
+          operation: files.upload
+          fields:
+            - name: key
+              type: string
+              required: true
+            - name: data
+              type: string
+              required: true
+        - title: Publish file
+          operation: files.publish
           fields:
             - name: key
               type: string

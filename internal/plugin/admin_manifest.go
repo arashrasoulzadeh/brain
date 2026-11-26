@@ -13,11 +13,12 @@ type AdminSpec struct {
 }
 
 type AdminPage struct {
-	ID        string        `yaml:"id" json:"id"`
-	Title     string        `yaml:"title" json:"title"`
-	Actions   []AdminAction `yaml:"actions" json:"actions"`
-	Extends   string        `yaml:"extends,omitempty" json:"extends,omitempty"`
-	RefreshOn []string      `yaml:"refresh_on,omitempty" json:"refresh_on,omitempty"`
+	ID          string        `yaml:"id" json:"id"`
+	Title       string        `yaml:"title" json:"title"`
+	Actions     []AdminAction `yaml:"actions" json:"actions"`
+	Extends     string        `yaml:"extends,omitempty" json:"extends,omitempty"`
+	RefreshOn   []string      `yaml:"refresh_on,omitempty" json:"refresh_on,omitempty"`
+	LegacyRoute string        `yaml:"legacy_route,omitempty" json:"legacy_route,omitempty"`
 }
 
 type AdminAction struct {
@@ -50,6 +51,9 @@ func validateAdminSpec(m Manifest) error {
 			return ErrInvalidManifest
 		}
 		if page.Extends != "" && (!adminTarget.MatchString(page.Extends) || strings.HasPrefix(page.Extends, m.ID+"/")) {
+			return ErrInvalidManifest
+		}
+		if page.LegacyRoute != "" && !adminPageID.MatchString(page.LegacyRoute) {
 			return ErrInvalidManifest
 		}
 		if len(page.RefreshOn) > 16 {
