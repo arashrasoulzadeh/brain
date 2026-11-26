@@ -4,19 +4,7 @@ import Link from "next/link";
 import { readAdminSession } from "../lib/admin-api";
 import type { AdminContribution } from "../lib/admin-registry";
 import { adminPageRevision, invokeAdminAction } from "../lib/admin-sdk";
-
-function Result({ value }: { value: unknown }) {
-  if (value && typeof value === "object" && !Array.isArray(value) && "rows" in value && Array.isArray(value.rows)) {
-    return <><pre>{JSON.stringify(Object.fromEntries(Object.entries(value).filter(([key]) => key !== "rows")), null, 2)}</pre><Result value={value.rows} /></>;
-  }
-  if (Array.isArray(value) && value.length && value.every(row => row && typeof row === "object" && !Array.isArray(row))) {
-    const rows = value as Record<string, unknown>[];
-    const columns = [...new Set(rows.flatMap(row => Object.keys(row)))];
-    return <div style={{ overflowX: "auto" }}><table><thead><tr>{columns.map(column => <th key={column}>{column}</th>)}</tr></thead>
-      <tbody>{rows.map((row, index) => <tr key={index}>{columns.map(column => <td key={column}>{JSON.stringify(row[column])}</td>)}</tr>)}</tbody></table></div>;
-  }
-  return <pre>{JSON.stringify(value, null, 2)}</pre>;
-}
+import { AdminResultRenderer } from "./admin-results";
 
 export function ActionForm({ contribution }: { contribution: AdminContribution }) {
   const [operation, setOperation] = useState(contribution.page.actions[0].operation);
@@ -107,7 +95,7 @@ export function ActionForm({ contribution }: { contribution: AdminContribution }
     </form>
     {lastQuery && <p className="muted">Live refresh enabled for declared observation events.</p>}
     {error && <p role="alert">{error}</p>}
-    {result !== undefined && <Result value={result} />}
+    {result !== undefined && <AdminResultRenderer key={operation} value={result} spec={action?.result} />}
   </section>;
 }
 

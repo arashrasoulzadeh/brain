@@ -56,6 +56,14 @@ admin:
         - title: File metadata
           operation: files.metadata
           read_only: true
+          result:
+            type: grid
+            children:
+              - type: metric
+                title: Size (bytes)
+                path: size
+              - type: detail
+                title: File metadata
           fields:
             - name: key
               type: string

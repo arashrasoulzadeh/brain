@@ -22,10 +22,11 @@ type AdminPage struct {
 }
 
 type AdminAction struct {
-	Title     string       `yaml:"title" json:"title"`
-	Operation string       `yaml:"operation" json:"operation"`
-	Fields    []AdminField `yaml:"fields,omitempty" json:"fields,omitempty"`
-	ReadOnly  bool         `yaml:"read_only,omitempty" json:"read_only,omitempty"`
+	Title     string           `yaml:"title" json:"title"`
+	Operation string           `yaml:"operation" json:"operation"`
+	Fields    []AdminField     `yaml:"fields,omitempty" json:"fields,omitempty"`
+	ReadOnly  bool             `yaml:"read_only,omitempty" json:"read_only,omitempty"`
+	Result    *AdminResultSpec `yaml:"result,omitempty" json:"result,omitempty"`
 }
 
 type AdminField struct {
@@ -70,6 +71,9 @@ func validateAdminSpec(m Manifest) error {
 		actions := map[string]bool{}
 		for _, action := range page.Actions {
 			if _, ok := m.Route(action.Operation); !ok || strings.TrimSpace(action.Title) == "" || actions[action.Operation] {
+				return ErrInvalidManifest
+			}
+			if action.Result != nil && !action.Result.valid(0) {
 				return ErrInvalidManifest
 			}
 			if len(action.Fields) > 32 {

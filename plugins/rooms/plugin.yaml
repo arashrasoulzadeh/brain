@@ -65,6 +65,8 @@ admin:
         - title: Get room result
           operation: rooms.result
           read_only: true
+          result:
+            type: detail
           fields:
             - name: id
               type: string

@@ -21,9 +21,12 @@ Admin-panel and operator documentation work after backend release gates pass.
 ## Manifest-driven admin migration
 
 - [x] Versioned admin metadata and generic action discovery.
-- [x] Explicit server-side action confirmation and manifest authorization.
-- [x] Typed forms and cross-plugin extension links.
-- [ ] Automatic read-only resource sources, richer components and pagination.
+- [x] Typed forms and explicit server-side action confirmation and payload validation.
+- [x] Project/version/grant-aware page contributions and cross-plugin extension links.
+- [x] Declarative result components with filtering and client-side pagination.
 - [x] Authenticated observation-driven invalidation and read-only refresh (bounded polling).
-- [ ] Complete specialized-page migration and remove hard-coded navigation.
+- [x] Schema-generated configuration forms.
+- [x] Migrate database, files, workflows and live-session consoles away from hard-coded plugin dispatch.
+- [ ] Dedicated resource list APIs and richer embedded extension slots.
+- [ ] Dedicated admin operations for plugins without implemented runtime handlers.
 - [ ] End-to-end and deployment validation of the new paths.
