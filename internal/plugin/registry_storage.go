@@ -1,6 +1,6 @@
 package plugin
 
-import "encoding/json"
+import "hash/fnv"
 
 func (r *Registry) BindSQLiteStorage(storage *SQLiteStorage) {
 	r.workerMu.Lock()
@@ -33,140 +33,6 @@ func (r *Registry) persistLifecycleState() {
 	_ = r.storage.SaveRegistryState(r.installations, r.readiness)
 }
 
-func (r *Registry) prepareStorageRequest(request WorkerRequest) WorkerRequest {
-	if r.storage == nil {
-		return request
-	}
-	var payload map[string]any
-	if json.Unmarshal(request.Payload, &payload) != nil {
-		return request
-	}
-	if request.PluginID == "files" {
-		key, _ := payload["key"].(string)
-		if key == "" {
-			return request
-		}
-		if request.Operation == "files.upload" {
-			if data, ok := payload["data"].(string); ok {
-				_ = r.storage.PutFile(request.ProjectID, key, data, false)
-			}
-		}
-		if request.Operation == "files.publish" {
-			if data, _, err := r.storage.File(request.ProjectID, key); err == nil && data != "" {
-				_ = r.storage.PutFile(request.ProjectID, key, data, true)
-				payload["published"] = true
-				request.Payload, _ = json.Marshal(payload)
-			}
-		}
-		if request.Operation == "files.download" || request.Operation == "files.metadata" {
-			if data, published, err := r.storage.File(request.ProjectID, key); err == nil && data != "" {
-				payload["data"] = data
-				payload["published"] = published
-				request.Payload, _ = json.Marshal(payload)
-			}
-		}
-		return request
-	}
-	if request.PluginID == "matchmaking" {
-		id, _ := payload["id"].(string)
-		if id == "" {
-			return request
-		}
-		state, _ := r.storage.State(request.ProjectID, "matchmaking", id)
-		if request.Operation == "matchmaking.queue" {
-			state = map[string]any{"id": id, "status": "queued"}
-			_ = r.storage.PutState(request.ProjectID, "matchmaking", id, state)
-		}
-		if request.Operation == "matchmaking.cancel" || request.Operation == "matchmaking.assign" {
-			if state == nil {
-				return request
-			}
-			if request.Operation == "matchmaking.cancel" {
-				state["status"] = "cancelled"
-			} else {
-				state["status"] = "assigned"
-			}
-			_ = r.storage.PutState(request.ProjectID, "matchmaking", id, state)
-		}
-		if state != nil {
-			payload["ticket"] = state
-			request.Payload, _ = json.Marshal(payload)
-		}
-		return request
-	}
-	if request.PluginID == "rooms" {
-		id, _ := payload["id"].(string)
-		if id == "" {
-			return request
-		}
-		state, _ := r.storage.State(request.ProjectID, "rooms", id)
-		if request.Operation == "rooms.create" {
-			state = map[string]any{"id": id, "members": []any{}}
-			_ = r.storage.PutState(request.ProjectID, "rooms", id, state)
-		}
-		if state == nil {
-			return request
-		}
-		if request.Operation == "rooms.join" || request.Operation == "rooms.reconnect" {
-			if member, ok := payload["member"].(string); ok {
-				members, _ := state["members"].([]any)
-				found := false
-				for _, existing := range members {
-					if existing == member {
-						found = true
-					}
-				}
-				if !found {
-					members = append(members, member)
-				}
-				state["members"] = members
-				_ = r.storage.PutState(request.ProjectID, "rooms", id, state)
-			}
-		}
-		if request.Operation == "rooms.result" {
-			if value, ok := payload["result"]; ok {
-				state["result"] = value
-				_ = r.storage.PutState(request.ProjectID, "rooms", id, state)
-			}
-		}
-		payload["room"] = state
-		request.Payload, _ = json.Marshal(payload)
-		return request
-	}
-	if request.PluginID == "analytics" && request.Operation == "analytics.capture" {
-		var event map[string]any
-		if json.Unmarshal(request.Payload, &event) == nil {
-			state, _ := r.storage.State(request.ProjectID, "analytics", "events")
-			if state == nil {
-				state = map[string]any{"events": []any{}}
-			}
-			events, _ := state["events"].([]any)
-			events = append(events, event)
-			state["events"] = events
-			_ = r.storage.PutState(request.ProjectID, "analytics", "events", state)
-		}
-	}
-	if request.PluginID != "tables" {
-		return request
-	}
-	table, _ := payload["table"].(string)
-	if table == "" {
-		return request
-	}
-	if request.Operation == "tables.write" {
-		if row, ok := payload["row"].(map[string]any); ok {
-			_ = r.storage.Append(request.ProjectID, table, row)
-		}
-	}
-	if request.Operation == "tables.read" {
-		if rows, err := r.storage.Rows(request.ProjectID, table); err == nil {
-			payload["rows"] = rows
-			request.Payload, _ = json.Marshal(payload)
-		}
-	}
-	return request
-}
-
 func (r *Registry) SaveDurableData(projectID, pluginID, key string, value []byte) error {
 	if !isValidProjectID(projectID) || pluginID == "" || key == "" {
 		return ErrProjectInvalid
@@ -193,4 +59,22 @@ func (r *Registry) DeleteDurableData(projectID, pluginID, key string) error {
 	delete(r.durableData, projectID+":"+pluginID+":"+key)
 	r.appendAudit(AuditEvent{Action: "delete_durable_data", ProjectID: projectID, PluginID: pluginID, Detail: key})
 	return nil
+}
+
+// lockStorageInvocation bounds lock memory while serializing storage plans by
+// project and plugin. Different versions share a stripe because they share data.
+func (r *Registry) lockStorageInvocation(request WorkerRequest) func() {
+	if r.storage == nil {
+		return func() {}
+	}
+	switch request.PluginID {
+	case "files", "matchmaking", "rooms", "analytics", "tables":
+	default:
+		return func() {}
+	}
+	hash := fnv.New32a()
+	_, _ = hash.Write([]byte(request.ProjectID + ":" + request.PluginID))
+	lock := &r.storageInvocations[hash.Sum32()%uint32(len(r.storageInvocations))]
+	lock.Lock()
+	return lock.Unlock
 }

@@ -37,6 +37,9 @@ func (r *Registry) Invoke(request WorkerRequest) (WorkerResponse, error) {
 	if err := ValidateWorkerRequest(request, r.HostAPI); err != nil {
 		return WorkerResponse{}, err
 	}
+	// Serialize read/modify/write plans for the same project and plugin.
+	unlock := r.lockStorageInvocation(request)
+	defer unlock()
 	if err := r.authorizeInvocation(request); err != nil {
 		return WorkerResponse{}, err
 	}
@@ -48,19 +51,44 @@ func (r *Registry) Invoke(request WorkerRequest) (WorkerResponse, error) {
 		return WorkerResponse{}, ErrWorkerNotReady
 	}
 
-	// Storage preparation can mutate durable state. Never run it for a request
-	// that has failed validation, lifecycle, route, grant or readiness checks.
-	request = r.prepareStorageRequest(request)
-	return InvokeForProject(worker, request, r.HostAPI, request.ProjectID)
-}
-
-func (r *Registry) authorizeInvocation(request WorkerRequest) error {
-	manifestKey := request.PluginID + "@" + request.Version
+	// Prepare reads and proposed writes, but do not mutate durable state until
+	// the worker has succeeded and lifecycle and grants have been rechecked.
+	prepared, commit, err := prepareLegacyStorageRequest(r.storage, request)
+	if err != nil {
+		return WorkerResponse{}, err
+	}
+	response, err := InvokeForProject(worker, prepared, r.HostAPI, request.ProjectID)
+	if err != nil || !response.Success || response.ErrorCode != "" {
+		return response, err
+	}
+	if response.Protocol != request.Protocol {
+		return WorkerResponse{}, ErrInvalidWorkerRequest
+	}
 	r.readinessMu.RLock()
 	defer r.readinessMu.RUnlock()
 	r.installationMu.RLock()
 	defer r.installationMu.RUnlock()
+	if err := r.authorizeInvocationLocked(request); err != nil {
+		return WorkerResponse{}, err
+	}
+	if commit != nil {
+		if err := commit(); err != nil {
+			return WorkerResponse{}, err
+		}
+	}
+	return response, nil
+}
 
+func (r *Registry) authorizeInvocation(request WorkerRequest) error {
+	r.readinessMu.RLock()
+	defer r.readinessMu.RUnlock()
+	r.installationMu.RLock()
+	defer r.installationMu.RUnlock()
+	return r.authorizeInvocationLocked(request)
+}
+
+func (r *Registry) authorizeInvocationLocked(request WorkerRequest) error {
+	manifestKey := request.PluginID + "@" + request.Version
 	installation, installed := r.installations[request.ProjectID+":"+manifestKey]
 	if !installed {
 		return ErrNotInstalled

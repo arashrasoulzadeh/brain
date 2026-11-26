@@ -52,31 +52,32 @@ type InstallationStatus struct {
 }
 
 type Registry struct {
-	HostAPI           int
-	registered        map[string]Registered
-	installations     map[string]Installation
-	installationMu    sync.RWMutex
-	readiness         map[string]bool
-	readinessMu       sync.RWMutex
-	grantMu           sync.RWMutex
-	approvalMu        sync.RWMutex
-	audit             []AuditEvent
-	artifactMu        sync.RWMutex
-	auditMu           sync.RWMutex
-	active            map[string]string
-	pins              map[string]string
-	artifacts         map[string]string
-	approvals         map[string]bool
-	lifecycleRevision uint64
-	lifecycleMu       sync.RWMutex
-	durableData       map[string][]byte
-	durableMu         sync.RWMutex
-	supervisor        *Supervisor
-	workerMu          sync.RWMutex
-	workers           map[string]ContractWorker
-	workerFactory     func(projectID, pluginID, version string) (ContractWorker, error)
-	storage           *SQLiteStorage
-	webSockets        *WebSocketRegistry
+	HostAPI             int
+	registered          map[string]Registered
+	installations       map[string]Installation
+	installationMu      sync.RWMutex
+	readiness           map[string]bool
+	readinessMu         sync.RWMutex
+	grantMu             sync.RWMutex
+	approvalMu          sync.RWMutex
+	audit               []AuditEvent
+	artifactMu          sync.RWMutex
+	auditMu             sync.RWMutex
+	active              map[string]string
+	pins                map[string]string
+	artifacts           map[string]string
+	approvals           map[string]bool
+	lifecycleRevision   uint64
+	lifecycleMu         sync.RWMutex
+	durableData         map[string][]byte
+	durableMu           sync.RWMutex
+	supervisor          *Supervisor
+	workerMu            sync.RWMutex
+	workers             map[string]ContractWorker
+	workerFactory       func(projectID, pluginID, version string) (ContractWorker, error)
+	storage             *SQLiteStorage
+	storageInvocations  [64]sync.Mutex
+	webSockets          *WebSocketRegistry
 }
 
 func NewRegistry(hostAPI int) *Registry {
