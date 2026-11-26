@@ -33,13 +33,13 @@ const output = new Promise<string>((resolve, reject) => {
   worker.on("error", reject);
 });
 worker.stdin.write(
-  `${JSON.stringify({ jsonrpc: "2.0", id: "one", params: { pluginId: "sample", version: "1.0.0", projectId: "project", operation: "health" } })}\n`,
+  `${JSON.stringify({ jsonrpc: "2.0", id: "one", params: { protocol: 1, pluginId: "sample", version: "1.0.0", projectId: "project", operation: "health" } })}\n`,
 );
 const response = JSON.parse(await output) as {
   id: string;
-  result: { accepted: boolean; operation: string };
+  result: { protocol: number; success: boolean; payload: { accepted: boolean; operation: string } };
 };
-if (response.id !== "one" || !response.result.accepted || response.result.operation !== "health") {
+if (response.id !== "one" || response.result.protocol !== 1 || !response.result.success || !response.result.payload.accepted || response.result.payload.operation !== "health") {
   throw new Error("typescript worker did not execute the plugin");
 }
 worker.kill();
