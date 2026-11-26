@@ -58,6 +58,8 @@ admin:
   pages:
     - id: operations
       title: Room details
+      extension_slots:
+        - tab
       legacy_route: live-sessions
       inventory:
         kind: state_keys

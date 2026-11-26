@@ -27,6 +27,7 @@ Admin-panel and operator documentation work after backend release gates pass.
 - [x] Authenticated observation-driven invalidation and read-only refresh (bounded polling).
 - [x] Schema-generated configuration forms.
 - [x] Migrate database, files, workflows and live-session consoles away from hard-coded plugin dispatch.
-- [ ] Dedicated resource list APIs and richer embedded extension slots.
+- [x] Paginated metadata inventories for rooms, tickets, tables and files; opt-in embedded extension tabs.
+- [ ] Broader inventory support for alternative storage adapters and remaining plugins.
 - [ ] Dedicated admin operations for plugins without implemented runtime handlers.
 - [ ] End-to-end and deployment validation of the new paths.
