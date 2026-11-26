@@ -57,3 +57,59 @@ routes:
     function: result
     helper: sdk.dispatch
     capability: rooms.result
+
+admin:
+  version: 1
+  pages:
+    - id: operations
+      title: Room details
+      legacy_route: live-sessions
+      refresh_on:
+        - rooms.connected
+      actions:
+        - title: Get room result
+          operation: rooms.result
+          read_only: true
+          result:
+            type: detail
+          fields:
+            - name: id
+              type: string
+              required: true
+    - id: manage
+      title: Manage rooms
+      legacy_route: live-sessions
+      actions:
+        - title: Create room
+          operation: rooms.create
+          fields:
+            - name: id
+              type: string
+              required: true
+        - title: Join room
+          operation: rooms.join
+          fields:
+            - name: id
+              type: string
+              required: true
+            - name: member
+              type: string
+              required: true
+        - title: Reconnect member
+          operation: rooms.reconnect
+          fields:
+            - name: id
+              type: string
+              required: true
+            - name: member
+              type: string
+              required: true
+        - title: Submit result
+          operation: rooms.result
+          fields:
+            - name: id
+              type: string
+              required: true
+            - name: result
+              type: json
+              required: true

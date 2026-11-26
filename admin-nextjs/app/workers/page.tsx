@@ -1,5 +1,5 @@
 "use client";
-import { adminHeaders, readAdminSession, clearAdminSession, signOutAdminSession } from "../lib/admin-api";
+import { adminHeaders, readAdminSession, preferredAdminProject, clearAdminSession, signOutAdminSession } from "../lib/admin-api";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -18,7 +18,7 @@ export default function WorkersPage() {
     const projectsResponse = await fetch("/api/admin/projects", { headers: adminHeaders(token) });
     if (!projectsResponse.ok) throw new Error("session expired");
     const projects = await projectsResponse.json() as { ID: string; Active: boolean }[];
-    const activeProject = projects.find((candidate) => candidate.Active)?.ID ?? "";
+    const activeProject = preferredAdminProject(projects)?.ID ?? "";
     setProject(activeProject);
     if (!activeProject) return;
     const pluginsResponse = await fetch(`/api/admin/plugins?project_id=${encodeURIComponent(activeProject)}`, { headers: adminHeaders(token) });

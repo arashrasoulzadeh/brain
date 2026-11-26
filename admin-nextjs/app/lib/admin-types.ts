@@ -6,7 +6,13 @@ export type PluginManifest = {
   Version: string;
   Capabilities: string[];
   ConfigSchema?: Record<string, string>;
+  Admin?: AdminSpec | null;
 };
+export type AdminField = { name: string; type: "string" | "number" | "boolean" | "json"; required?: boolean };
+export type AdminResultSpec = { type: "table" | "detail" | "metric" | "chart" | "json" | "code" | "logs" | "grid" | "tabs"; title?: string; path?: string; columns?: string[]; page_size?: number; label_field?: string; value_field?: string; children?: AdminResultSpec[] };
+export type AdminAction = { title: string; operation: string; fields?: AdminField[]; read_only?: boolean; result?: AdminResultSpec };
+export type AdminPage = { id: string; title: string; actions: AdminAction[]; extends?: string; refresh_on?: string[]; legacy_route?: string };
+export type AdminSpec = { version: number; pages: AdminPage[] };
 export type PluginStatus = {
   ProjectID: string;
   PluginID: string;
@@ -15,6 +21,7 @@ export type PluginStatus = {
   Ready: boolean;
   WorkerReady?: boolean;
   Draining: boolean;
+  Grants?: string[];
 };
 export type AuditRecord = {
   source: string;

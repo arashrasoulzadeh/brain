@@ -7,11 +7,7 @@ export function enabledPluginIDs(installations: readonly PluginReadiness[]): Rea
 export function canViewAdminPage(page: string, enabled: ReadonlySet<string>): boolean {
   switch (page) {
     case "system": return enabled.has("dashboard");
-    case "database": return enabled.has("tables");
-    case "functions":
-    case "workflows": return enabled.has("functions");
-    case "files": return enabled.has("files");
-    case "live-sessions": return enabled.has("rooms") || enabled.has("matchmaking");
+    case "functions": return enabled.has("functions");
     case "routes":
     case "monitoring":
     case "workers": return enabled.size > 0;
@@ -22,7 +18,7 @@ export function canViewAdminPage(page: string, enabled: ReadonlySet<string>): bo
 export function visibleAdminPages(manifestCount: number, enabled: ReadonlySet<string>): string[] {
   return [
     "projects", ...(manifestCount > 0 ? ["plugins"] : []), "audit",
-    ...["system", "database", "functions", "workflows", "files", "live-sessions", "routes", "monitoring", "workers"]
+    ...["system", "functions", "routes", "monitoring", "workers"]
       .filter((page) => canViewAdminPage(page, enabled)),
   ];
 }
