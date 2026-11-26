@@ -230,3 +230,14 @@ func TestAuthenticatedSystemHandlerRequiresOperatorSession(t *testing.T) {
 		t.Fatalf("system capabilities status = %d, want %d", recorder.Code, http.StatusForbidden)
 	}
 }
+
+func TestManifestAdminActionRequiresExplicitConfirmation(t *testing.T) {
+	service := admin.NewLifecycleService(&operator.Store{}, plugin.NewRegistry(1))
+	request := httptest.NewRequest(http.MethodPost, "/admin/actions", strings.NewReader(`{"operation":"plugin.admin.invoke","project_id":"dev"}`))
+	request = request.WithContext(operator.WithActor(context.Background(), operator.Actor{ID: "admin", Kind: operator.ActorOperator}))
+	recorder := httptest.NewRecorder()
+	app.AdminHandler(service).ServeHTTP(recorder, request)
+	if recorder.Code != http.StatusBadRequest {
+		t.Fatalf("status = %d, want explicit confirmation rejection", recorder.Code)
+	}
+}

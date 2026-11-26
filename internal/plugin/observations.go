@@ -127,6 +127,7 @@ func (r *Registry) deliverObservations(publisher WorkerRequest, intents []Observ
 			r.recordObservation("observation_rejected", publisher, "invalid event")
 			continue
 		}
+		r.recordAdminObservation(publisher.ProjectID, publisher.PluginID+"."+intent.Event)
 		payload, err := json.Marshal(Observation{ProjectID: publisher.ProjectID, PluginID: publisher.PluginID, Version: publisher.Version, Event: intent.Event, Payload: intent.Payload})
 		if err != nil {
 			continue

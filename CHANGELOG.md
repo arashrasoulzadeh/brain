@@ -3,6 +3,32 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `7f9181d` — 2026-11-27 03:19:43 +0330 — Merge pull request #8 from arashrasoulzadeh/admin/manifest-driven-ui
+  Files: 
+- `d57b5fd` — 2026-11-27 03:12:21 +0330 — Add declarative result component registry and update admin migration roadmap
+  Files: admin-nextjs/app/components/admin-renderer.tsx,admin-nextjs/app/components/admin-results.tsx admin-nextjs/app/lib/admin-result-data.ts,admin-nextjs/app/lib/admin-types.ts docs/admin-pages/extensions.md,internal/plugin/admin_manifest.go internal/plugin/admin_results.go,internal/plugin/admin_results_test.go plugins/files/plugin.yaml,plugins/rooms/plugin.yaml plugins/tables/plugin.yaml,roadmap_admin.md tests/admin/admin-result-data.test.ts
+- `e944040` — 2026-11-27 03:11:33 +0330 — Add reusable schema configuration editor and scoped admin integration tests
+  Files: admin-nextjs/app/components/admin-config-form.tsx,admin-nextjs/app/functions/[name]/page.tsx admin-nextjs/app/functions/new/page.tsx,admin-nextjs/app/functions/page.tsx admin-nextjs/app/lib/admin-api.ts,admin-nextjs/app/lib/admin-config.ts admin-nextjs/app/page.tsx,admin-nextjs/app/plugins/[plugin]/page.tsx admin-nextjs/app/workers/page.tsx,internal/app/admin.go tests/admin/admin-config.test.ts,tests/admin/admin-registry.test.ts tests/admin/manifest_admin_test.go
+- `2641aaa` — 2026-11-27 03:10:40 +0330 — Migrate four legacy admin consoles to manifest renderer and preserve project selection
+  Files: admin-nextjs/app/[legacy]/page.tsx,admin-nextjs/app/components/admin-chrome.tsx admin-nextjs/app/components/admin-renderer.tsx,admin-nextjs/app/components/legacy-admin-page.tsx admin-nextjs/app/database/page.tsx,admin-nextjs/app/extensions/[project]/[plugin]/[version]/[page]/page.tsx admin-nextjs/app/files/page.tsx,admin-nextjs/app/lib/admin-api.ts admin-nextjs/app/lib/admin-navigation.ts,admin-nextjs/app/live-sessions/page.tsx admin-nextjs/app/page.tsx,admin-nextjs/app/workflows/page.tsx internal/plugin/admin_manifest.go,tests/admin/admin-navigation.test.ts tests/admin/admin-shell.test.ts
+- `b6c5e63` — 2026-11-27 03:10:01 +0330 — Declare complete legacy console operations in plugin manifests
+  Files: admin-nextjs/app/lib/admin-registry.ts,admin-nextjs/app/lib/admin-types.ts internal/admin/lifecycle.go,internal/plugin/admin_manifest.go plugins/files/plugin.yaml,plugins/functions/plugin.yaml plugins/matchmaking/plugin.yaml,plugins/rooms/plugin.yaml plugins/tables/plugin.yaml
+- `9558c45` — 2026-11-27 03:08:16 +0330 — Connect declarative admin queries to project observation invalidation
+  Files: admin-nextjs/app/extensions/[project]/[plugin]/[version]/[page]/page.tsx,admin-nextjs/app/lib/admin-sdk.ts admin-nextjs/app/lib/admin-types.ts,docs/admin-pages/extensions.md plugins/files/plugin.yaml,plugins/matchmaking/plugin.yaml plugins/rooms/plugin.yaml,plugins/tables/plugin.yaml roadmap_admin.md
+- `fe3e065` — 2026-11-27 03:07:52 +0330 — Add bounded project observation revisions and read-only admin query boundary
+  Files: internal/admin/lifecycle.go,internal/app/admin.go internal/plugin/admin_manifest.go,internal/plugin/admin_manifest_test.go internal/plugin/admin_observations.go,internal/plugin/admin_observations_test.go internal/plugin/observations.go,internal/plugin/plugin.go
+- `ab00a24` — 2026-11-27 03:06:42 +0330 — Correct manifest pattern and format observation response structs
+  Files: internal/plugin/admin_manifest.go,internal/plugin/typescript_worker.go internal/plugin/worker.go
+- `888c3d3` — 2026-11-27 03:06:12 +0330 — Declare typed admin fields in six plugin manifests
+  Files: plugins/analytics/plugin.yaml,plugins/files/plugin.yaml plugins/functions/plugin.yaml,plugins/matchmaking/plugin.yaml plugins/rooms/plugin.yaml,plugins/tables/plugin.yaml
+- `a186724` — 2026-11-27 03:06:02 +0330 — Add typed admin form validation and cross-plugin extension links
+  Files: admin-nextjs/app/extensions/[project]/[plugin]/[version]/[page]/page.tsx,admin-nextjs/app/lib/admin-registry.ts admin-nextjs/app/lib/admin-types.ts,docs/admin-pages/extensions.md internal/admin/lifecycle.go,internal/plugin/admin_manifest.go internal/plugin/admin_manifest_test.go,roadmap_admin.md tests/admin/admin-registry.test.ts
+- `7047a7f` — 2026-11-27 03:05:39 +0330 — Tighten project and grant checks and remove unimplemented actions
+  Files: admin-nextjs/app/lib/admin-registry.ts,docs/admin-pages/extensions.md internal/admin/lifecycle.go,plugins/arena/plugin.yaml plugins/invites/plugin.yaml,plugins/subscriptions/plugin.yaml roadmap_admin.md,tests/app/admin_test.go
+- `5273321` — 2026-11-27 03:04:08 +0330 — Add versioned manifest-driven admin action pages and permission-aware registry
+  Files: admin-nextjs/app/components/admin-chrome.tsx,admin-nextjs/app/extensions/[project]/[plugin]/[version]/[page]/page.tsx admin-nextjs/app/lib/admin-registry.ts,admin-nextjs/app/lib/admin-sdk.ts admin-nextjs/app/lib/admin-types.ts,docs/admin-pages/extensions.md internal/admin/lifecycle.go,internal/app/admin.go internal/plugin/admin_manifest.go,internal/plugin/admin_manifest_test.go internal/plugin/manifest.go,plugins/analytics/plugin.yaml plugins/arena/plugin.yaml,plugins/files/plugin.yaml plugins/functions/plugin.yaml,plugins/invites/plugin.yaml plugins/matchmaking/plugin.yaml,plugins/rooms/plugin.yaml plugins/subscriptions/plugin.yaml,plugins/tables/plugin.yaml tests/admin/admin-registry.test.ts
+- `e857abd` — 2026-11-26 23:27:50 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `8252383` — 2026-11-27 02:57:40 +0330 — Merge pull request #5 from arashrasoulzadeh/plugin-project-context-observations
   Files: 
 - `d4cff4a` — 2026-11-27 02:55:58 +0330 — Stage project-scoped observations and deliver through host after commit
@@ -77,29 +103,3 @@ Automatically generated from commits on main.
   Files: plugins/auth/account-rate-limiter.ts,plugins/auth/delivery-reader.ts plugins/auth/delivery-writer.ts,plugins/auth/delivery.ts plugins/auth/email-otp-issuer.ts,plugins/auth/email-otp-verifier.ts plugins/auth/index.ts,plugins/auth/normalize-phone-number.ts plugins/auth/otp-limiter.ts,plugins/auth/otp-types.ts plugins/auth/otp.ts,plugins/auth/plugin.yaml plugins/auth/project-rate-limiter.ts,plugins/auth/rate-limits.ts plugins/auth/recovery-token-consumer.ts,plugins/auth/recovery-token-issuer.ts plugins/auth/sms-otp-issuer.ts,plugins/auth/sms-otp-verifier.ts plugins/auth/validate-delivery-config.ts,plugins/sdk-typescript/src/execution.ts plugins/sdk-typescript/src/index.ts,tests/plugin/rate-limiter.test.ts
 - `86cf113` — 2026-11-27 02:23:56 +0330 — fix(ci): import dashboard project validation through public SDK
   Files: plugins/dashboard/custom-admin-view.ts,plugins/dashboard/plugin.yaml
-- `de3baeb` — 2026-11-27 02:22:52 +0330 — fix(security): require sandboxed worker startup and package the runtime
-  Files: Dockerfile,Dockerfile.runner cmd/brain/main.go,internal/plugin/typescript_worker.go scripts/run-sandboxed-typescript-worker.sh,scripts/typescript-worker.mjs
-- `f311d19` — 2026-11-26 22:52:28 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `5e9187f` — 2026-11-27 02:22:14 +0330 — fix(host): fail closed at startup and separate readiness from liveness
-  Files: cmd/brain/main.go,compose.test.yml internal/app/app.go,internal/plugin/registry_storage.go internal/plugin/sqlite_storage.go,internal/project/sqlite.go scripts/check-api-readiness.sh,tests/app/readiness_test.go tests/deploy/readiness_script_test.go
-- `39fa867` — 2026-11-27 02:21:46 +0330 — Merge pull request #2 from arashrasoulzadeh/refactor/plugin-sdk-yaml-helpers
-  Files: 
-- `ad1afc4` — 2026-11-27 02:20:32 +0330 — Merge current main while preserving SDK helpers and JSON worker contract
-  Files: docs/developers.md,internal/plugin/manifest.go internal/plugin/typescript_worker.go,scripts/typescript-worker.mjs tests/plugin/manifest-helpers.test.ts
-- `4707c7e` — 2026-11-27 02:19:14 +0330 — refactor: consolidate SDK routing, request and validation modules
-  Files: plugins/sdk-typescript/src/create-function-handler.ts,plugins/sdk-typescript/src/create-host-handler.ts plugins/sdk-typescript/src/create-route-handler.ts,plugins/sdk-typescript/src/index.ts plugins/sdk-typescript/src/plugin-request.ts,plugins/sdk-typescript/src/project-store.ts plugins/sdk-typescript/src/request.ts,plugins/sdk-typescript/src/routes.ts plugins/sdk-typescript/src/validate-identifier.ts,plugins/sdk-typescript/src/validate-project-id.ts plugins/sdk-typescript/src/validation.ts,plugins/sdk-typescript/src/worker.ts tests/plugin/sdk.test.ts
-- `8e42517` — 2026-11-27 02:19:13 +0330 — Merge pull request #1 from arashrasoulzadeh/refactor/admin-http-boundaries
-  Files: 
-- `6894d95` — 2026-11-27 02:18:25 +0330 — docs: record shared architecture boundaries and remaining release checks
-  Files: README.md,docs/developers.md docs/refactoring.md
-- `9ac98ff` — 2026-11-27 02:18:00 +0330 — fix(clients): align project identity validation with host
-  Files: clients/android/src/main/kotlin/com/brain/client/BrainClient.kt,clients/flutter/lib/native_transport.dart clients/flutter/lib/project_identity.dart,clients/flutter/lib/web_transport.dart clients/javascript/src/client.ts,protocol/README.md tests/client/javascript-client.test.ts,tests/flutter/project_identity_test.dart
-- `33410f2` — 2026-11-27 02:17:34 +0330 — refactor: support context-aware SDK request helpers in Auth
-  Files: AGENTS.md,docs/developers.md internal/plugin/plugin.go,plugins/auth/auth-functions.ts plugins/auth/auth-guest-function.ts,plugins/auth/auth-session-function.ts plugins/auth/auth-signin-function.ts,plugins/auth/auth-signup-function.ts plugins/auth/index.ts,plugins/auth/plugin.yaml plugins/sdk-typescript/src/create-function-handler.ts,plugins/sdk-typescript/src/index.ts plugins/sdk-typescript/src/routes.ts,scripts/typescript-worker.mjs tests/auth/sdk-dispatch.test.ts,tests/plugin/manifest-helpers.test.ts tests/plugin/manifest_helpers_test.go
-- `b45896c` — 2026-11-27 02:17:34 +0330 — refactor(admin): split project catalog draft and route panels
-  Files: admin-nextjs/app/components/function-drafts-panel.tsx,admin-nextjs/app/components/plugin-catalog-panel.tsx admin-nextjs/app/components/projects-panel.tsx,admin-nextjs/app/components/routes-panel.tsx admin-nextjs/app/page.tsx
-- `84fba6a` — 2026-11-27 02:16:42 +0330 — refactor: share transaction helpers across Tables and Functions
-  Files: plugins/functions/create-invocation-effects.ts,plugins/sdk-typescript/src/execution.ts plugins/sdk-typescript/src/index.ts,plugins/tables/api-change-reader.ts plugins/tables/api-change-state.ts,plugins/tables/api-change-writer.ts plugins/tables/create-api-change-capture.ts,plugins/tables/create-direct-sql-change-capture.ts plugins/tables/create-schema-publication-audit.ts,plugins/tables/create-transactional-change-capture.ts plugins/tables/index.ts,plugins/tables/plugin.yaml plugins/tables/routes.ts,plugins/tables/schema-audit-state.ts plugins/tables/schema-publication-reader.ts,plugins/tables/schema-publication-recorder.ts plugins/tables/scoped-transaction-change-reader.ts,plugins/tables/scoped-transaction-change-writer.ts plugins/tables/sql-change-reader.ts,plugins/tables/sql-change-state.ts plugins/tables/sql-change-writer.ts,plugins/tables/tables-read.ts plugins/tables/tables-schema.ts,plugins/tables/tables-write.ts plugins/tables/transaction-change-reader.ts,plugins/tables/transaction-change-state.ts plugins/tables/transaction-change-writer.ts,plugins/tables/versioned-record-reader.ts plugins/tables/versioned-record-state.ts,plugins/tables/versioned-record-updater.ts plugins/tables/versioned-record.ts,tests/plugin/manifest-helpers.test.ts tests/plugin/transaction-helpers.test.ts
-- `6e930c9` — 2026-11-27 02:16:01 +0330 — refactor(plugin): inject storage planners and normalize registry lock ordering
-  Files: internal/plugin/legacy_storage_adapter.go,internal/plugin/plugin.go internal/plugin/registry_catalog.go,internal/plugin/registry_lifecycle.go internal/plugin/registry_permissions.go,internal/plugin/registry_storage.go internal/plugin/registry_workers.go,tests/plugin/storage_planner_test.go
