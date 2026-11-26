@@ -3,6 +3,7 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
+import { dispatchRoute as dispatchTable } from "../../plugins/tables/index.js";
 import { dispatchRoute as dispatchFile } from "../../plugins/files/index.js";
 import { dispatchRoute as dispatchRoom } from "../../plugins/rooms/index.js";
 import { dispatchRoute as dispatchFunction } from "../../plugins/functions/index.js";
@@ -43,6 +44,14 @@ deepEqual(dispatchRoom("join", { id: "room-sdk-test", member: " player " }), {
   members: ["player"],
 });
 throws(() => dispatchRoom("join", { id: "room-sdk-test" }), /room id and member are required/);
+
+deepEqual(dispatchTable("write", { table: " shared ", row: { id: 1 } }), {
+  table: "shared",
+  row: { id: 1 },
+  written: true,
+});
+deepEqual(dispatchTable("read", { table: "shared" }), { table: "shared", rows: [{ id: 1 }] });
+throws(() => dispatchTable("write", { table: "shared" }), /row is required/);
 
 const directory = await mkdtemp(join(tmpdir(), "brain-manifest-helper-"));
 try {

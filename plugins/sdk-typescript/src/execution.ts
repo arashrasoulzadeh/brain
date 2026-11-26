@@ -36,3 +36,28 @@ export function commitWithGrant<T>(
   if (!capability || !hasGrant()) throw new Error("grant revoked before commit");
   return commit();
 }
+
+export function createTransactionGate(errorMessage = "transaction already finished") {
+  let finished = false;
+
+  function ensureOpen(): void {
+    if (finished) throw new Error(errorMessage);
+  }
+
+  return {
+    ensureOpen,
+    finish<Result>(task: () => Result): Result {
+      ensureOpen();
+      finished = true;
+      return task();
+    },
+  };
+}
+
+export function createCommitRollback(onCommit: () => void) {
+  const gate = createTransactionGate();
+  return {
+    commit: () => gate.finish(onCommit),
+    rollback: () => gate.finish(() => undefined),
+  };
+}

@@ -1,9 +1,17 @@
-import { createSQLChangeState } from "./sql-change-state.js";
-import { SQLChangeWriter } from "./sql-change-writer.js";
-import { SQLChangeReader } from "./sql-change-reader.js";
+import { createCommitRollback, validateIdentifier, validateProjectId } from "../sdk-typescript/src/index.js";
+import type { DirectSQLChange } from "./index.js";
+
 export function createDirectSQLChangeCapture() {
-  const state = createSQLChangeState();
-  const writer = new SQLChangeWriter(state);
-  const reader = new SQLChangeReader(state);
-  return { begin: writer.begin.bind(writer), list: reader.list.bind(reader) };
+  const changes: DirectSQLChange[] = [];
+  return {
+    begin(projectId: string, table: string, statement: string) {
+      validateIdentifier(table);
+      validateProjectId(projectId, "invalid SQL change");
+      if (!statement) throw new Error("invalid SQL change");
+      return createCommitRollback(() => { changes.push({ projectId, table, statement }); });
+    },
+    list(projectId: string) {
+      return changes.filter((change) => change.projectId === projectId).map((change) => ({ ...change }));
+    },
+  };
 }
