@@ -6,7 +6,7 @@ func TestDeclarativeManifestRejectsExecutableSources(t *testing.T) {
 	m := Manifest{
 		ID: "example", Version: "1", HostAPI: 1, Declarative: true,
 		Capabilities: []string{"read"},
-		Routes: []Route{{Operation: "read", Function: "read", Capability: "read", Helper: "sdk.response", Response: &ResponseSpec{Output: map[string]any{"project": "$project.id"}}}},
+		Routes:       []Route{{Operation: "read", Function: "read", Capability: "read", Helper: "sdk.response", Response: &ResponseSpec{Output: map[string]any{"project": "$project.id"}}}},
 	}
 	if err := ValidateManifestContract(m); err != nil {
 		t.Fatal(err)
