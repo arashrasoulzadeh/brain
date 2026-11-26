@@ -1,6 +1,6 @@
-import type { HostExecutionContext, HostInvoker, PluginFunction, PluginHandler, PluginRoute, RpcRequest } from "./index.js";
+import type { HostExecutionContext, HostInvoker, PluginContext, PluginFunction, PluginHandler, PluginRoute, RpcRequest } from "./index.js";
 
-export type PayloadHandler = (input: unknown) => unknown;
+export type PayloadHandler = (input: unknown, context?: PluginContext) => unknown;
 
 export function createRouteDispatcher(handlers: Readonly<Record<string, PayloadHandler>>) {
   return createDispatcher<unknown>(handlers);
@@ -14,24 +14,24 @@ export function createRequestDispatcher(
 }
 
 function createDispatcher<Input>(
-  handlers: Readonly<Record<string, (input: Input) => unknown>>,
+  handlers: Readonly<Record<string, (input: Input, context?: PluginContext) => unknown>>,
   missingHandlerError?: string,
 ) {
   const registered = Object.freeze({ ...handlers });
-  return (name: string, input: Input): unknown => {
+  return (name: string, input: Input, context?: PluginContext): unknown => {
     if (!Object.hasOwn(registered, name) || typeof registered[name] !== "function")
       throw new Error(missingHandlerError ?? "declared plugin function is not exported: " + name);
-    return registered[name](input);
+    return registered[name](input, context);
   };
 }
 
 export function createOperationRoutes<Operation extends string>(
   operations: readonly Operation[],
-  execute: (operation: Operation, input: unknown) => unknown,
+  execute: (operation: Operation, input: unknown, context?: PluginContext) => unknown,
 ) {
   const handlers = Object.freeze(
     Object.fromEntries(
-      operations.map((operation) => [operation, (input: unknown) => execute(operation, input)]),
+      operations.map((operation) => [operation, (input: unknown, context?: PluginContext) => execute(operation, input, context)]),
     ) as Record<Operation, PayloadHandler>,
   );
   return { handlers, dispatch: createRouteDispatcher(handlers) };
@@ -69,6 +69,6 @@ export function createFunctionHandler(functions: Readonly<Record<string, PluginF
   const dispatch = createRequestDispatcher(functions, "route function not implemented");
   return (rpc) => {
     const route = resolveRoute(rpc, routes, context);
-    return { accepted: true, operation: rpc.params.operation, payload: dispatch(route.function, rpc) };
+    return { accepted: true, operation: rpc.params.operation, payload: dispatch(route.function, rpc, rpc.context) };
   };
 }

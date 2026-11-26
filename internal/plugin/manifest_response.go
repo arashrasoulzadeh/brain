@@ -50,7 +50,7 @@ func (s *ResponseSpec) valid() bool {
 		}
 		switch value := value.(type) {
 		case string:
-			if strings.HasPrefix(value, "$") && (!strings.HasPrefix(value, "$input.") || !fields[strings.TrimPrefix(value, "$input.")]) {
+			if strings.HasPrefix(value, "$") && value != "$project.id" && value != "$plugin.id" && (!strings.HasPrefix(value, "$input.") || !fields[strings.TrimPrefix(value, "$input.")]) {
 				return false
 			}
 		case float64:

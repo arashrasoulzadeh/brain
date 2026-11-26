@@ -1,4 +1,4 @@
-import { createResourceRequest, createOperationRoutes, requiredString, trimmedString } from "../sdk-typescript/src/index.js";
+import { createResourceRequest, createOperationRoutes, requiredString, trimmedString, type PluginContext } from "../sdk-typescript/src/index.js";
 
 export const roomRequest = createResourceRequest<"rooms.create" | "rooms.join" | "rooms.reconnect" | "rooms.result">("rooms", "roomId");
 
@@ -35,15 +35,17 @@ const routes = createOperationRoutes(["create", "join", "reconnect", "result"], 
 export const { create, join, reconnect, result } = routes.handlers;
 export const dispatchRoute = routes.dispatch;
 
-function executeRoomRoute(operation: RoomOperation, input: unknown): unknown {
+function executeRoomRoute(operation: RoomOperation, input: unknown, context?: PluginContext): unknown {
   const value = (input ?? {}) as RoomInput;
   if (operation === "join" || operation === "reconnect") {
     const id = trimmedString(value.id);
     const member = trimmedString(value.member);
     if (!id || !member) throw new Error("room id and member are required");
-    if (value.room && typeof value.room === "object")
-      return { ...(value.room as object), member, reconnected: operation === "reconnect" };
-    return roomRouteStore.execute(operation, id, member);
+    const result = value.room && typeof value.room === "object"
+      ? { ...(value.room as object), member, reconnected: operation === "reconnect" }
+      : roomRouteStore.execute(operation, id, member);
+    context?.plugins.observe.fire("connected", { roomId: id, reconnected: operation === "reconnect" });
+    return result;
   }
   const id = requiredString(value.id, "room id is required");
   if (value.room && typeof value.room === "object") return value.room;

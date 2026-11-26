@@ -27,6 +27,7 @@ type executionDescriptor struct {
 	Version    string           `json:"version"`
 	ProjectID  string           `json:"projectId"`
 	Routes     []executionRoute `json:"routes"`
+	Events     []EventSpec      `json:"events,omitempty"`
 }
 
 type executionRoute struct {
@@ -121,7 +122,10 @@ func NewManifestTypeScriptWorker(command, workerScript, descriptor, pluginRoot, 
 	for _, route := range manifest.Routes {
 		routes = append(routes, executionRoute{Operation: route.Operation, Function: route.Function, Helper: route.Helper, Response: route.Response})
 	}
-	data, err := json.Marshal(executionDescriptor{Entrypoint: entrypoint, PluginID: manifest.ID, Version: manifest.Version, ProjectID: projectID, Routes: routes})
+	for _, observer := range manifest.Observers {
+		routes = append(routes, executionRoute{Operation: observer.operation(), Function: observer.Function, Helper: "sdk.context"})
+	}
+	data, err := json.Marshal(executionDescriptor{Entrypoint: entrypoint, PluginID: manifest.ID, Version: manifest.Version, ProjectID: projectID, Routes: routes, Events: manifest.Events})
 	if err != nil {
 		return nil, err
 	}
@@ -322,6 +326,7 @@ func (w *TypeScriptWorker) Handle(request WorkerRequest) WorkerResponse {
 			Success   bool            `json:"success"`
 			Payload   json.RawMessage `json:"payload"`
 			ErrorCode string          `json:"errorCode"`
+			Observations []ObservationIntent `json:"observations"`
 		} `json:"result"`
 		ErrorCode string `json:"errorCode"`
 	}
@@ -336,6 +341,6 @@ func (w *TypeScriptWorker) Handle(request WorkerRequest) WorkerResponse {
 	}
 	return WorkerResponse{
 		Protocol: response.Result.Protocol, Success: response.Result.Success,
-		Payload: response.Result.Payload, ErrorCode: response.Result.ErrorCode,
+		Payload: response.Result.Payload, ErrorCode: response.Result.ErrorCode, Observations: response.Result.Observations,
 	}
 }
