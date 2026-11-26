@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `7224a1a` — 2026-11-27 02:01:39 +0330 — fix(ci): align sandbox fixture with worker route contract
+  Files: scripts/test-sandboxed-typescript-worker.sh
+- `9036e93` — 2026-11-16 12:40:59 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `24bf1f1` — 2026-11-16 15:39:15 +0330 — silence error toasts from background function-draft polling and add CLAUDE.md
   Files: CLAUDE.md,admin-nextjs/app/components/toast-provider.tsx admin-nextjs/app/page.tsx
 - `222dd25` — 2026-11-16 04:00:43 +0330 — show raw function execution records
@@ -98,8 +102,4 @@ Automatically generated from commits on main.
 - `a03dc58` — 2026-11-15 19:18:20 +0330 — enforce plugin lifecycle on function APIs
   Files: internal/admin/lifecycle.go,internal/app/admin.go tests/admin/functions_test.go
 - `f81fe4b` — 2026-11-15 15:46:54 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `b24f115` — 2026-11-15 19:16:22 +0330 — guard plugin pages by lifecycle state
-  Files: admin-nextjs/app/components/admin-chrome.tsx,admin-nextjs/app/functions/[name]/page.tsx admin-nextjs/app/functions/new/page.tsx,admin-nextjs/app/functions/page.tsx admin-nextjs/app/page.tsx,admin-nextjs/app/workflows/page.tsx
-- `58242df` — 2026-11-15 15:38:12 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
