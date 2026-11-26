@@ -19,3 +19,7 @@ Pages may declare an `inventory` with `kind`, `capability`, `title`, and an opti
 A target page can offer `extension_slots: [tab]`. Another plugin can request `extends_slot: tab` with its existing `extends` target. Embedded forms retain their own plugin identity, version and operation authorization. A target that does not offer a tab slot receives the existing link behavior instead. No plugin code is executed in the browser.
 
 Room inventories also listen to declared observation revisions. Inventory lists refresh after confirmed mutations on the same page, with a manual refresh button available for external changes.
+
+## Generated model administration
+
+Declared `host.model` routes automatically produce admin pages without additional YAML or React code. The host derives only declared actions, exposes their typed model schema, and distinguishes read/list queries from confirmed create/update/delete/transition operations. Model records load through the same authenticated admin SDK and retain optimistic revision checks. Plugin settings link to the generated pages instead of maintaining a duplicate form implementation.

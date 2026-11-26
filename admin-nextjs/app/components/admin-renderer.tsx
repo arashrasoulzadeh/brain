@@ -7,6 +7,7 @@ import { adminEmbeddedExtensions } from "../lib/admin-registry";
 import { adminPageRevision, invokeAdminAction } from "../lib/admin-sdk";
 import { AdminResultRenderer } from "./admin-results";
 import { AdminInventory } from "./admin-inventory";
+import { ModelPanel } from "./model-panel";
 
 export function ActionForm({ contribution }: { contribution: AdminContribution }) {
   const [operation, setOperation] = useState(contribution.page.actions[0].operation);
@@ -115,6 +116,6 @@ export function AdminPageRenderer({ contribution, extensions = [] }: { contribut
   const active = tabs.find(item => item.href === selected) ?? contribution;
   const links = extensions.filter(item => !embedded.some(tab => tab.href === item.href));
   return <>{embedded.length > 0 && <div role="tablist" aria-label="Plugin pages" className="lifecycle-actions">{tabs.map(item => <button key={item.href} type="button" role="tab" aria-selected={active.href === item.href} onClick={() => setSelected(item.href)}>{item.page.title} · {item.pluginID}</button>)}</div>}
-    <div role={embedded.length > 0 ? "tabpanel" : undefined}><ActionForm key={active.href} contribution={active} /></div>
+    <div role={embedded.length > 0 ? "tabpanel" : undefined}>{active.page.model ? <ModelPanel key={active.href} contribution={active} /> : <ActionForm key={active.href} contribution={active} />}</div>
     {links.length > 0 && <section><h2>Plugin extensions</h2>{links.map(item => <p key={item.href}><Link href={item.href}>{item.page.title} · {item.pluginID}</Link></p>)}</section>}</>;
 }

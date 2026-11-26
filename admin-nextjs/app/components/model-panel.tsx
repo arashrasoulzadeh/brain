@@ -1,28 +1,32 @@
 "use client";
 
-import { useState } from "react";
-import { adminHeaders } from "../lib/admin-api";
+import { useEffect, useRef, useState } from "react";
+import { readAdminSession } from "../lib/admin-api";
+import type { AdminContribution } from "../lib/admin-registry";
+import type { AdminAction } from "../lib/admin-types";
+import { invokeAdminAction } from "../lib/admin-sdk";
 
-export type DeclaredModel = { version: number; fields: Record<string, "string" | "integer" | "boolean">; initial?: string; transitions?: Record<string, { from: string; to: string }> };
-export type DeclaredModelRoute = { Operation: string; Capability: string; Helper?: string; Model?: { name: string; action: string; transition?: string } };
 type ModelRecord = { id: string; revision: string; state?: string; fields: Record<string, unknown> };
 
-export function ModelPanel({ name, model, routes, session, projectId, pluginId, version }: {
-  name: string;
-  model: DeclaredModel;
-  routes: DeclaredModelRoute[];
-  session: string;
-  projectId: string;
-  pluginId: string;
-  version: string;
-}) {
+function isRecord(value: unknown): value is ModelRecord {
+  return !!value && typeof value === "object" && "id" in value && typeof value.id === "string" &&
+    "revision" in value && typeof value.revision === "string" && "fields" in value &&
+    !!value.fields && typeof value.fields === "object" && !Array.isArray(value.fields);
+}
+
+export function ModelPanel({ contribution }: { contribution: AdminContribution }) {
+  const { name, schema: model } = contribution.page.model!;
   const [id, setId] = useState("");
   const [revision, setRevision] = useState("");
   const [fields, setFields] = useState<Record<string, string>>({});
   const [state, setState] = useState("");
   const [records, setRecords] = useState<ModelRecord[]>([]);
+  const [cursors, setCursors] = useState([""]);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
+  const pending = useRef<AbortController | null>(null);
+  const modelRoutes = contribution.page.actions.filter(route => route.model_action);
+  const listRoute = modelRoutes.find(route => route.model_action === "list");
 
   function choose(record: ModelRecord) {
     setId(record.id);
@@ -31,54 +35,79 @@ export function ModelPanel({ name, model, routes, session, projectId, pluginId, 
     setFields(Object.fromEntries(Object.entries(record.fields).map(([key, value]) => [key, String(value)])));
   }
 
-  async function invoke(route: DeclaredModelRoute, after = "") {
-    if (busy || !route.Model) return;
-    const action = route.Model.action;
-    if (action === "delete" && !window.confirm("Delete this record?")) return;
+  useEffect(() => {
+    if (!listRoute) return;
+    const controller = new AbortController();
+    pending.current = controller;
     setBusy(true);
+    void invokeAdminAction(readAdminSession(), contribution, listRoute.operation, {}, controller.signal, true).then(data => {
+      if (!Array.isArray(data) || !data.every(isRecord)) throw new Error("Invalid model list");
+      if (!controller.signal.aborted) setRecords(data);
+    }).catch(error => { if (!controller.signal.aborted) setMessage(String(error)); }).finally(() => {
+      if (pending.current === controller) { pending.current = null; if (!controller.signal.aborted) setBusy(false); }
+    });
+    return () => { controller.abort(); pending.current?.abort(); pending.current = null; };
+  }, [contribution]);
+
+  async function invoke(route: AdminAction, nextCursors = cursors) {
+    if (pending.current || !route.model_action) return;
+    const action = route.model_action;
+    if (!route.read_only && !window.confirm("Run " + route.title + " for " + contribution.projectID + " / " + name + " / " + id + "?")) return;
+    const controller = new AbortController();
+    pending.current = controller;
+    setBusy(true); setMessage("");
     try {
-      const payload: Record<string, unknown> = action === "list" ? { after } : { id };
+      const payload: Record<string, unknown> = action === "list" ? { after: nextCursors[nextCursors.length - 1] } : { id };
       if (["update", "delete", "transition"].includes(action)) payload.revision = revision;
       if (["create", "update"].includes(action)) {
         payload.fields = Object.fromEntries(Object.entries(model.fields).map(([key, kind]) => {
           const value = fields[key] ?? (kind === "boolean" ? "false" : "");
-          if (kind === "integer" && (!value.trim() || !Number.isSafeInteger(Number(value)))) throw new Error("Invalid integer: " + key);
+          if (kind === "integer" && (!/^-?\d+$/.test(value) || !Number.isSafeInteger(Number(value)))) throw new Error("Invalid integer: " + key);
           return [key, kind === "integer" ? Number(value) : kind === "boolean" ? value === "true" : value];
         }));
       }
-      const response = await fetch("/api/admin/actions", {
-        method: "POST",
-        headers: adminHeaders(session, { "content-type": "application/json" }),
-        body: JSON.stringify({ operation: "plugin.invoke", project_id: projectId, plugin_id: pluginId, version, target_operation: route.Operation, payload }),
-      });
-      const result = await response.json() as { Success?: boolean; Payload?: string; ErrorCode?: string; message?: string };
-      if (!response.ok || !result.Success || !result.Payload) throw new Error(result.message || result.ErrorCode || "Operation failed");
-      const data: unknown = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(result.Payload), (char) => char.charCodeAt(0))));
-      if (action === "list") setRecords(data as ModelRecord[]);
-      else if (action === "delete") { setId(""); setRevision(""); setState(""); setFields({}); setRecords((rows) => rows.filter((row) => row.id !== id)); }
-      else choose(data as ModelRecord);
-      setMessage(route.Operation + " completed");
+      const data = await invokeAdminAction(readAdminSession(), contribution, route.operation, payload, controller.signal, Boolean(route.read_only));
+      if (controller.signal.aborted) return;
+      if (action === "list") {
+        if (!Array.isArray(data) || !data.every(isRecord)) throw new Error("Invalid model list");
+        setRecords(data); setCursors(nextCursors);
+      } else if (action === "delete") {
+        setId(""); setRevision(""); setState(""); setFields({}); setRecords(rows => rows.filter(row => row.id !== id));
+      } else {
+        if (!isRecord(data)) throw new Error("Invalid model record");
+        choose(data);
+        setRecords(rows => rows.map(row => row.id === data.id ? data : row));
+      }
+      setMessage(route.title + " completed");
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Operation failed");
+      if (!controller.signal.aborted) { setMessage(String(error)); if (action === "list") setRecords([]); }
     } finally {
-      setBusy(false);
+      if (pending.current === controller) { pending.current = null; if (!controller.signal.aborted) setBusy(false); }
     }
   }
 
-  const modelRoutes = routes.filter((route) => route.Helper === "host.model" && route.Model?.name === name);
-  const listRoute = modelRoutes.find((route) => route.Model?.action === "list");
   return <section className="section">
-    <h2>{name}</h2><p className="muted">Schema v{model.version} · {state || model.initial || "No state machine"}</p>
+    <h2>{name}</h2><p>{contribution.projectID} · {contribution.pluginID}@{contribution.version}</p>
+    <p className="muted">Schema v{model.version} · {state || model.initial || "No state machine"}</p>
     <div className="playground">
-      <label>Record ID<input value={id} onChange={(event) => { setId(event.target.value); setRevision(""); setState(""); }} /></label>
+      <label>Record ID<input disabled={busy} value={id} onChange={event => { setId(event.target.value); setRevision(""); setState(""); setFields({}); }} /></label>
       {Object.entries(model.fields).map(([key, kind]) => <label key={key}>{key}
-        {kind === "boolean" ? <select value={fields[key] ?? "false"} onChange={(event) => setFields((values) => ({ ...values, [key]: event.target.value }))}><option>false</option><option>true</option></select> :
-          <input type={kind === "integer" ? "number" : "text"} value={fields[key] ?? ""} onChange={(event) => setFields((values) => ({ ...values, [key]: event.target.value }))} />}
+        {kind === "boolean" ? <select disabled={busy} value={fields[key] ?? "false"} onChange={event => setFields(values => ({ ...values, [key]: event.target.value }))}><option>false</option><option>true</option></select> :
+          <input disabled={busy} type={kind === "integer" ? "number" : "text"} step={kind === "integer" ? 1 : undefined} value={fields[key] ?? ""} onChange={event => setFields(values => ({ ...values, [key]: event.target.value }))} />}
       </label>)}
-      <div className="playground-actions">{modelRoutes.map((route) => <button key={route.Operation} disabled={busy || (["update", "delete", "transition"].includes(route.Model!.action) && !revision)} onClick={() => void invoke(route)}>{route.Model!.transition ?? route.Model!.action}</button>)}</div>
+      <div className="playground-actions">{modelRoutes.filter(route => route.model_action !== "list").map(route => {
+        const transition = route.model_transition ? model.transitions?.[route.model_transition] : undefined;
+        const needsRevision = ["update", "delete", "transition"].includes(route.model_action!);
+        return <button key={route.operation} type="button" disabled={busy || !id || (needsRevision && !revision) || (!!transition && state !== transition.from)} onClick={() => void invoke(route)}>{route.title}</button>;
+      })}</div>
       {message && <p role="status">{message}</p>}
-      {records.map((record) => <button className="secondary" key={record.id} onClick={() => choose(record)}>{record.id} {record.state}</button>)}
-      {listRoute && records.length === 20 && <button disabled={busy} onClick={() => void invoke(listRoute, records[records.length - 1].id)}>Next page</button>}
+      {listRoute && <section><h3>Records</h3><button type="button" disabled={busy} onClick={() => void invoke(listRoute, [""])}>Refresh</button>
+        <div className="table-wrap"><table><thead><tr><th>ID</th><th>State</th>{Object.keys(model.fields).map(key => <th key={key}>{key}</th>)}<th>Action</th></tr></thead>
+          <tbody>{records.map(record => <tr key={record.id}><td>{record.id}</td><td>{record.state ?? "—"}</td>{Object.keys(model.fields).map(key => <td key={key}>{String(record.fields[key] ?? "")}</td>)}<td><button type="button" disabled={busy} onClick={() => choose(record)}>Select</button></td></tr>)}</tbody></table></div>
+        {!records.length && <p>{busy ? "Loading…" : "No records on this page."}</p>}
+        <div className="lifecycle-actions"><button type="button" disabled={busy || cursors.length < 2} onClick={() => void invoke(listRoute, cursors.slice(0, -1))}>Previous</button><span>Page {cursors.length}</span>
+          <button type="button" disabled={busy || records.length !== 20} onClick={() => void invoke(listRoute, [...cursors, records[records.length - 1].id])}>Next</button></div>
+      </section>}
     </div>
   </section>;
 }
