@@ -39,7 +39,7 @@ func prepareLegacyStorageRequest(storage *SQLiteStorage, request WorkerRequest) 
 		keyField = "id"
 	case "rooms/rooms.create", "rooms/rooms.join", "rooms/rooms.reconnect", "rooms/rooms.result":
 		keyField = "id"
-	case "tables/tables.write", "tables/tables.read":
+	case "tables/tables.write", "tables/tables.read", "tables/tables.schema":
 		keyField = "table"
 	case "analytics/analytics.capture", "analytics/@observe/rooms/connected":
 	default:

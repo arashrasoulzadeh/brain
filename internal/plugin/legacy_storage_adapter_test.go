@@ -69,3 +69,25 @@ func TestLegacyPlannerNormalizesKeysAndUsesDurableState(t *testing.T) {
 		t.Fatalf("cross-project access: %v", err)
 	}
 }
+
+func TestLegacySchemaReadsDurableRows(t *testing.T) {
+	storage, err := OpenSQLiteStorage(filepath.Join(t.TempDir(), "storage.sqlite"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer storage.Close()
+	if err := storage.Append("alpha", "messages", map[string]any{"id": "one"}); err != nil {
+		t.Fatal(err)
+	}
+	request := WorkerRequest{ProjectID: "alpha", PluginID: "tables", Operation: "tables.schema", Payload: []byte(`{"table":"messages","rows":[{"forged":true}]}`)}
+	prepared, commit, err := prepareLegacyStorageRequest(storage, request)
+	if err != nil || commit != nil {
+		t.Fatalf("schema plan: %v", err)
+	}
+	var payload struct {
+		Rows []map[string]any
+	}
+	if err := json.Unmarshal(prepared.Payload, &payload); err != nil || len(payload.Rows) != 1 || payload.Rows[0]["id"] != "one" {
+		t.Fatalf("schema snapshot: %s %v", prepared.Payload, err)
+	}
+}
