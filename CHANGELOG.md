@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `86cf113` — 2026-11-27 02:23:56 +0330 — fix(ci): import dashboard project validation through public SDK
+  Files: plugins/dashboard/custom-admin-view.ts,plugins/dashboard/plugin.yaml
+- `f311d19` — 2026-11-26 22:52:28 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `39fa867` — 2026-11-27 02:21:46 +0330 — Merge pull request #2 from arashrasoulzadeh/refactor/plugin-sdk-yaml-helpers
   Files: 
 - `ad1afc4` — 2026-11-27 02:20:32 +0330 — Merge current main while preserving SDK helpers and JSON worker contract
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: admin-nextjs/app/functions/function-editor.tsx,admin-nextjs/app/styles.css
 - `d6ae06f` — 2026-11-16 03:22:27 +0330 — validate function source before publish
   Files: admin-nextjs/app/functions/[name]/page.tsx,admin-nextjs/app/functions/function-editor.tsx admin-nextjs/app/styles.css
-- `e0ae963` — 2026-11-16 03:21:20 +0330 — expand function execution logs
-  Files: admin-nextjs/app/functions/[name]/page.tsx,admin-nextjs/app/styles.css
-- `07beafc` — 2026-11-16 03:19:29 +0330 — add rich function editor experience
-  Files: admin-nextjs/app/functions/function-editor.tsx,admin-nextjs/app/styles.css
