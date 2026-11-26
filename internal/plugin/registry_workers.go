@@ -101,9 +101,16 @@ func (r *Registry) invokeOnce(request WorkerRequest, observer bool) (WorkerRespo
 	// the worker has succeeded and lifecycle and grants have been rechecked.
 	prepared := request
 	var commit func() error
+	var atomicCommit func([]observationDelivery) error
 	if planner != nil {
 		var err error
-		prepared, commit, err = planner.Prepare(request)
+		if atomic, ok := planner.(interface {
+			prepareWithObservations(WorkerRequest) (WorkerRequest, func([]observationDelivery) error, error)
+		}); ok {
+			prepared, atomicCommit, err = atomic.prepareWithObservations(request)
+		} else {
+			prepared, commit, err = planner.Prepare(request)
+		}
 		if err != nil {
 			return WorkerResponse{}, err
 		}
@@ -122,6 +129,10 @@ func (r *Registry) invokeOnce(request WorkerRequest, observer bool) (WorkerRespo
 	if _, err := r.resolveProject(request.ProjectID); err != nil {
 		return WorkerResponse{}, err
 	}
+	var deliveries []observationDelivery
+	if atomicCommit != nil && !observer {
+		deliveries = r.planWorkerObservations(request, response.Observations)
+	}
 	r.readinessMu.RLock()
 	defer r.readinessMu.RUnlock()
 	r.installationMu.RLock()
@@ -129,7 +140,15 @@ func (r *Registry) invokeOnce(request WorkerRequest, observer bool) (WorkerRespo
 	if err := r.authorizeInvocationLocked(request, observer); err != nil {
 		return WorkerResponse{}, err
 	}
-	if commit != nil {
+	if atomicCommit != nil {
+		if err := atomicCommit(deliveries); err != nil {
+			return WorkerResponse{}, err
+		}
+		for _, delivery := range deliveries {
+			r.recordObservation("observation_queued", delivery.Target, delivery.detail())
+		}
+		response.Observations = nil
+	} else if commit != nil {
 		if err := commit(); err != nil {
 			return WorkerResponse{}, err
 		}

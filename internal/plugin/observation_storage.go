@@ -24,13 +24,17 @@ CREATE INDEX IF NOT EXISTS plugin_observation_receipts_time ON plugin_observatio
 }
 
 func (s *SQLiteStorage) enqueueObservation(delivery observationDelivery, now time.Time) error {
+	return enqueueSQLiteObservation(s.db, delivery, now)
+}
+
+func enqueueSQLiteObservation(db sqliteExecutor, delivery observationDelivery, now time.Time) error {
 	encoded, err := json.Marshal(delivery)
 	if err != nil {
 		return err
 	}
 	// The guarded INSERT is one statement: concurrent publishers cannot race
 	// separate capacity checks and overfill the durable queue.
-	result, err := s.db.Exec(`INSERT INTO plugin_observation_queue
+	result, err := db.Exec(`INSERT INTO plugin_observation_queue
 (project_id,target_plugin,target_version,observation_id,delivery_json,attempts,due_at)
 SELECT ?,?,?,?,?,0,? WHERE
 (SELECT count(*) FROM plugin_observation_queue) < ? AND

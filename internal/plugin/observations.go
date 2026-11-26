@@ -7,6 +7,7 @@ import (
 	"math"
 	"regexp"
 	"sort"
+	"strings"
 	"time"
 )
 
@@ -115,20 +116,24 @@ func (m Manifest) acceptsObservation(intent ObservationIntent, source string) bo
 // recursively publish events in this first implementation. No worker-provided
 // identity is trusted: the envelope is constructed from the authorized request.
 func (r *Registry) deliverObservations(publisher WorkerRequest, intents []ObservationIntent) {
+	r.executeObservationPlan(r.planWorkerObservations(publisher, intents))
+}
+
+func (r *Registry) planWorkerObservations(publisher WorkerRequest, intents []ObservationIntent) []observationDelivery {
 	if len(intents) == 0 {
-		return
+		return nil
 	}
 	if len(intents) > maxObservationEvents {
 		r.recordObservation("observation_rejected", publisher, "event limit")
-		return
+		return nil
 	}
 	r.readinessMu.RLock()
 	registered, exists := r.registered[publisher.PluginID+"@"+publisher.Version]
 	r.readinessMu.RUnlock()
 	if !exists || r.authorizeInvocation(publisher, false) != nil {
-		return
+		return nil
 	}
-	r.dispatchObservations(publisher, registered.Manifest, intents, "")
+	return r.planObservations(publisher, registered.Manifest, intents, "")
 }
 
 // PublishHostObservation is called only by trusted, already-authorized host services
@@ -164,11 +169,13 @@ func (r *Registry) PublishHostObservation(projectID, pluginID, event string, pay
 		return
 	}
 	publisher := WorkerRequest{Protocol: r.HostAPI, ProjectID: projectID, PluginID: selected.ID, Version: selected.Version}
-	r.dispatchObservations(publisher, selected, []ObservationIntent{{Event: event, Payload: encoded}}, "host")
+	r.executeObservationPlan(r.planObservations(publisher, selected, []ObservationIntent{{Event: event, Payload: encoded}}, "host"))
 }
 
-func (r *Registry) dispatchObservations(publisher WorkerRequest, manifest Manifest, intents []ObservationIntent, source string) {
-	deliveries := 0
+func (r *Registry) planObservations(publisher WorkerRequest, manifest Manifest, intents []ObservationIntent, source string) []observationDelivery {
+	deliveries := make([]observationDelivery, 0)
+	metadata := publisher
+	metadata.Payload, metadata.Project = nil, nil
 	for _, intent := range intents {
 		if !manifest.acceptsObservation(intent, source) {
 			r.recordObservation("observation_rejected", publisher, "invalid event")
@@ -185,29 +192,36 @@ func (r *Registry) dispatchObservations(publisher WorkerRequest, manifest Manife
 			continue
 		}
 		for _, target := range r.observationTargets(publisher, intent.Event) {
-			if deliveries == maxObservationDeliveries {
+			if len(deliveries) == maxObservationDeliveries {
 				r.recordObservation("observation_rejected", publisher, "delivery limit")
-				return
+				return deliveries
 			}
-			deliveries++
 			target.Payload = payload
-			if store := r.observationStorage(); store != nil {
-				metadata := publisher
-				metadata.Payload, metadata.Project = nil, nil
-				delivery := observationDelivery{ID: id, Publisher: metadata, Target: target, Source: source}
-				if err := store.enqueueObservation(delivery, time.Now()); err != nil {
-					r.recordObservation("observation_enqueue_failed", target, publisher.PluginID+"."+intent.Event)
-				} else {
-					r.recordObservation("observation_queued", target, publisher.PluginID+"."+intent.Event)
-				}
-				continue
-			}
-			result, err := r.invokeOnce(target, true)
-			if err != nil || !result.Success || result.ErrorCode != "" {
-				r.recordObservation("observation_failed", target, publisher.PluginID+"."+intent.Event)
+			deliveries = append(deliveries, observationDelivery{ID: id, Publisher: metadata, Target: target, Source: source})
+		}
+	}
+	return deliveries
+}
+
+func (delivery observationDelivery) detail() string {
+	return delivery.Publisher.PluginID + "." + strings.TrimPrefix(delivery.Target.Operation, observationPrefix+delivery.Publisher.PluginID+"/")
+}
+
+func (r *Registry) executeObservationPlan(deliveries []observationDelivery) {
+	for _, delivery := range deliveries {
+		if store := r.observationStorage(); store != nil {
+			if err := store.enqueueObservation(delivery, time.Now()); err != nil {
+				r.recordObservation("observation_enqueue_failed", delivery.Target, delivery.detail())
 			} else {
-				r.recordObservation("observation_delivered", target, publisher.PluginID+"."+intent.Event)
+				r.recordObservation("observation_queued", delivery.Target, delivery.detail())
 			}
+			continue
+		}
+		result, err := r.invokeOnce(delivery.Target, true)
+		if err != nil || !result.Success || result.ErrorCode != "" {
+			r.recordObservation("observation_failed", delivery.Target, delivery.detail())
+		} else {
+			r.recordObservation("observation_delivered", delivery.Target, delivery.detail())
 		}
 	}
 }
