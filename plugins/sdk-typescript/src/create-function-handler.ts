@@ -1,17 +1,18 @@
 import type { HostExecutionContext, PluginFunction, PluginHandler, PluginRoute } from "./index.js";
+import { requireHostContext } from "./require-host-context.js";
+import { requireRoute } from "./require-route.js";
+
 export function createFunctionHandler(
   functions: Readonly<Record<string, PluginFunction>>,
   routes: readonly PluginRoute[],
   context: HostExecutionContext,
 ): PluginHandler {
   return (rpc) => {
-    if (!context.projectId || !context.invocationId || rpc.params.projectId !== context.projectId)
-      throw new Error("host project context mismatch");
-    const route = routes.find((candidate) => candidate.operation === rpc.params.operation);
-    if (!route) throw new Error("operation not declared in plugin manifest");
-    if (!route.function || !route.capability) throw new Error("invalid plugin route");
+    requireHostContext(context, rpc);
+    const route = requireRoute(routes, rpc.params.operation);
     const fn = functions[route.function];
-    if (!fn) throw new Error("route function not implemented");
+    if (!Object.prototype.hasOwnProperty.call(functions, route.function) || typeof fn !== "function")
+      throw new Error("route function not implemented");
     return { accepted: true, operation: rpc.params.operation, payload: fn(rpc) };
   };
 }

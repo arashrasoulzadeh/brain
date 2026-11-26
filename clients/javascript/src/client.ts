@@ -13,6 +13,9 @@ export class JavaScriptClient {
     private readonly transport: ClientTransport,
   ) {
     if (!projectId.trim()) throw new Error("client project required");
+    if (!/^[a-zA-Z0-9]/.test(projectId) || /[^a-zA-Z0-9_-]/.test(projectId)) {
+      throw new Error("invalid client project ID");
+    }
   }
 
   signIn(username: string, password: string): Promise<SignInResponse> {

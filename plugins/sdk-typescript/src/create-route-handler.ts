@@ -1,9 +1,9 @@
 import type { PluginHandler, PluginRoute } from "./index.js";
+import { requireRoute } from "./require-route.js";
+
 export function createRouteHandler(routes: readonly PluginRoute[]): PluginHandler {
   return (rpc) => {
-    const route = routes.find((candidate) => candidate.operation === rpc.params.operation);
-    if (!route || !route.function || !route.capability)
-      throw new Error("operation not declared in plugin manifest");
+    const route = requireRoute(routes, rpc.params.operation);
     return {
       accepted: true,
       operation: rpc.params.operation,

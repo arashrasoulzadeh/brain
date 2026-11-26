@@ -1,15 +1,15 @@
 import type { HostExecutionContext, HostInvoker, PluginHandler, PluginRoute } from "./index.js";
+import { requireHostContext } from "./require-host-context.js";
+import { requireRoute } from "./require-route.js";
+
 export function createHostHandler(
   host: HostInvoker,
   routes: readonly PluginRoute[],
   context: HostExecutionContext,
 ): PluginHandler {
   return (rpc) => {
-    if (!context.projectId || !context.invocationId || rpc.params.projectId !== context.projectId)
-      throw new Error("host project context mismatch");
-    const route = routes.find((candidate) => candidate.operation === rpc.params.operation);
-    if (!route) throw new Error("operation not declared in plugin manifest");
-    if (!route.function || !route.capability) throw new Error("invalid plugin route");
+    requireHostContext(context, rpc);
+    const route = requireRoute(routes, rpc.params.operation);
     return {
       accepted: true,
       operation: rpc.params.operation,

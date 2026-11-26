@@ -182,7 +182,18 @@ func (w *TypeScriptWorker) Handle(request WorkerRequest) WorkerResponse {
 	if !w.ready {
 		return WorkerResponse{Protocol: request.Protocol, ErrorCode: ErrTypeScriptWorkerStopped.Error()}
 	}
-	message := RPCRequest{JSONRPC: "2.0", ID: request.Operation, Method: "invoke", Params: request}
+	// The TypeScript SDK expects JSON values, not Go's base64 encoding of []byte.
+	message := struct {
+		JSONRPC string `json:"jsonrpc"`
+		ID      string `json:"id"`
+		Method  string `json:"method"`
+		Params  struct {
+			WorkerRequest
+			Payload json.RawMessage `json:"payload"`
+		} `json:"params"`
+	}{JSONRPC: "2.0", ID: request.Operation, Method: "invoke"}
+	message.Params.WorkerRequest = request
+	message.Params.Payload = json.RawMessage(request.Payload)
 	data, err := json.Marshal(message)
 	if err != nil {
 		return WorkerResponse{Protocol: request.Protocol, ErrorCode: err.Error()}
@@ -227,12 +238,26 @@ func (w *TypeScriptWorker) Handle(request WorkerRequest) WorkerResponse {
 		w.reapProcess()
 		return WorkerResponse{Protocol: request.Protocol, ErrorCode: readErr.Error()}
 	}
-	var response RPCResponse
+	var response struct {
+		Result *struct {
+			Protocol  int             `json:"protocol"`
+			Success   bool            `json:"success"`
+			Payload   json.RawMessage `json:"payload"`
+			ErrorCode string          `json:"errorCode"`
+		} `json:"result"`
+		ErrorCode string `json:"errorCode"`
+	}
 	if err := json.Unmarshal(line, &response); err != nil {
 		return WorkerResponse{Protocol: request.Protocol, ErrorCode: ErrInvalidRPCMessage.Error()}
 	}
 	if response.Result == nil {
 		return WorkerResponse{Protocol: request.Protocol, ErrorCode: response.ErrorCode}
 	}
-	return *response.Result
+	if response.Result.Protocol != request.Protocol {
+		return WorkerResponse{Protocol: request.Protocol, ErrorCode: ErrInvalidRPCMessage.Error()}
+	}
+	return WorkerResponse{
+		Protocol: response.Result.Protocol, Success: response.Result.Success,
+		Payload: response.Result.Payload, ErrorCode: response.Result.ErrorCode,
+	}
 }

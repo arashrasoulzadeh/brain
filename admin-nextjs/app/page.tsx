@@ -1,183 +1,21 @@
 "use client";
+import { adminHeaders, readAdminSession, saveAdminSession, clearAdminSession, signOutAdminSession } from "./lib/admin-api";
 import { FormEvent, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { AdminFooter, AdminHeader, AdminSidebar } from "./components/admin-chrome";
 import { QUIET_REQUEST_HEADER } from "./components/toast-provider";
-type Project = { ID: string; Active: boolean };
-type PluginManifest = {
-  ID: string;
-  Title: string;
-  Description: string;
-  Version: string;
-  Capabilities: string[];
-  ConfigSchema?: Record<string, string>;
-};
-type PluginStatus = {
-  ProjectID: string;
-  PluginID: string;
-  Version: string;
-  Enabled: boolean;
-  Ready: boolean;
-  WorkerReady?: boolean;
-  Draining: boolean;
-};
-type AuditRecord = {
-  source: string;
-  action: string;
-  actor_id?: string;
-  project_id?: string;
-  plugin_id?: string;
-  version?: string;
-  success: boolean;
-  detail?: string;
-};
-type FunctionDraft = { project_id: string; name: string; source: string; created_at: string };
-type SystemManifest = PluginManifest & {
-  Routes: { Operation: string; Capability: string }[];
-  ExtensionPoints: string[];
-  SourceFiles: string[];
-  Imports: string[];
-  PluginImports: string[];
-  Dependencies: string[];
-};
-type Language = "en" | "fa";
-const copy = {
-  en: {
-    eyebrow: "BRAIN CONTROL PLANE",
-    welcome: "Welcome back",
-    subtitle: "Securely manage projects and plugins.",
-    username: "Operator username",
-    secret: "Secret",
-    signIn: "Sign in",
-    projects: "Projects",
-    signOut: "Sign out",
-    newProject: "New project ID",
-    create: "Create project",
-    empty: "No projects yet.",
-    active: "Active",
-    inactive: "Inactive",
-    plugins: "Plugins",
-    registered: "Registered plugins",
-    installed: "Installed versions",
-    ready: "Ready",
-    notReady: "Not ready",
-    enabled: "Enabled",
-    disabled: "Disabled",
-    invalid: "Invalid operator credentials",
-    install: "Install",
-    installedLabel: "Installed",
-    audit: "Audit log",
-    noAudit: "No audit events yet.",
-    system: "System capabilities",
-    routes: "routes",
-    extensions: "extension points",
-    navigation: "Admin navigation",
-    project: "Project",
-    uninstall: "Uninstall",
-    activate: "Activate",
-    deactivate: "Deactivate",
-    enable: "Enable",
-    grant: "Grant first capability",
-    grantCapability: "Grant",
-    revokeCapability: "Revoke",
-    disable: "Disable",
-    resume: "Resume",
-    stop: "Stop",
-    files: "files",
-    imports: "imports",
-    dependencies: "dependencies",
-    search: "Search plugins",
-    searchAudit: "Search audit history",
-    database: "Database",
-    functions: "Functions",
-    workflows: "Workflows",
-    liveSessions: "Live sessions",
-    routesPage: "Routes",
-    monitoring: "Monitoring",
-    workers: "Workers",
-    playground: "Playground",
-    selectRoute: "Select a route",
-    payload: "JSON payload",
-    previewRequest: "Preview request",
-    test: "Test",
-    send: "Send",
-    remove: "Remove",
-    markReady: "Mark ready",
-    promote: "Promote",
-    drain: "Drain",
-    recover: "Recover",
-    rollback: "Rollback",
-    configure: "Save configuration",
-  },
-  fa: {
-    eyebrow: "پنل مدیریت برین",
-    welcome: "خوش آمدید",
-    subtitle: "پروژه‌ها و افزونه‌ها را با امنیت مدیریت کنید.",
-    username: "نام کاربری مدیر",
-    secret: "رمز عبور",
-    signIn: "ورود",
-    projects: "پروژه‌ها",
-    signOut: "خروج",
-    newProject: "شناسه پروژه جدید",
-    create: "ساخت پروژه",
-    empty: "هنوز پروژه‌ای وجود ندارد.",
-    active: "فعال",
-    inactive: "غیرفعال",
-    plugins: "افزونه‌ها",
-    registered: "افزونه‌های ثبت‌شده",
-    installed: "نسخه‌های نصب‌شده",
-    ready: "آماده",
-    notReady: "آماده نیست",
-    enabled: "فعال",
-    disabled: "غیرفعال",
-    invalid: "اطلاعات ورود نادرست است",
-    install: "نصب",
-    installedLabel: "نصب‌شده",
-    audit: "گزارش رویدادها",
-    noAudit: "هنوز رویدادی ثبت نشده است.",
-    system: "قابلیت‌های سیستم",
-    routes: "مسیر",
-    extensions: "نقاط توسعه",
-    navigation: "ناوبری مدیریت",
-    project: "پروژه",
-    uninstall: "حذف پروژه",
-    activate: "فعال‌سازی",
-    deactivate: "غیرفعال‌سازی",
-    enable: "فعال‌سازی",
-    grant: "اعطای اولین دسترسی",
-    grantCapability: "اعطا",
-    revokeCapability: "لغو دسترسی",
-    disable: "غیرفعال‌سازی",
-    resume: "ادامه فعالیت",
-    stop: "توقف",
-    files: "فایل",
-    imports: "واردسازی",
-    dependencies: "وابستگی",
-    search: "جستجوی افزونه‌ها",
-    searchAudit: "جستجوی گزارش‌ها",
-    database: "پایگاه داده",
-    functions: "توابع",
-    workflows: "گردش‌کارها",
-    liveSessions: "جلسه‌های زنده",
-    routesPage: "مسیرها",
-    monitoring: "پایش",
-    workers: "کارگرها",
-    playground: "محیط آزمایش",
-    selectRoute: "انتخاب مسیر",
-    payload: "داده JSON",
-    previewRequest: "پیش‌نمایش درخواست",
-    test: "آزمایش",
-    send: "ارسال",
-    remove: "حذف",
-    markReady: "اعلام آمادگی",
-    promote: "ارتقا",
-    drain: "تخلیه",
-    recover: "بازیابی",
-    rollback: "بازگشت",
-    configure: "ذخیره تنظیمات",
-  },
-};
+import type { Project, PluginManifest, PluginStatus, AuditRecord, FunctionDraft, SystemManifest, Language } from "./lib/admin-types";
+import { copy } from "./lib/admin-copy";
+import { canViewAdminPage, enabledPluginIDs, visibleAdminPages } from "./lib/admin-navigation";
+import { AuditPanel } from "./components/audit-panel";
+import { SystemPanel } from "./components/system-panel";
+import { MonitoringPanel } from "./components/monitoring-panel";
+import { PluginConsole } from "./components/plugin-console";
+import { ProjectsPanel } from "./components/projects-panel";
+import { PluginCatalogPanel } from "./components/plugin-catalog-panel";
+import { FunctionDraftsPanel } from "./components/function-drafts-panel";
+import { RoutesPanel } from "./components/routes-panel";
 export default function AdminPage() {
   const pathname = usePathname();
   const activePage = pathname.split("/")[1] || "projects";
@@ -242,22 +80,7 @@ export default function AdminPage() {
         workers: text.workers,
       } as Record<string, string>
     )[activePage] ?? text.projects;
-  const activePluginIDs = new Set(
-    installations
-      .filter((installation) => installation.Enabled && installation.Ready)
-      .map((installation) => installation.PluginID),
-  );
-  const requiredPlugin = (
-    {
-      system: "dashboard",
-      database: "tables",
-      functions: "functions",
-      workflows: "functions",
-      files: "files",
-      "live-sessions": "rooms",
-    } as Record<string, string | undefined>
-  )[activePage];
-  const pageRequiresAnyPlugin = ["routes", "monitoring", "workers"].includes(activePage);
+  const activePluginIDs = enabledPluginIDs(installations);
   useEffect(() => {
     if (!session) return;
     const refresh = () =>
@@ -272,13 +95,13 @@ export default function AdminPage() {
     return () => window.clearInterval(timer);
   }, [session, selectedProjectID]);
   useEffect(() => {
-    const savedSession = window.sessionStorage.getItem("brain-admin-session");
+    const savedSession = readAdminSession();
     if (!savedSession) {
       setHydratingSession(false);
       return;
     }
     const hydrationTimeout = window.setTimeout(() => {
-      window.sessionStorage.removeItem("brain-admin-session");
+      clearAdminSession();
       setSession("");
       setError("The operator session could not be restored. Please sign in again.");
       setHydratingSession(false);
@@ -296,7 +119,7 @@ export default function AdminPage() {
         ]);
       })
       .catch(() => {
-        window.sessionStorage.removeItem("brain-admin-session");
+        clearAdminSession();
         setSession("");
         setError("Your operator session expired. Please sign in again.");
       })
@@ -308,7 +131,7 @@ export default function AdminPage() {
   }, []);
   async function loadProjects(token: string): Promise<Project[]> {
     const response = await fetch("/api/admin/projects", {
-      headers: { authorization: `Bearer ${token}` },
+      headers: adminHeaders(token),
     });
     if (!response.ok) throw new Error("Could not load projects");
     const loadedProjects = (await response.json()) as Project[];
@@ -318,7 +141,7 @@ export default function AdminPage() {
   async function loadPlugins(token: string, projectID = selectedProjectID) {
     const query = projectID ? `?project_id=${encodeURIComponent(projectID)}` : "";
     const response = await fetch(`/api/admin/plugins${query}`, {
-      headers: { authorization: `Bearer ${token}` },
+      headers: adminHeaders(token),
     });
     if (!response.ok) throw new Error("Could not load plugins");
     const result = (await response.json()) as {
@@ -330,14 +153,14 @@ export default function AdminPage() {
   }
   async function loadAudit(token: string) {
     const response = await fetch("/api/admin/audit", {
-      headers: { authorization: `Bearer ${token}` },
+      headers: adminHeaders(token),
     });
     if (!response.ok) throw new Error("Could not load audit log");
     setAudit((await response.json()) as AuditRecord[]);
   }
   async function loadSystem(token: string) {
     const response = await fetch("/api/admin/system", {
-      headers: { authorization: `Bearer ${token}` },
+      headers: adminHeaders(token),
     });
     if (!response.ok) throw new Error("Could not load system capabilities");
     setSystem((await response.json()) as SystemManifest[]);
@@ -349,7 +172,7 @@ export default function AdminPage() {
     }
     const response = await fetch(
       `/api/admin/functions?project_id=${encodeURIComponent(projectID)}`,
-      { headers: { authorization: `Bearer ${token}`, [QUIET_REQUEST_HEADER]: "1" } },
+      { headers: adminHeaders(token, { [QUIET_REQUEST_HEADER]: "1" }) },
     );
     if (response.ok) setFunctionDrafts((await response.json()) as FunctionDraft[]);
   }
@@ -375,7 +198,7 @@ export default function AdminPage() {
       }
       const token = ((await response.json()) as { session: string }).session;
       setSession(token);
-      window.sessionStorage.setItem("brain-admin-session", token);
+      saveAdminSession(token);
       const loadedProjects = await loadProjects(token);
       setSelectedProjectID(loadedProjects.find((project) => project.Active)?.ID ?? "");
       await loadPlugins(token, loadedProjects.find((project) => project.Active)?.ID ?? "");
@@ -386,11 +209,7 @@ export default function AdminPage() {
     }
   }
   async function signOut() {
-    await fetch("/api/admin/session", {
-      method: "DELETE",
-      headers: { authorization: `Bearer ${session}` },
-    }).catch(() => undefined);
-    window.sessionStorage.removeItem("brain-admin-session");
+    await signOutAdminSession();
     setSession("");
   }
   async function createProject(event: FormEvent) {
@@ -399,7 +218,7 @@ export default function AdminPage() {
     try {
       const response = await fetch("/api/admin/actions", {
         method: "POST",
-        headers: { authorization: `Bearer ${session}`, "content-type": "application/json" },
+        headers: adminHeaders(session, { "content-type": "application/json" }),
         body: JSON.stringify({ operation: "project.create", project_id: projectID }),
       });
       if (!response.ok) throw new Error(await response.text());
@@ -413,7 +232,7 @@ export default function AdminPage() {
     if (!active && !window.confirm(`${text.deactivate} ${project.ID}?`)) return;
     const response = await fetch("/api/admin/actions", {
       method: "POST",
-      headers: { authorization: `Bearer ${session}`, "content-type": "application/json" },
+      headers: adminHeaders(session, { "content-type": "application/json" }),
       body: JSON.stringify({
         operation: active ? "project.activate" : "project.deactivate",
         project_id: project.ID,
@@ -464,7 +283,7 @@ export default function AdminPage() {
     setPlaygroundMessage("Executing through the host...");
     const response = await fetch("/api/admin/actions", {
       method: "POST",
-      headers: { authorization: `Bearer ${session}`, "content-type": "application/json" },
+      headers: adminHeaders(session, { "content-type": "application/json" }),
       body: JSON.stringify({
         operation: "plugin.invoke",
         project_id: selectedProjectID,
@@ -495,108 +314,10 @@ export default function AdminPage() {
     setPlaygroundPayload(JSON.stringify(output, null, 2));
   }
   async function runDatabaseOperation() {
-    if (!selectedProjectID) {
-      setDatabaseMessage("Select an active project first");
-      return;
-    }
-    let payload: unknown;
-    try {
-      payload = JSON.parse(databasePayload || "{}");
-    } catch {
-      setDatabaseMessage("Invalid JSON payload");
-      return;
-    }
-    const manifest = system.find((candidate) => candidate.ID === "tables");
-    if (!manifest) {
-      setDatabaseMessage("Tables plugin manifest unavailable");
-      return;
-    }
-    setDatabaseMessage("Executing through the host...");
-    const response = await fetch("/api/admin/actions", {
-      method: "POST",
-      headers: { authorization: `Bearer ${session}`, "content-type": "application/json" },
-      body: JSON.stringify({
-        operation: "plugin.invoke",
-        project_id: selectedProjectID,
-        plugin_id: "tables",
-        version: manifest.Version,
-        target_operation: databaseOperation,
-        payload,
-      }),
-    });
-    if (!response.ok) {
-      setDatabaseMessage(await response.text());
-      return;
-    }
-    const result = await response.json();
-    if (result.success === false) {
-      setDatabaseMessage(`Database plugin error: ${result.errorCode ?? "execution failed"}`);
-      return;
-    }
-    try {
-      setDatabasePayload(
-        JSON.stringify(
-          typeof result.payload === "string" ? JSON.parse(atob(result.payload)) : result,
-          null,
-          2,
-        ),
-      );
-    } catch {
-      setDatabasePayload(JSON.stringify(result, null, 2));
-    }
-    setDatabaseMessage("Database operation completed");
+    await runPluginConsoleOperation("tables", databaseOperation, databasePayload, setDatabasePayload, setDatabaseMessage);
   }
   async function runFileOperation() {
-    if (!selectedProjectID) {
-      setFileMessage("Select an active project first");
-      return;
-    }
-    let payload: unknown;
-    try {
-      payload = JSON.parse(filePayload || "{}");
-    } catch {
-      setFileMessage("Invalid JSON payload");
-      return;
-    }
-    const manifest = system.find((candidate) => candidate.ID === "files");
-    if (!manifest) {
-      setFileMessage("Files plugin manifest unavailable");
-      return;
-    }
-    setFileMessage("Executing through the host...");
-    const response = await fetch("/api/admin/actions", {
-      method: "POST",
-      headers: { authorization: `Bearer ${session}`, "content-type": "application/json" },
-      body: JSON.stringify({
-        operation: "plugin.invoke",
-        project_id: selectedProjectID,
-        plugin_id: "files",
-        version: manifest.Version,
-        target_operation: fileOperation,
-        payload,
-      }),
-    });
-    if (!response.ok) {
-      setFileMessage(await response.text());
-      return;
-    }
-    const result = await response.json();
-    if (result.success === false) {
-      setFileMessage(`Files plugin error: ${result.errorCode ?? "execution failed"}`);
-      return;
-    }
-    try {
-      setFilePayload(
-        JSON.stringify(
-          typeof result.payload === "string" ? JSON.parse(atob(result.payload)) : result,
-          null,
-          2,
-        ),
-      );
-    } catch {
-      setFilePayload(JSON.stringify(result, null, 2));
-    }
-    setFileMessage("File operation completed");
+    await runPluginConsoleOperation("files", fileOperation, filePayload, setFilePayload, setFileMessage);
   }
   async function runWorkflowOperation() {
     await runPluginConsoleOperation(
@@ -643,7 +364,7 @@ export default function AdminPage() {
     setMessage("Executing through the host...");
     const response = await fetch("/api/admin/actions", {
       method: "POST",
-      headers: { authorization: `Bearer ${session}`, "content-type": "application/json" },
+      headers: adminHeaders(session, { "content-type": "application/json" }),
       body: JSON.stringify({
         operation: "plugin.invoke",
         project_id: selectedProjectID,
@@ -687,7 +408,7 @@ export default function AdminPage() {
     try {
       const response = await fetch("/api/admin/actions", {
         method: "POST",
-        headers: { authorization: `Bearer ${session}`, "content-type": "application/json" },
+        headers: adminHeaders(session, { "content-type": "application/json" }),
         body: JSON.stringify({
           operation: "plugin.install",
           project_id: project.ID,
@@ -717,7 +438,7 @@ export default function AdminPage() {
     }
     const response = await fetch("/api/admin/functions", {
       method: "POST",
-      headers: { authorization: `Bearer ${session}`, "content-type": "application/json" },
+      headers: adminHeaders(session, { "content-type": "application/json" }),
       body: JSON.stringify({
         operation,
         project_id: selectedProjectID,
@@ -747,7 +468,7 @@ export default function AdminPage() {
     setError("");
     const response = await fetch("/api/admin/actions", {
       method: "POST",
-      headers: { authorization: `Bearer ${session}`, "content-type": "application/json" },
+      headers: adminHeaders(session, { "content-type": "application/json" }),
       body: JSON.stringify({
         operation: "project.uninstall",
         project_id: project.ID,
@@ -792,7 +513,7 @@ export default function AdminPage() {
       return;
     const response = await fetch("/api/admin/actions", {
       method: "POST",
-      headers: { authorization: `Bearer ${session}`, "content-type": "application/json" },
+      headers: adminHeaders(session, { "content-type": "application/json" }),
       body: JSON.stringify({
         operation,
         project_id: project.ID,
@@ -835,7 +556,7 @@ export default function AdminPage() {
     );
     const response = await fetch("/api/admin/actions", {
       method: "POST",
-      headers: { authorization: `Bearer ${session}`, "content-type": "application/json" },
+      headers: adminHeaders(session, { "content-type": "application/json" }),
       body: JSON.stringify({
         operation: "plugin.configure",
         project_id: selectedProjectID,
@@ -857,7 +578,7 @@ export default function AdminPage() {
     }
     const previewResponse = await fetch("/api/admin/actions", {
       method: "POST",
-      headers: { authorization: `Bearer ${session}`, "content-type": "application/json" },
+      headers: adminHeaders(session, { "content-type": "application/json" }),
       body: JSON.stringify({
         operation: "plugin.disable.preview",
         project_id: selectedProjectID,
@@ -881,7 +602,7 @@ export default function AdminPage() {
       return;
     const applyResponse = await fetch("/api/admin/actions", {
       method: "POST",
-      headers: { authorization: `Bearer ${session}`, "content-type": "application/json" },
+      headers: adminHeaders(session, { "content-type": "application/json" }),
       body: JSON.stringify({
         operation: "plugin.disable.apply",
         project_id: selectedProjectID,
@@ -949,10 +670,7 @@ export default function AdminPage() {
         </section>
       </main>
     );
-  if (
-    (requiredPlugin && !activePluginIDs.has(requiredPlugin)) ||
-    (pageRequiresAnyPlugin && activePluginIDs.size === 0)
-  )
+  if (!canViewAdminPage(activePage, activePluginIDs))
     return (
       <main className="shell" dir={language === "fa" ? "rtl" : "ltr"}>
         <section className="card">
@@ -965,796 +683,133 @@ export default function AdminPage() {
     );
   const pageContent = (
     <>
-      <div
-        className={activePage === "projects" ? "project-selector" : "project-selector page-hidden"}
-      >
-        <label htmlFor="selected-project">{text.project}</label>
-        <select
-          id="selected-project"
-          value={selectedProjectID}
-          onChange={(event) => {
-            const nextProjectID = event.target.value;
-            setSelectedProjectID(nextProjectID);
-            void loadPlugins(session, nextProjectID);
-          }}
-        >
-          <option value="">—</option>
-          {projects.map((project) => (
-            <option key={project.ID} value={project.ID} disabled={!project.Active}>
-              {project.ID}
-              {project.Active ? "" : " (inactive)"}
-            </option>
-          ))}
-        </select>
-      </div>
-      <form
-        className={activePage === "projects" ? "create" : "create page-hidden"}
-        onSubmit={createProject}
-      >
-        <input
-          placeholder={text.newProject}
-          value={projectID}
-          onChange={(event) => setProjectID(event.target.value)}
-          required
-        />
-        <button>{text.create}</button>
-      </form>
-      {error && <p className="error">{error}</p>}
-      <div className={activePage === "projects" ? "" : "page-hidden"}>
-        {projects.length ? (
-          <div className="project-table">
-            <div className="project-table-head">
-              <span>{text.project}</span>
-              <span>{text.active}</span>
-              <span>{text.navigation}</span>
-            </div>
-            {projects.map((project) => (
-              <div className="project-table-row" key={project.ID}>
-                <strong>{project.ID}</strong>
-                <span className={project.Active ? "success" : "failure"}>
-                  {project.Active ? text.active : text.inactive}
-                </span>
-                <span className="project-actions">
-                  {project.Active ? (
-                    <button
-                      className="secondary"
-                      onClick={() => void setProjectActive(project, false)}
-                    >
-                      {text.deactivate}
-                    </button>
-                  ) : (
-                    <button onClick={() => void setProjectActive(project, true)}>
-                      {text.activate}
-                    </button>
-                  )}
-                  {project.Active && (
-                    <button className="danger" onClick={() => uninstallProject(project)}>
-                      {text.uninstall}
-                    </button>
-                  )}
-                </span>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="muted">{text.empty}</p>
-        )}
-      </div>
-      <section className="section page-hidden" id="projects">
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">{text.plugins}</p>
-            <h2>{text.registered}</h2>
-          </div>
-          <span className="count">{manifests.length}</span>
-        </div>
-        <input
-          className="plugin-search"
-          placeholder={text.search}
-          value={pluginFilter}
-          onChange={(event) => setPluginFilter(event.target.value)}
-        />
-        <div className="plugin-grid">
-          {manifests.filter((manifest) =>
-            `${manifest.ID} ${manifest.Title} ${manifest.Description}`
-              .toLowerCase()
-              .includes(pluginFilter.toLowerCase()),
-          ).length ? (
-            manifests
-              .filter((manifest) =>
-                `${manifest.ID} ${manifest.Title} ${manifest.Description}`
-                  .toLowerCase()
-                  .includes(pluginFilter.toLowerCase()),
-              )
-              .map((manifest) => {
-                const installation = installations.find(
-                  (item) => item.PluginID === manifest.ID && item.Version === manifest.Version,
-                );
-                const installed = Boolean(installation);
-                return (
-                  <article className="plugin" key={`${manifest.ID}@${manifest.Version}`}>
-                    <div>
-                      <h3>
-                        <a
-                          href={`/plugins/${encodeURIComponent(`${manifest.ID}@${manifest.Version}`)}`}
-                        >
-                          {manifest.Title || manifest.ID}
-                        </a>
-                      </h3>
-                      <p className="muted">{manifest.Description}</p>
-                    </div>
-                    <small>
-                      {manifest.ID}@{manifest.Version}
-                    </small>
-                    <div className="capabilities">
-                      {manifest.Capabilities?.map((capability) => (
-                        <span key={capability}>{capability}</span>
-                      ))}
-                    </div>
-                    {!installed && (
-                      <button className="plugin-action" onClick={() => installPlugin(manifest)}>
-                        {text.install}
-                      </button>
-                    )}
-                    {installation && (
-                      <div className="lifecycle-actions">
-                        {!installation.Ready && (
-                          <button onClick={() => runPluginAction("plugin.readiness", installation)}>
-                            {text.markReady}
-                          </button>
-                        )}
-                        {!installation.Enabled && installation.Ready && (
-                          <button onClick={() => runPluginAction("plugin.enable", installation)}>
-                            {text.enable}
-                          </button>
-                        )}
-                        {installation.Ready && <small>{text.ready}</small>}
-                      </div>
-                    )}
-                  </article>
-                );
-              })
-          ) : (
-            <p className="muted">{text.empty}</p>
-          )}
-        </div>
-      </section>
-      <section
-        className={`section ${activePage !== "plugins" ? "page-hidden" : ""}`}
-        id="installed-plugin-table"
-      >
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">{text.plugins}</p>
-            <h2>{text.installed}</h2>
-          </div>
-          <span className="count">{installations.length}</span>
-        </div>
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Plugin</th>
-                <th>Version</th>
-                <th>Status</th>
-                <th>View</th>
-              </tr>
-            </thead>
-            <tbody>
-              {installations.map((installation) => (
-                <tr key={`${installation.PluginID}@${installation.Version}`}>
-                  <td>{installation.PluginID}</td>
-                  <td>{installation.Version}</td>
-                  <td>
-                    {installation.Enabled && installation.Ready
-                      ? text.ready
-                      : installation.Ready
-                        ? text.disabled
-                        : text.notReady}
-                  </td>
-                  <td>
-                    <a
-                      className="view-icon"
-                      aria-label={`View ${installation.PluginID}`}
-                      title="View plugin"
-                      href={`/plugins/${encodeURIComponent(`${installation.PluginID}@${installation.Version}`)}`}
-                    >
-                      ↗
-                    </a>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-      <section className={`section ${activePage !== "plugins" ? "page-hidden" : ""}`}>
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">{text.plugins}</p>
-            <h2>{text.registered}</h2>
-          </div>
-          <span className="count">{manifests.length}</span>
-        </div>
-        <input
-          className="plugin-search"
-          placeholder={text.search}
-          value={pluginFilter}
-          onChange={(event) => setPluginFilter(event.target.value)}
-        />
-        <div className="plugin-grid">
-          {manifests
-            .filter((manifest) =>
-              `${manifest.ID} ${manifest.Title} ${manifest.Description}`
-                .toLowerCase()
-                .includes(pluginFilter.toLowerCase()),
-            )
-            .map((manifest) => {
-              const installed = installations.some(
-                (item) => item.PluginID === manifest.ID && item.Version === manifest.Version,
-              );
-              return (
-                <article className="plugin" key={`catalog-${manifest.ID}@${manifest.Version}`}>
-                  <div>
-                    <h3>{manifest.Title || manifest.ID}</h3>
-                    <p className="muted">{manifest.Description}</p>
-                  </div>
-                  <small>
-                    {manifest.ID}@{manifest.Version}
-                  </small>
-                  <div className="capabilities">
-                    {manifest.Capabilities?.map((capability) => (
-                      <span key={capability}>{capability}</span>
-                    ))}
-                  </div>
-                  <button
-                    className="plugin-action"
-                    disabled={installed}
-                    onClick={() => installPlugin(manifest)}
-                  >
-                    {installed ? text.installedLabel : text.install}
-                  </button>
-                </article>
-              );
-            })}
-        </div>
-      </section>
-      <section className={`section ${activePage !== "audit" ? "page-hidden" : ""}`} id="audit">
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">{text.audit}</p>
-            <h2>{text.audit}</h2>
-          </div>
-          <span className="count">{audit.length}</span>
-        </div>
-        <input
-          className="plugin-search"
-          placeholder={text.searchAudit}
-          value={auditFilter}
-          onChange={(event) => setAuditFilter(event.target.value)}
-        />
-        <div className="audit-list">
-          {audit.length ? (
-            audit
-              .slice()
-              .reverse()
-              .filter((record) =>
-                `${record.action} ${record.source} ${record.project_id ?? ""} ${record.plugin_id ?? ""} ${record.detail ?? ""}`
-                  .toLowerCase()
-                  .includes(auditFilter.toLowerCase()),
-              )
-              .map((record, index) => (
-                <div className="audit" key={`${record.action}-${index}`}>
-                  <span className={record.success ? "success" : "failure"}>
-                    {record.success ? "✓" : "!"}
-                  </span>
-                  <div>
-                    <strong>{record.action}</strong>
-                    <small>
-                      {record.source}
-                      {record.plugin_id ? ` · ${record.plugin_id}@${record.version}` : ""}
-                      {record.project_id ? ` · ${record.project_id}` : ""}
-                    </small>
-                  </div>
-                </div>
-              ))
-          ) : (
-            <p className="muted">{text.noAudit}</p>
-          )}
-        </div>
-      </section>
-      <section className={`section ${activePage !== "system" ? "page-hidden" : ""}`} id="system">
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">{text.system}</p>
-            <h2>{text.system}</h2>
-          </div>
-          <span className="count">{system.length}</span>
-        </div>
-        <div className="plugin-grid">
-          {system.map((manifest) => (
-            <article className="plugin" key={`system-${manifest.ID}@${manifest.Version}`}>
-              <h3>{manifest.Title || manifest.ID}</h3>
-              <p className="muted">{manifest.Description}</p>
-              <small>
-                {manifest.Routes?.length ?? 0} {text.routes} ·{" "}
-                {manifest.ExtensionPoints?.length ?? 0} {text.extensions} ·{" "}
-                {manifest.SourceFiles?.length ?? 0} {text.files}
-              </small>
-              <div className="capabilities">
-                {manifest.Capabilities?.map((capability) => (
-                  <span key={capability}>{capability}</span>
-                ))}
-              </div>
-              <div className="route-list">
-                {manifest.Routes?.map((route) => (
-                  <div key={route.Operation}>
-                    <code>{route.Operation}</code>
-                    <small>{route.Capability}</small>
-                  </div>
-                ))}
-              </div>
-              <details>
-                <summary>
-                  {text.files} / {text.imports} / {text.dependencies}
-                </summary>
-                <small>{manifest.SourceFiles?.join(" · ")}</small>
-                <small>{manifest.Imports?.join(" · ")}</small>
-                <small>
-                  {[...(manifest.Dependencies ?? []), ...(manifest.PluginImports ?? [])].join(
-                    " · ",
-                  ) || "—"}
-                </small>
-              </details>
-            </article>
-          ))}
-        </div>
-      </section>
-      <section className={`section ${activePage !== "database" ? "page-hidden" : ""}`}>
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">{text.database}</p>
-            <h2>{text.database}</h2>
-            <p className="muted">
-              Run project-scoped table operations through the installed Tables plugin.
-            </p>
-          </div>
-        </div>
-        <div className="playground">
-          <label>
-            Operation
-            <select
-              value={databaseOperation}
-              onChange={(event) => setDatabaseOperation(event.target.value)}
-            >
-              <option value="tables.schema">tables.schema</option>
-              <option value="tables.read">tables.read</option>
-              <option value="tables.write">tables.write</option>
-            </select>
-          </label>
-          <label>
-            {text.payload}
-            <textarea
-              value={databasePayload}
-              onChange={(event) => setDatabasePayload(event.target.value)}
-              rows={10}
-            />
-          </label>
-          <div className="playground-actions">
-            <button type="button" onClick={() => void runDatabaseOperation()}>
-              {text.send}
-            </button>
-            <small>{databaseMessage}</small>
-          </div>
-        </div>
-        <div className="plugin-grid">
-          {system
-            .filter((manifest) => manifest.ID === "tables")
-            .map((manifest) => (
-              <article className="plugin" key={`database-${manifest.ID}`}>
-                <h3>{manifest.Title}</h3>
-                <p className="muted">{manifest.Description}</p>
-                <div className="route-list">
-                  {manifest.Routes?.map((route) => (
-                    <div key={route.Operation}>
-                      <code>{route.Operation}</code>
-                      <small>{route.Capability}</small>
-                    </div>
-                  ))}
-                </div>
-              </article>
-            ))}
-        </div>
-      </section>
-      <section className={`section ${activePage !== "functions" ? "page-hidden" : ""}`}>
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">{text.functions}</p>
-            <h2>Custom serverless functions</h2>
-            <p className="muted">
-              Create project-scoped TypeScript function drafts, test source validation, run JSON
-              input, and save them for host compilation.
-            </p>
-          </div>
-        </div>
-        <div className="function-editor">
-          <label>
-            Function name
-            <input
-              value={functionName}
-              onChange={(event) => setFunctionName(event.target.value)}
-              placeholder="hello"
-            />
-          </label>
-          <label>
-            Source code
-            <textarea
-              value={functionSource}
-              onChange={(event) => setFunctionSource(event.target.value)}
-              rows={18}
-              spellCheck={false}
-            />
-          </label>
-          <label>
-            JSON input
-            <textarea
-              value={functionInput}
-              onChange={(event) => setFunctionInput(event.target.value)}
-              rows={5}
-              spellCheck={false}
-            />
-          </label>
-          <div className="playground-actions">
-            <button type="button" onClick={() => void submitFunction("functions.test")}>
-              Validate
-            </button>
-            <button type="button" onClick={() => void submitFunction("functions.run")}>
-              Run test
-            </button>
-            <button type="button" onClick={() => void submitFunction("functions.create")}>
-              Save draft
-            </button>
-            <small>{functionMessage}</small>
-          </div>
-        </div>
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Project</th>
-                <th>Created</th>
-                <th>Load</th>
-              </tr>
-            </thead>
-            <tbody>
-              {functionDrafts.map((draft) => (
-                <tr key={`${draft.project_id}:${draft.name}`}>
-                  <td>
-                    <code>{draft.name}</code>
-                  </td>
-                  <td>{draft.project_id}</td>
-                  <td>{new Date(draft.created_at).toLocaleString()}</td>
-                  <td>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setFunctionName(draft.name);
-                        setFunctionSource(draft.source);
-                      }}
-                    >
-                      Load
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <div className="plugin-grid">
-          {system
-            .filter((manifest) => manifest.ID === "functions")
-            .map((manifest) => (
-              <article className="plugin" key={`functions-${manifest.ID}`}>
-                <h3>{manifest.Title}</h3>
-                <p className="muted">{manifest.Description}</p>
-                <div className="route-list">
-                  {manifest.Routes?.map((route) => (
-                    <div key={route.Operation}>
-                      <code>{route.Operation}</code>
-                      <small>{route.Capability}</small>
-                    </div>
-                  ))}
-                </div>
-              </article>
-            ))}
-        </div>
-      </section>
-      <section className={`section ${activePage !== "workflows" ? "page-hidden" : ""}`}>
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">{text.workflows}</p>
-            <h2>{text.workflows}</h2>
-            <p className="muted">
-              Run project-scoped Functions plugin operations through the host.
-            </p>
-          </div>
-        </div>
-        <div className="playground">
-          <label>
-            Operation
-            <select
-              value={workflowOperation}
-              onChange={(event) => setWorkflowOperation(event.target.value)}
-            >
-              <option value="functions.invoke">functions.invoke</option>
-              <option value="functions.publish">functions.publish</option>
-            </select>
-          </label>
-          <label>
-            {text.payload}
-            <textarea
-              value={workflowPayload}
-              onChange={(event) => setWorkflowPayload(event.target.value)}
-              rows={10}
-            />
-          </label>
-          <div className="playground-actions">
-            <button type="button" onClick={() => void runWorkflowOperation()}>
-              {text.send}
-            </button>
-            <small>{workflowMessage}</small>
-          </div>
-        </div>
-      </section>
-      <section className={`section ${activePage !== "files" ? "page-hidden" : ""}`}>
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">{text.files}</p>
-            <h2>{text.files}</h2>
-            <p className="muted">
-              Run project-scoped file operations through the installed Files plugin.
-            </p>
-          </div>
-        </div>
-        <div className="playground">
-          <label>
-            Operation
-            <select
-              value={fileOperation}
-              onChange={(event) => setFileOperation(event.target.value)}
-            >
-              <option value="files.upload">files.upload</option>
-              <option value="files.download">files.download</option>
-              <option value="files.metadata">files.metadata</option>
-              <option value="files.publish">files.publish</option>
-            </select>
-          </label>
-          <label>
-            {text.payload}
-            <textarea
-              value={filePayload}
-              onChange={(event) => setFilePayload(event.target.value)}
-              rows={10}
-            />
-          </label>
-          <div className="playground-actions">
-            <button type="button" onClick={() => void runFileOperation()}>
-              {text.send}
-            </button>
-            <small>{fileMessage}</small>
-          </div>
-        </div>
-        <div className="plugin-grid">
-          {system
-            .filter((manifest) => manifest.ID === "files")
-            .map((manifest) => (
-              <article className="plugin" key={`files-${manifest.ID}`}>
-                <h3>{manifest.Title}</h3>
-                <p className="muted">{manifest.Description}</p>
-                <div className="route-list">
-                  {manifest.Routes?.map((route) => (
-                    <div key={route.Operation}>
-                      <code>{route.Operation}</code>
-                      <small>{route.Capability}</small>
-                    </div>
-                  ))}
-                </div>
-              </article>
-            ))}
-        </div>
-      </section>
-      <section className={`section ${activePage !== "live-sessions" ? "page-hidden" : ""}`}>
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">{text.liveSessions}</p>
-            <h2>{text.liveSessions}</h2>
-            <p className="muted">
-              Manage project-scoped Rooms and Matchmaking operations through the host.
-            </p>
-          </div>
-        </div>
-        <div className="playground">
-          <label>
-            Operation
-            <select
-              value={sessionOperation}
-              onChange={(event) => setSessionOperation(event.target.value)}
-            >
-              <option value="rooms.create">rooms.create</option>
-              <option value="rooms.join">rooms.join</option>
-              <option value="rooms.reconnect">rooms.reconnect</option>
-              <option value="rooms.result">rooms.result</option>
-              <option value="matchmaking.queue">matchmaking.queue</option>
-              <option value="matchmaking.cancel">matchmaking.cancel</option>
-              <option value="matchmaking.status">matchmaking.status</option>
-              <option value="matchmaking.assign">matchmaking.assign</option>
-            </select>
-          </label>
-          <label>
-            {text.payload}
-            <textarea
-              value={sessionPayload}
-              onChange={(event) => setSessionPayload(event.target.value)}
-              rows={10}
-            />
-          </label>
-          <div className="playground-actions">
-            <button type="button" onClick={() => void runSessionOperation()}>
-              {text.send}
-            </button>
-            <small>{sessionMessage}</small>
-          </div>
-        </div>
-        <div className="plugin-grid">
-          {system
-            .filter((manifest) => ["rooms", "matchmaking"].includes(manifest.ID))
-            .map((manifest) => (
-              <article className="plugin" key={`live-${manifest.ID}`}>
-                <h3>{manifest.Title}</h3>
-                <p className="muted">{manifest.Description}</p>
-                <div className="route-list">
-                  {manifest.Routes?.map((route) => (
-                    <div key={route.Operation}>
-                      <code>{route.Operation}</code>
-                      <small>{route.Capability}</small>
-                    </div>
-                  ))}
-                </div>
-              </article>
-            ))}
-        </div>
-      </section>
-      <section className={`section ${activePage !== "routes" ? "page-hidden" : ""}`}>
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">{text.playground}</p>
-            <h2>{text.playground}</h2>
-          </div>
-        </div>
-        <div className="playground">
-          <label>
-            {text.selectRoute}
-            <select
-              value={playgroundRoute}
-              onChange={(event) => setPlaygroundRoute(event.target.value)}
-            >
-              <option value="">—</option>
-              {system.flatMap(
-                (manifest) =>
-                  manifest.Routes?.map((route) => (
-                    <option
-                      key={`${manifest.ID}:${route.Operation}`}
-                      value={`${manifest.ID}:${route.Operation}`}
-                    >
-                      {manifest.ID} · {route.Operation}
-                    </option>
-                  )) ?? [],
-              )}
-            </select>
-          </label>
-          <label>
-            {text.payload}
-            <textarea
-              value={playgroundPayload}
-              onChange={(event) => setPlaygroundPayload(event.target.value)}
-              rows={8}
-            />
-          </label>
-          <div className="playground-actions">
-            <button type="button" onClick={testPlayground}>
-              {text.test}
-            </button>
-            <button type="button" onClick={sendPlayground}>
-              {text.send}
-            </button>
-            <small>{playgroundMessage}</small>
-          </div>
-          <pre>
-            {playgroundRoute
-              ? JSON.stringify(
-                  {
-                    project_id: selectedProjectID,
-                    operation: playgroundRoute.split(":")[1],
-                    payload: playgroundPayload,
-                  },
-                  null,
-                  2,
-                )
-              : text.selectRoute}
-          </pre>
-        </div>
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">{text.routesPage}</p>
-            <h2>{text.routesPage}</h2>
-          </div>
-          <span className="count">
-            {system.reduce((total, manifest) => total + (manifest.Routes?.length ?? 0), 0)}
-          </span>
-        </div>
-        <div className="plugin-grid">
-          {system.map((manifest) => (
-            <article className="plugin" key={`routes-${manifest.ID}`}>
-              <h3>{manifest.Title}</h3>
-              <div className="route-list">
-                {manifest.Routes?.map((route) => (
-                  <div key={route.Operation}>
-                    <code>{route.Operation}</code>
-                    <small>{route.Capability}</small>
-                  </div>
-                ))}
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
-      <section className={`section ${activePage !== "monitoring" ? "page-hidden" : ""}`}>
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">{text.monitoring}</p>
-            <h2>{text.monitoring}</h2>
-          </div>
-          <span className="count">{manifests.length}</span>
-        </div>
-        <div className="audit-list">
-          {manifests.map((manifest) => {
-            const installation = installations.find(
-              (candidate) =>
-                candidate.PluginID === manifest.ID && candidate.Version === manifest.Version,
-            );
-            const state = !installation
-              ? "not installed"
-              : installation.Draining
-                ? "draining"
-                : !installation.Ready
-                  ? text.notReady
-                  : !installation.Enabled
-                    ? text.disabled
-                    : installation.WorkerReady === false
-                      ? "worker unavailable"
-                      : text.ready;
-            const healthy = Boolean(
-              installation?.Enabled &&
-              installation?.Ready &&
-              installation.WorkerReady !== false &&
-              !installation.Draining,
-            );
-            const statusClass = !installation ? "neutral" : healthy ? "success" : "failure";
-            return (
-              <div className="audit" key={`monitor-${manifest.ID}@${manifest.Version}`}>
-                <span className={statusClass}>{healthy ? "✓" : !installation ? "—" : "!"}</span>
-                <div>
-                  <strong>{manifest.Title || manifest.ID}</strong>
-                  <small>
-                    {manifest.ID}@{manifest.Version} · {state}
-                  </small>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
+      <ProjectsPanel
+        activePage={activePage}
+        text={text}
+        selectedProjectID={selectedProjectID}
+        projects={projects}
+        projectID={projectID}
+        setProjectID={setProjectID}
+        createProject={createProject}
+        setProjectActive={setProjectActive}
+        uninstallProject={uninstallProject}
+        error={error}
+        onSelectProject={(id) => { setSelectedProjectID(id); void loadPlugins(session, id); }}
+      />
+      <PluginCatalogPanel
+        activePage={activePage}
+        text={text}
+        manifests={manifests}
+        installations={installations}
+        pluginFilter={pluginFilter}
+        setPluginFilter={setPluginFilter}
+        installPlugin={installPlugin}
+        runPluginAction={runPluginAction}
+      />
+      <AuditPanel
+        activePage={activePage}
+        text={text}
+        audit={audit}
+        auditFilter={auditFilter}
+        setAuditFilter={setAuditFilter}
+      />
+      <SystemPanel
+        activePage={activePage}
+        text={text}
+        system={system}
+      />
+      <PluginConsole
+        visible={activePage === "database"}
+        title={text.database}
+        description="Run project-scoped table operations through the installed Tables plugin."
+        operation={databaseOperation}
+        onOperationChange={setDatabaseOperation}
+        operations={["tables.schema", "tables.read", "tables.write"]}
+        payload={databasePayload}
+        onPayloadChange={setDatabasePayload}
+        payloadLabel={text.payload}
+        sendLabel={text.send}
+        onRun={() => void runDatabaseOperation()}
+        message={databaseMessage}
+        manifests={system.filter((manifest) => manifest.ID === "tables")}
+      />
+      <FunctionDraftsPanel
+        activePage={activePage}
+        text={text}
+        functionName={functionName}
+        setFunctionName={setFunctionName}
+        functionSource={functionSource}
+        setFunctionSource={setFunctionSource}
+        functionInput={functionInput}
+        setFunctionInput={setFunctionInput}
+        submitFunction={submitFunction}
+        functionMessage={functionMessage}
+        functionDrafts={functionDrafts}
+        system={system}
+      />
+      <PluginConsole
+        visible={activePage === "workflows"}
+        title={text.workflows}
+        description="Run project-scoped Functions plugin operations through the host."
+        operation={workflowOperation}
+        onOperationChange={setWorkflowOperation}
+        operations={["functions.invoke", "functions.publish"]}
+        payload={workflowPayload}
+        onPayloadChange={setWorkflowPayload}
+        payloadLabel={text.payload}
+        sendLabel={text.send}
+        onRun={() => void runWorkflowOperation()}
+        message={workflowMessage}
+      />
+      <PluginConsole
+        visible={activePage === "files"}
+        title={text.files}
+        description="Run project-scoped file operations through the installed Files plugin."
+        operation={fileOperation}
+        onOperationChange={setFileOperation}
+        operations={["files.upload", "files.download", "files.metadata", "files.publish"]}
+        payload={filePayload}
+        onPayloadChange={setFilePayload}
+        payloadLabel={text.payload}
+        sendLabel={text.send}
+        onRun={() => void runFileOperation()}
+        message={fileMessage}
+        manifests={system.filter((manifest) => manifest.ID === "files")}
+      />
+      <PluginConsole
+        visible={activePage === "live-sessions"}
+        title={text.liveSessions}
+        description="Manage project-scoped Rooms and Matchmaking operations through the host."
+        operation={sessionOperation}
+        onOperationChange={setSessionOperation}
+        operations={["rooms.create", "rooms.join", "rooms.reconnect", "rooms.result", "matchmaking.queue", "matchmaking.cancel", "matchmaking.status", "matchmaking.assign"]}
+        payload={sessionPayload}
+        onPayloadChange={setSessionPayload}
+        payloadLabel={text.payload}
+        sendLabel={text.send}
+        onRun={() => void runSessionOperation()}
+        message={sessionMessage}
+        manifests={system.filter((manifest) => ["rooms", "matchmaking"].includes(manifest.ID))}
+      />
+      <RoutesPanel
+        activePage={activePage}
+        text={text}
+        playgroundRoute={playgroundRoute}
+        setPlaygroundRoute={setPlaygroundRoute}
+        system={system}
+        playgroundPayload={playgroundPayload}
+        setPlaygroundPayload={setPlaygroundPayload}
+        testPlayground={testPlayground}
+        sendPlayground={sendPlayground}
+        playgroundMessage={playgroundMessage}
+        selectedProjectID={selectedProjectID}
+      />
+      <MonitoringPanel
+        activePage={activePage}
+        text={text}
+        manifests={manifests}
+        installations={installations}
+      />
       <section className="page-hidden">
         <div className="playground" />
       </section>
@@ -1768,19 +823,7 @@ export default function AdminPage() {
           activePage={activePage}
           projectID={selectedProjectID}
           onSignOut={() => void signOut()}
-          visiblePages={[
-            "projects",
-            ...(manifests.length ? ["plugins"] : []),
-            "audit",
-            ...(activePluginIDs.has("dashboard") ? ["system"] : []),
-            ...(activePluginIDs.has("tables") ? ["database"] : []),
-            ...(activePluginIDs.has("functions") ? ["functions", "workflows"] : []),
-            ...(activePluginIDs.has("files") ? ["files"] : []),
-            ...(activePluginIDs.has("rooms") || activePluginIDs.has("matchmaking")
-              ? ["live-sessions"]
-              : []),
-            ...(activePluginIDs.size ? ["routes", "monitoring", "workers"] : []),
-          ]}
+          visiblePages={visibleAdminPages(manifests.length, activePluginIDs)}
         />
         <section className="card">
           <AdminHeader title={pageTitle} eyebrow={text.eyebrow} />

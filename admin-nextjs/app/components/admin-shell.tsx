@@ -1,4 +1,5 @@
 "use client";
+import { readAdminSession, signOutAdminSession } from "../lib/admin-api";
 
 import { usePathname, useRouter } from "next/navigation";
 import type { ReactNode } from "react";
@@ -17,7 +18,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
   const router = useRouter();
   const [authenticated, setAuthenticated] = useState(false);
   useEffect(() => {
-    setAuthenticated(Boolean(window.sessionStorage.getItem("brain-admin-session")));
+    setAuthenticated(Boolean(readAdminSession()));
   }, [pathname]);
   if (legacyShellRoutes.has(pathname) || !authenticated) return <>{children}</>;
   const pageName = pathname.split("/")[1] ?? "projects";
@@ -27,8 +28,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
         <AdminSidebar
           activePage={pageName}
           onSignOut={() => {
-            window.sessionStorage.removeItem("brain-admin-session");
-            router.replace("/");
+            void signOutAdminSession().finally(() => router.replace("/"));
           }}
         />
         <section className="card admin-content">
