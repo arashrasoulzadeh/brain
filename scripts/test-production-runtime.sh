@@ -43,6 +43,8 @@ async function action(operation, extra = {}) {
   assert.ok(response.ok, operation + ": " + await response.clone().text());
   return response.json();
 }
+const forbidden = await fetch(base + "/admin/actions", {method:"POST", headers, body:JSON.stringify({operation:"plugin.enable",project_id:"ci-project",plugin_id:"tables",version:"0.1.0"})});
+assert.equal(forbidden.status, 403, "uninstalled plugin was enabled");
 await action("project.create");
 await action("plugin.install");
 await action("plugin.readiness", {ready:true});

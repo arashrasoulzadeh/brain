@@ -41,6 +41,8 @@ jobs:
       - run: npm run typecheck
       - run: npm run lint:ts
       - run: npm run test:ts
+      - name: Verify packaged production runtime before publishing
+        run: timeout 300s bash scripts/test-production-runtime.sh
 
   publish-images:
     needs: verify
