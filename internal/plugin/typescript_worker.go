@@ -132,6 +132,16 @@ func NewManifestTypeScriptWorker(command, workerScript, descriptor, pluginRoot, 
 	return worker, nil
 }
 
+// SetTrustedStartupDiagnostics is for host-generated probes only. Never attach
+// production logs to stderr from an untrusted plugin.
+func (w *TypeScriptWorker) SetTrustedStartupDiagnostics(writer io.Writer) {
+	w.mutex.Lock()
+	defer w.mutex.Unlock()
+	if !w.ready {
+		w.command.Stderr = writer
+	}
+}
+
 func (w *TypeScriptWorker) Start() error {
 	w.mutex.Lock()
 	defer w.mutex.Unlock()

@@ -94,4 +94,5 @@ exec "$bwrap_bin" --die-with-parent --new-session --unshare-all --cap-drop ALL \
   --proc /proc --dev /dev --chdir "$plugin_root" \
   --clearenv --setenv PATH "$(dirname "$node_path")" \
   --setenv HOME /tmp --setenv TMPDIR /tmp --setenv BRAIN_WORKER_READY "$ready" \
+  --setenv GOMAXPROCS 2 --setenv UV_THREADPOOL_SIZE 2 \
   "$node_path" "${node_args[@]}" "$worker_script" "$descriptor"

@@ -200,6 +200,8 @@ func bindSandboxedTypeScriptWorkers(registry *plugin.Registry, locations map[str
 	if err != nil {
 		return fmt.Errorf("sandbox probe configuration failed: %w", err)
 	}
+	// Only the host-generated probe is allowed to emit startup diagnostics.
+	probe.SetTrustedStartupDiagnostics(os.Stderr)
 	if err := probe.Start(); err != nil {
 		return fmt.Errorf("sandbox startup probe failed: %w", err)
 	}

@@ -21,6 +21,14 @@ cleanup() {
   docker rm -f "$container" >/dev/null 2>&1 || true
 }
 trap cleanup EXIT
+# Do not race an immediately exiting host with docker exec.
+for attempt in $(seq 1 5); do
+  if [ "$(docker inspect -f '{{.State.Running}}' "$container")" != true ]; then
+    echo "packaged host exited before readiness" >&2
+    exit 1
+  fi
+  sleep 1
+done
 docker exec -i "$container" node --input-type=module - <<'NODE'
 import assert from "node:assert/strict";
 import { setTimeout as delay } from "node:timers/promises";
@@ -51,9 +59,9 @@ await action("plugin.readiness", {ready:true});
 for (const capability of ["tables.read","tables.write","tables.schema"]) await action("plugin.grant", {capability});
 await action("plugin.enable");
 const result = await action("plugin.invoke", {target_operation:"tables.write",payload:{table:"messages",row:{id:"one"}}});
-assert.equal(result.success, true);
+assert.equal(result.Success, true);
 const read = await action("plugin.invoke", {target_operation:"tables.read",payload:{table:"messages"}});
-assert.equal(read.success, true);
-assert.deepEqual(JSON.parse(Buffer.from(read.payload,"base64").toString("utf8")).rows,[{id:"one"}]);
+assert.equal(read.Success, true);
+assert.deepEqual(JSON.parse(Buffer.from(read.Payload,"base64").toString("utf8")).rows,[{id:"one"}]);
 assert.ok((await fetch(base + "/readyz")).ok);
 NODE
