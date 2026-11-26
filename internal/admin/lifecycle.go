@@ -65,7 +65,11 @@ func (s *LifecycleService) ListPlugins(actor operator.Actor, projectID string) (
 	if actor.Kind != operator.ActorOperator || s.registry == nil {
 		return nil, nil, operator.ErrInvalidOperatorAction
 	}
-	return s.registry.RegisteredManifests(), s.registry.InstallationStatuses(projectID), nil
+	manifests := s.registry.RegisteredManifests()
+	for index := range manifests {
+		manifests[index].Admin = manifests[index].AdminForOperator()
+	}
+	return manifests, s.registry.InstallationStatuses(projectID), nil
 }
 
 // RequireEnabledPlugin is the server-side gate for plugin-backed admin APIs.

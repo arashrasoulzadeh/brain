@@ -22,14 +22,17 @@ type AdminPage struct {
 	Inventory      *AdminInventorySpec `yaml:"inventory,omitempty" json:"inventory,omitempty"`
 	ExtendsSlot    string              `yaml:"extends_slot,omitempty" json:"extends_slot,omitempty"`
 	ExtensionSlots []string            `yaml:"extension_slots,omitempty" json:"extension_slots,omitempty"`
+	Model          *AdminModelPage     `yaml:"-" json:"model,omitempty"`
 }
 
 type AdminAction struct {
-	Title     string           `yaml:"title" json:"title"`
-	Operation string           `yaml:"operation" json:"operation"`
-	Fields    []AdminField     `yaml:"fields,omitempty" json:"fields,omitempty"`
-	ReadOnly  bool             `yaml:"read_only,omitempty" json:"read_only,omitempty"`
-	Result    *AdminResultSpec `yaml:"result,omitempty" json:"result,omitempty"`
+	Title           string           `yaml:"title" json:"title"`
+	Operation       string           `yaml:"operation" json:"operation"`
+	Fields          []AdminField     `yaml:"fields,omitempty" json:"fields,omitempty"`
+	ReadOnly        bool             `yaml:"read_only,omitempty" json:"read_only,omitempty"`
+	Result          *AdminResultSpec `yaml:"result,omitempty" json:"result,omitempty"`
+	ModelAction     string           `yaml:"-" json:"model_action,omitempty"`
+	ModelTransition string           `yaml:"-" json:"model_transition,omitempty"`
 }
 
 type AdminField struct {
@@ -82,7 +85,11 @@ func validateAdminSpec(m Manifest) error {
 		pages[page.ID] = true
 		actions := map[string]bool{}
 		for _, action := range page.Actions {
-			if _, ok := m.Route(action.Operation); !ok || strings.TrimSpace(action.Title) == "" || actions[action.Operation] {
+			route, ok := m.Route(action.Operation)
+			if !ok || strings.TrimSpace(action.Title) == "" || actions[action.Operation] {
+				return ErrInvalidManifest
+			}
+			if action.ReadOnly && route.Helper == "host.model" && (route.Model == nil || !adminModelReadOnly(route.Model.Action)) {
 				return ErrInvalidManifest
 			}
 			if action.Result != nil && !action.Result.valid(0) {
@@ -105,17 +112,13 @@ func validateAdminSpec(m Manifest) error {
 }
 
 func (m Manifest) AdminOperation(pageID, operation string) bool {
-	if m.Admin == nil || m.Admin.Version != 1 {
+	page, ok := m.AdminPageSpec(pageID)
+	if !ok {
 		return false
 	}
-	for _, page := range m.Admin.Pages {
-		if page.ID != pageID {
-			continue
-		}
-		for _, action := range page.Actions {
-			if action.Operation == operation {
-				return true
-			}
+	for _, action := range page.Actions {
+		if action.Operation == operation {
+			return true
 		}
 	}
 	return false
@@ -123,57 +126,53 @@ func (m Manifest) AdminOperation(pageID, operation string) bool {
 
 // ValidateAdminPayload enforces declared form fields at the host boundary.
 func (m Manifest) ValidateAdminPayload(pageID, operation string, payload json.RawMessage) error {
-	if !m.AdminOperation(pageID, operation) {
+	page, ok := m.AdminPageSpec(pageID)
+	if !ok {
 		return ErrGrantDenied
 	}
-	for _, page := range m.Admin.Pages {
-		if page.ID != pageID {
+	for _, action := range page.Actions {
+		if action.Operation != operation {
 			continue
 		}
-		for _, action := range page.Actions {
-			if action.Operation != operation {
-				continue
-			}
-			if len(action.Fields) == 0 && !action.ReadOnly {
-				if !json.Valid(payload) {
-					return ErrInvalidWorkerRequest
-				}
-				return nil
-			}
-			var values map[string]any
-			if json.Unmarshal(payload, &values) != nil || values == nil {
-				return ErrInvalidWorkerRequest
-			}
-			for _, field := range action.Fields {
-				value, exists := values[field.Name]
-				if !exists {
-					if field.Required {
-						return ErrInvalidWorkerRequest
-					}
-					continue
-				}
-				valid := false
-				switch field.Type {
-				case "string":
-					text, ok := value.(string)
-					valid = ok && (!field.Required || strings.TrimSpace(text) != "")
-				case "number":
-					_, valid = value.(float64)
-				case "boolean":
-					_, valid = value.(bool)
-				case "json":
-					valid = !field.Required || value != nil
-				}
-				if !valid {
-					return ErrInvalidWorkerRequest
-				}
-				delete(values, field.Name)
-			}
-			if len(values) != 0 {
+		if len(action.Fields) == 0 && !action.ReadOnly {
+			if !json.Valid(payload) {
 				return ErrInvalidWorkerRequest
 			}
 			return nil
 		}
+		var values map[string]any
+		if json.Unmarshal(payload, &values) != nil || values == nil {
+			return ErrInvalidWorkerRequest
+		}
+		for _, field := range action.Fields {
+			value, exists := values[field.Name]
+			if !exists {
+				if field.Required {
+					return ErrInvalidWorkerRequest
+				}
+				continue
+			}
+			valid := false
+			switch field.Type {
+			case "string":
+				text, ok := value.(string)
+				valid = ok && (!field.Required || strings.TrimSpace(text) != "")
+			case "number":
+				_, valid = value.(float64)
+			case "boolean":
+				_, valid = value.(bool)
+			case "json":
+				valid = !field.Required || value != nil
+			}
+			if !valid {
+				return ErrInvalidWorkerRequest
+			}
+			delete(values, field.Name)
+		}
+		if len(values) != 0 {
+			return ErrInvalidWorkerRequest
+		}
+		return nil
 	}
 	return ErrGrantDenied
 }
@@ -193,8 +192,8 @@ func (m Manifest) adminObservationAllowed(name string) bool {
 }
 
 func (m Manifest) AdminPageSpec(pageID string) (AdminPage, bool) {
-	if m.Admin != nil && m.Admin.Version == 1 {
-		for _, page := range m.Admin.Pages {
+	if spec := m.AdminForOperator(); spec != nil {
+		for _, page := range spec.Pages {
 			if page.ID == pageID {
 				return page, true
 			}
