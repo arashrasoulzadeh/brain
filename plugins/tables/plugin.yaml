@@ -50,12 +50,14 @@ admin:
       actions:
         - title: read
           operation: tables.read
+          read_only: true
           fields:
             - name: table
               type: string
               required: true
         - title: schema
           operation: tables.schema
+          read_only: true
           fields:
             - name: table
               type: string

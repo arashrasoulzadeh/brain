@@ -58,8 +58,20 @@ admin:
   pages:
     - id: operations
       title: Rooms operations
+      refresh_on:
+        - rooms.connected
       actions:
         - title: result
+          operation: rooms.result
+          read_only: true
+          fields:
+            - name: id
+              type: string
+              required: true
+    - id: submit-result
+      title: Submit room result
+      actions:
+        - title: submit result
           operation: rooms.result
           fields:
             - name: id
@@ -67,3 +79,4 @@ admin:
               required: true
             - name: result
               type: json
+              required: true

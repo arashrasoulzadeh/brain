@@ -55,6 +55,7 @@ admin:
       actions:
         - title: status
           operation: matchmaking.status
+          read_only: true
           fields:
             - name: id
               type: string

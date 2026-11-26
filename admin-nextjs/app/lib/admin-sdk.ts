@@ -1,15 +1,16 @@
 import { adminHeaders } from "./admin-api";
 import type { AdminContribution } from "./admin-registry";
 
-export async function invokeAdminAction(token: string, contribution: AdminContribution, operation: string, payload: unknown, signal: AbortSignal): Promise<unknown> {
-  if (!contribution.page.actions.some(action => action.operation === operation)) throw new Error("Action unavailable");
+export async function invokeAdminAction(token: string, contribution: AdminContribution, operation: string, payload: unknown, signal: AbortSignal, query = false): Promise<unknown> {
+  const action = contribution.page.actions.find(item => item.operation === operation);
+  if (!action || (query && !action.read_only)) throw new Error("Action unavailable");
   const response = await fetch("/api/admin/actions", {
     method: "POST",
     headers: adminHeaders(token, { "content-type": "application/json" }),
     signal,
-    body: JSON.stringify({ operation: "plugin.admin.invoke", project_id: contribution.projectID,
+    body: JSON.stringify({ operation: query ? "plugin.admin.query" : "plugin.admin.invoke", project_id: contribution.projectID,
       plugin_id: contribution.pluginID, version: contribution.version, page_id: contribution.page.id,
-      target_operation: operation, payload, confirmed: true }),
+      target_operation: operation, payload, confirmed: !query }),
   });
   if (!response.ok) throw new Error(await response.text());
   const result = await response.json() as { Success: boolean; Payload?: string; ErrorCode?: string };
@@ -17,4 +18,18 @@ export async function invokeAdminAction(token: string, contribution: AdminContri
   if (!result.Payload) return null;
   const bytes = Uint8Array.from(atob(result.Payload), char => char.charCodeAt(0));
   return JSON.parse(new TextDecoder().decode(bytes));
+}
+
+export async function adminPageRevision(token: string, contribution: AdminContribution, signal: AbortSignal): Promise<number> {
+  const response = await fetch("/api/admin/actions", {
+    method: "POST",
+    headers: adminHeaders(token, { "content-type": "application/json" }),
+    signal,
+    body: JSON.stringify({ operation: "plugin.admin.revision", project_id: contribution.projectID,
+      plugin_id: contribution.pluginID, version: contribution.version, page_id: contribution.page.id }),
+  });
+  if (!response.ok) throw new Error(await response.text());
+  const result = await response.json() as { revision: number };
+  if (!Number.isSafeInteger(result.revision)) throw new Error("Invalid observation revision");
+  return result.revision;
 }

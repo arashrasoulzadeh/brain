@@ -9,3 +9,5 @@ Existing specialized pages remain available. This is the first migration layer, 
 Only plugins with implemented runtime handlers contribute action pages. Arena, invites and subscriptions require runtime route implementations before their admin pages can be enabled.
 
 Actions may declare typed fields (`string`, `number`, `boolean`, `json`); the host validates fields and rejects extras. A page may declare `extends: rooms/operations` to add a link on another independently authorized plugin page.
+
+Read-only actions (`read_only: true`) are dispatched through a separate host query path. A page may subscribe to its own declared events or declared observer targets with `refresh_on`. The browser polls the bounded, project-scoped revision feed every five seconds after a successful query and replays only the last read-only query on changes. Confirmed writes are never replayed. Events are best-effort, in-memory invalidations; no event payload is exposed and no WebSocket is required.

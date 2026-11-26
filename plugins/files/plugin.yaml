@@ -54,6 +54,7 @@ admin:
       actions:
         - title: metadata
           operation: files.metadata
+          read_only: true
           fields:
             - name: key
               type: string

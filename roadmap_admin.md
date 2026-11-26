@@ -24,6 +24,6 @@ Admin-panel and operator documentation work after backend release gates pass.
 - [x] Explicit server-side action confirmation and manifest authorization.
 - [x] Typed forms and cross-plugin extension links.
 - [ ] Automatic read-only resource sources, richer components and pagination.
-- [ ] Authenticated observation-driven invalidation and refresh.
+- [x] Authenticated observation-driven invalidation and read-only refresh (bounded polling).
 - [ ] Complete specialized-page migration and remove hard-coded navigation.
 - [ ] End-to-end and deployment validation of the new paths.
