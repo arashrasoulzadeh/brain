@@ -1,4 +1,4 @@
-import type { PluginFunction, RpcRequest } from "./index.js";
+import type { HostExecutionContext, HostInvoker, PluginFunction, PluginHandler, PluginRoute, RpcRequest } from "./index.js";
 
 export type PayloadHandler = (input: unknown) => unknown;
 
@@ -25,16 +25,6 @@ function createDispatcher<Input>(
   };
 }
 
-export function trimmedString(value: unknown, fallback = ""): string {
-  return typeof value === "string" ? value.trim() : fallback;
-}
-
-export function requiredString(value: unknown, message: string): string {
-  const result = trimmedString(value);
-  if (!result) throw new Error(message);
-  return result;
-}
-
 export function createOperationRoutes<Operation extends string>(
   operations: readonly Operation[],
   execute: (operation: Operation, input: unknown) => unknown,
@@ -45,4 +35,40 @@ export function createOperationRoutes<Operation extends string>(
     ) as Record<Operation, PayloadHandler>,
   );
   return { handlers, dispatch: createRouteDispatcher(handlers) };
+}
+
+function resolveRoute(rpc: RpcRequest, routes: readonly PluginRoute[], context?: HostExecutionContext): PluginRoute {
+  if (context && (!context.projectId || !context.invocationId || rpc.params.projectId !== context.projectId))
+    throw new Error("host project context mismatch");
+  const route = routes.find((candidate) => candidate.operation === rpc.params.operation);
+  if (!route) throw new Error("operation not declared in plugin manifest");
+  if (!route.function || !route.capability)
+    throw new Error(context ? "invalid plugin route" : "operation not declared in plugin manifest");
+  return route;
+}
+
+export function createRouteHandler(routes: readonly PluginRoute[]): PluginHandler {
+  return (rpc) => {
+    const route = resolveRoute(rpc, routes);
+    return { accepted: true, operation: rpc.params.operation, function: route.function, capability: route.capability };
+  };
+}
+
+export function createHostHandler(host: HostInvoker, routes: readonly PluginRoute[], context: HostExecutionContext): PluginHandler {
+  return (rpc) => {
+    const route = resolveRoute(rpc, routes, context);
+    return {
+      accepted: true,
+      operation: rpc.params.operation,
+      payload: host.invoke(rpc.params.projectId, rpc.params.operation, route.capability, rpc.params.payload ?? null),
+    };
+  };
+}
+
+export function createFunctionHandler(functions: Readonly<Record<string, PluginFunction>>, routes: readonly PluginRoute[], context: HostExecutionContext): PluginHandler {
+  const dispatch = createRequestDispatcher(functions, "route function not implemented");
+  return (rpc) => {
+    const route = resolveRoute(rpc, routes, context);
+    return { accepted: true, operation: rpc.params.operation, payload: dispatch(route.function, rpc) };
+  };
 }

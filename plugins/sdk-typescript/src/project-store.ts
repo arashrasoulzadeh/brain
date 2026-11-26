@@ -1,4 +1,4 @@
-import { validateProjectId } from "./validate-project-id.js";
+import { validateProjectId } from "./validation.js";
 
 // In-memory partitioning only; callers still require host-authenticated project context.
 export function createProjectMap<Value>() {
