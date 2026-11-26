@@ -19,3 +19,5 @@ First increment: sdk.pipeline supports up to 32 ordered pure steps, explicit inp
 Second increment: fixes worker initialization order; adds typed pipeline SDK declarations, integer/boolean helpers, staged observation helper, pure model validation and state transition primitives. Model persistence, YAML schema integration, transactional state updates and generated dashboard remain open.
 
 Third increment: host-only model routes with explicit schema versions, project/plugin/model isolation, bounded list pages, create/read/update/delete and declarative state transitions backed by SQLite compare-and-swap revisions. Model versions fail closed on mismatched stored records; migration tooling and PostgreSQL support remain open. Template example and registry integration test included.
+
+Fourth increment: production registry active-project resolver and generated admin model forms using declared schema and granted routes. The model dashboard is available on plugin settings pages for enabled installations. Go formatting corrections included; full CI still required.

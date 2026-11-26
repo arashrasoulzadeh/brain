@@ -22,7 +22,9 @@ type ModelRoute struct {
 	Transition string `yaml:"transition,omitempty" json:"transition,omitempty"`
 }
 
-func modelName(value string) bool { return modelNamePattern.MatchString(value) && validResponseKey(value) }
+func modelName(value string) bool {
+	return modelNamePattern.MatchString(value) && validResponseKey(value)
+}
 
 func validModels(models map[string]ModelSpec) bool {
 	if len(models) > 32 {

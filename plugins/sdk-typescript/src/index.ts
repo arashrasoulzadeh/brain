@@ -42,9 +42,10 @@ export type PluginRoute = {
   operation: string;
   function: string;
   capability: string;
-  helper?: "sdk.dispatch" | "sdk.request" | "sdk.response" | "sdk.context" | "sdk.pipeline";
+  helper?: "sdk.dispatch" | "sdk.request" | "sdk.response" | "sdk.context" | "sdk.pipeline" | "host.model";
   response?: DeclarativeResponse;
   pipeline?: DeclarativePipeline;
+  model?: Readonly<{ name: string; action: "create" | "read" | "list" | "update" | "delete" | "transition"; transition?: string }>;
 };
 
 export type DeclarativeResponse = {
