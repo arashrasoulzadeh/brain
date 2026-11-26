@@ -1,5 +1,34 @@
-import { createCommitRollback, validateProjectId } from "../sdk-typescript/src/index.js";
-import type { RowChange, ScopedRowChange } from "./index.js";
+import { createCommitRollback, validateProjectId, validateIdentifier } from "../sdk-typescript/src/index.js";
+import { type ApiChange, type DirectSQLChange, type RowChange, type ScopedRowChange } from "./index.js";
+
+export function createApiChangeCapture() {
+  const changes: ApiChange[] = [];
+  return {
+    begin(projectId: string, operation: string, payload: unknown) {
+      validateProjectId(projectId, "invalid API change");
+      if (!operation) throw new Error("invalid API change");
+      return createCommitRollback(() => { changes.push({ projectId, operation, payload }); });
+    },
+    list(projectId: string) {
+      return changes.filter((change) => change.projectId === projectId).map((change) => ({ ...change }));
+    },
+  };
+}
+
+export function createDirectSQLChangeCapture() {
+  const changes: DirectSQLChange[] = [];
+  return {
+    begin(projectId: string, table: string, statement: string) {
+      validateIdentifier(table);
+      validateProjectId(projectId, "invalid SQL change");
+      if (!statement) throw new Error("invalid SQL change");
+      return createCommitRollback(() => { changes.push({ projectId, table, statement }); });
+    },
+    list(projectId: string) {
+      return changes.filter((change) => change.projectId === projectId).map((change) => ({ ...change }));
+    },
+  };
+}
 
 export function createTransactionalChangeCapture<T>() {
   const changes: RowChange<T>[] = [];
