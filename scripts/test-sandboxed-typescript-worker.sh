@@ -14,7 +14,7 @@ export async function handle() {
 }
 EOF
 cat > "$root/execution.json" <<EOF
-{"entrypoint":"$root/index.mjs","pluginId":"sample","version":"1.0.0","projectId":"project","operations":["health"]}
+{"entrypoint":"$root/index.mjs","pluginId":"sample","version":"1.0.0","projectId":"project","routes":[{"operation":"health","function":"handle"}]}
 EOF
 response=$(WORKER_SCRIPT="$PWD/scripts/typescript-worker.mjs" EXECUTION_DESCRIPTOR="$root/execution.json" PLUGIN_ROOT="$root" CPU_MILLIS=1000 MEMORY_BYTES=2147483648 PROCESS_LIMIT=16 bash scripts/run-sandboxed-typescript-worker.sh <<'EOF'
 {"jsonrpc":"2.0","id":"one","params":{"pluginId":"sample","version":"1.0.0","projectId":"project","operation":"health"}}
