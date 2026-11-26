@@ -63,3 +63,12 @@ never readiness or admin routes; it is not an application deployment. CI has a
 separate packaged runtime smoke test with disposable, network-isolated test
 containers. A production namespace configuration must still be verified on the
 target deployment host.
+
+Lifecycle writes that fail return an error and close plugin authorization until a
+complete snapshot is successfully saved. Do not restart a host with an
+unconfirmed revocation: the previous durable snapshot may still grant access.
+Restore storage access, retry or flush the lifecycle snapshot, and verify
+readiness before allowing traffic. An activation is saved only after its worker
+starts successfully. Disable, stop, removal, and grant revocation stop the
+bound runtime worker; restrictive state is retained in memory even if its
+persistence fails.

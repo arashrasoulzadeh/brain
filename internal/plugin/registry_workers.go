@@ -1,5 +1,10 @@
 package plugin
 
+import (
+	"errors"
+	"time"
+)
+
 func (r *Registry) BindSupervisor(supervisor *Supervisor) {
 	r.supervisor = supervisor
 }
@@ -104,7 +109,7 @@ func (r *Registry) authorizeInvocationLocked(request WorkerRequest) error {
 	if !installed {
 		return ErrNotInstalled
 	}
-	if !installation.Enabled {
+	if !installation.Enabled || (installation.Draining && (installation.DrainUntil.IsZero() || !time.Now().Before(installation.DrainUntil))) {
 		return ErrDisabled
 	}
 	if !r.readiness[manifestKey] {
@@ -173,5 +178,21 @@ func (r *Registry) StartWorker(projectID, id, version string) error {
 		return err
 	}
 	r.workers[key] = worker
+	return nil
+}
+
+// stopBoundWorker removes the actual runtime worker, not just supervisor state.
+// The caller holds the installation lock so no new invocation can be admitted.
+func (r *Registry) stopBoundWorker(key string) error {
+	r.workerMu.Lock()
+	defer r.workerMu.Unlock()
+	worker := r.workers[key]
+	delete(r.workers, key)
+	if worker == nil {
+		return nil
+	}
+	if err := worker.Stop(); err != nil && !errors.Is(err, ErrTypeScriptWorkerStopped) {
+		return err
+	}
 	return nil
 }

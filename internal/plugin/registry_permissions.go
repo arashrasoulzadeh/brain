@@ -3,6 +3,7 @@ package plugin
 import (
 	"errors"
 	"fmt"
+	"time"
 )
 
 func (r *Registry) ApproveCapability(projectID, id, version, capability string) error {
@@ -206,6 +207,9 @@ func (r *Registry) Revoke(projectID, id, version, capability string) error {
 	if transitionError == nil {
 		r.appendAudit(AuditEvent{Action: "revoke", ProjectID: projectID, PluginID: id, Version: version, Detail: capability})
 	}
+	if err := r.stopBoundWorker(key); err != nil && transitionError == nil {
+		transitionError = err
+	}
 	if r.supervisor != nil {
 		if err := r.supervisor.StopProjectPlugin(projectID, id, version); err != nil && !errors.Is(err, ErrWorkerNotRunning) && transitionError == nil {
 			transitionError = err
@@ -242,7 +246,7 @@ func (r *Registry) authorizeGrantLocked(projectID, id, version, capability strin
 	if !ok {
 		return ErrNotInstalled
 	}
-	if !i.Enabled {
+	if !i.Enabled || (i.Draining && (i.DrainUntil.IsZero() || !time.Now().Before(i.DrainUntil))) {
 		return ErrDisabled
 	}
 	if !i.Grants[capability] {

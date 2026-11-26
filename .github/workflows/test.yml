@@ -33,8 +33,6 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: false
           tags: brain:test
-      - name: Test packaged production startup and sandboxed invocation
-        run: timeout 300s bash scripts/test-production-runtime.sh
       - name: Compose smoke test
         run: sh scripts/smoke-compose.sh
       - name: Compose compiler and runner isolation tests
@@ -61,6 +59,12 @@ jobs:
           OBJECT_MANIFEST: ${{ secrets.BRAIN_OBJECT_MANIFEST }}
           BRAIN_BIN: ./brain
         run: sh scripts/clean-environment-rehearsal.sh
+  production-runtime:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test packaged production startup and sandboxed invocation
+        run: timeout 300s bash scripts/test-production-runtime.sh
   typescript:
     runs-on: ubuntu-24.04
     steps:
