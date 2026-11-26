@@ -21,6 +21,7 @@ const routeHelpers = new Map([
   ["sdk.request", { exported: "dispatchRequest", input: (request) => request }],
 ]);
 if (descriptor.routes.some((route) => {
+  if (route.helper === "sdk.response") return !validResponse(route.response);
   if (route.helper) {
     const helper = routeHelpers.get(route.helper);
     return !helper || typeof plugin[helper.exported] !== "function";
@@ -45,7 +46,9 @@ for await (const line of input) {
     const route = descriptor.routes.find((candidate) => candidate.operation === params.operation);
     if (!route) throw new Error("operation not declared in plugin manifest");
     const helper = routeHelpers.get(route.helper);
-    const result = helper
+    const result = route.helper === "sdk.response"
+      ? mapResponse(route.response, params.payload)
+      : helper
       ? await plugin[helper.exported](route.function, helper.input(request))
       : typeof handler === "function" ? await handler(request) : await invokeDeclaredRoute(plugin, route.function, request);
     process.stdout.write(`${JSON.stringify({ jsonrpc: "2.0", id: request.id, result: { protocol: params.protocol, success: true, payload: result } })}\n`);
@@ -61,4 +64,42 @@ async function invokeDeclaredRoute(plugin, functionName, request) {
   const mappedExport = functionMap?.[functionName];
   if (functionMap && Object.hasOwn(functionMap, functionName) && typeof mappedExport === "function") return mappedExport(request);
   throw new Error(`declared plugin function is not exported: ${functionName}`);
+}
+
+function responseKey(key) {
+  return typeof key === "string" && /^[A-Za-z_][A-Za-z0-9_]*$/.test(key) && !["__proto__", "constructor", "prototype"].includes(key);
+}
+
+function validResponse(spec) {
+  if (!spec || !Array.isArray(spec.input) && spec.input !== null || !spec.output || typeof spec.output !== "object" || Array.isArray(spec.output)) return false;
+  const fields = spec.input ?? [];
+  const output = Object.entries(spec.output);
+  if (fields.length > 32 || !output.length || output.length > 32) return false;
+  const names = new Set();
+  for (const field of fields) {
+    if (!field || !responseKey(field.name) || names.has(field.name) || !["string", "value"].includes(field.type) ||
+        (field.type !== "string" && (field.trim || field.default !== undefined)) ||
+        (field.default !== undefined && typeof field.default !== "string") ||
+        (field.required && (typeof field.error !== "string" || !field.error))) return false;
+    names.add(field.name);
+  }
+  return output.every(([key, value]) => responseKey(key) &&
+    (value === null || typeof value === "boolean" || typeof value === "number" ||
+      (typeof value === "string" && (!value.startsWith("$") || (value.startsWith("$input.") && names.has(value.slice(7)))))));
+}
+
+function mapResponse(spec, payload) {
+  const values = new Map();
+  for (const field of spec.input ?? []) {
+    const raw = payload && typeof payload === "object" && Object.hasOwn(payload, field.name) ? payload[field.name] : undefined;
+    let value = raw ?? null;
+    if (field.type === "string") {
+      value = typeof raw === "string" ? raw : field.default ?? "";
+      if (field.trim) value = value.trim();
+    }
+    if (field.required && (value === null || value === "")) throw new Error(field.error);
+    values.set(field.name, value);
+  }
+  return Object.fromEntries(Object.entries(spec.output).map(([key, value]) =>
+    [key, typeof value === "string" && value.startsWith("$input.") ? values.get(value.slice(7)) : value]));
 }

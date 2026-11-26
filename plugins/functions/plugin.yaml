@@ -127,12 +127,45 @@ config_schema:
 routes:
   - operation: functions.invoke
     function: invoke
-    helper: sdk.dispatch
+    helper: sdk.response
     capability: functions.invoke
+    response:
+      input:
+        - name: name
+          type: string
+          required: true
+          trim: true
+          error: function name is required
+        - name: input
+          type: value
+      output:
+        name: $input.name
+        input: $input.input
+        invoked: true
   - operation: functions.publish
     function: publish
-    helper: sdk.dispatch
+    helper: sdk.response
     capability: functions.publish
+    response:
+      input:
+        - name: name
+          type: string
+          trim: true
+          required: true
+          error: function name, source, and version are required
+        - name: source
+          type: string
+          required: true
+          error: function name, source, and version are required
+        - name: version
+          type: string
+          trim: true
+          required: true
+          error: function name, source, and version are required
+      output:
+        name: $input.name
+        version: $input.version
+        published: true
   - operation: functions.call
     function: call
     helper: sdk.dispatch

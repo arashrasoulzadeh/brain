@@ -122,3 +122,7 @@ The host validates the helper name and route capability, carries the helper into
 Use the SDK at `plugins/sdk-typescript/src/index.ts` for common string validation, project-partitioned in-memory maps, bounded retries, timeouts, and commit-time grant checks. Functions uses the same helpers. A project map is not an authorization mechanism; host-authenticated context and the permission broker remain authoritative. A timeout does not cancel the underlying task; worker supervision enforces execution limits.
 
 Keep cohesive operations in one domain module, remove unused wrapper files, update the manifest's source and import lists, and retain tests under the top-level `tests/` directory.
+
+### Declarative response routes
+
+Use `helper: sdk.response` for routes that only validate input and map a response. Declare `response.input` as an ordered list of fields with `name`, `type: string|value`, optional `trim`, string `default`, and `required` with an `error` message. Declare `response.output` as scalar constants or references such as `$input.name`. Missing value fields become null. The host validates the bounded schema; the worker rejects unknown references and applies the same project/operation checks as custom handlers. This helper cannot execute arbitrary expressions or perform writes. Keep authorization, storage and other side effects in trusted host APIs or custom handlers. Functions invoke/publish use this helper; their direct TypeScript exports remain for compatibility.
