@@ -51,15 +51,19 @@ func (r *Registry) BindInvocationStorage(planner InvocationStoragePlanner) {
 }
 
 // BindSQLiteStorage preserves the existing setup API and compatibility routes.
-func (r *Registry) BindSQLiteStorage(storage *SQLiteStorage) {
+func (r *Registry) BindSQLiteStorage(storage *SQLiteStorage) error {
 	if storage == nil {
-		_ = r.BindRegistryStorage(nil)
+		if err := r.BindRegistryStorage(nil); err != nil {
+			return err
+		}
 		r.BindInvocationStorage(nil)
-		return
+		return nil
 	}
-	if err := r.BindRegistryStorage(storage); err == nil {
-		r.BindInvocationStorage(legacyStoragePlanner{storage: storage})
+	if err := r.BindRegistryStorage(storage); err != nil {
+		return err
 	}
+	r.BindInvocationStorage(legacyStoragePlanner{storage: storage})
+	return nil
 }
 
 func (r *Registry) persistLifecycleState() {

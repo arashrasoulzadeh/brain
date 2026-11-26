@@ -2,6 +2,7 @@ services:
   brain:
     build:
       context: .
+    command: [health-only]
     environment:
       HTTP_ADDRESS: ":8080"
       RUNTIME_DSN: "postgres://brain_runtime:runtime_password@postgres:5432/brain"

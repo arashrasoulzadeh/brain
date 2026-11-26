@@ -1,7 +1,9 @@
 package project
 
 import (
+	"context"
 	"database/sql"
+	"errors"
 	"encoding/json"
 	"os"
 	"path/filepath"
@@ -33,4 +35,19 @@ func NewSQLiteStore(path string) (*Store, error) {
 		}
 	}
 	return &Store{projects: make(map[string]Project), db: database}, nil
+}
+
+// CheckHealth verifies that durable project storage is configured and reachable.
+func (s *Store) CheckHealth(ctx context.Context) error {
+	if s == nil || s.db == nil {
+		return errors.New("durable project storage unavailable")
+	}
+	return s.db.PingContext(ctx)
+}
+
+func (s *Store) Close() error {
+	if s == nil || s.db == nil {
+		return nil
+	}
+	return s.db.Close()
 }

@@ -1,7 +1,9 @@
 package app
 
 import (
+	"context"
 	"net/http"
+	"time"
 
 	"brain/internal/admin"
 	"brain/internal/operator"
@@ -9,7 +11,32 @@ import (
 
 // Server owns the HTTP routes for the application process.
 type Server struct {
-	mux *http.ServeMux
+	mux       *http.ServeMux
+	readiness func(context.Context) error
+}
+
+func newServer() *Server {
+	s := &Server{mux: http.NewServeMux()}
+	s.mux.HandleFunc("GET /livez", func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		_, _ = w.Write([]byte("ok\n"))
+	})
+	s.mux.HandleFunc("GET /readyz", func(w http.ResponseWriter, r *http.Request) {
+		ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+		defer cancel()
+		if s.readiness == nil || s.readiness(ctx) != nil {
+			http.Error(w, "not ready", http.StatusServiceUnavailable)
+			return
+		}
+		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		_, _ = w.Write([]byte("ok\n"))
+	})
+	return s
+}
+
+// SetReadinessCheck configures dependency checks before the server starts.
+func (s *Server) SetReadinessCheck(check func(context.Context) error) {
+	s.readiness = check
 }
 
 // NewServer creates the smallest usable application server.
@@ -18,23 +45,17 @@ func NewServer() *Server {
 }
 
 func NewServerWithAdmin(adminService *admin.LifecycleService) *Server {
-	mux := http.NewServeMux()
-	mux.HandleFunc("GET /livez", func(w http.ResponseWriter, _ *http.Request) {
-		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		_, _ = w.Write([]byte("ok\n"))
-	})
+	server := newServer()
+	mux := server.mux
 	if adminService != nil {
 		mux.Handle("POST /admin/actions", AdminHandler(adminService))
 	}
-	return &Server{mux: mux}
+	return server
 }
 
 func NewServerWithOperatorAdmin(adminService *admin.LifecycleService, sessions *operator.Store, digest func(string) string) *Server {
-	mux := http.NewServeMux()
-	mux.HandleFunc("GET /livez", func(w http.ResponseWriter, _ *http.Request) {
-		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
-		_, _ = w.Write([]byte("ok\n"))
-	})
+	server := newServer()
+	mux := server.mux
 	if adminService != nil && sessions != nil {
 		mux.Handle("POST /admin/session", OperatorSessionHandler(sessions, digest))
 		mux.Handle("DELETE /admin/session", OperatorLogoutHandler(sessions))
@@ -48,7 +69,7 @@ func NewServerWithOperatorAdmin(adminService *admin.LifecycleService, sessions *
 		mux.Handle("/public/{project_id}/{function_name}", PublicFunctionHandler(adminService))
 		mux.Handle("POST /admin/actions", AuthenticatedAdminHandler(adminService, sessions))
 	}
-	return &Server{mux: mux}
+	return server
 }
 
 // Handler returns the server's HTTP handler for tests and command wiring.
