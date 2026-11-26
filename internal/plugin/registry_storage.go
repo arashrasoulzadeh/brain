@@ -2,16 +2,34 @@ package plugin
 
 import "hash/fnv"
 
-func (r *Registry) BindSQLiteStorage(storage *SQLiteStorage) {
-	r.workerMu.Lock()
-	defer r.workerMu.Unlock()
-	r.storage = storage
+// RegistryStateStore is the persistence boundary for registry lifecycle metadata.
+type RegistryStateStore interface {
+	LoadRegistryState() (map[string]Installation, map[string]bool, error)
+	SaveRegistryState(map[string]Installation, map[string]bool) error
+}
+
+// InvocationStoragePlanner prepares a scoped request and a deferred, atomic
+// storage effect. Implementations must not write while preparing a request.
+type InvocationStoragePlanner interface {
+	Supports(pluginID string) bool
+	Prepare(request WorkerRequest) (WorkerRequest, func() error, error)
+}
+
+// BindRegistryStorage restores persisted lifecycle state during host setup.
+func (r *Registry) BindRegistryStorage(storage RegistryStateStore) error {
+	r.readinessMu.Lock()
+	defer r.readinessMu.Unlock()
+	r.installationMu.Lock()
+	defer r.installationMu.Unlock()
+	if storage == nil {
+		r.storage = nil
+		return nil
+	}
 	installations, readiness, err := storage.LoadRegistryState()
 	if err != nil {
-		return
+		return err
 	}
-	r.installationMu.Lock()
-	r.readinessMu.Lock()
+	r.storage = storage
 	for key, installation := range installations {
 		if _, registered := r.registered[installation.PluginID+"@"+installation.Version]; registered {
 			r.installations[key] = installation
@@ -22,8 +40,26 @@ func (r *Registry) BindSQLiteStorage(storage *SQLiteStorage) {
 			r.readiness[key] = ready
 		}
 	}
-	r.readinessMu.Unlock()
-	r.installationMu.Unlock()
+	return nil
+}
+
+// BindInvocationStorage installs a trusted host-side storage adapter.
+func (r *Registry) BindInvocationStorage(planner InvocationStoragePlanner) {
+	r.storagePlannerMu.Lock()
+	defer r.storagePlannerMu.Unlock()
+	r.storagePlanner = planner
+}
+
+// BindSQLiteStorage preserves the existing setup API and compatibility routes.
+func (r *Registry) BindSQLiteStorage(storage *SQLiteStorage) {
+	if storage == nil {
+		_ = r.BindRegistryStorage(nil)
+		r.BindInvocationStorage(nil)
+		return
+	}
+	if err := r.BindRegistryStorage(storage); err == nil {
+		r.BindInvocationStorage(legacyStoragePlanner{storage: storage})
+	}
 }
 
 func (r *Registry) persistLifecycleState() {
@@ -63,18 +99,16 @@ func (r *Registry) DeleteDurableData(projectID, pluginID, key string) error {
 
 // lockStorageInvocation bounds lock memory while serializing storage plans by
 // project and plugin. Different versions share a stripe because they share data.
-func (r *Registry) lockStorageInvocation(request WorkerRequest) func() {
-	if r.storage == nil {
-		return func() {}
-	}
-	switch request.PluginID {
-	case "files", "matchmaking", "rooms", "analytics", "tables":
-	default:
-		return func() {}
+func (r *Registry) lockStorageInvocation(request WorkerRequest) (InvocationStoragePlanner, func()) {
+	r.storagePlannerMu.RLock()
+	planner := r.storagePlanner
+	r.storagePlannerMu.RUnlock()
+	if planner == nil || !planner.Supports(request.PluginID) {
+		return nil, func() {}
 	}
 	hash := fnv.New32a()
 	_, _ = hash.Write([]byte(request.ProjectID + ":" + request.PluginID))
 	lock := &r.storageInvocations[hash.Sum32()%uint32(len(r.storageInvocations))]
 	lock.Lock()
-	return lock.Unlock
+	return planner, lock.Unlock
 }

@@ -78,7 +78,7 @@ func (r *Registry) AuthorizeResource(projectID, id, version, capability, resourc
 	}
 	r.installationMu.RLock()
 	defer r.installationMu.RUnlock()
-	if err := r.authorizeGrant(projectID, id, version, capability); err != nil {
+	if err := r.authorizeGrantLocked(projectID, id, version, capability); err != nil {
 		return err
 	}
 	i := r.installations[projectID+":"+id+"@"+version]
@@ -160,6 +160,8 @@ func (r *Registry) Grant(projectID, id, version, capability string) error {
 func (r *Registry) Revoke(projectID, id, version, capability string) error {
 	r.grantMu.Lock()
 	defer r.grantMu.Unlock()
+	r.readinessMu.RLock()
+	defer r.readinessMu.RUnlock()
 	r.installationMu.Lock()
 	defer r.installationMu.Unlock()
 	if !isValidProjectID(projectID) {
@@ -204,6 +206,10 @@ func (r *Registry) Authorize(projectID, id, version, capability string) error {
 func (r *Registry) authorizeGrant(projectID, id, version, capability string) error {
 	r.installationMu.RLock()
 	defer r.installationMu.RUnlock()
+	return r.authorizeGrantLocked(projectID, id, version, capability)
+}
+
+func (r *Registry) authorizeGrantLocked(projectID, id, version, capability string) error {
 	if !isValidProjectID(projectID) {
 		return ErrProjectInvalid
 	}

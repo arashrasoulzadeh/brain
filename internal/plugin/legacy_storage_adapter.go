@@ -2,6 +2,23 @@ package plugin
 
 import "encoding/json"
 
+type legacyStoragePlanner struct {
+	storage *SQLiteStorage
+}
+
+func (p legacyStoragePlanner) Supports(pluginID string) bool {
+	switch pluginID {
+	case "files", "matchmaking", "rooms", "analytics", "tables":
+		return true
+	default:
+		return false
+	}
+}
+
+func (p legacyStoragePlanner) Prepare(request WorkerRequest) (WorkerRequest, func() error, error) {
+	return prepareLegacyStorageRequest(p.storage, request)
+}
+
 // prepareLegacyStorageRequest is the compatibility adapter for existing product
 // storage routes. Its writes are deferred to the registry commit boundary.
 func prepareLegacyStorageRequest(storage *SQLiteStorage, request WorkerRequest) (WorkerRequest, func() error, error) {

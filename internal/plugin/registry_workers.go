@@ -38,7 +38,7 @@ func (r *Registry) Invoke(request WorkerRequest) (WorkerResponse, error) {
 		return WorkerResponse{}, err
 	}
 	// Serialize read/modify/write plans for the same project and plugin.
-	unlock := r.lockStorageInvocation(request)
+	planner, unlock := r.lockStorageInvocation(request)
 	defer unlock()
 	if err := r.authorizeInvocation(request); err != nil {
 		return WorkerResponse{}, err
@@ -53,9 +53,17 @@ func (r *Registry) Invoke(request WorkerRequest) (WorkerResponse, error) {
 
 	// Prepare reads and proposed writes, but do not mutate durable state until
 	// the worker has succeeded and lifecycle and grants have been rechecked.
-	prepared, commit, err := prepareLegacyStorageRequest(r.storage, request)
-	if err != nil {
-		return WorkerResponse{}, err
+	prepared := request
+	var commit func() error
+	if planner != nil {
+		var err error
+		prepared, commit, err = planner.Prepare(request)
+		if err != nil {
+			return WorkerResponse{}, err
+		}
+		if prepared.ProjectID != request.ProjectID || prepared.PluginID != request.PluginID || prepared.Version != request.Version || prepared.Operation != request.Operation || prepared.Protocol != request.Protocol {
+			return WorkerResponse{}, ErrInvalidWorkerRequest
+		}
 	}
 	response, err := InvokeForProject(worker, prepared, r.HostAPI, request.ProjectID)
 	if err != nil || !response.Success || response.ErrorCode != "" {

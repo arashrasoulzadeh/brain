@@ -145,6 +145,10 @@ func (r *Registry) Register(m Manifest) error {
 func (r *Registry) TransitiveDependents(id, version string) []string {
 	r.readinessMu.RLock()
 	defer r.readinessMu.RUnlock()
+	return r.transitiveDependentsLocked(id, version)
+}
+
+func (r *Registry) transitiveDependentsLocked(id, version string) []string {
 	target := id + "@" + version
 	seen := map[string]bool{target: true}
 	dependents := make([]string, 0)
@@ -174,6 +178,8 @@ func (r *Registry) TransitiveDependents(id, version string) []string {
 func (r *Registry) SetReadiness(id, version string, ready bool) error {
 	r.readinessMu.Lock()
 	defer r.readinessMu.Unlock()
+	r.installationMu.RLock()
+	defer r.installationMu.RUnlock()
 	key := id + "@" + version
 	if _, ok := r.registered[key]; !ok {
 		return ErrNotRegistered

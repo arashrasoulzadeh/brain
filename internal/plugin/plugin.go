@@ -75,7 +75,9 @@ type Registry struct {
 	workerMu           sync.RWMutex
 	workers            map[string]ContractWorker
 	workerFactory      func(projectID, pluginID, version string) (ContractWorker, error)
-	storage            *SQLiteStorage
+	storage            RegistryStateStore
+	storagePlanner     InvocationStoragePlanner
+	storagePlannerMu   sync.RWMutex
 	storageInvocations [64]sync.Mutex
 	webSockets         *WebSocketRegistry
 }

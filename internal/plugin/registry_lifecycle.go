@@ -19,6 +19,8 @@ const DefaultDrainWindow = 5 * time.Minute
 func (r *Registry) PreviewDisable(projectID, id, version string) (DisablePreview, error) {
 	r.lifecycleMu.Lock()
 	defer r.lifecycleMu.Unlock()
+	r.readinessMu.RLock()
+	defer r.readinessMu.RUnlock()
 	r.installationMu.RLock()
 	defer r.installationMu.RUnlock()
 	if !isValidProjectID(projectID) {
@@ -27,7 +29,7 @@ func (r *Registry) PreviewDisable(projectID, id, version string) (DisablePreview
 	if _, ok := r.installations[projectID+":"+id+"@"+version]; !ok {
 		return DisablePreview{}, ErrNotInstalled
 	}
-	return DisablePreview{ProjectID: projectID, PluginID: id, Version: version, Revision: r.lifecycleRevision, Dependents: r.TransitiveDependents(id, version)}, nil
+	return DisablePreview{ProjectID: projectID, PluginID: id, Version: version, Revision: r.lifecycleRevision, Dependents: r.transitiveDependentsLocked(id, version)}, nil
 }
 
 func (r *Registry) ApplyDisablePreview(preview DisablePreview) error {
