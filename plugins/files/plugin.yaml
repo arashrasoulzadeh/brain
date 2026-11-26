@@ -47,8 +47,7 @@ routes:
         key: $input.key
         uploaded: true
         published: false
-
-    helper: sdk.dispatch
+    helper: sdk.resource
     capability: files.upload
     storage:
       action: blob.put
@@ -75,8 +74,7 @@ routes:
         key: $input.key
         data: $input.data
         published: $input.published
-
-    helper: sdk.dispatch
+    helper: sdk.resource
     capability: files.download
     storage:
       action: blob.read
@@ -104,8 +102,7 @@ routes:
         key: $input.key
         published: $input.published
         size: $length.data
-
-    helper: sdk.dispatch
+    helper: sdk.resource
     capability: files.metadata
     storage:
       action: blob.read
@@ -128,8 +125,7 @@ routes:
       output:
         key: $input.key
         published: $input.published
-
-    helper: sdk.dispatch
+    helper: sdk.resource
     capability: files.publish
     storage:
       action: blob.publish

@@ -46,8 +46,7 @@ routes:
       output:
         table: $input.table
         rows: $input.rows
-
-    helper: sdk.dispatch
+    helper: sdk.resource
     capability: tables.read
     storage:
       action: rows.read
@@ -70,8 +69,7 @@ routes:
         table: $input.table
         row: $input.row
         written: true
-
-    helper: sdk.dispatch
+    helper: sdk.resource
     capability: tables.write
     storage:
       action: rows.append

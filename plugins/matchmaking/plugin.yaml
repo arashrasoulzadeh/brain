@@ -44,8 +44,7 @@ routes:
           required: true
           error: ticket not found
       result: $input.ticket
-
-    helper: sdk.dispatch
+    helper: sdk.resource
     capability: matchmaking.queue
     storage:
       action: state.create
@@ -68,8 +67,7 @@ routes:
           required: true
           error: ticket not found
       result: $input.ticket
-
-    helper: sdk.dispatch
+    helper: sdk.resource
     capability: matchmaking.cancel
     storage:
       action: state.patch
@@ -91,8 +89,7 @@ routes:
           required: true
           error: ticket not found
       result: $input.ticket
-
-    helper: sdk.dispatch
+    helper: sdk.resource
     capability: matchmaking.status
     storage:
       action: state.read
@@ -112,8 +109,7 @@ routes:
           required: true
           error: ticket not found
       result: $input.ticket
-
-    helper: sdk.dispatch
+    helper: sdk.resource
     capability: matchmaking.assign
     storage:
       action: state.patch
