@@ -114,11 +114,38 @@ func TestAccessManagementGatesEveryDiscoveredFeatureRoute(t *testing.T) {
 		}
 		manifests = append(manifests, m)
 	}
-	r, _ := accessRegistry(t, manifests...)
+	// Required dependencies must be registered and enabled before their dependents.
+	ordered := []plugin.Manifest{}
+	remaining := append([]plugin.Manifest{}, manifests...)
+	ready := map[string]bool{accessID + "@" + accessVersion: true}
+	for len(remaining) > 0 {
+		pending := []plugin.Manifest{}
+		for _, m := range remaining {
+			available := true
+			for _, dependency := range m.Dependencies {
+				if !ready[dependency] {
+					available = false
+				}
+			}
+			if !available {
+				pending = append(pending, m)
+				continue
+			}
+			ordered = append(ordered, m)
+			ready[m.ID+"@"+m.Version] = true
+		}
+		if len(pending) == len(remaining) {
+			t.Fatal("unresolved feature dependencies")
+		}
+		remaining = pending
+	}
+	r, _ := accessRegistry(t, ordered...)
 	installAccessTestPlugin(t, r, "alpha", accessManifest(t), &contractWorker{ready: true})
-	checked := 0
-	for _, m := range manifests {
+	for _, m := range ordered {
 		installAccessTestPlugin(t, r, "alpha", m, &contractWorker{ready: true})
+	}
+	checked := 0
+	for _, m := range ordered {
 		for _, route := range m.Routes {
 			// Delegated and model operations have dedicated integration tests.
 			if route.Call != nil || route.Model != nil {
