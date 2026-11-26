@@ -194,7 +194,7 @@ func bindSandboxedTypeScriptWorkers(registry *plugin.Registry, locations map[str
 		return err
 	}
 	defer os.RemoveAll(probeRoot)
-	probeSource := []byte("export function health(): { accepted: boolean } { return { accepted: true }; }\n")
+	probeSource := []byte("export function health(): { accepted: boolean } { const memory = new WebAssembly.Memory({ initial: 1, maximum: 2 }); return { accepted: memory.buffer.byteLength === 65536 }; }\n")
 	if err := os.WriteFile(filepath.Join(probeRoot, "index.mts"), probeSource, 0o600); err != nil {
 		return err
 	}
@@ -210,7 +210,7 @@ func bindSandboxedTypeScriptWorkers(registry *plugin.Registry, locations map[str
 	}
 	response, err := plugin.InvokeForProject(probe, plugin.WorkerRequest{Protocol: 1, ProjectID: "sandbox-probe", PluginID: probeManifest.ID, Version: probeManifest.Version, Operation: "health"}, 1, "sandbox-probe")
 	_ = probe.Stop()
-	if err != nil || !response.Success {
+	if err != nil || !response.Success || string(response.Payload) != `{"accepted":true}` {
 		return fmt.Errorf("sandbox invocation probe failed")
 	}
 	registry.BindWorkerFactory(func(projectID, pluginID, version string) (plugin.ContractWorker, error) {

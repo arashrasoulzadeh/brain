@@ -81,7 +81,9 @@ if [ -n "$runtime_root" ]; then
   if [ -f "$runtime_root/tsconfig.json" ]; then
     mounts+=(--ro-bind "$runtime_root/tsconfig.json" "$runtime_root/tsconfig.json")
   fi
-  node_args+=(--import "$loader")
+  # V8's default Wasm guard region exceeds our address-space limit.
+  # Use inline Wasm bounds checks instead; keep the OS memory cap intact.
+  node_args+=(--disable-wasm-trap-handler --import "$loader")
 fi
 
 ulimit -t "$(( (cpu_millis + 999) / 1000 ))"

@@ -49,3 +49,20 @@ for field in networkBlocked filesystemBlocked hostSecretBlocked undeclaredBlocke
   printf '%s\n' "$response" | grep -F "\"$field\":true"
 done
 test ! -e "$root/plugin/should-not-write"
+
+# Exercise the real TypeScript loader and Wasm allocation with the same memory
+# cap as production, not just a JavaScript fixture on the distro's Node.
+if [ "${TEST_TYPESCRIPT_RUNTIME:-0}" = 1 ]; then
+  cat > "$root/plugin/index.mts" <<'TS'
+export function handle(): { pages: number } {
+  const memory = new WebAssembly.Memory({ initial: 1, maximum: 2 });
+  return { pages: memory.buffer.byteLength / 65536 };
+}
+TS
+  cat > "$root/execution.json" <<EOF
+{"entrypoint":"$root/plugin/index.mts","pluginId":"sample","version":"1.0.0","projectId":"project","routes":[{"operation":"health","function":"handle"}]}
+EOF
+  response=$(printf '%s\n' "$request" | NODE_BIN="$node_bin" WORKER_RUNTIME_ROOT="$PWD" WORKER_SCRIPT="$PWD/scripts/typescript-worker.mjs" EXECUTION_DESCRIPTOR="$root/execution.json" PLUGIN_ROOT="$root/plugin" WORKER_SOURCE_FILES=index.mts REQUIRE_DECLARED_SOURCES=1 CPU_MILLIS=30000 MEMORY_BYTES=2147483648 PROCESS_LIMIT=64 bash scripts/run-sandboxed-typescript-worker.sh)
+  printf '%s\n' "$response" | grep -F '"success":true'
+  printf '%s\n' "$response" | grep -F '"pages":1'
+fi

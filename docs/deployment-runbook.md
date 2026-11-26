@@ -72,3 +72,8 @@ readiness before allowing traffic. An activation is saved only after its worker
 starts successfully. Disable, stop, removal, and grant revocation stop the
 bound runtime worker; restrictive state is retained in memory even if its
 persistence fails.
+
+The sandboxed TypeScript runtime requires Node 20.15 or a newer supported
+release with `--disable-wasm-trap-handler`. This uses explicit WebAssembly
+bounds checks instead of reserving a large virtual guard region; the 2 GiB
+address-space limit and 128 MiB JavaScript heap cap remain in force.
