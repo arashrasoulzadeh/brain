@@ -1,3 +1,5 @@
+import type { PureHelperName } from "./helpers.mjs";
+
 export type WorkerParams = {
   protocol: number;
   projectId: string;
@@ -23,6 +25,7 @@ export type PluginContext = Readonly<{
   plugin: Readonly<{ id: string; version: string }>;
   execution: Readonly<{ operation: string; invocationId?: string }>;
   config?: Readonly<Record<string, string | number | boolean>>;
+  helpers?: Readonly<{ call: (name: PureHelperName, input: unknown) => unknown }>;
   plugins: Readonly<{ has?: (id: string) => boolean; observe: Readonly<{ fire(event: string, payload: Readonly<Record<string, string | number | boolean>>): void }> }>;
 }>;
 
@@ -81,8 +84,11 @@ export { commitWithGrant, createCommitRollback, createTransactionGate, runCapped
 export { createFixedWindowLimiter } from "./execution.js";
 
 export type DeclarativePipeline = Readonly<{
-  steps: readonly Readonly<{ helper: "string.trim" | "string.nonempty" | "value.identity" | "number.integer" | "boolean.require" | "observe.fire"; input: string; save: string }>[];
+  steps: readonly Readonly<{ helper: PureHelperName | "observe.fire"; input: string; save: string }>[];
   return: string;
 }>;
 export { validateModel, transitionState } from "./declarative.js";
 export type { ModelSchema, StateMachine } from "./declarative.js";
+
+export { callHelper, hasHelper, helperNames } from "./helpers.mjs";
+export type { PureHelperName } from "./helpers.mjs";

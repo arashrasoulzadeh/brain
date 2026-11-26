@@ -44,6 +44,15 @@ done
 # Bind only the descriptor, worker script, plugin directory, and trusted runtime
 # dependencies. Never bind the descriptor directory (it may contain a database).
 mounts+=(--ro-bind "$node_path" "$node_path" --ro-bind "$worker_script" "$worker_script")
+# Standalone workers still need the trusted pure helper registry. Production
+# mounts the whole SDK through WORKER_RUNTIME_ROOT below.
+if [ -z "$runtime_root" ]; then
+  helper_path="$(dirname "$worker_script")/../plugins/sdk-typescript/src/helpers.mjs"
+  if [ -f "$helper_path" ]; then
+    helper_path=$(realpath "$helper_path")
+    mounts+=(--ro-bind "$helper_path" "$helper_path")
+  fi
+fi
 if [ -n "$source_files" ]; then
   mounts+=(--tmpfs "$plugin_root")
   while IFS= read -r source; do

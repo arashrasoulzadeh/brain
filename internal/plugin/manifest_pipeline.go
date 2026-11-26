@@ -46,7 +46,7 @@ func (s *PipelineSpec) valid() bool {
 	names := map[string]bool{}
 	for _, step := range s.Steps {
 		switch step.Helper {
-		case "string.trim", "string.nonempty", "value.identity", "number.integer", "boolean.require", "observe.fire":
+		case "string.trim", "string.nonempty", "string.lower", "string.upper", "value.identity", "number.integer", "boolean.require", "observe.fire":
 		default:
 			return false
 		}

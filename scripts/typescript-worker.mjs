@@ -1,6 +1,7 @@
 import readline from "node:readline";
 import { readFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
+import { callHelper, hasHelper } from "../plugins/sdk-typescript/src/helpers.mjs";
 
 const descriptorPath = process.argv[2];
 if (!descriptorPath) {
@@ -68,6 +69,7 @@ for await (const line of input) {
       plugin: Object.freeze({ id: descriptor.pluginId, version: descriptor.version }),
       execution: Object.freeze({ operation: params.operation, ...(hostContext?.invocationId ? { invocationId: hostContext.invocationId } : {}) }),
       ...(hostContext ? { config: Object.freeze({ ...hostContext.config }) } : {}),
+      helpers: Object.freeze({ call: callHelper }),
       plugins: Object.freeze({ observe: Object.freeze({ fire }), has: (id) => typeof id === "string" && [...available].some((dependency) => dependency === id || dependency.split("@")[0] === id) }),
     });
     // Never accept a context supplied by the request or payload.
@@ -153,13 +155,7 @@ function mapResponse(spec, payload, context) {
       typeof value === "string" && value.startsWith("$input.") ? values.get(value.slice(7)) : value]));
 }
 
-function pipelineHelpers() { return new Map([
-  ["string.trim", (value) => { if (typeof value !== "string") throw new Error("expected string"); return value.trim(); }],
-  ["string.nonempty", (value) => { if (typeof value !== "string" || !value.trim()) throw new Error("expected nonempty string"); return value; }],
-  ["value.identity", (value) => value],
-  ["number.integer", (value) => { if (!Number.isSafeInteger(value)) throw new Error("expected integer"); return value; }],
-  ["boolean.require", (value) => { if (typeof value !== "boolean") throw new Error("expected boolean"); return value; }],
-]); }
+
 
 function pipelineReference(value, available) {
   if (value === "$input" || value === "$project.id" || value === "$plugin.id") return true;
@@ -175,7 +171,7 @@ function validPipeline(spec) {
   const names = new Set();
   for (const step of spec.steps) {
     if (!step || !responseKey(step.save) || names.has(step.save) ||
-        !(pipelineHelpers().has(step.helper) || step.helper === "observe.fire") || !pipelineReference(step.input, names)) return false;
+        !(hasHelper(step.helper) || step.helper === "observe.fire") || !pipelineReference(step.input, names)) return false;
     names.add(step.save);
   }
   return pipelineReference(spec.return, names);
@@ -183,7 +179,6 @@ function validPipeline(spec) {
 
 async function executePipeline(spec, input, context) {
   const values = new Map();
-  const helpers = pipelineHelpers();
   const resolve = (reference) => {
     if (reference === "$project.id") return context.project.id;
     if (reference === "$plugin.id") return context.plugin.id;
@@ -202,7 +197,7 @@ async function executePipeline(spec, input, context) {
       context.plugins.observe.fire(value.event, value.payload);
       values.set(step.save, null);
     } else {
-      values.set(step.save, await helpers.get(step.helper)(value));
+      values.set(step.save, await callHelper(step.helper, value));
     }
   }
   return resolve(spec.return);

@@ -25,3 +25,5 @@ Fourth increment: production registry active-project resolver and generated admi
 Fifth increment: per-invocation host snapshot carries verified active project, invocation ID, installation config and optional dependency availability; optional dependencies do not block installation. JSON integer config works through persistence. Dependency availability is a lifecycle snapshot, not authorization for a subsequent call.
 
 Sixth increment: existing auth, rooms, files, matchmaking and tables route handlers stage sanitized domain observations. Missing arena, invites, subscription and dashboard execution paths and user-function integration still require migration. Observation delivery remains best effort after the host commit boundary.
+
+Seventh increment: single pure helper registry shared by YAML worker, TypeScript SDK and user-function VM. User functions receive trusted project and invocation IDs as a second handler argument and pure helpers from a module evaluated within their VM realm; no effectful helpers or host object references are exposed. Worker runtime mounts only the trusted registry for standalone sandbox probes. Full sandbox verification required.
