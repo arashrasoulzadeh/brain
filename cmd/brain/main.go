@@ -85,6 +85,10 @@ func productionServer() (*app.Server, error) {
 	if err != nil {
 		return nil, fmt.Errorf("project storage unavailable: %w", err)
 	}
+	registry.BindProjectResolver(func(id string) (plugin.ProjectSnapshot, error) {
+		model, err := projects.Resolve(id)
+		return plugin.ProjectSnapshot{ID: model.ID, Active: model.Active}, err
+	})
 	storage, err := plugin.OpenSQLiteStorage(projectsPath)
 	if err != nil {
 		_ = projects.Close()

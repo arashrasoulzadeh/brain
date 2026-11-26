@@ -26,14 +26,14 @@ test("worker injects project and plugin context across manifest execution modes"
       { operation: "response", function: "read", helper: "sdk.response", response: { input: [], output: { project: "$project.id", plugin: "$plugin.id" } } },
     ];
     await writeFile(descriptor, JSON.stringify({ entrypoint, projectId: "trusted", pluginId: "sample", version: "1", routes }));
-    const params = { protocol: 1, projectId: "trusted", pluginId: "sample", version: "1", payload: { projectId: "forged" } };
+    const params = { protocol: 1, projectId: "trusted", project: { id: "trusted", active: true }, pluginId: "sample", version: "1", payload: { projectId: "forged" } };
     const requests = routes.map(({ operation }) => ({ id: operation, params: { ...params, operation }, context: { project: { id: "forged" } } }));
     requests.push({ id: "denied", params: { ...params, operation: "context", projectId: "other" }, context: { project: { id: "forged" } } });
     const worker = spawnSync(process.execPath, ["scripts/typescript-worker.mjs", descriptor], { input: requests.map((request) => JSON.stringify(request)).join("\n") + "\n", encoding: "utf8", timeout: 5000 });
     equal(worker.status, 0, worker.stderr);
     const results = worker.stdout.trim().split("\n").map((line) => JSON.parse(line) as { result?: { payload: unknown }; errorCode?: string });
     for (const [index, operation] of ["dispatch", "request", "context", "handle"].entries()) {
-      deepEqual(results[index].result?.payload, { project: { id: "trusted" }, plugin: { id: "sample", version: "1" }, execution: { operation }, plugins: { observe: {} } });
+      deepEqual(results[index].result?.payload, { project: { id: "trusted", active: true }, plugin: { id: "sample", version: "1" }, execution: { operation }, plugins: { observe: {} } });
     }
     deepEqual(results[4].result?.payload, { project: "trusted", plugin: "sample" });
     equal(results[5].errorCode, "execution context mismatch");

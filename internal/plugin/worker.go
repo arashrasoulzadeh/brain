@@ -9,20 +9,26 @@ var ErrInvalidWorkerRequest = errors.New("invalid worker request")
 var ErrWorkerNotReady = errors.New("worker not ready")
 var ErrInvocationCredentialMismatch = errors.New("invocation credential does not match worker request")
 
+type ProjectSnapshot struct {
+	ID     string `json:"id"`
+	Active bool   `json:"active"`
+}
+
 type WorkerRequest struct {
-	Protocol  int    `json:"protocol"`
-	ProjectID string `json:"projectId"`
-	PluginID  string `json:"pluginId"`
-	Version   string `json:"version"`
-	Operation string `json:"operation"`
-	Payload   []byte `json:"payload"`
+	Protocol  int              `json:"protocol"`
+	ProjectID string           `json:"projectId"`
+	PluginID  string           `json:"pluginId"`
+	Version   string           `json:"version"`
+	Operation string           `json:"operation"`
+	Payload   []byte           `json:"payload"`
+	Project   *ProjectSnapshot `json:"project,omitempty"`
 }
 
 type WorkerResponse struct {
-	Protocol  int
-	Success   bool
-	Payload   []byte
-	ErrorCode string
+	Protocol     int
+	Success      bool
+	Payload      []byte
+	ErrorCode    string
 	Observations []ObservationIntent `json:"observations,omitempty"`
 }
 

@@ -59,8 +59,9 @@ for await (const line of input) {
       if (!validEventPayload(spec, snapshot)) throw new Error("invalid observation fields");
       observations.push({ event, payload: snapshot });
     };
+    if (params.project && (params.project.id !== descriptor.projectId || params.project.active !== true)) throw new Error("project model mismatch");
     const context = Object.freeze({
-      project: Object.freeze({ id: descriptor.projectId }),
+      project: Object.freeze({ id: descriptor.projectId, ...(params.project ? { active: true } : {}) }),
       plugin: Object.freeze({ id: descriptor.pluginId, version: descriptor.version }),
       execution: Object.freeze({ operation: params.operation }),
       plugins: Object.freeze({ observe: Object.freeze({ fire }) }),

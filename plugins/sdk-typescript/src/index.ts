@@ -1,6 +1,7 @@
 export type WorkerParams = {
   protocol: number;
   projectId: string;
+  project?: ProjectContext;
   pluginId: string;
   version: string;
   operation: string;
@@ -16,7 +17,7 @@ export type RpcRequest = {
   context?: PluginContext;
 };
 
-export type ProjectContext = Readonly<{ id: string }>;
+export type ProjectContext = Readonly<{ id: string; active?: boolean }>;
 
 export type PluginContext = Readonly<{
   project: ProjectContext;
@@ -27,12 +28,14 @@ export type PluginContext = Readonly<{
 
 export type Observation<T = unknown> = Readonly<{ projectId: string; pluginId: string; version: string; event: string; payload: T }>;
 
+export type ObservationIntent = Readonly<{ event: string; payload: Readonly<Record<string, string | number | boolean>> }>;
+
 export type ContextualPluginFunction = (context: PluginContext, input: unknown) => unknown;
 
 export type RpcResponse = {
   jsonrpc: "2.0";
   id: string;
-  result?: { protocol: number; success: boolean; payload?: unknown };
+  result?: { protocol: number; success: boolean; payload?: unknown; observations?: readonly ObservationIntent[] };
   errorCode?: string;
 };
 

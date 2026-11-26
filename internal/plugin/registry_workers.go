@@ -19,6 +19,31 @@ func (r *Registry) BindWorkerFactory(factory func(projectID, pluginID, version s
 	r.workerFactory = factory
 }
 
+// BindProjectResolver installs the authoritative project model resolver at host startup.
+func (r *Registry) BindProjectResolver(resolve func(string) (ProjectSnapshot, error)) {
+	r.workerMu.Lock()
+	defer r.workerMu.Unlock()
+	r.projectResolver = resolve
+}
+
+func (r *Registry) resolveProject(id string) (ProjectSnapshot, error) {
+	r.workerMu.RLock()
+	resolve := r.projectResolver
+	r.workerMu.RUnlock()
+	if resolve == nil {
+		// Standalone registry fixtures have no project store.
+		return ProjectSnapshot{ID: id, Active: true}, nil
+	}
+	model, err := resolve(id)
+	if err != nil {
+		return ProjectSnapshot{}, err
+	}
+	if model.ID != id || !model.Active {
+		return ProjectSnapshot{}, ErrProjectInvalid
+	}
+	return model, nil
+}
+
 // BindWorker attaches the host-created runtime worker for one project plugin.
 // Lifecycle state remains authoritative; a bound worker alone can never execute.
 func (r *Registry) BindWorker(projectID, id, version string, worker ContractWorker) error {
@@ -53,6 +78,11 @@ func (r *Registry) invokeOnce(request WorkerRequest, observer bool) (WorkerRespo
 	if err := ValidateWorkerRequest(request, r.HostAPI); err != nil {
 		return WorkerResponse{}, err
 	}
+	model, err := r.resolveProject(request.ProjectID)
+	if err != nil {
+		return WorkerResponse{}, err
+	}
+	request.Project = &model
 	// Serialize read/modify/write plans for the same project and plugin.
 	planner, unlock := r.lockStorageInvocation(request)
 	defer unlock()
@@ -81,12 +111,16 @@ func (r *Registry) invokeOnce(request WorkerRequest, observer bool) (WorkerRespo
 			return WorkerResponse{}, ErrInvalidWorkerRequest
 		}
 	}
+	prepared.Project = &model
 	response, err := InvokeForProject(worker, prepared, r.HostAPI, request.ProjectID)
 	if err != nil || !response.Success || response.ErrorCode != "" {
 		return response, err
 	}
 	if response.Protocol != request.Protocol {
 		return WorkerResponse{}, ErrInvalidWorkerRequest
+	}
+	if _, err := r.resolveProject(request.ProjectID); err != nil {
+		return WorkerResponse{}, err
 	}
 	r.readinessMu.RLock()
 	defer r.readinessMu.RUnlock()
