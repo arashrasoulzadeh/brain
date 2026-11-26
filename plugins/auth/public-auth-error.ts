@@ -1,8 +1,0 @@
-export function publicAuthError(error: unknown): string {
-  if (
-    error instanceof Error &&
-    ["account already exists", "invalid credentials", "account not found"].includes(error.message)
-  )
-    return "invalid credentials";
-  return "authentication failed";
-}

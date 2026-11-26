@@ -1,14 +1,14 @@
-export { adminRequest } from "./admin-request.js";
-export { adminPanel } from "./admin-panel.js";
-export type { AdminPanelSection } from "./admin-panel.js";
-export { FormAuditRecorder } from "./form-audit-recorder.js";
-export { FormAuditReader } from "./form-audit-reader.js";
-export { browserQuickstart } from "./browser-quickstart.js";
-export { authSettingsPage } from "./auth-settings-page.js";
-export { fileManagementPage } from "./file-management-page.js";
-export { functionManagementPage } from "./function-management-page.js";
-export { workflowManagementPage } from "./workflow-management-page.js";
-export { liveSessionPage } from "./live-session-page.js";
+export { adminRequest } from "./requests.js";
+export { adminPanel } from "./pages.js";
+export type { AdminPanelSection } from "./pages.js";
+export { FormAuditRecorder } from "./audit.js";
+export { FormAuditReader } from "./audit.js";
+export { browserQuickstart } from "./pages.js";
+export { authSettingsPage } from "./pages.js";
+export { fileManagementPage } from "./pages.js";
+export { functionManagementPage } from "./pages.js";
+export { workflowManagementPage } from "./pages.js";
+export { liveSessionPage } from "./pages.js";
 export {
   pluginPromoteRequest,
   pluginRollbackRequest,
@@ -17,11 +17,11 @@ export {
   pluginLifecycleRequest,
   pluginUninstallRequest,
   projectCreateRequest,
-} from "./project-request.js";
-export { recordBrowserPage } from "./record-browser-page.js";
-export { recordEditPage } from "./record-edit-page.js";
-export { signupSettingsPage } from "./signup-settings-page.js";
-export { tableManagementPage } from "./table-management-page.js";
+} from "./requests.js";
+export { recordBrowserPage } from "./pages.js";
+export { recordEditPage } from "./pages.js";
+export { signupSettingsPage } from "./pages.js";
+export { tableManagementPage } from "./pages.js";
 export type {
   AuthSettings,
   FormAudit,
@@ -30,13 +30,13 @@ export type {
   SignupSettings,
   WorkflowSummary,
 } from "./types.js";
-export { hostOwnedAdminView } from "./host-owned-admin-view.js";
-export { projectOverviewContribution } from "./project-overview-contribution.js";
-export { pluginHealthContribution } from "./plugin-health-contribution.js";
-export { createViewReplacementRegistry } from "./view-replacement-registry.js";
-export { validateCsrfToken } from "./validate-csrf-token.js";
-export { customAdminView } from "./custom-admin-view.js";
-export { customViewOrigin } from "./custom-view-origin.js";
-export { restrictedFrame } from "./restricted-frame.js";
-export { validateBridgeMessage } from "./validate-bridge-message.js";
-export type { BridgeExecutionContext, BridgeMessage } from "./validate-bridge-message.js";
+export { hostOwnedAdminView } from "./views.js";
+export { projectOverviewContribution } from "./views.js";
+export { pluginHealthContribution } from "./views.js";
+export { createViewReplacementRegistry } from "./views.js";
+export { validateCsrfToken } from "./bridge.js";
+export { customAdminView } from "./views.js";
+export { customViewOrigin } from "./bridge.js";
+export { restrictedFrame } from "./bridge.js";
+export { validateBridgeMessage } from "./bridge.js";
+export type { BridgeExecutionContext, BridgeMessage } from "./bridge.js";

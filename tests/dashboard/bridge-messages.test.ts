@@ -1,4 +1,4 @@
-import { validateBridgeMessage } from "../../plugins/dashboard/validate-bridge-message.js";
+import { validateBridgeMessage } from "../../plugins/dashboard/index.js";
 
 const context = { projectId: "dev", invocationId: "frame-1" } as const;
 

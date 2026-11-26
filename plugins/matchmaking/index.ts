@@ -1,9 +1,9 @@
-export { MatchmakingConfigWriter } from "./matchmaking-config-writer.js";
-export { MatchmakingConfigReader } from "./matchmaking-config-reader.js";
-export { MatchmakingConfigStatus } from "./matchmaking-config-status.js";
+export { MatchmakingConfigWriter } from "./config.js";
+export { MatchmakingConfigReader } from "./config.js";
+export { MatchmakingConfigStatus } from "./config.js";
 export { createMatchmakingQueue } from "./queue.js";
-export { matchmakingRequest } from "./matchmaking-request.js";
-export { validateConfig } from "./validate-config.js";
+export { matchmakingRequest } from "./routes.js";
+export { validateConfig } from "./config.js";
 export type { AssignmentDecision, MatchmakingConfig, MatchmakingTicket } from "./types.js";
-export { MatchmakingRouteStore, matchmakingRouteStore } from "./matchmaking-route-store.js";
+export { MatchmakingRouteStore, matchmakingRouteStore } from "./routes.js";
 export { queue, cancel, status, assign, dispatchRoute } from "./routes.js";

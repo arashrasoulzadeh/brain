@@ -6,18 +6,8 @@ host_api: 1
 entrypoint: index.ts
 source_files:
   - index.ts
-  - types.ts
-  - invite-creator.ts
-  - invite-accepter.ts
-  - invite-code-accepter.ts
-  - invite-request.ts
 imports:
   - ../sdk-typescript/src/index.js
-  - ./invite-creator.js
-  - ./invite-accepter.js
-  - ./invite-code-accepter.js
-  - ./invite-request.js
-  - ./types.js
 plugin_imports:
   - rooms@0.1.0
 dependencies:

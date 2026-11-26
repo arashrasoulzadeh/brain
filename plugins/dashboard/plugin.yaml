@@ -7,58 +7,18 @@ entrypoint: index.ts
 source_files:
   - index.ts
   - types.ts
-  - project-request.ts
-  - admin-request.ts
-  - admin-panel.ts
-  - auth-settings-page.ts
-  - signup-settings-page.ts
-  - record-browser-page.ts
-  - record-edit-page.ts
-  - table-management-page.ts
-  - file-management-page.ts
-  - function-management-page.ts
-  - workflow-management-page.ts
-  - live-session-page.ts
-  - host-owned-admin-view.ts
-  - project-overview-contribution.ts
-  - plugin-health-contribution.ts
-  - view-replacement-registry.ts
-  - validate-csrf-token.ts
-  - custom-admin-view.ts
-  - custom-view-origin.ts
-  - restricted-frame.ts
-  - validate-bridge-message.ts
-  - reject-sensitive-bridge-data.ts
-  - form-audit-recorder.ts
-  - form-audit-reader.ts
-  - browser-quickstart.ts
+  - requests.ts
+  - pages.ts
+  - views.ts
+  - bridge.ts
+  - audit.ts
 imports:
   - ../sdk-typescript/src/index.js
-  - ./admin-request.js
-  - ./admin-panel.js
-  - ./form-audit-recorder.js
-  - ./form-audit-reader.js
-  - ./auth-settings-page.js
-  - ./browser-quickstart.js
-  - ./file-management-page.js
-  - ./function-management-page.js
-  - ./workflow-management-page.js
-  - ./live-session-page.js
-  - ./host-owned-admin-view.js
-  - ./project-overview-contribution.js
-  - ./plugin-health-contribution.js
-  - ./view-replacement-registry.js
-  - ./validate-csrf-token.js
-  - ./custom-admin-view.js
-  - ./custom-view-origin.js
-  - ./restricted-frame.js
-  - ./validate-bridge-message.js
-  - ./reject-sensitive-bridge-data.js
-  - ./project-request.js
-  - ./record-browser-page.js
-  - ./record-edit-page.js
-  - ./signup-settings-page.js
-  - ./table-management-page.js
+  - ./requests.js
+  - ./pages.js
+  - ./audit.js
+  - ./views.js
+  - ./bridge.js
   - ./types.js
 plugin_imports:
 dependencies: []

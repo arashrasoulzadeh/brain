@@ -7,59 +7,17 @@ entrypoint: index.ts
 source_files:
   - routes.ts
   - index.ts
-  - data-request.ts
-  - project-schema-name.ts
-  - project-role-name.ts
-  - row-policy-granter.ts
-  - row-policy-checker.ts
-  - table-exposure.ts
-  - table-exposure-writer.ts
-  - table-exposure-reader.ts
-  - require-primary-key.ts
-  - validate-column-types.ts
-  - project-row.ts
-  - validate-filter.ts
-  - paginate.ts
-  - validate-value.ts
-  - versioned-record.ts
-  - idempotent-create-store.ts
-  - schema-types.ts
-  - plan-schema-change.ts
-  - preview-schema-sql.ts
-  - require-recent-schema-auth.ts
-  - create-schema-publication-audit.ts
-  - create-transactional-change-capture.ts
-  - create-api-change-capture.ts
-  - create-direct-sql-change-capture.ts
-  - table-store.ts
+  - access.ts
+  - schema.ts
+  - records.ts
+  - capture.ts
 imports:
   - ./routes.js
   - ../sdk-typescript/src/index.js
-  - ./data-request.js
-  - ./project-schema-name.js
-  - ./project-role-name.js
-  - ./row-policy-granter.js
-  - ./row-policy-checker.js
-  - ./table-exposure.js
-  - ./table-exposure-writer.js
-  - ./table-exposure-reader.js
-  - ./require-primary-key.js
-  - ./validate-column-types.js
-  - ./project-row.js
-  - ./validate-filter.js
-  - ./paginate.js
-  - ./validate-value.js
-  - ./versioned-record.js
-  - ./idempotent-create-store.js
-  - ./schema-types.js
-  - ./plan-schema-change.js
-  - ./preview-schema-sql.js
-  - ./require-recent-schema-auth.js
-  - ./create-schema-publication-audit.js
-  - ./create-transactional-change-capture.js
-  - ./create-api-change-capture.js
-  - ./create-direct-sql-change-capture.js
-  - ./table-store.js
+  - ./access.js
+  - ./schema.js
+  - ./records.js
+  - ./capture.js
   - ./index.js
 plugin_imports:
 dependencies: []
