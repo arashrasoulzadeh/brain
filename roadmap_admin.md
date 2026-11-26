@@ -17,3 +17,16 @@ Admin-panel and operator documentation work after backend release gates pass.
 - [x] Verify admin operations against the packaged backend. The production command composition test boots the configured server, logs in through `/admin/session`, and exercises bearer-authenticated `/admin/actions`; Compose CI remains the deployment-level check.
 - [x] Verify cross-project isolation in the admin panel. Covered by dashboard host-handler, view, auth, table-policy, and file-access isolation tests.
 - [x] Verify permission revocation in the admin panel. Covered by broker credential revocation tests, plugin lifecycle revocation tests, and audited admin lifecycle tests.
+
+## Manifest-driven admin migration
+
+- [x] Versioned admin metadata and generic action discovery.
+- [x] Typed forms and explicit server-side action confirmation and payload validation.
+- [x] Project/version/grant-aware page contributions and cross-plugin extension links.
+- [x] Declarative result components with filtering and client-side pagination.
+- [x] Authenticated observation-driven invalidation and read-only refresh (bounded polling).
+- [x] Schema-generated configuration forms.
+- [x] Migrate database, files, workflows and live-session consoles away from hard-coded plugin dispatch.
+- [ ] Dedicated resource list APIs and richer embedded extension slots.
+- [ ] Dedicated admin operations for plugins without implemented runtime handlers.
+- [ ] End-to-end and deployment validation of the new paths.

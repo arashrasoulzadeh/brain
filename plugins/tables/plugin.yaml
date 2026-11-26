@@ -45,3 +45,39 @@ routes:
     function: schema
     helper: sdk.dispatch
     capability: tables.schema
+admin:
+  version: 1
+  pages:
+    - id: operations
+      title: Database
+      legacy_route: database
+      actions:
+        - title: Table schema
+          operation: tables.schema
+          read_only: true
+          result:
+            type: detail
+          fields:
+            - name: table
+              type: string
+              required: true
+        - title: Read rows
+          operation: tables.read
+          read_only: true
+          result:
+            type: table
+            path: rows
+            page_size: 25
+          fields:
+            - name: table
+              type: string
+              required: true
+        - title: Write row
+          operation: tables.write
+          fields:
+            - name: table
+              type: string
+              required: true
+            - name: row
+              type: json
+              required: true
