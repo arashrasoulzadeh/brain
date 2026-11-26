@@ -1,3 +1,5 @@
+import 'project_identity.dart';
+
 typedef WebRequest = Future<Object?> Function(
   String operation,
   String projectId,
@@ -7,7 +9,7 @@ typedef WebRequest = Future<Object?> Function(
 
 class WebTransport {
   WebTransport(this._request, this.projectId) {
-    if (projectId.isEmpty) throw ArgumentError('project required');
+    validateProjectId(projectId);
   }
 
   final WebRequest _request;
