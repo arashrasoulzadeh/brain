@@ -1,4 +1,4 @@
-export { guestRequest, signInRequest, signUpRequest } from "./requests.js";
+export { guestRequest, signInRequest, signUpRequest } from "./service.js";
 
 export {
   projectUserID, accountProject, IdentityLinker, publicAuthError, AccountSignup,
@@ -22,13 +22,6 @@ export {
   RecoveryTokenIssuer, RecoveryTokenConsumer,
 } from "./otp.js";
 export { OTPLimiter, AccountRateLimiter, ProjectRateLimiter } from "./rate-limits.js";
-
-
-
-
-
-
-
 
 export { createAuthState } from "./state.js";
 export { createAuthOperations, dispatchRequest, functions, type AuthOperations } from "./service.js";

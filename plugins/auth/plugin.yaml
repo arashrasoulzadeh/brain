@@ -6,7 +6,6 @@ host_api: 1
 entrypoint: index.ts
 source_files:
   - index.ts
-  - requests.ts
   - oidc.ts
   - delivery.ts
   - sessions.ts
@@ -20,7 +19,6 @@ imports:
   - ../sdk-typescript/src/tokens.js
   - node:crypto
   - "@node-rs/argon2"
-  - ./requests.js
   - ./oidc.js
   - ./delivery.js
   - ./sessions.js

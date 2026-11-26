@@ -11,5 +11,5 @@ export {
   PendingUploadCreator, PendingUploadReader, PendingUploadPublisher,
   PendingUploadReconciler,
 } from "./uploads.js";
-export { QuotaReserver, QuotaReleaser, QuotaReader } from "./quota.js";
+export { QuotaReserver, QuotaReleaser, QuotaReader } from "./uploads.js";
 export { type PendingUpload, type PrivateBucketConfig } from "./types.js";

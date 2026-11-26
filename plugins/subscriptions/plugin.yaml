@@ -7,7 +7,6 @@ entrypoint: index.ts
 source_files:
   - index.ts
   - types.ts
-  - subscription-request.ts
   - authorization.ts
   - stream.ts
 imports:
@@ -15,7 +14,6 @@ imports:
   - node:crypto
   - ./authorization.js
   - ./stream.js
-  - ./subscription-request.js
   - ./types.js
 plugin_imports:
 dependencies: []

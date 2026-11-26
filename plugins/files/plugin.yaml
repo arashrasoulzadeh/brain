@@ -10,13 +10,11 @@ source_files:
   - types.ts
   - access.ts
   - uploads.ts
-  - quota.ts
 imports:
   - ./routes.js
   - ../sdk-typescript/src/index.js
   - ./access.js
   - ./uploads.js
-  - ./quota.js
   - ./types.js
 plugin_imports:
 dependencies: []

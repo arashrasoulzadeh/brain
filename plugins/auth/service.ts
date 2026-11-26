@@ -1,4 +1,4 @@
-import { createRequestDispatcher, type PluginFunction } from "../sdk-typescript/src/index.js";
+import { createRequestDispatcher, pluginRequest, type PluginFunction } from "../sdk-typescript/src/index.js";
 import { createAuthState, type AuthState } from "./state.js";
 import { AccountSignup, AccountSignin } from "./accounts.js";
 import { AccountSessionReader, GuestSessionIssuer } from "./sessions.js";
@@ -43,4 +43,44 @@ export function functions(
     },
     guest: (rpc) => service.guest(rpc.params.projectId),
   };
+}
+
+export function guestRequest(projectId: string, pluginId: string, version: string) {
+  return pluginRequest("auth", projectId, pluginId, version, "auth.guest", {}, "guest");
+}
+
+export function signInRequest(
+  projectId: string,
+  pluginId: string,
+  version: string,
+  provider: string,
+  credential: unknown,
+) {
+  return pluginRequest(
+    "auth",
+    projectId,
+    pluginId,
+    version,
+    "auth.signin",
+    { provider, credential },
+    "signin",
+  );
+}
+
+export function signUpRequest(
+  projectId: string,
+  pluginId: string,
+  version: string,
+  username: string,
+  password: string,
+) {
+  return pluginRequest(
+    "auth",
+    projectId,
+    pluginId,
+    version,
+    "auth.signup",
+    { username, password },
+    `signup-${username}`,
+  );
 }

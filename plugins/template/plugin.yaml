@@ -1,15 +1,24 @@
 id: example.plugin
-entrypoint: index.ts
-source_files:
-  - index.ts
-imports:
-  - ../sdk-typescript/src/index.js
-plugin_imports:
+runtime: declarative
 title: Example plugin
-description: Minimal host-discovered TypeScript plugin template.
+description: Minimal manifest-only plugin.
 version: 0.1.0
 host_api: 1
 dependencies: []
-capabilities: []
+capabilities:
+  - example.echo
 extension_points: []
 config_schema: {}
+routes:
+  - operation: example.echo
+    function: echo
+    capability: example.echo
+    helper: sdk.response
+    response:
+      input:
+        - name: message
+          type: string
+          required: true
+          error: message is required
+      output:
+        message: $input.message

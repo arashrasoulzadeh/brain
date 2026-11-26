@@ -1,3 +1,4 @@
+import { createManifestRequest } from "../sdk-typescript/src/index.js";
 import type { SubscriptionEvent } from "./types.js";
 
 export class InitialFetchWriter<T> {
@@ -68,3 +69,5 @@ export class SubscriptionEventReader<T> {
     return this.events.filter((event) => event.sequence > sequence).map((event) => ({ ...event }));
   }
 }
+
+export const subscriptionRequest = createManifestRequest("subscriptions", "channel");
