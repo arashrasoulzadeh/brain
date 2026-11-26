@@ -167,6 +167,9 @@ func (r *Registry) authorizeInvocationLocked(request WorkerRequest, observer boo
 	if !declared || !installation.Grants[route.Capability] {
 		return ErrGrantDenied
 	}
+	if !observer && !routeResourceAllowed(route, request.Payload, installation.Resources[route.Capability]) {
+		return ErrGrantDenied
+	}
 	for _, capability := range registered.Manifest.Capabilities {
 		if !installation.Grants[capability] {
 			return ErrGrantDenied

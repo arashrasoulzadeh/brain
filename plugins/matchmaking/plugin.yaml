@@ -42,18 +42,22 @@ routes:
     function: queue
     helper: sdk.dispatch
     capability: matchmaking.queue
+    resource_field: id
   - operation: matchmaking.cancel
     function: cancel
     helper: sdk.dispatch
     capability: matchmaking.cancel
+    resource_field: id
   - operation: matchmaking.status
     function: status
     helper: sdk.dispatch
     capability: matchmaking.status
+    resource_field: id
   - operation: matchmaking.assign
     function: assign
     helper: sdk.dispatch
     capability: matchmaking.assign
+    resource_field: id
 admin:
   version: 1
   pages:
