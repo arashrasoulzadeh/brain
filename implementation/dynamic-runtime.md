@@ -21,3 +21,5 @@ Second increment: fixes worker initialization order; adds typed pipeline SDK dec
 Third increment: host-only model routes with explicit schema versions, project/plugin/model isolation, bounded list pages, create/read/update/delete and declarative state transitions backed by SQLite compare-and-swap revisions. Model versions fail closed on mismatched stored records; migration tooling and PostgreSQL support remain open. Template example and registry integration test included.
 
 Fourth increment: production registry active-project resolver and generated admin model forms using declared schema and granted routes. The model dashboard is available on plugin settings pages for enabled installations. Go formatting corrections included; full CI still required.
+
+Fifth increment: per-invocation host snapshot carries verified active project, invocation ID, installation config and optional dependency availability; optional dependencies do not block installation. JSON integer config works through persistence. Dependency availability is a lifecycle snapshot, not authorization for a subsequent call.

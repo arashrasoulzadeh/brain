@@ -259,11 +259,13 @@ func (w *TypeScriptWorker) Handle(request WorkerRequest) WorkerResponse {
 		Method  string `json:"method"`
 		Params  struct {
 			WorkerRequest
-			Payload json.RawMessage `json:"payload"`
+			Payload     json.RawMessage    `json:"payload"`
+			HostContext *InvocationContext `json:"hostContext,omitempty"`
 		} `json:"params"`
 	}{JSONRPC: "2.0", ID: request.Operation, Method: "invoke"}
 	message.Params.WorkerRequest = request
 	message.Params.Payload = json.RawMessage(request.Payload)
+	message.Params.HostContext = request.HostContext
 	data, err := json.Marshal(message)
 	if err != nil {
 		return WorkerResponse{Protocol: request.Protocol, ErrorCode: err.Error()}

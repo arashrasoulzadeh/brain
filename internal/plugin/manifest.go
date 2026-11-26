@@ -10,23 +10,24 @@ import (
 )
 
 type Manifest struct {
-	Title           string               `yaml:"title"`
-	Description     string               `yaml:"description"`
-	ID              string               `yaml:"id"`
-	Entry           string               `yaml:"entrypoint"`
-	Version         string               `yaml:"version"`
-	HostAPI         int                  `yaml:"host_api"`
-	Dependencies    []string             `yaml:"dependencies"`
-	Capabilities    []string             `yaml:"capabilities"`
-	ExtensionPoints []string             `yaml:"extension_points"`
-	ConfigSchema    map[string]string    `yaml:"config_schema"`
-	Routes          []Route              `yaml:"routes"`
-	SourceFiles     []string             `yaml:"source_files"`
-	Imports         []string             `yaml:"imports"`
-	PluginImports   []string             `yaml:"plugin_imports"`
-	Events          []EventSpec          `yaml:"events"`
-	Observers       []ObserverSpec       `yaml:"observe"`
-	Models          map[string]ModelSpec `yaml:"models,omitempty"`
+	Title                string               `yaml:"title"`
+	Description          string               `yaml:"description"`
+	ID                   string               `yaml:"id"`
+	Entry                string               `yaml:"entrypoint"`
+	Version              string               `yaml:"version"`
+	HostAPI              int                  `yaml:"host_api"`
+	Dependencies         []string             `yaml:"dependencies"`
+	OptionalDependencies []string             `yaml:"optional_dependencies,omitempty"`
+	Capabilities         []string             `yaml:"capabilities"`
+	ExtensionPoints      []string             `yaml:"extension_points"`
+	ConfigSchema         map[string]string    `yaml:"config_schema"`
+	Routes               []Route              `yaml:"routes"`
+	SourceFiles          []string             `yaml:"source_files"`
+	Imports              []string             `yaml:"imports"`
+	PluginImports        []string             `yaml:"plugin_imports"`
+	Events               []EventSpec          `yaml:"events"`
+	Observers            []ObserverSpec       `yaml:"observe"`
+	Models               map[string]ModelSpec `yaml:"models,omitempty"`
 }
 
 type Route struct {
@@ -96,7 +97,7 @@ func ValidateManifestContract(manifest Manifest) error {
 		}
 		declaredCapabilities[capability] = true
 	}
-	if !validModels(manifest.Models) {
+	if !validOptionalDependencies(manifest) || !validModels(manifest.Models) {
 		return ErrInvalidManifest
 	}
 	seenRoutes := map[string]bool{}

@@ -61,11 +61,14 @@ for await (const line of input) {
       if (!validEventPayload(spec, snapshot)) throw new Error("invalid observation fields");
       observations.push({ event, payload: snapshot });
     };
+    const hostContext = params.hostContext;
+    const available = new Set(Array.isArray(hostContext?.available) ? hostContext.available : []);
     const context = Object.freeze({
-      project: Object.freeze({ id: descriptor.projectId }),
+      project: Object.freeze({ id: descriptor.projectId, ...(hostContext?.projectVerified ? { active: true } : {}) }),
       plugin: Object.freeze({ id: descriptor.pluginId, version: descriptor.version }),
-      execution: Object.freeze({ operation: params.operation }),
-      plugins: Object.freeze({ observe: Object.freeze({ fire }) }),
+      execution: Object.freeze({ operation: params.operation, ...(hostContext?.invocationId ? { invocationId: hostContext.invocationId } : {}) }),
+      ...(hostContext ? { config: Object.freeze({ ...hostContext.config }) } : {}),
+      plugins: Object.freeze({ observe: Object.freeze({ fire }), has: (id) => typeof id === "string" && [...available].some((dependency) => dependency === id || dependency.split("@")[0] === id) }),
     });
     // Never accept a context supplied by the request or payload.
     request = { ...request, context };

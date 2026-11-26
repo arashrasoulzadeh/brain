@@ -87,6 +87,11 @@ func (r *Registry) invokeOnce(request WorkerRequest, observer bool) (WorkerRespo
 			return WorkerResponse{}, ErrInvalidWorkerRequest
 		}
 	}
+	hostContext, err := r.invocationContext(request, observer)
+	if err != nil {
+		return WorkerResponse{}, err
+	}
+	prepared.HostContext = hostContext
 	response, err := InvokeForProject(worker, prepared, r.HostAPI, request.ProjectID)
 	if err != nil || !response.Success || response.ErrorCode != "" {
 		return response, err

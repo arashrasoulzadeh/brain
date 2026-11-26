@@ -10,12 +10,13 @@ var ErrWorkerNotReady = errors.New("worker not ready")
 var ErrInvocationCredentialMismatch = errors.New("invocation credential does not match worker request")
 
 type WorkerRequest struct {
-	Protocol  int    `json:"protocol"`
-	ProjectID string `json:"projectId"`
-	PluginID  string `json:"pluginId"`
-	Version   string `json:"version"`
-	Operation string `json:"operation"`
-	Payload   []byte `json:"payload"`
+	Protocol    int                `json:"protocol"`
+	ProjectID   string             `json:"projectId"`
+	PluginID    string             `json:"pluginId"`
+	Version     string             `json:"version"`
+	Operation   string             `json:"operation"`
+	Payload     []byte             `json:"payload"`
+	HostContext *InvocationContext `json:"-"`
 }
 
 type WorkerResponse struct {

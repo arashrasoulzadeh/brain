@@ -16,13 +16,14 @@ export type RpcRequest = {
   context?: PluginContext;
 };
 
-export type ProjectContext = Readonly<{ id: string }>;
+export type ProjectContext = Readonly<{ id: string; active?: true }>;
 
 export type PluginContext = Readonly<{
   project: ProjectContext;
   plugin: Readonly<{ id: string; version: string }>;
-  execution: Readonly<{ operation: string }>;
-  plugins: Readonly<{ observe: Readonly<{ fire(event: string, payload: Readonly<Record<string, string | number | boolean>>): void }> }>;
+  execution: Readonly<{ operation: string; invocationId?: string }>;
+  config?: Readonly<Record<string, string | number | boolean>>;
+  plugins: Readonly<{ has?: (id: string) => boolean; observe: Readonly<{ fire(event: string, payload: Readonly<Record<string, string | number | boolean>>): void }> }>;
 }>;
 
 export type Observation<T = unknown> = Readonly<{ projectId: string; pluginId: string; version: string; event: string; payload: T }>;

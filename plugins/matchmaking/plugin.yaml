@@ -19,6 +19,7 @@ imports:
 plugin_imports:
   - rooms@0.1.0
 dependencies:
+optional_dependencies: [rooms@0.1.0]
 capabilities:
   - matchmaking.queue
   - matchmaking.cancel
