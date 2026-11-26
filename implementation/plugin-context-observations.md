@@ -44,3 +44,5 @@ Each row requires context and relevant sanitized domain events, focused tests an
 - Invites: operator route adapters added with host project context, random identifiers, bounded TTL, replay/cancellation checks, and sanitized lifecycle observations. Client actor authorization and durable invitation storage are still open.
 
 - Dashboard: declared host-only admin routes (never executable in workers); authenticated project lifecycle actions publish sanitized host observations after success. Global readiness and inactive-project actions are not delivered to project workers. Host-origin schemas prevent worker spoofing.
+
+- Subscriptions: operator-only open/receive/resync/close adapters for the real `rooms.connected` observation stream, with bounded retention, project/channel-bound polling tickets and sanitized open/close events. Existing WebSocket actor authorization and record-change channel integration remain separate unfinished work.

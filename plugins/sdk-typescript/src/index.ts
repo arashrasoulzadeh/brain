@@ -45,7 +45,7 @@ export type PluginRoute = {
   operation: string;
   function: string;
   capability: string;
-  helper?: "sdk.dispatch" | "sdk.request" | "sdk.response" | "sdk.context";
+  helper?: "sdk.dispatch" | "sdk.request" | "sdk.response" | "sdk.context" | "host.admin";
   response?: DeclarativeResponse;
 };
 
