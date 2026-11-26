@@ -1,5 +1,10 @@
-export { roomRequest } from "./routes.js";
-export { projectRoomID } from "./directory.js";
+export {
+  roomRequest, RoomRouteStore, roomRouteStore, create, join, reconnect, result,
+  dispatchRoute,
+} from "./routes.js";
+export {
+  projectRoomID, createRoomDirectory, canTransitionRoom, validateMembership,
+} from "./directory.js";
 export type PlayerSlot = { playerId: string; slot: number };
 export type RoomState = "waiting" | "matching" | "active" | "finished" | "closed";
 export type Room = {
@@ -35,32 +40,18 @@ export type TicTacToeState = {
   turnDeadlineAt?: number;
 };
 export type CommittedTicTacToeMove = { revision: number; playerId: string; cell: number };
-export { authorizedRoomSnapshot } from "./access.js";
-export { authorizeRoomCommand } from "./access.js";
-export { ConnectionTicketIssuer } from "./access.js";
-export { ConnectionTicketConsumer } from "./access.js";
-export { createRoomDirectory } from "./directory.js";
-export { canTransitionRoom } from "./directory.js";
-export { validateMembership } from "./directory.js";
-export { initializeTicTacToe } from "./gameplay.js";
-export { validateTicTacToeMove } from "./gameplay.js";
-export { expireTicTacToeTurn } from "./recovery.js";
-export { ticTacToeWinner } from "./gameplay.js";
-export { ticTacToeDraw } from "./gameplay.js";
-export { validateTicTacToeRuleResult } from "./gameplay.js";
-export { pauseTicTacToeTurn } from "./recovery.js";
-export { resumePausedTicTacToeTurn } from "./recovery.js";
-export { reconstructTicTacToeHistory } from "./recovery.js";
-export { TIC_TAC_TOE_RULES_SOURCE, publishTicTacToeRules } from "./gameplay.js";
-export { authorizedTicTacToeState } from "./access.js";
-export { authorizeTicTacToeCommand } from "./access.js";
-export { CommandDeduplicator } from "./access.js";
-export { validateTicTacToeCommandPayload } from "./access.js";
-export { createTicTacToeCoordinator } from "./gameplay.js";
-export { TicTacToeRevisionReader } from "./gameplay.js";
-export { TicTacToeMover } from "./gameplay.js";
-export { serializeTicTacToeState } from "./recovery.js";
-export { reconnectTicTacToe } from "./recovery.js";
-export { hiddenTicTacToeView } from "./recovery.js";
-export { RoomRouteStore, roomRouteStore } from "./routes.js";
-export { create, join, reconnect, result, dispatchRoute } from "./routes.js";
+export {
+  authorizedRoomSnapshot, authorizeRoomCommand, ConnectionTicketIssuer,
+  ConnectionTicketConsumer, authorizedTicTacToeState, authorizeTicTacToeCommand,
+  CommandDeduplicator, validateTicTacToeCommandPayload,
+} from "./access.js";
+export {
+  initializeTicTacToe, validateTicTacToeMove, ticTacToeWinner, ticTacToeDraw,
+  validateTicTacToeRuleResult, TIC_TAC_TOE_RULES_SOURCE, publishTicTacToeRules,
+  createTicTacToeCoordinator, TicTacToeRevisionReader, TicTacToeMover,
+} from "./gameplay.js";
+export {
+  expireTicTacToeTurn, pauseTicTacToeTurn, resumePausedTicTacToeTurn,
+  reconstructTicTacToeHistory, serializeTicTacToeState, reconnectTicTacToe,
+  hiddenTicTacToeView,
+} from "./recovery.js";

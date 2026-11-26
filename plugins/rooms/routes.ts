@@ -1,6 +1,6 @@
-import { createResourceRequest, createOperationRoutes, requiredString, trimmedString } from "../sdk-typescript/src/index.js";
+import { createManifestRequest, createOperationRoutes, requiredString, trimmedString } from "../sdk-typescript/src/index.js";
 
-export const roomRequest = createResourceRequest<"rooms.create" | "rooms.join" | "rooms.reconnect" | "rooms.result">("rooms", "roomId");
+export const roomRequest = createManifestRequest("rooms", "roomId");
 
 type Room = { id: string; members: string[]; result?: unknown };
 export class RoomRouteStore {

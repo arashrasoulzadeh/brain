@@ -1,4 +1,4 @@
-import { consumeOnce, expiresAt, createResourceRequest, validateProjectId } from "../sdk-typescript/src/index.js";
+import { consumeOnce, expiresAt, createManifestRequest, validateProjectId } from "../sdk-typescript/src/index.js";
 
 export type Invite = {
   id: string;
@@ -71,4 +71,4 @@ export class InviteCodeAccepter {
   }
 }
 
-export const inviteRequest = createResourceRequest<"invites.create" | "invites.accept" | "invites.cancel">("invites", "roomId");
+export const inviteRequest = createManifestRequest("invites", "roomId");

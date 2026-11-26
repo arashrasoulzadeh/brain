@@ -1,6 +1,6 @@
-import { createResourceRequest, createRouteDispatcher, requiredString } from "../sdk-typescript/src/index.js";
+import { createManifestRequest, createRouteDispatcher, requiredString } from "../sdk-typescript/src/index.js";
 
-export const dataRequest = createResourceRequest<"tables.read" | "tables.write" | "tables.schema">("tables", "table");
+export const dataRequest = createManifestRequest("tables", "table");
 
 type TableRecord = Record<string, unknown>;
 

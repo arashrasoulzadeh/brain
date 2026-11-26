@@ -1,30 +1,21 @@
-export { dataRequest } from "./routes.js";
-export { projectSchemaName } from "./access.js";
-export { projectRoleName } from "./access.js";
-export { RowPolicyGranter } from "./access.js";
-export { RowPolicyChecker } from "./access.js";
-export { TableExposureWriter } from "./access.js";
-export { TableExposureReader } from "./access.js";
-export type { TableExposure } from "./access.js";
-export { requirePrimaryKey } from "./schema.js";
-export { validateColumnTypes } from "./schema.js";
-export { projectRow } from "./access.js";
-export { validateFilter } from "./records.js";
-export { paginate } from "./records.js";
+export { dataRequest, read, write, schema, dispatchRoute, TableStore, tableStore } from "./routes.js";
+export {
+  projectSchemaName, projectRoleName, RowPolicyGranter, RowPolicyChecker,
+  TableExposureWriter, TableExposureReader, type TableExposure, projectRow,
+} from "./access.js";
+export {
+  requirePrimaryKey, validateColumnTypes, type SchemaChange, type SchemaChangePlan,
+  type SchemaPublication, planSchemaChange, previewSchemaSQL, requireRecentSchemaAuth,
+  createSchemaPublicationAudit,
+} from "./schema.js";
+export {
+  validateFilter, paginate, validateValue, createVersionedRecord, IdempotentCreateStore,
+} from "./records.js";
 export { validateIdentifier } from "../sdk-typescript/src/index.js";
-export { validateValue } from "./records.js";
-export { createVersionedRecord } from "./records.js";
-export { IdempotentCreateStore } from "./records.js";
-export type { SchemaChange, SchemaChangePlan, SchemaPublication } from "./schema.js";
-export { planSchemaChange } from "./schema.js";
-export { previewSchemaSQL } from "./schema.js";
-export { requireRecentSchemaAuth } from "./schema.js";
-export { createSchemaPublicationAudit } from "./schema.js";
-export { createTransactionalChangeCapture } from "./capture.js";
-export { createApiChangeCapture } from "./capture.js";
-export { createDirectSQLChangeCapture } from "./capture.js";
-export { read, write, schema, dispatchRoute } from "./routes.js";
-export { TableStore, tableStore } from "./routes.js";
+export {
+  createTransactionalChangeCapture, createApiChangeCapture,
+  createDirectSQLChangeCapture,
+} from "./capture.js";
 export type RowChange<T> = { projectId: string; table: string; oldValue: T; newValue: T };
 export type ScopedRowChange<T> = RowChange<T> & {
   oldScope: readonly string[];

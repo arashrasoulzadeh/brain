@@ -1,3 +1,3 @@
-import { createResourceRequest } from "../sdk-typescript/src/index.js";
+import { createManifestRequest } from "../sdk-typescript/src/index.js";
 
-export const subscriptionRequest = createResourceRequest<"subscriptions.open" | "subscriptions.receive" | "subscriptions.resync">("subscriptions", "channel");
+export const subscriptionRequest = createManifestRequest("subscriptions", "channel");

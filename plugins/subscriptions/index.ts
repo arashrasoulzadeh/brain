@@ -1,16 +1,11 @@
-export { SubscriptionGrantStore } from "./authorization.js";
-export { SubscriptionAuthorization } from "./authorization.js";
-export { SubscriptionOwnerInvalidator } from "./authorization.js";
-export { InitialFetchWriter } from "./stream.js";
-export { InitialFetchCompleter } from "./stream.js";
-export { SlowConsumerPusher } from "./stream.js";
-export { SlowConsumerShifter } from "./stream.js";
-export { SlowConsumerSize } from "./stream.js";
-export { validateBrowserOrigin } from "./authorization.js";
-export { SubscriptionEventAppender } from "./stream.js";
-export { SubscriptionEventReader } from "./stream.js";
+export {
+  SubscriptionGrantStore, SubscriptionAuthorization, SubscriptionOwnerInvalidator,
+  validateBrowserOrigin, SubscriptionTicketIssuer, SubscriptionTicketValidator,
+  SubscriptionTicketConsumer,
+} from "./authorization.js";
+export {
+  InitialFetchWriter, InitialFetchCompleter, SlowConsumerPusher, SlowConsumerShifter,
+  SlowConsumerSize, SubscriptionEventAppender, SubscriptionEventReader,
+} from "./stream.js";
 export { subscriptionRequest } from "./subscription-request.js";
-export { SubscriptionTicketIssuer } from "./authorization.js";
-export { SubscriptionTicketValidator } from "./authorization.js";
-export { SubscriptionTicketConsumer } from "./authorization.js";
-export type { SubscriptionEvent, SubscriptionTicket } from "./types.js";
+export { type SubscriptionEvent, type SubscriptionTicket } from "./types.js";

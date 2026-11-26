@@ -1,6 +1,6 @@
-import { createResourceRequest, createOperationRoutes, requiredString } from "../sdk-typescript/src/index.js";
+import { createManifestRequest, createOperationRoutes, requiredString } from "../sdk-typescript/src/index.js";
 
-export const matchmakingRequest = createResourceRequest<"matchmaking.queue" | "matchmaking.cancel" | "matchmaking.status" | "matchmaking.assign">("matchmaking", "config");
+export const matchmakingRequest = createManifestRequest("matchmaking", "config");
 
 type Ticket = { id: string; status: "queued" | "cancelled" | "assigned" };
 export class MatchmakingRouteStore {

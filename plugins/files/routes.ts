@@ -1,6 +1,6 @@
-import { createResourceRequest, createOperationRoutes, requiredString } from "../sdk-typescript/src/index.js";
+import { createManifestRequest, createOperationRoutes, requiredString } from "../sdk-typescript/src/index.js";
 
-export const fileRequest = createResourceRequest<"files.upload" | "files.download" | "files.metadata" | "files.publish">("files", "objectId");
+export const fileRequest = createManifestRequest("files", "objectId");
 
 type FileRecord = { key: string; data: string; published: boolean };
 
