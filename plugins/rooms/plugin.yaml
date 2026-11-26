@@ -59,6 +59,11 @@ admin:
     - id: operations
       title: Room details
       legacy_route: live-sessions
+      inventory:
+        kind: state_keys
+        capability: rooms.result
+        title: Rooms
+        select_field: id
       refresh_on:
         - rooms.connected
       actions:

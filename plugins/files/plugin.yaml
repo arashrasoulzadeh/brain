@@ -52,6 +52,11 @@ admin:
     - id: operations
       title: Files
       legacy_route: files
+      inventory:
+        kind: file_keys
+        capability: files.metadata
+        title: Files
+        select_field: key
       actions:
         - title: File metadata
           operation: files.metadata
