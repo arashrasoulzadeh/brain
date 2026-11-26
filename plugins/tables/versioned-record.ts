@@ -1,15 +1,15 @@
-import { createVersionedRecordState } from "./versioned-record-state.js";
-import { VersionedRecordReader } from "./versioned-record-reader.js";
-import { VersionedRecordUpdater } from "./versioned-record-updater.js";
 export function createVersionedRecord<T extends Record<string, unknown>>(value: T) {
-  const state = createVersionedRecordState(value);
-  const reader = new VersionedRecordReader(state);
-  const updater = new VersionedRecordUpdater(state);
+  let current = { ...value };
+  let version = 0;
   return {
-    get version() {
-      return state.version;
+    get version() { return version; },
+    read(): { value: T; version: number } {
+      return { value: { ...current }, version };
     },
-    read: reader.read.bind(reader),
-    update: updater.update.bind(updater),
+    update(expectedVersion: number, next: T): void {
+      if (expectedVersion !== version) throw new Error("stale record version");
+      current = { ...next };
+      version += 1;
+    },
   };
 }

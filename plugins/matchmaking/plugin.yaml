@@ -5,6 +5,7 @@ version: 0.1.0
 host_api: 1
 entrypoint: index.ts
 source_files:
+  - routes.ts
   - index.ts
   - types.ts
   - validate-config.ts
@@ -26,11 +27,8 @@ source_files:
   - resume-project-assignments.ts
   - is-project-assignments-paused.ts
   - matchmaking-route-store.ts
-  - matchmaking-queue-route.ts
-  - matchmaking-cancel-route.ts
-  - matchmaking-status-route.ts
-  - matchmaking-assign-route.ts
 imports:
+  - ./routes.js
   - ../sdk-typescript/src/index.js
   - ./matchmaking-config-writer.js
   - ./matchmaking-config-reader.js
@@ -52,10 +50,6 @@ imports:
   - ./validate-config.js
   - ./types.js
   - ./matchmaking-route-store.js
-  - ./matchmaking-queue-route.js
-  - ./matchmaking-cancel-route.js
-  - ./matchmaking-status-route.js
-  - ./matchmaking-assign-route.js
 plugin_imports:
   - rooms@0.1.0
 dependencies:
@@ -73,13 +67,17 @@ config_schema:
 routes:
   - operation: matchmaking.queue
     function: queue
+    helper: sdk.dispatch
     capability: matchmaking.queue
   - operation: matchmaking.cancel
     function: cancel
+    helper: sdk.dispatch
     capability: matchmaking.cancel
   - operation: matchmaking.status
     function: status
+    helper: sdk.dispatch
     capability: matchmaking.status
   - operation: matchmaking.assign
     function: assign
+    helper: sdk.dispatch
     capability: matchmaking.assign

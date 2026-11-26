@@ -1,19 +1,31 @@
-import type { PluginFunction } from "../sdk-typescript/src/index.js";
+import { createRequestDispatcher, type PluginFunction } from "../sdk-typescript/src/index.js";
 import { createAuthOperations } from "./create-auth-operations.js";
-import { authGuestFunction } from "./auth-guest-function.js";
-import { authSessionFunction } from "./auth-session-function.js";
-import { authSigninFunction } from "./auth-signin-function.js";
-import { authSignupFunction } from "./auth-signup-function.js";
 
 export type AuthOperations = ReturnType<typeof createAuthOperations>;
+
+// One service instance per worker; project identity comes from its validated RPC request.
+export const dispatchRequest = createRequestDispatcher(functions());
 
 export function functions(
   service: AuthOperations = createAuthOperations(),
 ): Readonly<Record<string, PluginFunction>> {
   return {
-    signup: authSignupFunction(service),
-    signin: authSigninFunction(service),
-    session: authSessionFunction(service),
-    guest: authGuestFunction(service),
+    signup: (rpc) => {
+      const payload = rpc.params.payload as Record<string, string> | undefined;
+      return service.signup(rpc.params.projectId, payload?.username ?? "", payload?.password ?? "");
+    },
+    signin: (rpc) => {
+      const payload = rpc.params.payload as Record<string, string> | undefined;
+      return service.signin(
+        rpc.params.projectId,
+        payload?.username ?? payload?.provider ?? "",
+        payload?.password ?? String(payload?.credential ?? ""),
+      );
+    },
+    session: (rpc) => {
+      const payload = rpc.params.payload as Record<string, string> | undefined;
+      return service.session(rpc.params.projectId, payload?.token ?? "");
+    },
+    guest: (rpc) => service.guest(rpc.params.projectId),
   };
 }

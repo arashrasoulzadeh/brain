@@ -25,7 +25,7 @@ plugins/<plugin-id>/
   plugin.yaml
 ```
 
-`plugin.yaml` is authoritative for title, description, version, routes, functions, capabilities, source files, imports, and plugin dependencies. Every source and runtime import must be declared. `index.ts` is the public boundary; focused files own one callable responsibility.
+`plugin.yaml` is authoritative for title, description, version, routes, functions, capabilities, source files, imports, and plugin dependencies. Every source and runtime import must be declared. `index.ts` is the public boundary; cohesive modules own related responsibilities and reuse shared SDK helpers.
 
 The Go host does not implement product capabilities. Keep product behavior in `plugins/<plugin-id>/`; keep Go host changes limited to shared infrastructure, lifecycle, permissions, storage primitives, worker supervision, and versioned contracts.
 
@@ -104,3 +104,21 @@ sequenceDiagram
 # Cross-cutting UI and API changes
 
 Themes, UI kinds, API errors, warnings, informational messages, and toast behavior are project-wide contracts. Implement them in shared host/SDK/UI boundaries, then audit every plugin, function, class, API handler, admin page, client, manifest, and test fixture before marking the change complete. Keep one canonical response/message shape and add a cross-surface regression test.
+
+## Shared TypeScript plugin SDK
+
+Plugin manifests may select the allowlisted route helper `sdk.dispatch`:
+
+```yaml
+routes:
+  - operation: files.metadata
+    function: metadata
+    helper: sdk.dispatch
+    capability: files.metadata
+```
+
+The host validates the helper name and route capability, carries the helper into the execution descriptor, and checks the request's project, plugin, version, and declared operation before dispatch. The plugin exports `dispatchRoute` from its entrypoint. Use `createRouteDispatcher` for named domain handlers or `createOperationRoutes` for several operations with the same implementation boundary. For a handler that needs the host-validated RPC context (such as Auth), select `helper: sdk.request` and export `dispatchRequest` built with `createRequestDispatcher`. Unknown helpers and handlers are rejected; YAML cannot import arbitrary modules or execute expressions. Existing routes without a helper continue to use their existing dispatch behavior.
+
+Use the SDK at `plugins/sdk-typescript/src/index.ts` for common string validation, project-partitioned in-memory maps, bounded retries, timeouts, and commit-time grant checks. Functions uses the same helpers. A project map is not an authorization mechanism; host-authenticated context and the permission broker remain authoritative. A timeout does not cancel the underlying task; worker supervision enforces execution limits.
+
+Keep cohesive operations in one domain module, remove unused wrapper files, update the manifest's source and import lists, and retain tests under the top-level `tests/` directory.

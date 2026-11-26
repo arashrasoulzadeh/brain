@@ -1,9 +1,25 @@
-import { createInvocationEffectsState } from "./invocation-effects-state.js";
-import { InvocationEffectsWriter } from "./invocation-effects-writer.js";
-import { InvocationEffectsReader } from "./invocation-effects-reader.js";
+import { createTransactionGate } from "../sdk-typescript/src/index.js";
+
 export function createInvocationEffects() {
-  const state = createInvocationEffectsState();
-  const writer = new InvocationEffectsWriter(state);
-  const reader = new InvocationEffectsReader(state);
-  return { begin: writer.begin.bind(writer), list: reader.list.bind(reader) };
+  const committed: unknown[] = [];
+  return {
+    begin() {
+      const staged: unknown[] = [];
+      const gate = createTransactionGate("invocation already finished");
+      return {
+        write(effect: unknown): void {
+          gate.ensureOpen();
+          staged.push(effect);
+        },
+        commit(success: boolean): void {
+          gate.finish(() => {
+            if (success) committed.push(...staged);
+          });
+        },
+      };
+    },
+    list(): unknown[] {
+      return [...committed];
+    },
+  };
 }

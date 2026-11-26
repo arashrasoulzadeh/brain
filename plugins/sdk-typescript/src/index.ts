@@ -27,6 +27,7 @@ export type PluginRoute = {
   operation: string;
   function: string;
   capability: string;
+  helper?: "sdk.dispatch" | "sdk.request";
 };
 
 export type HostInvoker = {
@@ -39,10 +40,9 @@ export type HostExecutionContext = {
 };
 
 export type PluginFunction = (request: RpcRequest) => unknown;
-export { createRouteHandler } from "./create-route-handler.js";
-export { createHostHandler } from "./create-host-handler.js";
-export { createFunctionHandler } from "./create-function-handler.js";
-export { request } from "./request.js";
-export { pluginRequest } from "./plugin-request.js";
-export { validateProjectId } from "./validate-project-id.js";
-export { validateIdentifier } from "./validate-identifier.js";
+export { createRouteHandler, createHostHandler, createFunctionHandler, createOperationRoutes, createRequestDispatcher, createRouteDispatcher } from "./routes.js";
+export { request, pluginRequest } from "./request.js";
+export { validateProjectId, validateIdentifier, requiredString, trimmedString } from "./validation.js";
+export type { PayloadHandler } from "./routes.js";
+export { createProjectMap } from "./project-store.js";
+export { commitWithGrant, createCommitRollback, createTransactionGate, runCappedRetries, runWithTimeout } from "./execution.js";

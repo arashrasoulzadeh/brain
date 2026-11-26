@@ -1,21 +1,35 @@
-import { createInvocationCommitState } from "./invocation-commit-state.js";
-import { InvocationCommitWriter } from "./invocation-commit-writer.js";
-import { InvocationCommitReader } from "./invocation-commit-reader.js";
-import { InvocationResultReader } from "./invocation-result-reader.js";
-import { InvocationExistenceReader } from "./invocation-existence-reader.js";
 export function createInvocationCommitStore() {
-  const state = createInvocationCommitState();
-  const writer = new InvocationCommitWriter(state);
-  const effects = new InvocationCommitReader(state);
-  const result = new InvocationResultReader(state);
-  const existence = new InvocationExistenceReader(state);
+  const records = new Map<string, unknown>();
+  const committedEffects: unknown[] = [];
+  let lifecycleRevision = 0;
   return {
-    commit: writer.commit.bind(writer),
-    effects: effects.effects.bind(effects),
-    result: result.result.bind(result),
-    has: existence.has.bind(existence),
-    setLifecycleRevision: (revision: number) => {
-      state.lifecycleRevision = revision;
+    commit(
+      idempotencyKey: string,
+      effects: readonly unknown[],
+      result: unknown,
+      success = true,
+      expectedRevision = lifecycleRevision,
+    ): unknown {
+      if (!idempotencyKey) throw new Error("idempotency key required");
+      if (records.has(idempotencyKey)) return records.get(idempotencyKey);
+      if (expectedRevision !== lifecycleRevision)
+        throw new Error("stale invocation lifecycle revision");
+      if (!success) throw new Error("invocation commit failed");
+      committedEffects.push(...effects);
+      records.set(idempotencyKey, result);
+      return result;
+    },
+    effects(): unknown[] {
+      return [...committedEffects];
+    },
+    result(idempotencyKey: string): unknown {
+      return records.get(idempotencyKey);
+    },
+    has(idempotencyKey: string): boolean {
+      return records.has(idempotencyKey);
+    },
+    setLifecycleRevision(revision: number): void {
+      lifecycleRevision = revision;
     },
   };
 }

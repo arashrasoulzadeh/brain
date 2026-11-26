@@ -1,4 +1,4 @@
-import { call } from "../../plugins/functions/call-route.js";
+import { call } from "../../plugins/functions/index.js";
 
 const accepted = call({
   name: "hello",

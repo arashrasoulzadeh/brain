@@ -5,6 +5,7 @@ version: 0.1.0
 host_api: 1
 entrypoint: index.ts
 source_files:
+  - routes.ts
   - index.ts
   - data-request.ts
   - project-schema-name.ts
@@ -21,24 +22,7 @@ source_files:
   - paginate.ts
   - validate-value.ts
   - versioned-record.ts
-  - versioned-record-state.ts
-  - versioned-record-reader.ts
-  - versioned-record-updater.ts
   - idempotent-create-store.ts
-  - schema-audit-state.ts
-  - schema-publication-recorder.ts
-  - schema-publication-reader.ts
-  - api-change-state.ts
-  - api-change-writer.ts
-  - api-change-reader.ts
-  - sql-change-state.ts
-  - sql-change-writer.ts
-  - sql-change-reader.ts
-  - transaction-change-state.ts
-  - transaction-change-writer.ts
-  - scoped-transaction-change-writer.ts
-  - transaction-change-reader.ts
-  - scoped-transaction-change-reader.ts
   - schema-types.ts
   - plan-schema-change.ts
   - preview-schema-sql.ts
@@ -47,11 +31,9 @@ source_files:
   - create-transactional-change-capture.ts
   - create-api-change-capture.ts
   - create-direct-sql-change-capture.ts
-  - tables-read.ts
-  - tables-write.ts
-  - tables-schema.ts
   - table-store.ts
 imports:
+  - ./routes.js
   - ../sdk-typescript/src/index.js
   - ./data-request.js
   - ./project-schema-name.js
@@ -68,24 +50,7 @@ imports:
   - ./paginate.js
   - ./validate-value.js
   - ./versioned-record.js
-  - ./versioned-record-state.js
-  - ./versioned-record-reader.js
-  - ./versioned-record-updater.js
   - ./idempotent-create-store.js
-  - ./schema-audit-state.js
-  - ./schema-publication-recorder.js
-  - ./schema-publication-reader.js
-  - ./api-change-state.js
-  - ./api-change-writer.js
-  - ./api-change-reader.js
-  - ./sql-change-state.js
-  - ./sql-change-writer.js
-  - ./sql-change-reader.js
-  - ./transaction-change-state.js
-  - ./transaction-change-writer.js
-  - ./scoped-transaction-change-writer.js
-  - ./transaction-change-reader.js
-  - ./scoped-transaction-change-reader.js
   - ./schema-types.js
   - ./plan-schema-change.js
   - ./preview-schema-sql.js
@@ -94,9 +59,6 @@ imports:
   - ./create-transactional-change-capture.js
   - ./create-api-change-capture.js
   - ./create-direct-sql-change-capture.js
-  - ./tables-read.js
-  - ./tables-write.js
-  - ./tables-schema.js
   - ./table-store.js
   - ./index.js
 plugin_imports:
@@ -112,10 +74,13 @@ config_schema:
 routes:
   - operation: tables.read
     function: read
+    helper: sdk.dispatch
     capability: tables.read
   - operation: tables.write
     function: write
+    helper: sdk.dispatch
     capability: tables.write
   - operation: tables.schema
     function: schema
+    helper: sdk.dispatch
     capability: tables.schema
