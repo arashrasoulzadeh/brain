@@ -7,38 +7,18 @@ entrypoint: index.ts
 source_files:
   - index.ts
   - types.ts
-  - project-request.ts
-  - admin-request.ts
+  - requests.ts
   - pages.ts
-  - host-owned-admin-view.ts
-  - project-overview-contribution.ts
-  - plugin-health-contribution.ts
-  - view-replacement-registry.ts
-  - validate-csrf-token.ts
-  - custom-admin-view.ts
-  - custom-view-origin.ts
-  - restricted-frame.ts
-  - validate-bridge-message.ts
-  - reject-sensitive-bridge-data.ts
-  - form-audit-recorder.ts
-  - form-audit-reader.ts
+  - views.ts
+  - bridge.ts
+  - audit.ts
 imports:
   - ../sdk-typescript/src/index.js
-  - ./admin-request.js
+  - ./requests.js
   - ./pages.js
-  - ./form-audit-recorder.js
-  - ./form-audit-reader.js
-  - ./host-owned-admin-view.js
-  - ./project-overview-contribution.js
-  - ./plugin-health-contribution.js
-  - ./view-replacement-registry.js
-  - ./validate-csrf-token.js
-  - ./custom-admin-view.js
-  - ./custom-view-origin.js
-  - ./restricted-frame.js
-  - ./validate-bridge-message.js
-  - ./reject-sensitive-bridge-data.js
-  - ./project-request.js
+  - ./audit.js
+  - ./views.js
+  - ./bridge.js
   - ./types.js
 plugin_imports:
 dependencies: []

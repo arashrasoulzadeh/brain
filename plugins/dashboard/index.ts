@@ -1,8 +1,8 @@
-export { adminRequest } from "./admin-request.js";
+export { adminRequest } from "./requests.js";
 export { adminPanel } from "./pages.js";
 export type { AdminPanelSection } from "./pages.js";
-export { FormAuditRecorder } from "./form-audit-recorder.js";
-export { FormAuditReader } from "./form-audit-reader.js";
+export { FormAuditRecorder } from "./audit.js";
+export { FormAuditReader } from "./audit.js";
 export { browserQuickstart } from "./pages.js";
 export { authSettingsPage } from "./pages.js";
 export { fileManagementPage } from "./pages.js";
@@ -17,7 +17,7 @@ export {
   pluginLifecycleRequest,
   pluginUninstallRequest,
   projectCreateRequest,
-} from "./project-request.js";
+} from "./requests.js";
 export { recordBrowserPage } from "./pages.js";
 export { recordEditPage } from "./pages.js";
 export { signupSettingsPage } from "./pages.js";
@@ -30,13 +30,13 @@ export type {
   SignupSettings,
   WorkflowSummary,
 } from "./types.js";
-export { hostOwnedAdminView } from "./host-owned-admin-view.js";
-export { projectOverviewContribution } from "./project-overview-contribution.js";
-export { pluginHealthContribution } from "./plugin-health-contribution.js";
-export { createViewReplacementRegistry } from "./view-replacement-registry.js";
-export { validateCsrfToken } from "./validate-csrf-token.js";
-export { customAdminView } from "./custom-admin-view.js";
-export { customViewOrigin } from "./custom-view-origin.js";
-export { restrictedFrame } from "./restricted-frame.js";
-export { validateBridgeMessage } from "./validate-bridge-message.js";
-export type { BridgeExecutionContext, BridgeMessage } from "./validate-bridge-message.js";
+export { hostOwnedAdminView } from "./views.js";
+export { projectOverviewContribution } from "./views.js";
+export { pluginHealthContribution } from "./views.js";
+export { createViewReplacementRegistry } from "./views.js";
+export { validateCsrfToken } from "./bridge.js";
+export { customAdminView } from "./views.js";
+export { customViewOrigin } from "./bridge.js";
+export { restrictedFrame } from "./bridge.js";
+export { validateBridgeMessage } from "./bridge.js";
+export type { BridgeExecutionContext, BridgeMessage } from "./bridge.js";

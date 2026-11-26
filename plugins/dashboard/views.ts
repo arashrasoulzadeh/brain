@@ -1,3 +1,30 @@
+import { validateProjectId } from "../sdk-typescript/src/index.js";
+
+export function hostOwnedAdminView(projectId: string) {
+  validateProjectId(projectId, "project identity required");
+  return {
+    kind: "host-admin-view",
+    projectId,
+    title: "Project administration",
+    trusted: true,
+  } as const;
+}
+
+export function projectOverviewContribution(projectId: string) {
+  validateProjectId(projectId, "project identity required");
+  return {
+    view: "project.overview",
+    projectId,
+    title: "Project overview",
+    replace: false,
+  } as const;
+}
+
+export function pluginHealthContribution(projectId: string) {
+  validateProjectId(projectId, "project identity required");
+  return { view: "plugin.health", projectId, title: "Plugin health", replace: false } as const;
+}
+
 export function createViewReplacementRegistry() {
   const replacements = new Map<string, string>();
   return {
@@ -28,4 +55,13 @@ export function createViewReplacementRegistry() {
       return { projectId, view, pluginId };
     },
   };
+}
+
+export function customAdminView(projectId: string) {
+  validateProjectId(projectId);
+  return {
+    contentType: "text/html",
+    projectId,
+    html: `<main data-project="${projectId}"><h1>Custom admin view</h1></main>`,
+  } as const;
 }

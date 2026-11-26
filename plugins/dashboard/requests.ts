@@ -1,5 +1,15 @@
 import { pluginRequest, type RpcRequest } from "../sdk-typescript/src/index.js";
 
+export function adminRequest(
+  projectId: string,
+  pluginId: string,
+  version: string,
+  operation: string,
+  payload: unknown,
+): RpcRequest {
+  return pluginRequest("dashboard", projectId, pluginId, version, operation, payload);
+}
+
 export function projectCreateRequest(pluginId: string, version: string, id: string): RpcRequest {
   return pluginRequest(
     "dashboard",
@@ -17,7 +27,7 @@ export function pluginPromoteRequest(
   pluginId: string,
   version: string,
 ): RpcRequest {
-  return adminRequest(projectId, "plugin.promote", pluginId, version);
+  return lifecycleRequest(projectId, "plugin.promote", pluginId, version);
 }
 
 export function pluginRollbackRequest(
@@ -25,7 +35,7 @@ export function pluginRollbackRequest(
   pluginId: string,
   version: string,
 ): RpcRequest {
-  return adminRequest(projectId, "plugin.rollback", pluginId, version);
+  return lifecycleRequest(projectId, "plugin.rollback", pluginId, version);
 }
 
 export function pluginDisablePreviewRequest(
@@ -33,7 +43,7 @@ export function pluginDisablePreviewRequest(
   pluginId: string,
   version: string,
 ): RpcRequest {
-  return adminRequest(projectId, "plugin.disable.preview", pluginId, version);
+  return lifecycleRequest(projectId, "plugin.disable.preview", pluginId, version);
 }
 
 export function pluginDisableApplyRequest(
@@ -41,7 +51,7 @@ export function pluginDisableApplyRequest(
   pluginId: string,
   version: string,
 ): RpcRequest {
-  return adminRequest(projectId, "plugin.disable.apply", pluginId, version);
+  return lifecycleRequest(projectId, "plugin.disable.apply", pluginId, version);
 }
 
 export function pluginLifecycleRequest(
@@ -50,7 +60,7 @@ export function pluginLifecycleRequest(
   pluginId: string,
   version: string,
 ): RpcRequest {
-  return adminRequest(projectId, operation, pluginId, version);
+  return lifecycleRequest(projectId, operation, pluginId, version);
 }
 
 export function pluginUninstallRequest(
@@ -58,10 +68,10 @@ export function pluginUninstallRequest(
   pluginId: string,
   version: string,
 ): RpcRequest {
-  return adminRequest(projectId, "plugin.uninstall", pluginId, version);
+  return lifecycleRequest(projectId, "plugin.uninstall", pluginId, version);
 }
 
-function adminRequest(
+function lifecycleRequest(
   projectId: string,
   operation: string,
   pluginId: string,
