@@ -70,7 +70,7 @@ export type HostExecutionContext = {
 
 export type PluginFunction = (request: RpcRequest) => unknown;
 export { createRouteHandler, createHostHandler, createFunctionHandler, createOperationRoutes, createRequestDispatcher, createRouteDispatcher } from "./routes.js";
-export { request, pluginRequest, createResourceRequest } from "./request.js";
+export { request, pluginRequest, createResourceRequest, createManifestRequest } from "./request.js";
 export { validateProjectId, validateIdentifier, requiredString, trimmedString, validateBoundedInteger, requireAllowedValues } from "./validation.js";
 export type { PayloadHandler } from "./routes.js";
 export { createProjectMap, createProjectSet, createProjectLeaseStore } from "./project-store.js";
@@ -80,3 +80,5 @@ export { createFixedWindowLimiter } from "./execution.js";
 
 export { consumeOnce, expiresAt, isActiveToken } from "./validation.js";
 export type { ExpiringToken } from "./validation.js";
+
+export type { ManifestOperation, ManifestOperations } from "./manifest-operations.generated.js";

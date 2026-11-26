@@ -1,4 +1,5 @@
 import type { RpcRequest, WorkerParams } from "./index.js";
+import type { ManifestOperations } from "./manifest-operations.generated.js";
 export function request(id: string, params: WorkerParams): RpcRequest {
   if (!id || !params.projectId || !params.pluginId || !params.version || !params.operation)
     throw new Error("invalid plugin request");
@@ -33,4 +34,8 @@ export function createResourceRequest<Operation extends string>(prefix: string, 
     prefix, projectId, pluginId, version, operation,
     { [field]: identity, ...(payload as Record<string, unknown>) }, identity,
   );
+}
+
+export function createManifestRequest<Id extends keyof ManifestOperations>(plugin: Id, field: string) {
+  return createResourceRequest<ManifestOperations[Id]>(plugin, field);
 }
