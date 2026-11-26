@@ -96,6 +96,9 @@ func (r *Registry) authorizeInvocation(request WorkerRequest) error {
 }
 
 func (r *Registry) authorizeInvocationLocked(request WorkerRequest) error {
+	if err := r.LifecycleStorageHealth(); err != nil {
+		return err
+	}
 	manifestKey := request.PluginID + "@" + request.Version
 	installation, installed := r.installations[request.ProjectID+":"+manifestKey]
 	if !installed {
@@ -130,6 +133,9 @@ func (r *Registry) StartWorker(projectID, id, version string) error {
 	defer r.readinessMu.RUnlock()
 	r.installationMu.RLock()
 	defer r.installationMu.RUnlock()
+	if err := r.LifecycleStorageHealth(); err != nil {
+		return err
+	}
 	installation, installed := r.installations[projectID+":"+id+"@"+version]
 	if !installed {
 		return ErrNotInstalled

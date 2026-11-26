@@ -104,6 +104,9 @@ func productionServer() (*app.Server, error) {
 	}
 	server := app.NewServerWithOperatorAdmin(admin.NewLifecycleServiceWithProjects(operators, registry, projects), operators, digest)
 	server.SetReadinessCheck(func(ctx context.Context) error {
+		if err := registry.LifecycleStorageHealth(); err != nil {
+			return err
+		}
 		if err := projects.CheckHealth(ctx); err != nil {
 			return err
 		}

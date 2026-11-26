@@ -1,6 +1,12 @@
 package plugin
 
-import "hash/fnv"
+import (
+	"errors"
+	"hash/fnv"
+	"maps"
+)
+
+var ErrLifecycleStorage = errors.New("plugin lifecycle storage unavailable")
 
 // RegistryStateStore is the persistence boundary for registry lifecycle metadata.
 type RegistryStateStore interface {
@@ -66,11 +72,61 @@ func (r *Registry) BindSQLiteStorage(storage *SQLiteStorage) error {
 	return nil
 }
 
-func (r *Registry) persistLifecycleState() {
-	if r.storage == nil {
-		return
+// LifecycleStorageHealth reports a failed lifecycle write without exposing
+// database errors to callers. Authorization remains closed until a full
+// lifecycle snapshot is saved successfully.
+func (r *Registry) LifecycleStorageHealth() error {
+	if r.storageFailed.Load() {
+		return ErrLifecycleStorage
 	}
-	_ = r.storage.SaveRegistryState(r.installations, r.readiness)
+	return nil
+}
+
+// FlushLifecycleState retries a complete snapshot after storage is restored.
+func (r *Registry) FlushLifecycleState() error {
+	r.readinessMu.RLock()
+	defer r.readinessMu.RUnlock()
+	r.installationMu.Lock()
+	defer r.installationMu.Unlock()
+	return r.persistLifecycleState()
+}
+
+func (r *Registry) persistLifecycleState() error {
+	if r.storage == nil {
+		return r.LifecycleStorageHealth()
+	}
+	if err := r.storage.SaveRegistryState(r.installations, r.readiness); err != nil {
+		r.storageFailed.Store(true)
+		return ErrLifecycleStorage
+	}
+	r.storageFailed.Store(false)
+	return nil
+}
+
+// cloneInstallation prevents tentative grant/configuration changes from
+// mutating the last known installation through shared map references.
+func cloneInstallation(i Installation) Installation {
+	i.Grants = maps.Clone(i.Grants)
+	i.Config = maps.Clone(i.Config)
+	i.Resources = maps.Clone(i.Resources)
+	for capability, resources := range i.Resources {
+		i.Resources[capability] = maps.Clone(resources)
+	}
+	return i
+}
+
+func (r *Registry) saveInstallationLocked(key string, candidate Installation) error {
+	previous, exists := r.installations[key]
+	r.installations[key] = candidate
+	if err := r.persistLifecycleState(); err != nil {
+		if exists {
+			r.installations[key] = previous
+		} else {
+			delete(r.installations, key)
+		}
+		return err
+	}
+	return nil
 }
 
 func (r *Registry) SaveDurableData(projectID, pluginID, key string, value []byte) error {

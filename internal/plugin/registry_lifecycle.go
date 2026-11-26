@@ -84,24 +84,34 @@ func (r *Registry) Enable(projectID, id, version string) error {
 			return ErrGrantDenied
 		}
 	}
-	i.Enabled = true
-	r.installations[key] = i
-	r.persistLifecycleState()
+	if err := r.LifecycleStorageHealth(); err != nil {
+		return err
+	}
+	r.workerMu.Lock()
+	defer r.workerMu.Unlock()
+	var started ContractWorker
 	if r.workerFactory != nil {
-		worker, err := r.workerFactory(projectID, id, version)
-		if err != nil {
-			i.Enabled = false
-			r.installations[key] = i
-			return err
+		existing := r.workers[key]
+		if existing == nil || !existing.Ready() {
+			worker, err := r.workerFactory(projectID, id, version)
+			if err != nil {
+				return err
+			}
+			if err := worker.Start(); err != nil {
+				return err
+			}
+			started = worker
 		}
-		if err := worker.Start(); err != nil {
-			i.Enabled = false
-			r.installations[key] = i
-			return err
+	}
+	i.Enabled = true
+	if err := r.saveInstallationLocked(key, i); err != nil {
+		if started != nil {
+			_ = started.Stop()
 		}
-		r.workerMu.Lock()
-		r.workers[key] = worker
-		r.workerMu.Unlock()
+		return err
+	}
+	if started != nil {
+		r.workers[key] = started
 	}
 	r.appendAudit(AuditEvent{Action: "enable", ProjectID: projectID, PluginID: id, Version: version})
 	return nil
