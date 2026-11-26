@@ -22,6 +22,7 @@ const routeHelpers = new Map([
 ]);
 if (descriptor.routes.some((route) => {
   if (route.helper === "sdk.response") return !validResponse(route.response);
+  if (route.helper === "sdk.context") return typeof plugin[route.function] !== "function";
   if (route.helper) {
     const helper = routeHelpers.get(route.helper);
     return !helper || typeof plugin[helper.exported] !== "function";
@@ -45,14 +46,23 @@ for await (const line of input) {
     if (params.pluginId !== descriptor.pluginId || params.version !== descriptor.version || params.projectId !== descriptor.projectId) {
       throw new Error("execution context mismatch");
     }
+    const context = Object.freeze({
+      project: Object.freeze({ id: descriptor.projectId }),
+      plugin: Object.freeze({ id: descriptor.pluginId, version: descriptor.version }),
+      execution: Object.freeze({ operation: params.operation }),
+    });
+    // Never accept a context supplied by the request or payload.
+    request = { ...request, context };
     const route = descriptor.routes.find((candidate) => candidate.operation === params.operation);
     if (!route) throw new Error("operation not declared in plugin manifest");
     const helper = routeHelpers.get(route.helper);
     const result = route.helper === "sdk.response"
-      ? mapResponse(route.response, params.payload)
+      ? mapResponse(route.response, params.payload, context)
+      : route.helper === "sdk.context"
+      ? await plugin[route.function](context, params.payload ?? null)
       : helper
-      ? await plugin[helper.exported](route.function, helper.input(request))
-      : typeof handler === "function" ? await handler(request) : await invokeDeclaredRoute(plugin, route.function, request);
+      ? await plugin[helper.exported](route.function, helper.input(request), context)
+      : typeof handler === "function" ? await handler(request, context) : await invokeDeclaredRoute(plugin, route.function, request);
     process.stdout.write(`${JSON.stringify({ jsonrpc: "2.0", id: request.id, result: { protocol: params.protocol, success: true, payload: result } })}\n`);
   } catch (error) {
     process.stdout.write(`${JSON.stringify({ jsonrpc: "2.0", id: request?.id ?? "", errorCode: error instanceof Error ? error.message : "plugin execution failed" })}\n`);
@@ -64,7 +74,7 @@ async function invokeDeclaredRoute(plugin, functionName, request) {
   if (typeof directExport === "function") return directExport(request.params.payload ?? null);
   const functionMap = typeof plugin.functions === "function" ? plugin.functions() : null;
   const mappedExport = functionMap?.[functionName];
-  if (functionMap && Object.hasOwn(functionMap, functionName) && typeof mappedExport === "function") return mappedExport(request);
+  if (functionMap && Object.hasOwn(functionMap, functionName) && typeof mappedExport === "function") return mappedExport(request, request.context);
   throw new Error(`declared plugin function is not exported: ${functionName}`);
 }
 
@@ -89,10 +99,10 @@ function validResponse(spec) {
   }
   return output.every(([key, value]) => responseKey(key) &&
     (value === null || typeof value === "boolean" || (typeof value === "number" && Number.isFinite(value)) ||
-      (typeof value === "string" && (!value.startsWith("$") || (value.startsWith("$input.") && names.has(value.slice(7)))))));
+      (typeof value === "string" && (!value.startsWith("$") || (value.startsWith("$input.") && names.has(value.slice(7))) || value === "$project.id" || value === "$plugin.id"))));
 }
 
-function mapResponse(spec, payload) {
+function mapResponse(spec, payload, context) {
   const values = new Map();
   for (const field of spec.input ?? []) {
     const raw = payload && typeof payload === "object" && Object.hasOwn(payload, field.name) ? payload[field.name] : undefined;
@@ -105,5 +115,6 @@ function mapResponse(spec, payload) {
     values.set(field.name, value);
   }
   return Object.fromEntries(Object.entries(spec.output).map(([key, value]) =>
-    [key, typeof value === "string" && value.startsWith("$input.") ? values.get(value.slice(7)) : value]));
+    [key, value === "$project.id" ? context.project.id : value === "$plugin.id" ? context.plugin.id :
+      typeof value === "string" && value.startsWith("$input.") ? values.get(value.slice(7)) : value]));
 }

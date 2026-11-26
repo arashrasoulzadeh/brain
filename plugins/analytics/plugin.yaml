@@ -20,5 +20,6 @@ event_fields:
   - players
 routes:
   - operation: analytics.capture
-    function: capture
+    function: captureForProject
+    helper: sdk.context
     capability: analytics.capture

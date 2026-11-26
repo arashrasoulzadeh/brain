@@ -12,7 +12,19 @@ export type RpcRequest = {
   id: string;
   method: "invoke";
   params: WorkerParams;
+  /** Injected by the trusted worker boundary; absent on serialized fixture requests. */
+  context?: PluginContext;
 };
+
+export type ProjectContext = Readonly<{ id: string }>;
+
+export type PluginContext = Readonly<{
+  project: ProjectContext;
+  plugin: Readonly<{ id: string; version: string }>;
+  execution: Readonly<{ operation: string }>;
+}>;
+
+export type ContextualPluginFunction = (context: PluginContext, input: unknown) => unknown;
 
 export type RpcResponse = {
   jsonrpc: "2.0";
@@ -21,13 +33,13 @@ export type RpcResponse = {
   errorCode?: string;
 };
 
-export type PluginHandler = (request: RpcRequest) => Promise<unknown> | unknown;
+export type PluginHandler = (request: RpcRequest, context?: PluginContext) => Promise<unknown> | unknown;
 
 export type PluginRoute = {
   operation: string;
   function: string;
   capability: string;
-  helper?: "sdk.dispatch" | "sdk.request" | "sdk.response";
+  helper?: "sdk.dispatch" | "sdk.request" | "sdk.response" | "sdk.context";
   response?: DeclarativeResponse;
 };
 
@@ -52,7 +64,7 @@ export type HostExecutionContext = {
   readonly invocationId: string;
 };
 
-export type PluginFunction = (request: RpcRequest) => unknown;
+export type PluginFunction = (request: RpcRequest, context?: PluginContext) => unknown;
 export { createRouteHandler, createHostHandler, createFunctionHandler, createOperationRoutes, createRequestDispatcher, createRouteDispatcher } from "./routes.js";
 export { request, pluginRequest, createResourceRequest } from "./request.js";
 export { validateProjectId, validateIdentifier, requiredString, trimmedString, validateBoundedInteger, requireAllowedValues } from "./validation.js";
