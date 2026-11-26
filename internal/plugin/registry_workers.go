@@ -65,6 +65,10 @@ func (r *Registry) UnbindWorker(projectID, id, version string) {
 // Invoke executes only an installed, ready, enabled and fully granted plugin.
 func (r *Registry) Invoke(request WorkerRequest) (WorkerResponse, error) {
 	response, err := r.invokeOnce(request, false)
+	return r.finishWorkerInvocation(request, response, err)
+}
+
+func (r *Registry) finishWorkerInvocation(request WorkerRequest, response WorkerResponse, err error) (WorkerResponse, error) {
 	intents := response.Observations
 	response.Observations = nil
 	// invokeOnce releases storage, installation and readiness locks before delivery.
@@ -75,6 +79,12 @@ func (r *Registry) Invoke(request WorkerRequest) (WorkerResponse, error) {
 }
 
 func (r *Registry) invokeOnce(request WorkerRequest, observer bool) (WorkerResponse, error) {
+	return r.invokeUsingWorker(request, observer, nil, nil)
+}
+
+// invokeUsingWorker is shared by installed workers and credential-bound external
+// workers. Only the trusted broker boundary can supply a worker override.
+func (r *Registry) invokeUsingWorker(request WorkerRequest, observer bool, override ContractWorker, commitGuard func() error) (WorkerResponse, error) {
 	if err := ValidateWorkerRequest(request, r.HostAPI); err != nil {
 		return WorkerResponse{}, err
 	}
@@ -90,9 +100,12 @@ func (r *Registry) invokeOnce(request WorkerRequest, observer bool) (WorkerRespo
 		return WorkerResponse{}, err
 	}
 	key := request.ProjectID + ":" + request.PluginID + "@" + request.Version
-	r.workerMu.RLock()
-	worker := r.workers[key]
-	r.workerMu.RUnlock()
+	worker := override
+	if worker == nil {
+		r.workerMu.RLock()
+		worker = r.workers[key]
+		r.workerMu.RUnlock()
+	}
 	if worker == nil || !worker.Ready() {
 		return WorkerResponse{}, ErrWorkerNotReady
 	}
@@ -128,6 +141,11 @@ func (r *Registry) invokeOnce(request WorkerRequest, observer bool) (WorkerRespo
 	}
 	if _, err := r.resolveProject(request.ProjectID); err != nil {
 		return WorkerResponse{}, err
+	}
+	if commitGuard != nil {
+		if err := commitGuard(); err != nil {
+			return WorkerResponse{}, err
+		}
 	}
 	var deliveries []observationDelivery
 	if atomicCommit != nil && !observer {

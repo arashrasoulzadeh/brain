@@ -54,3 +54,5 @@ Each row requires context and relevant sanitized domain events, focused tests an
 - Durable delivery: SQLite-backed bounded per-project queue, asynchronous host drain, stable event IDs, three attempts with backoff, reauthorization before delivery, and optional durable observer receipts. Analytics opts in to receipt persistence. Publisher mutation and queue enqueue are currently separate commits; a host crash between them can lose an event. Multi-host leasing and exactly-once side effects are not guaranteed.
 
 - SQLite-backed plugin mutations now commit their prepared storage effect and observation delivery inserts in one transaction. A failed outbox insert rolls back that durable mutation. Host-side admin/functions and in-memory domain effects still use post-commit enqueue; no transactional guarantee is claimed for those paths.
+
+- Credential-bound external workers now execute through the same registry authorization, prepared storage commit, and observation routing path as local workers. Actor authorization is rechecked at commit. Actual external gRPC transport remains a separate integration gap.

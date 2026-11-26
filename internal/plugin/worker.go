@@ -67,12 +67,14 @@ func InvokeWithCredential(broker *Broker, credential InvocationCredential, worke
 	if err := broker.CommitCredential(credential, now); err != nil {
 		return WorkerResponse{}, err
 	}
-	model, err := broker.Registry.resolveProject(credential.Call.ProjectID)
-	if err != nil {
-		return WorkerResponse{}, err
+	if worker == nil || broker.Registry == nil {
+		return WorkerResponse{}, ErrWorkerNotReady
 	}
-	request.Project = &model
-	return InvokeForProject(worker, request, protocol, credential.Call.ProjectID)
+	started := time.Now()
+	response, err := broker.Registry.invokeUsingWorker(request, false, worker, func() error {
+		return broker.Authorize(credential.Call, now.Add(time.Since(started)))
+	})
+	return broker.Registry.finishWorkerInvocation(request, response, err)
 }
 
 func ValidateWorkerRequest(request WorkerRequest, hostProtocol int) error {
