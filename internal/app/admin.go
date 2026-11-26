@@ -146,6 +146,7 @@ func AdminHandler(service *admin.LifecycleService) http.Handler {
 		}
 		var command adminCommand
 		decoder := json.NewDecoder(http.MaxBytesReader(w, r.Body, 64<<10))
+		decoder.UseNumber()
 		if err := decoder.Decode(&command); err != nil {
 			http.Error(w, "invalid admin command", http.StatusBadRequest)
 			return
@@ -177,6 +178,16 @@ func AdminHandler(service *admin.LifecycleService) http.Handler {
 		case "plugin.grant-resource":
 			err = service.GrantResource(actor, command.ProjectID, command.PluginID, command.Version, command.Capability, command.Resource)
 		case "plugin.configure":
+			for key, value := range command.Values {
+				if number, ok := value.(json.Number); ok {
+					integer, parseErr := number.Int64()
+					if parseErr != nil || int64(int(integer)) != integer {
+						http.Error(w, "invalid integer configuration", http.StatusBadRequest)
+						return
+					}
+					command.Values[key] = int(integer)
+				}
+			}
 			err = service.ConfigurePlugin(actor, command.ProjectID, command.PluginID, command.Version, command.Values)
 		case "plugin.admin.revision":
 			revision, revisionErr := service.AdminPageRevision(actor, command.PageID, admin.PluginInvocation{ProjectID: command.ProjectID, PluginID: command.PluginID, Version: command.Version})

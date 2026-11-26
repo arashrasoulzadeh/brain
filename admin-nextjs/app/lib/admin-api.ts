@@ -1,4 +1,5 @@
 const SESSION_KEY = "brain-admin-session";
+const PROJECT_KEY = "brain-admin-project";
 
 export function readAdminSession(): string {
   return window.sessionStorage.getItem(SESSION_KEY) ?? "";
@@ -10,7 +11,7 @@ export function saveAdminSession(token: string): void {
 
 export function clearAdminSession(): void {
   window.sessionStorage.removeItem(SESSION_KEY);
-  window.sessionStorage.removeItem("brain-admin-project");
+  window.sessionStorage.removeItem(PROJECT_KEY);
 }
 
 export function adminHeaders(token: string, extra: Record<string, string> = {}): Record<string, string> {
@@ -29,7 +30,6 @@ export async function signOutAdminSession(): Promise<void> {
 }
 
 // The selected project follows the operator session across admin routes.
-const PROJECT_KEY = "brain-admin-project";
 export function saveAdminProject(id: string): void {
   if (id) window.sessionStorage.setItem(PROJECT_KEY, id);
   else window.sessionStorage.removeItem(PROJECT_KEY);

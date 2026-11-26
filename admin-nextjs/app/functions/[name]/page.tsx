@@ -1,5 +1,5 @@
 "use client";
-import { adminHeaders, readAdminSession } from "../../lib/admin-api";
+import { adminHeaders, readAdminSession, preferredAdminProject } from "../../lib/admin-api";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -51,7 +51,7 @@ export default function FunctionDetailPage() {
     if (!projectsResponse.ok)
       throw new Error((await projectsResponse.text()) || "Could not load projects.");
     const projects = (await projectsResponse.json()) as { ID: string; Active: boolean }[];
-    const active = projects.find((candidate) => candidate.Active)?.ID ?? "";
+    const active = preferredAdminProject(projects)?.ID ?? "";
     setProject(active);
     if (!active) throw new Error("No active project selected.");
     const draftsResponse = await fetch(
@@ -96,7 +96,7 @@ export default function FunctionDetailPage() {
       .then(async (response) => {
         if (!response.ok) throw new Error("session expired");
         const projects = (await response.json()) as { ID: string; Active: boolean }[];
-        const active = projects.find((candidate) => candidate.Active)?.ID ?? "";
+        const active = preferredAdminProject(projects)?.ID ?? "";
         if (!active) throw new Error("no active project");
         const pluginsResponse = await fetch(
           `/api/admin/plugins?project_id=${encodeURIComponent(active)}`,

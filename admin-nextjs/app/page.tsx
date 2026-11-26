@@ -229,9 +229,14 @@ export default function AdminPage() {
       return;
     }
     const loadedProjects = await loadProjects(session);
-    if (selectedProjectID === project.ID && !active)
-      setSelectedProjectID(loadedProjects.find((candidate) => candidate.Active)?.ID ?? "");
-    await loadPlugins(session, active ? project.ID : "");
+    if (selectedProjectID === project.ID && !active) {
+      const next = loadedProjects.find((candidate) => candidate.Active)?.ID ?? "";
+      saveAdminProject(next);
+      setSelectedProjectID(next);
+      await loadPlugins(session, next);
+    } else {
+      await loadPlugins(session, selectedProjectID);
+    }
     await loadAudit(session);
   }
   function testPlayground() {
@@ -382,8 +387,10 @@ export default function AdminPage() {
       return;
     }
     const loadedProjects = await loadProjects(session);
-    setSelectedProjectID(loadedProjects.find((candidate) => candidate.Active)?.ID ?? "");
-    await loadPlugins(session, loadedProjects.find((candidate) => candidate.Active)?.ID ?? "");
+    const next = loadedProjects.find((candidate) => candidate.Active)?.ID ?? "";
+    saveAdminProject(next);
+    setSelectedProjectID(next);
+    await loadPlugins(session, next);
     await loadAudit(session);
   }
   async function runPluginAction(

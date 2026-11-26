@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { adminContributions, adminPageExtensions } from "../../admin-nextjs/app/lib/admin-registry.js";
+import { adminContributions, adminPageExtensions, adminLegacyContributions } from "../../admin-nextjs/app/lib/admin-registry.js";
 import type { AdminCatalog } from "../../admin-nextjs/app/lib/admin-registry.js";
 
 test("admin contributions require exact project, version, readiness and grants", () => {
@@ -9,6 +9,9 @@ test("admin contributions require exact project, version, readiness and grants",
     installations: [{ ProjectID: "one", PluginID: "custom", Version: "1", Enabled: true, Ready: true, Draining: false, Grants: ["read"] }],
   };
   assert.equal(adminContributions("one", catalog)[0].href, "/extensions/one/custom/1/list");
+  catalog.manifests![0].Admin!.pages[0].legacy_route = "records";
+  assert.equal(adminLegacyContributions("one", catalog, "records").length, 1);
+  assert.deepEqual(adminLegacyContributions("two", catalog, "records"), []);
   assert.deepEqual(adminContributions("two", catalog), []);
   const installation = catalog.installations![0];
   for (const change of [{ Version: "2" }, { Ready: false }, { Enabled: false }, { Draining: true }, { Grants: [] }]) {
