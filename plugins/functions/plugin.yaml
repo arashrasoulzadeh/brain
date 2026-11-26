@@ -3,56 +3,12 @@ entrypoint: index.ts
 source_files:
   - routes.ts
   - index.ts
-  - function-request.ts
-  - shared-helper-publisher.ts
-  - wasm-build-settings.ts
-  - validate-sdk-imports.ts
-  - validate-source-project.ts
-  - validate-build-overrides.ts
-  - validate-function-limits.ts
-  - invocation-types.ts
-  - validate-invocation-result.ts
-  - parse-invocation-result.ts
-  - execute-fixture.ts
-  - invoke-direct-https.ts
-  - function-input-validation.ts
-  - write-intent-validation.ts
-  - diagnostic-cap.ts
-  - validate-wasi-imports.ts
-  - validate-sandbox-capabilities.ts
-  - validate-execution-limits.ts
-  - reject-sandbox-escape.ts
-  - create-invocation-effects.ts
-  - create-invocation-commit-store.ts
-  - create-schedule-store.ts
-  - create-record-change-trigger-store.ts
-  - create-job-lease-store.ts
-  - create-approval-store.ts
-  - create-function-draft-store.ts
-  - create-function-publication-store.ts
-  - create-shared-package-store.ts
-  - run-idempotent-workflow.ts
-  - redact-run-status.ts
-  - validate-workflow-graph.ts
-  - evaluate-workflow-condition.ts
-  - diagnose-source.ts
-  - register-project-workflow-action.ts
-  - replace-project-workflow-step.ts
-  - authorize-project-workflow-action.ts
-  - authorize-deployment-plugin.ts
-  - create-deployment-hook-set.ts
-  - reject-plugin-credentials.ts
-  - reject-plugin-host-resources.ts
-  - validate-deployment-workflow.ts
-  - require-sdk-imports.ts
-  - validate-startup-duration.ts
-  - validate-stale-input-versions.ts
-  - disposable-compiler-workspace.ts
-  - compiler-environment.ts
-  - validate-compiler-environment.ts
-  - compiler-limits.ts
-  - create-invocation-request.ts
-  - retry-invocation.ts
+  - invocation.ts
+  - publication.ts
+  - compiler.ts
+  - sandbox.ts
+  - scheduling.ts
+  - workflow.ts
 imports:
   - ./routes.js
   - ../sdk-typescript/src/index.js
@@ -60,56 +16,12 @@ imports:
   - node:os
   - node:path
   - node:net
-  - ./function-request.js
-  - ./shared-helper-publisher.js
-  - ./wasm-build-settings.js
-  - ./validate-sdk-imports.js
-  - ./validate-source-project.js
-  - ./validate-build-overrides.js
-  - ./validate-function-limits.js
-  - ./invocation-types.js
-  - ./validate-invocation-result.js
-  - ./parse-invocation-result.js
-  - ./execute-fixture.js
-  - ./invoke-direct-https.js
-  - ./function-input-validation.js
-  - ./write-intent-validation.js
-  - ./diagnostic-cap.js
-  - ./validate-wasi-imports.js
-  - ./validate-sandbox-capabilities.js
-  - ./validate-execution-limits.js
-  - ./reject-sandbox-escape.js
-  - ./create-invocation-effects.js
-  - ./create-invocation-commit-store.js
-  - ./create-schedule-store.js
-  - ./create-record-change-trigger-store.js
-  - ./create-job-lease-store.js
-  - ./create-approval-store.js
-  - ./create-function-draft-store.js
-  - ./create-function-publication-store.js
-  - ./create-shared-package-store.js
-  - ./run-idempotent-workflow.js
-  - ./redact-run-status.js
-  - ./validate-workflow-graph.js
-  - ./evaluate-workflow-condition.js
-  - ./diagnose-source.js
-  - ./register-project-workflow-action.js
-  - ./replace-project-workflow-step.js
-  - ./authorize-project-workflow-action.js
-  - ./authorize-deployment-plugin.js
-  - ./create-deployment-hook-set.js
-  - ./reject-plugin-credentials.js
-  - ./reject-plugin-host-resources.js
-  - ./validate-deployment-workflow.js
-  - ./require-sdk-imports.js
-  - ./validate-startup-duration.js
-  - ./validate-stale-input-versions.js
-  - ./disposable-compiler-workspace.js
-  - ./compiler-environment.js
-  - ./validate-compiler-environment.js
-  - ./compiler-limits.js
-  - ./create-invocation-request.js
-  - ./retry-invocation.js
+  - ./invocation.js
+  - ./publication.js
+  - ./compiler.js
+  - ./sandbox.js
+  - ./scheduling.js
+  - ./workflow.js
   - ./index.js
 plugin_imports:
 title: Functions

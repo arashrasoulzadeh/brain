@@ -1,5 +1,0 @@
-export function validateSandboxCapabilities(capabilities: readonly string[]): void {
-  const denied = new Set(["filesystem", "network", "environment-credentials"]);
-  if (capabilities.some((capability) => denied.has(capability)))
-    throw new Error("sandbox capability denied");
-}
