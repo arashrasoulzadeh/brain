@@ -123,3 +123,54 @@ func (s *SQLiteStorage) Append(projectID, table string, row map[string]any) erro
 	_, err = s.db.Exec(`INSERT INTO plugin_table_rows(project_id, table_name, rows_json) VALUES (?, ?, ?) ON CONFLICT(project_id, table_name) DO UPDATE SET rows_json=excluded.rows_json`, projectID, table, string(encoded))
 	return err
 }
+
+
+// The two historical tables remain readable by the existing storage API.
+// Other plugin IDs receive independent namespaces; no manifest may select an
+// alternate plugin's namespace.
+func (s *SQLiteStorage) scopedFile(project, namespace, key string) (string, bool, error) {
+	if namespace == "files" {
+		return s.File(project, key)
+	}
+	state, err := s.State(project, "@blob:"+namespace, key)
+	data, _ := state["data"].(string)
+	published, _ := state["published"].(bool)
+	return data, published, err
+}
+
+func (s *SQLiteStorage) putScopedFile(project, namespace, key, data string, published bool) error {
+	if namespace == "files" {
+		return s.PutFile(project, key, data, published)
+	}
+	return s.PutState(project, "@blob:"+namespace, key, map[string]any{"data": data, "published": published})
+}
+
+func (s *SQLiteStorage) scopedRows(project, namespace, key string) ([]map[string]any, error) {
+	if namespace == "tables" {
+		return s.Rows(project, key)
+	}
+	state, err := s.State(project, "@rows:"+namespace, key)
+	if err != nil {
+		return nil, err
+	}
+	rows := []map[string]any{}
+	if values, ok := state["rows"].([]any); ok {
+		for _, value := range values {
+			if row, ok := value.(map[string]any); ok {
+				rows = append(rows, row)
+			}
+		}
+	}
+	return rows, nil
+}
+
+func (s *SQLiteStorage) appendScopedRow(project, namespace, key string, row map[string]any) error {
+	if namespace == "tables" {
+		return s.Append(project, key, row)
+	}
+	rows, err := s.scopedRows(project, namespace, key)
+	if err != nil {
+		return err
+	}
+	return s.PutState(project, "@rows:"+namespace, key, map[string]any{"rows": append(rows, row)})
+}

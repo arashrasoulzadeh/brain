@@ -34,15 +34,38 @@ routes:
     function: queue
     helper: sdk.dispatch
     capability: matchmaking.queue
+    storage:
+      action: state.create
+      key: id
+      target: ticket
+      values:
+        id: $input.id
+        status: queued
   - operation: matchmaking.cancel
     function: cancel
     helper: sdk.dispatch
     capability: matchmaking.cancel
+    storage:
+      action: state.patch
+      key: id
+      target: ticket
+      values:
+        status: cancelled
   - operation: matchmaking.status
     function: status
     helper: sdk.dispatch
     capability: matchmaking.status
+    storage:
+      action: state.read
+      key: id
+      target: ticket
   - operation: matchmaking.assign
     function: assign
     helper: sdk.dispatch
     capability: matchmaking.assign
+    storage:
+      action: state.patch
+      key: id
+      target: ticket
+      values:
+        status: assigned

@@ -22,3 +22,7 @@ routes:
   - operation: analytics.capture
     function: capture
     capability: analytics.capture
+    storage:
+      action: state.append
+      fixed_key: events
+      field: events

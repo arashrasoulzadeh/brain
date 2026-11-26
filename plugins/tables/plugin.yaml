@@ -34,10 +34,18 @@ routes:
     function: read
     helper: sdk.dispatch
     capability: tables.read
+    storage:
+      action: rows.read
+      key: table
+      target: rows
   - operation: tables.write
     function: write
     helper: sdk.dispatch
     capability: tables.write
+    storage:
+      action: rows.append
+      key: table
+      input: row
   - operation: tables.schema
     function: schema
     helper: sdk.dispatch

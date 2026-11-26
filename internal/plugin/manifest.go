@@ -32,6 +32,7 @@ type Route struct {
 	Capability string        `yaml:"capability"`
 	Helper     string        `yaml:"helper,omitempty"`
 	Response   *ResponseSpec `yaml:"response,omitempty"`
+	Storage    *StorageSpec  `yaml:"storage,omitempty"`
 }
 
 func LoadManifest(path string) (Manifest, error) {
@@ -97,6 +98,9 @@ func ValidateManifestContract(manifest Manifest) error {
 			return ErrInvalidManifest
 		}
 		if (route.Helper == "sdk.response" && !route.Response.valid()) || (route.Helper != "sdk.response" && route.Response != nil) {
+			return ErrInvalidManifest
+		}
+		if !route.Storage.valid() || (route.Storage != nil && !isValidProjectID(manifest.ID)) {
 			return ErrInvalidManifest
 		}
 		seenRoutes[route.Operation] = true

@@ -36,15 +36,40 @@ routes:
     function: create
     helper: sdk.dispatch
     capability: rooms.create
+    storage:
+      action: state.create
+      key: id
+      target: room
+      values:
+        id: $input.id
+        members: []
   - operation: rooms.join
     function: join
     helper: sdk.dispatch
     capability: rooms.join
+    storage:
+      action: state.add_unique
+      key: id
+      target: room
+      field: members
+      input: member
   - operation: rooms.reconnect
     function: reconnect
     helper: sdk.dispatch
     capability: rooms.reconnect
+    storage:
+      action: state.add_unique
+      key: id
+      target: room
+      field: members
+      input: member
   - operation: rooms.result
     function: result
     helper: sdk.dispatch
     capability: rooms.result
+    storage:
+      action: state.patch
+      key: id
+      target: room
+      field: result
+      input: result

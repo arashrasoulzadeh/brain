@@ -34,15 +34,33 @@ routes:
     function: upload
     helper: sdk.dispatch
     capability: files.upload
+    storage:
+      action: blob.put
+      key: key
+      input: data
   - operation: files.download
     function: download
     helper: sdk.dispatch
     capability: files.download
+    storage:
+      action: blob.read
+      key: key
+      target: data
+      field: published
   - operation: files.metadata
     function: metadata
     helper: sdk.dispatch
     capability: files.metadata
+    storage:
+      action: blob.read
+      key: key
+      target: data
+      field: published
   - operation: files.publish
     function: publish
     helper: sdk.dispatch
     capability: files.publish
+    storage:
+      action: blob.publish
+      key: key
+      target: published
