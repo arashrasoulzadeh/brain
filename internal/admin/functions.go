@@ -386,7 +386,7 @@ process.stdout.write(JSON.stringify({result:result??null,timings:{compile_ms:com
 } finally {clearTimeout(timer);}`
 	commandContext, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
-	command := exec.CommandContext(commandContext, "node", "--experimental-vm-modules", "--input-type=module", "-e", runner)
+	command := exec.CommandContext(commandContext, "node", "--no-warnings", "--experimental-vm-modules", "--input-type=module", "-e", runner)
 	command.Env = []string{"PATH=" + os.Getenv("PATH"), "BRAIN_FUNCTION_SOURCE=" + source, "BRAIN_FUNCTION_INPUT=" + string(input), "BRAIN_PROJECT_ID=" + projectID, "BRAIN_INVOCATION_ID=" + requestID, "BRAIN_PURE_HELPERS=" + pluginsdk.PureHelperSource}
 	executionStarted := time.Now()
 	output, err := command.CombinedOutput()

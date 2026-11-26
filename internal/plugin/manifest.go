@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"sort"
 	"strings"
 
 	"gopkg.in/yaml.v3"
@@ -150,7 +151,36 @@ func Documentation(m Manifest) string {
 	for _, route := range m.Routes {
 		fmt.Fprintf(&b, "- `%s` → `%s` (capability: `%s`)\n", route.Operation, route.Function, route.Capability)
 	}
+	if len(m.Models) > 0 {
+		b.WriteString("\n## Models\n\n")
+		for _, name := range sortedContractKeys(m.Models) {
+			model := m.Models[name]
+			fmt.Fprintf(&b, "### %s (schema %d)\n\n", name, model.Version)
+			for _, field := range sortedContractKeys(model.Fields) {
+				fmt.Fprintf(&b, "- `%s`: %s\n", field, model.Fields[field])
+			}
+			for _, action := range sortedContractKeys(model.Transitions) {
+				transition := model.Transitions[action]
+				fmt.Fprintf(&b, "- Transition `%s`: %s → %s\n", action, transition.From, transition.To)
+			}
+		}
+	}
+	if len(m.Events) > 0 {
+		b.WriteString("\n## Events\n\n")
+		for _, event := range m.Events {
+			fmt.Fprintf(&b, "- `%s`\n", event.Name)
+		}
+	}
 	return b.String()
+}
+
+func sortedContractKeys[V any](values map[string]V) []string {
+	keys := make([]string, 0, len(values))
+	for key := range values {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	return keys
 }
 
 type CapabilityRequest struct {

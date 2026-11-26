@@ -136,9 +136,17 @@ func prepareLegacyStorageRequest(storage *SQLiteStorage, request WorkerRequest) 
 		request.Payload, _ = json.Marshal(payload)
 		return request, commit, nil
 	}
-	if request.PluginID == "analytics" && request.Operation == "analytics.capture" {
+	if request.PluginID == "analytics" && (request.Operation == "analytics.capture" || request.Operation == "@observe/rooms/connected") {
 		var event map[string]any
 		if json.Unmarshal(request.Payload, &event) == nil {
+			if request.Operation == "@observe/rooms/connected" {
+				if event["projectId"] != request.ProjectID || event["pluginId"] != "rooms" || event["event"] != "connected" {
+					return request, nil, ErrInvalidWorkerRequest
+				}
+				event = map[string]any{"projectId": request.ProjectID, "name": "rooms.connected", "fields": event["payload"]}
+			} else {
+				event["projectId"] = request.ProjectID
+			}
 			state, err := storage.State(request.ProjectID, "analytics", "events")
 			if err != nil {
 				return request, nil, err
