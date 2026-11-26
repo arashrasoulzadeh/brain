@@ -29,11 +29,3 @@ routes:
   - operation: invites.cancel
     function: cancel
     capability: invites.cancel
-admin:
-  version: 1
-  pages:
-    - id: operations
-      title: Invitation operations
-      actions:
-        - title: cancel
-          operation: invites.cancel

@@ -1,4 +1,4 @@
-import type { AdminPage, PluginStatus, SystemManifest } from "./admin-types";
+import type { AdminPage, PluginStatus, SystemManifest } from "./admin-types.js";
 
 export type AdminContribution = { projectID: string; pluginID: string; version: string; page: AdminPage; href: string };
 export type AdminCatalog = { manifests: SystemManifest[] | null; installations: PluginStatus[] | null };
@@ -9,7 +9,7 @@ export function adminContributions(projectID: string, catalog: AdminCatalog): Ad
   for (const installation of catalog.installations ?? []) {
     if (installation.ProjectID !== projectID || !installation.Enabled || !installation.Ready || installation.Draining) continue;
     const manifest = catalog.manifests?.find(item => item.ID === installation.PluginID && item.Version === installation.Version);
-    if (manifest?.Admin?.version !== 1) continue;
+    if (manifest?.Admin?.version !== 1 || !manifest.Capabilities.every(capability => installation.Grants?.includes(capability))) continue;
     for (const page of manifest.Admin.pages) {
       const actions = page.actions.filter(action => {
         const route = manifest.Routes?.find(item => item.Operation === action.operation);

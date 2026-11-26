@@ -179,14 +179,7 @@ func (s *LifecycleService) InvokeAdminPage(actor operator.Actor, pageID string, 
 		if s.projects == nil || invocation.ProjectID == "" {
 			return operator.ErrInvalidOperatorAction
 		}
-		active := false
-		for _, p := range s.projects.List() {
-			if p.ID == invocation.ProjectID && p.Active {
-				active = true
-				break
-			}
-		}
-		if !active {
+		if _, err := s.projects.Resolve(invocation.ProjectID); err != nil {
 			return plugin.ErrProjectInvalid
 		}
 		status, err := s.registry.Status(invocation.ProjectID, invocation.PluginID, invocation.Version)
@@ -200,8 +193,11 @@ func (s *LifecycleService) InvokeAdminPage(actor operator.Actor, pageID string, 
 			if !manifest.AdminOperation(pageID, invocation.Operation) {
 				return plugin.ErrGrantDenied
 			}
-			// Registry.Invoke rechecks the route, project, grants and worker credentials.
+			// Registry.Invoke rechecks the route grants and worker lifecycle.
 			response, err = s.registry.Invoke(plugin.WorkerRequest{Protocol: s.registry.HostAPI, ProjectID: invocation.ProjectID, PluginID: invocation.PluginID, Version: invocation.Version, Operation: invocation.Operation, Payload: invocation.Payload})
+			if err == nil && (!response.Success || response.ErrorCode != "") {
+				return errors.New("plugin admin action failed")
+			}
 			return err
 		}
 		return plugin.ErrNotRegistered

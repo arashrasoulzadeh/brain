@@ -41,13 +41,3 @@ routes:
   - operation: arena.result
     function: result
     capability: arena.result
-admin:
-  version: 1
-  pages:
-    - id: operations
-      title: Arena operations
-      actions:
-        - title: snapshot
-          operation: arena.snapshot
-        - title: result
-          operation: arena.result
