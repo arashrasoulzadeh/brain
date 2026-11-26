@@ -45,7 +45,7 @@ done
 # dependencies. Never bind the descriptor directory (it may contain a database).
 mounts+=(--ro-bind "$node_path" "$node_path" --ro-bind "$worker_script" "$worker_script")
 if [ -n "$source_files" ]; then
-  mounts+=(--dir "$plugin_root")
+  mounts+=(--tmpfs "$plugin_root")
   while IFS= read -r source; do
     if [ -z "$source" ] || [ ! -f "$plugin_root/$source" ]; then
       echo "sandbox source is unavailable" >&2
@@ -58,7 +58,6 @@ if [ -n "$source_files" ]; then
     fi
     mounts+=(--ro-bind "$source_path" "$source_path")
   done <<< "$source_files"
-  mounts+=(--remount-ro "$plugin_root")
 elif [ "$require_sources" = 1 ]; then
   echo "sandbox requires manifest-declared source files" >&2
   exit 78
@@ -67,6 +66,7 @@ else
   mounts+=(--ro-bind "$plugin_root" "$plugin_root")
 fi
 mounts+=(--ro-bind "$descriptor" "$descriptor")
+if [ -n "$source_files" ]; then mounts+=(--remount-ro "$plugin_root"); fi
 node_args=(--max-old-space-size=128)
 if [ -n "$runtime_root" ]; then
   runtime_root=$(realpath "$runtime_root")
