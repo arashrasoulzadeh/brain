@@ -322,10 +322,10 @@ func (w *TypeScriptWorker) Handle(request WorkerRequest) WorkerResponse {
 	line := exchange.line
 	var response struct {
 		Result *struct {
-			Protocol  int             `json:"protocol"`
-			Success   bool            `json:"success"`
-			Payload   json.RawMessage `json:"payload"`
-			ErrorCode string          `json:"errorCode"`
+			Protocol     int                 `json:"protocol"`
+			Success      bool                `json:"success"`
+			Payload      json.RawMessage     `json:"payload"`
+			ErrorCode    string              `json:"errorCode"`
 			Observations []ObservationIntent `json:"observations"`
 		} `json:"result"`
 		ErrorCode string `json:"errorCode"`

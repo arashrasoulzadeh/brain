@@ -31,34 +31,7 @@ type AdminField struct {
 	Required bool   `yaml:"required,omitempty" json:"required,omitempty"`
 }
 
-var adminTarget = regexp.MustCompile(`^[a-zA-Z][a-zA-Z0-9_.-]{0,63}/[a-z][a-z0-9-]{0,63}package plugin
-
-import (
-	"encoding/json"
-	"regexp"
-	"strings"
-)
-
-// AdminSpec is declarative UI metadata, not an authorization grant.
-type AdminSpec struct {
-	Version int         `yaml:"version" json:"version"`
-	Pages   []AdminPage `yaml:"pages" json:"pages"`
-}
-
-type AdminPage struct {
-	ID      string        `yaml:"id" json:"id"`
-	Title   string        `yaml:"title" json:"title"`
-	Actions []AdminAction `yaml:"actions" json:"actions"`
-	Extends string        `yaml:"extends,omitempty" json:"extends,omitempty"`
-}
-
-type AdminAction struct {
-	Title     string       `yaml:"title" json:"title"`
-	Operation string       `yaml:"operation" json:"operation"`
-	Fields    []AdminField `yaml:"fields,omitempty" json:"fields,omitempty"`
-}
-
-)
+var adminTarget = regexp.MustCompile(`^[a-zA-Z][a-zA-Z0-9_.-]{0,63}/[a-z][a-z0-9-]{0,63}$`)
 
 var adminPageID = regexp.MustCompile(`^[a-z][a-z0-9-]{0,63}$`)
 
