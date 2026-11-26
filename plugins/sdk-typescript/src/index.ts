@@ -33,7 +33,7 @@ export type PluginRoute = {
 };
 
 export type DeclarativeStorage = {
-  action: "blob.put" | "blob.read" | "blob.publish" | "rows.append" | "rows.read" |
+  action: "blob.put" | "blob.read" | "blob.publish" | "rows.append" | "rows.read" | "rows.schema" |
     "state.create" | "state.read" | "state.patch" | "state.add_unique" | "state.append";
   key?: string;
   fixed_key?: string;
@@ -41,6 +41,8 @@ export type DeclarativeStorage = {
   field?: string;
   input?: string;
   values?: Readonly<Record<string, string | number | boolean | null | readonly []>>;
+  project_field?: string;
+  guard?: { field: string; allowed: readonly string[]; error: string };
 };
 
 export type DeclarativeResponse = {

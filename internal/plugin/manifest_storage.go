@@ -4,6 +4,8 @@ import (
 	"errors"
 	"math"
 	"strings"
+
+	"gopkg.in/yaml.v3"
 )
 
 var ErrManifestStorageUnavailable = errors.New("manifest storage unavailable")
@@ -11,13 +13,36 @@ var ErrManifestStorageUnavailable = errors.New("manifest storage unavailable")
 // StorageSpec selects a bounded storage primitive. Namespaces and project
 // identity are assigned by the host, never by the manifest or request payload.
 type StorageSpec struct {
-	Action   string         `yaml:"action" json:"action"`
-	Key      string         `yaml:"key,omitempty" json:"key,omitempty"`
-	FixedKey string         `yaml:"fixed_key,omitempty" json:"fixed_key,omitempty"`
-	Target   string         `yaml:"target,omitempty" json:"target,omitempty"`
-	Field    string         `yaml:"field,omitempty" json:"field,omitempty"`
-	Input    string         `yaml:"input,omitempty" json:"input,omitempty"`
-	Values   map[string]any `yaml:"values,omitempty" json:"values,omitempty"`
+	Action       string         `yaml:"action" json:"action"`
+	Key          string         `yaml:"key,omitempty" json:"key,omitempty"`
+	FixedKey     string         `yaml:"fixed_key,omitempty" json:"fixed_key,omitempty"`
+	Target       string         `yaml:"target,omitempty" json:"target,omitempty"`
+	Field        string         `yaml:"field,omitempty" json:"field,omitempty"`
+	Input        string         `yaml:"input,omitempty" json:"input,omitempty"`
+	Values       map[string]any `yaml:"values,omitempty" json:"values,omitempty"`
+	ProjectField string         `yaml:"project_field,omitempty" json:"project_field,omitempty"`
+	Guard        *StorageGuard  `yaml:"guard,omitempty" json:"guard,omitempty"`
+}
+
+type StorageGuard struct {
+	Field   string   `yaml:"field" json:"field"`
+	Allowed []string `yaml:"allowed" json:"allowed"`
+	Error   string   `yaml:"error" json:"error"`
+}
+
+func (s *StorageSpec) UnmarshalYAML(node *yaml.Node) error {
+	if node.Kind != yaml.MappingNode {
+		return ErrInvalidManifest
+	}
+	for i := 0; i < len(node.Content); i += 2 {
+		switch node.Content[i].Value {
+		case "action", "key", "fixed_key", "target", "field", "input", "values", "project_field", "guard":
+		default:
+			return ErrInvalidManifest
+		}
+	}
+	type plain StorageSpec
+	return node.Decode((*plain)(s))
 }
 
 func (s *StorageSpec) valid() bool {
@@ -28,6 +53,12 @@ func (s *StorageSpec) valid() bool {
 		return false
 	}
 	if s.Target != "" && (s.Target == s.Key || s.Target == s.Input) || s.Action == "blob.read" && s.Field == s.Key {
+		return false
+	}
+	if s.ProjectField != "" && (s.Action != "state.append" || s.ProjectField == s.Key || !validResponseKey(s.ProjectField)) {
+		return false
+	}
+	if s.Guard != nil && (s.Action != "state.patch" || !validResponseKey(s.Guard.Field) || len(s.Guard.Allowed) == 0 || len(s.Guard.Allowed) > 32 || s.Guard.Error == "") {
 		return false
 	}
 	for _, name := range []string{s.Target, s.Field, s.Input} {
@@ -62,7 +93,7 @@ func (s *StorageSpec) valid() bool {
 		return s.Input != "" && s.Target == "" && s.Field == "" && len(s.Values) == 0
 	case "blob.read":
 		return s.Target != "" && s.Field != "" && s.Target != s.Field && s.Input == "" && len(s.Values) == 0
-	case "blob.publish", "rows.read", "state.read":
+	case "blob.publish", "rows.read", "rows.schema", "state.read":
 		return s.Target != "" && s.Field == "" && s.Input == "" && len(s.Values) == 0
 	case "state.create":
 		return s.Target != "" && len(s.Values) > 0 && s.Field == "" && s.Input == ""

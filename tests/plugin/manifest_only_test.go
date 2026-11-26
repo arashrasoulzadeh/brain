@@ -25,6 +25,7 @@ host_api: 1
 capabilities:
   - dynamic.write
   - dynamic.read
+  - dynamic.approve
 routes:
   - operation: dynamic.write
     function: write
@@ -52,6 +53,28 @@ routes:
       action: state.read
       key: id
       target: record
+    response:
+      input:
+        - name: record
+          type: object
+          required: true
+          error: record not found
+      result: $input.record
+  - operation: dynamic.approve
+    function: approve
+    capability: dynamic.approve
+    helper: sdk.resource
+    storage:
+      action: state.patch
+      key: id
+      target: record
+      guard:
+        field: status
+        allowed:
+          - pending
+        error: invalid transition
+      values:
+        status: approved
     response:
       input:
         - name: record
@@ -124,6 +147,14 @@ routes:
 			t.Fatalf("response: %s %v", response.Payload, err)
 		}
 	}
+	request.Operation = "dynamic.approve"
+	if response, err := registry.Invoke(request); err != nil || !response.Success {
+		t.Fatalf("approve: %#v %v", response, err)
+	}
+	if _, err := registry.Invoke(request); err == nil || err.Error() != "invalid transition" {
+		t.Fatalf("invalid transition accepted: %v", err)
+	}
+	request.Operation = "dynamic.read"
 	request.Payload = []byte(`{"id":"missing","record":{"status":"forged"}}`)
 	if response, err := registry.Invoke(request); err != nil || response.Success {
 		t.Fatalf("forged read: %#v %v", response, err)

@@ -21,8 +21,10 @@ event_fields:
 routes:
   - operation: analytics.capture
     function: capture
+    helper: sdk.request
     capability: analytics.capture
     storage:
       action: state.append
       fixed_key: events
       field: events
+      project_field: projectId

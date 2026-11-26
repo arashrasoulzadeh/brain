@@ -77,5 +77,23 @@ routes:
       input: row
   - operation: tables.schema
     function: schema
-    helper: sdk.dispatch
+    helper: sdk.resource
     capability: tables.schema
+    storage:
+      action: rows.schema
+      key: table
+      target: columns
+    response:
+      input:
+        - name: table
+          type: string
+          required: true
+          trim: true
+          error: table is required
+        - name: columns
+          type: array
+          required: true
+          error: schema unavailable
+      output:
+        table: $input.table
+        columns: $input.columns

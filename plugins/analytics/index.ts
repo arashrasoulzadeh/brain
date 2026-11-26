@@ -1,4 +1,4 @@
-import { pluginRequest, validateProjectId } from "../sdk-typescript/src/index.js";
+import { createRequestDispatcher, pluginRequest, validateProjectId } from "../sdk-typescript/src/index.js";
 
 export type AnalyticsEvent = {
   projectId: string;
@@ -73,3 +73,11 @@ export function captureRequest(
     event.name,
   );
 }
+
+// The project comes only from the host-validated request envelope.
+export const dispatchRequest = createRequestDispatcher({
+  capture(rpc) {
+    const payload = (rpc.params.payload ?? {}) as Omit<AnalyticsEvent, "projectId">;
+    return capture({ ...payload, projectId: rpc.params.projectId });
+  },
+});

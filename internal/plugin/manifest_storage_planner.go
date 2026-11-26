@@ -2,6 +2,9 @@ package plugin
 
 import (
 	"encoding/json"
+	"errors"
+	"slices"
+	"sort"
 	"strings"
 )
 
@@ -61,6 +64,9 @@ func (p manifestStoragePlanner) Prepare(request WorkerRequest) (WorkerRequest, f
 		delete(payload, spec.Field)
 	}
 	project, namespace := request.ProjectID, request.PluginID
+	if spec.ProjectField != "" {
+		payload[spec.ProjectField] = project
+	}
 	var commit func() error
 	switch spec.Action {
 	case "blob.put":
@@ -84,16 +90,26 @@ func (p manifestStoragePlanner) Prepare(request WorkerRequest) (WorkerRequest, f
 		if row, ok := payload[spec.Input].(map[string]any); ok {
 			commit = func() error { return p.storage.appendScopedRow(project, namespace, key, row) }
 		}
-	case "rows.read":
+	case "rows.read", "rows.schema":
 		rows, err := p.storage.scopedRows(project, namespace, key)
 		if err != nil {
 			return request, nil, err
 		}
-		payload[spec.Target] = rows
+		if spec.Action == "rows.schema" {
+			payload[spec.Target] = rowColumns(rows)
+		} else {
+			payload[spec.Target] = rows
+		}
 	default:
 		state, err := p.storage.State(project, namespace, key)
 		if err != nil {
 			return request, nil, err
+		}
+		if spec.Guard != nil && state != nil {
+			value, ok := state[spec.Guard.Field].(string)
+			if !ok || !slices.Contains(spec.Guard.Allowed, value) {
+				return request, nil, errors.New(spec.Guard.Error)
+			}
 		}
 		state, changed := applyStateStorage(spec, state, payload)
 		if changed {
@@ -171,4 +187,23 @@ func storageValues(values, payload map[string]any) map[string]any {
 		}
 	}
 	return state
+}
+
+func rowColumns(rows []map[string]any) []string {
+	columns := []string{}
+	seen := map[string]bool{}
+	for _, row := range rows {
+		keys := make([]string, 0, len(row))
+		for key := range row {
+			keys = append(keys, key)
+		}
+		sort.Strings(keys)
+		for _, key := range keys {
+			if !seen[key] {
+				columns = append(columns, key)
+				seen[key] = true
+			}
+		}
+	}
+	return columns
 }
