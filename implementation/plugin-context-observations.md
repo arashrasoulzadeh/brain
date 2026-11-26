@@ -40,3 +40,5 @@ Each row requires context and relevant sanitized domain events, focused tests an
 - Analytics observation capture remains in-memory; durable storage and delivery/retry policies are still open. Initial delivery is synchronous, bounded, best-effort, and non-recursive.
 
 - Arena: context-first start/input/snapshot/result adapters and sanitized start/finish events added to its existing state machine; cross-project and invalid-transition regression coverage added. Operator route only; realtime actor binding, durable results, and CI verification remain open.
+
+- Invites: operator route adapters added with host project context, random identifiers, bounded TTL, replay/cancellation checks, and sanitized lifecycle observations. Client actor authorization and durable invitation storage are still open.
