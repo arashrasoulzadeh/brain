@@ -95,6 +95,10 @@ func productionServer() (*app.Server, error) {
 		_ = projects.Close()
 		return nil, fmt.Errorf("registry state unavailable: %w", err)
 	}
+	registry.BindProjectResolver(func(id string) error {
+		_, err := projects.Resolve(id)
+		return err
+	})
 	for _, installation := range registry.InstallationStatuses("") {
 		if installation.Enabled && installation.Ready && !installation.Draining {
 			if err := registry.StartWorker(installation.ProjectID, installation.PluginID, installation.Version); err != nil {

@@ -68,7 +68,9 @@ func (r *Registry) invokeOnce(request WorkerRequest, observer bool) (WorkerRespo
 	}
 
 	if !observer {
-		if result, handled, err := r.invokeModel(request); handled { return result, err }
+		if result, handled, err := r.invokeModel(request); handled {
+			return result, err
+		}
 	}
 
 	// Prepare reads and proposed writes, but do not mutate durable state until
@@ -118,6 +120,11 @@ func (r *Registry) authorizeInvocation(request WorkerRequest, observer bool) err
 func (r *Registry) authorizeInvocationLocked(request WorkerRequest, observer bool) error {
 	if err := r.LifecycleStorageHealth(); err != nil {
 		return err
+	}
+	if r.projectResolver != nil {
+		if err := r.projectResolver(request.ProjectID); err != nil {
+			return ErrProjectInvalid
+		}
 	}
 	manifestKey := request.PluginID + "@" + request.Version
 	installation, installed := r.installations[request.ProjectID+":"+manifestKey]

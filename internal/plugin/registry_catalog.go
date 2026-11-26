@@ -272,3 +272,10 @@ func (r *Registry) Unregister(id, version string) error {
 	r.appendAudit(AuditEvent{Action: "unregister", PluginID: id, Version: version})
 	return nil
 }
+
+// BindProjectResolver installs a trusted active-project lookup for invocations.
+func (r *Registry) BindProjectResolver(resolve func(string) error) {
+	r.readinessMu.Lock()
+	defer r.readinessMu.Unlock()
+	r.projectResolver = resolve
+}

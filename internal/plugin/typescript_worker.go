@@ -35,7 +35,7 @@ type executionRoute struct {
 	Function  string        `json:"function"`
 	Helper    string        `json:"helper,omitempty"`
 	Response  *ResponseSpec `json:"response,omitempty"`
-	Pipeline *PipelineSpec `json:"pipeline,omitempty"`
+	Pipeline  *PipelineSpec `json:"pipeline,omitempty"`
 }
 
 type TypeScriptWorkerOptions struct {
@@ -323,10 +323,10 @@ func (w *TypeScriptWorker) Handle(request WorkerRequest) WorkerResponse {
 	line := exchange.line
 	var response struct {
 		Result *struct {
-			Protocol  int             `json:"protocol"`
-			Success   bool            `json:"success"`
-			Payload   json.RawMessage `json:"payload"`
-			ErrorCode string          `json:"errorCode"`
+			Protocol     int                 `json:"protocol"`
+			Success      bool                `json:"success"`
+			Payload      json.RawMessage     `json:"payload"`
+			ErrorCode    string              `json:"errorCode"`
 			Observations []ObservationIntent `json:"observations"`
 		} `json:"result"`
 		ErrorCode string `json:"errorCode"`

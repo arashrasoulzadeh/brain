@@ -10,22 +10,22 @@ import (
 )
 
 type Manifest struct {
-	Title           string            `yaml:"title"`
-	Description     string            `yaml:"description"`
-	ID              string            `yaml:"id"`
-	Entry           string            `yaml:"entrypoint"`
-	Version         string            `yaml:"version"`
-	HostAPI         int               `yaml:"host_api"`
-	Dependencies    []string          `yaml:"dependencies"`
-	Capabilities    []string          `yaml:"capabilities"`
-	ExtensionPoints []string          `yaml:"extension_points"`
-	ConfigSchema    map[string]string `yaml:"config_schema"`
-	Routes          []Route           `yaml:"routes"`
-	SourceFiles     []string          `yaml:"source_files"`
-	Imports         []string          `yaml:"imports"`
-	PluginImports   []string          `yaml:"plugin_imports"`
-	Events          []EventSpec       `yaml:"events"`
-	Observers       []ObserverSpec    `yaml:"observe"`
+	Title           string               `yaml:"title"`
+	Description     string               `yaml:"description"`
+	ID              string               `yaml:"id"`
+	Entry           string               `yaml:"entrypoint"`
+	Version         string               `yaml:"version"`
+	HostAPI         int                  `yaml:"host_api"`
+	Dependencies    []string             `yaml:"dependencies"`
+	Capabilities    []string             `yaml:"capabilities"`
+	ExtensionPoints []string             `yaml:"extension_points"`
+	ConfigSchema    map[string]string    `yaml:"config_schema"`
+	Routes          []Route              `yaml:"routes"`
+	SourceFiles     []string             `yaml:"source_files"`
+	Imports         []string             `yaml:"imports"`
+	PluginImports   []string             `yaml:"plugin_imports"`
+	Events          []EventSpec          `yaml:"events"`
+	Observers       []ObserverSpec       `yaml:"observe"`
 	Models          map[string]ModelSpec `yaml:"models,omitempty"`
 }
 
@@ -35,8 +35,8 @@ type Route struct {
 	Capability string        `yaml:"capability"`
 	Helper     string        `yaml:"helper,omitempty"`
 	Response   *ResponseSpec `yaml:"response,omitempty"`
-	Pipeline *PipelineSpec `yaml:"pipeline,omitempty"`
-	Model *ModelRoute `yaml:"model,omitempty"`
+	Pipeline   *PipelineSpec `yaml:"pipeline,omitempty"`
+	Model      *ModelRoute   `yaml:"model,omitempty"`
 }
 
 func LoadManifest(path string) (Manifest, error) {
@@ -96,7 +96,9 @@ func ValidateManifestContract(manifest Manifest) error {
 		}
 		declaredCapabilities[capability] = true
 	}
-	if !validModels(manifest.Models) { return ErrInvalidManifest }
+	if !validModels(manifest.Models) {
+		return ErrInvalidManifest
+	}
 	seenRoutes := map[string]bool{}
 	for _, route := range manifest.Routes {
 		if strings.HasPrefix(route.Operation, observationPrefix) || route.Operation == "" || route.Function == "" || route.Capability == "" || seenRoutes[route.Operation] || !declaredCapabilities[route.Capability] || (route.Helper != "" && route.Helper != "sdk.dispatch" && route.Helper != "sdk.request" && route.Helper != "sdk.response" && route.Helper != "sdk.context" && route.Helper != "sdk.pipeline" && route.Helper != "host.model") {
@@ -108,7 +110,9 @@ func ValidateManifestContract(manifest Manifest) error {
 		if (route.Helper == "sdk.pipeline" && !route.Pipeline.valid()) || (route.Helper != "sdk.pipeline" && route.Pipeline != nil) {
 			return ErrInvalidManifest
 		}
-		if (route.Helper == "host.model" && !route.Model.valid(manifest.Models)) || (route.Helper != "host.model" && route.Model != nil) { return ErrInvalidManifest }
+		if (route.Helper == "host.model" && !route.Model.valid(manifest.Models)) || (route.Helper != "host.model" && route.Model != nil) {
+			return ErrInvalidManifest
+		}
 		seenRoutes[route.Operation] = true
 	}
 	return validateObservationContract(manifest, declaredCapabilities)

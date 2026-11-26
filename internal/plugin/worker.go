@@ -19,10 +19,10 @@ type WorkerRequest struct {
 }
 
 type WorkerResponse struct {
-	Protocol  int
-	Success   bool
-	Payload   []byte
-	ErrorCode string
+	Protocol     int
+	Success      bool
+	Payload      []byte
+	ErrorCode    string
 	Observations []ObservationIntent `json:"observations,omitempty"`
 }
 

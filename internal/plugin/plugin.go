@@ -81,6 +81,7 @@ type Registry struct {
 	storagePlannerMu   sync.RWMutex
 	storageInvocations [64]sync.Mutex
 	storageFailed      atomic.Bool
+	projectResolver    func(string) error
 	webSockets         *WebSocketRegistry
 }
 
