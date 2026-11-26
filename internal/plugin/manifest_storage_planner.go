@@ -47,9 +47,18 @@ func (p manifestStoragePlanner) Prepare(request WorkerRequest) (WorkerRequest, f
 	key := spec.FixedKey
 	if spec.Key != "" {
 		key, _ = payload[spec.Key].(string)
+		key = strings.TrimSpace(key)
+		payload[spec.Key] = key
 	}
 	if key == "" {
 		return request, nil, nil
+	}
+	// Derived response fields are never accepted from the caller.
+	if spec.Target != "" {
+		delete(payload, spec.Target)
+	}
+	if spec.Action == "blob.read" {
+		delete(payload, spec.Field)
 	}
 	project, namespace := request.ProjectID, request.PluginID
 	var commit func() error
@@ -132,6 +141,11 @@ func applyStateStorage(spec *StorageSpec, state, payload map[string]any) (map[st
 		return state, true
 	case "state.add_unique":
 		if value, ok := payload[spec.Input].(string); ok {
+			value = strings.TrimSpace(value)
+			payload[spec.Input] = value
+			if value == "" {
+				return state, false
+			}
 			items, _ := state[spec.Field].([]any)
 			for _, item := range items {
 				if existing, ok := item.(string); ok && existing == value {

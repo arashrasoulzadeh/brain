@@ -24,6 +24,9 @@ func (s *StorageSpec) valid() bool {
 	if (s.Key == "") == (s.FixedKey == "") || (s.Key != "" && !validResponseKey(s.Key)) || (s.FixedKey != "" && !isValidProjectID(s.FixedKey)) || len(s.Values) > 32 {
 		return false
 	}
+	if s.Target != "" && (s.Target == s.Key || s.Target == s.Input) || s.Action == "blob.read" && s.Field == s.Key {
+		return false
+	}
 	for _, name := range []string{s.Target, s.Field, s.Input} {
 		if name != "" && !validResponseKey(name) {
 			return false

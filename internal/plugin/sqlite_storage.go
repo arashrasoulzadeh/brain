@@ -124,7 +124,6 @@ func (s *SQLiteStorage) Append(projectID, table string, row map[string]any) erro
 	return err
 }
 
-
 // The two historical tables remain readable by the existing storage API.
 // Other plugin IDs receive independent namespaces; no manifest may select an
 // alternate plugin's namespace.
