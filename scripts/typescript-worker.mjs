@@ -21,6 +21,7 @@ const routeHelpers = new Map([
   ["sdk.request", { exported: "dispatchRequest", input: (request) => request }],
 ]);
 if (descriptor.routes.some((route) => {
+  if (route.helper === "sdk.pipeline") return !validPipeline(route.pipeline);
   if (route.helper === "sdk.response") return !validResponse(route.response);
   if (route.helper === "sdk.context") return typeof plugin[route.function] !== "function";
   if (route.helper) {
@@ -70,7 +71,9 @@ for await (const line of input) {
     const route = descriptor.routes.find((candidate) => candidate.operation === params.operation);
     if (!route) throw new Error("operation not declared in plugin manifest");
     const helper = routeHelpers.get(route.helper);
-    const result = route.helper === "sdk.response"
+    const result = route.helper === "sdk.pipeline"
+      ? await executePipeline(route.pipeline, params.payload ?? null, context)
+      : route.helper === "sdk.response"
       ? mapResponse(route.response, params.payload, context)
       : route.helper === "sdk.context"
       ? await plugin[route.function](context, params.payload ?? null)
@@ -143,4 +146,48 @@ function mapResponse(spec, payload, context) {
   return Object.fromEntries(Object.entries(spec.output).map(([key, value]) =>
     [key, value === "$project.id" ? context.project.id : value === "$plugin.id" ? context.plugin.id :
       typeof value === "string" && value.startsWith("$input.") ? values.get(value.slice(7)) : value]));
+}
+
+const pipelineHelpers = () => new Map([
+  ["string.trim", (value) => { if (typeof value !== "string") throw new Error("expected string"); return value.trim(); }],
+  ["string.nonempty", (value) => { if (typeof value !== "string" || !value.trim()) throw new Error("expected nonempty string"); return value; }],
+  ["value.identity", (value) => value],
+]);
+
+function pipelineReference(value, available) {
+  if (value === "$input" || value === "$project.id" || value === "$plugin.id") return true;
+  if (typeof value !== "string") return false;
+  const parts = value.split(".");
+  if (parts[0] === "$input") return parts.length <= 8 && parts.slice(1).every(responseKey);
+  return parts[0] === "$steps" && parts.length >= 2 && parts.length <= 8 &&
+    available.has(parts[1]) && parts.slice(1).every(responseKey);
+}
+
+function validPipeline(spec) {
+  if (!spec || !Array.isArray(spec.steps) || spec.steps.length > 32) return false;
+  const names = new Set();
+  for (const step of spec.steps) {
+    if (!step || !responseKey(step.save) || names.has(step.save) ||
+        !pipelineHelpers().has(step.helper) || !pipelineReference(step.input, names)) return false;
+    names.add(step.save);
+  }
+  return pipelineReference(spec.return, names);
+}
+
+async function executePipeline(spec, input, context) {
+  const values = new Map();
+  const helpers = pipelineHelpers();
+  const resolve = (reference) => {
+    if (reference === "$project.id") return context.project.id;
+    if (reference === "$plugin.id") return context.plugin.id;
+    const parts = reference.split(".");
+    let value = parts[0] === "$input" ? input : values.get(parts[1]);
+    for (const key of parts.slice(parts[0] === "$input" ? 1 : 2)) {
+      if (!value || typeof value !== "object" || !Object.hasOwn(value, key)) throw new Error("missing pipeline value");
+      value = value[key];
+    }
+    return value;
+  };
+  for (const step of spec.steps) values.set(step.save, await helpers.get(step.helper)(resolve(step.input)));
+  return resolve(spec.return);
 }

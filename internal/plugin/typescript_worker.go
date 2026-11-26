@@ -35,6 +35,7 @@ type executionRoute struct {
 	Function  string        `json:"function"`
 	Helper    string        `json:"helper,omitempty"`
 	Response  *ResponseSpec `json:"response,omitempty"`
+	Pipeline *PipelineSpec `json:"pipeline,omitempty"`
 }
 
 type TypeScriptWorkerOptions struct {
@@ -120,7 +121,7 @@ func NewManifestTypeScriptWorker(command, workerScript, descriptor, pluginRoot, 
 	entrypoint := filepath.Join(pluginRoot, manifest.EntryPoint())
 	routes := make([]executionRoute, 0, len(manifest.Routes))
 	for _, route := range manifest.Routes {
-		routes = append(routes, executionRoute{Operation: route.Operation, Function: route.Function, Helper: route.Helper, Response: route.Response})
+		routes = append(routes, executionRoute{Operation: route.Operation, Function: route.Function, Helper: route.Helper, Response: route.Response, Pipeline: route.Pipeline})
 	}
 	for _, observer := range manifest.Observers {
 		routes = append(routes, executionRoute{Operation: observer.operation(), Function: observer.Function, Helper: "sdk.context"})

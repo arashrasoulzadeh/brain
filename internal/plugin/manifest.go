@@ -34,6 +34,7 @@ type Route struct {
 	Capability string        `yaml:"capability"`
 	Helper     string        `yaml:"helper,omitempty"`
 	Response   *ResponseSpec `yaml:"response,omitempty"`
+	Pipeline *PipelineSpec `yaml:"pipeline,omitempty"`
 }
 
 func LoadManifest(path string) (Manifest, error) {
@@ -95,10 +96,13 @@ func ValidateManifestContract(manifest Manifest) error {
 	}
 	seenRoutes := map[string]bool{}
 	for _, route := range manifest.Routes {
-		if strings.HasPrefix(route.Operation, observationPrefix) || route.Operation == "" || route.Function == "" || route.Capability == "" || seenRoutes[route.Operation] || !declaredCapabilities[route.Capability] || (route.Helper != "" && route.Helper != "sdk.dispatch" && route.Helper != "sdk.request" && route.Helper != "sdk.response" && route.Helper != "sdk.context") {
+		if strings.HasPrefix(route.Operation, observationPrefix) || route.Operation == "" || route.Function == "" || route.Capability == "" || seenRoutes[route.Operation] || !declaredCapabilities[route.Capability] || (route.Helper != "" && route.Helper != "sdk.dispatch" && route.Helper != "sdk.request" && route.Helper != "sdk.response" && route.Helper != "sdk.context" && route.Helper != "sdk.pipeline") {
 			return ErrInvalidManifest
 		}
 		if (route.Helper == "sdk.response" && !route.Response.valid()) || (route.Helper != "sdk.response" && route.Response != nil) {
+			return ErrInvalidManifest
+		}
+		if (route.Helper == "sdk.pipeline" && !route.Pipeline.valid()) || (route.Helper != "sdk.pipeline" && route.Pipeline != nil) {
 			return ErrInvalidManifest
 		}
 		seenRoutes[route.Operation] = true

@@ -10,6 +10,21 @@ description: Minimal host-discovered TypeScript plugin template.
 version: 0.1.0
 host_api: 1
 dependencies: []
-capabilities: []
+capabilities: [example.normalize]
 extension_points: []
 config_schema: {}
+
+routes:
+  - operation: example.normalize
+    function: normalize
+    capability: example.normalize
+    helper: sdk.pipeline
+    pipeline:
+      steps:
+        - helper: string.trim
+          input: $input.name
+          save: trimmed
+        - helper: string.nonempty
+          input: $steps.trimmed
+          save: name
+      return: $steps.name
