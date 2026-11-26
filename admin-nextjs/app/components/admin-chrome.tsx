@@ -1,5 +1,6 @@
 "use client";
 import { adminHeaders, readAdminSession } from "../lib/admin-api";
+import { enabledPluginIDs, visibleAdminPages } from "../lib/admin-navigation";
 
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -56,22 +57,7 @@ export function AdminSidebar({
           manifests: Array<{ ID: string }>;
           installations: Array<{ PluginID: string; Enabled: boolean; Ready: boolean }>;
         };
-        const enabled = new Set(
-          payload.installations
-            .filter((installation) => installation.Enabled && installation.Ready)
-            .map((installation) => installation.PluginID),
-        );
-        setDiscoveredPages([
-          "projects",
-          ...(payload.manifests.length ? ["plugins"] : []),
-          "audit",
-          ...(enabled.has("dashboard") ? ["system"] : []),
-          ...(enabled.has("tables") ? ["database"] : []),
-          ...(enabled.has("functions") ? ["functions", "workflows"] : []),
-          ...(enabled.has("files") ? ["files"] : []),
-          ...(enabled.has("rooms") || enabled.has("matchmaking") ? ["live-sessions"] : []),
-          ...(enabled.size ? ["routes", "monitoring", "workers"] : []),
-        ]);
+        setDiscoveredPages(visibleAdminPages(payload.manifests.length, enabledPluginIDs(payload.installations)));
       })
       .catch(() => undefined);
   }, [visiblePages]);

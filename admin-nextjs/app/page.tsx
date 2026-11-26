@@ -7,6 +7,7 @@ import { AdminFooter, AdminHeader, AdminSidebar } from "./components/admin-chrom
 import { QUIET_REQUEST_HEADER } from "./components/toast-provider";
 import type { Project, PluginManifest, PluginStatus, AuditRecord, FunctionDraft, SystemManifest, Language } from "./lib/admin-types";
 import { copy } from "./lib/admin-copy";
+import { canViewAdminPage, enabledPluginIDs, visibleAdminPages } from "./lib/admin-navigation";
 import { AuditPanel } from "./components/audit-panel";
 import { SystemPanel } from "./components/system-panel";
 import { MonitoringPanel } from "./components/monitoring-panel";
@@ -75,22 +76,7 @@ export default function AdminPage() {
         workers: text.workers,
       } as Record<string, string>
     )[activePage] ?? text.projects;
-  const activePluginIDs = new Set(
-    installations
-      .filter((installation) => installation.Enabled && installation.Ready)
-      .map((installation) => installation.PluginID),
-  );
-  const requiredPlugin = (
-    {
-      system: "dashboard",
-      database: "tables",
-      functions: "functions",
-      workflows: "functions",
-      files: "files",
-      "live-sessions": "rooms",
-    } as Record<string, string | undefined>
-  )[activePage];
-  const pageRequiresAnyPlugin = ["routes", "monitoring", "workers"].includes(activePage);
+  const activePluginIDs = enabledPluginIDs(installations);
   useEffect(() => {
     if (!session) return;
     const refresh = () =>
@@ -680,10 +666,7 @@ export default function AdminPage() {
         </section>
       </main>
     );
-  if (
-    (requiredPlugin && !activePluginIDs.has(requiredPlugin)) ||
-    (pageRequiresAnyPlugin && activePluginIDs.size === 0)
-  )
+  if (!canViewAdminPage(activePage, activePluginIDs))
     return (
       <main className="shell" dir={language === "fa" ? "rtl" : "ltr"}>
         <section className="card">
@@ -1228,19 +1211,7 @@ export default function AdminPage() {
           activePage={activePage}
           projectID={selectedProjectID}
           onSignOut={() => void signOut()}
-          visiblePages={[
-            "projects",
-            ...(manifests.length ? ["plugins"] : []),
-            "audit",
-            ...(activePluginIDs.has("dashboard") ? ["system"] : []),
-            ...(activePluginIDs.has("tables") ? ["database"] : []),
-            ...(activePluginIDs.has("functions") ? ["functions", "workflows"] : []),
-            ...(activePluginIDs.has("files") ? ["files"] : []),
-            ...(activePluginIDs.has("rooms") || activePluginIDs.has("matchmaking")
-              ? ["live-sessions"]
-              : []),
-            ...(activePluginIDs.size ? ["routes", "monitoring", "workers"] : []),
-          ]}
+          visiblePages={visibleAdminPages(manifests.length, activePluginIDs)}
         />
         <section className="card">
           <AdminHeader title={pageTitle} eyebrow={text.eyebrow} />
