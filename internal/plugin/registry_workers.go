@@ -1,6 +1,7 @@
 package plugin
 
 import (
+	"encoding/json"
 	"errors"
 	"time"
 )
@@ -87,6 +88,14 @@ func (r *Registry) invokeOnce(request WorkerRequest, observer bool) (WorkerRespo
 func (r *Registry) invokeUsingWorker(request WorkerRequest, observer bool, override ContractWorker, commitGuard func() error) (WorkerResponse, error) {
 	if err := ValidateWorkerRequest(request, r.HostAPI); err != nil {
 		return WorkerResponse{}, err
+	}
+	var payload map[string]any
+	if json.Unmarshal(request.Payload, &payload) == nil {
+		for _, key := range []string{"projectId", "project_id"} {
+			if value, exists := payload[key]; exists && value != request.ProjectID {
+				return WorkerResponse{}, ErrInvalidWorkerRequest
+			}
+		}
 	}
 	model, err := r.resolveProject(request.ProjectID)
 	if err != nil {
