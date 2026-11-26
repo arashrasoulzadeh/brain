@@ -8,8 +8,10 @@ export function requireProjectInput(context: PluginContext, input: unknown): Rec
   if (!input || typeof input !== "object" || Array.isArray(input))
     throw new Error("invalid plugin input");
   const payload = input as Record<string, unknown>;
-  if (Object.hasOwn(payload, "projectId") && payload.projectId !== context.project.id)
-    throw new Error("host project context mismatch");
+  for (const key of ["projectId", "project_id"]) {
+    if (Object.hasOwn(payload, key) && payload[key] !== context.project.id)
+      throw new Error("host project context mismatch");
+  }
   return payload;
 }
 

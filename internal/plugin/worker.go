@@ -47,6 +47,11 @@ func InvokeForProject(worker ContractWorker, request WorkerRequest, protocol int
 	if !worker.Ready() {
 		return WorkerResponse{}, ErrWorkerNotReady
 	}
+	if request.Project == nil {
+		// Low-level host-bound invocations (including the startup probe) have
+		// already supplied the trusted project identity as a separate argument.
+		request.Project = &ProjectSnapshot{ID: projectID, Active: true}
+	}
 	return worker.Handle(request), nil
 }
 
@@ -62,6 +67,11 @@ func InvokeWithCredential(broker *Broker, credential InvocationCredential, worke
 	if err := broker.CommitCredential(credential, now); err != nil {
 		return WorkerResponse{}, err
 	}
+	model, err := broker.Registry.resolveProject(credential.Call.ProjectID)
+	if err != nil {
+		return WorkerResponse{}, err
+	}
+	request.Project = &model
 	return InvokeForProject(worker, request, protocol, credential.Call.ProjectID)
 }
 
@@ -76,7 +86,7 @@ func ValidateWorkerRequestForProject(request WorkerRequest, hostProtocol int, pr
 	if err := ValidateWorkerRequest(request, hostProtocol); err != nil {
 		return err
 	}
-	if !isValidProjectID(projectID) || request.ProjectID != projectID {
+	if !isValidProjectID(projectID) || request.ProjectID != projectID || (request.Project != nil && (request.Project.ID != projectID || !request.Project.Active)) {
 		return ErrInvalidWorkerRequest
 	}
 	return nil

@@ -32,15 +32,18 @@ func TestInvokeWithCredentialBindsProductionWorkerRequest(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	worker := &countingWorker{}
+	worker := &storageCommitWorker{handle: func(request plugin.WorkerRequest) plugin.WorkerResponse {
+		if request.Project == nil || request.Project.ID != "project-a" || !request.Project.Active {
+			t.Fatalf("credential did not rebind project model: %+v", request.Project)
+		}
+		return plugin.WorkerResponse{Protocol: 1, Success: true}
+	}}
 	request := plugin.WorkerRequest{Protocol: 1, ProjectID: "project-b", PluginID: m.ID, Version: m.Version, Operation: "read"}
 	if _, err := plugin.InvokeWithCredential(b, credential, worker, request, 1, now); !errors.Is(err, plugin.ErrInvalidWorkerRequest) {
 		t.Fatalf("mismatched request error = %v", err)
 	}
-	if worker.calls != 0 {
-		t.Fatal("handler ran for mismatched credential")
-	}
 	request.ProjectID = "project-a"
+	request.Project = &plugin.ProjectSnapshot{ID: "forged", Active: false}
 	if response, err := plugin.InvokeWithCredential(b, credential, worker, request, 1, now); err != nil || !response.Success {
 		t.Fatalf("valid credential invocation = %#v, %v", response, err)
 	}

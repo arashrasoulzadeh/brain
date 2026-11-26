@@ -22,12 +22,13 @@ var ErrTypeScriptWorkerTimedOut = errors.New("typescript worker invocation timed
 var ErrTypeScriptWorkerManifest = errors.New("invalid typescript worker manifest")
 
 type executionDescriptor struct {
-	Entrypoint string           `json:"entrypoint"`
-	PluginID   string           `json:"pluginId"`
-	Version    string           `json:"version"`
-	ProjectID  string           `json:"projectId"`
-	Routes     []executionRoute `json:"routes"`
-	Events     []EventSpec      `json:"events,omitempty"`
+	Entrypoint     string           `json:"entrypoint"`
+	PluginID       string           `json:"pluginId"`
+	Version        string           `json:"version"`
+	ProjectID      string           `json:"projectId"`
+	RequireProject bool             `json:"requireProject"`
+	Routes         []executionRoute `json:"routes"`
+	Events         []EventSpec      `json:"events,omitempty"`
 }
 
 type executionRoute struct {
@@ -128,7 +129,7 @@ func NewManifestTypeScriptWorker(command, workerScript, descriptor, pluginRoot, 
 	for _, observer := range manifest.Observers {
 		routes = append(routes, executionRoute{Operation: observer.operation(), Function: observer.Function, Helper: "sdk.context"})
 	}
-	data, err := json.Marshal(executionDescriptor{Entrypoint: entrypoint, PluginID: manifest.ID, Version: manifest.Version, ProjectID: projectID, Routes: routes, Events: manifest.Events})
+	data, err := json.Marshal(executionDescriptor{Entrypoint: entrypoint, PluginID: manifest.ID, Version: manifest.Version, ProjectID: projectID, RequireProject: true, Routes: routes, Events: manifest.Events})
 	if err != nil {
 		return nil, err
 	}

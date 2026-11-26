@@ -17,7 +17,7 @@ export type RpcRequest = {
   context?: PluginContext;
 };
 
-export type ProjectContext = Readonly<{ id: string; active?: boolean }>;
+export type ProjectContext = Readonly<{ id: string; active: boolean }>;
 
 export type PluginContext = Readonly<{
   project: ProjectContext;

@@ -59,9 +59,14 @@ for await (const line of input) {
       if (!validEventPayload(spec, snapshot)) throw new Error("invalid observation fields");
       observations.push({ event, payload: snapshot });
     };
-    if (params.project && (params.project.id !== descriptor.projectId || params.project.active !== true)) throw new Error("project model mismatch");
+    if ((descriptor.requireProject && !params.project) || (params.project && (params.project.id !== descriptor.projectId || params.project.active !== true))) throw new Error("project model mismatch");
+    if (params.payload && typeof params.payload === "object" && !Array.isArray(params.payload)) {
+      for (const key of ["projectId", "project_id"]) {
+        if (Object.hasOwn(params.payload, key) && params.payload[key] !== descriptor.projectId) throw new Error("host project context mismatch");
+      }
+    }
     const context = Object.freeze({
-      project: Object.freeze({ id: descriptor.projectId, ...(params.project ? { active: true } : {}) }),
+      project: Object.freeze({ id: descriptor.projectId, active: true }),
       plugin: Object.freeze({ id: descriptor.pluginId, version: descriptor.version }),
       execution: Object.freeze({ operation: params.operation }),
       plugins: Object.freeze({ observe: Object.freeze({ fire }) }),
@@ -88,7 +93,7 @@ for await (const line of input) {
 
 async function invokeDeclaredRoute(plugin, functionName, request) {
   const directExport = plugin[functionName];
-  if (typeof directExport === "function") return directExport(request.params.payload ?? null);
+  if (typeof directExport === "function") return directExport(request.params.payload ?? null, request.context);
   const functionMap = typeof plugin.functions === "function" ? plugin.functions() : null;
   const mappedExport = functionMap?.[functionName];
   if (functionMap && Object.hasOwn(functionMap, functionName) && typeof mappedExport === "function") return mappedExport(request, request.context);

@@ -48,3 +48,5 @@ Each row requires context and relevant sanitized domain events, focused tests an
 - Subscriptions: operator-only open/receive/resync/close adapters for the real `rooms.connected` observation stream, with bounded retention, project/channel-bound polling tickets and sanitized open/close events. Existing WebSocket actor authorization and record-change channel integration remain separate unfinished work.
 
 - Functions: successful host publication and actual VM invocation now emit host-origin observations (not the declarative acknowledgment routes). VM receives read-only project, plugin identity and execution metadata. Scheduled/workflow execution is not yet a production runner; the existing helpers remain to be integrated.
+
+- Mandatory context: production worker descriptors require the host project model, direct legacy exports receive context as a second argument, root forged project identity is denied, and the credential-based worker boundary re-resolves project state. The external protobuf contract now carries project snapshots and observation intents; external transport implementation is still not wired.
