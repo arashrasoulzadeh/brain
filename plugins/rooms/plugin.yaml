@@ -53,3 +53,11 @@ routes:
     function: result
     helper: sdk.dispatch
     capability: rooms.result
+admin:
+  version: 1
+  pages:
+    - id: operations
+      title: Rooms operations
+      actions:
+        - title: result
+          operation: rooms.result

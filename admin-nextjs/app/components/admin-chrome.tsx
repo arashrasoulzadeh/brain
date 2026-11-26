@@ -1,11 +1,13 @@
 "use client";
 import { adminHeaders, readAdminSession } from "../lib/admin-api";
 import { enabledPluginIDs, visibleAdminPages } from "../lib/admin-navigation";
+import { adminContributions } from "../lib/admin-registry";
+import type { AdminCatalog, AdminContribution } from "../lib/admin-registry";
 
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 type AdminSidebarProps = {
   activePage: string;
@@ -36,31 +38,35 @@ export function AdminSidebar({
     ["monitoring", "Monitoring"],
     ["workers", "Workers"],
   ] as const;
+  const params = useParams<{ project?: string }>();
+  const requestedProject = projectID ?? params.project;
   const [discoveredPages, setDiscoveredPages] = useState<string[]>(["projects"]);
+  const [extensions, setExtensions] = useState<AdminContribution[]>([]);
   useEffect(() => {
-    if (visiblePages) return;
+    const controller = new AbortController();
+    setExtensions([]);
+    setDiscoveredPages(["projects"]);
     const token = readAdminSession();
-    if (!token) return;
-    void fetch("/api/admin/projects", { headers: adminHeaders(token) })
-      .then((response) =>
-        response.ok ? (response.json() as Promise<Array<{ ID: string; Active: boolean }>>) : [],
-      )
-      .then(async (projects) => {
-        const active = projects.find((candidate) => candidate.Active)?.ID;
-        if (!active) return;
-        const response = await fetch(
-          `/api/admin/plugins?project_id=${encodeURIComponent(active)}`,
-          { headers: adminHeaders(token) },
-        );
-        if (!response.ok) return;
-        const payload = (await response.json()) as {
-          manifests: Array<{ ID: string }>;
-          installations: Array<{ PluginID: string; Enabled: boolean; Ready: boolean }>;
-        };
-        setDiscoveredPages(visibleAdminPages(payload.manifests.length, enabledPluginIDs(payload.installations)));
-      })
-      .catch(() => undefined);
-  }, [visiblePages]);
+    if (!token) return () => controller.abort();
+    const headers = adminHeaders(token);
+    const signal = controller.signal;
+    void (async () => {
+      const projectsResponse = await fetch("/api/admin/projects", { headers, signal });
+      if (!projectsResponse.ok) return;
+      const projects = (await projectsResponse.json()) as Array<{ ID: string; Active: boolean }>;
+      const active = requestedProject === undefined
+        ? projects.find(candidate => candidate.Active)?.ID
+        : projects.find(candidate => candidate.Active && candidate.ID === requestedProject)?.ID;
+      if (!active) return;
+      const response = await fetch("/api/admin/plugins?project_id=" + encodeURIComponent(active), { headers, signal });
+      if (!response.ok) return;
+      const payload = (await response.json()) as AdminCatalog;
+      if (signal.aborted) return;
+      setDiscoveredPages(visibleAdminPages(payload.manifests?.length ?? 0, enabledPluginIDs(payload.installations ?? [])));
+      setExtensions(adminContributions(active, payload));
+    })().catch(() => undefined);
+    return () => controller.abort();
+  }, [requestedProject, activePage]);
   const allowedPages = visiblePages ?? discoveredPages;
   return (
     <aside className="sidebar">
@@ -74,6 +80,9 @@ export function AdminSidebar({
               {label}
             </Link>
           ))}
+        {extensions.map(item => (
+          <Link href={item.href} key={item.href}>{item.page.title} · {item.pluginID}@{item.version}</Link>
+        ))}
       </nav>
       {projectID !== undefined && (
         <label className="sidebar-project">

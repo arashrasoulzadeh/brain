@@ -42,3 +42,13 @@ routes:
     function: schema
     helper: sdk.dispatch
     capability: tables.schema
+admin:
+  version: 1
+  pages:
+    - id: operations
+      title: Table operations
+      actions:
+        - title: read
+          operation: tables.read
+        - title: schema
+          operation: tables.schema

@@ -46,3 +46,11 @@ routes:
     function: assign
     helper: sdk.dispatch
     capability: matchmaking.assign
+admin:
+  version: 1
+  pages:
+    - id: operations
+      title: Matchmaking operations
+      actions:
+        - title: status
+          operation: matchmaking.status

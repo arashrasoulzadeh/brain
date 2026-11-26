@@ -37,3 +37,11 @@ routes:
   - operation: subscriptions.resync
     function: resync
     capability: subscriptions.resync
+admin:
+  version: 1
+  pages:
+    - id: operations
+      title: Subscription operations
+      actions:
+        - title: resync
+          operation: subscriptions.resync

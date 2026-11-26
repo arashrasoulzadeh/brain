@@ -46,3 +46,11 @@ routes:
     function: publish
     helper: sdk.dispatch
     capability: files.publish
+admin:
+  version: 1
+  pages:
+    - id: operations
+      title: File operations
+      actions:
+        - title: metadata
+          operation: files.metadata

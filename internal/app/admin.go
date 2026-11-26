@@ -126,6 +126,7 @@ type adminCommand struct {
 	Input           json.RawMessage `json:"input"`
 	Payload         json.RawMessage `json:"payload"`
 	TargetOperation string          `json:"target_operation"`
+	PageID          string          `json:"page_id"`
 	FunctionVersion int             `json:"function_version"`
 	Public          bool            `json:"public"`
 	Permissions     []string        `json:"permissions"`
@@ -177,6 +178,19 @@ func AdminHandler(service *admin.LifecycleService) http.Handler {
 			err = service.GrantResource(actor, command.ProjectID, command.PluginID, command.Version, command.Capability, command.Resource)
 		case "plugin.configure":
 			err = service.ConfigurePlugin(actor, command.ProjectID, command.PluginID, command.Version, command.Values)
+		case "plugin.admin.invoke":
+			if !command.Confirmed {
+				http.Error(w, "explicit confirmation required", http.StatusBadRequest)
+				return
+			}
+			response, invokeErr := service.InvokeAdminPage(actor, command.PageID, admin.PluginInvocation{ProjectID: command.ProjectID, PluginID: command.PluginID, Version: command.Version, Operation: command.TargetOperation, Payload: command.Payload})
+			if invokeErr != nil {
+				http.Error(w, invokeErr.Error(), http.StatusForbidden)
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			_ = json.NewEncoder(w).Encode(response)
+			return
 		case "plugin.invoke":
 			response, invokeErr := service.InvokePlugin(actor, admin.PluginInvocation{ProjectID: command.ProjectID, PluginID: command.PluginID, Version: command.Version, Operation: command.TargetOperation, Payload: command.Payload})
 			if invokeErr != nil {

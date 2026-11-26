@@ -172,6 +172,43 @@ func (s *LifecycleService) InvokePlugin(actor operator.Actor, invocation PluginI
 	return response, err
 }
 
+// InvokeAdminPage verifies the page contribution and exact installation on every action.
+func (s *LifecycleService) InvokeAdminPage(actor operator.Actor, pageID string, invocation PluginInvocation) (plugin.WorkerResponse, error) {
+	var response plugin.WorkerResponse
+	err := s.execute(actor, "plugin.admin.invoke", func() error {
+		if s.projects == nil || invocation.ProjectID == "" {
+			return operator.ErrInvalidOperatorAction
+		}
+		active := false
+		for _, p := range s.projects.List() {
+			if p.ID == invocation.ProjectID && p.Active {
+				active = true
+				break
+			}
+		}
+		if !active {
+			return plugin.ErrProjectInvalid
+		}
+		status, err := s.registry.Status(invocation.ProjectID, invocation.PluginID, invocation.Version)
+		if err != nil || !status.Enabled || !status.Ready || status.Draining {
+			return ErrPluginUnavailable
+		}
+		for _, manifest := range s.registry.RegisteredManifests() {
+			if manifest.ID != invocation.PluginID || manifest.Version != invocation.Version {
+				continue
+			}
+			if !manifest.AdminOperation(pageID, invocation.Operation) {
+				return plugin.ErrGrantDenied
+			}
+			// Registry.Invoke rechecks the route, project, grants and worker credentials.
+			response, err = s.registry.Invoke(plugin.WorkerRequest{Protocol: s.registry.HostAPI, ProjectID: invocation.ProjectID, PluginID: invocation.PluginID, Version: invocation.Version, Operation: invocation.Operation, Payload: invocation.Payload})
+			return err
+		}
+		return plugin.ErrNotRegistered
+	})
+	return response, err
+}
+
 func (s *LifecycleService) PromotePlugin(actor operator.Actor, projectID, pluginID, version string) error {
 	return s.execute(actor, "plugin.promote", func() error {
 		return s.registry.Promote(projectID, pluginID, version)

@@ -82,3 +82,11 @@ routes:
     function: call
     helper: sdk.dispatch
     capability: functions.call
+admin:
+  version: 1
+  pages:
+    - id: operations
+      title: Function operations
+      actions:
+        - title: invoke
+          operation: functions.invoke
