@@ -69,3 +69,16 @@ func TestEveryPluginManifestAuthorizesItsSources(t *testing.T) {
 		}
 	}
 }
+
+func TestDocumentationIncludesObservationContract(t *testing.T) {
+	manifest, err := plugin.LoadManifest("../../plugins/analytics/plugin.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	docs := plugin.Documentation(manifest)
+	for _, fragment := range []string{"analytics.captured", "rooms.connected", "observeRoomConnected", "observe.rooms.connected", "persist: true"} {
+		if !strings.Contains(docs, fragment) {
+			t.Errorf("missing observation contract %q", fragment)
+		}
+	}
+}

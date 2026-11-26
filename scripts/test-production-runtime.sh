@@ -63,5 +63,42 @@ assert.equal(result.Success, true);
 const read = await action("plugin.invoke", {target_operation:"tables.read",payload:{table:"messages"}});
 assert.equal(read.Success, true);
 assert.deepEqual(JSON.parse(Buffer.from(read.Payload,"base64").toString("utf8")).rows,[{id:"one"}]);
+// Start the registered plugin inventory, not only the tables fixture.
+const catalogResponse = await fetch(base + "/admin/plugins?project_id=ci-project", {headers});
+assert.ok(catalogResponse.ok);
+const { manifests } = await catalogResponse.json();
+for (const id of ["analytics","arena","auth","dashboard","files","functions","invites","matchmaking","rooms","subscriptions","tables"]) {
+  assert.ok(manifests.some(m => m.ID === id), "missing plugin " + id);
+}
+for (const manifest of manifests.filter(m => m.ID !== "tables")) {
+  const identity = {plugin_id:manifest.ID,version:manifest.Version};
+  await action("plugin.install", identity);
+  await action("plugin.readiness", {...identity,ready:true});
+  for (const capability of manifest.Capabilities ?? []) await action("plugin.grant", {...identity,capability});
+  await action("plugin.enable", identity);
+}
+async function invoke(plugin_id, target_operation, payload) {
+  const response = await action("plugin.invoke", {plugin_id,target_operation,payload});
+  assert.equal(response.Success,true, target_operation + ": " + response.ErrorCode);
+  return JSON.parse(Buffer.from(response.Payload,"base64").toString("utf8"));
+}
+const channel = "rooms.connected";
+const subscription = await invoke("subscriptions","subscriptions.open",{channel});
+await invoke("rooms","rooms.create",{id:"ci-room"});
+await invoke("rooms","rooms.join",{id:"ci-room",member:"ci-member"});
+let observed = false;
+let analyticsDelivered = false;
+for (let attempt = 0; attempt < 30; attempt++) {
+  const stream = await invoke("subscriptions","subscriptions.receive",{channel,ticket:subscription.ticket,cursor:subscription.cursor});
+  observed = stream.events.some(event => event.value?.roomId === "ci-room" && event.value?.reconnected === false);
+  const audit = await fetch(base + "/admin/audit",{headers});
+  assert.ok(audit.ok);
+  analyticsDelivered = (await audit.json()).some(event => event.action === "observation_delivered" && event.project_id === "ci-project" && event.plugin_id === "analytics" && event.detail === "rooms.connected");
+  if (observed && analyticsDelivered) break;
+  await delay(500);
+}
+assert.ok(observed,"subscriptions did not receive rooms.connected");
+assert.ok(analyticsDelivered,"analytics did not receive rooms.connected");
+await invoke("subscriptions","subscriptions.close",{channel,ticket:subscription.ticket});
 assert.ok((await fetch(base + "/readyz")).ok);
 NODE

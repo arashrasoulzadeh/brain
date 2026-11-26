@@ -130,3 +130,62 @@ Use `helper: sdk.response` for routes that only validate input and map a respons
 ### Compact plugin domains
 
 Prefer a small number of cohesive domain modules (accounts/sessions, compiler/invocation, schema/records, directory/gameplay, etc.) rather than a file per method. Import public plugin APIs through `index.ts`; individual source paths are internal. Use `createResourceRequest` for repeated resource-specific RPC request builders, `createFixedWindowLimiter` for in-memory rate policies, and `validateBoundedInteger` / `requireAllowedValues` for shared validation. These helpers do not authorize a request. Preserve the host project, capability, and commit boundaries. The manifest inventory test checks that every TypeScript source is declared, and the existing contract and behavioral tests continue to exercise the exported APIs.
+
+### Project-bound functions and observation hooks
+
+New worker functions use `helper: sdk.context` and the signature
+`(context: PluginContext, input: unknown)`. The host resolves the active project
+and injects its read-only projection (`context.project.id`, `context.project.active`),
+the authenticated plugin/version, execution operation, and observation API.
+Use `requireProjectInput(context, input)` for object input validation. The
+older dispatch helpers receive the same context at the worker boundary;
+request serializers and pure domain utilities are not authorization boundaries.
+
+Declare the publisher's event schema:
+
+```yaml
+events:
+  - name: connected
+    fields:
+      roomId: string
+      reconnected: boolean
+```
+
+Publish only after a real domain action succeeds:
+
+```ts
+context.plugins.observe.fire("connected", { roomId, reconnected: false });
+```
+
+The host supplies the publisher identity, project and stable event ID. The
+subscriber declares its own grant and handler, with no source-code import of
+the publisher:
+
+```yaml
+capabilities:
+  - observe.rooms.connected
+observe:
+  - plugin: rooms
+    event: connected
+    function: observeRoomConnected
+    capability: observe.rooms.connected
+    persist: true
+```
+
+The handler receives its own trusted context and an `Observation<T>` containing
+the publisher plugin, version, event, project, ID and typed payload. Persisted
+receipts are optional; do not recursively fire from observer handlers. Event
+fields must be bounded scalar values, exactly match the schema and exclude
+credentials, raw file contents and arbitrary records. `source: host` is reserved
+for successful trusted host effects such as dashboard lifecycle actions and
+function publication. `host.admin` routes are not worker-callable.
+
+The SQLite adapter commits durable plugin writes and observation queue inserts
+in one transaction; the host drains committed events asynchronously with
+bounded retries and reauthorization. A subscriber must handle possible duplicate
+delivery using the event ID. The queue is single-host, not a distributed
+exactly-once mechanism. In-memory actions and existing host lifecycle/function
+writes still enqueue after their commit, without an atomic outbox guarantee.
+For scheduling and workflow libraries use the `bindProjectSchedule`,
+`bindProjectTriggers`, `bindProjectJobLeases` and `runProjectWorkflow` helpers.
+These bindings do not themselves implement a production job runner.
