@@ -1,5 +1,5 @@
 "use client";
-import { adminHeaders, readAdminSession } from "../lib/admin-api";
+import { adminHeaders, readAdminSession, preferredAdminProject } from "../lib/admin-api";
 import { enabledPluginIDs, visibleAdminPages } from "../lib/admin-navigation";
 import { adminContributions } from "../lib/admin-registry";
 import type { AdminCatalog, AdminContribution } from "../lib/admin-registry";
@@ -29,11 +29,7 @@ export function AdminSidebar({
     ["plugins", "Plugins"],
     ["system", "System capabilities"],
     ["audit", "Audit log"],
-    ["database", "Database"],
     ["functions", "Functions"],
-    ["workflows", "Workflows"],
-    ["files", "Files"],
-    ["live-sessions", "Live sessions"],
     ["routes", "Routes"],
     ["monitoring", "Monitoring"],
     ["workers", "Workers"],
@@ -55,7 +51,7 @@ export function AdminSidebar({
       if (!projectsResponse.ok) return;
       const projects = (await projectsResponse.json()) as Array<{ ID: string; Active: boolean }>;
       const active = requestedProject === undefined
-        ? projects.find(candidate => candidate.Active)?.ID
+        ? preferredAdminProject(projects)?.ID
         : projects.find(candidate => candidate.Active && candidate.ID === requestedProject)?.ID;
       if (!active) return;
       const response = await fetch("/api/admin/plugins?project_id=" + encodeURIComponent(active), { headers, signal });
@@ -68,19 +64,27 @@ export function AdminSidebar({
     return () => controller.abort();
   }, [requestedProject, activePage]);
   const allowedPages = visiblePages ?? discoveredPages;
+  const aliases = [...new Set(extensions.flatMap(item => item.page.legacy_route ? [item.page.legacy_route] : []))].sort();
+  const platformRoutes = new Set(["projects", "plugins", "system", "audit", "routes", "monitoring", "workers"]);
   return (
     <aside className="sidebar">
       <p className="eyebrow">BRAIN CONTROL PLANE</p>
       <h2>{title}</h2>
       <nav className="sidebar-nav" aria-label="Admin navigation">
+        <p className="eyebrow">Platform</p>
         {links
-          .filter(([href]) => allowedPages.includes(href))
+          .filter(([href]) => allowedPages.includes(href) && platformRoutes.has(href))
           .map(([href, label]) => (
             <Link className={activePage === href ? "active" : ""} href={`/${href}`} key={href}>
               {label}
             </Link>
           ))}
-        {extensions.map(item => (
+        <p className="eyebrow">Project</p>
+        {links.filter(([href]) => allowedPages.includes(href) && !platformRoutes.has(href)).map(([href, label]) => (
+          <Link className={activePage === href ? "active" : ""} href={`/${href}`} key={href}>{label}</Link>
+        ))}
+        {aliases.map(alias => <Link className={activePage === alias ? "active" : ""} href={"/" + alias} key={alias}>{alias[0].toUpperCase() + alias.slice(1).replaceAll("-", " ")}</Link>)}
+        {extensions.filter(item => !item.page.legacy_route).map(item => (
           <Link href={item.href} key={item.href}>{item.page.title} · {item.pluginID}@{item.version}</Link>
         ))}
       </nav>
@@ -152,7 +156,7 @@ export function AdminPageFrame({
       .then(async (projectsResponse) => {
         if (!projectsResponse.ok) throw new Error("session expired");
         const projects = (await projectsResponse.json()) as Array<{ ID: string; Active: boolean }>;
-        const activeProject = projects.find((project) => project.Active)?.ID;
+        const activeProject = preferredAdminProject(projects)?.ID;
         if (!activeProject) throw new Error("no active project");
         const pluginsResponse = await fetch(
           `/api/admin/plugins?project_id=${encodeURIComponent(activeProject)}`,

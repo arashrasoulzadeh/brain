@@ -53,7 +53,7 @@ func validateAdminSpec(m Manifest) error {
 		if page.Extends != "" && (!adminTarget.MatchString(page.Extends) || strings.HasPrefix(page.Extends, m.ID+"/")) {
 			return ErrInvalidManifest
 		}
-		if page.LegacyRoute != "" && !adminPageID.MatchString(page.LegacyRoute) {
+		if page.LegacyRoute != "" && (!adminPageID.MatchString(page.LegacyRoute) || reservedAdminAlias(page.LegacyRoute)) {
 			return ErrInvalidManifest
 		}
 		if len(page.RefreshOn) > 16 {
@@ -195,6 +195,14 @@ func (m Manifest) AdminReadOnly(pageID, operation string) bool {
 				return action.ReadOnly
 			}
 		}
+	}
+	return false
+}
+
+func reservedAdminAlias(route string) bool {
+	switch route {
+	case "projects", "plugins", "system", "audit", "routes", "monitoring", "workers", "functions", "extensions":
+		return true
 	}
 	return false
 }

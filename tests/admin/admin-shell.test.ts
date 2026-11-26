@@ -5,6 +5,7 @@ import assert from "node:assert/strict";
 
 const root = process.cwd();
 const pageFiles = [
+  "admin-nextjs/app/[legacy]/page.tsx",
   "admin-nextjs/app/audit/page.tsx",
   "admin-nextjs/app/database/page.tsx",
   "admin-nextjs/app/files/page.tsx",
@@ -27,7 +28,7 @@ test("every admin page uses the one shared shell or its shared main-page alias",
   for (const relativePath of pageFiles) {
     const source = await readFile(join(root, relativePath), "utf8");
     const isMainPage = relativePath === "admin-nextjs/app/page.tsx";
-    const isAlias = source.includes('export { default } from "../page"');
+    const isAlias = source.includes('export { default } from "../page"') || source.includes('export { default } from "../components/legacy-admin-page"');
     assert.ok(
       isMainPage || isAlias || source.includes("AdminPageFrame"),
       `${relativePath} bypasses AdminPageFrame`,
