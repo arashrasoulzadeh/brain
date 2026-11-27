@@ -123,6 +123,7 @@ type adminCommand struct {
 	Confirmed       bool            `json:"confirmed"`
 	Revision        uint64          `json:"revision"`
 	Dependents      []string        `json:"dependents"`
+	Dependencies    *[]string       `json:"dependencies"`
 	Name            string          `json:"name"`
 	Slug            string          `json:"slug"`
 	Source          string          `json:"source"`
@@ -206,7 +207,15 @@ func AdminHandler(service *admin.LifecycleService) http.Handler {
 		case "plugin.readiness":
 			err = service.SetPluginReadiness(actor, command.PluginID, command.Version, command.Ready)
 		case "plugin.enable":
-			err = service.EnablePlugin(actor, command.ProjectID, command.PluginID, command.Version)
+			if command.Dependencies != nil {
+				if !command.Confirmed {
+					http.Error(w, "dependency activation requires confirmation", http.StatusBadRequest)
+					return
+				}
+				err = service.EnablePluginWithDependencies(actor, command.ProjectID, command.PluginID, command.Version, *command.Dependencies)
+			} else {
+				err = service.EnablePlugin(actor, command.ProjectID, command.PluginID, command.Version)
+			}
 		case "plugin.worker.start":
 			err = service.StartPluginWorker(actor, command.ProjectID, command.PluginID, command.Version)
 		case "plugin.remove":

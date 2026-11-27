@@ -1,4 +1,5 @@
 "use client";
+import { dependencyEnablePlan } from "./lib/plugin-version-review";
 import { adminHeaders, readAdminSession, saveAdminSession, signOutAdminSession, saveAdminProject, preferredAdminProject, projectAdminURL, systemAdminURL, projectUIURL, systemUIURL, adminUIContext, notifyPluginCatalogChanged } from "./lib/admin-api";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
@@ -430,6 +431,13 @@ export default function AdminPage() {
         candidate.ID === installation.PluginID && candidate.Version === installation.Version,
     );
     const capability = requestedCapability ?? manifest?.Capabilities?.[0] ?? "";
+    const dependencyPlan = operation === "plugin.enable" && manifest ? dependencyEnablePlan(project.ID, manifest, manifests, installations) : undefined;
+    if (operation === "plugin.enable") {
+      if (!dependencyPlan || dependencyPlan.blockers.length) { setError(dependencyPlan?.blockers.join("; ") || "Plugin manifest unavailable"); return; }
+      const changes = dependencyPlan.enable.length ? "Required exact versions that will also be enabled: " + dependencyPlan.enable.join(", ") : "No additional dependencies will be enabled.";
+      const existing = dependencyPlan.alreadyEnabled.length ? "\nAlready enabled (unchanged): " + dependencyPlan.alreadyEnabled.join(", ") : "";
+      if (!window.confirm("Enable " + installation.PluginID + "@" + installation.Version + "?\n" + changes + existing + "\nOptional dependencies and grants are unchanged.")) return;
+    }
     if (
       (operation === "plugin.remove" ||
         operation === "plugin.revoke" ||
@@ -449,7 +457,9 @@ export default function AdminPage() {
         version: installation.Version,
         capability,
         ready: operation === "plugin.readiness",
+        ...(dependencyPlan ? { dependencies: dependencyPlan.enable } : {}),
         confirmed: [
+          "plugin.enable",
           "plugin.remove",
           "plugin.revoke",
           "plugin.rollback",

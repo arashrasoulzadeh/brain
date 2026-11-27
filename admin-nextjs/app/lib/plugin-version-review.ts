@@ -39,3 +39,37 @@ export function pluginVersionReview(projectID: string, manifest: PluginManifest,
   const requiredUnavailable = dependencies.filter(item => item.required && !item.available);
   return { versions, selected, promoted, otherEnabled, newlyRequested, missingApprovals, missingGrants, missingConfig, incompatibleConfig, dependencies, requiredUnavailable };
 }
+
+export type DependencyEnablePlan = { enable: string[]; alreadyEnabled: string[]; blockers: string[] };
+export function dependencyEnablePlan(projectID: string, root: PluginManifest, manifests: readonly PluginManifest[], installations: readonly PluginStatus[]): DependencyEnablePlan {
+  const scoped = installations.filter(item => item.ProjectID === projectID);
+  const byKey = new Map(scoped.map(item => [installationVersionKey(item), item]));
+  const registered = new Map(manifests.map(item => [pluginVersionKey(item), item]));
+  const plan: DependencyEnablePlan = { enable: [], alreadyEnabled: [], blockers: [] };
+  const visiting = new Set<string>();
+  const visited = new Set<string>();
+  const selected = new Map<string, string>([[root.ID, root.Version]]);
+  function visit(key: string) {
+    if (visiting.has(key)) { plan.blockers.push(key + ": dependency cycle"); return; }
+    if (visited.has(key)) return;
+    visiting.add(key);
+    const manifest = registered.get(key);
+    const installation = byKey.get(key);
+    if (!manifest || !installation) plan.blockers.push(key + ": must be installed first");
+    else {
+      const previous = selected.get(manifest.ID);
+      if (previous && previous !== manifest.Version) plan.blockers.push(key + ": conflicting required versions");
+      selected.set(manifest.ID, manifest.Version);
+      if (!installation.Ready || installation.Draining) plan.blockers.push(key + ": not ready or draining");
+      if ((manifest.Capabilities ?? []).some(capability => !installation.Grants?.includes(capability))) plan.blockers.push(key + ": missing capability grants");
+      if (scoped.some(item => item.PluginID === manifest.ID && item.Version !== manifest.Version && (item.Enabled || item.Promoted))) plan.blockers.push(key + ": another version is enabled or promoted");
+      for (const dependency of manifest.Dependencies ?? []) visit(dependency);
+      (installation.Enabled ? plan.alreadyEnabled : plan.enable).push(key);
+    }
+    visiting.delete(key);
+    visited.add(key);
+  }
+  visiting.add(pluginVersionKey(root));
+  for (const dependency of root.Dependencies ?? []) visit(dependency);
+  return plan;
+}
