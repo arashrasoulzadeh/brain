@@ -38,22 +38,24 @@ test("invite routes enforce capacity, defaults, cancellation and credential shap
   }
   const first = create(context, payload);
   for (const credentials of [{}, { inviteId: first.id, code: first.code }, { inviteId: "a".repeat(257) }, { code: "a".repeat(257) }]) {
-    assert.throws(() => accept(context, { playerId: "player", ...credentials }), /invite unavailable/);
+    assert.throws(() => accept(context, { roomId: "room", playerId: "player", ...credentials }), /invite unavailable/);
   }
-  assert.equal(accept(context, { playerId: "player", inviteId: first.id }).code, "");
-  assert.throws(() => cancel(context, { inviteId: first.id }), /invite unavailable/);
-  assert.throws(() => cancel(context, { inviteId: "missing" }), /invite unavailable/);
+  assert.throws(() => accept(context, { roomId: "other", playerId: "player", inviteId: first.id }), /invite unavailable/);
+  assert.throws(() => cancel(context, { roomId: "other", inviteId: first.id }), /invite unavailable/);
+  assert.equal(accept(context, { roomId: "room", playerId: "player", inviteId: first.id }).code, "");
+  assert.throws(() => cancel(context, { roomId: "room", inviteId: first.id }), /invite unavailable/);
+  assert.throws(() => cancel(context, { roomId: "room", inviteId: "missing" }), /invite unavailable/);
   const realNow = Date.now;
   try {
     let now = realNow() + 100000;
     Date.now = () => now;
     const expired = create(context, { ...payload, ttlSeconds: 1 });
     now += 1000;
-    assert.throws(() => cancel(context, { inviteId: expired.id }), /invite unavailable/);
+    assert.throws(() => cancel(context, { roomId: "room", inviteId: expired.id }), /invite unavailable/);
     const live = [];
     for (let i = 0; i < 4096; i++) live.push(create(context, { ...payload, ttlSeconds: 60 }));
     assert.throws(() => create(context, payload), /invite capacity reached/);
-    for (const invite of live) cancel(context, { inviteId: invite.id });
+    for (const invite of live) cancel(context, { roomId: "room", inviteId: invite.id });
   } finally {
     Date.now = realNow;
   }
