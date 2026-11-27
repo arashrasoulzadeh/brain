@@ -15,7 +15,7 @@ Passing tests and coverage are different measures. A coverage gate does not prov
 | HTTP/admin/function commands, admin pages and SDK exports | Exact source inventory audit | 100% |
 | Narrative docs | Review all public interfaces, examples and operating procedures | 100% audit target |
 
-The CI coverage workflow publishes raw profiles and HTML reports even when the target is missed. Do not exclude code merely to reach the target. Go's standard profile measures statements, not branches.
+The CI coverage workflow publishes raw profiles and HTML reports even when the target is missed. Do not exclude code merely to reach the target. Go's standard profile measures statements, not branches. Unit, CLI subprocess and packaged-runtime profiles are merged by source block before the existing strict statement gate. TypeScript coverage records compiler-erased modules separately and verifies that every executable source appears in the report. Admin DOM tests run alongside the plugin and client suites.
 
 Shell scripts, browser end-to-end flows and production integration coverage are separate unfinished measurement areas. Flutter and Kotlin coverage gates are configured but must pass before their targets are considered achieved. The existing Compose, sandbox, race, lint and type checks remain required. Do not claim repository-wide 100% coverage from partial coverage reports.
 

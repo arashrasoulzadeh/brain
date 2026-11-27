@@ -1,11 +1,14 @@
 import importlib.util
 from pathlib import Path
 import unittest
+import sys
 
 ROOT = Path(__file__).resolve().parents[2]
 SPEC = importlib.util.spec_from_file_location("build_docs", ROOT / "scripts/build-docs.py")
 BUILD = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(BUILD)
+sys.path.insert(0, str(ROOT / "scripts"))
+from documentation_inventory import audit
 
 
 class DocumentationTest(unittest.TestCase):
@@ -27,6 +30,11 @@ class DocumentationTest(unittest.TestCase):
         self.assertEqual(len(mapping), len(set(mapping.values())))
         for source in ("docs/index.md", "docs/admins.md", "docs/developers.md", "tests/README.md"):
             self.assertIn(source, mapping)
+
+    def test_host_http_surface_and_guides_are_documented(self):
+        report = audit(ROOT)
+        self.assertIn("Mounted HTTP route patterns", report)
+        self.assertIn("Plugin guides", report)
 
 
 if __name__ == "__main__":

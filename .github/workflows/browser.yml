@@ -1,0 +1,54 @@
+name: browser verification
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: browser-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      BRAIN_BROWSER_ARTIFACTS: coverage/browser
+    steps:
+      - run: echo "BRAIN_TEST_TOOLS=${RUNNER_TEMP}/brain-browser-tools" >> "$GITHUB_ENV"
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: docs/requirements.txt
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: admin-nextjs/package-lock.json
+      - run: pip install -r docs/requirements.txt
+      - run: go build -o "${RUNNER_TEMP}/brain" ./cmd/brain
+      - run: python scripts/build-docs.py --contract "${RUNNER_TEMP}/brain"
+      - run: mkdocs build --strict
+      - run: npm ci --prefix admin-nextjs
+      - run: npm install --prefix "$BRAIN_TEST_TOOLS" --no-save --ignore-scripts playwright@1.58.2
+      - name: Select runner Chromium
+        run: |
+          chrome=$(command -v google-chrome || command -v google-chrome-stable || command -v chromium)
+          "$chrome" --version
+          echo "BRAIN_BROWSER_EXECUTABLE=$chrome" >> "$GITHUB_ENV"
+      - run: node --test --test-concurrency=1 tests/browser/*.test.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-evidence
+          path: coverage/browser/

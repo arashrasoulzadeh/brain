@@ -6,6 +6,8 @@ import kotlin.coroutines.startCoroutine
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class BrainClientTest {
     private fun <T> runImmediate(block: suspend () -> T): T {
@@ -70,6 +72,13 @@ class BrainClientTest {
     @Test
     fun clientResponsesExposeStableValueSemantics() {
         val session = SignInResponse("session-token", "alice")
+        assertEquals("session-token", session.token)
+        assertEquals("alice", session.username)
+        assertTrue(session.equals(session))
+        assertFalse(session.equals(null))
+        assertFalse(session.equals("session-token"))
+        assertFalse(session == SignInResponse("different", "alice"))
+        assertFalse(session == SignInResponse("session-token", "different"))
         val (token, username) = session
         assertEquals("session-token", token)
         assertEquals("alice", username)
@@ -79,6 +88,13 @@ class BrainClientTest {
         assertEquals(session.hashCode(), session.copy().hashCode())
         assertEquals("SignInResponse(token=session-token, username=alice)", session.toString())
         val callback = AuthCallback("abc", "xyz")
+        assertEquals("abc", callback.code)
+        assertEquals("xyz", callback.state)
+        assertTrue(callback.equals(callback))
+        assertFalse(callback.equals(null))
+        assertFalse(callback.equals("abc"))
+        assertFalse(callback == AuthCallback("different", "xyz"))
+        assertFalse(callback == AuthCallback("abc", "different"))
         val (code, state) = callback
         assertEquals("abc", code)
         assertEquals("xyz", state)
