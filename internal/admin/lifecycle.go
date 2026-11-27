@@ -397,13 +397,17 @@ func (s *LifecycleService) executeProjectLifecycle(actor operator.Actor, project
 }
 
 func (s *LifecycleService) AdminInventory(actor operator.Actor, pageID string, invocation PluginInvocation, after string, limit int) (plugin.AdminInventoryPage, error) {
+	return s.AdminInventorySearch(actor, pageID, invocation, after, "", limit)
+}
+
+func (s *LifecycleService) AdminInventorySearch(actor operator.Actor, pageID string, invocation PluginInvocation, after, search string, limit int) (plugin.AdminInventoryPage, error) {
 	var result plugin.AdminInventoryPage
 	err := s.execute(actor, "plugin.admin.inventory", func() error {
 		if _, err := s.adminPageManifest(actor, pageID, invocation); err != nil {
 			return err
 		}
 		var err error
-		result, err = s.registry.AdminInventoryAsOperator(actor.ID, invocation.ProjectID, invocation.PluginID, invocation.Version, pageID, after, limit)
+		result, err = s.registry.AdminInventorySearchAsOperator(actor.ID, invocation.ProjectID, invocation.PluginID, invocation.Version, pageID, after, search, limit)
 		return err
 	})
 	return result, err

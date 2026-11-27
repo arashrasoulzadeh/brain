@@ -37,13 +37,13 @@ export async function adminPageRevision(token: string, contribution: AdminContri
   return result.revision;
 }
 
-export async function fetchAdminInventory(token: string, contribution: AdminContribution, after: string, signal: AbortSignal, quiet = false): Promise<AdminInventoryPage> {
+export async function fetchAdminInventory(token: string, contribution: AdminContribution, after: string, signal: AbortSignal, quiet = false, search = ""): Promise<AdminInventoryPage> {
   const response = await fetch(projectAdminURL(contribution.projectID, "actions"), {
     method: "POST",
     headers: adminHeaders(token, { "content-type": "application/json", ...(quiet ? { "x-brain-quiet": "1" } : {}) }),
     signal,
     body: JSON.stringify({ operation: "plugin.admin.inventory", project_id: contribution.projectID,
-      plugin_id: contribution.pluginID, version: contribution.version, page_id: contribution.page.id, after, limit: 50 }),
+      plugin_id: contribution.pluginID, version: contribution.version, page_id: contribution.page.id, after, limit: 50, ...(search ? { search } : {}) }),
   });
   if (!response.ok) throw new Error(await response.text());
   const result = await response.json() as AdminInventoryPage;

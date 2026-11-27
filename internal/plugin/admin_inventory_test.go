@@ -100,3 +100,33 @@ func TestInventoryFailsClosedWithAccessManagement(t *testing.T) {
 		t.Fatalf("inventory bypassed policy: %v", err)
 	}
 }
+
+func TestInventorySearchFiltersBeforePaginationAndPreservesScope(t *testing.T) {
+	storage, err := OpenSQLiteStorage(filepath.Join(t.TempDir(), "search.sqlite"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer storage.Close()
+	for _, key := range []string{"a", "match-one", "match-two", "match-hidden", "percent%"} {
+		if err := storage.PutFile("one", key, "content", false); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := storage.PutFile("two", "match-foreign", "private", false); err != nil {
+		t.Fatal(err)
+	}
+	planner := legacyStoragePlanner{storage: storage}
+	filter := &AdminInventoryFilter{AllowAll: true, Denied: []string{"match-hidden"}, Restricted: true, GrantKeys: []string{"match-one", "match-two", "match-hidden"}}
+	first, err := planner.AdminInventorySearch("one", "files", "file_keys", "files.metadata", "", "MATCH", 1, filter)
+	if err != nil || len(first.Rows) != 1 || first.Rows[0].Key != "match-one" || first.Next != "match-one" {
+		t.Fatalf("first search page: %+v %v", first, err)
+	}
+	second, err := planner.AdminInventorySearch("one", "files", "file_keys", "files.metadata", first.Next, "MATCH", 1, filter)
+	if err != nil || len(second.Rows) != 1 || second.Rows[0].Key != "match-two" || second.Next != "" {
+		t.Fatalf("second search page: %+v %v", second, err)
+	}
+	literal, err := planner.AdminInventorySearch("one", "files", "file_keys", "files.metadata", "", "%", 10, nil)
+	if err != nil || len(literal.Rows) != 1 || literal.Rows[0].Key != "percent%" {
+		t.Fatalf("literal search: %+v %v", literal, err)
+	}
+}

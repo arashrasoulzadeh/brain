@@ -3,6 +3,7 @@ package plugin
 import (
 	"errors"
 	"sort"
+	"strings"
 )
 
 var ErrAdminInventoryUnavailable = errors.New("admin inventory unavailable")
@@ -79,9 +80,14 @@ type AdminScopedInventoryProvider interface {
 	AdminInventoryScoped(projectID, pluginID, kind, capability, after string, limit int, filter AdminInventoryFilter) (AdminInventoryPage, error)
 }
 
+// AdminSearchInventoryProvider must apply search after authorization and before pagination.
+type AdminSearchInventoryProvider interface {
+	AdminInventorySearch(projectID, pluginID, kind, capability, after, search string, limit int, filter *AdminInventoryFilter) (AdminInventoryPage, error)
+}
+
 // AdminInventory is the compatibility entry point for unmanaged projects.
 func (r *Registry) AdminInventory(projectID, pluginID, version, pageID, after string, limit int) (AdminInventoryPage, error) {
-	return r.adminInventory("", projectID, pluginID, version, pageID, after, limit)
+	return r.adminInventory("", projectID, pluginID, version, pageID, after, "", limit)
 }
 
 // AdminInventoryAsOperator receives the authenticated identity from the host.
@@ -89,11 +95,20 @@ func (r *Registry) AdminInventoryAsOperator(actorID, projectID, pluginID, versio
 	if !validAccessIdentity(actorID) {
 		return AdminInventoryPage{}, ErrActorDenied
 	}
-	return r.adminInventory("operator:"+actorID, projectID, pluginID, version, pageID, after, limit)
+	return r.adminInventory("operator:"+actorID, projectID, pluginID, version, pageID, after, "", limit)
 }
 
-func (r *Registry) adminInventory(principal, projectID, pluginID, version, pageID, after string, limit int) (AdminInventoryPage, error) {
-	if !isValidProjectID(projectID) || len(after) > 65536 || limit < 1 || limit > 100 {
+// AdminInventorySearchAsOperator preserves the same policy and grant checks as enumeration.
+func (r *Registry) AdminInventorySearchAsOperator(actorID, projectID, pluginID, version, pageID, after, search string, limit int) (AdminInventoryPage, error) {
+	if !validAccessIdentity(actorID) {
+		return AdminInventoryPage{}, ErrActorDenied
+	}
+	return r.adminInventory("operator:"+actorID, projectID, pluginID, version, pageID, after, search, limit)
+}
+
+func (r *Registry) adminInventory(principal, projectID, pluginID, version, pageID, after, search string, limit int) (AdminInventoryPage, error) {
+	search = strings.TrimSpace(search)
+	if !isValidProjectID(projectID) || len(after) > 65536 || len(search) > 256 || strings.ContainsRune(search, 0) || limit < 1 || limit > 100 {
 		return AdminInventoryPage{}, ErrInvalidWorkerRequest
 	}
 	r.storagePlannerMu.RLock()
@@ -146,6 +161,13 @@ func (r *Registry) adminInventory(principal, projectID, pluginID, version, pageI
 		if len(resources) > 0 {
 			return AdminInventoryPage{}, ErrGrantDenied
 		}
+		if search != "" {
+			searcher, ok := provider.(AdminSearchInventoryProvider)
+			if !ok {
+				return AdminInventoryPage{}, ErrAdminInventoryUnavailable
+			}
+			return searcher.AdminInventorySearch(projectID, pluginID, page.Inventory.Kind, page.Inventory.Capability, after, search, limit, nil)
+		}
 		return provider.AdminInventory(projectID, pluginID, page.Inventory.Kind, page.Inventory.Capability, after, limit)
 	}
 	scoped, ok := provider.(AdminScopedInventoryProvider)
@@ -167,6 +189,13 @@ func (r *Registry) adminInventory(principal, projectID, pluginID, version, pageI
 		}
 	}
 	sort.Strings(filter.GrantKeys)
+	if search != "" {
+		searcher, ok := provider.(AdminSearchInventoryProvider)
+		if !ok {
+			return AdminInventoryPage{}, ErrAdminInventoryUnavailable
+		}
+		return searcher.AdminInventorySearch(projectID, pluginID, page.Inventory.Kind, page.Inventory.Capability, after, search, limit, &filter)
+	}
 	return scoped.AdminInventoryScoped(projectID, pluginID, page.Inventory.Kind, page.Inventory.Capability, after, limit, filter)
 }
 

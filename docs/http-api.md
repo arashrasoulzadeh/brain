@@ -54,7 +54,7 @@ Send project creation, configuration, activation, deactivation, uninstall and re
 | `plugin.grant` | identity, capability | Grant declared capability. |
 | `plugin.grant-resource` | identity, capability, resource | Grant exact resource scope. |
 | `plugin.configure` | identity, values | Set schema-checked configuration; integers must be valid. |
-| `plugin.admin.inventory` | identity, page_id, after, limit | Page of manifest-declared inventory; default limit 50. |
+| `plugin.admin.inventory` | identity, page_id, after, limit, optional search | Page of manifest-declared inventory; default limit 50. Search is a literal substring up to 256 bytes, applied to authorized keys and file metadata before pagination. |
 | `plugin.admin.revision` | identity, page_id, target_operation, payload | Read observation revision. |
 | `plugin.admin.invoke` | identity, page_id, target_operation, payload, confirmed | Invoke declared admin action. |
 | `plugin.admin.query` | identity, page_id, target_operation, payload | Read-only declared admin action. |
