@@ -16,11 +16,18 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
+      - name: Test coverage profile merger
+        run: python -m unittest discover -s tests/documentation
       - name: Measure host statement coverage
         run: |
           mkdir -p coverage
           status=0
-          go test -covermode=atomic -coverpkg=./internal/...,./cmd/... -coverprofile=coverage/go.out ./... || status=$?
+          go test -covermode=atomic -coverpkg=./internal/...,./cmd/...,./plugins/sdk-typescript -coverprofile=coverage/go-unit.out ./... || status=$?
+          mkdir -p coverage/cli-raw
+          go build -cover -covermode=atomic -coverpkg=./internal/...,./cmd/...,./plugins/sdk-typescript -o "$RUNNER_TEMP/brain-covered" ./cmd/brain
+          BRAIN_TEST_CLI="$RUNNER_TEMP/brain-covered" GOCOVERDIR="$PWD/coverage/cli-raw" python -m unittest discover -s tests/cli || status=$?
+          go tool covdata textfmt -i=coverage/cli-raw -o=coverage/go-cli.out
+          python scripts/merge-go-coverage.py --output coverage/go.out coverage/go-unit.out coverage/go-cli.out
           if test -s coverage/go.out; then
             go tool cover -func=coverage/go.out | tee coverage/go-summary.txt
             go tool cover -html=coverage/go.out -o coverage/go.html
@@ -34,7 +41,7 @@ jobs:
       - name: Require every measured statement to execute
         run: |
           test -s coverage/go.out
-          awk 'NR > 1 && $(NF-1) > 0 && $NF == 0 { print; missed++ } END { exit (missed > 0 || NR < 2) }' coverage/go.out
+          python scripts/merge-go-coverage.py --require-complete --output coverage/go-checked.out coverage/go.out
   typescript-coverage:
     runs-on: ubuntu-24.04
     steps:

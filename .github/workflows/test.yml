@@ -22,6 +22,8 @@ jobs:
           test -z "$unformatted"
       - name: Test
         run: go test ./...
+      - name: Test CLI commands
+        run: python -m unittest discover -s tests/cli
       - name: Check operator session races
         run: go test -race ./tests/operator
       - name: Build backend image
