@@ -100,10 +100,10 @@ export type HostExecutionContext = {
 
 export type PluginFunction = (request: RpcRequest, context?: PluginContext) => unknown;
 export { createRouteHandler, createHostHandler, createFunctionHandler, createOperationRoutes, createRequestDispatcher, createRouteDispatcher } from "./routes.js";
-export { request, pluginRequest, createResourceRequest } from "./request.js";
+export { request, pluginRequest, createResourceRequest, createManifestRequest } from "./request.js";
 export { validateProjectId, projectRoomID, requireProjectInput, requireOperator, validateIdentifier, requiredString, trimmedString, validateBoundedInteger, requireAllowedValues } from "./validation.js";
 export type { PayloadHandler } from "./routes.js";
-export { createProjectMap } from "./project-store.js";
+export { createProjectMap, createProjectSet, createProjectLeaseStore } from "./project-store.js";
 export { commitWithGrant, createCommitRollback, createTransactionGate, runCappedRetries, runWithTimeout } from "./execution.js";
 
 export { createFixedWindowLimiter } from "./execution.js";
@@ -120,3 +120,5 @@ export type { PureHelperName } from "./helpers.mjs";
 
 export { CommandDeduplicator, assertMatchMember, nextTurn, createRevisionRuntime, commitRevision, replayHistory, expireTurn, pauseTurn, resumeTurn, privatePlayerView, parseMatchState } from "./pvp.js";
 export type { TurnMatchState, RevisionRuntime, CommittedCommand } from "./pvp.js";
+
+export type { ManifestOperations, ManifestOperation } from "./manifest-operations.generated.js";
