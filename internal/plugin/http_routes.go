@@ -9,15 +9,17 @@ import (
 // HTTPRouteMatch is selected by the host from an installed manifest, never from
 // client-provided operation, plugin ID, version or capabilities.
 type HTTPRouteMatch struct {
-	PluginID   string            `json:"plugin_id"`
-	Version    string            `json:"version"`
-	Method     string            `json:"method"`
-	Path       string            `json:"path"`
-	Function   string            `json:"function"`
-	Capability string            `json:"capability"`
-	Operation  string            `json:"operation"`
-	Auth       string            `json:"auth"`
-	Params     map[string]string `json:"-"`
+	PluginID           string            `json:"plugin_id"`
+	Version            string            `json:"version"`
+	Method             string            `json:"method"`
+	Path               string            `json:"path"`
+	Function           string            `json:"function"`
+	Capability         string            `json:"capability"`
+	Operation          string            `json:"operation"`
+	Auth               string            `json:"auth"`
+	Params             map[string]string `json:"-"`
+	ResourceField      string            `json:"resource_field,omitempty"`
+	WebSocketAdmission string            `json:"websocket_admission,omitempty"`
 
 	projectID    string
 	relativePath string
@@ -103,7 +105,7 @@ func (r *Registry) matchHTTPRouteLocked(projectID, method, relativePath string) 
 			result = HTTPRouteMatch{PluginID: installation.PluginID, Version: installation.Version,
 				Method: route.Method, Path: mountedHTTPPath(manifest.Manifest.Mount, route.Path),
 				Function: route.Function, Capability: route.Capability,
-				Operation: route.Operation, Auth: route.Auth, Params: params, projectID: projectID, relativePath: relativePath}
+				Operation: route.Operation, Auth: route.Auth, Params: params, ResourceField: route.ResourceField, WebSocketAdmission: route.WebSocketAdmission, projectID: projectID, relativePath: relativePath}
 		}
 	}
 	// Multiple enabled versions without an active promotion fail closed.
@@ -137,7 +139,7 @@ func (r *Registry) HTTPRoutes(projectID string) []HTTPRouteMatch {
 			routes = append(routes, HTTPRouteMatch{PluginID: installation.PluginID, Version: installation.Version,
 				Method: route.Method, Path: mountedHTTPPath(registered.Manifest.Mount, route.Path),
 				Function: route.Function, Capability: route.Capability,
-				Operation: route.Operation, Auth: route.Auth})
+				Operation: route.Operation, Auth: route.Auth, ResourceField: route.ResourceField, WebSocketAdmission: route.WebSocketAdmission})
 		}
 	}
 	counts := make(map[string]int)
@@ -195,7 +197,8 @@ func (r *Registry) checkHTTPRouteLocked(request WorkerRequest) error {
 	if !ok || current.PluginID != request.PluginID || current.Version != request.Version ||
 		current.Operation != request.Operation || current.Auth != expected.Auth ||
 		current.Capability != expected.Capability || current.Path != expected.Path ||
-		current.Function != expected.Function || !maps.Equal(current.Params, expected.Params) {
+		current.Function != expected.Function || current.ResourceField != expected.ResourceField ||
+		current.WebSocketAdmission != expected.WebSocketAdmission || !maps.Equal(current.Params, expected.Params) {
 		return ErrNotRegistered
 	}
 	return nil

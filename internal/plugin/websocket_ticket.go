@@ -22,13 +22,13 @@ type WebSocketTicketStore struct {
 	mu        sync.Mutex
 	capacity  int
 	authorize func(HostCall, time.Time) error
-	tickets   map[[sha256.Size]byte]HostCall
+	tickets   map[[sha256.Size]byte]webSocketTicketBinding
 }
 
 func NewWebSocketTicketStore(capacity int, authorize func(HostCall, time.Time) error) *WebSocketTicketStore {
 	return &WebSocketTicketStore{
 		capacity: capacity, authorize: authorize,
-		tickets: make(map[[sha256.Size]byte]HostCall),
+		tickets: make(map[[sha256.Size]byte]webSocketTicketBinding),
 	}
 }
 
@@ -40,7 +40,19 @@ func validWebSocketTicketCall(call HostCall) bool {
 		validAccessIdentity(call.Resource) && call.Resource != "*"
 }
 
+type webSocketTicketBinding struct {
+	call    HostCall
+	session string
+	path    string
+	origin  string
+}
+
 func (s *WebSocketTicketStore) Issue(call HostCall, now time.Time, lifetime time.Duration) (string, error) {
+	return s.issue(webSocketTicketBinding{call: call}, now, lifetime)
+}
+
+func (s *WebSocketTicketStore) issue(binding webSocketTicketBinding, now time.Time, lifetime time.Duration) (string, error) {
+	call := binding.call
 	if s == nil || s.authorize == nil || s.capacity <= 0 ||
 		now.IsZero() || lifetime <= 0 || lifetime > MaxWebSocketTicketLifetime || !validWebSocketTicketCall(call) {
 		return "", ErrWebSocketTicketDenied
@@ -58,7 +70,7 @@ func (s *WebSocketTicketStore) Issue(call HostCall, now time.Time, lifetime time
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	for key, existing := range s.tickets {
-		if !existing.ExpiresAt.After(now) {
+		if !existing.call.ExpiresAt.After(now) {
 			delete(s.tickets, key)
 		}
 	}
@@ -68,7 +80,8 @@ func (s *WebSocketTicketStore) Issue(call HostCall, now time.Time, lifetime time
 	if _, exists := s.tickets[digest]; exists {
 		return "", ErrWebSocketTicketDenied
 	}
-	s.tickets[digest] = call
+	binding.call = call
+	s.tickets[digest] = binding
 	return token, nil
 }
 
@@ -77,23 +90,29 @@ func (s *WebSocketTicketStore) Issue(call HostCall, now time.Time, lifetime time
 // input, to select actor, worker and resource. It must reauthorize every
 // subsequent invocation. A revoked or expired ticket cannot be retried.
 func (s *WebSocketTicketStore) Consume(projectID, token string, now time.Time) (HostCall, error) {
+	binding, err := s.consume(projectID, token, now)
+	return binding.call, err
+}
+
+func (s *WebSocketTicketStore) consume(projectID, token string, now time.Time) (webSocketTicketBinding, error) {
 	if s == nil || s.authorize == nil || !isValidProjectID(projectID) ||
 		len(token) != base64.RawURLEncoding.EncodedLen(32) || now.IsZero() {
-		return HostCall{}, ErrWebSocketTicketDenied
+		return webSocketTicketBinding{}, ErrWebSocketTicketDenied
 	}
 	digest := sha256.Sum256([]byte(token))
 	s.mu.Lock()
-	call, found := s.tickets[digest]
+	binding, found := s.tickets[digest]
+	call := binding.call
 	if !found || call.ProjectID != projectID {
 		s.mu.Unlock()
-		return HostCall{}, ErrWebSocketTicketDenied
+		return webSocketTicketBinding{}, ErrWebSocketTicketDenied
 	}
 	delete(s.tickets, digest)
 	s.mu.Unlock()
 	if !call.ExpiresAt.After(now) || s.authorize(call, now) != nil {
-		return HostCall{}, ErrWebSocketTicketDenied
+		return webSocketTicketBinding{}, ErrWebSocketTicketDenied
 	}
-	return call, nil
+	return binding, nil
 }
 
 // RevokeProject invalidates outstanding tickets on project shutdown. Existing
@@ -101,8 +120,8 @@ func (s *WebSocketTicketStore) Consume(projectID, token string, now time.Time) (
 func (s *WebSocketTicketStore) RevokeProject(projectID string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	for digest, call := range s.tickets {
-		if call.ProjectID == projectID {
+	for digest, binding := range s.tickets {
+		if binding.call.ProjectID == projectID {
 			delete(s.tickets, digest)
 		}
 	}

@@ -22,7 +22,8 @@ This is the HTTP surface mounted by the current application in [app.go](../inter
 | `GET /{project}/admin/routes` | Operator bearer | Live manifest-declared route discovery. |
 | `POST /{project}/admin/actions` | Operator bearer | Project plugin, grant, invocation and data commands. |
 | `ANY /{project}/functions/{function_name}` | Anonymous or authorized bearer | Published functions; only their declared GET, POST, PUT or PATCH method is accepted. |
-| `GET /{project}/ws` | Project connection ticket | Transport boundary; non-upgrade requests receive 426 and upgrades are rejected until ticket validation is implemented. |
+| `POST /{project}/ws` | Project user bearer | Request a one-time ticket for a declared socket route. |
+| `GET /{project}/ws` | Project connection ticket | Upgrade to a single project-scoped worker route. |
 | `ANY /{project}/{resource...}` | Manifest-declared | Dynamic plugin route (the HTTP method, path and authentication must be declared in `plugin.yaml`). |
 
 The first segment is **mandatory**. It is a project ID or its unique slug; `_system` is reserved and cannot be created as a project. Unknown projects and missing installations return 404; inactive projects return 403. The host resolves the immutable project ID before invoking workers and rejects contradictory project IDs from query arguments, headers, paths and command bodies. Public plugin invocations cannot inherit operator privileges.
@@ -118,4 +119,4 @@ The generic worker RPC and SDK transport interfaces do not expose a network endp
 
 ### WebSocket admission boundary
 
-The host transport credential store binds an admitted project user to one plugin version, operation, capability and resource. Tickets are short-lived (at most one minute), single-use and bounded in memory, and authorization must be rechecked at redemption and on subsequent invocations. The store is a trusted host primitive, not a public ticket-issuance endpoint. Worker membership admission, ticket issuance wiring, origin configuration and WebSocket framing remain prerequisites before the endpoint accepts connections. Until then, upgrades remain rejected.
+A manifest can opt a user-authenticated POST route into socket transport with `websocket_admission`, naming a separate user-authenticated worker operation using the same single path resource. Its worker must return `{"admitted":true}` only after membership validation. POST `/{project}/ws` with the project user bearer, same-host Origin and JSON `{"path":"/plugin/resource/command"}`. Use the returned ticket once within 60 seconds with WebSocket subprotocols `["brain.v1","ticket.<token>"]` on GET `/{project}/ws`. Do not put credentials in the URL. Send one JSON object per text message, omitting the resource and project identity. The host binds that resource, revalidates the session, exact installed route and worker admission for each invocation, and returns the worker response. Same-host HTTPS or loopback HTTP only; 64 KiB messages, 30-second idle timeout, 10-minute maximum connection lifetime and 256 concurrent connections. Tickets are process-local. Cross-origin, stale, unauthorized and replayed connections fail closed.

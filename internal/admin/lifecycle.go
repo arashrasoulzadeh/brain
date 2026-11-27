@@ -7,6 +7,7 @@ import (
 	"brain/internal/project"
 	"encoding/json"
 	"errors"
+	"net/http"
 	"strings"
 )
 
@@ -455,4 +456,9 @@ func (s *LifecycleService) ConfigureProject(actor operator.Actor, id, name, slug
 		}
 		return s.projects.Configure(id, name, slug, settings)
 	})
+}
+
+// WebSocketHandler constructs the trusted transport before serving requests.
+func (s *LifecycleService) WebSocketHandler() http.Handler {
+	return plugin.NewWebSocketGateway(s.registry)
 }

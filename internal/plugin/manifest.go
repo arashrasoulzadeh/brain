@@ -48,7 +48,8 @@ type Route struct {
 	Call       *PluginCall   `yaml:"call,omitempty"`
 
 	// ResourceField binds resource-scoped policy to a manifest-declared payload field.
-	ResourceField string `yaml:"resource_field,omitempty" json:",omitempty"`
+	ResourceField      string `yaml:"resource_field,omitempty" json:",omitempty"`
+	WebSocketAdmission string `yaml:"websocket_admission,omitempty" json:",omitempty"`
 }
 
 func LoadManifest(path string) (Manifest, error) {
@@ -180,6 +181,9 @@ func Documentation(m Manifest) string {
 		fmt.Fprintf(&b, "- `%s` → `%s` (capability: `%s`)\n", route.Operation, route.Function, route.Capability)
 		if route.Method != "" {
 			fmt.Fprintf(&b, "  - HTTP: `%s %s%s` (auth: `%s`)\n", route.Method, m.Mount, route.Path, route.Auth)
+		}
+		if route.WebSocketAdmission != "" {
+			fmt.Fprintf(&b, "  - WebSocket admission: `%s`\n", route.WebSocketAdmission)
 		}
 	}
 	if len(m.Models) > 0 {

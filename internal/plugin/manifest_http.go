@@ -54,6 +54,9 @@ func validHTTPRoutes(m Manifest) bool {
 	seen := make(map[string]bool)
 	patterns := make(map[string][]string)
 	for _, route := range m.Routes {
+		if route.WebSocketAdmission != "" && !validWebSocketRoute(m, route) {
+			return false
+		}
 		if route.Method == "" && route.Path == "" && route.Auth == "" {
 			continue
 		}
@@ -113,4 +116,18 @@ func overlappingHTTPPaths(left, right string) bool {
 		}
 	}
 	return true
+}
+
+// Socket routes opt in explicitly and bind exactly one path resource. The
+// admission operation is a separately authorized, non-socket worker function.
+func validWebSocketRoute(m Manifest, route Route) bool {
+	if route.Method != "POST" || route.Auth != "user" || route.Helper != "sdk.context" ||
+		route.ResourceField == "" || !strings.Contains(route.Path, "{"+route.ResourceField+"}") ||
+		strings.Count(route.Path, "{") != 1 || route.Operation == route.WebSocketAdmission {
+		return false
+	}
+	admission, exists := m.Route(route.WebSocketAdmission)
+	return exists && admission.Method == "POST" && admission.Auth == "user" && admission.Helper == "sdk.context" &&
+		admission.WebSocketAdmission == "" && admission.ResourceField == route.ResourceField &&
+		strings.Count(admission.Path, "{") == 1 && strings.Contains(admission.Path, "{"+route.ResourceField+"}")
 }

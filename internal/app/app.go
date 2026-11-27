@@ -7,7 +7,6 @@ import (
 
 	"brain/internal/admin"
 	"brain/internal/operator"
-	"brain/internal/plugin"
 	"brain/internal/project"
 )
 
@@ -79,7 +78,9 @@ func NewServerWithOperatorAdmin(adminService *admin.LifecycleService, sessions *
 	mux.Handle("GET /{project}/admin/function-logs", ProjectQueryHandler(AuthenticatedFunctionLogsHandler(adminService, sessions)))
 	mux.Handle("GET /{project}/admin/routes", AuthenticatedProjectRoutesHandler(adminService, sessions))
 	mux.Handle("/{project}/functions/{function_name}", PublicFunctionHandler(adminService))
-	mux.Handle("GET /{project}/ws", plugin.WebSocketEndpoint())
+	socket := adminService.WebSocketHandler()
+	mux.Handle("GET /{project}/ws", socket)
+	mux.Handle("POST /{project}/ws", socket)
 	mux.Handle("/{project}/{resource...}", PluginHTTPHandler(adminService, sessions))
 	return server
 }
