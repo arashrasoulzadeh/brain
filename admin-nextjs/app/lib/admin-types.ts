@@ -6,6 +6,7 @@ export type PluginManifest = {
   Version: string;
   Capabilities: string[];
   Dependencies?: string[];
+  OptionalDependencies?: string[];
   ConfigSchema?: Record<string, string>;
   Admin?: AdminSpec | null;
 };
@@ -29,6 +30,8 @@ export type PluginStatus = {
   Draining: boolean;
   Grants?: string[];
   ResourceGrants?: Record<string, string[]>;
+  Promoted?: boolean;
+  ApprovedCapabilities?: string[];
   ConfiguredFields?: string[];
   PublicConfig?: Record<string, string | number | boolean>;
   MaxUploadBytes?: number;

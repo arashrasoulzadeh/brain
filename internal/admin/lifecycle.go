@@ -283,6 +283,12 @@ func (s *LifecycleService) AdminPageRevision(actor operator.Actor, pageID string
 	return s.registry.AdminObservationRevision(invocation.ProjectID, page.RefreshOn), nil
 }
 
+func (s *LifecycleService) ApprovePluginCapability(actor operator.Actor, projectID, pluginID, version, capability string) error {
+	return s.executeProjectLifecycle(actor, projectID, pluginID, version, "plugin.approve-capability", func() error {
+		return s.registry.ApproveCapability(projectID, pluginID, version, capability)
+	})
+}
+
 func (s *LifecycleService) PromotePlugin(actor operator.Actor, projectID, pluginID, version string) error {
 	return s.executeProjectLifecycle(actor, projectID, pluginID, version, "plugin.promote", func() error {
 		return s.registry.Promote(projectID, pluginID, version)

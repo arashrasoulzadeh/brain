@@ -23,6 +23,8 @@ type InvocationStoragePlanner interface {
 
 // BindRegistryStorage restores persisted lifecycle state during host setup.
 func (r *Registry) BindRegistryStorage(storage RegistryStateStore) error {
+	r.lifecycleMu.Lock()
+	defer r.lifecycleMu.Unlock()
 	r.readinessMu.Lock()
 	defer r.readinessMu.Unlock()
 	r.installationMu.Lock()
@@ -35,6 +37,21 @@ func (r *Registry) BindRegistryStorage(storage RegistryStateStore) error {
 	if err != nil {
 		return err
 	}
+	active := make(map[string]string)
+	for _, installation := range installations {
+		if !installation.Promoted {
+			continue
+		}
+		key := installation.ProjectID + ":" + installation.PluginID
+		if active[key] != "" {
+			return ErrLifecycleStorage
+		}
+		if _, registered := r.registered[installation.PluginID+"@"+installation.Version]; !registered {
+			return ErrLifecycleStorage
+		}
+		active[key] = installation.Version
+	}
+	r.active = active
 	r.storage = storage
 	for key, installation := range installations {
 		if _, registered := r.registered[installation.PluginID+"@"+installation.Version]; registered {
@@ -110,6 +127,7 @@ func (r *Registry) persistLifecycleState() error {
 func cloneInstallation(i Installation) Installation {
 	i.Grants = maps.Clone(i.Grants)
 	i.Config = maps.Clone(i.Config)
+	i.ApprovedCapabilities = maps.Clone(i.ApprovedCapabilities)
 	i.Resources = maps.Clone(i.Resources)
 	for capability, resources := range i.Resources {
 		i.Resources[capability] = maps.Clone(resources)

@@ -9,8 +9,8 @@ func (r *Registry) Promote(projectID, id, version string) error {
 	defer r.readinessMu.RUnlock()
 	r.approvalMu.RLock()
 	defer r.approvalMu.RUnlock()
-	r.installationMu.RLock()
-	defer r.installationMu.RUnlock()
+	r.installationMu.Lock()
+	defer r.installationMu.Unlock()
 	if !isValidProjectID(projectID) {
 		return ErrProjectInvalid
 	}
@@ -22,7 +22,7 @@ func (r *Registry) Promote(projectID, id, version string) error {
 	if !r.readiness[id+"@"+version] {
 		return ErrNotReady
 	}
-	if !i.Enabled {
+	if !i.Enabled || i.Draining {
 		return ErrDisabled
 	}
 	manifest := r.registered[id+"@"+version].Manifest
@@ -41,7 +41,7 @@ func (r *Registry) Promote(projectID, id, version string) error {
 					break
 				}
 			}
-			if !known && !r.approvals[projectID+":"+id+"@"+version+":"+capability] {
+			if !known && !i.ApprovedCapabilities[capability] {
 				return ErrCapabilityApproval
 			}
 		}
@@ -57,6 +57,20 @@ func (r *Registry) Promote(projectID, id, version string) error {
 		if !configured || !configTypeMatches(expectedType, value) {
 			return fmt.Errorf("%w: %s", ErrInvalidConfig, name)
 		}
+	}
+	previous := make(map[string]Installation)
+	for installKey, candidate := range r.installations {
+		if candidate.ProjectID == projectID && candidate.PluginID == id {
+			previous[installKey] = candidate
+			candidate.Promoted = candidate.Version == version
+			r.installations[installKey] = candidate
+		}
+	}
+	if err := r.persistLifecycleState(); err != nil {
+		for installKey, candidate := range previous {
+			r.installations[installKey] = candidate
+		}
+		return err
 	}
 	r.active[projectID+":"+id] = version
 	r.lifecycleRevision++

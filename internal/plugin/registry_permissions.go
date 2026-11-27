@@ -12,12 +12,14 @@ func (r *Registry) ApproveCapability(projectID, id, version, capability string) 
 	defer r.readinessMu.RUnlock()
 	r.approvalMu.Lock()
 	defer r.approvalMu.Unlock()
-	r.installationMu.RLock()
-	defer r.installationMu.RUnlock()
+	r.installationMu.Lock()
+	defer r.installationMu.Unlock()
 	if !isValidProjectID(projectID) || capability == "" {
 		return ErrProjectInvalid
 	}
-	if _, ok := r.installations[projectID+":"+id+"@"+version]; !ok {
+	key := projectID + ":" + id + "@" + version
+	i, ok := r.installations[key]
+	if !ok {
 		return ErrNotInstalled
 	}
 	declared := false
@@ -29,6 +31,14 @@ func (r *Registry) ApproveCapability(projectID, id, version, capability string) 
 	}
 	if !declared {
 		return ErrGrantDenied
+	}
+	i = cloneInstallation(i)
+	if i.ApprovedCapabilities == nil {
+		i.ApprovedCapabilities = make(map[string]bool)
+	}
+	i.ApprovedCapabilities[capability] = true
+	if err := r.saveInstallationLocked(key, i); err != nil {
+		return err
 	}
 	r.approvals[projectID+":"+id+"@"+version+":"+capability] = true
 	r.appendAudit(AuditEvent{Action: "approve_capability", ProjectID: projectID, PluginID: id, Version: version, Detail: capability})
