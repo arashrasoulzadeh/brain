@@ -31,9 +31,12 @@ routes:
   - operation: subscriptions.open
     function: open
     capability: subscriptions.open
+    resource_field: channel
   - operation: subscriptions.receive
     function: receive
     capability: subscriptions.receive
+    resource_field: channel
   - operation: subscriptions.resync
     function: resync
     capability: subscriptions.resync
+    resource_field: channel

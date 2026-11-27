@@ -42,6 +42,9 @@ type Route struct {
 	Pipeline   *PipelineSpec `yaml:"pipeline,omitempty"`
 	Model      *ModelRoute   `yaml:"model,omitempty"`
 	Call       *PluginCall   `yaml:"call,omitempty"`
+
+	// ResourceField binds resource-scoped policy to a manifest-declared payload field.
+	ResourceField string `yaml:"resource_field,omitempty" json:",omitempty"`
 }
 
 func LoadManifest(path string) (Manifest, error) {
@@ -122,6 +125,9 @@ func ValidateManifestContract(manifest Manifest) error {
 			return ErrInvalidManifest
 		}
 		if (route.Helper == "host.call" && !route.Call.valid(manifest, route.Capability)) || (route.Helper != "host.call" && route.Call != nil) {
+			return ErrInvalidManifest
+		}
+		if route.ResourceField != "" && (!validResponseKey(route.ResourceField) || route.Model != nil) {
 			return ErrInvalidManifest
 		}
 		seenRoutes[route.Operation] = true

@@ -65,7 +65,7 @@ func (r *Registry) invokePluginCall(request WorkerRequest) (WorkerResponse, bool
 	if err := ValidateWorkerRequest(request, r.HostAPI); err != nil {
 		return WorkerResponse{}, true, err
 	}
-	target := WorkerRequest{Protocol: request.Protocol, ProjectID: request.ProjectID, PluginID: route.Call.Plugin, Version: route.Call.Version, Operation: route.Call.Operation, Payload: request.Payload}
+	target := WorkerRequest{Protocol: request.Protocol, ProjectID: request.ProjectID, PluginID: route.Call.Plugin, Version: route.Call.Version, Operation: route.Call.Operation, Payload: request.Payload, accessPrincipal: pluginAccessPrincipal(request.PluginID, request.Version)}
 	if err := r.checkPluginCall(request, target); err != nil {
 		return WorkerResponse{}, true, err
 	}

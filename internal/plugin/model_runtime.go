@@ -66,8 +66,15 @@ func newModelRevision() (string, error) {
 func (r *Registry) invokeModel(req WorkerRequest) (WorkerResponse, bool, error) {
 	r.readinessMu.RLock()
 	defer r.readinessMu.RUnlock()
-	r.installationMu.RLock()
-	defer r.installationMu.RUnlock()
+	// Policy changes must not race a permitted invocation's final storage commit.
+	// All registry authorization and commits hold the installation read lock.
+	if req.PluginID == accessPluginID {
+		r.installationMu.Lock()
+		defer r.installationMu.Unlock()
+	} else {
+		r.installationMu.RLock()
+		defer r.installationMu.RUnlock()
+	}
 	manifest := r.registered[req.PluginID+"@"+req.Version].Manifest
 	route, ok := manifest.Route(req.Operation)
 	if !ok || route.Helper != "host.model" {
@@ -84,9 +91,19 @@ func (r *Registry) invokeModel(req WorkerRequest) (WorkerResponse, bool, error) 
 	if !ok || storage == nil {
 		return WorkerResponse{}, true, ErrLifecycleStorage
 	}
+	if req.PluginID == accessPluginID && route.Model.Name == accessRuleModel && route.Model.Action == "create" {
+		if err := r.validateAccessRuleLocked(req); err != nil {
+			return WorkerResponse{}, true, err
+		}
+	}
 	result, err := storage.executeModel(req, manifest.Models[route.Model.Name], *route.Model)
 	if err != nil {
 		return WorkerResponse{}, true, err
+	}
+	if req.PluginID == accessPluginID && route.Model.Name == accessRuleModel && route.Model.Action != "read" && route.Model.Action != "list" {
+		var input modelInput
+		_ = json.Unmarshal(req.Payload, &input)
+		r.appendAudit(AuditEvent{Action: "access_rule_" + route.Model.Action, ProjectID: req.ProjectID, PluginID: req.PluginID, Version: req.Version, Detail: input.ID})
 	}
 	data, err := json.Marshal(result)
 	if err != nil {

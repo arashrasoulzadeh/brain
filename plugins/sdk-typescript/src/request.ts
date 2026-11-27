@@ -31,6 +31,6 @@ export function createResourceRequest<Operation extends string>(prefix: string, 
     operation: Operation, identity: string, payload: unknown = {},
   ): RpcRequest => pluginRequest(
     prefix, projectId, pluginId, version, operation,
-    { [field]: identity, ...(payload as Record<string, unknown>) }, identity,
+    { ...(payload as Record<string, unknown>), [field]: identity }, identity,
   );
 }

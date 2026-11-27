@@ -82,6 +82,13 @@ func appendFunctionLog(logEntry FunctionLog) {
 	_ = os.MkdirAll(filepath.Dir(functionLogsPath), 0o750)
 	_ = os.WriteFile(functionLogsPath, data, 0o640)
 }
+func (s *LifecycleService) authorizeFunction(actor operator.Actor, projectID, operation, name string) error {
+	if s.registry == nil {
+		return nil
+	}
+	return s.registry.AuthorizeHostOperation(projectID, "operator:"+actor.ID, "functions", operation, strings.TrimSpace(name))
+}
+
 func (s *LifecycleService) ListFunctionLogs(actor operator.Actor, projectID, name string) ([]FunctionLog, error) {
 	if actor.Kind != operator.ActorOperator || strings.TrimSpace(projectID) == "" {
 		return nil, ErrFunctionDraftInvalid
@@ -92,7 +99,7 @@ func (s *LifecycleService) ListFunctionLogs(actor operator.Actor, projectID, nam
 	_ = json.Unmarshal(data, &functionLogs.items)
 	result := make([]FunctionLog, 0)
 	for _, item := range functionLogs.items {
-		if item.ProjectID == projectID && (name == "" || item.Name == name) {
+		if item.ProjectID == projectID && (name == "" || item.Name == name) && s.authorizeFunction(actor, projectID, "functions.logs", item.Name) == nil {
 			result = append(result, item)
 		}
 	}
@@ -170,6 +177,9 @@ func (s *LifecycleService) CreateFunctionDraftWithSettings(actor operator.Actor,
 			return FunctionDraft{}, err
 		}
 	}
+	if err := s.authorizeFunction(actor, projectID, "functions.publish", name); err != nil {
+		return FunctionDraft{}, err
+	}
 	draft := FunctionDraft{ProjectID: projectID, Name: strings.TrimSpace(name), Source: source, Version: version, Public: public, Permissions: append([]string(nil), permissions...), Method: method, CreatedAt: time.Now().UTC()}
 	functionDrafts.Lock()
 	loadFunctionDraftsLocked()
@@ -188,6 +198,9 @@ func (s *LifecycleService) UpdateFunctionDraft(actor operator.Actor, projectID, 
 	}
 	if strings.TrimSpace(source) == "" {
 		return FunctionDraft{}, errors.New("function source is required")
+	}
+	if err := s.authorizeFunction(actor, projectID, "functions.publish", name); err != nil {
+		return FunctionDraft{}, err
 	}
 	functionDrafts.Lock()
 	defer functionDrafts.Unlock()
@@ -225,7 +238,7 @@ func (s *LifecycleService) ListFunctionDrafts(actor operator.Actor, projectID st
 	loadFunctionDraftsLocked()
 	drafts := make([]FunctionDraft, 0)
 	for _, draft := range functionDrafts.items {
-		if draft.ProjectID == projectID {
+		if draft.ProjectID == projectID && s.authorizeFunction(actor, projectID, "functions.inspect", draft.Name) == nil {
 			drafts = append(drafts, draft)
 		}
 	}
@@ -235,6 +248,9 @@ func (s *LifecycleService) ListFunctionDrafts(actor operator.Actor, projectID st
 func (s *LifecycleService) UpdateFunctionPermissions(actor operator.Actor, projectID, name string, permissions []string, public bool) error {
 	if actor.Kind != operator.ActorOperator || strings.TrimSpace(projectID) == "" || !functionNamePattern.MatchString(strings.TrimSpace(name)) {
 		return ErrFunctionDraftInvalid
+	}
+	if err := s.authorizeFunction(actor, projectID, "functions.publish", name); err != nil {
+		return err
 	}
 	functionDrafts.Lock()
 	defer functionDrafts.Unlock()
@@ -252,6 +268,9 @@ func (s *LifecycleService) UpdateFunctionPermissions(actor operator.Actor, proje
 func (s *LifecycleService) PublishFunction(actor operator.Actor, projectID, name, method string) (FunctionDraft, error) {
 	if actor.Kind != operator.ActorOperator || strings.TrimSpace(projectID) == "" || !functionNamePattern.MatchString(strings.TrimSpace(name)) {
 		return FunctionDraft{}, ErrFunctionDraftInvalid
+	}
+	if err := s.authorizeFunction(actor, projectID, "functions.publish", name); err != nil {
+		return FunctionDraft{}, err
 	}
 	functionDrafts.Lock()
 	defer functionDrafts.Unlock()
@@ -284,6 +303,11 @@ func (s *LifecycleService) PublicInvokeFunction(projectID, name, method string, 
 	if !ok || !draft.Public {
 		return nil, ErrFunctionDraftInvalid
 	}
+	if s.registry != nil {
+		if err := s.registry.AuthorizeHostOperation(projectID, "public", "functions", "functions.call", draft.Name); err != nil {
+			return nil, err
+		}
+	}
 	if draft.Method == "" {
 		var err error
 		draft.Method, err = functionMethodFromSource(draft.Source)
@@ -294,13 +318,26 @@ func (s *LifecycleService) PublicInvokeFunction(projectID, name, method string, 
 	if strings.ToUpper(strings.TrimSpace(method)) != draft.Method {
 		return nil, ErrFunctionMethodNotAllowed
 	}
-	return s.runFunctionDraft(operator.Actor{Kind: operator.ActorOperator}, projectID, draft.Name, draft.Source, input, []FunctionLogStep{
+	result, err := s.runFunctionDraft(operator.Actor{Kind: operator.ActorOperator}, projectID, draft.Name, draft.Source, input, []FunctionLogStep{
 		{Name: "edge router", Status: "success", Reason: "public route resolved and function version selected", DurationMs: time.Since(edgeStarted).Milliseconds()},
 		{Name: "method authorization", Status: "success", Reason: "request method matched function source config", DurationMs: 0},
 	})
+	if err == nil && s.registry != nil {
+		if err := s.registry.AuthorizeHostOperation(projectID, "public", "functions", "functions.call", draft.Name); err != nil {
+			return nil, err
+		}
+	}
+	return result, err
 }
 
 func (s *LifecycleService) TestFunctionDraft(actor operator.Actor, projectID, name, source string) (map[string]any, error) {
+	if err := s.authorizeFunction(actor, projectID, "functions.invoke", name); err != nil {
+		return nil, err
+	}
+	return s.validateFunctionDraft(actor, projectID, name, source)
+}
+
+func (s *LifecycleService) validateFunctionDraft(actor operator.Actor, projectID, name, source string) (map[string]any, error) {
 	if actor.Kind != operator.ActorOperator || strings.TrimSpace(projectID) == "" || !functionNamePattern.MatchString(strings.TrimSpace(name)) || strings.TrimSpace(source) == "" || len(source) > maxFunctionSourceBytes {
 		return nil, ErrFunctionDraftInvalid
 	}
@@ -319,7 +356,16 @@ func (s *LifecycleService) TestFunctionDraft(actor operator.Actor, projectID, na
 }
 
 func (s *LifecycleService) RunFunctionDraft(actor operator.Actor, projectID, name, source string, input json.RawMessage) (map[string]any, error) {
-	return s.runFunctionDraft(actor, projectID, name, source, input, nil)
+	if err := s.authorizeFunction(actor, projectID, "functions.invoke", name); err != nil {
+		return nil, err
+	}
+	result, err := s.runFunctionDraft(actor, projectID, name, source, input, nil)
+	if err == nil {
+		if err := s.authorizeFunction(actor, projectID, "functions.invoke", name); err != nil {
+			return nil, err
+		}
+	}
+	return result, err
 }
 
 func (s *LifecycleService) runFunctionDraft(actor operator.Actor, projectID, name, source string, input json.RawMessage, initialSteps []FunctionLogStep) (map[string]any, error) {
@@ -341,7 +387,7 @@ func (s *LifecycleService) runFunctionDraft(actor operator.Actor, projectID, nam
 		appendFunctionLog(entry)
 	}
 	validationStarted := time.Now()
-	if _, err := s.TestFunctionDraft(actor, projectID, name, source); err != nil {
+	if _, err := s.validateFunctionDraft(actor, projectID, name, source); err != nil {
 		addStep("host validation", "failed", "source rejected before execution", validationStarted, err)
 		writeLog("failed", err.Error())
 		return nil, err
