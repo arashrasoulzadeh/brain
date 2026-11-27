@@ -120,7 +120,7 @@ func TestStorageCoverageAuthCommitAndRollback(t *testing.T) {
 		t.Fatalf("guest admission: %v", err)
 	}
 	payload, err := json.Marshal(map[string]any{
-		"result": map[string]any{"token": token, "username": "guest-test", "userId": "coverage:guest-test", "guest": true},
+		"result":    map[string]any{"token": token, "username": "guest-test", "userId": "coverage:guest-test", "guest": true},
 		"expiresAt": time.Now().Add(time.Hour).UnixMilli(),
 	})
 	if err != nil {
