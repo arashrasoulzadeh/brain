@@ -3,12 +3,30 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `b3369bec` — 2026-11-27 14:50:40 +0330 — Merge pull request #27 from arashrasoulzadeh/fix/durable-subscriptions
+  Files: 
+- `c249e66a` — 2026-11-27 10:53:10 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
+- `3743518e` — 2026-11-27 14:14:16 +0330 — Integrate all durable runtime fixes with current main and document migration limitations
+  Files: docs/admin-pages/extensions.md
+- `61c35258` — 2026-11-27 14:13:00 +0330 — Test subscription restart, deduplication and in-flight credential revocation
+  Files: internal/plugin/legacy_subscription_storage.go,internal/plugin/legacy_subscription_storage_test.go
 - `6733ca7f` — 2026-11-27 14:12:19 +0330 — Merge pull request #25 from arashrasoulzadeh/fix/admin-model-revocation
   Files: 
 - `4217b7ef` — 2026-11-27 14:12:11 +0330 — Reconcile verified model permission refresh with latest main
   Files: 
+- `4ee9b2f8` — 2026-11-27 14:11:23 +0330 — Persist subscription tickets and bounded observation streams across worker recovery
+  Files: docs/admin-pages/extensions.md,internal/plugin/legacy_storage_adapter.go internal/plugin/legacy_subscription_storage.go,internal/plugin/registry_workers.go plugins/subscriptions/routes.ts,roadmap_admin.md scripts/test-production-runtime.sh
 - `7a76ca89` — 2026-11-27 10:40:46 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
+- `5de27cb8` — 2026-11-27 14:10:38 +0330 — Reconcile invitations with current main and test durable single-use semantics
+  Files: internal/plugin/legacy_invite_storage_test.go,scripts/test-production-runtime.sh
+- `365c4cd8` — 2026-11-27 14:10:17 +0330 — Reconcile auth persistence with current main and validate exact worker identity results
+  Files: cmd/brain/main.go,internal/plugin/legacy_auth_storage.go scripts/test-production-runtime.sh,tests/plugin/session_failure_test.go
+- `ee4ad3a8` — 2026-11-27 14:09:41 +0330 — Reconcile arena recovery with game separation and instrumented runtime smoke
+  Files: scripts/test-production-runtime.sh
+- `a46c5c38` — 2026-11-27 14:08:29 +0330 — Persist project-scoped invitations with digest-only codes and conditional consumption
+  Files: docs/admin-pages/extensions.md,internal/plugin/legacy_invite_storage.go internal/plugin/legacy_storage_adapter.go,internal/plugin/registry_workers.go plugins/invites/index.ts,plugins/invites/plugin.yaml roadmap_admin.md,scripts/test-production-runtime.sh
 - `7c532baa` — 2026-11-27 14:06:38 +0330 — Merge pull request #15 from arashrasoulzadeh/refactor/rooms-games-pvp
   Files: 
 - `113650e3` — 2026-11-27 14:06:30 +0330 — Integrate current main before merging game separation and coverage improvements
@@ -17,18 +35,26 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `9fbc5c9d` — 2026-11-27 13:57:50 +0330 — Clear generated model records and selections on permission revocation
   Files: admin-nextjs/app/components/model-panel.tsx,docs/admin-pages/extensions.md scripts/test-admin-browser.mjs
+- `dc1cd6d9` — 2026-11-27 13:56:40 +0330 — Merge arena recovery fix, redact auth errors and verify credential storage
+  Files: cmd/brain/main.go,docs/admin-pages/extensions.md internal/plugin/legacy_auth_storage_test.go,internal/plugin/registry_workers.go plugins/auth/plugin.yaml,plugins/auth/service.ts scripts/test-production-runtime.sh
 - `4179edce` — 2026-11-27 13:55:33 +0330 — Verify session validation rejects malformed identities and ambiguous auth versions
   Files: tests/plugin/session_failure_test.go
+- `afb75c3b` — 2026-11-27 13:55:31 +0330 — Merge browser CI fix and explicitly restart recovered arena workers
+  Files: scripts/test-production-runtime.sh,tests/arena/arena-routes.test.ts
 - `de04449a` — 2026-11-27 13:54:56 +0330 — Register broker fixture before installation
   Files: tests/plugin/broker_failure_test.go
 - `7d63f098` — 2026-11-27 13:54:53 +0330 — Merge pull request #22 from arashrasoulzadeh/fix/admin-critical-ci
   Files: 
 - `eb4b057a` — 2026-11-27 13:54:29 +0330 — Test broker and CSRF fail-closed behavior on entropy outage
   Files: tests/plugin/broker_failure_test.go,tests/security/csrf_failure_test.go
+- `4d80fb39` — 2026-11-27 13:54:04 +0330 — Persist project authentication records through response-aware storage commits
+  Files: docs/admin-pages/extensions.md,internal/plugin/legacy_auth_storage.go internal/plugin/legacy_storage_adapter.go,internal/plugin/registry_workers.go plugins/auth/service.ts,roadmap_admin.md scripts/test-production-runtime.sh,tests/plugin/user_session_test.go
 - `36174a7e` — 2026-11-27 13:53:05 +0330 — Verify observation outbox transactions survive receipt, retry and deletion failures
   Files: tests/plugin/observation_failure_coverage_test.go
 - `de1a9afe` — 2026-11-27 13:52:15 +0330 — Fix model SQL error propagation and exercise database and entropy failures
   Files: internal/plugin/model_runtime.go,tests/plugin/runtime_failure_coverage_test.go
+- `6b870308` — 2026-11-27 13:51:01 +0330 — Persist arena snapshots and sequence counters with atomic state transitions
+  Files: docs/admin-pages/extensions.md,internal/plugin/legacy_admin_inventory.go internal/plugin/legacy_arena_storage.go,internal/plugin/legacy_arena_storage_test.go internal/plugin/legacy_storage_adapter.go,internal/plugin/registry_workers.go plugins/arena/plugin.yaml,plugins/arena/state-machine.ts roadmap_admin.md,scripts/test-production-runtime.sh
 - `fbee8579` — 2026-11-27 13:50:09 +0330 — Fix health-only shutdown and cover discovery and sandbox startup failures
   Files: cmd/brain/main.go,tests/deploy/cli_failure_coverage_test.go tests/plugin/worker_failure_coverage_test.go
 - `322c17a3` — 2026-11-27 13:49:23 +0330 — Exclude generated frontend artifacts and local state from Docker build context
@@ -77,29 +103,3 @@ Automatically generated from commits on main.
   Files: .github/workflows/admin-browser.yml,docs/admin-pages/theme.md scripts/test-admin-live.mjs
 - `a0ccbdd6` — 2026-11-27 13:08:48 +0330 — Keep failed legacy project writes from granting in-memory access
   Files: internal/project/project.go,tests/project/persistence_failure_test.go
-- `45b52cd2` — 2026-11-27 09:38:17 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `ea5e91d5` — 2026-11-27 13:07:56 +0330 — Test worker restart authorization and lifecycle rejection paths
-  Files: tests/plugin/registry_lifecycle_coverage_test.go
-- `029e8746` — 2026-11-27 13:07:42 +0330 — Merge pull request #18 from arashrasoulzadeh/test/admin-browser-smoke
-  Files: 
-- `f8419ce4` — 2026-11-27 13:06:50 +0330 — Test admin metadata validation and typed request authorization
-  Files: tests/plugin/admin_contract_coverage_test.go
-- `1cf04d71` — 2026-11-27 13:05:42 +0330 — Cover SQLite storage failures and legacy plugin persistence lifecycle
-  Files: tests/plugin/storage_failure_coverage_test.go
-- `7f2ecef9` — 2026-11-27 13:05:09 +0330 — Resolve browser test paths at step execution time
-  Files: .github/workflows/admin-browser.yml
-- `c50efdfd` — 2026-11-27 13:04:45 +0330 — Test model CRUD corruption and worker supervision failure boundaries
-  Files: tests/plugin/runtime_failure_coverage_test.go
-- `fbbb0e69` — 2026-11-27 13:04:32 +0330 — Add production-build Chromium admin smoke tests and screenshots
-  Files: .github/workflows/admin-browser.yml,docs/admin-pages/theme.md scripts/test-admin-browser.mjs
-- `b52ce1a5` — 2026-11-27 13:03:34 +0330 — Install production-matched Node runtime in Go integration test image
-  Files: .github/workflows/test.yml,Dockerfile.test
-- `6fceee46` — 2026-11-27 09:33:06 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `53f3a75b` — 2026-11-27 13:02:53 +0330 — Merge pull request #16 from arashrasoulzadeh/admin/compact-control-plane
-  Files: 
-- `9a1c1b8d` — 2026-11-27 12:58:24 +0330 — Format manifest coverage tests and remove temporary CI workspace export
-  Files: .github/workflows/coverage.yml,tests/plugin/manifest_coverage_edges_test.go
-- `69e37aa3` — 2026-11-27 12:54:59 +0330 — Temporarily export locked Go test workspace for coverage debugging
-  Files: .github/workflows/coverage.yml
