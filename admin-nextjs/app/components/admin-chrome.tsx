@@ -1,7 +1,7 @@
 "use client";
 import { adminHeaders, readAdminSession, preferredAdminProject, projectAdminURL, systemAdminURL, systemUIURL, projectUIURL, adminUIContext } from "../lib/admin-api";
 import { enabledPluginIDs, visibleAdminPages } from "../lib/admin-navigation";
-import { adminContributions, adminWorkspaceFallbacks } from "../lib/admin-registry";
+import { adminContributions, adminWorkspaceFallbacks, readyAdminInstallations } from "../lib/admin-registry";
 import type { AdminCatalog, AdminContribution } from "../lib/admin-registry";
 
 import Link from "next/link";
@@ -190,8 +190,7 @@ export function AdminPageFrame({
       const plugins = await fetch(projectAdminURL(project, "plugins"), options);
       if (!plugins.ok) throw new Error("Plugin catalog unavailable");
       const catalog = await plugins.json() as AdminCatalog;
-      const manifest = catalog.manifests ?? [];
-      const allowed = (catalog.installations ?? []).some(item => item.ProjectID === project && item.PluginID === requiredPluginID && item.Enabled && item.Ready && !item.Draining && manifest.some(m => m.ID === item.PluginID && m.Version === item.Version && (m.Capabilities ?? []).every(capability => item.Grants?.includes(capability))));
+      const allowed = readyAdminInstallations(project, catalog, requiredPluginID).length > 0;
       if (!allowed) throw new Error("This plugin is disabled, draining, not ready or missing required capabilities.");
       if (!controller.signal.aborted && readAdminSession() === token) setAccess({ path: pathname, epoch: catalogEpoch, status: "allowed", project });
     })().catch(reason => {
