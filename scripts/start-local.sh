@@ -77,11 +77,14 @@ image=brain:local-dev
 printf '%s\n' "Building the Linux development server (sandbox stays enabled)." >&2
 docker build --tag "$image" .
 printf '%s\n' "Starting the development server at http://127.0.0.1:$port" >&2
-# Allow nested namespaces, but do not use --privileged, expose the Docker
+# Allow nested namespaces and a fresh /proc mount; Docker's default masked
+# paths otherwise prevent the inner sandbox from mounting procfs. Do not
+# use --privileged, expose the Docker
 # socket, mount the source tree, or publish beyond loopback. The server still
 # runs the production bwrap startup probe and fails closed if unsupported.
 exec docker run --rm --init --user "$uid:$gid" \
   --security-opt seccomp=unconfined --security-opt apparmor=unconfined \
+  --security-opt systempaths=unconfined \
   --publish "127.0.0.1:$port:8080" \
   --mount "type=bind,source=$data_dir,target=/workspace/.local" \
   --env HTTP_ADDRESS=:8080 --env OPERATOR_USERNAME --env OPERATOR_SECRET \

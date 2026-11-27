@@ -74,6 +74,7 @@ esac''')
         self.assertIn("PROJECTS_FILE=/workspace/.local/dev.sqlite", args)
         self.assertIn(f"type=bind,source={self.root}/.local,target=/workspace/.local", args)
         self.assertIn("1001:1001", args)
+        self.assertIn("systempaths=unconfined", args)
         self.assertNotIn("--privileged", args)
         self.assertNotIn("/var/run/docker.sock", result.stdout)
 
