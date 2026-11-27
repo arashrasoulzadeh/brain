@@ -3,12 +3,42 @@
 Automatically generated from commits on main.
 
 ## Unreleased
-
-- Breaking: all application HTTP routes require a project slug or immutable ID; server infrastructure uses `/_system`.
-- Active project plugin manifests declare host-mounted HTTP routes and authentication; public functions use `/{project}/functions/{name}`.
-- Project names, URL slugs and settings are mutable without changing immutable IDs.
-- Clients, operator UI and deployment integrations must use the new URLs.
-
+- `05ba5ce0` — 2026-11-27 19:26:14 +0330 — Merge pull request #38 from arashrasoulzadeh/feat/project-scoped-http-and-plugin-routes
+  Files: 
+- `173da987` — 2026-11-27 19:25:20 +0330 — Exercise authenticated Arena admission and invalid durable snapshots
+  Files: tests/arena/arena-routes.test.ts
+- `71fd24bd` — 2026-11-27 19:24:23 +0330 — Format WebSocket gateway table test
+  Files: tests/plugin/websocket_gateway_test.go
+- `0046b6b9` — 2026-11-27 19:24:18 +0330 — Cover project namespace configuration and persistence on memory and SQLite stores
+  Files: tests/project/url_namespace_test.go
+- `97834de2` — 2026-11-27 19:23:55 +0330 — Cover WebSocket gateway boundary and rejected socket messages
+  Files: tests/plugin/websocket_gateway_test.go
+- `d249e585` — 2026-11-27 19:23:28 +0330 — Cover WebSocket upgrade tokens and conflicting project identity
+  Files: tests/plugin/websocket_endpoint_test.go
+- `ca5405fe` — 2026-11-27 19:23:21 +0330 — Require an exact Connection upgrade token for WebSocket admission
+  Files: internal/plugin/websocket_endpoint.go
+- `5995ee43` — 2026-11-27 19:21:47 +0330 — Test project URL validation and reject invalid admin namespaces before transport
+  Files: tests/client/admin-client.test.ts
+- `9dd994b1` — 2026-11-27 19:18:37 +0330 — Exercise actual WebSocket upgrades, membership, replay and durable actor binding
+  Files: tests/plugin/websocket_gateway_test.go
+- `69a841a0` — 2026-11-27 19:18:04 +0330 — Vendor pinned coder WebSocket transport for offline reproducible builds
+  Files: vendor/github.com/coder/websocket/LICENSE.txt,vendor/github.com/coder/websocket/README.md vendor/github.com/coder/websocket/accept.go,vendor/github.com/coder/websocket/close.go vendor/github.com/coder/websocket/compress.go,vendor/github.com/coder/websocket/conn.go vendor/github.com/coder/websocket/dial.go,vendor/github.com/coder/websocket/doc.go vendor/github.com/coder/websocket/errors.go,vendor/github.com/coder/websocket/frame.go vendor/github.com/coder/websocket/hijack.go,vendor/github.com/coder/websocket/internal/bpool/bpool.go vendor/github.com/coder/websocket/internal/errd/wrap.go,vendor/github.com/coder/websocket/internal/util/util.go vendor/github.com/coder/websocket/internal/wsjs/wsjs_js.go,vendor/github.com/coder/websocket/internal/xsync/go.go vendor/github.com/coder/websocket/mask.go,vendor/github.com/coder/websocket/mask_amd64.s vendor/github.com/coder/websocket/mask_arm64.s,vendor/github.com/coder/websocket/mask_asm.go vendor/github.com/coder/websocket/mask_go.go,vendor/github.com/coder/websocket/netconn.go vendor/github.com/coder/websocket/netconn_js.go,vendor/github.com/coder/websocket/netconn_notjs.go vendor/github.com/coder/websocket/read.go,vendor/github.com/coder/websocket/stringer.go vendor/github.com/coder/websocket/write.go,vendor/github.com/coder/websocket/ws_js.go vendor/modules.txt
+- `1abba9c8` — 2026-11-27 19:16:11 +0330 — Implement authenticated arena membership admission and durable player inputs
+  Files: docs/plugin-guides/arena.md,internal/plugin/legacy_arena_storage.go internal/plugin/websocket_gateway.go,plugins/arena/index.ts plugins/arena/plugin.yaml,plugins/arena/state-machine.ts plugins/sdk-typescript/src/manifest-operations.generated.d.ts,tests/arena/arena-routes.test.ts
+- `558af223` — 2026-11-27 19:14:58 +0330 — Wire manifest-opted authenticated WebSocket gateway and bounded transport
+  Files: docs/http-api.md,go.mod go.sum,internal/admin/lifecycle.go internal/app/api_response.go,internal/app/app.go internal/plugin/http_routes.go,internal/plugin/manifest.go internal/plugin/manifest_http.go,internal/plugin/websocket_gateway.go internal/plugin/websocket_ticket.go
+- `8d82d580` — 2026-11-27 19:00:28 +0330 — Add bounded single-use WebSocket transport ticket binding
+  Files: docs/http-api.md,internal/plugin/websocket_ticket.go tests/plugin/websocket_ticket_test.go
+- `5efdf699` — 2026-11-27 18:55:17 +0330 — Update admin transport fixture and format routing regression test
+  Files: tests/coverage/plugin-boundaries.test.ts,tests/plugin/http_version_routing_test.go
+- `86e71f47` — 2026-11-27 18:54:29 +0330 — Revalidate manifest HTTP route selection at invocation and commit
+  Files: CHANGELOG.md,internal/admin/lifecycle.go internal/plugin/http_routes.go,internal/plugin/model_runtime.go internal/plugin/registry_workers.go,internal/plugin/worker.go tests/plugin/http_version_routing_test.go
+- `79a83e02` — 2026-11-27 18:52:06 +0330 — Enforce project command namespace and reserve global lifecycle operations
+  Files: admin-nextjs/app/page.tsx,admin-nextjs/app/plugins/[plugin]/page.tsx clients/javascript/src/admin.ts,docs/http-api.md internal/app/admin.go,internal/app/app.go scripts/test-admin-browser.mjs,scripts/test-admin-live.mjs scripts/test-runtime-api.mjs,tests/app/admin_namespace_test.go tests/app/admin_test.go,tests/client/admin-client.test.ts
+- `f15998af` — 2026-11-27 15:19:36 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
+- `6e6115eb` — 2026-11-27 18:49:07 +0330 — Integrate merged manifest SDK improvements into project routing
+  Files: docs/sdk-reference.md
 - `c6f51829` — 2026-11-27 18:48:32 +0330 — Merge pull request #39 from arashrasoulzadeh/refactor/manifest-driven-runtime
   Files: 
 - `07f5ee22` — 2026-11-27 18:44:19 +0330 — Use atomic CLI coverage mode consistently
@@ -17,6 +47,8 @@ Automatically generated from commits on main.
   Files: cmd/manifest-sdk/main_test.go
 - `7cce76cd` — 2026-11-27 18:41:17 +0330 — Test manifest generator failure paths and emit type-only declaration file
   Files: cmd/manifest-sdk/main.go,cmd/manifest-sdk/main_test.go plugins/sdk-typescript/src/manifest-operations.generated.d.ts,tests/plugin/manifest_sdk_test.go
+- `5a1e26f6` — 2026-11-27 18:40:19 +0330 — Migrate remaining admin views to project routes and retain macOS startup fix
+  Files: .github/workflows/test.yml,admin-nextjs/app/components/legacy-admin-page.tsx admin-nextjs/app/functions/page.tsx
 - `c9633148` — 2026-11-27 18:38:20 +0330 — Reconcile manifest runtime refactor with current secure host and SDK
   Files: docs/sdk-reference.md,plugins/functions/scheduling.ts plugins/matchmaking/queue.ts,plugins/sdk-typescript/src/index.ts plugins/sdk-typescript/src/manifest-operations.generated.ts,plugins/sdk-typescript/src/request.ts tests/plugin/manifest-request.test.ts
 - `c1b6c8e8` — 2026-11-27 15:05:18 +0000 — docs: update changelog [skip ci]
@@ -27,85 +59,47 @@ Automatically generated from commits on main.
   Files: .github/workflows/test.yml
 - `c80d4a0e` — 2026-11-27 18:33:02 +0330 — Fix native macOS worker startup with Homebrew OpenSSL
   Files: .github/workflows/test.yml,internal/plugin/macos_profile_coverage_test.go internal/plugin/macos_worker.go
-- `abd9aacf` — 2026-11-27 14:02:28 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `5611abbb` — 2026-11-27 17:31:56 +0330 — Merge pull request #35 from arashrasoulzadeh/fix/macos-seatbelt-startup
-  Files: 
-- `b6110f87` — 2026-11-27 17:13:55 +0330 — Emit actual newline between Seatbelt directory rules
+- `421f3c29` — 2026-11-27 18:25:52 +0330 — Migrate transport coverage to project WebSocket route and reject legacy URL
+  Files: tests/plugin/transport_coverage_edges_test.go
+- `8ec51d35` — 2026-11-27 18:24:17 +0330 — Fix HTTP router build and document project WebSocket boundary
+  Files: docs/http-api.md,internal/app/app.go
+- `d9e9c74a` — 2026-11-27 18:22:52 +0330 — Merge current main into project routing; preserve macOS fixes and migrate CI probes
+  Files: .github/workflows/test.yml,CHANGELOG.md
+- `eab67f5c` — 2026-11-27 18:05:34 +0330 — fix: distinguish root routes from parameters and authorize before command parsing
+  Files: internal/app/app.go,internal/app/project_http.go internal/plugin/manifest_http.go
+- `b31d765a` — 2026-11-27 18:04:32 +0330 — feat: mount WebSocket ticket boundary only at host-resolved /{project}/ws
+  Files: internal/app/app.go,internal/plugin/websocket_endpoint.go tests/plugin/websocket_endpoint_test.go
+- `84aeda75` — 2026-11-27 18:03:38 +0330 — fix: grant macOS worker narrow system directory lookup needed by Node startup
   Files: internal/plugin/macos_worker.go
-- `1ac264e9` — 2026-11-27 17:13:50 +0330 — Fix macOS worker getcwd with literal ancestor directory permissions
-  Files: internal/plugin/macos_worker.go
-- `a3cfcb65` — 2026-11-27 13:07:55 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `2432526a` — 2026-11-27 16:28:23 +0330 — Merge pull request #37 from arashrasoulzadeh/docs/current-complete-reference
-  Files: 
-- `fd4ed616` — 2026-11-27 16:27:17 +0330 — Merge main into macOS startup fix preserving platform coverage helper
-  Files: internal/plugin/macos_worker.go
-- `e30d893f` — 2026-11-27 16:17:38 +0330 — Merge pull request #36 from arashrasoulzadeh/test/host-coverage-edge-cases
-  Files: 
-- `0c1edeb0` — 2026-11-27 16:16:55 +0330 — docs: recognize generic SDK types and direct exports in coverage audit
-  Files: scripts/documentation_inventory.py
-- `b3c62868` — 2026-11-27 16:16:22 +0330 — docs: expand every admin page guide and audit Next.js routes
-  Files: docs/admin-pages/README.md,docs/admin-pages/audit.md docs/admin-pages/database.md,docs/admin-pages/files.md docs/admin-pages/function-detail.md,docs/admin-pages/function-new.md docs/admin-pages/functions.md,docs/admin-pages/live-sessions.md docs/admin-pages/login.md,docs/admin-pages/monitoring.md docs/admin-pages/plugin-detail.md,docs/admin-pages/plugins.md docs/admin-pages/routes.md,docs/admin-pages/system.md docs/admin-pages/workers.md,docs/admin-pages/workflows.md docs/plugin-guides/dashboard.md,docs/quality.md scripts/documentation_inventory.py,tests/documentation/test_inventory.py
-- `3877b9fe` — 2026-11-27 16:14:41 +0330 — docs: add every plugin guide and enforce public contract documentation inventory
-  Files: docs/plugin-guides/access-management.md,docs/plugin-guides/analytics.md docs/plugin-guides/arena.md,docs/plugin-guides/auth.md docs/plugin-guides/dashboard.md,docs/plugin-guides/declarative-plugin.md docs/plugin-guides/files.md,docs/plugin-guides/functions.md docs/plugin-guides/games.md,docs/plugin-guides/index.md docs/plugin-guides/invites.md,docs/plugin-guides/matchmaking.md docs/plugin-guides/pvp.md,docs/plugin-guides/rooms.md docs/plugin-guides/subscriptions.md,docs/plugin-guides/tables.md docs/plugin-guides/template.md,docs/quality.md scripts/build-docs.py,scripts/documentation_inventory.py tests/documentation/test_inventory.py
-- `abe3a4d5` — 2026-11-27 12:44:19 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `cf684327` — 2026-11-27 16:13:33 +0330 — docs: refresh host, client, SDK, deployment and HTTP references against current main
-  Files: clients/android/README.md,docs/admins.md docs/assets/brain.css,docs/browser-quickstart.md docs/declarative-runtime.md,docs/developers.md docs/flutter-quickstart.md,docs/functions-runtime.md docs/http-api.md,docs/index.md docs/restore-runbook.md,docs/runtime-operations.md docs/sdk-reference.md,mkdocs.yml plugins/README.md
-- `743e3dce` — 2026-11-27 16:11:01 +0330 — test: verify close failures cannot be mistaken for lock release
-  Files: internal/deploy/lock_failure_coverage_test.go
-- `4abec123` — 2026-11-27 16:10:51 +0330 — test: exercise successful admin lifecycle and page response dispatch
-  Files: internal/app/admin_edge_coverage_test.go
-- `2f002ed0` — 2026-11-27 16:10:22 +0330 — test: use one invitation selector for expiry commit checks
-  Files: internal/plugin/runtime_storage_edge_test.go
-- `7f5f756b` — 2026-11-27 16:10:13 +0330 — test: cover late invitation expiry and storage read failures
-  Files: internal/plugin/runtime_storage_edge_test.go
-- `795f83eb` — 2026-11-27 16:10:04 +0330 — test: cover model admission and invalid action without durable mutation
-  Files: internal/plugin/model_admission_edge_test.go
-- `4a65e87b` — 2026-11-27 16:09:47 +0330 — test: cover manifest discovery, stale credentials, and registry admission failures
-  Files: internal/plugin/host_edge_coverage_test.go
-- `b3c2af8c` — 2026-11-27 16:09:35 +0330 — Run the actual native launcher with the confirmed dyld root lookup fix
-  Files: .github/workflows/test.yml,tests/plugin/macos_worker_test.go
-- `334bcded` — 2026-11-27 16:09:20 +0330 — Merge pull request #34 from arashrasoulzadeh/test/remaining-host-coverage
-  Files: 
-- `a0ad040c` — 2026-11-27 16:09:16 +0330 — Merge pull request #33 from arashrasoulzadeh/fix/sqlite-coverage-stability
-  Files: 
-- `d6eaa8fe` — 2026-11-27 16:06:29 +0330 — Permit literal root directory lookup and narrowly scoped dyld runtime files
-  Files: internal/plugin/macos_worker.go
-- `008a8f49` — 2026-11-27 16:04:37 +0330 — Allow macOS system runtime paths and diagnose Seatbelt startup
-  Files: .github/workflows/test.yml,internal/plugin/macos_worker.go tests/plugin/macos_worker_test.go
-- `e45fa348` — 2026-11-27 16:03:49 +0330 — test: cover draft persistence failures and request identity fallback
-  Files: internal/admin/function_persistence_failure_test.go
-- `988aedb5` — 2026-11-27 16:03:06 +0330 — test: cover empty API error and login entropy failure
-  Files: internal/app/response_failure_coverage_test.go
-- `a4c0cf12` — 2026-11-27 16:03:04 +0330 — refactor: remove redundant newline check after TrimSpace
-  Files: internal/app/api_response.go
-- `d555bcc9` — 2026-11-27 16:02:48 +0330 — test: cover storage planner identity rejection, duplicate events and atomic rollback
-  Files: internal/plugin/legacy_adapter_failure_matrix_test.go
-- `8f59f70d` — 2026-11-27 16:02:39 +0330 — test: cover ambiguous publishers, bounded deliveries and outbox rollback
-  Files: internal/plugin/observation_failure_matrix_test.go
-- `6c1c1690` — 2026-11-27 16:02:25 +0330 — test: cover delegated operation policy, worker readiness and entropy failures
-  Files: internal/plugin/delegation_coverage_test.go
-- `91887a1c` — 2026-11-27 16:02:05 +0330 — test: cover macOS opt-in and loopback restrictions across platforms
-  Files: cmd/brain/sandbox_runtime_coverage_test.go
-- `8a8f3c5c` — 2026-11-27 16:02:03 +0330 — refactor: isolate platform sandbox configuration for coverage without changing runtime selection
-  Files: cmd/brain/main.go
-- `7376c8d2` — 2026-11-27 16:01:51 +0330 — test: exercise macOS sandbox profile generation and fail-closed paths on all hosts
-  Files: internal/plugin/macos_profile_coverage_test.go
-- `80ce28bf` — 2026-11-27 16:01:40 +0330 — refactor: isolate macOS profile construction from runtime platform check
-  Files: internal/plugin/macos_worker.go
-- `e9cc3e94` — 2026-11-27 16:00:50 +0330 — test: verify lifecycle persistence survives temporary SQLite write contention
-  Files: internal/plugin/sqlite_contention_test.go
-- `3a97c86b` — 2026-11-27 16:00:48 +0330 — test: cover SQLite DSN preservation and per-connection timeout
-  Files: internal/sqliteconfig/config_test.go
-- `abf651e4` — 2026-11-27 16:00:38 +0330 — fix: apply per-connection busy timeout to shared SQLite database
-  Files: internal/project/sqlite.go
-- `4ff3ffee` — 2026-11-27 16:00:35 +0330 — fix: apply per-connection busy timeout to shared SQLite database
-  Files: internal/plugin/sqlite_storage.go
-- `ce35f373` — 2026-11-27 16:00:33 +0330 — fix: configure bounded SQLite busy handling on every connection
-  Files: internal/sqliteconfig/config.go
-- `6ffece22` — 2026-11-27 12:30:24 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `ae39ac29` — 2026-11-27 15:59:53 +0330 — Merge pull request #32 from arashrasoulzadeh/fix/native-macos-dev
-  Files: .github/workflows/test.yml
+- `40c32407` — 2026-11-27 18:02:24 +0330 — style: run gofmt on manifest route registry and HTTP lifecycle tests
+  Files: internal/plugin/http_routes.go,tests/app/project_plugin_http_test.go tests/plugin/http_version_routing_test.go
+- `413f8617` — 2026-11-27 18:01:07 +0330 — feat: centralized project URL validation for JavaScript SDK and operator actions
+  Files: clients/javascript/src/admin.ts,clients/javascript/src/client.ts clients/javascript/src/index.ts,tests/client/admin-client.test.ts
+- `73382bc9` — 2026-11-27 18:00:33 +0330 — docs: plugin manifest HTTP schema, admin route discovery and Go vet CI gate
+  Files: .github/workflows/test.yml,docs/admin-pages/projects.md docs/admin-pages/routes.md,docs/developers.md docs/plugin-manifest.md,docs/sdk-reference.md roadmap_backend.md
+- `09a74b1f` — 2026-11-27 17:59:42 +0330 — fix: export project HTTP route model as valid TypeScript
+  Files: admin-nextjs/app/lib/admin-types.ts
+- `ef4572e3` — 2026-11-27 17:58:50 +0330 — fix: retain existing project API casing for new metadata
+  Files: internal/project/project.go
+- `3439d92c` — 2026-11-27 17:57:17 +0330 — test: project HTTP dispatch authorization, concurrent disable and version rollback
+  Files: tests/app/project_plugin_http_test.go,tests/plugin/http_version_routing_test.go
+- `5849613a` — 2026-11-27 17:56:37 +0330 — feat: project metadata editor, live route discovery and scoped operator actions
+  Files: admin-nextjs/app/components/projects-panel.tsx,admin-nextjs/app/components/routes-panel.tsx admin-nextjs/app/lib/admin-types.ts,admin-nextjs/app/page.tsx
+- `c9f21f50` — 2026-11-27 17:55:32 +0330 — style: apply CI gofmt to strict project HTTP dispatcher
+  Files: internal/app/project_http.go
+- `6bdb06ef` — 2026-11-27 17:55:14 +0330 — test: open namespaced operator panel in live browser smoke
+  Files: scripts/test-admin-live.mjs
+- `61441a06` — 2026-11-27 17:54:56 +0330 — docs: correct project.configure inventory row separator
+  Files: docs/http-api.md
+- `ec4717ea` — 2026-11-27 17:53:01 +0330 — feat: expose route bindings and capabilities, and reject ambiguous manifest paths
+  Files: internal/plugin/http_routes.go,internal/plugin/manifest_http.go
+- `188b7013` — 2026-11-27 17:51:46 +0330 — security: reject duplicated project identities and published function body conflicts
+  Files: internal/app/admin_functions.go,internal/project/url_middleware.go
+- `ad9c7833` — 2026-11-27 17:51:24 +0330 — fix: bind raw JSON project identities without precision loss and reject duplicate fields
+  Files: internal/app/project_http.go,internal/plugin/manifest_http.go tests/app/operator_auth_test.go
+- `51edf1a5` — 2026-11-27 17:49:56 +0330 — feat: support project user authentication via existing host session validator
+  Files: internal/admin/lifecycle.go,internal/app/project_http.go internal/plugin/manifest_http.go
+- `bfd8fd9f` — 2026-11-27 17:48:27 +0330 — fix: exclude reserved system UI and static assets from dynamic plugin proxy rewrite
+  Files: admin-nextjs/next.config.ts
+- `e97266e1` — 2026-11-27 17:48:00 +0330 — fix: preserve JSON response envelope and migrate CI health URLs
+  Files: .github/workflows/test.yml,docs/http-api.md internal/app/api_response.go
