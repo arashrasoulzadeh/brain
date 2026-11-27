@@ -1,3 +1,6 @@
+"use client";
+import { useState } from "react";
+import { routeIdentity, searchRoutes } from "../lib/admin-playground";
 import type { ProjectHTTPRoute } from "../lib/admin-types";
 import type { AdminCopy } from "../lib/admin-copy";
 
@@ -14,6 +17,11 @@ export function RoutesPanel({ activePage, text, playgroundRoute, setPlaygroundRo
   selectedProjectID: string;
   projectRoutes: ProjectHTTPRoute[];
 }) {
+  const [query, setQuery] = useState("");
+  const [method, setMethod] = useState("");
+  const [auth, setAuth] = useState("");
+  const filtered = searchRoutes(projectRoutes, query, method, auth);
+  const selected = projectRoutes.find(route => routeIdentity(route) === playgroundRoute);
   return (
     <>
       <section className={`section ${activePage !== "routes" ? "page-hidden" : ""}`}>
@@ -32,7 +40,7 @@ export function RoutesPanel({ activePage, text, playgroundRoute, setPlaygroundRo
             >
               <option value="">—</option>
               {projectRoutes.map((route) => (
-                <option key={`${route.plugin_id}:${route.operation}:${route.method}:${route.path}`} value={`${route.plugin_id}:${route.version}:${route.operation}`}>
+                <option key={`${route.plugin_id}:${route.version}:${route.operation}:${route.method}:${route.path}`} value={routeIdentity(route)}>
                   {route.method} {route.path} · {route.operation}
                 </option>
               ))}
@@ -47,11 +55,14 @@ export function RoutesPanel({ activePage, text, playgroundRoute, setPlaygroundRo
               rows={8}
             />
           </label>
+          {selected && <p className="muted">{selected.method} {selected.path} · {selected.auth} · {selected.capability}</p>}
           <div className="playground-actions">
             <button type="button" onClick={testPlayground}>
               {text.test}
             </button>
-            <button type="button" onClick={sendPlayground}>
+            <button type="button" className="secondary" onClick={() => { try { setPlaygroundPayload(JSON.stringify(JSON.parse(playgroundPayload || "{}"), null, 2)); } catch { testPlayground(); } }}>Format JSON</button>
+            <button type="button" className="secondary" onClick={() => setPlaygroundPayload("{}")}>Reset payload</button>
+            <button type="button" disabled={!selected || !selectedProjectID} onClick={sendPlayground}>
               {text.send}
             </button>
             <small role="status">{playgroundMessage}</small>
@@ -78,19 +89,22 @@ export function RoutesPanel({ activePage, text, playgroundRoute, setPlaygroundRo
             <h2>{text.routesPage}</h2>
           </div>
           <span className="count">
-            {projectRoutes.length}
+            {filtered.length} / {projectRoutes.length}
           </span>
         </div>
+        <div className="lifecycle-actions"><label>Search routes<input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Path, plugin or operation" /></label><label>HTTP method<select value={method} onChange={event => setMethod(event.target.value)}><option value="">All methods</option>{[...new Set(projectRoutes.map(route => route.method))].sort().map(value => <option key={value}>{value}</option>)}</select></label><label>Authentication<select value={auth} onChange={event => setAuth(event.target.value)}><option value="">All modes</option><option value="public">Public</option><option value="user">User</option><option value="operator">Operator</option></select></label></div>
         <div className="plugin-grid">
-          {projectRoutes.map((route) => (
+          {filtered.map((route) => (
             <article className="plugin" key={`${route.plugin_id}@${route.version}:${route.method}:${route.path}`}>
               <h3>{route.method} {route.path}</h3>
               <div className="route-list">
                 <code>{route.plugin_id}@{route.version} · {route.operation}</code>
                 <small>{route.capability} · {route.auth} · {route.function}</small>
+                <button type="button" className="secondary" onClick={() => { setPlaygroundRoute(routeIdentity(route)); setPlaygroundPayload("{}"); }}>Use in playground</button>
               </div>
             </article>
           ))}
+          {!!projectRoutes.length && !filtered.length && <p className="muted">No matching routes.</p>}
           {selectedProjectID && projectRoutes.length === 0 && <p className="muted">No enabled plugin HTTP routes for this project.</p>}
         </div>
       </section>

@@ -1,6 +1,6 @@
 "use client";
 import { adminHeaders, readAdminSession, saveAdminSession, signOutAdminSession, saveAdminProject, preferredAdminProject, projectAdminURL, systemAdminURL, projectUIURL, systemUIURL, adminUIContext, notifyPluginCatalogChanged } from "./lib/admin-api";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { AdminFooter, AdminHeader, AdminSidebar } from "./components/admin-chrome";
@@ -18,6 +18,7 @@ import { AdminDialog, AdminProgress } from "./components/admin-dialog";
 import { installAndActivatePlugin } from "./lib/plugin-install";
 import { FunctionDraftsPanel } from "./components/function-drafts-panel";
 import { RoutesPanel } from "./components/routes-panel";
+import { decodePlaygroundResult, preparePlayground, routeIdentity } from "./lib/admin-playground";
 export default function AdminPage() {
   const pathname = usePathname();
   const { page: activePage, namespace } = adminUIContext(pathname);
@@ -49,6 +50,8 @@ export default function AdminPage() {
   const [projectMessage, setProjectMessage] = useState("");
   const [projectDone, setProjectDone] = useState(false);
   const [playgroundOpen, setPlaygroundOpen] = useState(false);
+  const [playgroundCommand, setPlaygroundCommand] = useState<ReturnType<typeof preparePlayground>>();
+  const playgroundRequest = useRef<AbortController | null>(null);
   const [playgroundBusy, setPlaygroundBusy] = useState(false);
   const [playgroundDone, setPlaygroundDone] = useState(false);
   const [playgroundResult, setPlaygroundResult] = useState("");
@@ -90,6 +93,8 @@ export default function AdminPage() {
     setPlaygroundRoute("");
     setPlaygroundPayload("{}");
     setPlaygroundMessage("");
+    playgroundRequest.current?.abort(); playgroundRequest.current = null;
+    setPlaygroundBusy(false); setPlaygroundCommand(undefined);
     setPlaygroundResult(""); setPlaygroundDone(false); setPlaygroundOpen(false);
     setFunctionMessage("");
     saveAdminProject(id);
@@ -315,63 +320,49 @@ export default function AdminPage() {
       setPlaygroundMessage("Invalid JSON payload");
     }
   }
+  function openPlayground() {
+    if (playgroundRequest.current) return;
+    setPlaygroundResult(""); setPlaygroundDone(false);
+    try {
+      setPlaygroundCommand(preparePlayground(selectedProjectID, projectRoutes, playgroundRoute, playgroundPayload));
+      setPlaygroundMessage(""); setPlaygroundOpen(true);
+    } catch (reason) { setPlaygroundMessage(reason instanceof Error ? reason.message : String(reason)); }
+  }
   async function sendPlayground() {
-    if (playgroundBusy || playgroundDone) return;
-    testPlayground();
-    if (!playgroundRoute) {
-      setPlaygroundMessage("Select a route first");
-      return;
+    if (playgroundRequest.current || playgroundDone || !playgroundCommand) return;
+    const command = playgroundCommand;
+    if (command.project !== selectedProjectID || !projectRoutes.some(route => routeIdentity(route) === command.identity) || !session || readAdminSession() !== session) {
+      setPlaygroundMessage("Project, session or route changed; close and reopen the invocation"); return;
     }
-    if (!selectedProjectID) {
-      setPlaygroundMessage("Select an active project first");
-      return;
-    }
-    const [pluginID, version, targetOperation] = playgroundRoute.split(":");
-    const route = projectRoutes.find(candidate => candidate.plugin_id === pluginID && candidate.version === version && candidate.operation === targetOperation);
-    if (!route) {
-      setPlaygroundMessage("Route no longer available; refresh and select it again");
-      return;
-    }
-    let payload: unknown;
+    const valid = projectRequests.begin(command.project, "playground");
+    if (!valid) return;
+    const controller = new AbortController();
+    playgroundRequest.current = controller;
+    const current = () => valid() && !controller.signal.aborted && readAdminSession() === session;
+    setPlaygroundBusy(true); setPlaygroundMessage("Executing through the host...");
+    const started = performance.now();
     try {
-      payload = JSON.parse(playgroundPayload || "{}");
-    } catch {
-      setPlaygroundMessage("Invalid JSON payload");
-      return;
+      const response = await fetch(projectAdminURL(command.project, "actions"), {
+        method: "POST", headers: adminHeaders(session, { "content-type": "application/json" }), body: command.body, signal: controller.signal,
+      });
+      if (!response.ok) {
+        const detail = await response.text();
+        if (current()) { setPlaygroundMessage("HTTP " + response.status + " · " + detail); setPlaygroundDone(true); }
+        return;
+      }
+      const result = decodePlaygroundResult(await response.json());
+      if (current()) {
+        setPlaygroundMessage(result.message + " · HTTP " + response.status + " · " + Math.round(performance.now() - started) + " ms");
+        setPlaygroundResult(result.output); setPlaygroundDone(true);
+      }
+    } catch (reason) {
+      if (current()) { setPlaygroundMessage(String(reason) + " · Outcome may be unknown; verify before invoking again."); setPlaygroundDone(true); }
+    } finally {
+      if (playgroundRequest.current === controller) {
+        playgroundRequest.current = null;
+        if (!controller.signal.aborted) setPlaygroundBusy(false);
+      }
     }
-    const project = selectedProjectID;
-    setPlaygroundBusy(true);
-    setPlaygroundMessage("Executing through the host...");
-    try {
-    const response = await fetch(projectAdminURL(selectedProjectID, "actions"), {
-      method: "POST",
-      headers: adminHeaders(session, { "content-type": "application/json" }),
-      body: JSON.stringify({
-        operation: "plugin.invoke",
-        project_id: selectedProjectID,
-        plugin_id: pluginID,
-        version: route.version,
-        target_operation: targetOperation,
-        payload,
-      }),
-    });
-    if (!response.ok) {
-      setPlaygroundMessage(await response.text());
-      return;
-    }
-    const result = await response.json();
-    setPlaygroundMessage(
-      (result.Success === false || result.success === false)
-        ? `Plugin error: ${result.ErrorCode ?? result.errorCode ?? "execution failed"}`
-        : "Host execution completed",
-    );
-    let output: unknown = result;
-    const encoded = result.Payload ?? result.payload;
-    if (typeof encoded === "string") {
-      try { output = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(encoded), character => character.charCodeAt(0)))); } catch { output = encoded; }
-    }
-    if (projectRequests.current() === project) { setPlaygroundResult(JSON.stringify(output, null, 2)); setPlaygroundDone(true); }
-    } catch (reason) { setPlaygroundMessage(String(reason)); } finally { setPlaygroundBusy(false); }
   }
   async function installPlugin(manifest: PluginManifest, projectID: string) {
     setError("");
@@ -626,7 +617,7 @@ export default function AdminPage() {
         {!projectDone && <button type="button" disabled={projectBusy} onClick={() => void submitProjectAction()}>Confirm action</button>}
         {projectBusy && <AdminProgress label="Updating project…" />}{projectDone && <p role="status">Project updated</p>}{projectMessage && <p role="alert">{projectMessage}</p>}
       </AdminDialog>}
-      {playgroundOpen && activePage === "routes" && <AdminDialog title="Invoke plugin operation" scope={selectedProjectID} busy={playgroundBusy} onClose={() => setPlaygroundOpen(false)}><p>Execute the selected operation as the authenticated operator? This may change project data. This invokes the host operation, not a public HTTP route.</p><code>{playgroundRoute}</code>{!playgroundDone && <button type="button" disabled={playgroundBusy} onClick={() => void sendPlayground()}>Confirm invocation</button>}{playgroundBusy && <AdminProgress label="Executing operation…" />}{playgroundMessage && <p role="status">{playgroundMessage}</p>}{playgroundResult && <pre className="admin-result-panel">{playgroundResult}</pre>}</AdminDialog>}
+      {playgroundOpen && activePage === "routes" && <AdminDialog title="Invoke plugin operation" scope={selectedProjectID} busy={playgroundBusy} onClose={() => setPlaygroundOpen(false)}><p>Execute the selected operation as the authenticated operator? This may change project data. This invokes the host operation, not a public HTTP route.</p><code>{playgroundCommand?.identity}</code><details><summary>Confirmed request</summary><pre>{playgroundCommand?.body}</pre></details>{!playgroundDone && <button type="button" disabled={playgroundBusy} onClick={() => void sendPlayground()}>Confirm invocation</button>}{playgroundBusy && <AdminProgress label="Executing operation…" />}{playgroundMessage && <p role="status">{playgroundMessage}</p>}{playgroundResult && <><button type="button" className="secondary" onClick={() => void navigator.clipboard.writeText(playgroundResult).catch(() => setPlaygroundMessage("Could not copy result"))}>Copy result</button><pre className="admin-result-panel">{playgroundResult}</pre></>}</AdminDialog>}
       <ProjectsPanel
         activePage={activePage}
         text={text}
@@ -696,7 +687,7 @@ export default function AdminPage() {
         playgroundPayload={playgroundPayload}
         setPlaygroundPayload={setPlaygroundPayload}
         testPlayground={testPlayground}
-        sendPlayground={() => { setPlaygroundMessage(""); setPlaygroundResult(""); setPlaygroundDone(false); setPlaygroundOpen(true); }}
+        sendPlayground={openPlayground}
         playgroundMessage={playgroundMessage}
         selectedProjectID={selectedProjectID}
       />

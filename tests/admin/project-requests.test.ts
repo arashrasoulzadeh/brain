@@ -25,3 +25,16 @@ test("late project responses cannot overwrite the selected project's catalog or 
   assert.equal(refresh(), false);
   assert.equal(gate.current(), "alpha");
 });
+
+test("playground response is invalidated even if a project is selected again", () => {
+  const gate = createProjectRequestGate();
+  gate.select("alpha");
+  const first = gate.begin("alpha", "playground")!;
+  const catalog = gate.begin("alpha", "catalog")!;
+  const second = gate.begin("alpha", "playground")!;
+  assert.equal(first(), false);
+  assert.equal(second(), true);
+  assert.equal(catalog(), true);
+  gate.select("beta"); gate.select("alpha");
+  assert.equal(second(), false);
+});

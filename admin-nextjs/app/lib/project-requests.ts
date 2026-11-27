@@ -1,10 +1,10 @@
-type ProjectRequestKind = "catalog" | "functions";
+type ProjectRequestKind = "catalog" | "functions" | "playground";
 
 /** Only the newest request for the currently selected project may publish data. */
 export function createProjectRequestGate() {
   let projectID = "";
   let epoch = 0;
-  const sequences: Record<ProjectRequestKind, number> = { catalog: 0, functions: 0 };
+  const sequences: Record<ProjectRequestKind, number> = { catalog: 0, functions: 0, playground: 0 };
   return {
     current: () => projectID,
     select(next: string) {
