@@ -3,6 +3,32 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `2432526a` — 2026-11-27 16:28:23 +0330 — Merge pull request #37 from arashrasoulzadeh/docs/current-complete-reference
+  Files: 
+- `e30d893f` — 2026-11-27 16:17:38 +0330 — Merge pull request #36 from arashrasoulzadeh/test/host-coverage-edge-cases
+  Files: 
+- `0c1edeb0` — 2026-11-27 16:16:55 +0330 — docs: recognize generic SDK types and direct exports in coverage audit
+  Files: scripts/documentation_inventory.py
+- `b3c62868` — 2026-11-27 16:16:22 +0330 — docs: expand every admin page guide and audit Next.js routes
+  Files: docs/admin-pages/README.md,docs/admin-pages/audit.md docs/admin-pages/database.md,docs/admin-pages/files.md docs/admin-pages/function-detail.md,docs/admin-pages/function-new.md docs/admin-pages/functions.md,docs/admin-pages/live-sessions.md docs/admin-pages/login.md,docs/admin-pages/monitoring.md docs/admin-pages/plugin-detail.md,docs/admin-pages/plugins.md docs/admin-pages/routes.md,docs/admin-pages/system.md docs/admin-pages/workers.md,docs/admin-pages/workflows.md docs/plugin-guides/dashboard.md,docs/quality.md scripts/documentation_inventory.py,tests/documentation/test_inventory.py
+- `3877b9fe` — 2026-11-27 16:14:41 +0330 — docs: add every plugin guide and enforce public contract documentation inventory
+  Files: docs/plugin-guides/access-management.md,docs/plugin-guides/analytics.md docs/plugin-guides/arena.md,docs/plugin-guides/auth.md docs/plugin-guides/dashboard.md,docs/plugin-guides/declarative-plugin.md docs/plugin-guides/files.md,docs/plugin-guides/functions.md docs/plugin-guides/games.md,docs/plugin-guides/index.md docs/plugin-guides/invites.md,docs/plugin-guides/matchmaking.md docs/plugin-guides/pvp.md,docs/plugin-guides/rooms.md docs/plugin-guides/subscriptions.md,docs/plugin-guides/tables.md docs/plugin-guides/template.md,docs/quality.md scripts/build-docs.py,scripts/documentation_inventory.py tests/documentation/test_inventory.py
+- `abe3a4d5` — 2026-11-27 12:44:19 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
+- `cf684327` — 2026-11-27 16:13:33 +0330 — docs: refresh host, client, SDK, deployment and HTTP references against current main
+  Files: clients/android/README.md,docs/admins.md docs/assets/brain.css,docs/browser-quickstart.md docs/declarative-runtime.md,docs/developers.md docs/flutter-quickstart.md,docs/functions-runtime.md docs/http-api.md,docs/index.md docs/restore-runbook.md,docs/runtime-operations.md docs/sdk-reference.md,mkdocs.yml plugins/README.md
+- `743e3dce` — 2026-11-27 16:11:01 +0330 — test: verify close failures cannot be mistaken for lock release
+  Files: internal/deploy/lock_failure_coverage_test.go
+- `4abec123` — 2026-11-27 16:10:51 +0330 — test: exercise successful admin lifecycle and page response dispatch
+  Files: internal/app/admin_edge_coverage_test.go
+- `2f002ed0` — 2026-11-27 16:10:22 +0330 — test: use one invitation selector for expiry commit checks
+  Files: internal/plugin/runtime_storage_edge_test.go
+- `7f5f756b` — 2026-11-27 16:10:13 +0330 — test: cover late invitation expiry and storage read failures
+  Files: internal/plugin/runtime_storage_edge_test.go
+- `795f83eb` — 2026-11-27 16:10:04 +0330 — test: cover model admission and invalid action without durable mutation
+  Files: internal/plugin/model_admission_edge_test.go
+- `4a65e87b` — 2026-11-27 16:09:47 +0330 — test: cover manifest discovery, stale credentials, and registry admission failures
+  Files: internal/plugin/host_edge_coverage_test.go
 - `334bcded` — 2026-11-27 16:09:20 +0330 — Merge pull request #34 from arashrasoulzadeh/test/remaining-host-coverage
   Files: 
 - `a0ad040c` — 2026-11-27 16:09:16 +0330 — Merge pull request #33 from arashrasoulzadeh/fix/sqlite-coverage-stability
@@ -77,29 +103,3 @@ Automatically generated from commits on main.
   Files: internal/plugin/durable_commit_coverage_test.go
 - `84476972` — 2026-11-27 14:58:12 +0330 — test: cover durable capacity limits and database failure boundaries
   Files: internal/plugin/durable_commit_coverage_test.go
-- `0d45e69e` — 2026-11-27 14:56:45 +0330 — style: fix Go formatting
-  Files: internal/plugin/durable_storage_coverage_test.go
-- `53188fea` — 2026-11-27 14:56:43 +0330 — style: fix Go formatting
-  Files: internal/plugin/wasm_runner_coverage_test.go
-- `b9275059` — 2026-11-27 14:56:37 +0330 — style: normalize durable authentication tests
-  Files: internal/plugin/durable_auth_coverage_test.go
-- `16f3970d` — 2026-11-27 14:56:10 +0330 — style: normalize durable storage regression test formatting
-  Files: internal/plugin/durable_storage_coverage_test.go
-- `470dd5d6` — 2026-11-27 14:54:44 +0330 — test: exercise valid WASM execution within project context
-  Files: internal/plugin/wasm_runner_coverage_test.go
-- `c4691a0f` — 2026-11-27 14:54:36 +0330 — test: cover durable authentication denial and revocation races
-  Files: internal/plugin/durable_auth_coverage_test.go
-- `f6dee120` — 2026-11-27 14:54:19 +0330 — test: cover durable storage rejection and commit boundaries
-  Files: internal/plugin/durable_storage_coverage_test.go
-- `56cd958a` — 2026-11-27 11:23:15 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `3e70d30e` — 2026-11-27 14:52:55 +0330 — Merge pull request #29 from arashrasoulzadeh/fix/reconcile-restore-verification
-  Files: 
-- `544c722f` — 2026-11-27 14:52:36 +0330 — test: reconcile isolated restore verification
-  Files: tests/deploy/clean_environment_script_test.go
-- `eb3caacf` — 2026-11-27 11:22:11 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `9ac473ff` — 2026-11-27 14:51:55 +0330 — Merge pull request #28 from arashrasoulzadeh/test/complete-go-coverage
-  Files: internal/plugin/registry_workers.go
-- `ccd23f08` — 2026-11-27 11:20:51 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
