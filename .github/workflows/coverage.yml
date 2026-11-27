@@ -60,13 +60,20 @@ jobs:
           BRAIN_TEST_TOOLS: ${{ runner.temp }}/brain-test-tools
         run: |
           mkdir -p coverage/raw
-          NODE_V8_COVERAGE="$PWD/coverage/raw" npm run test:ts
-          NODE_V8_COVERAGE="$PWD/coverage/raw" node_modules/.bin/tsx --tsconfig tests/admin-ui/tsconfig.json --test tests/admin-ui/*.test.mjs
+          status=0
+          node --test tests/coverage/source-inventory.test.mjs
+          node tests/coverage/source-inventory.mjs inventory coverage/typescript-source-inventory.json > coverage/erased-types.txt
+          exclusions=()
+          while IFS= read -r path; do exclusions+=(--exclude="$path"); done < coverage/erased-types.txt
+          NODE_V8_COVERAGE="$PWD/coverage/raw" npm run test:ts || status=$?
+          NODE_V8_COVERAGE="$PWD/coverage/raw" node_modules/.bin/tsx --tsconfig tests/admin-ui/tsconfig.json --test tests/admin-ui/*.test.mjs || status=$?
           python scripts/prepare-v8-coverage.py coverage/raw coverage/c8-input
           npx --yes --package=c8@10.1.3 c8 report --temp-directory=coverage/c8-input --all \
             --src=plugins --src=clients/javascript/src --src=admin-nextjs/app --src=scripts \
             --include='plugins/**/*.ts' --include='plugins/**/*.mjs' --include='clients/javascript/src/**/*.ts' --include='admin-nextjs/app/**/*.ts' --include='admin-nextjs/app/**/*.tsx' --include='scripts/**/*.mjs' \
-            --exclude='**/*.d.ts' --reporter=text --reporter=json-summary --reporter=html
+            --exclude='**/*.d.ts' "${exclusions[@]}" --reporter=text --reporter=json-summary --reporter=html
+          node tests/coverage/source-inventory.mjs verify coverage/coverage-summary.json
+          exit "$status"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -74,10 +81,12 @@ jobs:
           path: coverage/
       - name: Require 100% in every measured source file
         run: |
+          exclusions=()
+          while IFS= read -r path; do exclusions+=(--exclude="$path"); done < coverage/erased-types.txt
           npx --yes --package=c8@10.1.3 c8 check-coverage --temp-directory=coverage/c8-input --all \
             --src=plugins --src=clients/javascript/src --src=admin-nextjs/app --src=scripts \
             --include='plugins/**/*.ts' --include='plugins/**/*.mjs' --include='clients/javascript/src/**/*.ts' --include='admin-nextjs/app/**/*.ts' --include='admin-nextjs/app/**/*.tsx' --include='scripts/**/*.mjs' \
-            --exclude='**/*.d.ts' --per-file --lines=100 --functions=100 --branches=100 --statements=100
+            --exclude='**/*.d.ts' "${exclusions[@]}" --per-file --lines=100 --functions=100 --branches=100 --statements=100
   flutter-coverage:
     runs-on: ubuntu-latest
     defaults:

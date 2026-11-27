@@ -56,7 +56,7 @@ test("SDK validates exact models, transitions, request identity and retry errors
   assert.throws(() => validateModel({ n: "integer" }, { n: 1.2 }), /type/);
   assert.throws(() => validateModel({ n: "integer" }, { n: "1" }), /type/);
   assert.throws(() => validateModel({ b: "boolean" }, { b: "false" }), /type/);
-  assert.throws(() => validateModel(Object.fromEntries(Array.from({ length: 65 }, (_, i) => ["x" + i, "string" as const])), {}), /fields/);
+  assert.throws(() => validateModel(Object.fromEntries(Array.from({ length: 65 }, (_, i) => ["x" + i, "string"] as const)), {}), /fields/);
   const machine = { initial: "draft", transitions: { publish: { from: "draft", to: "published" }, invalid: { from: "draft", to: "" } } };
   assert.equal(transitionState(machine, "draft", "publish"), "published");
   assert.throws(() => transitionState(machine, "published", "publish"), /invalid/);
