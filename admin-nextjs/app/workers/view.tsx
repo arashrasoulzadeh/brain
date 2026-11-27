@@ -17,6 +17,7 @@ export default function WorkersPage() {
   const [workers, setWorkers] = useState<Installation[]>([]);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
+  const [refresh, setRefresh] = useState(0);
   const [pending, setPending] = useState<Installation>();
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
@@ -42,9 +43,16 @@ export default function WorkersPage() {
     const token = readAdminSession();
     if (!token) { router.replace(systemUIURL()); return; }
     setSession(token); setProject(""); setWorkers([]); setMessage(""); setLoading(true); setPending(undefined);
-    void load(token, controller.signal).catch(reason => { if (!controller.signal.aborted) setMessage(String(reason)); }).finally(() => { if (!controller.signal.aborted) setLoading(false); });
-    return () => { controller.abort(); epoch.current++; };
-  }, [router, namespace]);
+    let timer: ReturnType<typeof setTimeout>;
+    async function poll() {
+      if (controller.signal.aborted) return;
+      try { if (!document.hidden || timer === undefined) await load(token, controller.signal); }
+      catch (reason) { if (!controller.signal.aborted) { setWorkers([]); setMessage(String(reason)); } }
+      finally { if (!controller.signal.aborted) { setLoading(false); timer = setTimeout(() => void poll(), 10000); } }
+    }
+    void poll();
+    return () => { controller.abort(); clearTimeout(timer); epoch.current++; };
+  }, [router, namespace, refresh]);
 
   async function spinUp() {
     if (busy || done || !pending || pending.ProjectID !== project || !session) return;
@@ -52,10 +60,10 @@ export default function WorkersPage() {
     try {
       const response = await fetch(projectAdminURL(project, "actions"), { method: "POST", headers: adminHeaders(session, { "content-type": "application/json" }), body: JSON.stringify({ operation: "plugin.worker.start", project_id: project, plugin_id: pending.PluginID, version: pending.Version }) });
       if (!response.ok) throw new Error(await response.text());
-      setDone(true); notifyPluginCatalogChanged(project); await load(session);
+      setDone(true); notifyPluginCatalogChanged(project); await load(session).catch(reason => setMessage("Worker started; refresh failed: " + String(reason)));
     } catch (reason) { setMessage(String(reason)); }
     finally { setBusy(false); }
   }
 
-  return <AdminPageFrame activePage="workers" title="Workers" projectID={project} onSignOut={() => { void signOutAdminSession().finally(() => router.replace(systemUIURL())); }}><p className="muted">Project: {project || "—"}. A plugin is executable only after its worker is ready.</p>{loading && <AdminProgress label="Loading workers…" />}{!pending && message && <p role="alert">{message}</p>}{!loading && !workers.length && !message && <p>No installed workers.</p>}<div className="audit-list">{workers.map(worker => <div className="audit" key={worker.PluginID + "@" + worker.Version}><span className={worker.WorkerReady ? "success" : "failure"}>{worker.WorkerReady ? "✓" : "!"}</span><div><strong>{worker.PluginID}@{worker.Version}</strong><small>{worker.Draining ? "Draining" : worker.WorkerReady ? "Worker ready" : "Worker not ready"}</small></div><div className="lifecycle-actions"><PluginManageLink projectID={project} pluginID={worker.PluginID} version={worker.Version} />{worker.Enabled && worker.Ready && !worker.Draining && !worker.WorkerReady && <button type="button" onClick={() => { setPending(worker); setDone(false); setMessage(""); }}>Start worker</button>}</div></div>)}</div>{pending && <AdminDialog title="Start worker" scope={project + " · " + pending.PluginID + "@" + pending.Version} busy={busy} onClose={() => setPending(undefined)}>{!done && <button type="button" disabled={busy} onClick={() => void spinUp()}>Confirm start</button>}{busy && <AdminProgress label="Starting worker…" />}{done && <p role="status">Worker started</p>}{message && <p role="alert">{message}</p>}</AdminDialog>}</AdminPageFrame>;
+  return <AdminPageFrame activePage="workers" title="Workers" projectID={project} onSignOut={() => { void signOutAdminSession().finally(() => router.replace(systemUIURL())); }}><p className="muted">Project: {project || "—"}. A plugin is executable only after its worker is ready.</p><button type="button" className="secondary" disabled={loading || busy || !!pending} onClick={() => setRefresh(value => value + 1)}>Refresh workers</button>{loading && <AdminProgress label="Loading workers…" />}{!pending && message && <p role="alert">{message}</p>}{!loading && !workers.length && !message && <p>No installed workers.</p>}<div className="audit-list">{workers.map(worker => <div className="audit" key={worker.PluginID + "@" + worker.Version}><span className={worker.WorkerReady ? "success" : "failure"}>{worker.WorkerReady ? "✓" : "!"}</span><div><strong>{worker.PluginID}@{worker.Version}</strong><small>{worker.Draining ? "Draining" : worker.WorkerReady ? "Worker ready" : "Worker not ready"}</small></div><div className="lifecycle-actions"><PluginManageLink projectID={project} pluginID={worker.PluginID} version={worker.Version} />{worker.Enabled && worker.Ready && !worker.Draining && !worker.WorkerReady && <button type="button" onClick={() => { setPending(worker); setDone(false); setMessage(""); }}>Start worker</button>}</div></div>)}</div>{pending && <AdminDialog title="Start worker" scope={project + " · " + pending.PluginID + "@" + pending.Version} busy={busy} onClose={() => setPending(undefined)}>{!done && <button type="button" disabled={busy} onClick={() => void spinUp()}>Confirm start</button>}{busy && <AdminProgress label="Starting worker…" />}{done && <p role="status">Worker started</p>}{message && <p role="alert">{message}</p>}</AdminDialog>}</AdminPageFrame>;
 }

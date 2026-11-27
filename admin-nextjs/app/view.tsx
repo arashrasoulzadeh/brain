@@ -147,11 +147,11 @@ export default function AdminPage() {
       headers: adminHeaders(token),
     });
     if (!response.ok) throw new Error("Could not load projects");
-    const loadedProjects = (await response.json()) as Project[];
-    setProjects(loadedProjects);
+    const loadedProjects = ((await response.json()) as Project[] | null) ?? [];
+    if (readAdminSession() === token) setProjects(loadedProjects);
     return loadedProjects;
   }
-  async function loadProjectRoutes(token: string, project: string) {
+  async function loadProjectRoutes(token: string, project: string, valid: () => boolean) {
     if (!project) {
       setProjectRoutes([]);
       return;
@@ -159,12 +159,12 @@ export default function AdminPage() {
     const response = await fetch(projectAdminURL(project, "routes"), { headers: adminHeaders(token) });
     if (!response.ok) throw new Error("Could not discover project routes");
     const routes = (await response.json()) as ProjectHTTPRoute[] | null;
-    if (projectRequests.current() === project && readAdminSession() === token) {
+    if (valid()) {
       setProjectRoutes(routes ?? []);
     }
   }
   async function loadPlugins(token: string, projectID = selectedProjectID) {
-    if (!projectID) { setManifests([]); setInstallations([]); setProjectRoutes([]); return; }
+    if (!projectID) { if (projectRequests.current() === "") { setManifests([]); setInstallations([]); setProjectRoutes([]); } return; }
     const current = projectRequests.begin(projectID, "catalog");
     if (!current) return;
     const valid = () => current() && readAdminSession() === token;
@@ -176,7 +176,7 @@ export default function AdminPage() {
       if (!valid()) return;
       setManifests(result.manifests ?? []);
       setInstallations((result.installations ?? []).filter(item => item.ProjectID === projectID));
-      await loadProjectRoutes(token, projectID).catch(() => setProjectRoutes([]));
+      await loadProjectRoutes(token, projectID, valid).catch(() => { if (valid()) setProjectRoutes([]); });
     } catch (reason) {
       if (!valid()) return;
       setInstallations([]);
@@ -188,14 +188,16 @@ export default function AdminPage() {
       headers: adminHeaders(token),
     });
     if (!response.ok) throw new Error("Could not load audit log");
-    setAudit((await response.json()) as AuditRecord[]);
+    const records = (await response.json()) as AuditRecord[] | null;
+    if (readAdminSession() === token) setAudit(records ?? []);
   }
   async function loadSystem(token: string) {
     const response = await fetch(systemAdminURL("system"), {
       headers: adminHeaders(token),
     });
     if (!response.ok) throw new Error("Could not load system capabilities");
-    setSystem((await response.json()) as SystemManifest[]);
+    const records = (await response.json()) as SystemManifest[] | null;
+    if (readAdminSession() === token) setSystem(records ?? []);
   }
   async function loadFunctionDrafts(token: string, projectID = selectedProjectID) {
     const current = projectRequests.begin(projectID, "functions");

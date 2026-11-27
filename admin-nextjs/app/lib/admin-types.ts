@@ -33,6 +33,7 @@ export type PluginStatus = {
   MaxUploadBytes?: number;
 };
 export type AuditRecord = {
+  occurred_at?: string;
   source: string;
   action: string;
   actor_id?: string;

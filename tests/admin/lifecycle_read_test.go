@@ -59,6 +59,9 @@ func TestLifecycleInventoryAndGrantAudit(t *testing.T) {
 	}
 	var grant, pluginRecord bool
 	for _, record := range records {
+		if record.OccurredAt == "" {
+			t.Fatalf("missing audit timestamp: %+v", record)
+		}
 		if record.Source == "operator" && record.Action == "plugin.grant" && record.Success {
 			grant = true
 		}

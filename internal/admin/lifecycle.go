@@ -9,6 +9,7 @@ import (
 	"errors"
 	"net/http"
 	"strings"
+	"time"
 )
 
 var ErrPluginUnavailable = errors.New("plugin is not enabled and ready")
@@ -121,6 +122,8 @@ type AuditRecord struct {
 	Version   string `json:"version,omitempty"`
 	Success   bool   `json:"success"`
 	Detail    string `json:"detail,omitempty"`
+
+	OccurredAt string `json:"occurred_at,omitempty"`
 }
 
 func (s *LifecycleService) AuditRecords(actor operator.Actor) ([]AuditRecord, error) {
@@ -129,10 +132,10 @@ func (s *LifecycleService) AuditRecords(actor operator.Actor) ([]AuditRecord, er
 	}
 	records := make([]AuditRecord, 0)
 	for _, event := range s.operators.Audit() {
-		records = append(records, AuditRecord{Source: "operator", Action: event.Action, ActorID: event.ActorID, Success: event.Success, Detail: event.Detail})
+		records = append(records, AuditRecord{Source: "operator", Action: event.Action, ActorID: event.ActorID, Success: event.Success, Detail: event.Detail, OccurredAt: event.OccurredAt.Format(time.RFC3339Nano)})
 	}
 	for _, event := range s.registry.Audit() {
-		records = append(records, AuditRecord{Source: "plugin", Action: event.Action, ProjectID: event.ProjectID, PluginID: event.PluginID, Version: event.Version, Success: true, Detail: event.Detail})
+		records = append(records, AuditRecord{Source: "plugin", Action: event.Action, ProjectID: event.ProjectID, PluginID: event.PluginID, Version: event.Version, Success: true, Detail: event.Detail, OccurredAt: event.OccurredAt.Format(time.RFC3339Nano)})
 	}
 	return records, nil
 }

@@ -34,6 +34,8 @@ type AuditEvent struct {
 	ActorID string
 	Success bool
 	Detail  string
+
+	OccurredAt time.Time
 }
 
 type Account struct {
@@ -100,7 +102,7 @@ func (s *Store) record(action, actorID string, success bool, detail string) {
 }
 
 func (s *Store) recordLocked(action, actorID string, success bool, detail string) {
-	s.audit = append(s.audit, AuditEvent{Action: action, ActorID: actorID, Success: success, Detail: detail})
+	s.audit = append(s.audit, AuditEvent{OccurredAt: s.now().UTC(), Action: action, ActorID: actorID, Success: success, Detail: detail})
 }
 
 func (s *Store) AuthorizeAction(actor Actor, action string) error {

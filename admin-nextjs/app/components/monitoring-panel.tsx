@@ -1,4 +1,5 @@
 import { PluginManageLink } from "./plugin-manage-link";
+import { installationHealth } from "../lib/admin-observability";
 import type { AdminCopy } from "../lib/admin-copy";
 import type { PluginManifest, PluginStatus } from "../lib/admin-types";
 
@@ -17,29 +18,17 @@ export function MonitoringPanel({ activePage, text, manifests, installations }: 
         </div>
         <span className="count">{manifests.length}</span>
       </div>
+      <p className="muted">{installations.length} installed · {installations.filter(item => { const manifest = manifests.find(value => value.ID === item.PluginID && value.Version === item.Version); return manifest && installationHealth(manifest, item) === "ready"; }).length} healthy</p>
+      {!manifests.length && <p className="muted">No registered plugins.</p>}
       <div className="audit-list">
         {manifests.map((manifest) => {
           const installation = installations.find(
             (candidate) =>
               candidate.PluginID === manifest.ID && candidate.Version === manifest.Version,
           );
-          const state = !installation
-            ? "not installed"
-            : installation.Draining
-              ? "draining"
-              : !installation.Ready
-                ? text.notReady
-                : !installation.Enabled
-                  ? text.disabled
-                  : installation.WorkerReady === false
-                    ? "worker unavailable"
-                    : text.ready;
-          const healthy = Boolean(
-            installation?.Enabled &&
-            installation?.Ready &&
-            installation.WorkerReady !== false &&
-            !installation.Draining,
-          );
+          const health = installationHealth(manifest, installation);
+          const state = { absent: "not installed", draining: "draining", pending: text.notReady, disabled: text.disabled, grants: "missing capability grants", worker: "worker unavailable", ready: text.ready }[health];
+          const healthy = health === "ready";
           const statusClass = !installation ? "neutral" : healthy ? "success" : "failure";
           return (
             <div className="audit" key={`monitor-${manifest.ID}@${manifest.Version}`}>
