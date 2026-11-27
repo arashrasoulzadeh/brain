@@ -68,7 +68,7 @@ page.on("pageerror",error=>runtimeErrors.push(error.message));
 async function visible(locator) { await locator.waitFor({state:"visible",timeout:20000}); }
 async function screenshot(name) { await page.screenshot({path:resolve(output,name+".png"),fullPage:true,animations:"disabled"}); }
 try {
-  await page.goto(origin);
+  await page.goto(origin + "/_system/ui");
   await visible(page.getByRole("heading",{name:"Welcome back"}));
   await page.getByLabel("Operator username").fill(username);
   await page.getByLabel("Secret",{exact:true}).fill(secret);
