@@ -18,6 +18,7 @@ type observationDelivery struct {
 	Publisher WorkerRequest
 	Target    WorkerRequest
 	Source    string
+	Principal string
 	Attempts  int
 }
 
@@ -70,6 +71,8 @@ func (r *Registry) DrainObservations(now time.Time, limit int) (int, error) {
 		return 0, err
 	}
 	for i, delivery := range deliveries {
+		delivery.Publisher.accessPrincipal = delivery.Principal
+		delivery.Target.accessPrincipal = pluginAccessPrincipal(delivery.Publisher.PluginID, delivery.Publisher.Version)
 		event, persist, err := r.validateQueuedObservation(delivery)
 		if err == nil {
 			response, invokeErr := r.invokeOnce(delivery.Target, true)
@@ -88,7 +91,7 @@ func (r *Registry) DrainObservations(now time.Time, limit int) (int, error) {
 		}
 		permanent := errors.Is(err, ErrGrantDenied) || errors.Is(err, ErrDisabled) ||
 			errors.Is(err, ErrNotInstalled) || errors.Is(err, ErrNotRegistered) ||
-			errors.Is(err, ErrInvalidWorkerRequest) || errors.Is(err, ErrProjectInvalid)
+			errors.Is(err, ErrInvalidWorkerRequest) || errors.Is(err, ErrProjectInvalid) || errors.Is(err, ErrActorDenied)
 		if permanent || delivery.Attempts+1 >= maxObservationAttempts {
 			if err := store.finishObservation(delivery, false, now); err != nil {
 				return i, err

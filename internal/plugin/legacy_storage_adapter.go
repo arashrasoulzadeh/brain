@@ -1,6 +1,10 @@
 package plugin
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"strings"
+	"time"
+)
 
 type legacyStoragePlanner struct {
 	storage *SQLiteStorage
@@ -16,28 +20,67 @@ func (p legacyStoragePlanner) Supports(pluginID string) bool {
 }
 
 func (p legacyStoragePlanner) Prepare(request WorkerRequest) (WorkerRequest, func() error, error) {
-	return prepareLegacyStorageRequest(p.storage, request)
+	prepared, effect, err := prepareLegacyStorageRequest(p.storage, request)
+	if err != nil || effect == nil {
+		return prepared, nil, err
+	}
+	return prepared, func() error { return effect(p.storage.db) }, nil
+}
+
+// prepareWithObservations binds the existing storage effect and outbox inserts
+// to one transaction. Neither is visible if the other fails.
+func (p legacyStoragePlanner) prepareWithObservations(request WorkerRequest) (WorkerRequest, func([]observationDelivery) error, error) {
+	prepared, effect, err := prepareLegacyStorageRequest(p.storage, request)
+	if err != nil {
+		return prepared, nil, err
+	}
+	return prepared, func(deliveries []observationDelivery) error {
+		if effect == nil && len(deliveries) == 0 {
+			return nil
+		}
+		tx, err := p.storage.db.Begin()
+		if err != nil {
+			return err
+		}
+		defer tx.Rollback()
+		for _, delivery := range deliveries {
+			if err := enqueueSQLiteObservation(tx, delivery, time.Now()); err != nil {
+				return err
+			}
+		}
+		if effect != nil {
+			if err := effect(tx); err != nil {
+				return err
+			}
+		}
+		return tx.Commit()
+	}, nil
 }
 
 // prepareLegacyStorageRequest is the compatibility adapter for existing product
 // storage routes. Its writes are deferred to the registry commit boundary.
-func prepareLegacyStorageRequest(storage *SQLiteStorage, request WorkerRequest) (WorkerRequest, func() error, error) {
-	var commit func() error
+func prepareLegacyStorageRequest(storage *SQLiteStorage, request WorkerRequest) (WorkerRequest, func(sqliteExecutor) error, error) {
+	var commit func(sqliteExecutor) error
 	if storage == nil {
 		return request, commit, nil
 	}
 	var payload map[string]any
-	if json.Unmarshal(request.Payload, &payload) != nil {
+	if json.Unmarshal(request.Payload, &payload) != nil || payload == nil {
 		return request, commit, nil
 	}
 	if request.PluginID == "files" {
 		key, _ := payload["key"].(string)
+		key = strings.TrimSpace(key)
 		if key == "" {
 			return request, commit, nil
 		}
+		payload["key"] = key
+		request.Payload, _ = json.Marshal(payload)
 		if request.Operation == "files.upload" {
 			if data, ok := payload["data"].(string); ok {
-				commit = func() error { return storage.PutFile(request.ProjectID, key, data, false) }
+				commit = func(db sqliteExecutor) error {
+					return putSQLiteFile(db, request.ProjectID, key, data, false)
+				}
 			}
 		}
 		if request.Operation == "files.publish" {
@@ -45,8 +88,13 @@ func prepareLegacyStorageRequest(storage *SQLiteStorage, request WorkerRequest) 
 			if err != nil {
 				return request, nil, err
 			}
+			if data == "" {
+				return request, nil, ErrInvalidWorkerRequest
+			}
 			if data != "" {
-				commit = func() error { return storage.PutFile(request.ProjectID, key, data, true) }
+				commit = func(db sqliteExecutor) error {
+					return putSQLiteFile(db, request.ProjectID, key, data, true)
+				}
 				payload["published"] = true
 				request.Payload, _ = json.Marshal(payload)
 			}
@@ -55,6 +103,9 @@ func prepareLegacyStorageRequest(storage *SQLiteStorage, request WorkerRequest) 
 			data, published, err := storage.File(request.ProjectID, key)
 			if err != nil {
 				return request, nil, err
+			}
+			if data == "" {
+				return request, nil, ErrInvalidWorkerRequest
 			}
 			if data != "" {
 				payload["data"] = data
@@ -66,16 +117,24 @@ func prepareLegacyStorageRequest(storage *SQLiteStorage, request WorkerRequest) 
 	}
 	if request.PluginID == "matchmaking" {
 		id, _ := payload["id"].(string)
+		id = strings.TrimSpace(id)
 		if id == "" {
 			return request, commit, nil
 		}
+		delete(payload, "ticket")
+		payload["id"] = id
 		state, err := storage.State(request.ProjectID, "matchmaking", id)
 		if err != nil {
 			return request, nil, err
 		}
 		if request.Operation == "matchmaking.queue" {
 			state = map[string]any{"id": id, "status": "queued"}
-			commit = func() error { return storage.PutState(request.ProjectID, "matchmaking", id, state) }
+			commit = func(db sqliteExecutor) error {
+				return putSQLiteState(db, request.ProjectID, "matchmaking", id, state)
+			}
+		}
+		if state == nil {
+			return request, nil, ErrInvalidWorkerRequest
 		}
 		if request.Operation == "matchmaking.cancel" || request.Operation == "matchmaking.assign" {
 			if state == nil {
@@ -86,7 +145,9 @@ func prepareLegacyStorageRequest(storage *SQLiteStorage, request WorkerRequest) 
 			} else {
 				state["status"] = "assigned"
 			}
-			commit = func() error { return storage.PutState(request.ProjectID, "matchmaking", id, state) }
+			commit = func(db sqliteExecutor) error {
+				return putSQLiteState(db, request.ProjectID, "matchmaking", id, state)
+			}
 		}
 		if state != nil {
 			payload["ticket"] = state
@@ -96,22 +157,32 @@ func prepareLegacyStorageRequest(storage *SQLiteStorage, request WorkerRequest) 
 	}
 	if request.PluginID == "rooms" {
 		id, _ := payload["id"].(string)
+		id = strings.TrimSpace(id)
 		if id == "" {
 			return request, commit, nil
 		}
+		delete(payload, "room")
+		payload["id"] = id
 		state, err := storage.State(request.ProjectID, "rooms", id)
 		if err != nil {
 			return request, nil, err
 		}
 		if request.Operation == "rooms.create" {
 			state = map[string]any{"id": id, "members": []any{}}
-			commit = func() error { return storage.PutState(request.ProjectID, "rooms", id, state) }
+			commit = func(db sqliteExecutor) error {
+				return putSQLiteState(db, request.ProjectID, "rooms", id, state)
+			}
 		}
 		if state == nil {
-			return request, commit, nil
+			return request, nil, ErrInvalidWorkerRequest
 		}
 		if request.Operation == "rooms.join" || request.Operation == "rooms.reconnect" {
 			if member, ok := payload["member"].(string); ok {
+				member = strings.TrimSpace(member)
+				if member == "" {
+					return request, nil, ErrInvalidWorkerRequest
+				}
+				payload["member"] = member
 				members, _ := state["members"].([]any)
 				found := false
 				for _, existing := range members {
@@ -123,13 +194,17 @@ func prepareLegacyStorageRequest(storage *SQLiteStorage, request WorkerRequest) 
 					members = append(members, member)
 				}
 				state["members"] = members
-				commit = func() error { return storage.PutState(request.ProjectID, "rooms", id, state) }
+				commit = func(db sqliteExecutor) error {
+					return putSQLiteState(db, request.ProjectID, "rooms", id, state)
+				}
 			}
 		}
 		if request.Operation == "rooms.result" {
 			if value, ok := payload["result"]; ok {
 				state["result"] = value
-				commit = func() error { return storage.PutState(request.ProjectID, "rooms", id, state) }
+				commit = func(db sqliteExecutor) error {
+					return putSQLiteState(db, request.ProjectID, "rooms", id, state)
+				}
 			}
 		}
 		payload["room"] = state
@@ -138,14 +213,15 @@ func prepareLegacyStorageRequest(storage *SQLiteStorage, request WorkerRequest) 
 	}
 	if request.PluginID == "analytics" && (request.Operation == "analytics.capture" || request.Operation == "@observe/rooms/connected") {
 		var event map[string]any
-		if json.Unmarshal(request.Payload, &event) == nil {
+		if json.Unmarshal(request.Payload, &event) == nil && event != nil {
 			if request.Operation == "@observe/rooms/connected" {
 				if event["projectId"] != request.ProjectID || event["pluginId"] != "rooms" || event["event"] != "connected" {
 					return request, nil, ErrInvalidWorkerRequest
 				}
-				event = map[string]any{"projectId": request.ProjectID, "name": "rooms.connected", "fields": event["payload"]}
+				event = map[string]any{"projectId": request.ProjectID, "name": "rooms.connected", "fields": event["payload"], "observationId": event["id"]}
 			} else {
 				event["projectId"] = request.ProjectID
+				request.Payload, _ = json.Marshal(event)
 			}
 			state, err := storage.State(request.ProjectID, "analytics", "events")
 			if err != nil {
@@ -155,21 +231,35 @@ func prepareLegacyStorageRequest(storage *SQLiteStorage, request WorkerRequest) 
 				state = map[string]any{"events": []any{}}
 			}
 			events, _ := state["events"].([]any)
+			if observationID, ok := event["observationId"].(string); ok && observationID != "" {
+				for _, existing := range events {
+					if record, ok := existing.(map[string]any); ok && record["observationId"] == observationID {
+						return request, nil, nil
+					}
+				}
+			}
 			events = append(events, event)
 			state["events"] = events
-			commit = func() error { return storage.PutState(request.ProjectID, "analytics", "events", state) }
+			commit = func(db sqliteExecutor) error {
+				return putSQLiteState(db, request.ProjectID, "analytics", "events", state)
+			}
 		}
 	}
 	if request.PluginID != "tables" {
 		return request, commit, nil
 	}
 	table, _ := payload["table"].(string)
+	table = strings.TrimSpace(table)
 	if table == "" {
 		return request, commit, nil
 	}
+	payload["table"] = table
+	request.Payload, _ = json.Marshal(payload)
 	if request.Operation == "tables.write" {
 		if row, ok := payload["row"].(map[string]any); ok {
-			commit = func() error { return storage.Append(request.ProjectID, table, row) }
+			commit = func(db sqliteExecutor) error {
+				return appendSQLiteRow(db, request.ProjectID, table, row)
+			}
 		}
 	}
 	if request.Operation == "tables.read" {
