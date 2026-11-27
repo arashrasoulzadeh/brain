@@ -3,12 +3,18 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `9824af94` — 2026-11-27 13:11:02 +0330 — Merge pull request #17 from arashrasoulzadeh/fix/compose-node-runtime
+  Files: 
+- `45b52cd2` — 2026-11-27 09:38:17 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `029e8746` — 2026-11-27 13:07:42 +0330 — Merge pull request #18 from arashrasoulzadeh/test/admin-browser-smoke
   Files: 
 - `7f2ecef9` — 2026-11-27 13:05:09 +0330 — Resolve browser test paths at step execution time
   Files: .github/workflows/admin-browser.yml
 - `fbbb0e69` — 2026-11-27 13:04:32 +0330 — Add production-build Chromium admin smoke tests and screenshots
   Files: .github/workflows/admin-browser.yml,docs/admin-pages/theme.md scripts/test-admin-browser.mjs
+- `b52ce1a5` — 2026-11-27 13:03:34 +0330 — Install production-matched Node runtime in Go integration test image
+  Files: .github/workflows/test.yml,Dockerfile.test
 - `6fceee46` — 2026-11-27 09:33:06 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
 - `53f3a75b` — 2026-11-27 13:02:53 +0330 — Merge pull request #16 from arashrasoulzadeh/admin/compact-control-plane
@@ -97,9 +103,3 @@ Automatically generated from commits on main.
   Files: 
 - `4e35a0c7` — 2026-11-27 03:40:17 +0330 — Merge main and preserve central operator access policy in admin inventory
   Files: docs/admin-pages/extensions.md,internal/admin/lifecycle.go internal/plugin/admin_inventory.go,internal/plugin/admin_inventory_test.go plugins/files/plugin.yaml,plugins/matchmaking/plugin.yaml plugins/rooms/plugin.yaml,plugins/tables/plugin.yaml roadmap_admin.md
-- `7bcad09c` — 2026-11-27 03:40:14 +0330 — Reconcile storage hardening with access-management authorization
-  Files: internal/plugin/manifest.go,internal/plugin/registry_workers.go internal/plugin/route_resources_test.go,plugins/sdk-typescript/src/index.ts
-- `33423138` — 2026-11-27 00:09:34 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `904d0fef` — 2026-11-27 03:39:24 +0330 — Centralize project access management across plugins
-  Files: internal/admin/functions.go,internal/admin/lifecycle.go internal/plugin/access_management.go,internal/plugin/broker.go internal/plugin/manifest.go,internal/plugin/model_runtime.go internal/plugin/observations.go,internal/plugin/plugin_call.go internal/plugin/registry_workers.go,internal/plugin/worker.go plugins/README.md,plugins/access-management/README.md plugins/access-management/index.ts,plugins/access-management/plugin.yaml plugins/analytics/plugin.yaml,plugins/arena/plugin.yaml plugins/files/plugin.yaml,plugins/files/routes.ts plugins/functions/plugin.yaml,plugins/invites/plugin.yaml plugins/matchmaking/plugin.yaml,plugins/matchmaking/routes.ts plugins/rooms/plugin.yaml,plugins/rooms/routes.ts plugins/sdk-typescript/src/index.ts,plugins/sdk-typescript/src/request.ts plugins/subscriptions/plugin.yaml,plugins/tables/plugin.yaml tests/files/files.test.ts,tests/matchmaking/matchmaking.test.ts tests/plugin/access_management_test.go,tests/plugin/resource-request.test.ts tests/rooms/rooms.test.ts
