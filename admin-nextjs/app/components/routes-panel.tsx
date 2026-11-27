@@ -32,7 +32,7 @@ export function RoutesPanel({ activePage, text, playgroundRoute, setPlaygroundRo
             >
               <option value="">—</option>
               {projectRoutes.map((route) => (
-                <option key={`${route.plugin_id}:${route.operation}:${route.method}:${route.path}`} value={`${route.plugin_id}:${route.operation}`}>
+                <option key={`${route.plugin_id}:${route.operation}:${route.method}:${route.path}`} value={`${route.plugin_id}:${route.version}:${route.operation}`}>
                   {route.method} {route.path} · {route.operation}
                 </option>
               ))}
@@ -41,6 +41,7 @@ export function RoutesPanel({ activePage, text, playgroundRoute, setPlaygroundRo
           <label>
             {text.payload}
             <textarea
+              aria-label={text.payload}
               value={playgroundPayload}
               onChange={(event) => setPlaygroundPayload(event.target.value)}
               rows={8}
@@ -53,15 +54,17 @@ export function RoutesPanel({ activePage, text, playgroundRoute, setPlaygroundRo
             <button type="button" onClick={sendPlayground}>
               {text.send}
             </button>
-            <small>{playgroundMessage}</small>
+            <small role="status">{playgroundMessage}</small>
           </div>
           <pre>
             {playgroundRoute
               ? JSON.stringify(
                   {
                     project_id: selectedProjectID,
-                    operation: playgroundRoute.split(":")[1],
-                    payload: playgroundPayload,
+                    plugin_id: playgroundRoute.split(":")[0],
+                    version: playgroundRoute.split(":")[1],
+                    operation: playgroundRoute.split(":")[2],
+                    payload: (() => { try { return JSON.parse(playgroundPayload || "{}"); } catch { return playgroundPayload; } })(),
                   },
                   null,
                   2,

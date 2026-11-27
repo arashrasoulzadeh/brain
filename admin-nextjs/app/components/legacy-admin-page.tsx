@@ -42,6 +42,6 @@ export default function LegacyAdminPage() {
   const pages = adminLegacyRootPages(current?.contributions.filter(item => adminAliasMatches(item, route)) ?? []);
   const title = adminAliasTitle(route);
   return <AdminPageFrame activePage={route} title={title}>
-    {error ? <><p role="alert">{error}</p><Link href={systemUIURL("projects")}>Choose a project</Link></> : !current ? <p>Loading plugin pages…</p> : !pages.length ? <><p>Page unavailable. Enable a plugin contributing this page and grant its required capabilities.</p><Link href={projectUIURL(current.project, "plugins")}>Manage plugins</Link></> : pages.map(item => <AdminPageRenderer key={item.href} contribution={item} extensions={adminPageExtensions(item, current.contributions)} />)}
+    {error ? <><p role="alert">{error}</p><Link href={systemUIURL("projects")}>Choose a project</Link></> : !current ? <p>Loading plugin pages…</p> : !pages.length ? <><p role="alert">Page unavailable. Enable a plugin contributing this page and grant its required capabilities.</p><Link href={projectUIURL(current.project, "plugins")}>Manage plugins</Link></> : pages.map(item => <AdminPageRenderer key={item.href} contribution={item} extensions={adminPageExtensions(item, current.contributions)} />)}
   </AdminPageFrame>;
 }

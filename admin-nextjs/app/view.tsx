@@ -14,6 +14,7 @@ import { SystemPanel } from "./components/system-panel";
 import { MonitoringPanel } from "./components/monitoring-panel";
 import { ProjectsPanel } from "./components/projects-panel";
 import { PluginCatalogPanel } from "./components/plugin-catalog-panel";
+import { AdminDialog, AdminProgress } from "./components/admin-dialog";
 import { installAndActivatePlugin } from "./lib/plugin-install";
 import { FunctionDraftsPanel } from "./components/function-drafts-panel";
 import { RoutesPanel } from "./components/routes-panel";
@@ -42,6 +43,15 @@ export default function AdminPage() {
     Record<string, Record<string, string | boolean>>
   >({});
   const [pluginFilter, setPluginFilter] = useState("");
+  const [projectDialog, setProjectDialog] = useState<{ project: Project; operation: "project.configure" | "project.activate" | "project.deactivate" | "project.uninstall" }>();
+  const [projectEdit, setProjectEdit] = useState({ name: "", slug: "", settings: "{}" });
+  const [projectBusy, setProjectBusy] = useState(false);
+  const [projectMessage, setProjectMessage] = useState("");
+  const [projectDone, setProjectDone] = useState(false);
+  const [playgroundOpen, setPlaygroundOpen] = useState(false);
+  const [playgroundBusy, setPlaygroundBusy] = useState(false);
+  const [playgroundDone, setPlaygroundDone] = useState(false);
+  const [playgroundResult, setPlaygroundResult] = useState("");
   const [auditFilter, setAuditFilter] = useState("");
   const [playgroundRoute, setPlaygroundRoute] = useState("");
   const [playgroundPayload, setPlaygroundPayload] = useState("{}");
@@ -80,6 +90,7 @@ export default function AdminPage() {
     setPlaygroundRoute("");
     setPlaygroundPayload("{}");
     setPlaygroundMessage("");
+    setPlaygroundResult(""); setPlaygroundDone(false); setPlaygroundOpen(false);
     setFunctionMessage("");
     saveAdminProject(id);
   }
@@ -263,50 +274,36 @@ export default function AdminPage() {
       setError(reason instanceof Error ? reason.message : "Could not create project");
     }
   }
-  async function configureProject(project: Project) {
-    const name = window.prompt("Display name", project.Name || project.ID);
-    if (name === null) return;
-    const slug = window.prompt("Unique URL slug", project.Slug || project.ID);
-    if (slug === null) return;
-    const rawSettings = window.prompt("Project settings (JSON object)", JSON.stringify(project.Settings ?? {}, null, 2));
-    if (rawSettings === null) return;
-    try {
-      const values: unknown = JSON.parse(rawSettings);
-      if (!values || typeof values !== "object" || Array.isArray(values)) throw new Error("Settings must be a JSON object");
-      const response = await fetch(systemAdminURL("actions"), {
-        method: "POST",
-        headers: adminHeaders(session, { "content-type": "application/json" }),
-        body: JSON.stringify({ operation: "project.configure", project_id: project.ID, name, slug, values }),
-      });
-      if (!response.ok) throw new Error(await response.text());
-      await loadProjects(session);
-    } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "Could not update project");
-    }
+  function openProjectAction(project: Project, operation: "project.configure" | "project.activate" | "project.deactivate" | "project.uninstall") {
+    setProjectDialog({ project, operation }); setProjectDone(false); setProjectMessage("");
+    setProjectEdit({ name: project.Name || project.ID, slug: project.Slug || project.ID, settings: JSON.stringify(project.Settings ?? {}, null, 2) });
   }
-  async function setProjectActive(project: Project, active: boolean) {
-    if (!active && !window.confirm(`${text.deactivate} ${project.ID}?`)) return;
-    const response = await fetch(systemAdminURL("actions"), {
-      method: "POST",
-      headers: adminHeaders(session, { "content-type": "application/json" }),
-      body: JSON.stringify({
-        operation: active ? "project.activate" : "project.deactivate",
-        project_id: project.ID,
-        confirmed: !active,
-      }),
-    });
-    if (!response.ok) {
-      setError(await response.text());
-      return;
-    }
-    const loadedProjects = await loadProjects(session);
-    const current = projectRequests.current();
-    const next = !current || (current === project.ID && !active)
-      ? loadedProjects.find(candidate => candidate.Active)?.ID ?? ""
-      : current;
-    selectProject(next);
-    await Promise.all([loadPlugins(session, next), loadFunctionDrafts(session, next)]);
-    await loadAudit(session);
+  function configureProject(project: Project) { openProjectAction(project, "project.configure"); }
+  function setProjectActive(project: Project, active: boolean) { openProjectAction(project, active ? "project.activate" : "project.deactivate"); }
+  function uninstallProject(project: Project) { openProjectAction(project, "project.uninstall"); }
+  async function submitProjectAction() {
+    if (!projectDialog || projectBusy || projectDone) return;
+    const { project, operation } = projectDialog;
+    setProjectBusy(true); setProjectMessage("");
+    try {
+      let extra: Record<string, unknown> = {};
+      if (operation === "project.configure") {
+        const values: unknown = JSON.parse(projectEdit.settings);
+        if (!values || typeof values !== "object" || Array.isArray(values)) throw new Error("Settings must be a JSON object");
+        if (!projectEdit.name.trim() || !/^[A-Za-z0-9][A-Za-z0-9_-]*$/.test(projectEdit.slug) || projectEdit.slug === "_system") throw new Error("Provide a display name and valid URL slug");
+        extra = { name: projectEdit.name.trim(), slug: projectEdit.slug, values };
+      }
+      const response = await fetch(systemAdminURL("actions"), { method: "POST", headers: adminHeaders(session, { "content-type": "application/json" }), body: JSON.stringify({ operation, project_id: project.ID, confirmed: true, ...extra }) });
+      if (!response.ok) throw new Error(await response.text());
+      setProjectDone(true);
+      const loaded = await loadProjects(session);
+      const current = projectRequests.current();
+      const next = loaded.some(candidate => candidate.ID === current && candidate.Active) ? current : loaded.find(candidate => candidate.Active)?.ID ?? "";
+      selectProject(next);
+      notifyPluginCatalogChanged(project.ID);
+      await Promise.all([loadPlugins(session, next), loadFunctionDrafts(session, next), loadAudit(session)]);
+    } catch (reason) { setProjectMessage(String(reason)); }
+    finally { setProjectBusy(false); }
   }
   function testPlayground() {
     try {
@@ -317,6 +314,7 @@ export default function AdminPage() {
     }
   }
   async function sendPlayground() {
+    if (playgroundBusy || playgroundDone) return;
     testPlayground();
     if (!playgroundRoute) {
       setPlaygroundMessage("Select a route first");
@@ -326,10 +324,10 @@ export default function AdminPage() {
       setPlaygroundMessage("Select an active project first");
       return;
     }
-    const [pluginID, targetOperation] = playgroundRoute.split(":");
-    const manifest = system.find((candidate) => candidate.ID === pluginID);
-    if (!manifest) {
-      setPlaygroundMessage("Plugin manifest not found");
+    const [pluginID, version, targetOperation] = playgroundRoute.split(":");
+    const route = projectRoutes.find(candidate => candidate.plugin_id === pluginID && candidate.version === version && candidate.operation === targetOperation);
+    if (!route) {
+      setPlaygroundMessage("Route no longer available; refresh and select it again");
       return;
     }
     let payload: unknown;
@@ -339,7 +337,10 @@ export default function AdminPage() {
       setPlaygroundMessage("Invalid JSON payload");
       return;
     }
+    const project = selectedProjectID;
+    setPlaygroundBusy(true);
     setPlaygroundMessage("Executing through the host...");
+    try {
     const response = await fetch(projectAdminURL(selectedProjectID, "actions"), {
       method: "POST",
       headers: adminHeaders(session, { "content-type": "application/json" }),
@@ -347,7 +348,7 @@ export default function AdminPage() {
         operation: "plugin.invoke",
         project_id: selectedProjectID,
         plugin_id: pluginID,
-        version: manifest.Version,
+        version: route.version,
         target_operation: targetOperation,
         payload,
       }),
@@ -358,19 +359,17 @@ export default function AdminPage() {
     }
     const result = await response.json();
     setPlaygroundMessage(
-      result.success === false
-        ? `Plugin error: ${result.errorCode ?? "execution failed"}`
+      (result.Success === false || result.success === false)
+        ? `Plugin error: ${result.ErrorCode ?? result.errorCode ?? "execution failed"}`
         : "Host execution completed",
     );
     let output: unknown = result;
-    if (typeof result.payload === "string") {
-      try {
-        output = JSON.parse(atob(result.payload));
-      } catch {
-        output = result.payload;
-      }
+    const encoded = result.Payload ?? result.payload;
+    if (typeof encoded === "string") {
+      try { output = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(encoded), character => character.charCodeAt(0)))); } catch { output = encoded; }
     }
-    setPlaygroundPayload(JSON.stringify(output, null, 2));
+    if (projectRequests.current() === project) { setPlaygroundResult(JSON.stringify(output, null, 2)); setPlaygroundDone(true); }
+    } catch (reason) { setPlaygroundMessage(String(reason)); } finally { setPlaygroundBusy(false); }
   }
   async function installPlugin(manifest: PluginManifest, projectID: string) {
     setError("");
@@ -418,30 +417,6 @@ export default function AdminPage() {
       operation === "functions.create" ? "Function draft saved." : JSON.stringify(result),
     );
     if (operation === "functions.create") await loadFunctionDrafts(session, selectedProjectID);
-  }
-  async function uninstallProject(project: Project) {
-    if (!window.confirm(`${text.uninstall} ${project.ID}?`)) return;
-    setError("");
-    const response = await fetch(systemAdminURL("actions"), {
-      method: "POST",
-      headers: adminHeaders(session, { "content-type": "application/json" }),
-      body: JSON.stringify({
-        operation: "project.uninstall",
-        project_id: project.ID,
-        confirmed: true,
-      }),
-    });
-    if (!response.ok) {
-      setError(await response.text());
-      return;
-    }
-    const loadedProjects = await loadProjects(session);
-    const current = projectRequests.current();
-    const next = loadedProjects.some(candidate => candidate.ID === current && candidate.Active)
-      ? current : loadedProjects.find(candidate => candidate.Active)?.ID ?? "";
-    selectProject(next);
-    await Promise.all([loadPlugins(session, next), loadFunctionDrafts(session, next)]);
-    await loadAudit(session);
   }
   async function runPluginAction(
     operation: string,
@@ -637,17 +612,19 @@ export default function AdminPage() {
   if (namespace && !selectedProjectID) return <p role="alert">Project unavailable. <Link href={systemUIURL("projects")}>Choose a project</Link></p>;
   if (!canViewAdminPage(activePage, activePluginIDs))
     return (
-      <main className="shell" dir={language === "fa" ? "rtl" : "ltr"}>
-        <section className="card admin-content" id="admin-content">
-          <AdminHeader title={pageTitle} eyebrow={text.eyebrow} />
-          <p className="error">This page is unavailable until its plugin is ready and enabled.</p>
-          <Link href={selectedProjectID ? projectUIURL(selectedProjectID, "plugins") : systemUIURL("projects")}>Open Plugins to enable it</Link>
-          <AdminFooter />
-        </section>
-      </main>
+      <section className="section" dir={language === "fa" ? "rtl" : "ltr"}>
+        <p role="alert">This page is unavailable until its plugin is ready and enabled.</p>
+        <Link href={selectedProjectID ? projectUIURL(selectedProjectID, "plugins") : systemUIURL("projects")}>Open Plugins to enable it</Link>
+      </section>
     );
   const pageContent = (
     <>
+      {projectDialog && activePage === "projects" && <AdminDialog title={projectDialog.operation.replace("project.", "").replace(/^./, char => char.toUpperCase()) + " project"} scope={projectDialog.project.ID} busy={projectBusy} onClose={() => setProjectDialog(undefined)}>
+        {projectDialog.operation === "project.configure" ? <div className="admin-operation-form"><label>Display name<input value={projectEdit.name} disabled={projectBusy || projectDone} onChange={event => setProjectEdit(previous => ({ ...previous, name: event.target.value }))} /></label><label>URL slug<input value={projectEdit.slug} disabled={projectBusy || projectDone} onChange={event => setProjectEdit(previous => ({ ...previous, slug: event.target.value }))} /></label><label>Project settings (JSON)<textarea rows={7} value={projectEdit.settings} disabled={projectBusy || projectDone} onChange={event => setProjectEdit(previous => ({ ...previous, settings: event.target.value }))} /></label></div> : <p>{projectDialog.operation === "project.uninstall" ? "Uninstall this project and its plugin installations? This does not promise deletion of all stored data." : projectDialog.operation === "project.deactivate" ? "Deactivate this project and restrict its workloads?" : "Activate this project?"}</p>}
+        {!projectDone && <button type="button" disabled={projectBusy} onClick={() => void submitProjectAction()}>Confirm action</button>}
+        {projectBusy && <AdminProgress label="Updating project…" />}{projectDone && <p role="status">Project updated</p>}{projectMessage && <p role="alert">{projectMessage}</p>}
+      </AdminDialog>}
+      {playgroundOpen && activePage === "routes" && <AdminDialog title="Invoke plugin operation" scope={selectedProjectID} busy={playgroundBusy} onClose={() => setPlaygroundOpen(false)}><p>Execute the selected operation as the authenticated operator? This may change project data. This invokes the host operation, not a public HTTP route.</p><code>{playgroundRoute}</code>{!playgroundDone && <button type="button" disabled={playgroundBusy} onClick={() => void sendPlayground()}>Confirm invocation</button>}{playgroundBusy && <AdminProgress label="Executing operation…" />}{playgroundMessage && <p role="status">{playgroundMessage}</p>}{playgroundResult && <pre className="admin-result-panel">{playgroundResult}</pre>}</AdminDialog>}
       <ProjectsPanel
         activePage={activePage}
         text={text}
@@ -717,7 +694,7 @@ export default function AdminPage() {
         playgroundPayload={playgroundPayload}
         setPlaygroundPayload={setPlaygroundPayload}
         testPlayground={testPlayground}
-        sendPlayground={sendPlayground}
+        sendPlayground={() => { setPlaygroundMessage(""); setPlaygroundResult(""); setPlaygroundDone(false); setPlaygroundOpen(true); }}
         playgroundMessage={playgroundMessage}
         selectedProjectID={selectedProjectID}
       />

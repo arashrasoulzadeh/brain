@@ -38,7 +38,7 @@ export function AdminConfigForm({ token, projectID, pluginID, version, schema, c
       if (!response.ok) throw new Error(await response.text());
       setValues({}); setMessage("Configuration updated");
       notifyPluginCatalogChanged(projectID);
-      await onSaved?.();
+      await onSaved?.().catch(reason => setMessage("Configuration saved; refresh failed: " + String(reason)));
     } catch (reason) { setMessage(String(reason)); }
     finally { setBusy(false); }
   }
@@ -48,7 +48,7 @@ export function AdminConfigForm({ token, projectID, pluginID, version, schema, c
       {fields.map(([name, type]) => <div key={name}><label>{pluginID === "files" && name === "maxUploadBytes" ? "Maximum file size (MB)" : name + " (" + type + ")"}
         {type === "bool" ? <select disabled={busy || confirming} value={Object.hasOwn(values, name) ? values[name] : ""} onChange={event => change(name, event.target.value || undefined)}>
           <option value="">Unchanged</option><option value="true">True</option><option value="false">False</option>
-        </select> : <input disabled={busy || confirming || (type !== "int" && type !== "string")} type={type === "int" ? "number" : "text"} step={pluginID === "files" && name === "maxUploadBytes" ? 0.000001 : type === "int" ? 1 : undefined}
+        </select> : <input disabled={busy || confirming || (type !== "int" && type !== "string")} type={type === "int" ? "number" : name.toLowerCase().includes("secret") || name.toLowerCase().includes("password") || name.toLowerCase().includes("token") ? "password" : "text"} step={pluginID === "files" && name === "maxUploadBytes" ? 0.000001 : type === "int" ? 1 : undefined}
           min={pluginID === "files" && name === "maxUploadBytes" ? 0.000001 : undefined} max={pluginID === "files" && name === "maxUploadBytes" ? MAX_FILE_MB : undefined} placeholder={pluginID === "files" && name === "maxUploadBytes" ? fileLimitMB(maxUploadBytes ?? DEFAULT_FILE_LIMIT) : Object.hasOwn(publicConfig, name) ? String(publicConfig[name]) : "Unchanged"} value={Object.hasOwn(values, name) ? values[name] : ""} onChange={event => change(name, event.target.value)} />}
         </label>{pluginID === "files" && name === "maxUploadBytes" && <small className="muted">Maximum 1,000 MB (1 GB). 1 MB = 1,000,000 bytes.</small>}{Object.hasOwn(values, name) && <button type="button" className="secondary" disabled={busy || confirming} onClick={() => change(name, undefined)}>Keep unchanged</button>}</div>)}
       <div className="operation-submit"><button type="submit" disabled={busy || confirming || !Object.keys(values).length}>{busy ? "Saving…" : "Save configuration"}</button></div>

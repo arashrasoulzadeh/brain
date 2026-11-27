@@ -1,5 +1,5 @@
 "use client";
-import { adminHeaders, readAdminSession, preferredAdminProject, projectAdminURL, systemAdminURL, systemUIURL, adminUIContext } from "../lib/admin-api";
+import { adminHeaders, readAdminSession, preferredAdminProject, projectAdminURL, systemAdminURL, systemUIURL, projectUIURL, adminUIContext } from "../lib/admin-api";
 import { enabledPluginIDs, visibleAdminPages } from "../lib/admin-navigation";
 import { adminContributions, adminWorkspaceFallbacks } from "../lib/admin-registry";
 import type { AdminCatalog, AdminContribution } from "../lib/admin-registry";
@@ -168,7 +168,7 @@ export function AdminPageFrame({
   const pathname = usePathname();
   const setHeading = useContext(AdminHeadingContext);
   useEffect(() => { setHeading?.({ path: pathname, title, eyebrow }); }, [setHeading, pathname, title, eyebrow]);
-  const [access, setAccess] = useState(requiredPluginID ? "checking" : "allowed");
+  const [access, setAccess] = useState<{ path: string; epoch: number; status: "allowed" | "denied"; message?: string; project?: string }>();
   const [catalogEpoch, setCatalogEpoch] = useState(0);
   useEffect(() => {
     const changed = () => setCatalogEpoch(value => value + 1);
@@ -177,40 +177,31 @@ export function AdminPageFrame({
   }, []);
   useEffect(() => {
     if (!requiredPluginID) return;
-    setAccess("checking");
+    const controller = new AbortController();
     const token = readAdminSession();
-    if (!token) {
-      router.replace(systemUIURL());
-      return;
-    }
-    void fetch(systemAdminURL("projects"), { headers: adminHeaders(token) })
-      .then(async (projectsResponse) => {
-        if (!projectsResponse.ok) throw new Error("session expired");
-        const projects = (await projectsResponse.json()) as Array<{ ID: string; Active: boolean }>;
-        const activeProject = preferredAdminProject(projects, adminUIContext(pathname).namespace)?.ID;
-        if (!activeProject) throw new Error("no active project");
-        const pluginsResponse = await fetch(
-          projectAdminURL(activeProject, "plugins"),
-          { headers: adminHeaders(token) },
-        );
-        if (!pluginsResponse.ok) throw new Error("plugin access unavailable");
-        const payload = (await pluginsResponse.json()) as {
-          installations: Array<{ PluginID: string; Enabled: boolean; Ready: boolean }>;
-        };
-        const active = payload.installations.some(
-          (installation) =>
-            installation.PluginID === requiredPluginID &&
-            installation.Enabled &&
-            installation.Ready,
-        );
-        if (!active) {
-          router.replace(systemUIURL());
-          return;
-        }
-        setAccess("allowed");
-      })
-      .catch(() => router.replace(systemUIURL()));
+    if (!token) { router.replace(systemUIURL()); return; }
+    const options = { headers: adminHeaders(token), signal: controller.signal };
+    let project: string | undefined;
+    void (async () => {
+      const response = await fetch(systemAdminURL("projects"), options);
+      if (!response.ok) throw new Error("Project access unavailable");
+      project = preferredAdminProject(await response.json() as Array<{ ID: string; Slug?: string; Active: boolean }>, adminUIContext(pathname).namespace)?.ID;
+      if (!project) throw new Error("Project unavailable");
+      const plugins = await fetch(projectAdminURL(project, "plugins"), options);
+      if (!plugins.ok) throw new Error("Plugin catalog unavailable");
+      const catalog = await plugins.json() as AdminCatalog;
+      const manifest = catalog.manifests ?? [];
+      const allowed = (catalog.installations ?? []).some(item => item.ProjectID === project && item.PluginID === requiredPluginID && item.Enabled && item.Ready && !item.Draining && manifest.some(m => m.ID === item.PluginID && m.Version === item.Version && m.Capabilities.every(capability => item.Grants?.includes(capability))));
+      if (!allowed) throw new Error("This plugin is disabled, draining, not ready or missing required capabilities.");
+      if (!controller.signal.aborted) setAccess({ path: pathname, epoch: catalogEpoch, status: "allowed", project });
+    })().catch(reason => {
+      if (!controller.signal.aborted) setAccess({ path: pathname, epoch: catalogEpoch, status: "denied", message: String(reason), project });
+    });
+    return () => controller.abort();
   }, [requiredPluginID, router, pathname, catalogEpoch]);
-  if (access !== "allowed") return <p className="muted" role="status">Checking page access…</p>;
+  if (requiredPluginID) {
+    if (!access || access.path !== pathname || access.epoch !== catalogEpoch) return <p className="muted" role="status">Checking page access…</p>;
+    if (access.status === "denied") return <section className="section"><p role="alert">{access.message}</p><Link href={access.project ? projectUIURL(access.project, "plugins") : systemUIURL("projects")}>{access.project ? "Manage plugins" : "Choose a project"}</Link><button type="button" className="secondary" onClick={() => setCatalogEpoch(value => value + 1)}>Retry</button></section>;
+  }
   return <>{children}</>;
 }

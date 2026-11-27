@@ -2,7 +2,7 @@
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AdminPageFrame } from "../../../../../components/admin-chrome";
-import { adminHeaders, readAdminSession, projectAdminURL, systemAdminURL, preferredAdminProject } from "../../../../../lib/admin-api";
+import { adminHeaders, readAdminSession, projectAdminURL, systemAdminURL, preferredAdminProject, ADMIN_PLUGIN_CATALOG_CHANGED } from "../../../../../lib/admin-api";
 import { adminContributions, adminPageExtensions } from "../../../../../lib/admin-registry";
 import type { AdminCatalog, AdminContribution } from "../../../../../lib/admin-registry";
 import { AdminPageRenderer } from "../../../../../components/admin-renderer";
@@ -13,6 +13,12 @@ export default function ExtensionPage() {
   const [contribution, setContribution] = useState<AdminContribution>();
   const [extensions, setExtensions] = useState<AdminContribution[]>([]);
   const [error, setError] = useState("");
+  const [epoch, setEpoch] = useState(0);
+  useEffect(() => {
+    const changed = () => { setContribution(undefined); setExtensions([]); setEpoch(value => value + 1); };
+    window.addEventListener(ADMIN_PLUGIN_CATALOG_CHANGED, changed);
+    return () => window.removeEventListener(ADMIN_PLUGIN_CATALOG_CHANGED, changed);
+  }, []);
   useEffect(() => {
     const controller = new AbortController();
     setResolvedProject(""); setContribution(undefined); setExtensions([]); setError("");
@@ -33,7 +39,7 @@ export default function ExtensionPage() {
       if (!signal.aborted) { setResolvedProject(active.ID); setContribution(found); setExtensions(adminPageExtensions(found, contributions)); }
     })().catch(reason => { if (!controller.signal.aborted) setError(String(reason)); });
     return () => controller.abort();
-  }, [project, plugin, version, page]);
+  }, [project, plugin, version, page, epoch]);
   const current = contribution?.projectID === resolvedProject && contribution.pluginID === plugin && contribution.version === version && contribution.page.id === page ? contribution : undefined;
   return <AdminPageFrame activePage="extensions" title={current?.page.title ?? "Plugin administration"}>
     {error ? <p role="alert">{error}</p> : current ? <AdminPageRenderer contribution={current} extensions={extensions} /> : <p>Loading plugin page…</p>}

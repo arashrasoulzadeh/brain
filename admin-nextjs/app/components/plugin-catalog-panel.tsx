@@ -19,7 +19,7 @@ export function PluginCatalogPanel({ activePage, projectID, text, manifests, ins
   const [pending, setPending] = useState<{ manifest: PluginManifest; projectID: string }>();
   if (activePage !== "plugins" || !projectID) return null;
   const query = pluginFilter.trim().toLowerCase();
-  const installed = new Map(installations.map(item => [item.PluginID + "@" + item.Version, item]));
+  const installed = new Map(installations.filter(item => item.ProjectID === projectID).map(item => [item.PluginID + "@" + item.Version, item]));
   const rows = manifests.filter(manifest =>
     [manifest.ID, manifest.Title, manifest.Description, manifest.Version, ...(manifest.Capabilities ?? [])].join(" ").toLowerCase().includes(query));
   return <section className="section">
@@ -35,11 +35,11 @@ export function PluginCatalogPanel({ activePage, projectID, text, manifests, ins
           const key = manifest.ID + "@" + manifest.Version;
           const installation = installed.get(key);
           const enabled = installation?.Enabled && installation.Ready && !installation.Draining;
-          const status = !installation ? "Not installed" : installation.Draining ? "Draining" : enabled ? text.ready : installation.Ready ? text.disabled : text.notReady;
+          const status = !installation ? "Not installed" : installation.Draining ? "Draining" : enabled && installation.WorkerReady === false ? "Worker unavailable" : enabled ? text.ready : installation.Ready ? text.disabled : text.notReady;
           return <tr key={key}>
             <td><Link className="table-title" href={projectUIURL(projectID, "plugins", key)}>{manifest.Title || manifest.ID}</Link><small className="muted table-subtitle">{manifest.ID}</small><small className="table-description">{manifest.Description}</small></td>
             <td><code>{manifest.Version}</code></td>
-            <td><span className={"status-pill " + (enabled ? "is-success" : installation?.Draining ? "is-warning" : "is-inactive")}>{status}</span></td>
+            <td><span className={"status-pill " + (enabled && installation?.WorkerReady !== false ? "is-success" : installation?.Draining ? "is-warning" : "is-inactive")}>{status}</span></td>
             <td>{manifest.Capabilities?.length ?? 0}</td>
             <td><div className="table-actions">
               {!installation ? <button type="button" onClick={() => setPending({ manifest, projectID })}>{text.install}</button> :

@@ -1,8 +1,9 @@
 "use client";
 import { adminHeaders, readAdminSession, preferredAdminProject, projectAdminURL, systemAdminURL, projectUIURL, systemUIURL, adminUIContext } from "../../lib/admin-api";
-import { useEffect, useState } from "react";
-import { useParams, usePathname, useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { useParams, usePathname } from "next/navigation";
 import Link from "next/link";
+import { AdminDialog, AdminProgress } from "../../components/admin-dialog";
 import { AdminPageFrame } from "../../components/admin-chrome";
 import { FunctionEditor } from "../function-editor";
 type Draft = {
@@ -29,10 +30,17 @@ type Log = {
 type Deployment = { version: number; method: string; route: string; published_at: string };
 export default function FunctionDetailPage() {
   const params = useParams<{ name: string }>();
-  const router = useRouter();
   const { namespace: requestedProject } = adminUIContext(usePathname());
   const name = decodeURIComponent(params.name ?? "");
-  const [pluginAccess, setPluginAccess] = useState("checking");
+  return <AdminPageFrame activePage="functions" title={name} requiredPluginID="functions"><FunctionDetail key={(requestedProject ?? "") + ":" + name} name={name} requestedProject={requestedProject} /></AdminPageFrame>;
+}
+function FunctionDetail({ name, requestedProject }: { name: string; requestedProject?: string }) {
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+  const [logError, setLogError] = useState("");
+  const [validationOK, setValidationOK] = useState(false);
+  const [settingsPending, setSettingsPending] = useState<{ permissions: string[]; publicRoute: boolean }>();
+  const [publishPending, setPublishPending] = useState(false);
   const [session, setSession] = useState("");
   const [project, setProject] = useState("");
   const [draft, setDraft] = useState<Draft | null>(null);
@@ -46,106 +54,69 @@ export default function FunctionDetailPage() {
   const [validationMessage, setValidationMessage] = useState("");
   const [logPage, setLogPage] = useState(0);
   const [selectedLog, setSelectedLog] = useState<Log | null>(null);
-  async function refresh(token: string) {
-    const headers = adminHeaders(token);
-    const projectsResponse = await fetch(systemAdminURL("projects"), { headers });
-    if (!projectsResponse.ok)
-      throw new Error((await projectsResponse.text()) || "Could not load projects.");
-    const projects = (await projectsResponse.json()) as { ID: string; Slug?: string; Active: boolean }[];
+  const lifetime = useRef<AbortController | null>(null);
+  async function refresh(token: string, preserveSource?: string) {
+    const signal = lifetime.current?.signal;
+    if (!signal || signal.aborted) return;
+    const options = { headers: adminHeaders(token), signal };
+    const projectsResponse = await fetch(systemAdminURL("projects"), options);
+    if (!projectsResponse.ok) throw new Error("Could not load projects");
+    const projects = await projectsResponse.json() as { ID: string; Slug?: string; Active: boolean }[];
     const selected = preferredAdminProject(projects, requestedProject);
-    const active = selected?.ID ?? "";
-    const namespace = selected?.Slug || active;
+    const active = selected?.ID;
+    if (!active) throw new Error("No active project selected");
+    const draftsResponse = await fetch(projectAdminURL(active, "functions"), options);
+    if (!draftsResponse.ok) throw new Error(await draftsResponse.text());
+    const drafts = (await draftsResponse.json() as Draft[] | null) ?? [];
+    const current = drafts.find(candidate => candidate.project_id === active && candidate.name === name) ?? null;
+    if (signal.aborted) return;
     setProject(active);
-    if (!active) throw new Error("No active project selected.");
-    const draftsResponse = await fetch(
-      projectAdminURL(active, "functions"),
-      { headers },
-    );
-    if (!draftsResponse.ok)
-      throw new Error((await draftsResponse.text()) || "Could not load function.");
-    const drafts = (await draftsResponse.json()) as Draft[];
-    const current = drafts.find((candidate) => candidate.name === name) ?? null;
-    setDraft(current);
-    const logsResponse = await fetch(
-      projectAdminURL(active, "function-logs") + "?name=" + encodeURIComponent(name),
-      { headers },
-    );
-    if (logsResponse.ok) setLogs((await logsResponse.json()) as Log[]);
-    if (current?.published_at)
-      setDeployments([
-        {
-          version: current.version ?? 1,
-          method: current.method ?? "POST",
-          route: `${window.location.origin}/${encodeURIComponent(namespace)}/functions/${encodeURIComponent(name)}`,
-          published_at: current.published_at,
-        },
-      ]);
-  }
-  async function refreshLogs(token: string, projectID: string) {
-    const response = await fetch(
-      projectAdminURL(projectID, "function-logs") + "?name=" + encodeURIComponent(name),
-      { headers: adminHeaders(token) },
-    );
-    if (response.ok) setLogs((await response.json()) as Log[]);
+    setDraft(current && preserveSource !== undefined ? { ...current, source: preserveSource } : current);
+    const currentRoute = current?.published_at ? window.location.origin + "/" + encodeURIComponent(selected?.Slug || active) + "/functions/" + encodeURIComponent(name) : "";
+    setRoute(currentRoute);
+    setDeployments(current?.published_at ? [{ version: current.version ?? 1, method: current.method ?? "POST", route: currentRoute, published_at: current.published_at }] : []);
   }
   useEffect(() => {
+    const controller = new AbortController();
+    lifetime.current = controller;
     const token = readAdminSession();
-    setSession(token);
-    if (!token) {
-      router.replace(systemUIURL());
-      return;
-    }
-    void fetch(systemAdminURL("projects"), { headers: adminHeaders(token) })
-      .then(async (response) => {
-        if (!response.ok) throw new Error("session expired");
-        const projects = (await response.json()) as { ID: string; Slug?: string; Active: boolean }[];
-        const active = preferredAdminProject(projects, requestedProject)?.ID ?? "";
-        if (!active) throw new Error("no active project");
-        const pluginsResponse = await fetch(
-          projectAdminURL(active, "plugins"),
-          { headers: adminHeaders(token) },
-        );
-        if (!pluginsResponse.ok) throw new Error("plugin access unavailable");
-        const payload = (await pluginsResponse.json()) as {
-          installations: { PluginID: string; Enabled: boolean; Ready: boolean }[];
-        };
-        if (
-          !payload.installations.some(
-            (installation) =>
-              installation.PluginID === "functions" && installation.Enabled && installation.Ready,
-          )
-        ) {
-          router.replace(systemUIURL());
-          return;
-        }
-        setPluginAccess("allowed");
-        void refresh(token);
-      })
-      .catch(() => router.replace(systemUIURL()));
-  }, [name, router, requestedProject]);
+    setSession(token); setLoading(true); setLoadError("");
+    if (!token) { setLoadError("Sign in to continue"); setLoading(false); return () => controller.abort(); }
+    void refresh(token).catch(reason => { if (!controller.signal.aborted) setLoadError(String(reason)); }).finally(() => { if (!controller.signal.aborted) setLoading(false); });
+    return () => { controller.abort(); if (lifetime.current === controller) lifetime.current = null; };
+  }, [name, requestedProject]);
   useEffect(() => {
-    if (pluginAccess !== "allowed" || !session || !project) return;
-    const refreshTimer = window.setInterval(() => void refreshLogs(session, project), 1000);
-    return () => window.clearInterval(refreshTimer);
-  }, [pluginAccess, project, session, name]);
+    if (!session || !project) return;
+    const controller = new AbortController();
+    let timer: ReturnType<typeof setTimeout>;
+    async function poll() {
+      try {
+        const response = await fetch(projectAdminURL(project, "function-logs") + "?name=" + encodeURIComponent(name), { headers: adminHeaders(session, { "x-brain-quiet": "1" }), signal: controller.signal });
+        if (!response.ok) throw new Error("Function logs unavailable");
+        const rows = (await response.json() as Log[] | null) ?? [];
+        if (!controller.signal.aborted) { setLogs(rows); setLogError(""); setLogPage(page => Math.min(page, Math.max(0, Math.ceil(rows.length / 10) - 1))); }
+      } catch (reason) { if (!controller.signal.aborted) { setLogs([]); setSelectedLog(null); setLogError(String(reason)); } }
+      finally { if (!controller.signal.aborted) timer = setTimeout(() => void poll(), 5000); }
+    }
+    void poll();
+    return () => { controller.abort(); clearTimeout(timer); };
+  }, [project, session, name]);
   async function savePermissions(permissions: string[], publicRoute: boolean) {
-    if (!draft) return;
-    const response = await fetch(projectAdminURL(project, "functions"), {
-      method: "POST",
-      headers: adminHeaders(session, { "content-type": "application/json" }),
-      body: JSON.stringify({
-        operation: "functions.permissions",
-        project_id: project,
-        name: draft.name,
-        permissions,
-        public: publicRoute,
-      }),
-    });
-    setMessage(response.ok ? "Settings saved." : await response.text());
-    if (response.ok) await refresh(session);
+    if (!draft || publishing) return;
+    setPublishing(true); setMessage("");
+    try {
+      const response = await fetch(projectAdminURL(project, "functions"), {
+        method: "POST", headers: adminHeaders(session, { "content-type": "application/json" }), signal: lifetime.current?.signal,
+        body: JSON.stringify({ operation: "functions.permissions", project_id: project, name: draft.name, permissions, public: publicRoute }),
+      });
+      if (!response.ok) throw new Error(await response.text());
+      setDraft(previous => previous ? { ...previous, permissions, public: publicRoute } : previous);
+      setMessage("Settings saved."); setSettingsPending(undefined);
+    } catch (reason) { setMessage(String(reason)); }
+    finally { setPublishing(false); }
   }
   async function publish() {
-    if (!draft || !project || !session) {
+    if (publishing || !draft || !project || !session) {
       setMessage("Select an active project and sign in before publishing.");
       return;
     }
@@ -198,6 +169,7 @@ export default function FunctionDetailPage() {
         return;
       }
       setMessage("Published current version.");
+      setPublishPending(false);
       if (result?.route) {
         const publicRoute = `${window.location.origin}${new URL(result.route, window.location.origin).pathname}`;
         setRoute(publicRoute);
@@ -224,7 +196,7 @@ export default function FunctionDetailPage() {
       return;
     }
     setValidating(true);
-    setValidationMessage("");
+    setValidationMessage(""); setValidationOK(false);
     try {
       const response = await fetch(projectAdminURL(project, "functions"), {
         method: "POST",
@@ -241,6 +213,7 @@ export default function FunctionDetailPage() {
         setValidationMessage(body || `Validation failed (${response.status}).`);
         return;
       }
+      setValidationOK(true);
       setValidationMessage("Source passed host validation and is ready for sandbox compilation.");
     } catch (error) {
       setValidationMessage(error instanceof Error ? error.message : "Validation request failed.");
@@ -272,22 +245,13 @@ export default function FunctionDetailPage() {
       });
       setMessage(response.ok ? "Changes saved." : await response.text());
       if (response.ok) await refresh(session);
-    } finally {
+    } catch (reason) { setMessage(String(reason)); } finally {
       setPublishing(false);
     }
   }
-  if (pluginAccess !== "allowed") return <p className="muted">Checking page access…</p>;
-  if (!draft)
-    return (
-      <AdminPageFrame
-        activePage="functions"
-        title={name}
-        projectID={project}
-        requiredPluginID="functions"
-      >
-        <p className="muted">Function not found or still loading.</p>
-      </AdminPageFrame>
-    );
+  if (loading) return <AdminProgress label="Loading function…" />;
+  if (loadError) return <p role="alert">{loadError}</p>;
+  if (!draft) return <><p role="status">Function not found.</p>{project && <Link href={projectUIURL(project, "functions")}>Back to functions</Link>}</>;
   const permissions = draft.permissions ?? ["functions.invoke"];
   const successful = logs.filter((log) => log.status === "success").length;
   const average = logs.length
@@ -297,12 +261,7 @@ export default function FunctionDetailPage() {
   const visibleLogs = orderedLogs.slice(logPage * 10, logPage * 10 + 10);
   const logPageCount = Math.max(1, Math.ceil(orderedLogs.length / 10));
   return (
-    <AdminPageFrame
-      activePage="functions"
-      title={draft.name}
-      projectID={project}
-      requiredPluginID="functions"
-    >
+    <>
       <div className="section-heading">
         <Link href={project ? projectUIURL(project, "functions") : systemUIURL("projects")}>Back to functions</Link>
       </div>
@@ -323,6 +282,10 @@ export default function FunctionDetailPage() {
           </button>
         ))}
       </div>
+      {publishPending && <AdminDialog title="Publish current version" scope={project + " · " + name} busy={publishing} onClose={() => setPublishPending(false)}><p>Save the current source and publish version {draft.version ?? 1}?</p><p>{draft.public ? "This route is configured for public access." : "This route requires authorization."}</p><button type="button" disabled={publishing} onClick={() => void publish()}>Confirm publish</button>{publishing && <AdminProgress label="Saving and publishing…" />}{message && <p role="status">{message}</p>}</AdminDialog>}
+      {settingsPending && <AdminDialog title="Update function settings" scope={project + " · " + name} busy={publishing} onClose={() => setSettingsPending(undefined)}><p>{settingsPending.publicRoute ? "Public route enabled" : "Private route"} · Permissions: {settingsPending.permissions.join(", ") || "None"}</p><button type="button" disabled={publishing} onClick={() => void savePermissions(settingsPending.permissions, settingsPending.publicRoute)}>Confirm settings</button>{publishing && <AdminProgress label="Saving function settings…" />}{message && <p role="status">{message}</p>}</AdminDialog>}
+      {tab !== "editor" && message && <p role="status">{message}</p>}
+      {logError && (tab === "logs" || tab === "analytics") && <p role="alert">{logError}</p>}
       {tab === "editor" && (
         <>
           <div className="setting-toolbar flex flex-wrap items-end gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -349,7 +312,7 @@ export default function FunctionDetailPage() {
               type="button"
               disabled={publishing}
               className="h-10 rounded-lg bg-indigo-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
-              onClick={() => void publish()}
+              onClick={() => { setMessage(""); setPublishPending(true); }}
             >
               {publishing ? "Publishing…" : "Publish current version"}
             </button>
@@ -361,15 +324,17 @@ export default function FunctionDetailPage() {
           )}
           {route && (
             <p className="notice">
-              Public route: <code>{route}</code>
+              Published route: <code>{route}</code>
             </p>
           )}
           <FunctionEditor
             source={draft.source}
-            onChange={(source) => setDraft({ ...draft, source })}
+            onChange={(source) => { setDraft({ ...draft, source }); setValidationMessage(""); setValidationOK(false); }}
+            readOnly={publishing || validating}
             onValidate={() => void validateSource()}
             validating={validating}
             validationMessage={validationMessage}
+            validationOK={validationOK}
           />
           <div className="permission-panel">
             <h2>Function settings</h2>
@@ -378,20 +343,18 @@ export default function FunctionDetailPage() {
                 <code>{permission}</code>
                 <button
                   className="danger"
+                  disabled={publishing}
                   onClick={() =>
-                    void savePermissions(
-                      permissions.filter((candidate) => candidate !== permission),
-                      Boolean(draft.public),
-                    )
+                    setSettingsPending({ permissions: permissions.filter(candidate => candidate !== permission), publicRoute: Boolean(draft.public) })
                   }
                 >
                   Remove
                 </button>
               </div>
             ))}
-            <button
+            <button disabled={publishing || permissions.includes("functions.invoke")}
               onClick={() =>
-                void savePermissions([...permissions, "functions.invoke"], Boolean(draft.public))
+                setSettingsPending({ permissions: [...permissions, "functions.invoke"], publicRoute: Boolean(draft.public) })
               }
             >
               Add invoke permission
@@ -400,7 +363,8 @@ export default function FunctionDetailPage() {
               <input
                 type="checkbox"
                 checked={Boolean(draft.public)}
-                onChange={(event) => void savePermissions(permissions, event.target.checked)}
+                disabled={publishing}
+                onChange={(event) => setSettingsPending({ permissions, publicRoute: event.target.checked })}
               />{" "}
               Public route enabled
             </label>
@@ -415,7 +379,7 @@ export default function FunctionDetailPage() {
               <tr>
                 <th>Version</th>
                 <th>Method</th>
-                <th>Public URL</th>
+                <th>Published URL</th>
                 <th>Published</th>
                 <th />
               </tr>
@@ -433,8 +397,8 @@ export default function FunctionDetailPage() {
                     <button
                       onClick={() =>
                         void navigator.clipboard.writeText(
-                          `${window.location.origin}${deployment.route}`,
-                        )
+                          new URL(deployment.route, window.location.origin).href,
+                        ).catch(() => setMessage("Could not copy URL"))
                       }
                     >
                       Copy URL
@@ -543,18 +507,7 @@ export default function FunctionDetailPage() {
           </div>
           <div className="log-timeline">
             {selectedLog ? (
-              <div
-                className="log-modal-backdrop"
-                role="presentation"
-                onClick={() => setSelectedLog(null)}
-              >
-                <div
-                  className="log-modal"
-                  role="dialog"
-                  aria-modal="true"
-                  aria-label="Function execution details"
-                  onClick={(event) => event.stopPropagation()}
-                >
+              <AdminDialog title="Function execution details" scope={project + " · " + name} onClose={() => setSelectedLog(null)}>
                   {" "}
                   {[selectedLog].map((log, index) => {
                     const failed = log.status.toLowerCase() !== "success";
@@ -679,8 +632,7 @@ export default function FunctionDetailPage() {
                       </article>
                     );
                   })}
-                </div>
-              </div>
+              </AdminDialog>
             ) : null}
           </div>
           {orderedLogs.length > 10 && (
@@ -707,6 +659,6 @@ export default function FunctionDetailPage() {
           )}
         </section>
       )}
-    </AdminPageFrame>
+    </>
   );
 }

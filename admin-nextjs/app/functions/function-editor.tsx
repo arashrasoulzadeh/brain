@@ -11,12 +11,16 @@ export function FunctionEditor({
   onValidate,
   validating = false,
   validationMessage = "",
+  validationOK = false,
+  readOnly = false,
 }: {
   source: string;
   onChange: (source: string) => void;
   onValidate?: () => void;
   validating?: boolean;
   validationMessage?: string;
+  validationOK?: boolean;
+  readOnly?: boolean;
 }) {
   const localDiagnostic = useMemo(() => {
     const stack: string[] = [];
@@ -57,6 +61,7 @@ export function FunctionEditor({
         onChange={(value) => onChange(value ?? "")}
         options={{
           automaticLayout: true,
+          readOnly,
           minimap: { enabled: false },
           lineNumbers: "on",
           folding: true,
@@ -72,10 +77,10 @@ export function FunctionEditor({
       />
       {(localDiagnostic || validationMessage) && (
         <div
-          className={`editor-diagnostic ${validationMessage && !localDiagnostic ? "valid" : "invalid"}`}
+          className={`editor-diagnostic ${validationMessage && validationOK ? "valid" : "invalid"}`}
           role="status"
         >
-          <strong>{validationMessage && !localDiagnostic ? "✓ Validated" : "Syntax check"}</strong>
+          <strong>{validationMessage && validationOK ? "✓ Host validation passed" : validationMessage ? "Host validation failed" : "Local syntax hint"}</strong>
           <span>{validationMessage || localDiagnostic}</span>
         </div>
       )}
