@@ -15,11 +15,12 @@ const platform: MenuItem[] = [
   { href: "/audit", label: "Audit log", icon: "audit" },
 ];
 
-export function adminMenu(allowed: readonly string[], extensions: readonly AdminContribution[], search = "", projectID = ""): MenuGroup[] {
+export function adminMenu(allowed: readonly string[], extensions: readonly AdminContribution[], search = "", projectID = "", fallback: readonly MenuItem[] = []): MenuGroup[] {
   const aliases = [...new Set(extensions.filter(item => item.projectID === projectID).flatMap(item => item.page.legacy_route ? [item.page.legacy_route] : []))].sort();
   const project: MenuItem[] = [
     ...(projectID && allowed.includes("functions") ? [{ href: projectUIURL(projectID, "functions"), label: "Functions", icon: "functions" as const }] : []),
     ...(projectID ? aliases : []).map(alias => ({ href: projectUIURL(projectID, alias), label: adminAliasTitle(alias), icon: "resource" as const })),
+    ...(projectID ? fallback : []),
   ];
   const scopedPlatform = platform.filter(item => projectID || ["projects", "audit"].includes(item.icon)).map(item => ({ ...item, href: ["projects", "audit"].includes(item.icon) ? systemUIURL(item.href.slice(1)) : projectUIURL(projectID, item.href.slice(1)) }));
   const groups: MenuGroup[] = [

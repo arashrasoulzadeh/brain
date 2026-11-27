@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AdminPageFrame } from "./admin-chrome";
 import { AdminPageRenderer } from "./admin-renderer";
-import { adminHeaders, readAdminSession, preferredAdminProject, projectAdminURL, systemAdminURL, systemUIURL, projectUIURL, adminUIContext, ADMIN_PROJECT_CHANGED } from "../lib/admin-api";
+import { adminHeaders, readAdminSession, preferredAdminProject, projectAdminURL, systemAdminURL, systemUIURL, projectUIURL, adminUIContext, ADMIN_PROJECT_CHANGED, ADMIN_PLUGIN_CATALOG_CHANGED } from "../lib/admin-api";
 import { adminContributions, adminPageExtensions, adminLegacyRootPages, adminAliasMatches, adminAliasTitle } from "../lib/admin-registry";
 import type { AdminCatalog, AdminContribution } from "../lib/admin-registry";
 
@@ -16,7 +16,8 @@ export default function LegacyAdminPage() {
   useEffect(() => {
     const changed = () => { setCatalog(undefined); setEpoch(value => value + 1); };
     window.addEventListener(ADMIN_PROJECT_CHANGED, changed);
-    return () => window.removeEventListener(ADMIN_PROJECT_CHANGED, changed);
+    window.addEventListener(ADMIN_PLUGIN_CATALOG_CHANGED, changed);
+    return () => { window.removeEventListener(ADMIN_PROJECT_CHANGED, changed); window.removeEventListener(ADMIN_PLUGIN_CATALOG_CHANGED, changed); };
   }, []);
   useEffect(() => {
     const controller = new AbortController();

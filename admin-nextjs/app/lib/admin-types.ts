@@ -5,6 +5,7 @@ export type PluginManifest = {
   Description: string;
   Version: string;
   Capabilities: string[];
+  Dependencies?: string[];
   ConfigSchema?: Record<string, string>;
   Admin?: AdminSpec | null;
 };

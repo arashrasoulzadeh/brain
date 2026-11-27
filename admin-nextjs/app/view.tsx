@@ -1,5 +1,5 @@
 "use client";
-import { adminHeaders, readAdminSession, saveAdminSession, signOutAdminSession, saveAdminProject, preferredAdminProject, projectAdminURL, systemAdminURL, projectUIURL, systemUIURL, adminUIContext } from "./lib/admin-api";
+import { adminHeaders, readAdminSession, saveAdminSession, signOutAdminSession, saveAdminProject, preferredAdminProject, projectAdminURL, systemAdminURL, projectUIURL, systemUIURL, adminUIContext, notifyPluginCatalogChanged } from "./lib/admin-api";
 import { FormEvent, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
@@ -14,6 +14,7 @@ import { SystemPanel } from "./components/system-panel";
 import { MonitoringPanel } from "./components/monitoring-panel";
 import { ProjectsPanel } from "./components/projects-panel";
 import { PluginCatalogPanel } from "./components/plugin-catalog-panel";
+import { installAndActivatePlugin } from "./lib/plugin-install";
 import { FunctionDraftsPanel } from "./components/function-drafts-panel";
 import { RoutesPanel } from "./components/routes-panel";
 export default function AdminPage() {
@@ -371,31 +372,11 @@ export default function AdminPage() {
     }
     setPlaygroundPayload(JSON.stringify(output, null, 2));
   }
-  async function installPlugin(manifest: PluginManifest) {
+  async function installPlugin(manifest: PluginManifest, projectID: string) {
     setError("");
-    const project = projects.find(
-      (candidate) => candidate.ID === selectedProjectID && candidate.Active,
-    );
-    if (!project) {
-      setError("Create an active project first");
-      return;
-    }
-    try {
-      const response = await fetch(projectAdminURL(project.ID, "actions"), {
-        method: "POST",
-        headers: adminHeaders(session, { "content-type": "application/json" }),
-        body: JSON.stringify({
-          operation: "plugin.install",
-          project_id: project.ID,
-          plugin_id: manifest.ID,
-          version: manifest.Version,
-        }),
-      });
-      if (!response.ok) throw new Error(await response.text());
-      await loadPlugins(session, selectedProjectID);
-    } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "Could not install plugin");
-    }
+    if (projectRequests.current() !== projectID || !projects.some(candidate => candidate.ID === projectID && candidate.Active)) throw new Error("Project changed; reopen the installation dialog");
+    await installAndActivatePlugin(session, projectID, manifest);
+    await Promise.all([loadPlugins(session, projectID), loadAudit(session)]).catch(reason => setError("Plugin installed; could not refresh catalog: " + String(reason)));
   }
   async function submitFunction(
     operation: "functions.test" | "functions.create" | "functions.run",
@@ -508,11 +489,13 @@ export default function AdminPage() {
         ].includes(operation),
       }),
     });
+    notifyPluginCatalogChanged(project.ID);
     if (!response.ok) {
       setError(await response.text());
+      await loadPlugins(session, project.ID).catch(() => undefined);
       return;
     }
-    await loadPlugins(session, selectedProjectID);
+    await loadPlugins(session, project.ID);
     await loadAudit(session);
   }
   async function configurePlugin(installation: PluginStatus) {

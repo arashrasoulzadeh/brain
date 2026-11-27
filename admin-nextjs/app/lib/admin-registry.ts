@@ -59,3 +59,16 @@ export function adminAliasTitle(route: string): string {
   return Object.prototype.hasOwnProperty.call(names, route) ? names[route] :
     route ? route[0].toUpperCase() + route.slice(1).replaceAll("-", " ") : "Plugin administration";
 }
+
+
+// An enabled plugin without a contributed action page still has a dedicated
+// project workspace: the host Dashboard or its exact Manage destination.
+export function adminWorkspaceFallbacks(projectID: string, catalog: AdminCatalog, contributions: readonly AdminContribution[]) {
+  return (catalog.installations ?? []).flatMap(item => {
+    if (item.ProjectID !== projectID || !item.Enabled || !item.Ready || item.Draining) return [];
+    const manifest = catalog.manifests?.find(m => m.ID === item.PluginID && m.Version === item.Version);
+    if (!manifest || !manifest.Capabilities.every(capability => item.Grants?.includes(capability))) return [];
+    if (item.PluginID === "functions" || contributions.some(page => page.projectID === projectID && page.pluginID === item.PluginID && page.version === item.Version)) return [];
+    return [{ href: item.PluginID === "dashboard" ? projectUIURL(projectID, "dashboard") : projectUIURL(projectID, "plugins", item.PluginID + "@" + item.Version), label: manifest.Title || item.PluginID, icon: "resource" as const, detail: item.PluginID + "@" + item.Version }];
+  }).filter((item, index, list) => list.findIndex(candidate => candidate.href === item.href) === index);
+}

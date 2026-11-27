@@ -39,10 +39,22 @@ function decode(result) {
 }
 async function install(plugin_id, capabilities, project_id = project) {
   const identity = {plugin_id,project_id};
-  await action("plugin.install", identity);
-  await action("plugin.readiness", {...identity,ready:true});
-  for (const capability of capabilities) await action("plugin.grant", {...identity,capability});
-  await action("plugin.enable", identity);
+  const catalogResponse = await fetch(backend+"/"+project_id+"/admin/plugins",{headers});
+  assert.ok(catalogResponse.ok);
+  const catalog = await catalogResponse.json();
+  const manifest = catalog.manifests.find(item=>item.ID===plugin_id && item.Version===version);
+  assert.ok(manifest);
+  for (const capability of capabilities) assert.ok(manifest.Capabilities.includes(capability));
+  const command = {...identity,operation:"plugin.install.activate",version,capabilities:manifest.Capabilities};
+  const missing = await fetch(backend+"/"+project_id+"/admin/actions",{method:"POST",headers,body:JSON.stringify(command)});
+  assert.equal(missing.status,400);
+  const stale = await fetch(backend+"/"+project_id+"/admin/actions",{method:"POST",headers,body:JSON.stringify({...command,confirmed:true,capabilities:["unapproved"]})});
+  assert.equal(stale.status,403);
+  await action("plugin.install.activate",{...identity,confirmed:true,capabilities:manifest.Capabilities});
+  const refreshed = await fetch(backend+"/"+project_id+"/admin/plugins",{headers});
+  const status = (await refreshed.json()).installations.find(item=>item.PluginID===plugin_id && item.Version===version);
+  assert.ok(status.Enabled && status.Ready && status.WorkerReady);
+  assert.deepEqual([...status.Grants].sort(),[...manifest.Capabilities].sort());
 }
 await action("project.create");
 await action("project.create", {project_id:other});
