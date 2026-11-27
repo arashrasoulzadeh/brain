@@ -74,6 +74,9 @@ async function invoke(plugin_id, target_operation, payload) {
 }
 assert.deepEqual(await invoke("games","games.modes",{}),{projectId:"ci-project",modes:["tic-tac-toe"]});
 assert.deepEqual(await invoke("pvp","pvp.describe",{}),{projectId:"ci-project",turnBased:true,revisionedCommands:true});
+const rules = await invoke("games","games.mode.describe",{mode:"tic-tac-toe"});
+assert.equal(rules.players,2);
+assert.deepEqual(rules.board,{rows:3,columns:3});
 // Arena state and sequence protection must survive replacement of the worker.
 const arenaRoom = "ci-arena";
 await invoke("arena","arena.start",{roomId:arenaRoom,players:["one","two"]});
@@ -93,8 +96,8 @@ await action("plugin.worker.start",{plugin_id:"arena"});
 const finished = await invoke("arena","arena.snapshot",{roomId:arenaRoom});
 assert.deepEqual(finished.result,match);
 const matches = await action("plugin.admin.inventory",{plugin_id:"arena",page_id:"matches",limit:20});
-assert.deepEqual(matches.rows,[{key:arenaRoom}]);
-assert.deepEqual((await action("plugin.admin.inventory",{plugin_id:"arena",page_id:"matches",limit:20,search:"CI-ARENA"})).rows,[{key:arenaRoom}]);
+assert.deepEqual(matches.rows,[{key:arenaRoom,status:"finished",member_count:2}]);
+assert.deepEqual((await action("plugin.admin.inventory",{plugin_id:"arena",page_id:"matches",limit:20,search:"CI-ARENA"})).rows,[{key:arenaRoom,status:"finished",member_count:2}]);
 assert.deepEqual((await action("plugin.admin.inventory",{plugin_id:"arena",page_id:"matches",limit:20,search:"not-present"})).rows,[]);
 // Account hashes and token digests survive worker recovery, but never appear in admin results.
 await invoke("auth","auth.signup",{username:"ci-user",password:"ci-fixture-password"});
@@ -140,6 +143,17 @@ assert.equal(accepted.used,true);
 assert.equal(accepted.code,"");
 const repeated = await fetch(base+"/ci-project/admin/actions",{method:"POST",headers,body:JSON.stringify({operation:"plugin.invoke",project_id:"ci-project",plugin_id:"invites",version:"0.1.0",target_operation:"invites.accept",payload:{roomId:"ci-room",playerId:"ci-member",code:invite.code}})});
 assert.ok(!repeated.ok || !(await repeated.json()).Success,"accepted invitation replayed");
+const interruptedRoom = "ci-interrupted";
+await invoke("arena","arena.start",{roomId:interruptedRoom,players:["one","two"]});
+const interrupted = await confirmedAdmin("arena","matches","arena.admin.interrupt",{roomId:interruptedRoom,reason:"operator test"});
+assert.equal(interrupted.state,"interrupted");
+assert.equal(interrupted.interruption.reason,"operator test");
+await action("plugin.stop",{plugin_id:"arena",confirmed:true});
+await action("plugin.recover",{plugin_id:"arena"});
+await action("plugin.worker.start",{plugin_id:"arena"});
+assert.deepEqual(await invoke("arena","arena.snapshot",{roomId:interruptedRoom}),interrupted);
+const afterInterrupt = await fetch(base+"/ci-project/admin/actions",{method:"POST",headers,body:JSON.stringify({operation:"plugin.invoke",project_id:"ci-project",plugin_id:"arena",version:"0.1.0",target_operation:"arena.input",payload:{roomId:interruptedRoom,playerId:"one",sequence:1}})});
+assert.ok(!afterInterrupt.ok || !(await afterInterrupt.json()).Success,"interrupted match accepted input");
 const channel = "rooms.connected";
 const subscription = await invoke("subscriptions","subscriptions.open",{channel});
 await invoke("rooms","rooms.create",{id:"ci-room"});

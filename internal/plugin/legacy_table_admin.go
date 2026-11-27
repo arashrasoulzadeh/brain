@@ -26,7 +26,8 @@ func needsTablePage(request WorkerRequest) bool {
 }
 
 func requiresDurableAdminSnapshot(request WorkerRequest) bool {
-	return request.PluginID == "rooms" && (request.Operation == "rooms.admin.close" || request.Operation == "rooms.admin.remove-member") ||
+	return request.PluginID == "arena" && request.Operation == "arena.admin.interrupt" ||
+		request.PluginID == "rooms" && (request.Operation == "rooms.admin.close" || request.Operation == "rooms.admin.remove-member") ||
 		request.PluginID == "analytics" && (request.Operation == "analytics.history" || request.Operation == "analytics.summary") ||
 		request.PluginID == "tables" && (request.Operation == "tables.update" || request.Operation == "tables.delete" || needsTablePage(request))
 }

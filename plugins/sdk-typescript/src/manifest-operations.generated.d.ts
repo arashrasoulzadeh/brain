@@ -2,12 +2,12 @@
 export interface ManifestOperations {
   "access-management": "access.describe" | "access.rules.create" | "access.rules.list" | "access.rules.read" | "access.rules.revoke";
   "analytics": "analytics.capture" | "analytics.history" | "analytics.summary";
-  "arena": "arena.connect" | "arena.input" | "arena.player.input" | "arena.result" | "arena.snapshot" | "arena.start";
+  "arena": "arena.admin.interrupt" | "arena.connect" | "arena.input" | "arena.player.input" | "arena.result" | "arena.snapshot" | "arena.start";
   "auth": "auth.admin.accounts" | "auth.admin.accounts.reactivate" | "auth.admin.accounts.suspend" | "auth.admin.sessions.inspect" | "auth.admin.sessions.revoke" | "auth.guest" | "auth.identity" | "auth.session" | "auth.signin" | "auth.signup";
   "dashboard": "plugin.disable.apply" | "plugin.disable.preview" | "plugin.drain" | "plugin.enable" | "plugin.grant" | "plugin.install" | "plugin.promote" | "plugin.readiness" | "plugin.resume" | "plugin.rollback" | "plugin.stop" | "plugin.uninstall" | "project.create";
   "files": "files.download" | "files.metadata" | "files.publish" | "files.upload";
   "functions": "functions.call" | "functions.inspect" | "functions.invoke" | "functions.logs" | "functions.publish";
-  "games": "games.modes";
+  "games": "games.mode.describe" | "games.modes";
   "invites": "invites.accept" | "invites.cancel" | "invites.create" | "invites.inspect";
   "matchmaking": "matchmaking.assign" | "matchmaking.cancel" | "matchmaking.queue" | "matchmaking.status";
   "pvp": "pvp.describe";

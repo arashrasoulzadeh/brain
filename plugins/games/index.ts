@@ -29,3 +29,10 @@ export function modes(context: PluginContext, input: unknown) {
   requireProjectInput(context, input);
   return { projectId: context.project.id, modes: ["tic-tac-toe"] };
 }
+
+/** Read-only metadata for the built-in rule set; does not create a game session. */
+export function describeMode(context: PluginContext, input: unknown) {
+  const payload = requireProjectInput(context, input);
+  if (payload.mode !== "tic-tac-toe") throw new Error("unknown game mode");
+  return { projectId: context.project.id, mode: "tic-tac-toe", players: 2, board: { rows: 3, columns: 3 }, marks: ["X", "O"], move: { field: "cell", minimum: 0, maximum: 8 }, win: "three matching marks in a line", draw: "full board without a winner", runtime: "application-integrated rule helpers" };
+}

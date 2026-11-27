@@ -30,6 +30,14 @@ routes:
     helper: sdk.context
     capability: games.modes
 
+  - operation: games.mode.describe
+    method: POST
+    path: /mode
+    auth: operator
+    function: describeMode
+    helper: sdk.context
+    capability: games.modes
+
 admin:
   version: 1
   pages:
@@ -40,4 +48,10 @@ admin:
         - title: List supported modes
           operation: games.modes
           read_only: true
+          result: {type: detail}
+        - title: Inspect built-in game rules
+          operation: games.mode.describe
+          read_only: true
+          fields:
+            - {name: mode, type: string, required: true}
           result: {type: detail}

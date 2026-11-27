@@ -26,6 +26,7 @@ capabilities:
   - arena.input
   - arena.snapshot
   - arena.result
+  - arena.admin.manage
 extension_points: []
 config_schema:
   tickRate: int
@@ -36,6 +37,8 @@ events:
     fields: {roomId: string, playerCount: number}
   - name: finished
     fields: {roomId: string, winnerCount: number}
+  - name: interrupted
+    fields: {roomId: string}
 routes:
   - operation: arena.start
     method: POST
@@ -87,6 +90,15 @@ routes:
     capability: arena.result
     resource_field: roomId
 
+  - operation: arena.admin.interrupt
+    method: POST
+    path: /{roomId}/interrupt
+    auth: operator
+    function: interrupt
+    helper: sdk.context
+    capability: arena.admin.manage
+    resource_field: roomId
+
 admin:
   version: 1
   pages:
@@ -100,7 +112,7 @@ admin:
         capability: arena.snapshot
         title: Matches
         select_field: roomId
-      refresh_on: [arena.started, arena.finished]
+      refresh_on: [arena.started, arena.finished, arena.interrupted]
       actions:
         - title: Inspect match
           operation: arena.snapshot
@@ -126,3 +138,8 @@ admin:
             - {name: roomId, type: string, required: true}
             - {name: winnerIds, type: json, required: true}
             - {name: completedAt, type: string, required: true}
+        - title: Interrupt active match (no result awarded)
+          operation: arena.admin.interrupt
+          fields:
+            - {name: roomId, type: string, required: true}
+            - {name: reason, type: string, required: true}

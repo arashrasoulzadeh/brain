@@ -19,3 +19,5 @@ Payload snippets are arguments to the declared operation, not standalone HTTP ro
 ## Limitations
 
 The discovery route is not a public Tic-Tac-Toe command server; local TypeScript mechanics require a trusted application integration.
+
+The Game modes workspace also exposes read-only `games.mode.describe` with `{"mode":"tic-tac-toe"}` for the built-in rules, board dimensions, player count and move contract. It uses the existing games.modes capability; it is not a persisted game-instance manager.

@@ -30,7 +30,7 @@ func (p legacyStoragePlanner) adminInventory(projectID, pluginID, kind, capabili
 		query, key = `SELECT state_key, COALESCE(json_extract(value_json,'$.status'),'unknown') FROM plugin_state WHERE project_id=? AND namespace=? AND state_key>?`, "state_key"
 		args = []any{projectID, pluginID, after}
 	case pluginID == "arena" && kind == "state_keys" && capability == "arena.snapshot":
-		query, key = `SELECT state_key FROM plugin_state WHERE project_id=? AND namespace=? AND state_key>?`, "state_key"
+		query, key = `SELECT state_key, COALESCE(json_extract(value_json,'$.state'),'unknown'), COALESCE(json_array_length(value_json,'$.players'),0) FROM plugin_state WHERE project_id=? AND namespace=? AND state_key>?`, "state_key"
 		args = []any{projectID, pluginID, after}
 	case pluginID == "files" && kind == "file_keys" && capability == "files.metadata":
 		query, key = `SELECT file_key,length(CAST(data AS BLOB)),published,metadata_json FROM plugin_file_rows WHERE project_id=? AND file_key>?`, "file_key"
@@ -93,7 +93,7 @@ func (p legacyStoragePlanner) adminInventory(projectID, pluginID, kind, capabili
 				row.Filename, row.Extension, row.ContentType, row.UpdatedAt = meta.Filename, meta.Extension, meta.ContentType, meta.UpdatedAt
 				row.SizeBytes, row.StoredBytes = &meta.SizeBytes, &meta.StoredBytes
 			}
-		} else if pluginID == "rooms" && kind == "state_keys" {
+		} else if (pluginID == "rooms" || pluginID == "arena") && kind == "state_keys" {
 			var count int
 			err = rows.Scan(&row.Key, &row.Status, &count)
 			row.MemberCount = &count
