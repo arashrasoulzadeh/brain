@@ -6,7 +6,13 @@ import { setTimeout as delay } from "node:timers/promises";
 import assert from "node:assert/strict";
 
 const require = createRequire(resolve(process.env.BRAIN_TEST_TOOLS ?? "tests/browser", "package.json"));
-export const { chromium } = require("playwright");
+const { chromium: playwrightChromium } = require("playwright");
+export const chromium = {
+  launch(options = {}) {
+    const executablePath = process.env.BRAIN_BROWSER_EXECUTABLE;
+    return playwrightChromium.launch(executablePath ? { ...options, executablePath } : options);
+  },
+};
 export const artifacts = resolve(process.env.BRAIN_BROWSER_ARTIFACTS ?? "coverage/browser");
 mkdirSync(artifacts, { recursive: true });
 

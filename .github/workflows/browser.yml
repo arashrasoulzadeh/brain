@@ -41,7 +41,11 @@ jobs:
       - run: mkdocs build --strict
       - run: npm ci --prefix admin-nextjs
       - run: npm install --prefix "$BRAIN_TEST_TOOLS" --no-save --ignore-scripts playwright@1.58.2
-      - run: node "$BRAIN_TEST_TOOLS/node_modules/playwright/cli.js" install --with-deps chromium
+      - name: Select runner Chromium
+        run: |
+          chrome=$(command -v google-chrome || command -v google-chrome-stable || command -v chromium)
+          "$chrome" --version
+          echo "BRAIN_BROWSER_EXECUTABLE=$chrome" >> "$GITHUB_ENV"
       - run: node --test --test-concurrency=1 tests/browser/*.test.mjs
       - uses: actions/upload-artifact@v4
         if: always()
