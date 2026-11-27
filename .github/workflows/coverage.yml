@@ -24,7 +24,7 @@ jobs:
           status=0
           go test -covermode=atomic -coverpkg=./internal/...,./cmd/...,./plugins/sdk-typescript -coverprofile=coverage/go-unit.out ./... || status=$?
           mkdir -p coverage/cli-raw
-          go build -cover -covermode=atomic -coverpkg=./internal/...,./cmd/...,./plugins/sdk-typescript -o "$RUNNER_TEMP/brain-covered" ./cmd/brain
+          CGO_ENABLED=0 go build -cover -covermode=atomic -coverpkg=./internal/...,./cmd/...,./plugins/sdk-typescript -o "$RUNNER_TEMP/brain-covered" ./cmd/brain
           BRAIN_TEST_CLI="$RUNNER_TEMP/brain-covered" GOCOVERDIR="$PWD/coverage/cli-raw" python -m unittest discover -s tests/cli || status=$?
           BRAIN_TEST_CLI="$RUNNER_TEMP/brain-covered" BRAIN_COVERAGE_OUTPUT="$PWD/coverage/cli-raw" timeout 300s bash scripts/test-production-runtime.sh || status=$?
           go tool covdata textfmt -i=coverage/cli-raw -o=coverage/go-cli.out

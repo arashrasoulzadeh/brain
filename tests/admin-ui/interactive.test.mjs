@@ -159,7 +159,7 @@ test("model form enforces revisions and sends typed create and update fields", a
   await click(button("Delete"));
   assert.deepEqual(calls.at(-1).payload, { id: "one", revision: "r2" });
   assert.equal(button("Update").disabled, true);
-  await change(find('input[type="text"]'), "two");
+  await change(find("input:not([type])"), "two");
   await change(find('input[type="number"]'), "5");
   await click(button("Create"));
   assert.equal(calls.at(-1).payload.id, "two");
