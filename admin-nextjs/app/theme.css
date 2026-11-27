@@ -243,3 +243,60 @@ form > button[type=submit], form > button:not([type]) { margin-top: 14px; }
 .function-catalog-table time, .function-catalog-table .status-pill { white-space: nowrap; }
 .function-catalog-pagination { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 @media (max-width: 600px) { .function-catalog-filters label:first-child { grid-column: 1 / -1; } }
+
+/* Studio controls share the existing control-plane palette. */
+.function-runner-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 12px; }
+.function-runner-grid textarea { width: 100%; font-family: ui-monospace, monospace; }
+.function-runner-result { min-width: 0; border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; }
+.function-runner-result h3 { margin-top: 0; }
+.function-catalog .function-settings { grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr)); }
+
+/* Function workspace: compact chrome, optional inspector and persistent test console. */
+.function-detail-heading, .function-detail-meta, .function-workspace-toolbar, .function-workspace-actions, .function-workspace-tools, .function-workspace-file, .function-code-tools, .function-code-status { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.function-detail-heading { justify-content: space-between; margin-bottom: 12px; }
+.function-detail-meta { color: var(--muted); font-size: 12px; }
+.function-detail-tabs { margin: 0 0 14px; padding: 0; }
+.function-workspace { min-width: 0; }
+.function-workspace [hidden], .function-workspace[hidden] { display: none !important; }
+.function-workspace-toolbar { justify-content: space-between; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius) var(--radius) 0 0; background: var(--surface); }
+.function-workspace-file { min-width: 0; flex: 1; }
+.function-workspace-file strong { display: block; overflow-wrap: anywhere; font-size: 13px; }
+.function-workspace-file small { display: block; color: var(--muted); font-size: 11px; }
+.function-workspace-file-icon { flex: none; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 6px; background: var(--surface-subtle); color: var(--text); font: 700 11px ui-monospace, monospace; }
+.function-workspace-tools { padding: 8px 12px; border: 1px solid var(--border); border-top: 0; background: var(--surface-subtle); }
+.function-workspace-tools button { min-height: 28px; padding: 4px 8px; font-size: 12px; }
+.function-workspace-tools button[aria-expanded=true], .function-workspace-tools button[aria-pressed=true] { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.function-workspace-restore { margin-left: auto; }
+.function-workspace-notice { margin: 6px 0; overflow-wrap: anywhere; }
+.function-workspace-grid { display: grid; grid-template-columns: minmax(0, 1fr); align-items: start; min-width: 0; }
+.function-workspace-grid.has-inspector { grid-template-columns: minmax(0, 1fr) minmax(220px, 285px); }
+.function-workspace-source { min-width: 0; }
+.function-workspace-source .function-code-editor { border-radius: 0 0 var(--radius) var(--radius); }
+.function-workspace-grid.has-inspector .function-code-editor { border-bottom-right-radius: 0; }
+.function-workspace-inspector { min-width: 0; border: 1px solid var(--border); border-top: 0; border-left: 0; border-radius: 0 0 var(--radius) 0; background: var(--surface); }
+.function-inspector-content { padding: 14px; }
+.function-inspector-content h2 { font-size: 15px; }
+.function-inspector-content p { font-size: 12px; margin: 7px 0 0; }
+.function-inspector-block { margin-top: 16px; border-top: 1px solid var(--border); padding-top: 12px; }
+.function-inspector-block > button { margin: 6px 4px 0 0; }
+.function-inspector-route, .function-inspector-permission code { overflow-wrap: anywhere; display: block; }
+.function-inspector-permission { display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-bottom: 6px; }
+.function-inspector-permission button { min-height: 26px; padding: 3px 6px; font-size: 11px; flex: none; }
+.function-workspace-console { margin-top: 12px; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+.function-workspace-console .function-runner { margin-top: 0; }
+.function-code-editor { border-color: var(--border); background: var(--surface); }
+.function-code-editor .monaco-editor-actions { justify-content: space-between; gap: 6px; flex-wrap: wrap; padding: 7px 10px; min-height: 38px; background: var(--surface-subtle); color: var(--text); border-bottom: 1px solid var(--border); }
+.function-code-language { font-weight: 650; }
+.function-code-language small { font-weight: 400; color: var(--muted); }
+.function-code-tools { gap: 5px; }
+.function-code-editor .function-code-tools button { background: var(--surface); color: var(--text); border: 1px solid var(--border); min-height: 27px; padding: 3px 8px; }
+.function-code-editor .function-code-tools button[aria-pressed=true] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+.function-code-editor .function-code-tools button:hover:not(:disabled) { background: var(--surface-subtle); color: var(--text); }
+.function-code-editor .function-code-status { width: auto !important; gap: 12px; padding: 6px 10px; border-top: 1px solid var(--border); background: var(--surface-subtle); color: var(--muted); font: 11px ui-monospace, monospace; }
+.function-code-editor .function-code-shortcut { margin-left: auto; }
+.function-code-editor .function-code-note, .function-code-editor .editor-loading { margin: 0; padding: 8px 10px; font-size: 11px; color: var(--muted); }
+.function-code-editor .editor-diagnostic { flex-wrap: wrap; margin: 0; overflow-wrap: anywhere; }
+.function-code-editor .editor-diagnostic li { margin-bottom: 6px; }
+.function-code-editor .editor-diagnostic button { font-size: 11px; min-height: 24px; padding: 2px 6px; }
+@media (max-width: 1050px) { .function-workspace-grid.has-inspector { grid-template-columns: minmax(0, 1fr); } .function-workspace-inspector { border-left: 1px solid var(--border); border-radius: 0 0 var(--radius) var(--radius); } }
+@media (max-width: 600px) { .function-workspace-toolbar { align-items: flex-start; } .function-workspace-file { flex-basis: 100%; } .function-workspace-restore, .function-code-editor .function-code-shortcut { margin-left: 0; } }
