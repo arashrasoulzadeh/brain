@@ -46,3 +46,9 @@ export function validateBoundedInteger(value: number, maximum: number, error: st
 export function requireAllowedValues(values: readonly string[], allowed: readonly string[], error: string): void {
   if (values.some((value) => !allowed.includes(value))) throw new Error(error);
 }
+
+export function projectRoomID(projectId: string, roomId: string): string {
+  validateProjectId(projectId);
+  validateProjectId(roomId, "invalid project room id");
+  return `${projectId}:${roomId}`;
+}

@@ -22,12 +22,6 @@ export class CommandDeduplicator {
   }
 }
 
-export function projectRoomID(projectId: string, roomId: string): string {
-  validateProjectId(projectId);
-  validateProjectId(roomId, "invalid project room id");
-  return `${projectId}:${roomId}`;
-}
-
 export function assertMatchMember(
   state: Pick<TurnMatchState, "projectId" | "players">,
   projectId: string,

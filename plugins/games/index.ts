@@ -1,15 +1,10 @@
-import { requireProjectInput, type PluginContext } from "../sdk-typescript/src/index.js";
+import { requireProjectInput, type PluginContext, type TurnMatchState, type CommittedCommand } from "../sdk-typescript/src/index.js";
 
-export type TicTacToeState = {
-  projectId: string;
-  roomId: string;
+export type TicTacToeState = TurnMatchState & {
   players: readonly [string, string];
   board: readonly ("X" | "O" | null)[];
-  turn: string;
-  status: "active" | "paused";
-  turnDeadlineAt?: number;
 };
-export type CommittedTicTacToeMove = { revision: number; playerId: string; cell: number };
+export type CommittedTicTacToeMove = CommittedCommand & { cell: number };
 export { initializeTicTacToe } from "./tic-tac-toe.js";
 export { validateTicTacToeMove } from "./tic-tac-toe.js";
 export { expireTicTacToeTurn } from "./recovery.js";

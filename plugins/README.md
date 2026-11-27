@@ -22,11 +22,12 @@ plugins/<plugin-id>/
 | `subscriptions` | App realtime subscriptions | 03 |
 | `functions` | Go/WASM functions | 04 |
 | `workflows` | Project and release workflows | 04/05 |
-| `rooms` | Room lifecycle and membership | 02 |
+| `rooms` | Game-independent room lifecycle, membership and connection tickets | 02 |
+| `games` | Game-mode rules and commands (Tic-Tac-Toe) | 02/04 |
+| `pvp` | Reusable PvP turn, revision, replay and private-view primitives | 02/04 |
 | `invites` | Private-room invites | 02 |
 | `matchmaking` | Queueing and assignment | 02 |
 | `arena` | Co-op game runtime | 02 |
-| `turn-rules` | Turn-based game runtime | 04 |
 | `analytics` | Validated event contract | 01 |
 | `eye-export` | Eye event export | 02 |
 

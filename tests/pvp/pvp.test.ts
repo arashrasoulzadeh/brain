@@ -78,7 +78,7 @@ test("plugin discovery routes use trusted active project context", () => {
     plugins: { observe: { fire() {} } },
   };
   assert.deepEqual(modes(context, {}), { projectId: "dev", modes: ["tic-tac-toe"] });
-  assert.deepEqual(describe(context, {}), { projectId: "dev", turnBased: true, revisionedCommands: true });
+  assert.deepEqual(describe({ ...context, plugin: { id: "pvp", version: "0.1.0" }, execution: { operation: "pvp.describe" } }, {}), { projectId: "dev", turnBased: true, revisionedCommands: true });
   for (const handler of [modes, describe]) {
     assert.throws(() => handler(context, { projectId: "prod" }), /host project context mismatch/);
     assert.throws(() => handler({ ...context, project: { id: "dev", active: false } }, {}), /host project context required/);

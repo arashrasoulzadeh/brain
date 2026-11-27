@@ -1,6 +1,6 @@
 import type { TicTacToeState, CommittedTicTacToeMove } from "./index.js";
 import { copyTicTacToeState, validateTicTacToeMove, validateTicTacToeRuleResult } from "./tic-tac-toe.js";
-import { assertMatchMember, expireTurn, pauseTurn, resumeTurn, replayHistory, parseMatchState, privatePlayerView, validateProjectId } from "../sdk-typescript/src/index.js";
+import { assertMatchMember, expireTurn, pauseTurn, resumeTurn, replayHistory, parseMatchState, privatePlayerView, validateProjectId, projectRoomID } from "../sdk-typescript/src/index.js";
 
 export function expireTicTacToeTurn(
   state: TicTacToeState,
@@ -41,14 +41,23 @@ export function reconnectTicTacToe(
   validateProjectId(projectId, "game authorization required");
   const state = parseMatchState(serialized) as Partial<TicTacToeState>;
   assertMatchMember(state as TicTacToeState, projectId, playerId);
+  if (typeof state.roomId !== "string" ||
+      !state.players || state.players.length !== 2 ||
+      state.players.some((player) => typeof player !== "string" || !player.trim()) ||
+      state.players[0] === state.players[1] ||
+      typeof state.turn !== "string" || !state.players.includes(state.turn) ||
+      (state.status !== "active" && state.status !== "paused") ||
+      (state.turnDeadlineAt !== undefined && !Number.isFinite(state.turnDeadlineAt)))
+    throw new Error("invalid persisted game");
+  projectRoomID(projectId, state.roomId);
   const result = validateTicTacToeRuleResult({ board: state.board, turn: state.turn, status: state.status });
   return {
     projectId: state.projectId!,
-    roomId: state.roomId!,
-    players: [...state.players!] as [string, string],
+    roomId: state.roomId,
+    players: [...state.players] as [string, string],
     board: [...result.board],
     turn: result.turn,
-    status: state.status!,
+    status: state.status,
     ...(state.turnDeadlineAt !== undefined ? { turnDeadlineAt: state.turnDeadlineAt } : {}),
   };
 }

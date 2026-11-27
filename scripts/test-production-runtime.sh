@@ -67,7 +67,7 @@ assert.deepEqual(JSON.parse(Buffer.from(read.Payload,"base64").toString("utf8"))
 const catalogResponse = await fetch(base + "/admin/plugins?project_id=ci-project", {headers});
 assert.ok(catalogResponse.ok);
 const { manifests } = await catalogResponse.json();
-for (const id of ["analytics","arena","auth","dashboard","files","functions","invites","matchmaking","rooms","subscriptions","tables"]) {
+for (const id of ["analytics","arena","auth","dashboard","files","functions","games","invites","matchmaking","pvp","rooms","subscriptions","tables"]) {
   assert.ok(manifests.some(m => m.ID === id), "missing plugin " + id);
 }
 for (const manifest of manifests.filter(m => m.ID !== "tables" && m.ID !== "access-management")) {
@@ -82,6 +82,8 @@ async function invoke(plugin_id, target_operation, payload) {
   assert.equal(response.Success,true, target_operation + ": " + response.ErrorCode);
   return JSON.parse(Buffer.from(response.Payload,"base64").toString("utf8"));
 }
+assert.deepEqual(await invoke("games","games.modes",{}),{projectId:"ci-project",modes:["tic-tac-toe"]});
+assert.deepEqual(await invoke("pvp","pvp.describe",{}),{projectId:"ci-project",turnBased:true,revisionedCommands:true});
 const channel = "rooms.connected";
 const subscription = await invoke("subscriptions","subscriptions.open",{channel});
 await invoke("rooms","rooms.create",{id:"ci-room"});

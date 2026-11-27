@@ -1,3 +1,5 @@
+import assert from "node:assert/strict";
+import { test } from "node:test";
 import {
   createTicTacToeCoordinator,
   authorizeTicTacToeCommand,
@@ -144,3 +146,44 @@ if (
     undefined
 )
   throw new Error("hidden player state leaked");
+
+test("mode rejects invalid players, moves and rule output", () => {
+  for (const [a, b] of [["", "b"], ["a", " "], ["a", "a"]])
+    assert.throws(() => initializeTicTacToe("dev", "r1", a, b), /invalid tic-tac-toe players/);
+  assert.throws(() => initializeTicTacToe("bad/project", "r1", "a", "b"), /invalid project id/);
+  const state = initializeTicTacToe("dev", "r1", "a", "b");
+  assert.throws(() => validateTicTacToeMove(state, "x", 0), /invalid tic-tac-toe move/);
+  for (const cell of [-1, 0.5, 9]) assert.throws(() => validateTicTacToeMove(state, "a", cell), /invalid tic-tac-toe move/);
+  for (const invalid of [null, 2, {}, { board: [], turn: "a", status: "active" },
+    { board: Array(9).fill("Z"), turn: "a", status: "active" },
+    { board: state.board, turn: 1, status: "active" },
+    { board: state.board, turn: "a", status: "unknown" }])
+    assert.throws(() => validateTicTacToeRuleResult(invalid), /malformed rule result/);
+  assert.equal(validateTicTacToeRuleResult({ board: state.board, turn: "a", status: "paused" }).status, "paused");
+  assert.equal(validateTicTacToeRuleResult({ board: state.board, turn: "a", status: "finished" }).status, "finished");
+  assert.throws(() => authorizeTicTacToeCommand(state, "dev", "a", "delete"), /game command not authorized/);
+  for (const payload of [null, 1, {}, { cell: "1" }, { cell: 0.5 }, { cell: -1 }, { cell: 9 }])
+    assert.throws(() => validateTicTacToeCommandPayload(payload), /command payload mismatch/);
+});
+
+test("reconnect rejects malformed persisted games and cross-project access", () => {
+  const state = initializeTicTacToe("dev", "r1", "a", "b");
+  const encoded = serializeTicTacToeState(state);
+  assert.throws(() => reconnectTicTacToe(encoded, "prod", "a"), /game authorization required/);
+  assert.throws(() => reconnectTicTacToe(encoded, "dev", "x"), /game authorization required/);
+  assert.throws(() => reconnectTicTacToe(encoded, "bad/project", "a"), /game authorization required/);
+  assert.throws(() => reconnectTicTacToe("{", "dev", "a"), /invalid persisted game/);
+  for (const invalid of [
+    { ...state, roomId: 1 },
+    { ...state, players: ["a"] },
+    { ...state, players: ["a", 1] },
+    { ...state, players: ["a", " "] },
+    { ...state, players: ["a", "a"] },
+    { ...state, turn: 1 },
+    { ...state, turn: "x" },
+    { ...state, status: "finished" },
+    { ...state, turnDeadlineAt: "100" },
+  ]) assert.throws(() => reconnectTicTacToe(JSON.stringify(invalid), "dev", "a"), /invalid persisted game/);
+  assert.throws(() => reconnectTicTacToe(JSON.stringify({ ...state, roomId: "bad/room" }), "dev", "a"), /invalid project room id/);
+  assert.deepEqual(reconnectTicTacToe(encoded, "dev", "a"), state);
+});
