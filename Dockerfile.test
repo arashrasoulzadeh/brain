@@ -1,4 +1,8 @@
-FROM golang:1.23
+FROM node:20-bookworm-slim AS node-runtime
+FROM golang:1.23-bookworm
+# The Go integration suite executes the same Node VM runner as production.
+COPY --from=node-runtime /usr/local/bin/node /usr/local/bin/node
+RUN node --version
 WORKDIR /src
 COPY go.mod ./
 COPY go.sum ./
