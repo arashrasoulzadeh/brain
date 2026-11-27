@@ -85,3 +85,13 @@ func TestOwnerFailsClosedForMissingContextAndDatabase(t *testing.T) {
 		t.Fatalf("open error: %v", err)
 	}
 }
+
+func TestWaitReadyReturnsImmediatelyWhenReady(t *testing.T) {
+	calls := 0
+	if err := db.WaitReady(context.Background(), func(context.Context) error {
+		calls++
+		return nil
+	}, time.Hour); err != nil || calls != 1 {
+		t.Fatalf("ready check: %v (%d calls)", err, calls)
+	}
+}
