@@ -3,6 +3,12 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `1544e17b` — 2026-11-27 20:48:49 +0330 — Merge pull request #43 from arashrasoulzadeh/fix/admin-expired-session-layout
+  Files: 
+- `d1de78bb` — 2026-11-27 20:11:09 +0330 — Invalidate expired admin sessions centrally and show standalone login without protected shell
+  Files: admin-nextjs/app/components/admin-shell.tsx,admin-nextjs/app/components/toast-provider.tsx admin-nextjs/app/lib/admin-api.ts,admin-nextjs/app/lib/admin-session-response.ts admin-nextjs/app/plugins/[plugin]/view.tsx,admin-nextjs/app/view.tsx admin-nextjs/app/workers/view.tsx,docs/admin-pages/login.md scripts/test-admin-browser.mjs,tests/admin/admin-session-response.test.ts
+- `887ace77` — 2026-11-27 16:37:47 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `eee64e74` — 2026-11-27 20:07:36 +0330 — Merge pull request #42 from arashrasoulzadeh/feat/plugin-admin-workspaces
   Files: 
 - `bf909810` — 2026-11-27 19:57:25 +0330 — Type the shared file action state transition as a string record
@@ -97,9 +103,3 @@ Automatically generated from commits on main.
   Files: .github/workflows/test.yml,CHANGELOG.md
 - `eab67f5c` — 2026-11-27 18:05:34 +0330 — fix: distinguish root routes from parameters and authorize before command parsing
   Files: internal/app/app.go,internal/app/project_http.go internal/plugin/manifest_http.go
-- `b31d765a` — 2026-11-27 18:04:32 +0330 — feat: mount WebSocket ticket boundary only at host-resolved /{project}/ws
-  Files: internal/app/app.go,internal/plugin/websocket_endpoint.go tests/plugin/websocket_endpoint_test.go
-- `84aeda75` — 2026-11-27 18:03:38 +0330 — fix: grant macOS worker narrow system directory lookup needed by Node startup
-  Files: internal/plugin/macos_worker.go
-- `40c32407` — 2026-11-27 18:02:24 +0330 — style: run gofmt on manifest route registry and HTTP lifecycle tests
-  Files: internal/plugin/http_routes.go,tests/app/project_plugin_http_test.go tests/plugin/http_version_routing_test.go
