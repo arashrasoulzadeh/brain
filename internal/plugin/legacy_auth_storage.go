@@ -19,6 +19,7 @@ type durableAuthAccount struct {
 	Username     string `json:"username"`
 	UserID       string `json:"userId"`
 	PasswordHash string `json:"passwordHash"`
+	Suspended    bool   `json:"suspended,omitempty"`
 }
 
 type durableAuthSession struct {
@@ -32,6 +33,7 @@ type authAccountSummary struct {
 	UserID         string `json:"userId"`
 	Guest          bool   `json:"guest"`
 	ActiveSessions int    `json:"activeSessions"`
+	Suspended      bool   `json:"suspended,omitempty"`
 }
 
 type authAccountPage struct {
@@ -65,6 +67,10 @@ func readAuthState[T any](s *SQLiteStorage, project, namespace, key string) (*T,
 }
 
 func (s *SQLiteStorage) authAccountPage(project, after string, now int64) (authAccountPage, error) {
+	return s.authAccountSearch(project, after, "", "", now, 50)
+}
+
+func (s *SQLiteStorage) authAccountSearch(project, after, search, kind string, now int64, limit int) (authAccountPage, error) {
 	result := authAccountPage{Rows: []authAccountSummary{}}
 	// Only the redacted projection is selected. Neither password hashes nor
 	// session digest keys are ever sent to the administrative worker.
@@ -73,28 +79,31 @@ func (s *SQLiteStorage) authAccountPage(project, after string, now int64) (authA
 		FROM plugin_state WHERE project_id=? AND namespace='auth.sessions' AND json_extract(value_json,'$.expiresAt')>?
 		GROUP BY username
 	), accounts AS (
-		SELECT state_key AS username, json_extract(value_json,'$.userId') AS user_id
+		SELECT state_key AS username, json_extract(value_json,'$.userId') AS user_id, COALESCE(json_extract(value_json,'$.suspended'),0) AS suspended
 		FROM plugin_state WHERE project_id=? AND namespace='auth.accounts'
 	), users AS (
-		SELECT accounts.username,accounts.user_id,0 AS guest,COALESCE(active.n,0) AS sessions
+		SELECT accounts.username,accounts.user_id,0 AS guest,COALESCE(active.n,0) AS sessions,accounts.suspended
 		FROM accounts LEFT JOIN active ON accounts.username=active.username
 		UNION ALL
-		SELECT active.username,? || ':' || active.username,1,active.n
+		SELECT active.username,? || ':' || active.username,1,active.n,0
 		FROM active LEFT JOIN accounts ON active.username=accounts.username
 		WHERE accounts.username IS NULL AND substr(active.username,1,6)='guest-'
 	)
-	SELECT username,user_id,guest,sessions FROM users WHERE username>? ORDER BY username LIMIT 51`, project, now, project, project, after)
+	SELECT username,user_id,guest,sessions,suspended FROM users WHERE username>?
+		AND (instr(lower(username),lower(?))>0 OR instr(lower(user_id),lower(?))>0)
+		AND (?=\x27\x27 OR (?=\x27registered\x27 AND guest=0) OR (?=\x27guest\x27 AND guest=1) OR (?=\x27suspended\x27 AND suspended=1))
+		ORDER BY username LIMIT ?`, project, now, project, project, after, search, search, kind, kind, kind, kind, limit+1)
 	if err != nil {
 		return result, err
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var row authAccountSummary
-		if err := rows.Scan(&row.Username, &row.UserID, &row.Guest, &row.ActiveSessions); err != nil {
+		if err := rows.Scan(&row.Username, &row.UserID, &row.Guest, &row.ActiveSessions, &row.Suspended); err != nil {
 			return authAccountPage{}, err
 		}
-		if len(result.Rows) == 50 {
-			result.Next = result.Rows[49].Username
+		if len(result.Rows) == limit {
+			result.Next = result.Rows[limit-1].Username
 			break
 		}
 		result.Rows = append(result.Rows, row)
@@ -119,6 +128,7 @@ func (p legacyStoragePlanner) prepareAuthStorage(request WorkerRequest) (WorkerR
 	var account *durableAuthAccount
 	var session *durableAuthSession
 	var page authAccountPage
+	var sessionSummary authSessionSummary
 	var err error
 	switch request.Operation {
 	case "auth.signup", "auth.signin":
@@ -144,7 +154,7 @@ func (p legacyStoragePlanner) prepareAuthStorage(request WorkerRequest) (WorkerR
 			return request, nil, errAuthCredentials
 		}
 		if request.Operation == "auth.signin" {
-			if account == nil || account.Username != username || account.UserID != project+":"+username || account.PasswordHash == "" {
+			if account == nil || account.Username != username || account.UserID != project+":"+username || account.PasswordHash == "" || account.Suspended {
 				return request, nil, errAuthCredentials
 			}
 			private["account"] = account
@@ -163,16 +173,18 @@ func (p legacyStoragePlanner) prepareAuthStorage(request WorkerRequest) (WorkerR
 		}
 		username = session.Username
 		payload["token"], private["session"] = token, session
-		if request.Operation == "auth.identity" && !strings.HasPrefix(username, "guest-") {
+		if !strings.HasPrefix(username, "guest-") {
 			account, err = readAuthState[durableAuthAccount](p.storage, project, authAccountsNamespace, username)
 			if err != nil {
 				return request, nil, err
 			}
-			if account == nil || account.Username != username || account.UserID != project+":"+username {
+			if account == nil || account.Username != username || account.UserID != project+":"+username || account.Suspended {
 				return request, nil, errAuthSession
 			}
 			// Identity lookup needs only the public identity, not a hash.
-			private["account"] = durableAuthAccount{Username: account.Username, UserID: account.UserID}
+			if request.Operation == "auth.identity" {
+				private["account"] = durableAuthAccount{Username: account.Username, UserID: account.UserID}
+			}
 		}
 	case "auth.guest":
 	case "auth.admin.accounts":
@@ -180,11 +192,43 @@ func (p legacyStoragePlanner) prepareAuthStorage(request WorkerRequest) (WorkerR
 		if (input["after"] != nil && !ok) || len(after) > 1000 {
 			return request, nil, ErrInvalidWorkerRequest
 		}
-		page, err = p.storage.authAccountPage(project, after, time.Now().UnixMilli())
+		search, searchOK := input["search"].(string)
+		kind, kindOK := input["kind"].(string)
+		if (input["search"] != nil && !searchOK) || len(search) > 256 || strings.ContainsRune(search, 0) || (input["kind"] != nil && !kindOK) || (kind != "" && kind != "registered" && kind != "guest" && kind != "suspended") {
+			return request, nil, ErrInvalidWorkerRequest
+		}
+		limit, limitErr := boundedStorageInt(input, "limit", 50, 1, 50)
+		if limitErr != nil {
+			return request, nil, limitErr
+		}
+		page, err = p.storage.authAccountSearch(project, after, strings.TrimSpace(search), kind, time.Now().UnixMilli(), limit)
 		if err != nil {
 			return request, nil, err
 		}
 		payload["after"], private["page"] = after, page
+	case "auth.admin.sessions.inspect":
+		username, _ = input["username"].(string)
+		if !authUsername(username) {
+			return request, nil, ErrInvalidWorkerRequest
+		}
+		sessionSummary, err = p.storage.authSessionSummary(project, username, time.Now().UnixMilli())
+		if err != nil {
+			return request, nil, err
+		}
+		payload["username"], private["sessions"] = username, sessionSummary
+	case "auth.admin.accounts.suspend", "auth.admin.accounts.reactivate":
+		username, _ = input["username"].(string)
+		if !authUsername(username) || strings.HasPrefix(username, "guest-") {
+			return request, nil, ErrInvalidWorkerRequest
+		}
+		account, err = readAuthState[durableAuthAccount](p.storage, project, authAccountsNamespace, username)
+		if err != nil {
+			return request, nil, err
+		}
+		if account == nil || account.Username != username || account.UserID != project+":"+username {
+			return request, nil, ErrStoredResourceMissing
+		}
+		payload["username"] = username
 	case "auth.admin.sessions.revoke":
 		username, _ = input["username"].(string)
 		if !authUsername(username) {
@@ -260,6 +304,12 @@ func (p legacyStoragePlanner) prepareAuthStorage(request WorkerRequest) (WorkerR
 			}
 			digest := authTokenDigest(result.Result.Token)
 			mutation = func(db sqliteExecutor) error {
+				if request.Operation == "auth.signin" {
+					var suspended bool
+					if err := db.QueryRow(`SELECT COALESCE(json_extract(value_json,\x27$.suspended\x27),0) FROM plugin_state WHERE project_id=? AND namespace=? AND state_key=?`, project, authAccountsNamespace, username).Scan(&suspended); err != nil || suspended {
+						return errAuthCredentials
+					}
+				}
 				// Opportunistically remove expired session records.
 				if _, err := db.Exec(`DELETE FROM plugin_state WHERE project_id=? AND namespace=? AND json_extract(value_json,'$.expiresAt')<=?`, project, authSessionsNamespace, now); err != nil {
 					return err
@@ -292,6 +342,36 @@ func (p legacyStoragePlanner) prepareAuthStorage(request WorkerRequest) (WorkerR
 			}
 		case "auth.admin.accounts":
 			public = page
+		case "auth.admin.sessions.inspect":
+			public = sessionSummary
+		case "auth.admin.accounts.suspend", "auth.admin.accounts.reactivate":
+			suspend := request.Operation == "auth.admin.accounts.suspend"
+			mutation = func(db sqliteExecutor) error {
+				updated, err := db.Exec(`UPDATE plugin_state SET value_json=json_set(value_json,'$.suspended',json(?)) WHERE project_id=? AND namespace=? AND state_key=? AND json_extract(value_json,'$.userId')=?`, map[bool]string{true: "true", false: "false"}[suspend], project, authAccountsNamespace, username, project+":"+username)
+				if err != nil {
+					return err
+				}
+				count, err := updated.RowsAffected()
+				if err != nil {
+					return err
+				}
+				if count != 1 {
+					return ErrStoredResourceMissing
+				}
+				var revoked int64
+				if suspend {
+					deleted, err := db.Exec(`DELETE FROM plugin_state WHERE project_id=? AND namespace=? AND json_extract(value_json,'$.username')=?`, project, authSessionsNamespace, username)
+					if err != nil {
+						return err
+					}
+					revoked, err = deleted.RowsAffected()
+					if err != nil {
+						return err
+					}
+				}
+				public = map[string]any{"username": username, "suspended": suspend, "revoked": revoked}
+				return nil
+			}
 		case "auth.admin.sessions.revoke":
 			mutation = func(db sqliteExecutor) error {
 				deleted, err := db.Exec(`DELETE FROM plugin_state WHERE project_id=? AND namespace=? AND json_extract(value_json,'$.username')=?`, project, authSessionsNamespace, username)

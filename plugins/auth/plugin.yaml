@@ -51,6 +51,8 @@ events:
     fields: {guest: boolean}
   - name: sessions.revoked
     fields: {}
+  - name: account.status.changed
+    fields: {suspended: boolean}
 routes:
   - operation: auth.signup
     method: POST
@@ -103,19 +105,46 @@ routes:
     helper: sdk.request
     capability: auth.admin.manage
     resource_field: username
+  - operation: auth.admin.sessions.inspect
+    method: POST
+    path: /admin-sessions-inspect
+    auth: operator
+    function: inspectSessions
+    helper: sdk.request
+    capability: auth.admin.read
+    resource_field: username
+  - operation: auth.admin.accounts.suspend
+    method: POST
+    path: /admin-accounts-suspend
+    auth: operator
+    function: suspendAccount
+    helper: sdk.request
+    capability: auth.admin.manage
+    resource_field: username
+  - operation: auth.admin.accounts.reactivate
+    method: POST
+    path: /admin-accounts-reactivate
+    auth: operator
+    function: reactivateAccount
+    helper: sdk.request
+    capability: auth.admin.manage
+    resource_field: username
 admin:
   version: 1
   pages:
     - id: accounts
       title: Accounts and sessions
       legacy_route: auth
-      refresh_on: [auth.account.created, auth.session.established, auth.sessions.revoked]
+      refresh_on: [auth.account.created, auth.session.established, auth.sessions.revoked, auth.account.status.changed]
       actions:
         - title: List accounts
           operation: auth.admin.accounts
           read_only: true
           fields:
             - {name: after, type: string}
+            - {name: search, type: string}
+            - {name: kind, type: string}
+            - {name: limit, type: number}
           result:
             type: grid
             children:
@@ -123,5 +152,20 @@ admin:
               - {type: detail, path: next, title: Next cursor}
         - title: Revoke user sessions
           operation: auth.admin.sessions.revoke
+          fields:
+            - {name: username, type: string, required: true}
+        - title: Inspect active session expiry
+          operation: auth.admin.sessions.inspect
+          read_only: true
+          fields:
+            - {name: username, type: string, required: true}
+          result:
+            type: detail
+        - title: Suspend registered account and revoke sessions
+          operation: auth.admin.accounts.suspend
+          fields:
+            - {name: username, type: string, required: true}
+        - title: Reactivate registered account
+          operation: auth.admin.accounts.reactivate
           fields:
             - {name: username, type: string, required: true}

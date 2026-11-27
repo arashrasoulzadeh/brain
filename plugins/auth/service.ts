@@ -28,7 +28,8 @@ const transientDispatch = createRequestDispatcher(functions());
 type DurableAuthInput = {
   account?: Account;
   session?: AuthSession;
-  page?: { rows: { username: string; userId: string; guest: boolean; activeSessions: number }[]; next: string };
+  page?: { rows: { username: string; userId: string; guest: boolean; activeSessions: number; suspended?: boolean }[]; next: string };
+  sessions?: { username: string; activeSessions: number; earliestExpiry?: number; latestExpiry?: number };
 };
 
 export function dispatchRequest(name: string, rpc: RpcRequest, context?: PluginContext): unknown {
@@ -49,6 +50,19 @@ async function dispatchDurable(name: string, rpc: RpcRequest, context?: PluginCo
     if (!stored.page || !Array.isArray(stored.page.rows) || typeof stored.page.next !== "string")
       throw new Error("invalid account page");
     return stored.page;
+  }
+  if (name === "inspectSessions") {
+    const username = validateProjectId(String(payload.username ?? ""), "invalid username");
+    requireOperator(context, "auth.admin.read", username);
+    if (!stored.sessions || stored.sessions.username !== username || !Number.isSafeInteger(stored.sessions.activeSessions) || stored.sessions.activeSessions < 0) throw new Error("invalid session summary");
+    return stored.sessions;
+  }
+  if (name === "suspendAccount" || name === "reactivateAccount") {
+    const username = validateProjectId(String(payload.username ?? ""), "invalid username");
+    requireOperator(context, "auth.admin.manage", username);
+    if (username.startsWith("guest-")) throw new Error("registered account required");
+    context.plugins.observe.fire("account.status.changed", { suspended: name === "suspendAccount" });
+    return { username, suspended: name === "suspendAccount" };
   }
   if (name === "revokeSessions") {
     const username = validateProjectId(String(payload.username ?? ""), "invalid username");
