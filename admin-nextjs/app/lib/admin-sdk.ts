@@ -1,11 +1,11 @@
-import { adminHeaders } from "./admin-api";
+import { adminHeaders, projectAdminURL } from "./admin-api";
 import type { AdminContribution } from "./admin-registry";
 import type { AdminInventoryPage } from "./admin-types";
 
 export async function invokeAdminAction(token: string, contribution: AdminContribution, operation: string, payload: unknown, signal: AbortSignal, query = false): Promise<unknown> {
   const action = contribution.page.actions.find(item => item.operation === operation);
   if (!action || (query && !action.read_only)) throw new Error("Action unavailable");
-  const response = await fetch("/api/admin/actions", {
+  const response = await fetch(projectAdminURL(contribution.projectID, "actions"), {
     method: "POST",
     headers: adminHeaders(token, { "content-type": "application/json" }),
     signal,

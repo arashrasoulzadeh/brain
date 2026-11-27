@@ -1,5 +1,5 @@
 "use client";
-import { adminHeaders, readAdminSession, saveAdminSession, clearAdminSession, signOutAdminSession, saveAdminProject, preferredAdminProject } from "./lib/admin-api";
+import { adminHeaders, readAdminSession, saveAdminSession, clearAdminSession, signOutAdminSession, saveAdminProject, preferredAdminProject, projectAdminURL, systemAdminURL } from "./lib/admin-api";
 import { FormEvent, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
@@ -126,7 +126,7 @@ export default function AdminPage() {
     return () => window.clearTimeout(hydrationTimeout);
   }, []);
   async function loadProjects(token: string): Promise<Project[]> {
-    const response = await fetch("/api/admin/projects", {
+    const response = await fetch(systemAdminURL("projects"), {
       headers: adminHeaders(token),
     });
     if (!response.ok) throw new Error("Could not load projects");
@@ -140,7 +140,7 @@ export default function AdminPage() {
     const valid = () => current() && readAdminSession() === token;
     const query = projectID ? `?project_id=${encodeURIComponent(projectID)}` : "";
     try {
-      const response = await fetch(`/api/admin/plugins${query}`, { headers: adminHeaders(token) });
+      const response = await fetch(projectAdminURL(projectID, "plugins"), { headers: adminHeaders(token) });
       if (!valid()) return;
       if (!response.ok) throw new Error("Could not load plugins");
       const result = (await response.json()) as { manifests: PluginManifest[] | null; installations: PluginStatus[] | null };
@@ -154,14 +154,14 @@ export default function AdminPage() {
     }
   }
   async function loadAudit(token: string) {
-    const response = await fetch("/api/admin/audit", {
+    const response = await fetch(systemAdminURL("audit"), {
       headers: adminHeaders(token),
     });
     if (!response.ok) throw new Error("Could not load audit log");
     setAudit((await response.json()) as AuditRecord[]);
   }
   async function loadSystem(token: string) {
-    const response = await fetch("/api/admin/system", {
+    const response = await fetch(systemAdminURL("system"), {
       headers: adminHeaders(token),
     });
     if (!response.ok) throw new Error("Could not load system capabilities");
@@ -174,7 +174,7 @@ export default function AdminPage() {
     if (!projectID) { setFunctionDrafts([]); return; }
     try {
       const response = await fetch(
-        `/api/admin/functions?project_id=${encodeURIComponent(projectID)}`,
+        projectAdminURL(projectID, "functions"),
         { headers: adminHeaders(token, { [QUIET_REQUEST_HEADER]: "1" }) },
       );
       const result = response.ok ? (await response.json()) as FunctionDraft[] | null : [];
@@ -187,7 +187,7 @@ export default function AdminPage() {
     event.preventDefault();
     setError("");
     try {
-      const response = await fetch("/api/admin/session", {
+      const response = await fetch(systemAdminURL("session"), {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ username, secret }),
@@ -225,7 +225,7 @@ export default function AdminPage() {
     event.preventDefault();
     setError("");
     try {
-      const response = await fetch("/api/admin/actions", {
+      const response = await fetch(systemAdminURL("actions"), {
         method: "POST",
         headers: adminHeaders(session, { "content-type": "application/json" }),
         body: JSON.stringify({ operation: "project.create", project_id: projectID }),
@@ -370,7 +370,7 @@ export default function AdminPage() {
       setFunctionMessage("Input must be valid JSON.");
       return;
     }
-    const response = await fetch("/api/admin/functions", {
+    const response = await fetch(projectAdminURL(selectedProjectID, "functions"), {
       method: "POST",
       headers: adminHeaders(session, { "content-type": "application/json" }),
       body: JSON.stringify({
