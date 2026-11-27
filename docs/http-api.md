@@ -115,3 +115,7 @@ See [function development and publication](functions-runtime.md) for valid sourc
 ## Not mounted as public HTTP
 
 The generic worker RPC and SDK transport interfaces do not expose a network endpoint; only explicitly declared HTTP routes are published. In particular `/api/auth.signin` and `/api/rooms.join` are **not** routes mounted by this host. Use a trusted, project-authenticating adapter when implementing a product gateway. Never substitute an operator bearer for end-user authorization.
+
+### WebSocket admission boundary
+
+The host transport credential store binds an admitted project user to one plugin version, operation, capability and resource. Tickets are short-lived (at most one minute), single-use and bounded in memory, and authorization must be rechecked at redemption and on subsequent invocations. The store is a trusted host primitive, not a public ticket-issuance endpoint. Worker membership admission, ticket issuance wiring, origin configuration and WebSocket framing remain prerequisites before the endpoint accepts connections. Until then, upgrades remain rejected.
