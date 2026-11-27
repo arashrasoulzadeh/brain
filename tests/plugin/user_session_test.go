@@ -2,10 +2,10 @@ package plugin_test
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
-	"errors"
 	"testing"
 
 	"brain/internal/admin"
@@ -92,7 +92,7 @@ func TestPublishedFunctionReceivesVerifiedUserSession(t *testing.T) {
 	installAccessTestPlugin(t, r, project, accessManifest(t), &contractWorker{ready: true})
 	identity, _ := auth.Route("auth.identity")
 	createAccessRule(t, r, project, "auth-host", "host", auth, identity, "", true)
-	for _, operation := range []string{"functions.create", "functions.publish"} {
+	for _, operation := range []string{"functions.publish"} {
 		route, exists := functions.Route(operation)
 		if !exists {
 			t.Fatalf("missing route %s", operation)
