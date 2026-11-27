@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -95,5 +96,14 @@ func TestMacOSProfileConstructionCoverage(t *testing.T) {
 	t.Setenv("PATH", t.TempDir())
 	if _, err := construct("darwin", workerScript, descriptor, pluginRoot, manifest, policy); err == nil {
 		t.Fatal("missing node accepted")
+	}
+}
+
+func TestMacOSWorkerPublicConstructorRejectsUnsupportedPlatform(t *testing.T) {
+	if runtime.GOOS == "darwin" {
+		t.Skip("non-Darwin rejection")
+	}
+	if _, err := NewManifestMacOSTypeScriptWorker("", "", "", "", "alpha", Manifest{}, IsolationPolicy{}); !errors.Is(err, ErrInvalidIsolationPolicy) {
+		t.Fatalf("unexpected constructor error: %v", err)
 	}
 }
