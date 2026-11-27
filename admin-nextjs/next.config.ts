@@ -2,6 +2,11 @@ import path from "node:path";
 import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  webpack(config) {
+    // Shared modules use NodeNext-compatible .js specifiers in TypeScript.
+    config.resolve.extensionAlias = { ...config.resolve.extensionAlias, ".js": [".ts", ".tsx", ".js"] };
+    return config;
+  },
   // Keep development hot-reload artifacts separate from production builds.
   // Sharing .next lets concurrent dev/build processes delete each other's chunks.
   distDir: process.env.NODE_ENV === "development" ? ".next-dev" : ".next",
