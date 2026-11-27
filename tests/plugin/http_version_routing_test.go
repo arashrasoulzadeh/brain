@@ -88,4 +88,3 @@ func (w *httpPromotionWorker) Handle(req plugin.WorkerRequest) plugin.WorkerResp
 	w.onHandle()
 	return plugin.WorkerResponse{Protocol: req.Protocol, Success: true, Payload: []byte(`{}`)}
 }
-

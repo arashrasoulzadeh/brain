@@ -45,7 +45,7 @@ test("SDK worker handles successful requests, handler errors, malformed and over
 test("admin client rejects unsuccessful HTTP responses and supports default transport", async () => {
   const denied: typeof fetch = async () => new Response("", { status: 403 });
   await assert.rejects(adminLogin("https://example.test", "user", "secret", denied), /admin login failed/);
-  await assert.rejects(adminAction("https://example.test", "token", { operation: "list" }, denied), /admin action failed/);
+  await assert.rejects(adminAction("https://example.test", "token", { operation: "plugin.enable", project_id: "dev" }, denied), /admin action failed/);
   const previous = globalThis.fetch;
   try {
     globalThis.fetch = async (input, init) => {
@@ -57,6 +57,6 @@ test("admin client rejects unsuccessful HTTP responses and supports default tran
       return new Response(null, { status: 204 });
     };
     assert.deepEqual(await adminLogin("https://example.test", "user", "secret"), { session: "token" });
-    await adminAction("https://example.test", "token", { operation: "list" });
+    await adminAction("https://example.test", "token", { operation: "plugin.enable", project_id: "dev" });
   } finally { globalThis.fetch = previous; }
 });
