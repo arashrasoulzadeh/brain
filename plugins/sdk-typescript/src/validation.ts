@@ -47,6 +47,12 @@ export function requireAllowedValues(values: readonly string[], allowed: readonl
   if (values.some((value) => !allowed.includes(value))) throw new Error(error);
 }
 
+export function projectRoomID(projectId: string, roomId: string): string {
+  validateProjectId(projectId);
+  validateProjectId(roomId, "invalid project room id");
+  return `${projectId}:${roomId}`;
+}
+
 /** Require the effective host-verified operator and the admitted operation scope. */
 export function requireOperator(context: PluginContext | undefined, capability: string, resource = ""): PluginContext {
   if (!context?.auth || context.auth.caller.kind !== "operator" || !context.auth.caller.authenticated ||

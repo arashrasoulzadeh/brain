@@ -1,0 +1,22 @@
+id: pvp
+title: PvP
+description: Reusable player-versus-player turn, revision, replay and authorization primitives.
+version: 0.1.0
+host_api: 1
+entrypoint: index.ts
+source_files:
+  - index.ts
+imports:
+  - ../sdk-typescript/src/index.js
+plugin_imports:
+dependencies: []
+capabilities:
+  - pvp.describe
+extension_points:
+  - pvp.runtime
+config_schema: {}
+routes:
+  - operation: pvp.describe
+    function: describe
+    helper: sdk.context
+    capability: pvp.describe

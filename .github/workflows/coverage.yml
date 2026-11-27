@@ -18,9 +18,21 @@ jobs:
           go-version-file: go.mod
       - name: Measure host statement coverage
         run: |
-          mkdir -p coverage
+          mkdir -p coverage/cli
+          export BRAIN_CLI_COVERDIR="$PWD/coverage/cli"
           status=0
-          go test -covermode=atomic -coverpkg=./internal/...,./cmd/... -coverprofile=coverage/go.out ./... || status=$?
+          go test -count=1 -covermode=atomic -coverpkg=./internal/...,./cmd/... -coverprofile=coverage/go.out ./... || status=$?
+          # Include actual coverage from instrumented subprocess CLI integration tests.
+          go tool covdata textfmt -i="$BRAIN_CLI_COVERDIR" -o=coverage/cli.out
+          test -s coverage/cli.out
+          test "$(wc -l < coverage/cli.out)" -gt 1
+          tail -n +2 coverage/cli.out >> coverage/go.out
+          # Exercise the packaged server and isolated workers, not just Go mocks.
+          BRAIN_PRODUCTION_COVERDIR="$PWD/coverage/production" timeout 300s bash scripts/test-production-runtime.sh || status=$?
+          go tool covdata textfmt -i=coverage/production -o=coverage/production.out
+          test -s coverage/production.out
+          test "$(wc -l < coverage/production.out)" -gt 1
+          tail -n +2 coverage/production.out >> coverage/go.out
           if test -s coverage/go.out; then
             go tool cover -func=coverage/go.out | tee coverage/go-summary.txt
             go tool cover -html=coverage/go.out -o coverage/go.html
@@ -31,10 +43,10 @@ jobs:
         with:
           name: go-coverage
           path: coverage/
+      - name: Test Go coverage accounting
+        run: python -m unittest discover -s tests/coverage -p 'test_*.py'
       - name: Require every measured statement to execute
-        run: |
-          test -s coverage/go.out
-          awk 'NR > 1 && $(NF-1) > 0 && $NF == 0 { print; missed++ } END { exit (missed > 0 || NR < 2) }' coverage/go.out
+        run: python scripts/check-go-coverage.py coverage/go.out
   typescript-coverage:
     runs-on: ubuntu-24.04
     steps:
