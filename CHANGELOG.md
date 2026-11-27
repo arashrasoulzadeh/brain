@@ -3,6 +3,60 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `ae39ac29` — 2026-11-27 15:59:53 +0330 — Merge pull request #32 from arashrasoulzadeh/fix/native-macos-dev
+  Files: .github/workflows/test.yml
+- `a7746253` — 2026-11-27 15:59:51 +0330 — Merge pull request #30 from arashrasoulzadeh/test/durable-storage-coverage
+  Files: 
+- `5fe94dac` — 2026-11-27 15:13:27 +0330 — Use a valid temporary directory for Seatbelt initialization and add native launch probes
+  Files: .github/workflows/test.yml,scripts/run-macos-typescript-worker.sh tests/plugin/macos_worker_test.go
+- `d71d6616` — 2026-11-27 15:11:45 +0330 — Diagnose native worker startup and permit scoped executable operations
+  Files: .github/workflows/test.yml,internal/plugin/macos_worker.go tests/plugin/macos_worker_test.go
+- `fe04fd13` — 2026-11-27 15:11:35 +0330 — test: cover sandbox factory manifest and descriptor failure paths
+  Files: cmd/brain/worker_factory_failure_test.go
+- `24e7f2ff` — 2026-11-27 15:11:12 +0330 — test: exercise production startup failures with isolated process fixtures
+  Files: cmd/brain/startup_runtime_failure_test.go
+- `7092f906` — 2026-11-27 15:10:44 +0330 — test: cover ambiguous policy routes and corrupt access rule inventories
+  Files: internal/plugin/access_inventory_failure_test.go
+- `9ef231e4` — 2026-11-27 15:10:06 +0330 — Permit only required executable mappings and child cleanup in macOS sandbox
+  Files: internal/plugin/macos_worker.go
+- `ae95bfe5` — 2026-11-27 15:10:00 +0330 — test: verify lifecycle failure paths do not retain authorization
+  Files: internal/plugin/lifecycle_failure_coverage_test.go
+- `83f015f7` — 2026-11-27 15:09:21 +0330 — test: cover admin missing dependency and invalid project failures
+  Files: internal/admin/lifecycle_failure_coverage_test.go
+- `f7a83dac` — 2026-11-27 15:09:08 +0330 — Support native macOS development using Seatbelt worker isolation
+  Files: .github/workflows/test.yml,README.md cmd/brain/main.go,docs/developers.md internal/plugin/macos_worker.go,scripts/run-macos-typescript-worker.sh scripts/start-local.sh,scripts/test-production-runtime.sh scripts/test-runtime-api.mjs,tests/plugin/macos_worker_test.go
+- `15f2d1c7` — 2026-11-27 15:09:04 +0330 — style: fix CI-reported Go composite literal formatting
+  Files: internal/plugin/durable_storage_coverage_test.go
+- `11d8a88d` — 2026-11-27 15:08:48 +0330 — test: cover access policy fail-closed and worker admission paths
+  Files: internal/plugin/access_failure_coverage_test.go
+- `5efe9759` — 2026-11-27 15:08:31 +0330 — style: align guest response fields
+  Files: internal/plugin/storage_failure_matrix_test.go
+- `21f1e055` — 2026-11-27 15:08:14 +0330 — test: cover durable storage commit and entropy failures
+  Files: internal/plugin/storage_failure_matrix_test.go
+- `09b21be0` — 2026-11-27 15:07:56 +0330 — ci: print formatting diffs without relaxing the gate
+  Files: .github/workflows/test.yml
+- `de941b67` — 2026-11-27 14:58:55 +0330 — test: cover startup manifest rejection and sandbox prerequisites
+  Files: cmd/brain/startup_coverage_test.go
+- `4bb4c8ee` — 2026-11-27 14:58:18 +0330 — test: encode valid guest expiration before injected SQL failure
+  Files: internal/plugin/durable_commit_coverage_test.go
+- `84476972` — 2026-11-27 14:58:12 +0330 — test: cover durable capacity limits and database failure boundaries
+  Files: internal/plugin/durable_commit_coverage_test.go
+- `0d45e69e` — 2026-11-27 14:56:45 +0330 — style: fix Go formatting
+  Files: internal/plugin/durable_storage_coverage_test.go
+- `53188fea` — 2026-11-27 14:56:43 +0330 — style: fix Go formatting
+  Files: internal/plugin/wasm_runner_coverage_test.go
+- `b9275059` — 2026-11-27 14:56:37 +0330 — style: normalize durable authentication tests
+  Files: internal/plugin/durable_auth_coverage_test.go
+- `16f3970d` — 2026-11-27 14:56:10 +0330 — style: normalize durable storage regression test formatting
+  Files: internal/plugin/durable_storage_coverage_test.go
+- `470dd5d6` — 2026-11-27 14:54:44 +0330 — test: exercise valid WASM execution within project context
+  Files: internal/plugin/wasm_runner_coverage_test.go
+- `c4691a0f` — 2026-11-27 14:54:36 +0330 — test: cover durable authentication denial and revocation races
+  Files: internal/plugin/durable_auth_coverage_test.go
+- `f6dee120` — 2026-11-27 14:54:19 +0330 — test: cover durable storage rejection and commit boundaries
+  Files: internal/plugin/durable_storage_coverage_test.go
+- `56cd958a` — 2026-11-27 11:23:15 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `3e70d30e` — 2026-11-27 14:52:55 +0330 — Merge pull request #29 from arashrasoulzadeh/fix/reconcile-restore-verification
   Files: 
 - `544c722f` — 2026-11-27 14:52:36 +0330 — test: reconcile isolated restore verification
@@ -49,57 +103,3 @@ Automatically generated from commits on main.
   Files: internal/admin/functions.go,tests/admin/function_persistence_failure_test.go
 - `a46c5c38` — 2026-11-27 14:08:29 +0330 — Persist project-scoped invitations with digest-only codes and conditional consumption
   Files: docs/admin-pages/extensions.md,internal/plugin/legacy_invite_storage.go internal/plugin/legacy_storage_adapter.go,internal/plugin/registry_workers.go plugins/invites/index.ts,plugins/invites/plugin.yaml roadmap_admin.md,scripts/test-production-runtime.sh
-- `7c532baa` — 2026-11-27 14:06:38 +0330 — Merge pull request #15 from arashrasoulzadeh/refactor/rooms-games-pvp
-  Files: 
-- `113650e3` — 2026-11-27 14:06:30 +0330 — Integrate current main before merging game separation and coverage improvements
-  Files: 
-- `d509e68a` — 2026-11-27 10:29:05 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `9fbc5c9d` — 2026-11-27 13:57:50 +0330 — Clear generated model records and selections on permission revocation
-  Files: admin-nextjs/app/components/model-panel.tsx,docs/admin-pages/extensions.md scripts/test-admin-browser.mjs
-- `dc1cd6d9` — 2026-11-27 13:56:40 +0330 — Merge arena recovery fix, redact auth errors and verify credential storage
-  Files: cmd/brain/main.go,docs/admin-pages/extensions.md internal/plugin/legacy_auth_storage_test.go,internal/plugin/registry_workers.go plugins/auth/plugin.yaml,plugins/auth/service.ts scripts/test-production-runtime.sh
-- `4179edce` — 2026-11-27 13:55:33 +0330 — Verify session validation rejects malformed identities and ambiguous auth versions
-  Files: tests/plugin/session_failure_test.go
-- `afb75c3b` — 2026-11-27 13:55:31 +0330 — Merge browser CI fix and explicitly restart recovered arena workers
-  Files: scripts/test-production-runtime.sh,tests/arena/arena-routes.test.ts
-- `de04449a` — 2026-11-27 13:54:56 +0330 — Register broker fixture before installation
-  Files: tests/plugin/broker_failure_test.go
-- `7d63f098` — 2026-11-27 13:54:53 +0330 — Merge pull request #22 from arashrasoulzadeh/fix/admin-critical-ci
-  Files: 
-- `eb4b057a` — 2026-11-27 13:54:29 +0330 — Test broker and CSRF fail-closed behavior on entropy outage
-  Files: tests/plugin/broker_failure_test.go,tests/security/csrf_failure_test.go
-- `4d80fb39` — 2026-11-27 13:54:04 +0330 — Persist project authentication records through response-aware storage commits
-  Files: docs/admin-pages/extensions.md,internal/plugin/legacy_auth_storage.go internal/plugin/legacy_storage_adapter.go,internal/plugin/registry_workers.go plugins/auth/service.ts,roadmap_admin.md scripts/test-production-runtime.sh,tests/plugin/user_session_test.go
-- `36174a7e` — 2026-11-27 13:53:05 +0330 — Verify observation outbox transactions survive receipt, retry and deletion failures
-  Files: tests/plugin/observation_failure_coverage_test.go
-- `de1a9afe` — 2026-11-27 13:52:15 +0330 — Fix model SQL error propagation and exercise database and entropy failures
-  Files: internal/plugin/model_runtime.go,tests/plugin/runtime_failure_coverage_test.go
-- `6b870308` — 2026-11-27 13:51:01 +0330 — Persist arena snapshots and sequence counters with atomic state transitions
-  Files: docs/admin-pages/extensions.md,internal/plugin/legacy_admin_inventory.go internal/plugin/legacy_arena_storage.go,internal/plugin/legacy_arena_storage_test.go internal/plugin/legacy_storage_adapter.go,internal/plugin/registry_workers.go plugins/arena/plugin.yaml,plugins/arena/state-machine.ts roadmap_admin.md,scripts/test-production-runtime.sh
-- `fbee8579` — 2026-11-27 13:50:09 +0330 — Fix health-only shutdown and cover discovery and sandbox startup failures
-  Files: cmd/brain/main.go,tests/deploy/cli_failure_coverage_test.go tests/plugin/worker_failure_coverage_test.go
-- `322c17a3` — 2026-11-27 13:49:23 +0330 — Exclude generated frontend artifacts and local state from Docker build context
-  Files: .dockerignore
-- `da36eb34` — 2026-11-27 13:49:08 +0330 — Use runner Chrome for sandbox-compatible admin browser CI
-  Files: .github/workflows/admin-browser.yml,docs/admin-pages/theme.md scripts/test-admin-browser.mjs,scripts/test-admin-live.mjs
-- `a13ff8cc` — 2026-11-27 13:48:47 +0330 — Test lifecycle persistence rollback and cleanup failure matrix
-  Files: tests/plugin/lifecycle_failure_matrix_test.go
-- `f23ac892` — 2026-11-27 10:18:42 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `8f728cff` — 2026-11-27 13:47:49 +0330 — Adapt invitation coverage to room-scoped authorization from main
-  Files: tests/invites/coverage-edges.test.ts
-- `e5bfbec0` — 2026-11-27 13:47:06 +0330 — Test subprocess startup, RPC size and response validation failures
-  Files: tests/plugin/worker_failure_coverage_test.go
-- `0d513e57` — 2026-11-27 13:46:35 +0330 — Merge pull request #19 from arashrasoulzadeh/test/admin-live-backend
-  Files: 
-- `ec2d74da` — 2026-11-27 13:46:17 +0330 — Merge current main and align live Chromium runner with packaged runtime CI
-  Files: .github/workflows/admin-browser.yml
-- `c84d11a4` — 2026-11-27 13:46:01 +0330 — Merge current main and preserve operator SDK, game separation, and coverage improvements
-  Files: .github/workflows/test.yml,plugins/sdk-typescript/src/index.ts plugins/sdk-typescript/src/validation.ts
-- `c263bc03` — 2026-11-27 10:15:40 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `c350a896` — 2026-11-27 13:45:21 +0330 — Merge pull request #21 from arashrasoulzadeh/fix/admin-project-scope
-  Files: 
-- `f149ff75` — 2026-11-27 13:45:15 +0330 — Merge pull request #20 from arashrasoulzadeh/fix/admin-revocation-refresh
-  Files: 
