@@ -387,3 +387,26 @@ func TestAccessManagementObserverUsesPublisherIdentity(t *testing.T) {
 		t.Fatalf("authorized observation: %+v %v calls=%d", result, err, worker.calls)
 	}
 }
+
+func TestAccessManagementHostAdapterUsesExactPublicPrincipal(t *testing.T) {
+	route := plugin.Route{Operation: "functions.call", Function: "call", Capability: "functions.call", ResourceField: "name"}
+	m := plugin.Manifest{ID: "functions", Version: "1", HostAPI: 1, Capabilities: []string{route.Capability}, Routes: []plugin.Route{route}}
+	r, _ := accessRegistry(t, m)
+	installAccessTestPlugin(t, r, "alpha", accessManifest(t), &contractWorker{ready: true})
+	installAccessTestPlugin(t, r, "alpha", m, &contractWorker{ready: true})
+	createAccessRule(t, r, "alpha", "operator", "operator:root", m, route, "public-function", true)
+	if err := r.AuthorizeHostOperation("alpha", "public", m.ID, route.Operation, "public-function"); !errors.Is(err, plugin.ErrActorDenied) {
+		t.Fatalf("anonymous inherited operator policy: %v", err)
+	}
+	revision := createAccessRule(t, r, "alpha", "public", "public", m, route, "public-function", true)
+	if err := r.AuthorizeHostOperation("alpha", "public", m.ID, route.Operation, "public-function"); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.AuthorizeHostOperation("alpha", "public", m.ID, route.Operation, "private-function"); !errors.Is(err, plugin.ErrActorDenied) {
+		t.Fatalf("anonymous crossed resource boundary: %v", err)
+	}
+	revokeAccessRule(t, r, "alpha", "public", revision)
+	if err := r.AuthorizeHostOperation("alpha", "public", m.ID, route.Operation, "public-function"); !errors.Is(err, plugin.ErrActorDenied) {
+		t.Fatalf("revoked public rule admitted: %v", err)
+	}
+}

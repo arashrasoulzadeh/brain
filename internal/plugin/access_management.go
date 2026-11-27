@@ -28,11 +28,11 @@ var accessRuleSpec = ModelSpec{
 }
 
 func validAccessIdentity(value string) bool {
-	return value != "" && len(value) <= 1000 && strings.TrimSpace(value) == value && !strings.ContainsAny(value, "\x00\r\n")
+	return value != "" && len(value) <= 1000 && strings.TrimSpace(value) == value && !strings.ContainsAny(value, "\x00\r\n\uFEFF")
 }
 
 func validAccessPrincipal(value string) bool {
-	if value == "host" {
+	if value == "host" || value == "public" {
 		return true
 	}
 	kind, id, ok := strings.Cut(value, ":")
@@ -71,6 +71,46 @@ func (r *Registry) InvokeWithCredential(broker *Broker, credential InvocationCre
 	}
 	request.accessPrincipal = "user:" + credential.Call.ActorID
 	return r.Invoke(request)
+}
+
+// AuthorizeHostOperation applies the same policy to trusted host adapters that
+// implement a declared plugin operation outside the worker (e.g. HTTP functions).
+// The principal and resource must come from the adapter, never request metadata.
+func (r *Registry) AuthorizeHostOperation(projectID, principal, id, operation, resource string) error {
+	r.lifecycleMu.RLock()
+	defer r.lifecycleMu.RUnlock()
+	r.readinessMu.RLock()
+	defer r.readinessMu.RUnlock()
+	r.installationMu.RLock()
+	defer r.installationMu.RUnlock()
+	if !r.accessInstalledLocked(projectID) {
+		return nil
+	}
+	if !validAccessPrincipal(principal) || id == accessPluginID {
+		return ErrActorDenied
+	}
+	version := r.active[projectID+":"+id]
+	if version == "" {
+		for _, installation := range r.installations {
+			if installation.ProjectID != projectID || installation.PluginID != id || !installation.Enabled || installation.Draining {
+				continue
+			}
+			if version != "" {
+				return ErrActorDenied
+			}
+			version = installation.Version
+		}
+	}
+	registered, ok := r.registered[id+"@"+version]
+	route, declared := registered.Manifest.Route(operation)
+	if !ok || !declared || !validRuleResource(route, resource, false) || route.Model != nil {
+		return ErrActorDenied
+	}
+	payload := []byte("{}")
+	if route.ResourceField != "" {
+		payload, _ = json.Marshal(map[string]string{route.ResourceField: resource})
+	}
+	return r.authorizeInvocationLocked(WorkerRequest{Protocol: r.HostAPI, ProjectID: projectID, PluginID: id, Version: version, Operation: operation, Payload: payload, accessPrincipal: principal}, false)
 }
 
 func (r *Registry) authorizeActorAccess(call HostCall) error {

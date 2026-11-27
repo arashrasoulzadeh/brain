@@ -85,6 +85,30 @@ routes:
     helper: sdk.dispatch
     capability: functions.call
     resource_field: name
+  - operation: functions.inspect
+    function: inspect
+    helper: sdk.response
+    capability: functions.invoke
+    resource_field: name
+    response:
+      input:
+        - name: name
+          type: string
+          required: true
+      output:
+        name: $input.name
+  - operation: functions.logs
+    function: logs
+    helper: sdk.response
+    capability: functions.invoke
+    resource_field: name
+    response:
+      input:
+        - name: name
+          type: string
+          required: true
+      output:
+        name: $input.name
 admin:
   version: 1
   pages:
