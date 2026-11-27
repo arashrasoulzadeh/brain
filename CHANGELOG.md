@@ -1,4 +1,4 @@
-# Changelog
+## Unreleased — breaking project namespace migration\n\n- Routes now require a project slug or immutable ID prefix, with server-wide operator and health endpoints under `/_system`.\n- TypeScript plugin manifests declare host-mounted HTTP methods, paths and authentication and are exposed only for active project installations; public function routes move to `/{project}/functions/{name}`.\n- Project names, URL slugs and project settings are durable and mutable without changing immutable project IDs.\n- Client SDKs, operator UI, deployment probes and existing integrations must be migrated; unprefixed URLs are removed.\n\n# Changelog
 
 Automatically generated from commits on main.
 

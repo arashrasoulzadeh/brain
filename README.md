@@ -1,4 +1,4 @@
-# Brain mBaaS
+# Brain\n\n**Breaking API namespace:** All HTTP resources require a project prefix (`/{project}/...`) or the reserved `/_system` prefix. See [HTTP API migration](docs/http-api.md). mBaaS
 
 Go multi-tenant backend for apps, websites, and games.
 
@@ -6,7 +6,7 @@ Go multi-tenant backend for apps, websites, and games.
 
 The host, plugin runtime, and administration surface are implemented and covered by automated checks. See the roadmap for the remaining release and client work. The codebase includes:
 
-- Go HTTP host with `/livez`.
+- Go HTTP host with `/_system/livez`.
 - Configuration validation and isolated local test settings.
 - Injectable database owner and bounded readiness retry.
 - Migration runner with idempotency checks.
