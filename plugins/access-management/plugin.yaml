@@ -3,6 +3,7 @@ title: Access Management
 description: Durable project-scoped invocation rules with exact principal, plugin, version, operation and capability matching.
 version: 0.1.0
 host_api: 1
+mount: /access-management
 entrypoint: index.ts
 source_files:
   - index.ts
@@ -31,25 +32,40 @@ models:
       revoke: {from: active, to: revoked}
 routes:
   - operation: access.describe
+    method: GET
+    path: /
+    auth: operator
     function: describe
     helper: sdk.context
     capability: access.rules.read
   - operation: access.rules.create
+    method: POST
+    path: /rules-create
+    auth: operator
     function: createRule
     helper: host.model
     capability: access.rules.manage
     model: {name: rule, action: create}
   - operation: access.rules.read
+    method: POST
+    path: /rules-read
+    auth: operator
     function: readRule
     helper: host.model
     capability: access.rules.read
     model: {name: rule, action: read}
   - operation: access.rules.list
+    method: POST
+    path: /rules-list
+    auth: operator
     function: listRules
     helper: host.model
     capability: access.rules.read
     model: {name: rule, action: list}
   - operation: access.rules.revoke
+    method: POST
+    path: /rules-revoke
+    auth: operator
     function: revokeRule
     helper: host.model
     capability: access.rules.manage

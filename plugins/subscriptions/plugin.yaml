@@ -3,6 +3,7 @@ title: Subscriptions
 description: Project-scoped realtime subscription functions.
 version: 0.1.0
 host_api: 1
+mount: /subscriptions
 entrypoint: index.ts
 source_files:
   - index.ts
@@ -45,32 +46,50 @@ observe:
     capability: observe.rooms.connected
 routes:
   - operation: subscriptions.open
+    method: POST
+    path: /open
+    auth: operator
     function: open
     helper: sdk.context
     capability: subscriptions.open
     resource_field: channel
   - operation: subscriptions.receive
+    method: POST
+    path: /receive
+    auth: operator
     function: receive
     helper: sdk.context
     capability: subscriptions.receive
     resource_field: channel
   - operation: subscriptions.resync
+    method: POST
+    path: /resync
+    auth: operator
     function: resync
     helper: sdk.context
     capability: subscriptions.resync
     resource_field: channel
   - operation: subscriptions.close
+    method: POST
+    path: /close
+    auth: operator
     function: close
     helper: sdk.context
     capability: subscriptions.close
     resource_field: channel
 
   - operation: subscriptions.inspect
+    method: POST
+    path: /inspect
+    auth: operator
     function: inspect
     helper: sdk.context
     capability: subscriptions.inspect
     resource_field: channel
   - operation: subscriptions.revoke
+    method: POST
+    path: /revoke
+    auth: operator
     function: revokeChannel
     helper: sdk.context
     capability: subscriptions.revoke

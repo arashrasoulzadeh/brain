@@ -9,6 +9,7 @@ title: Example plugin
 description: Minimal host-discovered TypeScript plugin template.
 version: 0.1.0
 host_api: 1
+mount: /template
 dependencies: []
 capabilities: [example.normalize, example.items.read, example.items.write, example.plugin.example, observe.rooms.connected]
 models:
@@ -32,10 +33,16 @@ observe:
     persist: true
 routes:
   - operation: example.plugin.example
+    method: POST
+    path: /plugin-example
+    auth: operator
     function: example
     helper: sdk.context
     capability: example.plugin.example
   - operation: example.normalize
+    method: POST
+    path: /normalize
+    auth: operator
     function: normalize
     capability: example.normalize
     helper: sdk.pipeline
@@ -50,31 +57,49 @@ routes:
       return: $steps.name
 
   - operation: example.items.create
+    method: POST
+    path: /items-create
+    auth: operator
     function: createItem
     capability: example.items.write
     helper: host.model
     model: {name: item, action: create}
   - operation: example.items.read
+    method: POST
+    path: /items-read
+    auth: operator
     function: readItem
     capability: example.items.read
     helper: host.model
     model: {name: item, action: read}
   - operation: example.items.list
+    method: POST
+    path: /items-list
+    auth: operator
     function: listItems
     capability: example.items.read
     helper: host.model
     model: {name: item, action: list}
   - operation: example.items.update
+    method: POST
+    path: /items-update
+    auth: operator
     function: updateItem
     capability: example.items.write
     helper: host.model
     model: {name: item, action: update}
   - operation: example.items.delete
+    method: POST
+    path: /items-delete
+    auth: operator
     function: deleteItem
     capability: example.items.write
     helper: host.model
     model: {name: item, action: delete}
   - operation: example.items.publish
+    method: POST
+    path: /items-publish
+    auth: operator
     function: publishItem
     capability: example.items.write
     helper: host.model

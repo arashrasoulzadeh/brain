@@ -3,6 +3,7 @@ title: PvP
 description: Reusable player-versus-player turn, revision, replay and authorization primitives.
 version: 0.1.0
 host_api: 1
+mount: /pvp
 entrypoint: index.ts
 source_files:
   - index.ts
@@ -17,6 +18,9 @@ extension_points:
 config_schema: {}
 routes:
   - operation: pvp.describe
+    method: GET
+    path: /
+    auth: operator
     function: describe
     helper: sdk.context
     capability: pvp.describe

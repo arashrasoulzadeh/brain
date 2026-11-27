@@ -3,6 +3,7 @@ title: Arena
 description: Project-scoped cooperative match functions.
 version: 0.1.0
 host_api: 1
+mount: /arena
 entrypoint: index.ts
 source_files:
   - index.ts
@@ -36,21 +37,33 @@ events:
     fields: {roomId: string, winnerCount: number}
 routes:
   - operation: arena.start
+    method: POST
+    path: /start
+    auth: operator
     function: start
     helper: sdk.context
     capability: arena.start
     resource_field: roomId
   - operation: arena.input
+    method: POST
+    path: /input
+    auth: operator
     function: input
     helper: sdk.context
     capability: arena.input
     resource_field: roomId
   - operation: arena.snapshot
+    method: POST
+    path: /snapshot
+    auth: operator
     function: snapshot
     helper: sdk.context
     capability: arena.snapshot
     resource_field: roomId
   - operation: arena.result
+    method: POST
+    path: /result
+    auth: operator
     function: result
     helper: sdk.context
     capability: arena.result

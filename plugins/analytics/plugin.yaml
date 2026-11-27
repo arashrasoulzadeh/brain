@@ -9,6 +9,7 @@ title: Analytics
 description: Project-scoped validated event capture.
 version: 0.1.0
 host_api: 1
+mount: /analytics
 dependencies: []
 capabilities:
   - analytics.capture
@@ -31,6 +32,9 @@ observe:
     persist: true
 routes:
   - operation: analytics.capture
+    method: POST
+    path: /capture
+    auth: operator
     function: captureForProject
     helper: sdk.context
     capability: analytics.capture
