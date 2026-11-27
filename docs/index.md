@@ -29,3 +29,7 @@ The plugin never supplies the authoritative project identity. The host binds it 
 ## Local rule
 
 Do not run Docker during ordinary local development. Use in-process tests and SQLite-compatible local checks. PostgreSQL and Compose checks are explicit integration or release work.
+
+## Quality
+
+See the [quality and coverage guide](quality.md) for reproducible checks and coverage targets.
