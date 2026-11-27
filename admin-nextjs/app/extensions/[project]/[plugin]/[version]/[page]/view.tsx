@@ -36,7 +36,7 @@ export default function ExtensionPage() {
       const contributions = adminContributions(active.ID, catalog);
       const found = contributions.find(item => item.pluginID === plugin && item.version === version && item.page.id === page);
       if (!found) throw new Error("Page unavailable or permission revoked");
-      if (!signal.aborted) { setResolvedProject(active.ID); setContribution(found); setExtensions(adminPageExtensions(found, contributions)); }
+      if (!signal.aborted && readAdminSession() === token) { setResolvedProject(active.ID); setContribution(found); setExtensions(adminPageExtensions(found, contributions)); }
     })().catch(reason => { if (!controller.signal.aborted) setError(String(reason)); });
     return () => controller.abort();
   }, [project, plugin, version, page, epoch]);

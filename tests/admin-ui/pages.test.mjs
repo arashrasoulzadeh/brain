@@ -8,9 +8,13 @@ const Files = app("components/legacy-admin-page.tsx").default;
 
 test("control-plane route modules use the shared page implementation", () => {
   const main = app("view.tsx").default;
+  assert.equal(app("%5Fsystem/ui/page.tsx").default, main);
+  assert.equal(app("[project]/ui/page.tsx").default, main);
   for (const route of ["audit", "projects"]) assert.equal(app("%5Fsystem/ui/" + route + "/page.tsx").default, main, route);
   for (const route of ["system", "routes", "plugins", "monitoring"]) assert.equal(app("[project]/ui/" + route + "/page.tsx").default, main, route);
   assert.equal(app("[project]/ui/[legacy]/page.tsx").default, Files);
+  for (const [route, view] of [["dashboard", "dashboard"], ["workers", "workers"], ["functions", "functions"], ["functions/new", "functions/new"], ["functions/[name]", "functions/[name]"], ["plugins/[plugin]", "plugins/[plugin]"]]) assert.equal(app("[project]/ui/" + route + "/page.tsx").default, app(view + "/view.tsx").default);
+  assert.equal(app("[project]/ui/extensions/[plugin]/[version]/[page]/page.tsx").default, app("extensions/[project]/[plugin]/[version]/[page]/view.tsx").default);
 });
 
 test("legacy resource pages handle absent projects, denied catalog and manifest contributions", async () => {
