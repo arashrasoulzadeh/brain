@@ -56,6 +56,7 @@ jobs:
         run: |
           mkdir -p coverage/raw
           NODE_V8_COVERAGE="$PWD/coverage/raw" npm run test:ts
+          NODE_V8_COVERAGE="$PWD/coverage/raw" node_modules/.bin/tsx --tsconfig tests/admin-ui/tsconfig.json --test tests/admin-ui/*.test.mjs
           python scripts/prepare-v8-coverage.py coverage/raw coverage/c8-input
           npx --yes --package=c8@10.1.3 c8 report --temp-directory=coverage/c8-input --all \
             --src=plugins --src=clients/javascript/src --src=admin-nextjs/app --src=scripts \

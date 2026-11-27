@@ -100,3 +100,8 @@ jobs:
           cache-dependency-path: admin-nextjs/package-lock.json
       - run: npm ci
       - run: npm run typecheck
+      - run: npm ci
+        working-directory: .
+      - name: Test admin runtime rendering and transport
+        working-directory: .
+        run: node_modules/.bin/tsx --tsconfig tests/admin-ui/tsconfig.json --test tests/admin-ui/*.test.mjs
