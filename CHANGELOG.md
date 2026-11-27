@@ -3,20 +3,36 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `96089fb` — 2026-11-27 03:40:24 +0330 — Merge pull request #10 from arashrasoulzadeh/dynamic-runtime-storage-hardening
+  Files: 
+- `7bcad09` — 2026-11-27 03:40:14 +0330 — Reconcile storage hardening with access-management authorization
+  Files: internal/plugin/manifest.go,internal/plugin/registry_workers.go internal/plugin/route_resources_test.go,plugins/sdk-typescript/src/index.ts
+- `3342313` — 2026-11-27 00:09:34 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `904d0fe` — 2026-11-27 03:39:24 +0330 — Centralize project access management across plugins
   Files: internal/admin/functions.go,internal/admin/lifecycle.go internal/plugin/access_management.go,internal/plugin/broker.go internal/plugin/manifest.go,internal/plugin/model_runtime.go internal/plugin/observations.go,internal/plugin/plugin_call.go internal/plugin/registry_workers.go,internal/plugin/worker.go plugins/README.md,plugins/access-management/README.md plugins/access-management/index.ts,plugins/access-management/plugin.yaml plugins/analytics/plugin.yaml,plugins/arena/plugin.yaml plugins/files/plugin.yaml,plugins/files/routes.ts plugins/functions/plugin.yaml,plugins/invites/plugin.yaml plugins/matchmaking/plugin.yaml,plugins/matchmaking/routes.ts plugins/rooms/plugin.yaml,plugins/rooms/routes.ts plugins/sdk-typescript/src/index.ts,plugins/sdk-typescript/src/request.ts plugins/subscriptions/plugin.yaml,plugins/tables/plugin.yaml tests/files/files.test.ts,tests/matchmaking/matchmaking.test.ts tests/plugin/access_management_test.go,tests/plugin/resource-request.test.ts tests/rooms/rooms.test.ts
 - `d6c635b` — 2026-11-26 23:54:59 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
+- `904d101` — 2026-11-27 03:24:32 +0330 — Merge main formatting fix into storage hardening
+  Files: 
 - `94cca6f` — 2026-11-27 03:24:21 +0330 — Fix gofmt alignment in declarative manifest test
   Files: internal/plugin/manifest_declarative_test.go
+- `0368f2b` — 2026-11-27 03:23:45 +0330 — Read table schema from durable storage and test direct route context
+  Files: docs/declarative-runtime.md,internal/plugin/legacy_storage_adapter.go internal/plugin/legacy_storage_adapter_test.go,plugins/tables/routes.ts tests/plugin/project-context.test.ts
+- `ecdeb92` — 2026-11-27 03:23:09 +0330 — Enforce manifest resource scope and forward context to direct exports
+  Files: internal/plugin/manifest.go,internal/plugin/registry_workers.go internal/plugin/route_resources.go,internal/plugin/route_resources_test.go plugins/files/plugin.yaml,plugins/matchmaking/plugin.yaml plugins/rooms/plugin.yaml,plugins/sdk-typescript/src/index.ts plugins/tables/plugin.yaml,scripts/typescript-worker.mjs tests/plugin/resource_scope_invoke_test.go
 - `43467eb` — 2026-11-26 23:52:36 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
+- `98db7bb` — 2026-11-27 03:22:35 +0330 — Merge current main into storage hardening branch
+  Files: 
 - `c993ddd` — 2026-11-27 03:21:46 +0330 — Merge pull request #7 from arashrasoulzadeh/dynamic-runtime-foundation
   Files: 
 - `60022c4` — 2026-11-27 03:21:28 +0330 — Merge main and integrate declarative runtime with manifest-driven admin
   Files: admin-nextjs/app/plugins/[plugin]/page.tsx,internal/plugin/manifest.go internal/plugin/plugin.go,plugins/files/plugin.yaml plugins/matchmaking/plugin.yaml,plugins/rooms/plugin.yaml plugins/tables/plugin.yaml
 - `8bd03b2` — 2026-11-26 23:50:47 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
+- `783461f` — 2026-11-27 03:20:15 +0330 — Prevent forged storage snapshots in legacy plugin routes
+  Files: internal/plugin/legacy_storage_adapter.go,internal/plugin/legacy_storage_adapter_test.go
 - `7f9181d` — 2026-11-27 03:19:43 +0330 — Merge pull request #8 from arashrasoulzadeh/admin/manifest-driven-ui
   Files: 
 - `ddea07e` — 2026-11-27 03:13:04 +0330 — Restore executable mode of sandbox launcher
@@ -87,19 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `43b7dc0` — 2026-11-27 02:42:47 +0330 — Merge pull request #3 from arashrasoulzadeh/fix/production-safety
   Files: 
-- `0ef81fb` — 2026-11-27 02:40:37 +0330 — Merge main and preserve declarative manifest responses in hardened worker
-  Files: internal/plugin/typescript_worker.go,scripts/typescript-worker.mjs
-- `18f22d6` — 2026-11-27 02:39:48 +0330 — fix(plugin): persist restrictive transitions and stop bound workers
-  Files: .github/workflows/test.yml,docs/deployment-runbook.md internal/plugin/registry_lifecycle.go,internal/plugin/registry_permissions.go internal/plugin/registry_workers.go,tests/plugin/lifecycle_runtime_persistence_test.go
-- `3ec3726` — 2026-11-26 23:08:54 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `d78a0fb` — 2026-11-27 02:38:49 +0330 — fix(plugin): fail closed on lifecycle persistence errors and persist enable after startup
-  Files: cmd/brain/main.go,internal/plugin/plugin.go internal/plugin/registry_catalog.go,internal/plugin/registry_lifecycle.go internal/plugin/registry_permissions.go,internal/plugin/registry_storage.go internal/plugin/registry_workers.go,tests/plugin/lifecycle_storage_failure_test.go
-- `0f995c3` — 2026-11-27 02:38:43 +0330 — Merge pull request #4 from arashrasoulzadeh/refactor/compact-plugin-domains
-  Files: 
-- `8c5fcbd` — 2026-11-27 02:37:45 +0330 — fix(runtime): expose trusted sandbox probe diagnostics and correct smoke response contract
-  Files: cmd/brain/main.go,internal/plugin/typescript_worker.go scripts/run-sandboxed-typescript-worker.sh,scripts/test-production-runtime.sh
-- `028dfc5` — 2026-11-27 02:34:57 +0330 — Merge main and preserve concurrent dashboard SDK import fix and changelog
-  Files: 
-- `4b56685` — 2026-11-27 02:34:42 +0330 — test(plugins): cover declarative descriptor and shared resource contracts
-  Files: docs/developers.md,internal/plugin/manifest_response.go scripts/typescript-worker.mjs,tests/plugin/manifest_response_test.go tests/plugin/resource-request.test.ts
