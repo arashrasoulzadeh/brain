@@ -7,21 +7,23 @@ import (
 
 	"brain/internal/admin"
 	"brain/internal/operator"
+	"brain/internal/project"
 )
 
 // Server owns the HTTP routes for the application process.
 type Server struct {
 	mux       *http.ServeMux
 	readiness func(context.Context) error
+	projects *project.Store
 }
 
 func newServer() *Server {
 	s := &Server{mux: http.NewServeMux()}
-	s.mux.HandleFunc("GET /livez", func(w http.ResponseWriter, _ *http.Request) {
+	s.mux.HandleFunc("GET /_system/livez", func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 		_, _ = w.Write([]byte("ok\n"))
 	})
-	s.mux.HandleFunc("GET /readyz", func(w http.ResponseWriter, r *http.Request) {
+	s.mux.HandleFunc("GET /_system/readyz", func(w http.ResponseWriter, r *http.Request) {
 		ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
 		defer cancel()
 		if s.readiness == nil || s.readiness(ctx) != nil {
@@ -45,34 +47,40 @@ func NewServer() *Server {
 }
 
 func NewServerWithAdmin(adminService *admin.LifecycleService) *Server {
-	server := newServer()
-	mux := server.mux
-	if adminService != nil {
-		mux.Handle("POST /admin/actions", AdminHandler(adminService))
-	}
-	return server
+    server:=newServer()
+    if adminService!=nil {
+        server.projects=adminService.ProjectStore()
+        server.mux.Handle("POST /_system/admin/actions",AdminHandler(adminService))
+        server.mux.Handle("POST /{project}/admin/actions",ProjectCommandHandler(AdminHandler(adminService)))
+    }
+    return server
 }
 
 func NewServerWithOperatorAdmin(adminService *admin.LifecycleService, sessions *operator.Store, digest func(string) string) *Server {
-	server := newServer()
-	mux := server.mux
-	if adminService != nil && sessions != nil {
-		mux.Handle("POST /admin/session", OperatorSessionHandler(sessions, digest))
-		mux.Handle("DELETE /admin/session", OperatorLogoutHandler(sessions))
-		mux.Handle("GET /admin/projects", AuthenticatedProjectsHandler(adminService, sessions))
-		mux.Handle("GET /admin/plugins", AuthenticatedPluginsHandler(adminService, sessions))
-		mux.Handle("GET /admin/audit", AuthenticatedAuditHandler(adminService, sessions))
-		mux.Handle("GET /admin/system", AuthenticatedSystemHandler(adminService, sessions))
-		mux.Handle("GET /admin/functions", AuthenticatedFunctionsHandler(adminService, sessions))
-		mux.Handle("POST /admin/functions", AuthenticatedFunctionsHandler(adminService, sessions))
-		mux.Handle("GET /admin/function-logs", AuthenticatedFunctionLogsHandler(adminService, sessions))
-		mux.Handle("/public/{project_id}/{function_name}", PublicFunctionHandler(adminService))
-		mux.Handle("POST /admin/actions", AuthenticatedAdminHandler(adminService, sessions))
-	}
-	return server
+    server:=newServer()
+    if adminService == nil || sessions == nil {return server}
+    server.projects=adminService.ProjectStore()
+    mux:=server.mux
+    mux.Handle("POST /_system/admin/session",OperatorSessionHandler(sessions,digest))
+    mux.Handle("DELETE /_system/admin/session",OperatorLogoutHandler(sessions))
+    mux.Handle("GET /_system/admin/projects",AuthenticatedProjectsHandler(adminService,sessions))
+    mux.Handle("GET /_system/admin/plugins",AuthenticatedPluginsHandler(adminService,sessions))
+    mux.Handle("GET /_system/admin/audit",AuthenticatedAuditHandler(adminService,sessions))
+    mux.Handle("GET /_system/admin/system",AuthenticatedSystemHandler(adminService,sessions))
+    mux.Handle("POST /_system/admin/actions",AuthenticatedAdminHandler(adminService,sessions))
+
+    mux.Handle("POST /{project}/admin/actions",ProjectCommandHandler(AuthenticatedAdminHandler(adminService,sessions)))
+    mux.Handle("GET /{project}/admin/plugins",ProjectQueryHandler(AuthenticatedPluginsHandler(adminService,sessions)))
+    mux.Handle("GET /{project}/admin/functions",ProjectQueryHandler(AuthenticatedFunctionsHandler(adminService,sessions)))
+    mux.Handle("POST /{project}/admin/functions",ProjectCommandHandler(AuthenticatedFunctionsHandler(adminService,sessions)))
+    mux.Handle("GET /{project}/admin/function-logs",ProjectQueryHandler(AuthenticatedFunctionLogsHandler(adminService,sessions)))
+    mux.Handle("GET /{project}/admin/routes",AuthenticatedProjectRoutesHandler(adminService,sessions))
+    mux.Handle("/{project}/functions/{function_name}",PublicFunctionHandler(adminService))
+    mux.Handle("/{project}/{resource...}",PluginHTTPHandler(adminService,sessions))
+    return server
 }
 
 // Handler returns the server's HTTP handler for tests and command wiring.
 func (s *Server) Handler() http.Handler {
-	return withAPIEnvelope(s.mux)
+	return withAPIEnvelope((project.Resolver{Store:s.projects}).URLMiddleware(s.mux))
 }
