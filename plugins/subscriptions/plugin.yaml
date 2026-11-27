@@ -99,6 +99,7 @@ admin:
   pages:
     - id: channels
       title: Realtime subscriptions
+      legacy_route: subscriptions
       refresh_on: [subscriptions.opened, subscriptions.closed, rooms.connected]
       actions:
         - title: Inspect channel

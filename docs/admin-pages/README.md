@@ -34,3 +34,28 @@ These are actual Next.js page patterns. The URL's first segment is authoritative
 | `/[project]/ui/extensions/[plugin]/[version]/[page]` | [Extensions](extensions.md) | Exact authorized contribution, including generated models. |
 
 All project-backed actions still need a valid active project, exact installation, declared action and grant. The root redirects to the global login; unprefixed project UI pages are not mounted. All routes share the [theme](theme.md) and the [host HTTP contract](../http-api.md). The route inventory is checked against the actual page files during the documentation build.
+
+
+## Bundled plugin workspaces
+
+The sidebar is populated from the selected project's eligible manifests. These destinations render the shared admin shell, inventory, action forms, typed results and model editors, with trusted specialized controls where necessary. The URL prefix below is `/{project}/ui/`.
+
+| Plugin | Destination | Operator workflow |
+| --- | --- | --- |
+| Files | `files` | Inventory, inspect, choose a local file, upload, download, publish. |
+| Tables | `database` | Table inventory, schema, rows and confirmed write. |
+| Auth | `auth` | Bounded account metadata and session revocation; no password/token inspection. |
+| Access management | `access-management` | Read, create and revoke resource rules. |
+| Rooms | `rooms` | Room inventory, details, membership and result operations. |
+| Matchmaking | `matchmaking` | Ticket inventory, status, queue, assign, cancel. |
+| Arena | `arena` | Inspect, start and finish matches. |
+| Invites | `invitations` | Redacted invitation list and cancellation. |
+| Subscriptions | `subscriptions` | Channel metadata and ticket revocation. |
+| Analytics | `analytics` | Validated event capture; no event-list or aggregate API exists yet. |
+| Games | `games` | Read-only supported game modes. |
+| PvP | `pvp` | Read-only runtime capability discovery. |
+| Functions | `functions`, `workflows` | Function editor, publication, logs and declared runtime operations. |
+| Dashboard | Global project controls and project plugin catalog | Trusted host lifecycle screens; no duplicate manifest-driven editor. |
+| Example template | Generated model contribution | Declared item records and state transitions. |
+
+The old `live-sessions` URL remains a compatibility alias, not a separate sidebar entry. Individual plugin pages remain independently accessible even when they also appear in extension tabs. New bundled plugins must explicitly declare an operator workspace or be covered by an existing trusted/generated UI; the manifest inventory test detects omissions.

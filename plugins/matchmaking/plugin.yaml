@@ -76,7 +76,7 @@ admin:
   pages:
     - id: operations
       title: Matchmaking
-      legacy_route: live-sessions
+      legacy_route: matchmaking
       inventory:
         kind: state_keys
         capability: matchmaking.status

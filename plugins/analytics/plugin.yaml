@@ -43,10 +43,12 @@ admin:
   version: 1
   pages:
     - id: operations
-      title: Analytics operations
+      title: Analytics events
+      legacy_route: analytics
       actions:
-        - title: capture
+        - title: Capture event
           operation: analytics.capture
+          result: {type: detail}
           fields:
             - name: name
               type: string

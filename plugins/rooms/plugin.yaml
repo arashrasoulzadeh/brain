@@ -79,7 +79,7 @@ admin:
       title: Room details
       extension_slots:
         - tab
-      legacy_route: live-sessions
+      legacy_route: rooms
       inventory:
         kind: state_keys
         capability: rooms.result
@@ -102,7 +102,7 @@ admin:
               required: true
     - id: manage
       title: Manage rooms
-      legacy_route: live-sessions
+      legacy_route: rooms
       actions:
         - title: Create room
           operation: rooms.create

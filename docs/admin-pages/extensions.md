@@ -1,13 +1,13 @@
 # Manifest-driven admin pages
 
-The admin host accepts `admin.version: 1` and declarative `admin.pages` in plugin.yaml. Pages define actions referencing declared routes, typed fields, optional result components, optional `legacy_route` aliases, and optional cross-plugin `extends` targets. No plugin-specific React imports are needed for these pages.
+The admin host accepts `admin.version: 1` and declarative `admin.pages` in plugin.yaml. Pages define actions referencing declared routes, typed fields, optional result components, optional `legacy_route` aliases, and optional cross-plugin `extends` targets. No plugin-supplied React or arbitrary script is executed. The trusted host renderer can supply specialized controls for a known declared operation, such as the Files local-file picker; the normal manifest and permission checks still apply.
 
 - Action fields support string, number, boolean and JSON. Host validation rejects undeclared fields and missing required values.
 - Result components support table (filtering and client-side pagination), detail, metric, bar chart, JSON, code, logs, grid and tabs. Paths are safe own-property lookups; no plugin-provided script or HTML is executed.
 - Cross-plugin extensions link to independently authorized pages. A plugin cannot grant itself access to another plugin.
 - Read-only queries use `plugin.admin.query`; confirmed writes use `plugin.admin.invoke`. Every invocation rechecks the operator, active project, exact enabled/ready installation, grants and declared operation.
 - Pages can subscribe to their declared events with `refresh_on`. The browser checks the exact last read-only action and its resource permission every five seconds after a successful query. It only replays that query when a declared observation changes; denied checks clear the old result even without an observation. Writes are never replayed. Events are best-effort, in-memory invalidations and no payload is exposed.
-- The database, files, workflows and live-session consoles now use manifest aliases. A new plugin can contribute a custom alias without modifying Next.js. The specialized function editor and trusted platform lifecycle screens remain separate.
+- The database, files, workflows, rooms, matchmaking, authentication, access management, arena, invitations, subscriptions, analytics, games and PvP consoles use individual manifest aliases. The old live-sessions alias remains compatible. A new plugin can contribute a custom alias without modifying Next.js. The specialized function editor and trusted platform lifecycle screens remain separate.
 - Plugin settings generate configuration forms from the existing config schema; only changed fields are submitted and existing values are not exposed.
 
 Arena, invitations and subscriptions contribute operational pages. Authentication contributes operator-only account metadata and session revocation, never credential or token inspection. The host now supports durable observation delivery through its SQLite outbox; the browser invalidation feed remains bounded and in memory. Broader inventory providers and full end-to-end deployment verification remain follow-up work.

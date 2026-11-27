@@ -91,6 +91,7 @@ admin:
   pages:
     - id: matches
       title: Arena matches
+      legacy_route: arena
       extends: rooms/operations
       extends_slot: tab
       inventory:

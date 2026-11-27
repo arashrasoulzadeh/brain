@@ -29,3 +29,15 @@ routes:
     function: modes
     helper: sdk.context
     capability: games.modes
+
+admin:
+  version: 1
+  pages:
+    - id: modes
+      title: Game modes
+      legacy_route: games
+      actions:
+        - title: List supported modes
+          operation: games.modes
+          read_only: true
+          result: {type: detail}

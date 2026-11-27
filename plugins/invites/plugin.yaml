@@ -68,6 +68,7 @@ admin:
   pages:
     - id: invitations
       title: Invitations
+      legacy_route: invitations
       extends: rooms/operations
       extends_slot: tab
       refresh_on: [invites.created, invites.accepted, invites.cancelled]

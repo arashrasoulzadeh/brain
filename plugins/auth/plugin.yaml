@@ -107,6 +107,7 @@ admin:
   pages:
     - id: accounts
       title: Accounts and sessions
+      legacy_route: auth
       refresh_on: [auth.account.created, auth.session.established, auth.sessions.revoked]
       actions:
         - title: List accounts

@@ -30,7 +30,7 @@ export function adminPageExtensions(target: AdminContribution, contributions: re
 }
 
 export function adminLegacyContributions(projectID: string, catalog: AdminCatalog, route: string): AdminContribution[] {
-  return adminContributions(projectID, catalog).filter(item => item.page.legacy_route === route);
+  return adminContributions(projectID, catalog).filter(item => adminAliasMatches(item, route));
 }
 
 // Only a page that explicitly offers the tab slot can host another plugin's UI.
@@ -45,4 +45,17 @@ export function adminLegacyRootPages(pages: readonly AdminContribution[]): Admin
   return pages.filter(item => !pages.some(target => target.href !== item.href &&
     target.page.extends_slot !== "tab" &&
     adminEmbeddedExtensions(target, [item]).length > 0));
+}
+
+/** Keep the old combined room/matchmaking URL working without advertising it as a menu entry. */
+export function adminAliasMatches(item: AdminContribution, route: string): boolean {
+  return item.page.legacy_route === route || (route === "live-sessions" &&
+    ((item.pluginID === "rooms" && item.page.legacy_route === "rooms") ||
+     (item.pluginID === "matchmaking" && item.page.legacy_route === "matchmaking")));
+}
+
+export function adminAliasTitle(route: string): string {
+  const names: Record<string, string> = { auth: "Authentication", pvp: "PvP", "access-management": "Access management", subscriptions: "Realtime subscriptions" };
+  return Object.prototype.hasOwnProperty.call(names, route) ? names[route] :
+    route ? route[0].toUpperCase() + route.slice(1).replaceAll("-", " ") : "Plugin administration";
 }
