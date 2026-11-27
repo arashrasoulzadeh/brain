@@ -3,8 +3,11 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { readAdminSession } from "../lib/admin-api";
 import type { AdminContribution } from "../lib/admin-registry";
+import { adminEmbeddedExtensions } from "../lib/admin-registry";
 import { adminPageRevision, invokeAdminAction } from "../lib/admin-sdk";
 import { AdminResultRenderer } from "./admin-results";
+import { AdminInventory } from "./admin-inventory";
+import { ModelPanel } from "./model-panel";
 
 export function ActionForm({ contribution }: { contribution: AdminContribution }) {
   const [operation, setOperation] = useState(contribution.page.actions[0].operation);
@@ -14,6 +17,7 @@ export function ActionForm({ contribution }: { contribution: AdminContribution }
   const fields = action?.fields ?? [];
   const [lastQuery, setLastQuery] = useState<{ operation: string; payload: unknown; revision: number }>();
   const [result, setResult] = useState<unknown>(undefined);
+  const [inventoryRefresh, setInventoryRefresh] = useState(0);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const pending = useRef<AbortController | null>(null);
@@ -74,6 +78,7 @@ export function ActionForm({ contribution }: { contribution: AdminContribution }
       const next = await invokeAdminAction(token, contribution, operation, parsed, controller.signal, query);
       if (!controller.signal.aborted) {
         setResult(next);
+        if (!query) setInventoryRefresh(value => value + 1);
         if (query && contribution.page.refresh_on?.length) setLastQuery({ operation, payload: parsed, revision });
       }
     } catch (reason) { if (!controller?.signal.aborted) setError(reason instanceof Error ? reason.message : String(reason)); }
@@ -81,6 +86,11 @@ export function ActionForm({ contribution }: { contribution: AdminContribution }
   }
   return <section className="section">
     <h2>{contribution.page.title}</h2><p>{contribution.projectID} · {contribution.pluginID}@{contribution.version}</p>
+    {contribution.page.inventory && <AdminInventory contribution={contribution} refresh={inventoryRefresh} disabled={busy}
+      onSelect={fields.some(field => field.name === contribution.page.inventory?.select_field && field.type === "string") ? key => {
+        setLastQuery(undefined); setResult(undefined); setError("");
+        setValues(previous => ({ ...previous, [contribution.page.inventory!.select_field!]: key }));
+      } : undefined} />}
     <form onSubmit={event => { event.preventDefault(); if (!busy) void run(); }}>
       <label>Operation<select disabled={busy} value={operation} onChange={event => { setOperation(event.target.value); setResult(undefined); setError(""); setValues({}); setPayload("{}"); setLastQuery(undefined); }}>
         {contribution.page.actions.map(action => <option key={action.operation} value={action.operation}>{action.title}</option>)}
@@ -100,5 +110,12 @@ export function ActionForm({ contribution }: { contribution: AdminContribution }
 }
 
 export function AdminPageRenderer({ contribution, extensions = [] }: { contribution: AdminContribution; extensions?: AdminContribution[] }) {
-  return <><ActionForm key={contribution.href} contribution={contribution} />{extensions.length > 0 && <section><h2>Plugin extensions</h2>{extensions.map(item => <p key={item.href}><Link href={item.href}>{item.page.title} · {item.pluginID}</Link></p>)}</section>}</>;
+  const embedded = adminEmbeddedExtensions(contribution, extensions);
+  const tabs = [contribution, ...embedded];
+  const [selected, setSelected] = useState(contribution.href);
+  const active = tabs.find(item => item.href === selected) ?? contribution;
+  const links = extensions.filter(item => !embedded.some(tab => tab.href === item.href));
+  return <>{embedded.length > 0 && <div role="tablist" aria-label="Plugin pages" className="lifecycle-actions">{tabs.map(item => <button key={item.href} type="button" role="tab" aria-selected={active.href === item.href} onClick={() => setSelected(item.href)}>{item.page.title} · {item.pluginID}</button>)}</div>}
+    <div role={embedded.length > 0 ? "tabpanel" : undefined}>{active.page.model ? <ModelPanel key={active.href} contribution={active} /> : <ActionForm key={active.href} contribution={active} />}</div>
+    {links.length > 0 && <section><h2>Plugin extensions</h2>{links.map(item => <p key={item.href}><Link href={item.href}>{item.page.title} · {item.pluginID}</Link></p>)}</section>}</>;
 }

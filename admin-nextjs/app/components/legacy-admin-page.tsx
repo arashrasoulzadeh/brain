@@ -5,7 +5,7 @@ import Link from "next/link";
 import { AdminPageFrame } from "./admin-chrome";
 import { AdminPageRenderer } from "./admin-renderer";
 import { adminHeaders, readAdminSession, preferredAdminProject } from "../lib/admin-api";
-import { adminContributions, adminPageExtensions } from "../lib/admin-registry";
+import { adminContributions, adminPageExtensions, adminLegacyRootPages } from "../lib/admin-registry";
 import type { AdminCatalog, AdminContribution } from "../lib/admin-registry";
 
 export default function LegacyAdminPage() {
@@ -32,7 +32,7 @@ export default function LegacyAdminPage() {
     return () => controller.abort();
   }, [route]);
   const current = catalog?.route === route ? catalog : undefined;
-  const pages = current?.contributions.filter(item => item.page.legacy_route === route) ?? [];
+  const pages = adminLegacyRootPages(current?.contributions.filter(item => item.page.legacy_route === route) ?? []);
   const title = route ? route[0].toUpperCase() + route.slice(1).replaceAll("-", " ") : "Plugin administration";
   return <AdminPageFrame activePage={route} title={title}>
     {error ? <><p role="alert">{error}</p><Link href="/projects">Choose a project</Link></> : !current ? <p>Loading plugin pages…</p> : !pages.length ? <><p>Page unavailable. Enable a plugin contributing this page and grant its required capabilities.</p><Link href="/plugins">Manage plugins</Link></> : pages.map(item => <AdminPageRenderer key={item.href} contribution={item} extensions={adminPageExtensions(item, current.contributions)} />)}

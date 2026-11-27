@@ -127,6 +127,8 @@ type adminCommand struct {
 	Payload         json.RawMessage `json:"payload"`
 	TargetOperation string          `json:"target_operation"`
 	PageID          string          `json:"page_id"`
+	After           string          `json:"after"`
+	Limit           int             `json:"limit"`
 	FunctionVersion int             `json:"function_version"`
 	Public          bool            `json:"public"`
 	Permissions     []string        `json:"permissions"`
@@ -189,6 +191,18 @@ func AdminHandler(service *admin.LifecycleService) http.Handler {
 				}
 			}
 			err = service.ConfigurePlugin(actor, command.ProjectID, command.PluginID, command.Version, command.Values)
+		case "plugin.admin.inventory":
+			if command.Limit == 0 {
+				command.Limit = 50
+			}
+			inventory, inventoryErr := service.AdminInventory(actor, command.PageID, admin.PluginInvocation{ProjectID: command.ProjectID, PluginID: command.PluginID, Version: command.Version}, command.After, command.Limit)
+			if inventoryErr != nil {
+				http.Error(w, inventoryErr.Error(), http.StatusForbidden)
+				return
+			}
+			w.Header().Set("Content-Type", "application/json")
+			_ = json.NewEncoder(w).Encode(inventory)
+			return
 		case "plugin.admin.revision":
 			revision, revisionErr := service.AdminPageRevision(actor, command.PageID, admin.PluginInvocation{ProjectID: command.ProjectID, PluginID: command.PluginID, Version: command.Version})
 			if revisionErr != nil {

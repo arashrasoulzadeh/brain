@@ -31,3 +31,17 @@ export function adminPageExtensions(target: AdminContribution, contributions: re
 export function adminLegacyContributions(projectID: string, catalog: AdminCatalog, route: string): AdminContribution[] {
   return adminContributions(projectID, catalog).filter(item => item.page.legacy_route === route);
 }
+
+// Only a page that explicitly offers the tab slot can host another plugin's UI.
+export function adminEmbeddedExtensions(target: AdminContribution, contributions: readonly AdminContribution[]): AdminContribution[] {
+  return target.page.extension_slots?.includes("tab")
+    ? adminPageExtensions(target, contributions).filter(item => item.page.extends_slot === "tab")
+    : [];
+}
+
+export function adminLegacyRootPages(pages: readonly AdminContribution[]): AdminContribution[] {
+  // Avoid hiding mutually extending pages or recursively nesting arbitrary plugins.
+  return pages.filter(item => !pages.some(target => target.href !== item.href &&
+    target.page.extends_slot !== "tab" &&
+    adminEmbeddedExtensions(target, [item]).length > 0));
+}

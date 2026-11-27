@@ -54,6 +54,13 @@ admin:
     - id: operations
       title: Database
       legacy_route: database
+      inventory:
+        kind: table_names
+        capability: tables.read
+        title: Tables
+        select_field: table
+      refresh_on:
+        - tables.record.written
       actions:
         - title: Table schema
           operation: tables.schema

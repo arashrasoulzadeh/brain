@@ -65,7 +65,11 @@ func (s *LifecycleService) ListPlugins(actor operator.Actor, projectID string) (
 	if actor.Kind != operator.ActorOperator || s.registry == nil {
 		return nil, nil, operator.ErrInvalidOperatorAction
 	}
-	return s.registry.RegisteredManifests(), s.registry.InstallationStatuses(projectID), nil
+	manifests := s.registry.RegisteredManifests()
+	for index := range manifests {
+		manifests[index].Admin = manifests[index].AdminForOperator()
+	}
+	return manifests, s.registry.InstallationStatuses(projectID), nil
 }
 
 // RequireEnabledPlugin is the server-side gate for plugin-backed admin APIs.
@@ -354,4 +358,17 @@ func (s *LifecycleService) execute(actor operator.Actor, action string, operatio
 		return operator.ErrInvalidOperatorAction
 	}
 	return s.operators.ExecuteAction(actor, action, operation)
+}
+
+func (s *LifecycleService) AdminInventory(actor operator.Actor, pageID string, invocation PluginInvocation, after string, limit int) (plugin.AdminInventoryPage, error) {
+	var result plugin.AdminInventoryPage
+	err := s.execute(actor, "plugin.admin.inventory", func() error {
+		if _, err := s.adminPageManifest(actor, pageID, invocation); err != nil {
+			return err
+		}
+		var err error
+		result, err = s.registry.AdminInventory(invocation.ProjectID, invocation.PluginID, invocation.Version, pageID, after, limit)
+		return err
+	})
+	return result, err
 }
