@@ -73,6 +73,43 @@ jobs:
       - uses: actions/checkout@v4
       - name: Test packaged production startup and sandboxed invocation
         run: timeout 300s bash scripts/test-production-runtime.sh
+  macos-development:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Diagnose Seatbelt and Node startup on macOS
+        run: |
+          set +e
+          sw_vers
+          /usr/bin/sandbox-exec -p '(version 1)(allow default)' /usr/bin/true
+          echo "Seatbelt available: $?"
+          /usr/bin/sandbox-exec -p '(version 1)(deny default)(allow process-exec)(allow sysctl-read)(allow file-read*)' "$(command -v node)" --version
+          echo "Node version probe: $?"
+          /usr/bin/env -i PATH=/usr/bin:/bin HOME=/tmp TMPDIR=/tmp /usr/bin/sandbox-exec -p '(version 1)(deny default)(allow process-exec)(allow sysctl-read)(allow file-read*)' "$(command -v node)" --version
+          echo "Clean environment probe: $?"
+      - name: Verify native macOS worker isolation
+        run: BRAIN_TEST_MACOS_SANDBOX=1 go test -v ./tests/plugin -run '^TestMacOSWorkerIsolation$'
+      - name: Report macOS sandbox diagnostics
+        if: failure()
+        run: |
+          /usr/bin/log show --last 3m --style compact --predicate 'eventMessage CONTAINS "deny" AND (eventMessage CONTAINS "node" OR eventMessage CONTAINS "sandbox-exec" OR eventMessage CONTAINS "esbuild")' || true
+      - name: Verify native development server and plugin operations
+        run: |
+          set -euo pipefail
+          mkdir -p .local
+          go build -o .local/brain-dev ./cmd/brain
+          BRAIN_LOCAL_MACOS=1 HTTP_ADDRESS=127.0.0.1:18092 PROJECTS_FILE=.local/macos-ci.sqlite OPERATOR_USERNAME=ci-operator OPERATOR_SECRET=ci-fixture-only .local/brain-dev > /tmp/brain-macos.log 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true; cat /tmp/brain-macos.log' EXIT
+          BRAIN_TEST_ORIGIN=http://127.0.0.1:18092 node scripts/test-runtime-api.mjs
   typescript:
     runs-on: ubuntu-24.04
     steps:
