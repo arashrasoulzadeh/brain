@@ -20,6 +20,8 @@ jobs:
           unformatted="$(gofmt -l -- $(find cmd internal tests -name '*.go' -type f))"
           printf '%s\n' "$unformatted"
           test -z "$unformatted"
+      - name: Check development Makefile
+        run: python3 -m unittest discover -s tests/development -p 'test_*.py'
       - name: Test
         run: go test ./...
       - name: Check operator session races
