@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"testing"
 	"time"
 
@@ -43,14 +44,27 @@ export async function health(input: { secret: string }) {
 	}
 	manifest := plugin.Manifest{ID: "macos-probe", Version: "1.0.0", HostAPI: 1, Entry: "index.mts", SourceFiles: []string{"index.mts"}, Imports: []string{"node:fs", "node:net"}, Capabilities: []string{"health"}, Routes: []plugin.Route{{Operation: "health", Function: "health", Capability: "health"}}}
 	policy := plugin.IsolationPolicy{FilesystemReadOnly: true, CPUMillis: 30000, MemoryBytes: 2 << 30, ProcessLimit: 512, WallTime: 2 * time.Second}
-	// The wrapper is test-only: capture the exit status and the trusted
-	// generated profile if the OS terminates a worker before its handshake.
 	launcher := filepath.Join(directory, "diagnostic-launcher.sh")
-	diagnostic := "#!/bin/bash\n" +
-		"printf '%s\\n' \"$BRAIN_MACOS_PROFILE\" >&2\n" +
-		"/usr/bin/sandbox-exec -p \"$BRAIN_MACOS_PROFILE\" \"$NODE_BIN\" --version >&2; echo \"strict version probe: $?\" >&2\n" +
-		"/bin/bash " + "'" + filepath.Join(root, "scripts/run-macos-typescript-worker.sh") + "'\n" +
-		"status=$?; echo \"macOS worker exit: $status\" >&2; exit \"$status\"\n"
+	diagnostic := `#!/bin/bash
+set +e
+profile="$BRAIN_MACOS_PROFILE"
+probe() {
+  printf 'profile probe %s: ' "$1" >&2
+  /usr/bin/sandbox-exec -p "$2" "$NODE_BIN" --version >&2
+  echo "exit=$?" >&2
+}
+probe exact "$profile"
+probe without-map "$(printf '%s' "$profile" | /usr/bin/sed 's/ file-map-executable//g')"
+probe system-base "$(printf '%s' "$profile" | /usr/bin/sed '2a\
+(import "system.sb")
+')"
+probe broad-read "$(printf '%s\n(allow file-read*)\n' "$profile")"
+probe broad-exec "$(printf '%s\n(allow process-exec)\n' "$profile")"
+probe minimal '(version 1)(deny default)(allow process-exec)(allow sysctl-read)(allow file-read*)'
+exec /bin/bash "$1"
+`
+	// The normal launcher has no extra arguments, so use a fixed, quoted path.
+	diagnostic = strings.Replace(diagnostic, `"$1"`, "'"+filepath.Join(root, "scripts/run-macos-typescript-worker.sh")+"'", 1)
 	if err := os.WriteFile(launcher, []byte(diagnostic), 0o700); err != nil {
 		t.Fatal(err)
 	}

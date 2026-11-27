@@ -101,6 +101,8 @@ jobs:
         if: failure()
         run: |
           /usr/bin/log show --last 3m --style compact --predicate 'eventMessage CONTAINS "deny" AND (eventMessage CONTAINS "node" OR eventMessage CONTAINS "sandbox-exec" OR eventMessage CONTAINS "esbuild")' || true
+          ls -lt ~/Library/Logs/DiagnosticReports || true
+          for f in $(find ~/Library/Logs/DiagnosticReports -name 'node*.ips' -mmin -5); do head -c 10000 "$f"; done
       - name: Verify native development server and plugin operations
         run: |
           set -euo pipefail

@@ -51,11 +51,11 @@ func NewManifestMacOSTypeScriptWorker(launcher, workerScript, descriptor, plugin
 (deny default)
 (allow process-fork)
 (allow signal (target children))
-(allow process-info* (target same-sandbox))
+(allow process-info* (target self))
 (allow sysctl-read)
 (allow file-read-metadata)
-(allow mach-lookup (global-name "com.apple.system.logger") (global-name "com.apple.logd") (global-name "com.apple.system.notification_center") (global-name "com.apple.cfprefsd.agent") (global-name "com.apple.cfprefsd.daemon"))
-(allow file-read* file-map-executable (subpath "/System/Library") (subpath "/usr/lib") (subpath "/usr/share") (literal "/dev/null") (literal "/dev/random") (literal "/dev/urandom") (literal "/private/etc/localtime") (literal "/private/etc/hosts") (literal "/private/etc/resolv.conf"))
+(allow mach-lookup (global-name "com.apple.system.opendirectoryd.libinfo") (global-name "com.apple.system.logger") (global-name "com.apple.logd") (global-name "com.apple.system.notification_center") (global-name "com.apple.cfprefsd.agent") (global-name "com.apple.cfprefsd.daemon"))
+(allow file-read* file-map-executable (subpath "/System") (subpath "/private/preboot") (subpath "/private/var/db/dyld") (subpath "/private/var/db/timezone") (subpath "/usr/lib") (subpath "/usr/share") (literal "/dev/null") (literal "/dev/random") (literal "/dev/urandom") (literal "/private/etc/localtime") (literal "/private/etc/hosts") (literal "/private/etc/resolv.conf"))
 (allow file-write-data (literal "/dev/null"))
 `)
 	// The package manager's installed libraries are read-only, not the
@@ -79,7 +79,7 @@ func NewManifestMacOSTypeScriptWorker(launcher, workerScript, descriptor, plugin
 		}
 		fmt.Fprintf(&profile, "(allow file-read* file-map-executable (literal %s))\n", strconv.Quote(path))
 	}
-	fmt.Fprintf(&profile, "(allow process-exec* (literal %s))\n", strconv.Quote(node))
+	fmt.Fprintf(&profile, "(allow process-exec (literal %s))\n", strconv.Quote(node))
 	// tsx uses the installed esbuild service. Allow only the packaged native
 	// executables, not arbitrary binaries or a shell.
 	for _, pattern := range []string{"node_modules/@esbuild/darwin-*/bin/esbuild", "node_modules/esbuild/bin/esbuild"} {
