@@ -24,8 +24,6 @@ func TestDurableObservationDeliverySurvivesRestartAndRetries(t *testing.T) {
 		if err := r.BindSQLiteStorage(storage); err != nil {
 			t.Fatal(err)
 		}
-		// This fixture tests the outbox independently of domain storage mutations.
-		r.BindInvocationStorage(nil)
 		return r
 	}
 	storage, err := plugin.OpenSQLiteStorage(path)
@@ -54,7 +52,10 @@ func TestDurableObservationDeliverySurvivesRestartAndRetries(t *testing.T) {
 	}}); err != nil {
 		t.Fatal(err)
 	}
-	request := plugin.WorkerRequest{Protocol: 1, ProjectID: "project", PluginID: "rooms", Version: "1", Operation: "rooms.join"}
+	if err := storage.PutState("project", "rooms", "room", map[string]any{"id": "room", "members": []any{}}); err != nil {
+		t.Fatal(err)
+	}
+	request := plugin.WorkerRequest{Protocol: 1, ProjectID: "project", PluginID: "rooms", Version: "1", Operation: "rooms.join", Payload: []byte(`{"id":"room","member":"alice"}`)}
 	if response, err := r.InvokeAsOperator(request, "root"); err != nil || !response.Success {
 		t.Fatalf("publisher blocked by missing observer worker: %+v %v", response, err)
 	}

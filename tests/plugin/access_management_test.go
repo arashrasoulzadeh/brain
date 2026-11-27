@@ -142,8 +142,6 @@ func TestAccessManagementGatesEveryDiscoveredFeatureRoute(t *testing.T) {
 		remaining = pending
 	}
 	r, _ := accessRegistry(t, ordered...)
-	// This test isolates policy admission from storage-specific business payloads.
-	r.BindInvocationStorage(nil)
 	installAccessTestPlugin(t, r, "alpha", accessManifest(t), &contractWorker{ready: true})
 	for _, m := range ordered {
 		installAccessTestPlugin(t, r, "alpha", m, &contractWorker{ready: true})
@@ -152,7 +150,7 @@ func TestAccessManagementGatesEveryDiscoveredFeatureRoute(t *testing.T) {
 	for _, m := range ordered {
 		for _, route := range m.Routes {
 			// Delegated and model operations have dedicated integration tests.
-			if route.Call != nil || route.Model != nil || route.Helper == "host.admin" {
+			if route.Call != nil || route.Model != nil {
 				continue
 			}
 			input := map[string]string{}
@@ -166,13 +164,29 @@ func TestAccessManagementGatesEveryDiscoveredFeatureRoute(t *testing.T) {
 				t.Fatal(err)
 			}
 			req := plugin.WorkerRequest{Protocol: 1, ProjectID: "alpha", PluginID: m.ID, Version: m.Version, Operation: route.Operation, Payload: payload}
+			ruleID := fmt.Sprintf("route-%d", checked)
+			if route.Helper == "host.admin" {
+				// Host-only operations must never become worker-callable,
+				// even when a policy rule exists for the principal.
+				if _, err := r.InvokeAsOperator(req, "root"); !errors.Is(err, plugin.ErrGrantDenied) {
+					t.Fatalf("%s worker call without policy: %v", route.Operation, err)
+				}
+				createAccessRule(t, r, "alpha", ruleID, "operator:root", m, route, resource, true)
+				if _, err := r.InvokeAsOperator(req, "root"); !errors.Is(err, plugin.ErrGrantDenied) {
+					t.Fatalf("%s worker call with policy: %v", route.Operation, err)
+				}
+				checked++
+				continue
+			}
 			if _, err := r.InvokeAsOperator(req, "root"); !errors.Is(err, plugin.ErrActorDenied) {
 				t.Fatalf("%s without policy: %v", route.Operation, err)
 			}
-			ruleID := fmt.Sprintf("route-%d", checked)
 			createAccessRule(t, r, "alpha", ruleID, "operator:root", m, route, resource, true)
-			if response, err := r.InvokeAsOperator(req, "root"); err != nil || !response.Success {
-				t.Fatalf("%s with policy: %+v %v", route.Operation, response, err)
+			// This inventory test checks authorization, not product-specific
+			// storage effects. Those require valid domain data and have
+			// dedicated execution tests.
+			if err := r.AuthorizeHostOperation("alpha", "operator:root", m.ID, route.Operation, resource); err != nil {
+				t.Fatalf("%s with policy: %v", route.Operation, err)
 			}
 			if _, err := r.InvokeAsOperator(req, "other"); !errors.Is(err, plugin.ErrActorDenied) {
 				t.Fatalf("%s crossed actor boundary: %v", route.Operation, err)
@@ -387,11 +401,11 @@ func TestAccessManagementObserverUsesPublisherIdentity(t *testing.T) {
 	}
 	observerRoute := plugin.Route{Operation: "@observe/publisher/connected", Capability: observationCapability}
 	createAccessRule(t, r, "alpha", "observer", "plugin:publisher@1", target, observerRoute, "publisher.connected", true)
-	if result, err := r.InvokeAsOperator(req, "root"); err != nil || !result.Success {
-		t.Fatalf("authorized observation: %+v %v", result, err)
+	if result, err := r.InvokeAsOperator(req, "root"); err != nil || !result.Success || worker.calls != 0 {
+		t.Fatalf("queued observation: %+v %v calls=%d", result, err, worker.calls)
 	}
 	if _, err := r.DrainObservations(time.Now().Add(time.Second), 10); err != nil || worker.calls != 1 {
-		t.Fatalf("observation delivery: %v calls=%d", err, worker.calls)
+		t.Fatalf("authorized observation delivery: %v calls=%d", err, worker.calls)
 	}
 	auth := worker.last.HostContext.Auth
 	if auth.Actor.ID != "root" || auth.Actor.Kind != "operator" || auth.Caller.Kind != "plugin" || auth.Caller.ID != "publisher@1" {
