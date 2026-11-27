@@ -24,10 +24,10 @@ test("session storage and sign-out preserve operator boundaries", async () => {
     api.saveAdminProject("a");
     assert.equal(api.preferredAdminProject(projects), undefined);
     api.saveAdminProject("");
-    assert.deepEqual(events, Array(3).fill(api.ADMIN_PROJECT_CHANGED));
+    assert.deepEqual(events, [api.ADMIN_SESSION_CHANGED, ...Array(3).fill(api.ADMIN_PROJECT_CHANGED)]);
     assert.equal(api.preferredAdminProject(projects).ID, "b");
     globalThis.fetch = async (url, init) => {
-      assert.equal(url, "/api/admin/session");
+      assert.equal(url, "/_system/admin/session");
       assert.equal(init.method, "DELETE");
       assert.equal(init.headers.authorization, "Bearer fixture");
       throw new Error("offline");

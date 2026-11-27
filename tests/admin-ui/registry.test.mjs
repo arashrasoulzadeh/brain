@@ -40,11 +40,11 @@ test("contribution discovery checks exact project/version, lifecycle, all grants
   const contributions = adminContributions("dev", { manifests, installations });
   assert.deepEqual(contributions.map(item => item.page.id), ["a", "b", "z"]);
   assert.deepEqual(contributions[0].page.actions.map(item => item.operation), ["read"]);
-  assert.equal(contributions[0].href, "/extensions/dev/sample/1/a");
+  assert.equal(contributions[0].href, "/dev/ui/extensions/sample/1/a");
   assert.deepEqual(adminContributions("", { manifests, installations }), []);
   assert.deepEqual(adminContributions("dev", { manifests: null, installations }), []);
   assert.deepEqual(adminContributions("dev", { manifests, installations: null }), []);
-  assert.equal(adminContributions("dev space", { manifests, installations: [installation("sample", { ProjectID: "dev space" })] })[0].href, "/extensions/dev%20space/sample/1/a");
+  assert.throws(() => adminContributions("dev space", { manifests, installations: [installation("sample", { ProjectID: "dev space" })] }), /invalid project UI path/);
 });
 
 test("extensions require matching project, explicit tab slots and target identity", () => {

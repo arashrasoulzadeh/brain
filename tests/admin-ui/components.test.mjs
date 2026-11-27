@@ -82,13 +82,13 @@ test("audit filtering includes project, source and detail without reordering inp
 test("project and route screens render scope and inactive project restrictions", () => {
   const props = { activePage: "projects", text, selectedProjectID: "one", projectID: "", projects: [{ ID: "one", Active: true }, { ID: "two", Active: false }], setProjectID: noop, createProject: noop, setProjectActive: noop, uninstallProject: noop, onSelectProject: noop, error: "fixture error" };
   const markup = html(ProjectsPanel, props);
-  assert.match(markup, /two \(inactive\)/);
+  assert.match(markup, /two \(two\) \(inactive\)/);
   assert.match(markup, /fixture error/);
   assert.match(markup, /Deactivate/);
   assert.match(markup, /Activate/);
   assert.match(html(ProjectsPanel, { ...props, activePage: "system", projects: [], error: "" }), /No projects yet/);
   const system = [{ ID: "rooms", Title: "Rooms", Version: "1", Routes: [{ Operation: "rooms.list", Capability: "rooms.read" }], Capabilities: ["rooms.read"], ExtensionPoints: [], SourceFiles: ["index.ts"], Imports: ["sdk"], Dependencies: ["auth@1"], PluginImports: ["tables@1"] }, { ID: "empty", Version: "1" }];
-  const routeProps = { activePage: "routes", text, system, playgroundRoute: "rooms:rooms.list", playgroundPayload: "{}", selectedProjectID: "one", setPlaygroundRoute: noop, setPlaygroundPayload: noop, testPlayground: noop, sendPlayground: noop, playgroundMessage: "Preview ready" };
+  const routeProps = { activePage: "routes", text, projectRoutes: [{ plugin_id: "rooms", version: "1", operation: "rooms.list", method: "GET", path: "/one/rooms", capability: "rooms.read", auth: "operator", function: "list" }], playgroundRoute: "rooms:1:rooms.list", playgroundPayload: "{}", selectedProjectID: "one", setPlaygroundRoute: noop, setPlaygroundPayload: noop, testPlayground: noop, sendPlayground: noop, playgroundMessage: "Preview ready" };
   assert.match(html(RoutesPanel, routeProps), /rooms.list/);
   assert.match(html(RoutesPanel, routeProps), /project_id/);
   assert.match(html(RoutesPanel, { ...routeProps, activePage: "system", playgroundRoute: "" }), /Select a route/);
@@ -101,9 +101,9 @@ test("project and route screens render scope and inactive project restrictions",
 test("configuration form renders only declared editable fields", () => {
   const props = { token: "fixture", projectID: "p", pluginID: "rooms", version: "1", schema: { enabled: "bool", limit: "int", title: "string", unsupported: "secret" } };
   const markup = html(AdminConfigForm, props);
-  assert.match(markup, /<select/);
-  assert.match(markup, /type="number"/);
+  assert.match(markup, /Edit settings/);
+  assert.match(markup, /limit \(int\)/);
   assert.match(markup, /unsupported \(secret\)/);
-  assert.match(markup, /Save configuration/);
-  assert.equal(html(AdminConfigForm, { ...props, schema: {} }), "");
+  assert.match(markup, /Not configured/);
+  assert.match(html(AdminConfigForm, { ...props, schema: {} }), /no configurable fields/);
 });

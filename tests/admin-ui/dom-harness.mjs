@@ -10,6 +10,9 @@ const dom = new JSDOM("<!doctype html><html><body></body></html>", { url: "http:
 for (const name of ["window", "self", "location", "document", "navigator", "HTMLElement", "HTMLInputElement", "HTMLSelectElement", "HTMLTextAreaElement", "CustomEvent", "Event", "MouseEvent"]) {
   Object.defineProperty(globalThis, name, { value: name === "window" ? dom.window : dom.window[name], configurable: true, writable: true });
 }
+// jsdom does not implement native modal dialog methods. Preserve the open state.
+if (!window.HTMLDialogElement.prototype.showModal) window.HTMLDialogElement.prototype.showModal = function () { this.setAttribute("open", ""); };
+if (!window.HTMLDialogElement.prototype.close) window.HTMLDialogElement.prototype.close = function () { this.removeAttribute("open"); };
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 const React = require("react");
 globalThis.React = React;
