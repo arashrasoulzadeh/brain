@@ -21,6 +21,7 @@ These are actual Next.js page patterns. The URL's first segment is authoritative
 | `/_system/ui/projects` | [Projects](projects.md) | Create, select, activate, deactivate and uninstall projects. |
 | `/_system/ui/audit` | [Audit](audit.md) | Global lifecycle and delivery audit history. |
 | `/[project]/ui` | [Plugins](plugins.md) | Project landing page. |
+| `/[project]/ui/dashboard` | [Dashboard](dashboard.md) | Project installation and worker overview. |
 | `/[project]/ui/plugins` | [Plugins](plugins.md) | Installed and registered version catalog. |
 | `/[project]/ui/plugins/[plugin]` | [Plugin detail](plugin-detail.md) | Exact plugin@version settings and grants. |
 | `/[project]/ui/system` | [System](system.md) | Capability and manifest metadata. |
