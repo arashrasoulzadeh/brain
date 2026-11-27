@@ -34,9 +34,6 @@ func normalizeAPIError(status int, body []byte) []byte {
 	if message == "" {
 		message = http.StatusText(status)
 	}
-	if strings.HasSuffix(message, "\n") {
-		message = strings.TrimSpace(message)
-	}
 	encoded, _ := json.Marshal(APIMessage{Status: "error", Code: http.StatusText(status), Message: message})
 	return encoded
 }

@@ -13,7 +13,13 @@ import (
 // NewManifestMacOSTypeScriptWorker is a local-development adapter, not a
 // substitute for Linux namespaces or production resource enforcement.
 func NewManifestMacOSTypeScriptWorker(launcher, workerScript, descriptor, pluginRoot, projectID string, manifest Manifest, policy IsolationPolicy) (*TypeScriptWorker, error) {
-	if runtime.GOOS != "darwin" {
+	return newManifestMacOSTypeScriptWorker(runtime.GOOS, launcher, workerScript, descriptor, pluginRoot, projectID, manifest, policy)
+}
+
+// The platform is provided by the trusted wrapper above, not by plugin input.
+// Keep profile construction testable on hosts which cannot execute Seatbelt.
+func newManifestMacOSTypeScriptWorker(platform, launcher, workerScript, descriptor, pluginRoot, projectID string, manifest Manifest, policy IsolationPolicy) (*TypeScriptWorker, error) {
+	if platform != "darwin" {
 		return nil, ErrInvalidIsolationPolicy
 	}
 	if err := policy.Validate(); err != nil {
