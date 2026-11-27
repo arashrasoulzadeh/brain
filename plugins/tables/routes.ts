@@ -1,4 +1,4 @@
-import { createResourceRequest, createRouteDispatcher, requiredString, requireProjectInput, type PluginContext } from "../sdk-typescript/src/index.js";
+import { createResourceRequest, createRouteDispatcher, requiredString, requireProjectInput, requireOperator, type PluginContext } from "../sdk-typescript/src/index.js";
 
 export const dataRequest = createResourceRequest<"tables.read" | "tables.write" | "tables.schema">("tables", "table");
 
@@ -70,5 +70,16 @@ export function mutateTableRow(context: PluginContext, input: unknown) {
       (context.execution.operation === "tables.update" ? result.updated !== true : context.execution.operation !== "tables.delete" || result.deleted !== true))
     throw new Error("host table mutation snapshot required");
   context.plugins.observe.fire("record.written", { written: true });
+  return result;
+}
+
+export function administerSchema(context: PluginContext, input: unknown) {
+  const payload = requireProjectInput(context, input);
+  const table = requiredString(payload.table, "table is required");
+  const read = context.execution.operation === "tables.schema.profile";
+  requireOperator(context, read ? "tables.schema" : "tables.admin.schema", table);
+  const result = payload.result as Record<string, unknown> | undefined;
+  if (!result || typeof result !== "object" || result.table !== table || typeof result.revision !== "string" || typeof result.exists !== "boolean") throw new Error("host schema snapshot required");
+  if (!read) context.plugins.observe.fire("record.written", { written: true });
   return result;
 }

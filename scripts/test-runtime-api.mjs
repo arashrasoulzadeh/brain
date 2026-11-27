@@ -28,7 +28,7 @@ const uninstalled = await fetch(base + "/ci-project/admin/actions", {method:"POS
 assert.equal(uninstalled.status, 403, "uninstalled plugin was enabled");
 await action("plugin.install");
 await action("plugin.readiness", {ready:true});
-for (const capability of ["tables.read","tables.write","tables.schema","tables.update","tables.delete"]) await action("plugin.grant", {capability});
+for (const capability of ["tables.read","tables.write","tables.schema","tables.update","tables.delete","tables.admin.schema"]) await action("plugin.grant", {capability});
 await action("plugin.enable");
 const result = await action("plugin.invoke", {target_operation:"tables.write",payload:{table:"messages",row:{id:"one"}}});
 assert.equal(result.Success, true);
@@ -53,6 +53,15 @@ const currentTable = await tableAdmin("tables.read",{table:"messages",limit:1},t
 assert.deepEqual(currentTable.rows,[{row_index:0,row:{id:"updated"}}]);
 assert.equal((await tableAdmin("tables.delete",{table:"messages",row_index:0,revision:currentTable.revision})).deleted,true);
 assert.equal((await tableAdmin("tables.read",{table:"messages",limit:1},true)).total_rows,0);
+const createdTable = await tableAdmin("tables.admin.create",{table:"schema-fixture"});
+assert.equal(createdTable.exists,true);
+await tableAdmin("tables.write",{table:"schema-fixture",row:{name:"one",flag:true}});
+const profile = await tableAdmin("tables.schema.profile",{table:"schema-fixture"},true);
+assert.deepEqual(profile.columns,[{name:"flag",types:["boolean"],present:1,missing:0},{name:"name",types:["string"],present:1,missing:0}]);
+const renamed = await tableAdmin("tables.admin.rename-column",{table:"schema-fixture",revision:profile.revision,column:"name",new_column:"label"});
+const added = await tableAdmin("tables.admin.add-column",{table:"schema-fixture",revision:renamed.revision,column:"count",default:0});
+await tableAdmin("tables.admin.drop-column",{table:"schema-fixture",revision:added.revision,column:"flag"});
+assert.deepEqual((await tableAdmin("tables.read",{table:"schema-fixture",limit:10},true)).rows,[{row_index:0,row:{label:"one",count:0}}]);
 // Start the registered plugin inventory, not only the tables fixture.
 const catalogResponse = await fetch(base + "/ci-project/admin/plugins", {headers});
 assert.ok(catalogResponse.ok);

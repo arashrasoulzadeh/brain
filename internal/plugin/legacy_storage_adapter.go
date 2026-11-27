@@ -87,6 +87,9 @@ func prepareLegacyStorageRequest(storage *SQLiteStorage, request WorkerRequest) 
 // Prepare only host-owned storage snapshots. Never let a caller provide the
 // stored state consumed by the worker, even when the record does not exist.
 func prepareLegacyStorageEffect(storage *SQLiteStorage, request WorkerRequest) (WorkerRequest, func(sqliteExecutor) error, error) {
+	if request.PluginID == "tables" && tableSchemaOperation(request.Operation) {
+		return prepareTableSchema(storage, request)
+	}
 	if request.PluginID == "tables" && (needsTablePage(request) || request.Operation == "tables.update" || request.Operation == "tables.delete") {
 		return prepareTableAdmin(storage, request)
 	}

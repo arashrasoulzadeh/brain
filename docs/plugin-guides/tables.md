@@ -19,3 +19,5 @@ Payload snippets are arguments to the declared operation, not standalone HTTP ro
 ## Limitations
 
 PostgreSQL migrations, full relational schema publication and row-level access controls are separate primitives/release work, not the mounted SQLite route API.
+
+The host supports `tables.schema.profile` (existing schema grant) and `tables.admin.create`, `tables.admin.add-column`, `tables.admin.rename-column`, `tables.admin.drop-column` (new exact-table `tables.admin.schema` grant). Profile returns a paged observed column summary and snapshot revision; bulk changes require that revision and reject target collisions or stale state. They affect stored JSON records, not relational constraints, indexes or future inserts. No arbitrary SQL is executed.

@@ -29,7 +29,7 @@ func requiresDurableAdminSnapshot(request WorkerRequest) bool {
 	return request.PluginID == "arena" && request.Operation == "arena.admin.interrupt" ||
 		request.PluginID == "rooms" && (request.Operation == "rooms.admin.close" || request.Operation == "rooms.admin.remove-member") ||
 		request.PluginID == "analytics" && (request.Operation == "analytics.history" || request.Operation == "analytics.summary") ||
-		request.PluginID == "tables" && (request.Operation == "tables.update" || request.Operation == "tables.delete" || needsTablePage(request))
+		request.PluginID == "tables" && (request.Operation == "tables.update" || request.Operation == "tables.delete" || tableSchemaOperation(request.Operation) || needsTablePage(request))
 }
 
 // Keep the exact stored JSON for the compare-and-swap and avoid introducing
