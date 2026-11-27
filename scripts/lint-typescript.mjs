@@ -28,11 +28,11 @@ for (const file of sourceFiles) {
       return;
     }
     if (/^import\s/.test(line.trim())) {
+      if (declarationStarted) violations.push(`${file}:${index + 1}: imports must be at the top of the file`);
       importStarted = !line.includes(";");
       return;
     }
     if (/^(export\s+)?(type|interface|const|let|var|class|function|async\s+function)\b/.test(line.trim())) declarationStarted = true;
-    if (declarationStarted && /^import\s/.test(line.trim())) violations.push(`${file}:${index + 1}: imports must be at the top of the file`);
   });
 }
 if (violations.length) {

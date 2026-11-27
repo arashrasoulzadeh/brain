@@ -18,9 +18,9 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     env:
-      BRAIN_TEST_TOOLS: ${{ runner.temp }}/brain-browser-tools
       BRAIN_BROWSER_ARTIFACTS: coverage/browser
     steps:
+      - run: echo "BRAIN_TEST_TOOLS=${RUNNER_TEMP}/brain-browser-tools" >> "$GITHUB_ENV"
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
