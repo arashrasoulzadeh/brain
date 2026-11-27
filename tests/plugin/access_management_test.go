@@ -505,7 +505,14 @@ func TestAdminInventoryRespectsOperatorResourceRules(t *testing.T) {
 		t.Fatal(err)
 	}
 	route, _ := m.Route("files.metadata")
+	query := plugin.WorkerRequest{Protocol: 1, ProjectID: "alpha", PluginID: m.ID, Version: m.Version, Operation: route.Operation, Payload: []byte(`{"key":"a"}`)}
+	if err := r.CheckAdminReadAsOperator(query, "root"); !errors.Is(err, plugin.ErrActorDenied) {
+		t.Fatalf("ungranted read check: %v", err)
+	}
 	allowRevision := createAccessRule(t, r, "alpha", "inventory-allow", "operator:root", m, route, "*", true)
+	if err := r.CheckAdminReadAsOperator(query, "root"); err != nil {
+		t.Fatal(err)
+	}
 	createAccessRule(t, r, "alpha", "inventory-deny", "operator:root", m, route, "b", false)
 	createAccessRule(t, r, "alpha", "inventory-other", "operator:other", m, route, "b", true)
 	read := func(actor, project, after string, limit int) plugin.AdminInventoryPage {
@@ -537,6 +544,9 @@ func TestAdminInventoryRespectsOperatorResourceRules(t *testing.T) {
 		t.Fatalf("installation resource intersection: %#v", page)
 	}
 	revokeAccessRule(t, r, "alpha", "inventory-allow", allowRevision)
+	if err := r.CheckAdminReadAsOperator(query, "root"); !errors.Is(err, plugin.ErrActorDenied) {
+		t.Fatalf("revoked read check: %v", err)
+	}
 	if page := read("root", "alpha", "", 10); len(page.Rows) != 0 {
 		t.Fatalf("revoked operator permission: %#v", page)
 	}

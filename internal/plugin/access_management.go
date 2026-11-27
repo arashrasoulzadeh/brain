@@ -53,6 +53,33 @@ func (r *Registry) InvokeAsOperator(request WorkerRequest, actorID string) (Work
 	return r.Invoke(request)
 }
 
+// CheckAdminReadAsOperator checks the exact admitted read scope without running
+// a worker or producing observations. The admin service validates page metadata
+// before calling this method. Delegated calls also check the target policy.
+func (r *Registry) CheckAdminReadAsOperator(request WorkerRequest, actorID string) error {
+	if !validAccessIdentity(actorID) {
+		return ErrActorDenied
+	}
+	if err := ValidateWorkerRequest(request, r.HostAPI); err != nil {
+		return err
+	}
+	if err := validatePayloadProject(request); err != nil {
+		return err
+	}
+	request.accessPrincipal = "operator:" + actorID
+	r.readinessMu.RLock()
+	route, exists := r.registered[request.PluginID+"@"+request.Version].Manifest.Route(request.Operation)
+	r.readinessMu.RUnlock()
+	if !exists {
+		return ErrGrantDenied
+	}
+	if route.Helper == "host.call" && route.Call != nil {
+		target := WorkerRequest{Protocol: request.Protocol, ProjectID: request.ProjectID, PluginID: route.Call.Plugin, Version: route.Call.Version, Operation: route.Call.Operation, Payload: request.Payload, accessPrincipal: pluginAccessPrincipal(request.PluginID, request.Version), originPrincipal: request.originalPrincipal()}
+		return r.checkPluginCall(request, target)
+	}
+	return r.authorizeInvocation(request, false)
+}
+
 // InvokeWithCredential is the registry-backed user invocation boundary. It
 // consumes the credential and rechecks the access policy on the registry's
 // normal admission and commit paths, including model and delegated operations.
