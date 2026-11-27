@@ -85,24 +85,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - name: Diagnose Seatbelt and Node startup on macOS
-        run: |
-          set +e
-          sw_vers
-          /usr/bin/sandbox-exec -p '(version 1)(allow default)' /usr/bin/true
-          echo "Seatbelt available: $?"
-          /usr/bin/sandbox-exec -p '(version 1)(deny default)(allow process-exec)(allow sysctl-read)(allow file-read*)' "$(command -v node)" --version
-          echo "Node version probe: $?"
-          /usr/bin/env -i PATH=/usr/bin:/bin HOME=/tmp TMPDIR=/tmp /usr/bin/sandbox-exec -p '(version 1)(deny default)(allow process-exec)(allow sysctl-read)(allow file-read*)' "$(command -v node)" --version
-          echo "Clean environment probe: $?"
       - name: Verify native macOS worker isolation
         run: BRAIN_TEST_MACOS_SANDBOX=1 go test -v ./tests/plugin -run '^TestMacOSWorkerIsolation$'
-      - name: Report macOS sandbox diagnostics
-        if: failure()
-        run: |
-          /usr/bin/log show --last 3m --style compact --predicate 'eventMessage CONTAINS "deny" AND (eventMessage CONTAINS "node" OR eventMessage CONTAINS "sandbox-exec" OR eventMessage CONTAINS "esbuild")' || true
-          ls -lt ~/Library/Logs/DiagnosticReports || true
-          for f in $(find ~/Library/Logs/DiagnosticReports -name 'node*.ips' -mmin -5); do head -c 10000 "$f"; done
       - name: Verify native development server and plugin operations
         run: |
           set -euo pipefail
@@ -112,6 +96,10 @@ jobs:
           pid=$!
           trap 'kill "$pid" 2>/dev/null || true; cat /tmp/brain-macos.log' EXIT
           BRAIN_TEST_ORIGIN=http://127.0.0.1:18092 node scripts/test-runtime-api.mjs
+      - name: Report macOS sandbox diagnostics
+        if: failure()
+        run: |
+          /usr/bin/log show --last 3m --style compact --predicate 'eventMessage CONTAINS "deny" AND (eventMessage CONTAINS "node" OR eventMessage CONTAINS "sandbox-exec" OR eventMessage CONTAINS "esbuild")' || true
   typescript:
     runs-on: ubuntu-24.04
     steps:
