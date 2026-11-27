@@ -1,3 +1,4 @@
+import { projectHTTPURL } from "./client.js";
 export type AdminSessionResponse = { session: string };
 export type AdminAction = {
   operation: string;
@@ -31,7 +32,7 @@ export async function adminAction(
   action: AdminAction,
   request: typeof fetch = fetch,
 ): Promise<void> {
-  const response = await request(`${apiOrigin}/${action.project_id ? encodeURIComponent(action.project_id) : "_system"}/admin/actions`, {
+  const response = await request(action.project_id ? projectHTTPURL(apiOrigin, action.project_id, "/admin/actions") : `${apiOrigin}/_system/admin/actions`, {
     method: "POST",
     headers: { authorization: `Bearer ${session}`, "content-type": "application/json" },
     body: JSON.stringify(action),

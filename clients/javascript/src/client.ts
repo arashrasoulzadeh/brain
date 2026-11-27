@@ -26,3 +26,18 @@ export class JavaScriptClient {
     return this.transport<SessionResponse>("auth.session", this.projectId, { token });
   }
 }
+
+export function projectHTTPURL(origin: string, project: string, resource: string): string {
+  if (!/^[A-Za-z0-9][A-Za-z0-9_-]*$/.test(project) || project === "_system") {
+    throw new Error("invalid project namespace");
+  }
+  if (!/^\/[A-Za-z0-9_-]+(?:\/[A-Za-z0-9_-]+)*$/.test(resource) || resource.includes("..")) {
+    throw new Error("invalid project HTTP resource");
+  }
+  const base = new URL(origin);
+  if (!["http:", "https:"].includes(base.protocol) || base.username || base.password ||
+      base.pathname !== "/" || base.search || base.hash) {
+    throw new Error("invalid HTTP API origin");
+  }
+  return base.origin + "/" + encodeURIComponent(project) + resource;
+}
