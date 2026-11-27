@@ -46,3 +46,27 @@ The packaged admin boundary uses a Go operator session in the trusted host. Afte
 Ordinary local checks use `go test ./...` and `go vet ./...`; they do not start Docker. PostgreSQL/Compose checks are explicit release or integration checks. Record the command, expected evidence, and rollback result before running them.
 
 See the [deployment runbook](deployment-runbook.md) and [restore runbook](restore-runbook.md) for operational procedures.
+
+## Observation delivery
+
+A subscriber must be installed, ready and enabled in the same project and
+granted its declared `observe.<publisher>.<event>` capability. Existing Analytics
+installations need the new `observe.rooms.connected` grant; Subscriptions also
+requires its declared observation and close capabilities. Review new capabilities
+before granting them. Publisher and subscriber permissions and project activity
+are rechecked before delivery; revoked or disabled subscriptions are dropped.
+
+The production SQLite queue persists pending deliveries across restart, bounds
+pending work to 1,000 per project / 10,000 globally, and retries transient
+failures up to three attempts with backoff. Audit actions include
+`observation_queued`, `observation_delivered`, `observation_retry`,
+`observation_failed` and `observation_enqueue_failed`. Payloads are not written
+to audit messages. Monitor queue failures; storage-backed writes fail closed
+when their atomic outbox insert cannot be committed. Other host or memory-backed
+actions use best-effort post-commit enqueue. Persisted receipts are project
+scoped; protect and back up the SQLite file. Multiple host instances and
+exactly-once delivery are not supported by this adapter.
+
+The current Subscriptions polling adapter is operator-only and carries the
+`rooms.connected` observation channel. It is not a substitute for end-user
+WebSocket membership authorization.

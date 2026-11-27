@@ -112,7 +112,10 @@ func ValidateManifestContract(manifest Manifest) error {
 		if manifest.Declarative && route.Helper != "sdk.response" && route.Helper != "sdk.pipeline" && route.Helper != "host.model" && route.Helper != "host.call" {
 			return ErrInvalidManifest
 		}
-		if strings.HasPrefix(route.Operation, observationPrefix) || route.Operation == "" || route.Function == "" || route.Capability == "" || seenRoutes[route.Operation] || !declaredCapabilities[route.Capability] || (route.Helper != "" && route.Helper != "sdk.dispatch" && route.Helper != "sdk.request" && route.Helper != "sdk.response" && route.Helper != "sdk.context" && route.Helper != "sdk.pipeline" && route.Helper != "host.model" && route.Helper != "host.call") {
+		if strings.HasPrefix(route.Operation, observationPrefix) || route.Operation == "" || route.Function == "" || route.Capability == "" || seenRoutes[route.Operation] || !declaredCapabilities[route.Capability] || (route.Helper != "" && route.Helper != "sdk.dispatch" && route.Helper != "sdk.request" && route.Helper != "sdk.response" && route.Helper != "sdk.context" && route.Helper != "sdk.pipeline" && route.Helper != "host.model" && route.Helper != "host.call" && route.Helper != "host.admin") {
+			return ErrInvalidManifest
+		}
+		if route.Helper == "host.admin" && manifest.ID != "dashboard" {
 			return ErrInvalidManifest
 		}
 		if (route.Helper == "sdk.response" && !route.Response.valid()) || (route.Helper != "sdk.response" && route.Response != nil) {
@@ -187,9 +190,24 @@ func Documentation(m Manifest) string {
 		}
 	}
 	if len(m.Events) > 0 {
-		b.WriteString("\n## Events\n\n")
+		fmt.Fprint(&b, "\n## Published events\n\n")
 		for _, event := range m.Events {
-			fmt.Fprintf(&b, "- `%s`\n", event.Name)
+			source := event.Source
+			if source == "" {
+				source = "worker"
+			}
+			fields := make([]string, 0, len(event.Fields))
+			for field, kind := range event.Fields {
+				fields = append(fields, field+": "+kind)
+			}
+			sort.Strings(fields)
+			fmt.Fprintf(&b, "- `%s.%s` (%s): %s\n", m.ID, event.Name, source, strings.Join(fields, ", "))
+		}
+	}
+	if len(m.Observers) > 0 {
+		fmt.Fprint(&b, "\n## Observations\n\n")
+		for _, observer := range m.Observers {
+			fmt.Fprintf(&b, "- `%s.%s` → `%s` (capability: `%s`, persist: %t)\n", observer.Plugin, observer.Event, observer.Function, observer.Capability, observer.Persist)
 		}
 	}
 	return b.String()

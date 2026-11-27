@@ -14,3 +14,4 @@ export { SubscriptionTicketIssuer } from "./authorization.js";
 export { SubscriptionTicketValidator } from "./authorization.js";
 export { SubscriptionTicketConsumer } from "./authorization.js";
 export type { SubscriptionEvent, SubscriptionTicket } from "./types.js";
+export { open, receive, resync, close, observeRoomConnected } from "./routes.js";

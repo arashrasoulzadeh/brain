@@ -2,7 +2,7 @@ import { createResourceRequest } from "../sdk-typescript/src/index.js";
 
 export const arenaRequest = createResourceRequest<"arena.start" | "arena.input" | "arena.snapshot" | "arena.result">("arena", "roomId");
 
-export { arenaStartCommand } from "./state-machine.js";
+export { arenaStartCommand, start, input, snapshot, result } from "./state-machine.js";
 export { exportEyeEvent } from "./match-results.js";
 export { MatchResultSaver } from "./match-results.js";
 export { MatchResultReader } from "./match-results.js";

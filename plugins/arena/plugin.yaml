@@ -29,20 +29,29 @@ extension_points: []
 config_schema:
   tickRate: int
   maxPlayers: int
+events:
+  - name: started
+    fields: {roomId: string, playerCount: number}
+  - name: finished
+    fields: {roomId: string, winnerCount: number}
 routes:
   - operation: arena.start
     function: start
+    helper: sdk.context
     capability: arena.start
     resource_field: roomId
   - operation: arena.input
     function: input
+    helper: sdk.context
     capability: arena.input
     resource_field: roomId
   - operation: arena.snapshot
     function: snapshot
+    helper: sdk.context
     capability: arena.snapshot
     resource_field: roomId
   - operation: arena.result
     function: result
+    helper: sdk.context
     capability: arena.result
     resource_field: roomId

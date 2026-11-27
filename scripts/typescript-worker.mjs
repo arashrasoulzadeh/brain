@@ -53,7 +53,7 @@ for await (const line of input) {
     const fire = (event, payload) => {
       if (!acceptingObservations || params.operation.startsWith("@observe/")) throw new Error("observation cannot be published outside a publisher invocation");
       if (observations.length >= 16) throw new Error("observation event limit exceeded");
-      const spec = (descriptor.events ?? []).find((item) => item.name === event);
+      const spec = (descriptor.events ?? []).find((item) => item.name === event && !item.source);
       if (!spec || !payload || typeof payload !== "object" || Array.isArray(payload)) throw new Error("undeclared or invalid observation");
       const serialized = JSON.stringify(payload);
       if (!serialized || Buffer.byteLength(serialized, "utf8") > 16 * 1024) throw new Error("observation payload too large");
@@ -61,10 +61,16 @@ for await (const line of input) {
       if (!validEventPayload(spec, snapshot)) throw new Error("invalid observation fields");
       observations.push({ event, payload: snapshot });
     };
+    if ((descriptor.requireProject && !params.project) || (params.project && (params.project.id !== descriptor.projectId || params.project.active !== true))) throw new Error("project model mismatch");
+    if (params.payload && typeof params.payload === "object" && !Array.isArray(params.payload)) {
+      for (const key of ["projectId", "project_id"]) {
+        if (Object.hasOwn(params.payload, key) && params.payload[key] !== descriptor.projectId) throw new Error("host project context mismatch");
+      }
+    }
     const hostContext = params.hostContext;
     const available = new Set(Array.isArray(hostContext?.available) ? hostContext.available : []);
     const context = Object.freeze({
-      project: Object.freeze({ id: descriptor.projectId, ...(hostContext?.projectVerified ? { active: true } : {}) }),
+      project: Object.freeze({ id: descriptor.projectId, ...((params.project?.active || hostContext?.projectVerified) ? { active: true } : {}) }),
       plugin: Object.freeze({ id: descriptor.pluginId, version: descriptor.version }),
       execution: Object.freeze({ operation: params.operation, ...(hostContext?.invocationId ? { invocationId: hostContext.invocationId } : {}) }),
       ...(hostContext ? { config: Object.freeze({ ...hostContext.config }) } : {}),

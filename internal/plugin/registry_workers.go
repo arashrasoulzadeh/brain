@@ -1,6 +1,7 @@
 package plugin
 
 import (
+	"encoding/json"
 	"errors"
 	"time"
 )
@@ -17,6 +18,24 @@ func (r *Registry) BindWorkerFactory(factory func(projectID, pluginID, version s
 	r.workerMu.Lock()
 	defer r.workerMu.Unlock()
 	r.workerFactory = factory
+}
+
+func (r *Registry) resolveProject(id string) (ProjectSnapshot, error) {
+	r.readinessMu.RLock()
+	resolve := r.projectResolver
+	r.readinessMu.RUnlock()
+	if resolve == nil {
+		// Standalone registry fixtures have no project store.
+		return ProjectSnapshot{ID: id, Active: true}, nil
+	}
+	model, err := resolve(id)
+	if err != nil {
+		return ProjectSnapshot{}, err
+	}
+	if model.ID != id || !model.Active {
+		return ProjectSnapshot{}, ErrProjectInvalid
+	}
+	return model, nil
 }
 
 // BindWorker attaches the host-created runtime worker for one project plugin.
@@ -39,10 +58,17 @@ func (r *Registry) UnbindWorker(projectID, id, version string) {
 
 // Invoke executes only an installed, ready, enabled and fully granted plugin.
 func (r *Registry) Invoke(request WorkerRequest) (WorkerResponse, error) {
+	if err := validatePayloadProject(request); err != nil {
+		return WorkerResponse{}, err
+	}
 	if response, handled, err := r.invokePluginCall(request); handled {
 		return response, err
 	}
 	response, err := r.invokeOnce(request, false)
+	return r.finishWorkerInvocation(request, response, err)
+}
+
+func (r *Registry) finishWorkerInvocation(request WorkerRequest, response WorkerResponse, err error) (WorkerResponse, error) {
 	intents := response.Observations
 	response.Observations = nil
 	// invokeOnce releases storage, installation and readiness locks before delivery.
@@ -53,9 +79,23 @@ func (r *Registry) Invoke(request WorkerRequest) (WorkerResponse, error) {
 }
 
 func (r *Registry) invokeOnce(request WorkerRequest, observer bool) (WorkerResponse, error) {
+	return r.invokeUsingWorker(request, observer, nil, nil)
+}
+
+// invokeUsingWorker is shared by installed workers and credential-bound external
+// workers. Only the trusted broker boundary can supply a worker override.
+func (r *Registry) invokeUsingWorker(request WorkerRequest, observer bool, override ContractWorker, commitGuard func() error) (WorkerResponse, error) {
 	if err := ValidateWorkerRequest(request, r.HostAPI); err != nil {
 		return WorkerResponse{}, err
 	}
+	if err := validatePayloadProject(request); err != nil {
+		return WorkerResponse{}, err
+	}
+	model, err := r.resolveProject(request.ProjectID)
+	if err != nil {
+		return WorkerResponse{}, err
+	}
+	request.Project = &model
 	// Serialize read/modify/write plans for the same project and plugin.
 	planner, unlock := r.lockStorageInvocation(request)
 	defer unlock()
@@ -63,14 +103,17 @@ func (r *Registry) invokeOnce(request WorkerRequest, observer bool) (WorkerRespo
 		return WorkerResponse{}, err
 	}
 	key := request.ProjectID + ":" + request.PluginID + "@" + request.Version
-	r.workerMu.RLock()
-	worker := r.workers[key]
-	r.workerMu.RUnlock()
+	worker := override
+	if worker == nil {
+		r.workerMu.RLock()
+		worker = r.workers[key]
+		r.workerMu.RUnlock()
+	}
 	if worker == nil || !worker.Ready() {
 		return WorkerResponse{}, ErrWorkerNotReady
 	}
 
-	if !observer {
+	if !observer && override == nil {
 		if result, handled, err := r.invokeModel(request); handled {
 			return result, err
 		}
@@ -80,9 +123,16 @@ func (r *Registry) invokeOnce(request WorkerRequest, observer bool) (WorkerRespo
 	// the worker has succeeded and lifecycle and grants have been rechecked.
 	prepared := request
 	var commit func() error
+	var atomicCommit func([]observationDelivery) error
 	if planner != nil {
 		var err error
-		prepared, commit, err = planner.Prepare(request)
+		if atomic, ok := planner.(interface {
+			prepareWithObservations(WorkerRequest) (WorkerRequest, func([]observationDelivery) error, error)
+		}); ok {
+			prepared, atomicCommit, err = atomic.prepareWithObservations(request)
+		} else {
+			prepared, commit, err = planner.Prepare(request)
+		}
 		if err != nil {
 			return WorkerResponse{}, err
 		}
@@ -107,12 +157,25 @@ func (r *Registry) invokeOnce(request WorkerRequest, observer bool) (WorkerRespo
 		return WorkerResponse{}, err
 	}
 	prepared.HostContext = hostContext
+	prepared.Project = &model
 	response, err := InvokeForProject(worker, prepared, r.HostAPI, request.ProjectID)
 	if err != nil || !response.Success || response.ErrorCode != "" {
 		return response, err
 	}
 	if response.Protocol != request.Protocol {
 		return WorkerResponse{}, ErrInvalidWorkerRequest
+	}
+	if _, err := r.resolveProject(request.ProjectID); err != nil {
+		return WorkerResponse{}, err
+	}
+	if commitGuard != nil {
+		if err := commitGuard(); err != nil {
+			return WorkerResponse{}, err
+		}
+	}
+	var deliveries []observationDelivery
+	if atomicCommit != nil && !observer {
+		deliveries = r.planWorkerObservations(request, response.Observations)
 	}
 	r.readinessMu.RLock()
 	defer r.readinessMu.RUnlock()
@@ -121,7 +184,18 @@ func (r *Registry) invokeOnce(request WorkerRequest, observer bool) (WorkerRespo
 	if err := r.authorizeInvocationLocked(request, observer); err != nil {
 		return WorkerResponse{}, err
 	}
-	if commit != nil {
+	if atomicCommit != nil {
+		if err := atomicCommit(deliveries); err != nil {
+			return WorkerResponse{}, err
+		}
+		for _, delivery := range deliveries {
+			r.recordObservation("observation_queued", delivery.Target, delivery.detail())
+		}
+		if !observer {
+			r.recordCommittedAdminObservationsLocked(request, response.Observations, "")
+		}
+		response.Observations = nil
+	} else if commit != nil {
 		if err := commit(); err != nil {
 			return WorkerResponse{}, err
 		}
@@ -142,7 +216,8 @@ func (r *Registry) authorizeInvocationLocked(request WorkerRequest, observer boo
 		return err
 	}
 	if r.projectResolver != nil {
-		if err := r.projectResolver(request.ProjectID); err != nil {
+		model, err := r.projectResolver(request.ProjectID)
+		if err != nil || model.ID != request.ProjectID || !model.Active {
 			return ErrProjectInvalid
 		}
 	}
@@ -178,7 +253,7 @@ func (r *Registry) authorizeInvocationLocked(request WorkerRequest, observer boo
 			}
 		}
 	}
-	if !declared || !installation.Grants[route.Capability] {
+	if !declared || route.Helper == "host.admin" || !installation.Grants[route.Capability] {
 		return ErrGrantDenied
 	}
 	for _, capability := range registered.Manifest.Capabilities {
@@ -258,6 +333,21 @@ func (r *Registry) stopBoundWorker(key string) error {
 	}
 	if err := worker.Stop(); err != nil && !errors.Is(err, ErrTypeScriptWorkerStopped) {
 		return err
+	}
+	return nil
+}
+
+func validatePayloadProject(request WorkerRequest) error {
+	var payload map[string]json.RawMessage
+	if json.Unmarshal(request.Payload, &payload) == nil {
+		for _, key := range []string{"projectId", "project_id"} {
+			if value, exists := payload[key]; exists {
+				var id string
+				if json.Unmarshal(value, &id) != nil || id != request.ProjectID {
+					return ErrInvalidWorkerRequest
+				}
+			}
+		}
 	}
 	return nil
 }

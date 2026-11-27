@@ -1,4 +1,4 @@
-import { validateProjectId, runCappedRetries } from "../sdk-typescript/src/index.js";
+import { validateProjectId, runCappedRetries, requireProjectInput, type PluginContext } from "../sdk-typescript/src/index.js";
 import { type createInvocationCommitStore } from "./invocation.js";
 
 export type ProjectWorkflowAction = {
@@ -144,4 +144,17 @@ export function validateWorkflowGraph(nodes: readonly WorkflowNode[]): void {
     visited.add(id);
   };
   for (const node of nodes) visit(node.id);
+}
+
+/** Project namespace is mandatory when an execution runner uses a shared commit store. */
+export function runProjectWorkflow<T>(
+  context: PluginContext,
+  store: ReturnType<typeof createInvocationCommitStore>,
+  idempotencyKey: string,
+  task: (context: PluginContext) => T | Promise<T>,
+  maxAttempts: number,
+): Promise<T> {
+  requireProjectInput(context, {});
+  if (!idempotencyKey) throw new Error("workflow idempotency key required");
+  return runIdempotentWorkflow(store, JSON.stringify([context.project.id, idempotencyKey]), () => task(context), maxAttempts);
 }

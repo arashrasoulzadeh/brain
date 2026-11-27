@@ -45,7 +45,7 @@ export type EnqueuedFunction = {
   functionVersion: number;
   enqueuedAt: number;
 };
-export { createScheduleStore } from "./scheduling.js";
+export { createScheduleStore, bindProjectSchedule, bindProjectTriggers, bindProjectJobLeases } from "./scheduling.js";
 export type RecordChangeTrigger = {
   projectId: string;
   collection: string;
@@ -55,7 +55,7 @@ export type RecordChangeTrigger = {
 export { createRecordChangeTriggerStore } from "./scheduling.js";
 export { createJobLeaseStore } from "./scheduling.js";
 export { commitWithGrant, runCappedRetries, runWithTimeout } from "../sdk-typescript/src/index.js";
-export { runIdempotentWorkflow } from "./workflow.js";
+export { runIdempotentWorkflow, runProjectWorkflow } from "./workflow.js";
 export { redactRunStatus } from "./workflow.js";
 export { type WorkflowNode, validateWorkflowGraph } from "./workflow.js";
 export { type WorkflowCondition, evaluateCondition } from "./workflow.js";

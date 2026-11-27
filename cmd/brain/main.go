@@ -113,9 +113,9 @@ func productionServer() (*app.Server, error) {
 		_ = projects.Close()
 		return nil, fmt.Errorf("registry state unavailable: %w", err)
 	}
-	registry.BindProjectResolver(func(id string) error {
-		_, err := projects.Resolve(id)
-		return err
+	registry.BindProjectResolver(func(id string) (plugin.ProjectSnapshot, error) {
+		model, err := projects.Resolve(id)
+		return plugin.ProjectSnapshot{ID: model.ID, Active: model.Active}, err
 	})
 	for _, installation := range registry.InstallationStatuses("") {
 		if installation.Enabled && installation.Ready && !installation.Draining {
@@ -124,6 +124,7 @@ func productionServer() (*app.Server, error) {
 			}
 		}
 	}
+	go registry.RunObservationDelivery(context.Background(), time.Second)
 	server := app.NewServerWithOperatorAdmin(admin.NewLifecycleServiceWithProjects(operators, registry, projects), operators, digest)
 	server.SetReadinessCheck(func(ctx context.Context) error {
 		if err := registry.LifecycleStorageHealth(); err != nil {

@@ -1,4 +1,5 @@
-import { createResourceRequest, validateProjectId } from "../sdk-typescript/src/index.js";
+import { randomUUID } from "node:crypto";
+import { createResourceRequest, requireProjectInput, requiredString, validateProjectId, type PluginContext } from "../sdk-typescript/src/index.js";
 
 export type Invite = {
   id: string;
@@ -10,10 +11,12 @@ export type Invite = {
   used: boolean;
 };
 
+const routeInvites = new Map<string, Invite>();
+
 export class InviteCreator {
   constructor(
     private readonly invites: Map<string, Invite>,
-    private readonly nextId: () => number,
+    private readonly nextId: () => string | number,
   ) {}
   create(
     projectId: string,
@@ -78,3 +81,50 @@ export class InviteCodeAccepter {
 }
 
 export const inviteRequest = createResourceRequest<"invites.create" | "invites.accept" | "invites.cancel">("invites", "roomId");
+
+/** Operator worker routes. The host must authorize the target player before exposing these to clients. */
+export function create(context: PluginContext, input: unknown): Invite {
+  const payload = requireProjectInput(context, input);
+  const roomId = boundedId(payload.roomId, "room id");
+  const playerId = boundedId(payload.targetPlayerId ?? payload.target, "target player id");
+  const ttl = payload.ttlSeconds ?? 60;
+  if (typeof ttl !== "number" || !Number.isSafeInteger(ttl) || ttl < 1 || ttl > 86400)
+    throw new Error("invalid invite ttl");
+  const now = Date.now();
+  for (const [id, invite] of routeInvites) if (invite.expiresAt <= now) routeInvites.delete(id);
+  if (routeInvites.size >= 4096) throw new Error("invite capacity reached");
+  const invite = new InviteCreator(routeInvites, randomUUID).create(context.project.id, roomId, playerId, ttl, now);
+  context.plugins.observe.fire("created", {});
+  return invite;
+}
+
+export function accept(context: PluginContext, input: unknown): Invite {
+  const payload = requireProjectInput(context, input);
+  const playerId = boundedId(payload.playerId, "player id");
+  const inviteId = typeof payload.inviteId === "string" ? payload.inviteId : "";
+  const code = typeof payload.code === "string" ? payload.code : "";
+  if (Boolean(inviteId) === Boolean(code) || inviteId.length > 256 || code.length > 256)
+    throw new Error("invite unavailable");
+  const invite = inviteId
+    ? new InviteAccepter(routeInvites).accept(inviteId, context.project.id, playerId)
+    : new InviteCodeAccepter(routeInvites).acceptCode(code, context.project.id, playerId);
+  context.plugins.observe.fire("accepted", {});
+  return { ...invite, code: "" };
+}
+
+export function cancel(context: PluginContext, input: unknown) {
+  const payload = requireProjectInput(context, input);
+  const id = requiredString(payload.inviteId, "invite id is required");
+  const invite = routeInvites.get(id);
+  if (!invite || invite.projectId !== context.project.id || invite.used || invite.expiresAt <= Date.now())
+    throw new Error("invite unavailable");
+  routeInvites.delete(id);
+  context.plugins.observe.fire("cancelled", {});
+  return { id, cancelled: true };
+}
+
+function boundedId(value: unknown, name: string): string {
+  const id = requiredString(value, name + " is required");
+  if (id.length > 128) throw new Error("invalid " + name);
+  return validateProjectId(id, "invalid " + name);
+}

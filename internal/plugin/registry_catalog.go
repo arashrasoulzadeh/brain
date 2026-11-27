@@ -274,7 +274,7 @@ func (r *Registry) Unregister(id, version string) error {
 }
 
 // BindProjectResolver installs a trusted active-project lookup for invocations.
-func (r *Registry) BindProjectResolver(resolve func(string) error) {
+func (r *Registry) BindProjectResolver(resolve func(string) (ProjectSnapshot, error)) {
 	r.readinessMu.Lock()
 	defer r.readinessMu.Unlock()
 	r.projectResolver = resolve

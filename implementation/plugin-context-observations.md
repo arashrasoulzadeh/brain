@@ -1,32 +1,61 @@
 # Plugin project context and observation migration
 
-Status: in progress. Do not mark an item complete until its focused and full CI gates pass.
+Status: implementation in PR #6; final integration gates pending. Checkboxes
+are reserved for verified work, not merely committed code.
 
 ## Runtime
-- [ ] Verify shared worker injection for sdk.dispatch, sdk.request, sdk.context, sdk.response, handler and mapped exports; remove remaining legacy payload-only production exports.
-- [ ] Resolve the existing Project model from trusted host state (including active status); expose a read-only safe projection, never caller-provided identity.
-- [ ] Require context for every project-bound production function and propagate through functions, workflow, scheduled jobs and external workers. Pure helpers and request serializers are not authorization boundaries.
-- [ ] Add host-validated manifest event and observation declarations, explicit subscriber grants and event payload contracts.
-- [ ] Add SDK plugins.observe.fire(event, payload) with implicit publisher and project; stage bounded JSON events, dispatch only after successful host commit, never from failed invocations.
-- [ ] Resolve subscribers from enabled installations in the same project, recheck readiness, permissions and lifecycle, invoke through shared registry; isolate failure, bound recursion and fanout, audit without sensitive payloads.
-- [ ] Support YAML observers via existing manifest function dispatch, without importing publisher code. Define delivery and retry semantics.
 
-## All plugin migration inventory
-Each row requires context and relevant sanitized domain events, focused tests and manifest updates. No artificial events for pure reads; do not emit secrets or raw authentication payloads.
-- [ ] analytics — capture context, subscribe to rooms.connected; avoid observation loops.
-- [ ] arena — match started, finished; verify actual route exports.
-- [ ] auth — account created, session established; exclude credentials, OTPs, tokens.
-- [ ] dashboard — committed lifecycle changes; separate privileged system operations from project functions; verify actual route exports.
-- [ ] files — uploaded, published; exclude file contents.
-- [ ] functions — published, invoked; include scheduled and workflow paths, not source or arbitrary inputs.
-- [ ] invites — created, accepted, cancelled; exclude invite codes; verify actual route exports.
-- [ ] matchmaking — queued, assigned, cancelled.
-- [ ] rooms — created, connected, reconnected, result committed; actual membership/connection semantics.
-- [ ] subscriptions — opened, closed; exclude ticket secrets and private content; verify actual route exports.
-- [ ] tables — record written; avoid raw record values unless explicitly authorized.
-- [ ] template — context-first example and observer example.
+- [ ] Verify all worker dispatch modes, the trusted active project projection,
+  and forged project identity rejection. Production descriptors require context.
+- [ ] Verify manifest event schemas, subscriber grants, implicit publisher
+  identity, bounded fanout/payloads, failure isolation and recursion prevention.
+- [ ] Verify durable SQLite queue, stable event IDs, bounded retries, delivery
+  reauthorization and project-scoped optional receipts.
+- [ ] Verify atomic durable plugin effect + outbox insertion, rollback on failure,
+  and credential-bound external worker registry integration.
+
+## Plugin inventory
+
+All entries have context/event or observer code implemented; final verification
+is not yet complete.
+
+| Plugin | Implemented behavior |
+| --- | --- |
+| Analytics | Context-bound direct capture; captured event; persisted rooms.connected observer |
+| Arena | Real start/input/snapshot/result adapters; match start and finish |
+| Auth | Account/session actions; sanitized events without credentials |
+| Dashboard | Host-only authenticated lifecycle routes and committed host events |
+| Files | Upload/publish events; authoritative storage state |
+| Functions | Actual host publication/invocation events; context in function VM; project-bound scheduling/workflow helper facades |
+| Invites | Create/accept/cancel; random IDs and bounded TTL; sanitized events |
+| Matchmaking | Queue/assign/cancel; authoritative ticket state |
+| Rooms | Create/connect/reconnect/result; authoritative room state |
+| Subscriptions | Actual rooms.connected observer; operator polling open/receive/resync/close |
+| Tables | Committed record writes; no raw record payload in observations |
+| Template | Publisher and subscriber examples without cross-plugin imports |
 
 ## Exit gates
-- [ ] Two-project isolation, forged identity, failed commit, disabled/revoked subscriber, recursive events, bounded payload and fanout, manifest validation, no observer dependency on publisher.
-- [ ] Run npm run lint:ts, npm run typecheck, npm run test:ts, go test ./... and sandboxed worker tests.
-- [ ] Update developer/operator documentation and changelog; no completion claim until verification.
+
+- [ ] Final Go, TypeScript lint/typecheck/tests, sandboxed worker, admin and
+  production-runtime CI at the latest branch head.
+- [ ] Actual packaged plugin startup and Rooms-to-Analytics/Subscriptions
+  delivery smoke test.
+- [ ] Final review and merge only after required checks.
+
+Developer, operator and plugin communication documentation has been updated.
+The changelog is generated automatically from commits on main.
+
+## Remaining production gaps (not marked complete)
+
+- Existing scheduled job/workflow orchestration helpers are now project bound,
+  but the production scheduler/executor itself is not wired.
+- External worker credential calls and protobuf schema use the shared registry;
+  the external gRPC transport itself is not wired.
+- End-user realtime actor/membership authorization and record-change channels
+  are separate from the current operator polling/arena/invitation adapters.
+- In-memory domain state (including arena and invitations) is not durable.
+- SQLite-backed plugin effects and their observation outbox insert atomically.
+  Host admin/function and in-memory domain effects still enqueue separately.
+- Single-host queue, bounded retries; possible duplicate delivery and no
+  distributed leasing or exactly-once side effects. Optional Analytics receipts
+  persist, but receipt retention/export management is separate work.

@@ -20,11 +20,15 @@ event_fields:
   - roomId
   - players
   - reconnected
+events:
+  - name: captured
+    fields: {name: string}
 observe:
   - plugin: rooms
     event: connected
     function: observeRoomConnected
     capability: observe.rooms.connected
+    persist: true
 routes:
   - operation: analytics.capture
     function: captureForProject

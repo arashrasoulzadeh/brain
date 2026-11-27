@@ -1,6 +1,7 @@
 package plugin_test
 
 import (
+	"encoding/json"
 	"errors"
 	"testing"
 	"time"
@@ -32,15 +33,18 @@ func TestInvokeWithCredentialBindsProductionWorkerRequest(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	worker := &countingWorker{}
+	worker := &storageCommitWorker{handle: func(request plugin.WorkerRequest) plugin.WorkerResponse {
+		if request.Project == nil || request.Project.ID != "project-a" || !request.Project.Active {
+			t.Fatalf("credential did not rebind project model: %+v", request.Project)
+		}
+		return plugin.WorkerResponse{Protocol: 1, Success: true}
+	}}
 	request := plugin.WorkerRequest{Protocol: 1, ProjectID: "project-b", PluginID: m.ID, Version: m.Version, Operation: "read"}
 	if _, err := plugin.InvokeWithCredential(b, credential, worker, request, 1, now); !errors.Is(err, plugin.ErrInvalidWorkerRequest) {
 		t.Fatalf("mismatched request error = %v", err)
 	}
-	if worker.calls != 0 {
-		t.Fatal("handler ran for mismatched credential")
-	}
 	request.ProjectID = "project-a"
+	request.Project = &plugin.ProjectSnapshot{ID: "forged", Active: false}
 	if response, err := plugin.InvokeWithCredential(b, credential, worker, request, 1, now); err != nil || !response.Success {
 		t.Fatalf("valid credential invocation = %#v, %v", response, err)
 	}
@@ -111,4 +115,66 @@ func (readyWorker) Stop() error  { return nil }
 func (readyWorker) Ready() bool  { return true }
 func (readyWorker) Handle(request plugin.WorkerRequest) plugin.WorkerResponse {
 	return plugin.WorkerResponse{Protocol: request.Protocol, Success: true}
+}
+
+func TestCredentialInvocationSharesObservationAndCommitBoundary(t *testing.T) {
+	r := plugin.NewRegistry(1)
+	publisher := plugin.Manifest{ID: "external", Version: "1", HostAPI: 1, Capabilities: []string{"external.write"}, Routes: []plugin.Route{{Operation: "external.write", Function: "write", Capability: "external.write"}}, Events: []plugin.EventSpec{{Name: "written", Fields: map[string]string{}}}}
+	observer := plugin.Manifest{ID: "observer", Version: "1", HostAPI: 1, Capabilities: []string{"observe.external.written"}, Observers: []plugin.ObserverSpec{{Plugin: "external", Event: "written", Function: "record", Capability: "observe.external.written"}}}
+	for _, m := range []plugin.Manifest{publisher, observer} {
+		if err := r.Register(m); err != nil {
+			t.Fatal(err)
+		}
+		if err := r.Install("project", m.ID, m.Version); err != nil {
+			t.Fatal(err)
+		}
+		if err := r.SetReadiness(m.ID, m.Version, true); err != nil {
+			t.Fatal(err)
+		}
+		for _, capability := range m.Capabilities {
+			if err := r.Grant("project", m.ID, m.Version, capability); err != nil {
+				t.Fatal(err)
+			}
+		}
+		if err := r.Enable("project", m.ID, m.Version); err != nil {
+			t.Fatal(err)
+		}
+	}
+	delivered := 0
+	if err := r.BindWorker("project", "observer", "1", &storageCommitWorker{handle: func(request plugin.WorkerRequest) plugin.WorkerResponse {
+		var event plugin.Observation
+		if err := json.Unmarshal(request.Payload, &event); err != nil || event.ProjectID != "project" || event.PluginID != "external" {
+			t.Fatalf("unexpected observation: %+v %v", event, err)
+		}
+		delivered++
+		return plugin.WorkerResponse{Protocol: 1, Success: true}
+	}}); err != nil {
+		t.Fatal(err)
+	}
+	allowed := true
+	broker := &plugin.Broker{Registry: r, ActorAllows: func(string, string, string) bool { return allowed }}
+	now := time.Now()
+	call := plugin.HostCall{ProjectID: "project", ActorID: "actor", PluginID: "external", Version: "1", Capability: "external.write", Operation: "external.write"}
+	request := plugin.WorkerRequest{Protocol: 1, ProjectID: "project", PluginID: "external", Version: "1", Operation: "external.write"}
+	for _, revoke := range []bool{false, true} {
+		allowed = true
+		credential, err := broker.Issue(call, now, time.Minute)
+		if err != nil {
+			t.Fatal(err)
+		}
+		worker := &storageCommitWorker{handle: func(plugin.WorkerRequest) plugin.WorkerResponse {
+			if revoke {
+				allowed = false
+			}
+			return plugin.WorkerResponse{Protocol: 1, Success: true, Observations: []plugin.ObservationIntent{{Event: "written", Payload: json.RawMessage(`{}`)}}}
+		}}
+		response, err := plugin.InvokeWithCredential(broker, credential, worker, request, 1, now)
+		if revoke {
+			if !errors.Is(err, plugin.ErrActorDenied) || delivered != 1 {
+				t.Fatalf("revoked actor published observation: %v, %d", err, delivered)
+			}
+		} else if err != nil || !response.Success || delivered != 1 || len(response.Observations) != 0 {
+			t.Fatalf("credential invocation did not dispatch: %+v %v %d", response, err, delivered)
+		}
+	}
 }

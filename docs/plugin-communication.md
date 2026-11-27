@@ -30,3 +30,16 @@ User-authored functions use a stricter sandboxed runtime and must not be treated
 The starter SDK is in `plugins/sdk-typescript`. It produces the same JSON-RPC envelope used by the Go host and does not provide direct database or credential access.
 
 The host discovers feature plugins by scanning `plugins/<plugin-id>/plugin.yaml`; feature registration is not hardcoded in the Go host.
+
+## Observation hooks
+
+Worker responses may carry manifest-declared observation intents, but publisher
+and project identities are assigned by the trusted registry. The registry
+queues same-project observer invocations after successful authorization and
+commit, using the existing worker execution path. The current production
+observation queue is durable SQLite and single-host; PostgreSQL job orchestration
+and the external gRPC transport remain separate integration work. The protobuf
+contract includes the project projection and observation intents for external
+workers; credential-bound calls share registry execution and authorization.
+See the developer and administrator guides for the event contract and operational
+limits.

@@ -1,3 +1,20 @@
+import type { PluginContext } from "./index.js";
+
+/** Only use with context injected by the trusted worker; payload identity is never authoritative. */
+export function requireProjectInput(context: PluginContext, input: unknown): Record<string, unknown> {
+  if (!context?.project?.id || context.project.active !== true)
+    throw new Error("host project context required");
+  validateProjectId(context.project.id);
+  if (!input || typeof input !== "object" || Array.isArray(input))
+    throw new Error("invalid plugin input");
+  const payload = input as Record<string, unknown>;
+  for (const key of ["projectId", "project_id"]) {
+    if (Object.hasOwn(payload, key) && payload[key] !== context.project.id)
+      throw new Error("host project context mismatch");
+  }
+  return payload;
+}
+
 export function validateProjectId(projectId: string, errorMessage = "invalid project id"): string {
   if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(projectId)) throw new Error(errorMessage);
   return projectId;
