@@ -265,10 +265,8 @@ func (r *Registry) authorizeInvocationLocked(request WorkerRequest, observer boo
 	if observer {
 		resource = observerResource
 	}
-	if r.accessInstalledLocked(request.ProjectID) && request.PluginID != accessPluginID {
-		if resources := installation.Resources[route.Capability]; len(resources) > 0 && (scopeErr != nil || resource == "" || !resources[resource]) {
-			return ErrGrantDenied
-		}
+	if resources := installation.Resources[route.Capability]; len(resources) > 0 && (scopeErr != nil || resource == "" || !resources[resource]) {
+		return ErrGrantDenied
 	}
 	return r.authorizeAccessLocked(request.ProjectID, request.accessPrincipal, request.PluginID, request.Version, request.Operation, route.Capability, resource, scopeErr)
 }

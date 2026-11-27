@@ -70,7 +70,7 @@ const { manifests } = await catalogResponse.json();
 for (const id of ["analytics","arena","auth","dashboard","files","functions","invites","matchmaking","rooms","subscriptions","tables"]) {
   assert.ok(manifests.some(m => m.ID === id), "missing plugin " + id);
 }
-for (const manifest of manifests.filter(m => m.ID !== "tables")) {
+for (const manifest of manifests.filter(m => m.ID !== "tables" && m.ID !== "access-management")) {
   const identity = {plugin_id:manifest.ID,version:manifest.Version};
   await action("plugin.install", identity);
   await action("plugin.readiness", {...identity,ready:true});

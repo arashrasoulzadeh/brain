@@ -2,9 +2,12 @@ package plugin
 
 import (
 	"encoding/json"
+	"errors"
 	"strings"
 	"time"
 )
+
+var ErrStoredResourceMissing = errors.New("stored resource not found")
 
 type legacyStoragePlanner struct {
 	storage *SQLiteStorage
@@ -20,7 +23,7 @@ func (p legacyStoragePlanner) Supports(pluginID string) bool {
 }
 
 func (p legacyStoragePlanner) Prepare(request WorkerRequest) (WorkerRequest, func() error, error) {
-	prepared, effect, err := prepareLegacyStorageRequest(p.storage, request)
+	prepared, effect, err := prepareLegacyStorageEffect(p.storage, request)
 	if err != nil || effect == nil {
 		return prepared, nil, err
 	}
@@ -30,7 +33,7 @@ func (p legacyStoragePlanner) Prepare(request WorkerRequest) (WorkerRequest, fun
 // prepareWithObservations binds the existing storage effect and outbox inserts
 // to one transaction. Neither is visible if the other fails.
 func (p legacyStoragePlanner) prepareWithObservations(request WorkerRequest) (WorkerRequest, func([]observationDelivery) error, error) {
-	prepared, effect, err := prepareLegacyStorageRequest(p.storage, request)
+	prepared, effect, err := prepareLegacyStorageEffect(p.storage, request)
 	if err != nil {
 		return prepared, nil, err
 	}
@@ -57,218 +60,197 @@ func (p legacyStoragePlanner) prepareWithObservations(request WorkerRequest) (Wo
 	}, nil
 }
 
-// prepareLegacyStorageRequest is the compatibility adapter for existing product
-// storage routes. Its writes are deferred to the registry commit boundary.
-func prepareLegacyStorageRequest(storage *SQLiteStorage, request WorkerRequest) (WorkerRequest, func(sqliteExecutor) error, error) {
-	var commit func(sqliteExecutor) error
+func prepareLegacyStorageRequest(storage *SQLiteStorage, request WorkerRequest) (WorkerRequest, func() error, error) {
+	return legacyStoragePlanner{storage: storage}.Prepare(request)
+}
+
+// Prepare only host-owned storage snapshots. Never let a caller provide the
+// stored state consumed by the worker, even when the record does not exist.
+func prepareLegacyStorageEffect(storage *SQLiteStorage, request WorkerRequest) (WorkerRequest, func(sqliteExecutor) error, error) {
 	if storage == nil {
-		return request, commit, nil
+		return request, nil, nil
 	}
-	var payload map[string]any
-	if json.Unmarshal(request.Payload, &payload) != nil || payload == nil {
-		return request, commit, nil
+	var keyField string
+	switch request.PluginID + "/" + request.Operation {
+	case "files/files.upload", "files/files.publish", "files/files.download", "files/files.metadata":
+		keyField = "key"
+	case "matchmaking/matchmaking.queue", "matchmaking/matchmaking.cancel", "matchmaking/matchmaking.assign", "matchmaking/matchmaking.status":
+		keyField = "id"
+	case "rooms/rooms.create", "rooms/rooms.join", "rooms/rooms.reconnect", "rooms/rooms.result":
+		keyField = "id"
+	case "tables/tables.write", "tables/tables.read", "tables/tables.schema":
+		keyField = "table"
+	case "analytics/analytics.capture", "analytics/@observe/rooms/connected":
+	default:
+		return request, nil, nil
 	}
-	if request.PluginID == "files" {
-		key, _ := payload["key"].(string)
-		key = strings.TrimSpace(key)
+
+	var input map[string]any
+	if json.Unmarshal(request.Payload, &input) != nil || input == nil {
+		return request, nil, ErrInvalidWorkerRequest
+	}
+	key := ""
+	payload := map[string]any{}
+	if keyField != "" {
+		value, _ := input[keyField].(string)
+		key = strings.TrimSpace(value)
 		if key == "" {
-			return request, commit, nil
+			return request, nil, ErrInvalidWorkerRequest
 		}
-		payload["key"] = key
-		request.Payload, _ = json.Marshal(payload)
+		payload[keyField] = key
+	}
+	var commit func(sqliteExecutor) error
+	switch request.PluginID {
+	case "files":
 		if request.Operation == "files.upload" {
-			if data, ok := payload["data"].(string); ok {
-				commit = func(db sqliteExecutor) error {
-					return putSQLiteFile(db, request.ProjectID, key, data, false)
-				}
-			}
-		}
-		if request.Operation == "files.publish" {
-			data, _, err := storage.File(request.ProjectID, key)
-			if err != nil {
-				return request, nil, err
-			}
-			if data == "" {
+			data, ok := input["data"].(string)
+			if !ok || data == "" {
 				return request, nil, ErrInvalidWorkerRequest
 			}
-			if data != "" {
-				commit = func(db sqliteExecutor) error {
-					return putSQLiteFile(db, request.ProjectID, key, data, true)
-				}
-				payload["published"] = true
-				request.Payload, _ = json.Marshal(payload)
+			payload["data"] = data
+			commit = func(db sqliteExecutor) error {
+				return putSQLiteFile(db, request.ProjectID, key, data, false)
 			}
-		}
-		if request.Operation == "files.download" || request.Operation == "files.metadata" {
+		} else {
 			data, published, err := storage.File(request.ProjectID, key)
 			if err != nil {
 				return request, nil, err
 			}
 			if data == "" {
-				return request, nil, ErrInvalidWorkerRequest
+				return request, nil, ErrStoredResourceMissing
 			}
-			if data != "" {
-				payload["data"] = data
-				payload["published"] = published
-				request.Payload, _ = json.Marshal(payload)
+			if request.Operation == "files.publish" {
+				published = true
+				commit = func(db sqliteExecutor) error {
+					return putSQLiteFile(db, request.ProjectID, key, data, true)
+				}
 			}
+			payload["data"], payload["published"] = data, published
 		}
-		return request, commit, nil
-	}
-	if request.PluginID == "matchmaking" {
-		id, _ := payload["id"].(string)
-		id = strings.TrimSpace(id)
-		if id == "" {
-			return request, commit, nil
-		}
-		delete(payload, "ticket")
-		payload["id"] = id
-		state, err := storage.State(request.ProjectID, "matchmaking", id)
+	case "matchmaking":
+		state, err := storage.State(request.ProjectID, "matchmaking", key)
 		if err != nil {
 			return request, nil, err
 		}
 		if request.Operation == "matchmaking.queue" {
-			state = map[string]any{"id": id, "status": "queued"}
-			commit = func(db sqliteExecutor) error {
-				return putSQLiteState(db, request.ProjectID, "matchmaking", id, state)
-			}
+			state = map[string]any{"id": key, "status": "queued"}
 		}
 		if state == nil {
-			return request, nil, ErrInvalidWorkerRequest
+			return request, nil, ErrStoredResourceMissing
 		}
-		if request.Operation == "matchmaking.cancel" || request.Operation == "matchmaking.assign" {
-			if state == nil {
-				return request, commit, nil
-			}
-			if request.Operation == "matchmaking.cancel" {
-				state["status"] = "cancelled"
-			} else {
-				state["status"] = "assigned"
-			}
+		if request.Operation == "matchmaking.cancel" {
+			state["status"] = "cancelled"
+		} else if request.Operation == "matchmaking.assign" {
+			state["status"] = "assigned"
+		}
+		if request.Operation != "matchmaking.status" {
 			commit = func(db sqliteExecutor) error {
-				return putSQLiteState(db, request.ProjectID, "matchmaking", id, state)
+				return putSQLiteState(db, request.ProjectID, "matchmaking", key, state)
 			}
 		}
-		if state != nil {
-			payload["ticket"] = state
-			request.Payload, _ = json.Marshal(payload)
-		}
-		return request, commit, nil
-	}
-	if request.PluginID == "rooms" {
-		id, _ := payload["id"].(string)
-		id = strings.TrimSpace(id)
-		if id == "" {
-			return request, commit, nil
-		}
-		delete(payload, "room")
-		payload["id"] = id
-		state, err := storage.State(request.ProjectID, "rooms", id)
+		payload["ticket"] = state
+	case "rooms":
+		state, err := storage.State(request.ProjectID, "rooms", key)
 		if err != nil {
 			return request, nil, err
 		}
 		if request.Operation == "rooms.create" {
-			state = map[string]any{"id": id, "members": []any{}}
+			state = map[string]any{"id": key, "members": []any{}}
 			commit = func(db sqliteExecutor) error {
-				return putSQLiteState(db, request.ProjectID, "rooms", id, state)
+				return putSQLiteState(db, request.ProjectID, "rooms", key, state)
 			}
 		}
 		if state == nil {
-			return request, nil, ErrInvalidWorkerRequest
+			return request, nil, ErrStoredResourceMissing
 		}
 		if request.Operation == "rooms.join" || request.Operation == "rooms.reconnect" {
-			if member, ok := payload["member"].(string); ok {
-				member = strings.TrimSpace(member)
-				if member == "" {
-					return request, nil, ErrInvalidWorkerRequest
+			member, _ := input["member"].(string)
+			member = strings.TrimSpace(member)
+			if member == "" {
+				return request, nil, ErrInvalidWorkerRequest
+			}
+			payload["member"] = member
+			members, _ := state["members"].([]any)
+			found := false
+			for _, existing := range members {
+				if existing == member {
+					found = true
 				}
-				payload["member"] = member
-				members, _ := state["members"].([]any)
-				found := false
-				for _, existing := range members {
-					if existing == member {
-						found = true
-					}
-				}
-				if !found {
-					members = append(members, member)
-				}
-				state["members"] = members
-				commit = func(db sqliteExecutor) error {
-					return putSQLiteState(db, request.ProjectID, "rooms", id, state)
-				}
+			}
+			if !found {
+				members = append(members, member)
+			}
+			state["members"] = members
+			commit = func(db sqliteExecutor) error {
+				return putSQLiteState(db, request.ProjectID, "rooms", key, state)
 			}
 		}
 		if request.Operation == "rooms.result" {
-			if value, ok := payload["result"]; ok {
+			if value, ok := input["result"]; ok {
 				state["result"] = value
+				payload["result"] = value
 				commit = func(db sqliteExecutor) error {
-					return putSQLiteState(db, request.ProjectID, "rooms", id, state)
+					return putSQLiteState(db, request.ProjectID, "rooms", key, state)
 				}
 			}
 		}
 		payload["room"] = state
-		request.Payload, _ = json.Marshal(payload)
-		return request, commit, nil
-	}
-	if request.PluginID == "analytics" && (request.Operation == "analytics.capture" || request.Operation == "@observe/rooms/connected") {
+	case "analytics":
 		var event map[string]any
-		if json.Unmarshal(request.Payload, &event) == nil && event != nil {
-			if request.Operation == "@observe/rooms/connected" {
-				if event["projectId"] != request.ProjectID || event["pluginId"] != "rooms" || event["event"] != "connected" {
-					return request, nil, ErrInvalidWorkerRequest
-				}
-				event = map[string]any{"projectId": request.ProjectID, "name": "rooms.connected", "fields": event["payload"], "observationId": event["id"]}
-			} else {
-				event["projectId"] = request.ProjectID
-				request.Payload, _ = json.Marshal(event)
+		if request.Operation == "@observe/rooms/connected" {
+			if input["projectId"] != request.ProjectID || input["pluginId"] != "rooms" || input["event"] != "connected" {
+				return request, nil, ErrInvalidWorkerRequest
 			}
-			state, err := storage.State(request.ProjectID, "analytics", "events")
-			if err != nil {
-				return request, nil, err
+			event = map[string]any{"projectId": request.ProjectID, "name": "rooms.connected", "fields": input["payload"], "observationId": input["id"]}
+			payload = input
+		} else {
+			if identity, supplied := input["projectId"]; supplied && identity != request.ProjectID {
+				return request, nil, ErrInvalidWorkerRequest
 			}
-			if state == nil {
-				state = map[string]any{"events": []any{}}
-			}
-			events, _ := state["events"].([]any)
-			if observationID, ok := event["observationId"].(string); ok && observationID != "" {
-				for _, existing := range events {
-					if record, ok := existing.(map[string]any); ok && record["observationId"] == observationID {
-						return request, nil, nil
-					}
-				}
-			}
-			events = append(events, event)
-			state["events"] = events
-			commit = func(db sqliteExecutor) error {
-				return putSQLiteState(db, request.ProjectID, "analytics", "events", state)
-			}
+			event = map[string]any{"projectId": request.ProjectID, "name": input["name"], "fields": input["fields"]}
+			payload = event
 		}
-	}
-	if request.PluginID != "tables" {
-		return request, commit, nil
-	}
-	table, _ := payload["table"].(string)
-	table = strings.TrimSpace(table)
-	if table == "" {
-		return request, commit, nil
-	}
-	payload["table"] = table
-	request.Payload, _ = json.Marshal(payload)
-	if request.Operation == "tables.write" {
-		if row, ok := payload["row"].(map[string]any); ok {
-			commit = func(db sqliteExecutor) error {
-				return appendSQLiteRow(db, request.ProjectID, table, row)
-			}
-		}
-	}
-	if request.Operation == "tables.read" {
-		rows, err := storage.Rows(request.ProjectID, table)
+		state, err := storage.State(request.ProjectID, "analytics", "events")
 		if err != nil {
 			return request, nil, err
 		}
-		payload["rows"] = rows
-		request.Payload, _ = json.Marshal(payload)
+		if state == nil {
+			state = map[string]any{"events": []any{}}
+		}
+		events, _ := state["events"].([]any)
+		if observationID, ok := event["observationId"].(string); ok && observationID != "" {
+			for _, existing := range events {
+				if record, ok := existing.(map[string]any); ok && record["observationId"] == observationID {
+					return request, nil, nil
+				}
+			}
+		}
+		state["events"] = append(events, event)
+		commit = func(db sqliteExecutor) error {
+			return putSQLiteState(db, request.ProjectID, "analytics", "events", state)
+		}
+	case "tables":
+		if request.Operation == "tables.write" {
+			row, ok := input["row"].(map[string]any)
+			if !ok || row == nil {
+				return request, nil, ErrInvalidWorkerRequest
+			}
+			payload["row"] = row
+			commit = func(db sqliteExecutor) error {
+				return appendSQLiteRow(db, request.ProjectID, key, row)
+			}
+		} else {
+			rows, err := storage.Rows(request.ProjectID, key)
+			if err != nil {
+				return request, nil, err
+			}
+			payload["rows"] = rows
+		}
 	}
+	encoded, err := json.Marshal(payload)
+	if err != nil {
+		return request, nil, err
+	}
+	request.Payload = encoded
 	return request, commit, nil
 }

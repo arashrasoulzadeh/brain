@@ -51,3 +51,19 @@ test("shared operation dispatcher forwards context to business functions", () =>
   const routes = createOperationRoutes(["read"], (_operation, _input, executionContext) => executionContext);
   equal(routes.dispatch("read", {}, context), context);
 });
+
+test("direct exported routes receive host project and configuration context", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "brain-direct-context-"));
+  try {
+    const entrypoint = join(directory, "plugin.mjs");
+    const descriptor = join(directory, "descriptor.json");
+    await writeFile(entrypoint, "export function read(input, context) { return { project: context.project.id, active: context.project.active, limit: context.config.limit, dependency: context.plugins.has('other'), value: input.value }; }");
+    await writeFile(descriptor, JSON.stringify({ entrypoint, projectId: "trusted", pluginId: "sample", version: "1", routes: [{ operation: "read", function: "read" }] }));
+    const params = { protocol: 1, projectId: "trusted", pluginId: "sample", version: "1", operation: "read", payload: { projectId: "trusted", value: 7 }, hostContext: { projectVerified: true, invocationId: "host-one", config: { limit: 3 }, available: ["other@1"] } };
+    const worker = spawnSync(process.execPath, ["scripts/typescript-worker.mjs", descriptor], { input: JSON.stringify({ id: "one", params }) + "\n", encoding: "utf8", timeout: 5000 });
+    equal(worker.status, 0, worker.stderr);
+    deepEqual(JSON.parse(worker.stdout).result.payload, { project: "trusted", active: true, limit: 3, dependency: true, value: 7 });
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
