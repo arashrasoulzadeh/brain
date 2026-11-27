@@ -69,3 +69,16 @@ test("durable auth rejects missing context, corrupt snapshots and unadmitted adm
   assert.deepEqual(await dispatchRequest("revokeSessions", durable("auth.admin.sessions.revoke", { username: "alice" }, {}), manage), { username: "alice", revoked: 0 });
   assert.deepEqual(events, ["sessions.revoked"]);
 });
+
+test("durable account management uses the exact operator scope and redacted session summary", async () => {
+  const summary = { username: "alice", activeSessions: 2, earliestExpiry: 100, latestExpiry: 200 };
+  const inspect = durable("auth.admin.sessions.inspect", { username: "alice" }, { sessions: summary });
+  const read = authContext("auth.admin.sessions.inspect", "auth.admin.read", "alice", operator);
+  assert.deepEqual(await dispatchRequest("inspectSessions", inspect, read), summary);
+  await assert.rejects(async () => dispatchRequest("inspectSessions", inspect, authContext("auth.admin.sessions.inspect", "auth.admin.read", "bob", operator)), /operator authorization/);
+  const events: string[] = [];
+  const manage = authContext("auth.admin.accounts.suspend", "auth.admin.manage", "alice", operator, events);
+  assert.deepEqual(await dispatchRequest("suspendAccount", durable("auth.admin.accounts.suspend", { username: "alice" }, {}), manage), { username: "alice", suspended: true });
+  assert.deepEqual(events, ["account.status.changed"]);
+  await assert.rejects(async () => dispatchRequest("suspendAccount", durable("auth.admin.accounts.suspend", { username: "bob" }, {}), manage), /operator authorization/);
+});

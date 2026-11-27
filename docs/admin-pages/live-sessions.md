@@ -9,3 +9,5 @@ Use the selected active project and the resource inventory to locate a room or t
 This console is for trusted operators. It is not a public realtime socket server or a game client.
 
 See [Rooms](../plugin-guides/rooms.md), [Arena](../plugin-guides/arena.md), [Matchmaking](../plugin-guides/matchmaking.md), [Invites](../plugin-guides/invites.md), and [extension contracts](extensions.md).
+
+Authorized room inventories show stored membership counts and open/closed state; ticket inventories show persisted assignment status. Room management supports explicit membership removal and closure, subject to its new resource-scoped grant. This does not manage active sockets or a distributed scheduler.

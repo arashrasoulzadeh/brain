@@ -109,6 +109,24 @@ assert.ok(!JSON.stringify(accounts).includes(signedIn.token));
 assert.deepEqual(await invoke("auth","auth.admin.sessions.revoke",{username:"ci-user"}),{username:"ci-user",revoked:1});
 const revoked = await fetch(base+"/ci-project/admin/actions",{method:"POST",headers,body:JSON.stringify({operation:"plugin.invoke",project_id:"ci-project",plugin_id:"auth",version:"0.1.0",target_operation:"auth.session",payload:{token:signedIn.token}})});
 assert.ok(!revoked.ok || !(await revoked.json()).Success,"revoked session still admitted");
+const accountSearch = await invoke("auth","auth.admin.accounts",{search:"CI-USER",kind:"registered",limit:1});
+assert.equal(accountSearch.rows[0].username,"ci-user");
+const renewed = await invoke("auth","auth.signin",{username:"ci-user",password:"ci-fixture-password"});
+const sessionSummary = await invoke("auth","auth.admin.sessions.inspect",{username:"ci-user"});
+assert.equal(sessionSummary.activeSessions,1);
+assert.ok(sessionSummary.latestExpiry>Date.now());
+assert.ok(!JSON.stringify(sessionSummary).includes(renewed.token));
+async function confirmedAdmin(plugin_id,page_id,target_operation,payload) {
+  const response = await action("plugin.admin.invoke",{plugin_id,page_id,target_operation,payload,confirmed:true});
+  assert.equal(response.Success,true,target_operation + ": " + response.ErrorCode);
+  return JSON.parse(Buffer.from(response.Payload,"base64").toString("utf8"));
+}
+assert.deepEqual(await confirmedAdmin("auth","accounts","auth.admin.accounts.suspend",{username:"ci-user"}),{username:"ci-user",suspended:true,revoked:1});
+const suspendedSignin = await fetch(base+"/ci-project/admin/actions",{method:"POST",headers,body:JSON.stringify({operation:"plugin.invoke",project_id:"ci-project",plugin_id:"auth",version:"0.1.0",target_operation:"auth.signin",payload:{username:"ci-user",password:"ci-fixture-password"}})});
+assert.ok(!suspendedSignin.ok || !(await suspendedSignin.json()).Success,"suspended account signed in");
+assert.equal((await invoke("auth","auth.admin.accounts",{kind:"suspended"})).rows[0].suspended,true);
+assert.deepEqual(await confirmedAdmin("auth","accounts","auth.admin.accounts.reactivate",{username:"ci-user"}),{username:"ci-user",suspended:false,revoked:0});
+assert.ok((await invoke("auth","auth.signin",{username:"ci-user",password:"ci-fixture-password"})).token);
 // Invitation codes remain valid across worker replacement, but only once.
 const invite = await invoke("invites","invites.create",{roomId:"ci-room",targetPlayerId:"ci-member",ttlSeconds:120});
 await action("plugin.stop",{plugin_id:"invites",confirmed:true});
@@ -143,6 +161,19 @@ const history = await invoke("analytics","analytics.history",{name:"rooms.connec
 assert.ok(history.rows.some(event=>event.fields.roomId==="ci-room" && event.occurred_at));
 const analyticsSummary = await invoke("analytics","analytics.summary",{limit:10});
 assert.ok(analyticsSummary.rows.some(event=>event.name==="rooms.connected" && event.count>=1));
+const managedRoom = "admin-room";
+await invoke("rooms","rooms.create",{id:managedRoom});
+await invoke("rooms","rooms.join",{id:managedRoom,member:"member-one"});
+await invoke("rooms","rooms.join",{id:managedRoom,member:"member-two"});
+assert.deepEqual((await confirmedAdmin("rooms","manage","rooms.admin.remove-member",{id:managedRoom,member:"member-one"})).members,["member-two"]);
+assert.equal((await confirmedAdmin("rooms","manage","rooms.admin.close",{id:managedRoom})).closed,true);
+const closedJoin = await fetch(base+"/ci-project/admin/actions",{method:"POST",headers,body:JSON.stringify({operation:"plugin.invoke",project_id:"ci-project",plugin_id:"rooms",version:"0.1.0",target_operation:"rooms.join",payload:{id:managedRoom,member:"member-three"}})});
+assert.ok(!closedJoin.ok || !(await closedJoin.json()).Success,"closed room accepted join");
+const roomRows = await action("plugin.admin.inventory",{plugin_id:"rooms",page_id:"operations",search:managedRoom,limit:10});
+assert.deepEqual(roomRows.rows,[{key:managedRoom,status:"closed",member_count:1}]);
+await invoke("matchmaking","matchmaking.queue",{id:"ci-ticket"});
+const tickets = await action("plugin.admin.inventory",{plugin_id:"matchmaking",page_id:"operations",search:"ci-ticket",limit:10});
+assert.deepEqual(tickets.rows,[{key:"ci-ticket",status:"queued"}]);
 // The ticket and event cursor survive replacement of the subscription worker.
 await action("plugin.stop",{plugin_id:"subscriptions",confirmed:true});
 await action("plugin.recover",{plugin_id:"subscriptions"});

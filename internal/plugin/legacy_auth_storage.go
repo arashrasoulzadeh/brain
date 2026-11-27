@@ -91,7 +91,7 @@ func (s *SQLiteStorage) authAccountSearch(project, after, search, kind string, n
 	)
 	SELECT username,user_id,guest,sessions,suspended FROM users WHERE username>?
 		AND (instr(lower(username),lower(?))>0 OR instr(lower(user_id),lower(?))>0)
-		AND (?=\x27\x27 OR (?=\x27registered\x27 AND guest=0) OR (?=\x27guest\x27 AND guest=1) OR (?=\x27suspended\x27 AND suspended=1))
+		AND (?='' OR (?='registered' AND guest=0) OR (?='guest' AND guest=1) OR (?='suspended' AND suspended=1))
 		ORDER BY username LIMIT ?`, project, now, project, project, after, search, search, kind, kind, kind, kind, limit+1)
 	if err != nil {
 		return result, err
@@ -306,7 +306,7 @@ func (p legacyStoragePlanner) prepareAuthStorage(request WorkerRequest) (WorkerR
 			mutation = func(db sqliteExecutor) error {
 				if request.Operation == "auth.signin" {
 					var suspended bool
-					if err := db.QueryRow(`SELECT COALESCE(json_extract(value_json,\x27$.suspended\x27),0) FROM plugin_state WHERE project_id=? AND namespace=? AND state_key=?`, project, authAccountsNamespace, username).Scan(&suspended); err != nil || suspended {
+					if err := db.QueryRow(`SELECT COALESCE(json_extract(value_json,'$.suspended'),0) FROM plugin_state WHERE project_id=? AND namespace=? AND state_key=?`, project, authAccountsNamespace, username).Scan(&suspended); err != nil || suspended {
 						return errAuthCredentials
 					}
 				}

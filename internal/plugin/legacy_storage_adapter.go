@@ -94,6 +94,9 @@ func prepareLegacyStorageEffect(storage *SQLiteStorage, request WorkerRequest) (
 		return prepareAnalyticsRead(storage, request)
 	}
 	if storage == nil {
+		if requiresDurableAdminSnapshot(request) {
+			return request, nil, ErrStoredResourceMissing
+		}
 		return request, nil, nil
 	}
 	if request.PluginID == "arena" {
