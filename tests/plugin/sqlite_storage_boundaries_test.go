@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -98,5 +99,38 @@ func TestSQLiteStorageUnavailable(t *testing.T) {
 	}
 	if _, err := plugin.OpenSQLiteStorage(filepath.Join(t.TempDir(), "missing", "storage.sqlite")); err == nil {
 		t.Fatal("unavailable storage path accepted")
+	}
+}
+
+func TestSQLiteStorageInitializationAndBindingFailClosed(t *testing.T) {
+	dir := t.TempDir()
+	corrupt := filepath.Join(dir, "corrupt.sqlite")
+	if err := os.WriteFile(corrupt, []byte("not a SQLite database"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if storage, err := plugin.OpenSQLiteStorage(corrupt); err == nil {
+		_ = storage.Close()
+		t.Fatal("corrupt database accepted")
+	}
+	store, err := plugin.OpenSQLiteStorage(filepath.Join(dir, "registry.sqlite"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer store.Close()
+	if err := store.PutState("", "registry", "lifecycle", map[string]any{"installations": false}); err != nil {
+		t.Fatal(err)
+	}
+	registry := plugin.NewRegistry(1)
+	if err := registry.BindSQLiteStorage(store); err == nil {
+		t.Fatal("corrupt registry snapshot accepted")
+	}
+	if err := registry.BindSQLiteStorage(nil); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := registry.AdminInventoryAsOperator("", "alpha", "files", "1", "operations", "", 10); !errors.Is(err, plugin.ErrActorDenied) {
+		t.Fatalf("anonymous operator inventory: %v", err)
+	}
+	if _, err := registry.AdminInventoryAsOperator("admin", "alpha", "files", "1", "operations", "", 10); !errors.Is(err, plugin.ErrAdminInventoryUnavailable) {
+		t.Fatalf("unbound inventory: %v", err)
 	}
 }
