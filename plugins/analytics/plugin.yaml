@@ -57,6 +57,13 @@ routes:
     function: readForProject
     helper: sdk.context
     capability: analytics.summary
+  - operation: analytics.timeline
+    method: POST
+    path: /timeline
+    auth: operator
+    function: readForProject
+    helper: sdk.context
+    capability: analytics.summary
 admin:
   version: 1
   pages:
@@ -87,6 +94,8 @@ admin:
             - {name: name, type: string, required: true}
             - {name: offset, type: number}
             - {name: limit, type: number}
+            - {name: from, type: string}
+            - {name: until, type: string}
         - title: Event counts
           operation: analytics.summary
           read_only: true
@@ -101,3 +110,20 @@ admin:
           fields:
             - {name: offset, type: number}
             - {name: limit, type: number}
+            - {name: from, type: string}
+            - {name: until, type: string}
+        - title: Event timeline (UTC)
+          operation: analytics.timeline
+          read_only: true
+          fields:
+            - {name: from, type: string, required: true}
+            - {name: until, type: string, required: true}
+            - {name: bucket, type: string, required: true}
+            - {name: name, type: string}
+          result:
+            type: grid
+            children:
+              - {type: metric, title: Events in range, path: total_events}
+              - {type: metric, title: Undated legacy events (excluded), path: undated_events}
+              - {type: chart, title: UTC event counts, path: rows, label_field: start, value_field: count}
+              - {type: table, path: rows, columns: [start, count], page_size: 24}

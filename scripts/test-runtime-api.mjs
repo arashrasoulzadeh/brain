@@ -184,6 +184,9 @@ const history = await invoke("analytics","analytics.history",{name:"rooms.connec
 assert.ok(history.rows.some(event=>event.fields.roomId==="ci-room" && event.occurred_at));
 const analyticsSummary = await invoke("analytics","analytics.summary",{limit:10});
 assert.ok(analyticsSummary.rows.some(event=>event.name==="rooms.connected" && event.count>=1));
+const timeline = await invoke("analytics","analytics.timeline",{name:"rooms.connected",from:new Date(Date.now()-3600000).toISOString(),until:new Date(Date.now()+3600000).toISOString(),bucket:"hour"});
+assert.ok(timeline.total_events>=1);
+assert.equal(timeline.rows.reduce((total,row)=>total+row.count,0),timeline.total_events);
 const managedRoom = "admin-room";
 await invoke("rooms","rooms.create",{id:managedRoom});
 await invoke("rooms","rooms.join",{id:managedRoom,member:"member-one"});

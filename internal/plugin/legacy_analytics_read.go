@@ -50,6 +50,10 @@ func prepareAnalyticsRead(storage *SQLiteStorage, request WorkerRequest) (Worker
 	if project, exists := input["projectId"]; exists && project != request.ProjectID {
 		return request, nil, ErrInvalidWorkerRequest
 	}
+	window, err := readAnalyticsWindow(input, false)
+	if err != nil {
+		return request, nil, err
+	}
 	offset, err := boundedStorageInt(input, "offset", 0, 0, 1000000000)
 	if err != nil {
 		return request, nil, err
@@ -73,15 +77,21 @@ func prepareAnalyticsRead(storage *SQLiteStorage, request WorkerRequest) (Worker
 	}
 	events, _ := state["events"].([]any)
 	rows := make([]map[string]any, 0, limit)
-	total := 0
+	total, undated := 0, 0
 	if summary {
 		counts := make(map[string]int)
 		for _, raw := range events {
 			record, ok := raw.(map[string]any)
 			eventName, _ := record["name"].(string)
 			if ok && record["projectId"] == request.ProjectID && analyticsEventName.MatchString(eventName) {
-				counts[eventName]++
-				total++
+				stamp, known := eventTime(record)
+				if !known {
+					undated++
+				}
+				if window.contains(stamp, known) {
+					counts[eventName]++
+					total++
+				}
 			}
 		}
 		names := make([]string, 0, len(counts))
@@ -92,7 +102,7 @@ func prepareAnalyticsRead(storage *SQLiteStorage, request WorkerRequest) (Worker
 		for i := offset; i < len(names) && len(rows) < limit; i++ {
 			rows = append(rows, map[string]any{"name": names[i], "count": counts[names[i]]})
 		}
-		result := map[string]any{"total_events": total, "total_names": len(names), "rows": rows, "offset": offset}
+		result := map[string]any{"total_events": total, "total_names": len(names), "rows": rows, "offset": offset, "undated_events": undated}
 		if offset+len(rows) < len(names) {
 			result["next_offset"] = offset + len(rows)
 		}
@@ -107,6 +117,13 @@ func prepareAnalyticsRead(storage *SQLiteStorage, request WorkerRequest) (Worker
 	for i := len(events) - 1; i >= 0; i-- {
 		record, ok := events[i].(map[string]any)
 		if !ok || record["projectId"] != request.ProjectID || record["name"] != name {
+			continue
+		}
+		stamp, known := eventTime(record)
+		if !known {
+			undated++
+		}
+		if !window.contains(stamp, known) {
 			continue
 		}
 		total++
@@ -131,7 +148,7 @@ func prepareAnalyticsRead(storage *SQLiteStorage, request WorkerRequest) (Worker
 		size += len(encoded)
 		rows = append(rows, row)
 	}
-	result := map[string]any{"name": name, "total_events": total, "rows": rows, "offset": offset}
+	result := map[string]any{"name": name, "total_events": total, "rows": rows, "offset": offset, "undated_events": undated}
 	if offset+len(rows) < total {
 		result["next_offset"] = offset + len(rows)
 	}

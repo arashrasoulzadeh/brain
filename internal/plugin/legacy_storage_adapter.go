@@ -93,6 +93,9 @@ func prepareLegacyStorageEffect(storage *SQLiteStorage, request WorkerRequest) (
 	if request.PluginID == "tables" && (needsTablePage(request) || request.Operation == "tables.update" || request.Operation == "tables.delete") {
 		return prepareTableAdmin(storage, request)
 	}
+	if request.PluginID == "analytics" && request.Operation == "analytics.timeline" {
+		return prepareAnalyticsTimeline(storage, request)
+	}
 	if request.PluginID == "analytics" && (request.Operation == "analytics.history" || request.Operation == "analytics.summary") {
 		return prepareAnalyticsRead(storage, request)
 	}
