@@ -3,6 +3,74 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `43e57815` — 2026-11-28 00:05:48 +0330 — Merge PR #48: Expand admin operations
+  Files: 
+- `bda81846` — 2026-11-27 22:55:27 +0330 — Test admin storage page ceilings, malformed snapshots and actor boundaries
+  Files: internal/plugin/admin_storage_boundary_test.go
+- `2e27284a` — 2026-11-27 22:53:41 +0330 — Correct boundary test formatting and inactive-project fixture
+  Files: internal/app/project_http_boundary_test.go
+- `8866c01d` — 2026-11-27 22:52:15 +0330 — test: cover project HTTP identity binding, malformed requests and worker response boundaries
+  Files: internal/app/project_http.go,internal/app/project_http_boundary_test.go
+- `1d38948b` — 2026-11-27 22:50:08 +0330 — test: cover account transaction rollback, stale sign-in and managed inventory search boundaries
+  Files: internal/plugin/auth_admin_failure_test.go,internal/plugin/confirmed_install_boundary_test.go tests/plugin/admin_inventory_search_policy_test.go
+- `72fbe27e` — 2026-11-27 22:48:38 +0330 — fix: make room closure and membership mutations compare-and-swap safe
+  Files: docs/plugin-guides/rooms.md,internal/plugin/legacy_room_admin_test.go internal/plugin/legacy_storage_adapter.go
+- `aecf6446` — 2026-11-27 22:47:23 +0330 — test: cover confirmed install admission, dependency and persistence failure boundaries
+  Files: internal/plugin/confirmed_install_boundary_test.go
+- `86772c54` — 2026-11-27 22:45:40 +0330 — Exercise shared admin shell, dashboard and revoked extension access
+  Files: admin-nextjs/app/components/admin-chrome.tsx,admin-nextjs/app/extensions/[project]/[plugin]/[version]/[page]/view.tsx tests/admin-ui/pages.test.mjs,tests/admin-ui/workspaces.test.mjs
+- `667120e9` — 2026-11-27 22:44:08 +0330 — Cover schema migration errors and fix zero-time analytics bounds
+  Files: internal/plugin/legacy_analytics_timeline.go,internal/plugin/legacy_analytics_timeline_test.go internal/plugin/legacy_table_schema_test.go
+- `0bc3ec14` — 2026-11-27 22:42:53 +0330 — Test binary file streaming, rollback and authenticated proxy boundaries
+  Files: admin-nextjs/app/lib/plugin-version-review.ts,internal/plugin/file_binary_storage_test.go scripts/test-runtime-api.mjs,tests/admin-ui/file-proxy.test.mjs tests/admin-ui/pages.test.mjs
+- `73dbd881` — 2026-11-27 22:40:25 +0330 — ci: collect genuine V8 coverage from packaged runtime and browser integration tests
+  Files: .github/workflows/admin-browser.yml,.github/workflows/coverage.yml docs/admin-pages/README.md,internal/plugin/registry_versions.go
+- `eafc2b98` — 2026-11-27 22:39:12 +0330 — test: cover staged plugin upgrades and exact-schema and room authorization in admin runtime
+  Files: docs/http-api.md,tests/admin-ui/pages.test.mjs tests/admin/admin-plugin-operations.test.ts
+- `ef840672` — 2026-11-27 22:37:41 +0330 — feat: staged plugin version management, dependency review and catalog health filters
+  Files: admin-nextjs/app/components/plugin-catalog-panel.tsx,admin-nextjs/app/components/plugin-install-dialog.tsx admin-nextjs/app/lib/plugin-version-review.ts,admin-nextjs/app/plugins/[plugin]/view.tsx docs/admin-pages/plugin-detail.md,tests/admin/plugin-version-review.test.ts
+- `4d15b090` — 2026-11-27 22:36:39 +0330 — fix: persist exact promoted plugin versions and explicit upgrade capability approvals
+  Files: admin-nextjs/app/lib/admin-types.ts,docs/admin-pages/plugin-detail.md internal/admin/lifecycle.go,internal/app/admin.go internal/plugin/plugin.go,internal/plugin/registry_catalog.go internal/plugin/registry_permissions.go,internal/plugin/registry_storage.go internal/plugin/registry_versions.go,tests/plugin/version_persistence_test.go
+- `ad7402d9` — 2026-11-27 22:34:38 +0330 — feat: time-filtered analytics history and bounded UTC event timelines
+  Files: docs/plugin-guides/analytics.md,internal/plugin/legacy_analytics_read.go internal/plugin/legacy_analytics_timeline.go,internal/plugin/legacy_analytics_timeline_test.go internal/plugin/legacy_storage_adapter.go,internal/plugin/legacy_table_admin.go plugins/analytics/plugin.yaml,plugins/sdk-typescript/src/manifest-operations.generated.d.ts scripts/test-runtime-api.mjs
+- `48371786` — 2026-11-27 22:33:54 +0330 — feat: inspect observed database schemas and apply revision-checked bulk field migrations
+  Files: docs/admin-pages/database.md,docs/plugin-guides/tables.md internal/plugin/legacy_storage_adapter.go,internal/plugin/legacy_table_admin.go internal/plugin/legacy_table_schema.go,internal/plugin/legacy_table_schema_test.go plugins/sdk-typescript/src/manifest-operations.generated.d.ts,plugins/tables/index.ts plugins/tables/plugin.yaml,plugins/tables/routes.ts scripts/test-runtime-api.mjs
+- `ff7734dc` — 2026-11-27 22:31:16 +0330 — test: exercise arena interruption authorization and game rule metadata
+  Files: docs/admin-pages/live-sessions.md,tests/arena/arena-routes.test.ts tests/games/games.test.ts
+- `c1833538` — 2026-11-27 22:30:41 +0330 — feat: arena interruption, match status inventory and game rule inspection
+  Files: docs/plugin-guides/arena.md,docs/plugin-guides/games.md internal/plugin/legacy_admin_inventory.go,internal/plugin/legacy_arena_admin_test.go internal/plugin/legacy_arena_storage.go,internal/plugin/legacy_table_admin.go plugins/arena/index.ts,plugins/arena/plugin.yaml plugins/arena/state-machine.ts,plugins/games/index.ts plugins/games/plugin.yaml,plugins/sdk-typescript/src/manifest-operations.generated.d.ts scripts/test-runtime-api.mjs
+- `d5951f5d` — 2026-11-27 22:27:50 +0330 — test: exercise account suspension and room closure through the packaged admin runtime
+  Files: docs/admin-pages/live-sessions.md,internal/plugin/legacy_auth_storage.go internal/plugin/legacy_storage_adapter.go,scripts/test-runtime-api.mjs tests/auth/durable-dispatch.test.ts
+- `3df8c96c` — 2026-11-27 22:27:14 +0330 — feat: durable room administration and authorized live-session inventory metadata
+  Files: admin-nextjs/app/components/admin-inventory.tsx,admin-nextjs/app/lib/admin-types.ts docs/plugin-guides/matchmaking.md,docs/plugin-guides/rooms.md internal/plugin/admin_inventory.go,internal/plugin/legacy_admin_inventory.go internal/plugin/legacy_room_admin_test.go,internal/plugin/legacy_storage_adapter.go internal/plugin/legacy_table_admin.go,plugins/rooms/index.ts plugins/rooms/plugin.yaml,plugins/rooms/routes.ts plugins/sdk-typescript/src/manifest-operations.generated.d.ts
+- `bab0f0a9` — 2026-11-27 22:26:20 +0330 — feat: account search, redacted session inspection and atomic account suspension
+  Files: docs/plugin-guides/auth.md,internal/plugin/legacy_auth_admin.go internal/plugin/legacy_auth_admin_test.go,internal/plugin/legacy_auth_storage.go plugins/auth/plugin.yaml,plugins/auth/service.ts plugins/sdk-typescript/src/manifest-operations.generated.d.ts
+- `548138ce` — 2026-11-27 22:23:31 +0330 — test: cover route filtering and invalid payloads in browser and function search in DOM
+  Files: admin-nextjs/app/functions/function-editor.tsx,admin-nextjs/app/view.tsx scripts/test-admin-browser.mjs,tests/admin-ui/pages.test.mjs
+- `2667b382` — 2026-11-27 22:23:05 +0330 — feat: improve function source state, catalog filters and execution log inspection
+  Files: admin-nextjs/app/functions/[name]/view.tsx,admin-nextjs/app/functions/function-editor.tsx admin-nextjs/app/functions/view.tsx,admin-nextjs/app/lib/function-inspection.ts docs/admin-pages/function-detail.md,docs/admin-pages/functions.md tests/admin/function-inspection.test.ts
+- `a1a0abe7` — 2026-11-27 22:21:53 +0330 — feat: searchable route discovery and immutable confirmed playground requests
+  Files: admin-nextjs/app/components/routes-panel.tsx,admin-nextjs/app/lib/admin-playground.ts admin-nextjs/app/lib/project-requests.ts,admin-nextjs/app/view.tsx docs/admin-pages/routes.md,tests/admin/admin-playground.test.ts tests/admin/project-requests.test.ts
+- `c6dd55cf` — 2026-11-27 22:05:16 +0330 — test: use namespaced CLI health endpoints
+  Files: tests/cli/test_cli.py
+- `8e80dda5` — 2026-11-27 22:04:44 +0330 — test: exercise database and analytics admin operations in packaged runtime and repair browser fixtures
+  Files: docs/admin-pages/README.md,scripts/test-runtime-api.mjs tests/admin-ui/interactive.test.mjs,tests/browser/admin.test.mjs
+- `abff53c3` — 2026-11-27 22:03:45 +0330 — feat: bounded database row pages and revision-checked row replacement and deletion
+  Files: docs/admin-pages/database.md,docs/plugin-guides/tables.md internal/plugin/legacy_analytics_read.go,internal/plugin/legacy_storage_adapter.go internal/plugin/legacy_table_admin.go,internal/plugin/legacy_table_admin_test.go internal/plugin/registry_workers.go,plugins/sdk-typescript/src/manifest-operations.generated.d.ts plugins/tables/index.ts,plugins/tables/plugin.yaml plugins/tables/routes.ts,tests/admin/lifecycle_read_test.go tests/tables/admin-rows.test.ts
+- `fc7d0298` — 2026-11-27 22:01:26 +0330 — feat: search authorized resource inventories across server-side pages
+  Files: admin-nextjs/app/components/admin-inventory.tsx,admin-nextjs/app/lib/admin-sdk.ts docs/admin-pages/extensions.md,docs/http-api.md internal/admin/lifecycle.go,internal/app/admin.go internal/plugin/admin_inventory.go,internal/plugin/admin_inventory_test.go internal/plugin/legacy_admin_inventory.go,tests/admin-ui/api.test.mjs
+- `55598dda` — 2026-11-27 22:00:44 +0330 — test: reconcile admin coverage fixtures with scoped routes and confirmation dialogs
+  Files: tests/admin-ui/api.test.mjs,tests/admin-ui/components.test.mjs tests/admin-ui/dom-harness.mjs,tests/admin-ui/interactive.test.mjs tests/admin-ui/main-page.test.mjs,tests/admin-ui/pages.test.mjs tests/admin-ui/registry.test.mjs,tests/app/function_http_test.go tests/app/http_inventory_test.go
+- `9d4e692b` — 2026-11-27 21:58:35 +0330 — Fix analytics fixture context and Go formatting
+  Files: internal/plugin/legacy_analytics_read.go,internal/plugin/legacy_analytics_read_test.go internal/plugin/plugin.go,tests/analytics/coverage-edges.test.ts
+- `9adbe19d` — 2026-11-27 21:56:31 +0330 — feat: expose project-scoped analytics history and event counts
+  Files: docs/admin-pages/README.md,docs/plugin-guides/analytics.md internal/plugin/legacy_analytics_read.go,internal/plugin/legacy_analytics_read_test.go internal/plugin/legacy_storage_adapter.go,plugins/analytics/index.ts plugins/analytics/plugin.yaml,plugins/sdk-typescript/src/manifest-operations.generated.d.ts tests/analytics/coverage-edges.test.ts
+- `461bd31a` — 2026-11-27 21:54:45 +0330 — feat: expose resource grant scopes and advanced admin lifecycle controls
+  Files: admin-nextjs/app/dashboard/view.tsx,admin-nextjs/app/lib/admin-types.ts admin-nextjs/app/plugins/[plugin]/view.tsx,admin-nextjs/app/workers/view.tsx docs/admin-pages/dashboard.md,docs/admin-pages/plugin-detail.md internal/plugin/plugin.go,internal/plugin/registry_catalog.go tests/admin/lifecycle_read_test.go
+- `54f4e4ff` — 2026-11-27 21:53:32 +0330 — feat: improve admin audit, inventory, worker health and request isolation
+  Files: admin-nextjs/app/components/admin-inventory.tsx,admin-nextjs/app/components/audit-panel.tsx admin-nextjs/app/components/monitoring-panel.tsx,admin-nextjs/app/lib/admin-observability.ts admin-nextjs/app/lib/admin-types.ts,admin-nextjs/app/view.tsx admin-nextjs/app/workers/view.tsx,docs/admin-pages/audit.md docs/admin-pages/extensions.md,docs/admin-pages/monitoring.md docs/admin-pages/workers.md,internal/admin/lifecycle.go internal/operator/operator.go,internal/plugin/registry_audit.go tests/admin/admin-observability.test.ts,tests/admin/lifecycle_read_test.go
+- `dcec131f` — 2026-11-27 18:20:51 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `43d7023b` — 2026-11-27 21:48:36 +0330 — Merge pull request #14 from arashrasoulzadeh/quality/coverage-completion
   Files: 
 - `e462a13e` — 2026-11-27 21:48:25 +0330 — Merge main into coverage completion and retain existing CI checks
@@ -35,71 +103,3 @@ Automatically generated from commits on main.
   Files: docs/http-api.md
 - `ad138e98` — 2026-11-27 21:07:34 +0330 — Test actual sidebar links and safeguard active version and project scope
   Files: admin-nextjs/app/components/plugin-install-dialog.tsx,admin-nextjs/app/dashboard/view.tsx admin-nextjs/app/view.tsx,internal/plugin/registry_install_activate.go scripts/test-admin-browser.mjs,tests/admin/admin-menu.test.ts
-- `10226493` — 2026-11-27 21:07:15 +0330 — Confirm plugin capabilities and install active workers with live sidebar refresh
-  Files: admin-nextjs/app/[project]/ui/dashboard/page.tsx,admin-nextjs/app/components/admin-chrome.tsx admin-nextjs/app/components/admin-config-form.tsx,admin-nextjs/app/components/admin-shell.tsx admin-nextjs/app/components/legacy-admin-page.tsx,admin-nextjs/app/components/plugin-catalog-panel.tsx admin-nextjs/app/components/plugin-install-dialog.tsx,admin-nextjs/app/dashboard/view.tsx admin-nextjs/app/lib/admin-api.ts,admin-nextjs/app/lib/admin-menu.ts admin-nextjs/app/lib/admin-navigation.ts,admin-nextjs/app/lib/admin-registry.ts admin-nextjs/app/lib/admin-types.ts,admin-nextjs/app/lib/plugin-install.ts admin-nextjs/app/plugins/[plugin]/view.tsx,admin-nextjs/app/view.tsx admin-nextjs/app/workers/view.tsx,docs/admin-pages/README.md docs/admin-pages/dashboard.md,docs/admin-pages/plugins.md internal/admin/lifecycle.go,internal/app/admin.go internal/plugin/registry_install_activate.go,internal/plugin/registry_install_activate_test.go scripts/test-admin-browser.mjs,scripts/test-admin-live.mjs
-- `c0257087` — 2026-11-27 21:00:00 +0330 — Configure file limits in decimal MB up to 1 GB and add bounded binary transfer
-  Files: admin-nextjs/app/components/admin-config-form.tsx,admin-nextjs/app/components/admin-file-controls.tsx admin-nextjs/app/components/admin-renderer.tsx,admin-nextjs/app/lib/admin-file-data.ts admin-nextjs/app/lib/admin-file-transfer.ts,docs/admin-pages/files.md docs/http-api.md,internal/admin/file_transfer.go internal/app/admin_files.go,internal/app/api_response.go internal/app/app.go,internal/plugin/file_binary_storage.go internal/plugin/file_upload_limit.go,internal/plugin/file_upload_limit_test.go internal/plugin/legacy_storage_adapter.go,internal/plugin/registry_catalog.go internal/plugin/sqlite_storage.go,plugins/files/routes.ts scripts/test-admin-live.mjs,tests/admin/admin-file-data.test.ts
-- `c26b3f3d` — 2026-11-27 17:21:01 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `048b932a` — 2026-11-27 20:50:06 +0330 — Merge pull request #44 from arashrasoulzadeh/feat/plugin-action-dialogs
-  Files: 
-- `35136672` — 2026-11-27 20:49:32 +0330 — Merge main and preserve session-expiry and plugin dialog regression tests; align plugin admin documentation
-  Files: docs/admin-pages/README.md,docs/admin-pages/files.md docs/admin-pages/plugin-detail.md,scripts/test-admin-browser.mjs
-- `385259dd` — 2026-11-27 17:19:00 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `1544e17b` — 2026-11-27 20:48:49 +0330 — Merge pull request #43 from arashrasoulzadeh/fix/admin-expired-session-layout
-  Files: 
-- `42ff350a` — 2026-11-27 20:26:07 +0330 — Persist file metadata and complete per-project plugin management audit
-  Files: admin-nextjs/app/components/admin-config-form.tsx,admin-nextjs/app/components/admin-file-controls.tsx admin-nextjs/app/components/admin-inventory.tsx,admin-nextjs/app/components/admin-renderer.tsx admin-nextjs/app/lib/admin-types.ts,admin-nextjs/app/plugins/[plugin]/view.tsx internal/plugin/admin_inventory.go,internal/plugin/file_metadata.go internal/plugin/file_metadata_test.go,internal/plugin/legacy_admin_inventory.go internal/plugin/legacy_storage_adapter.go,internal/plugin/manifest.go internal/plugin/plugin.go,internal/plugin/registry_catalog.go internal/plugin/sqlite_storage.go,plugins/access-management/plugin.yaml plugins/analytics/plugin.yaml,plugins/arena/plugin.yaml plugins/auth/plugin.yaml,plugins/dashboard/plugin.yaml plugins/files/plugin.yaml,plugins/files/routes.ts plugins/functions/plugin.yaml,plugins/invites/plugin.yaml plugins/matchmaking/plugin.yaml,plugins/rooms/plugin.yaml plugins/subscriptions/plugin.yaml,plugins/tables/plugin.yaml plugins/template/plugin.yaml,scripts/test-admin-live.mjs
-- `10ff7ca7` — 2026-11-27 20:16:54 +0330 — Use dialogs for management lifecycle actions and finish compatibility fixes
-  Files: admin-nextjs/app/components/admin-file-controls.tsx,admin-nextjs/app/plugins/[plugin]/view.tsx internal/plugin/registry_catalog.go
-- `654fb5f0` — 2026-11-27 20:16:20 +0330 — Use shared plugin action dialogs and project-scoped management settings
-  Files: admin-nextjs/app/components/admin-config-form.tsx,admin-nextjs/app/components/admin-dialog.tsx admin-nextjs/app/components/admin-file-controls.tsx,admin-nextjs/app/components/admin-renderer.tsx admin-nextjs/app/components/model-panel.tsx,admin-nextjs/app/components/plugin-manage-link.tsx admin-nextjs/app/functions/view.tsx,admin-nextjs/app/lib/admin-registry.ts admin-nextjs/app/lib/admin-types.ts,admin-nextjs/app/plugins/[plugin]/view.tsx admin-nextjs/app/theme.css,docs/admin-pages/extensions.md docs/admin-pages/files.md,docs/admin-pages/plugin-detail.md internal/plugin/file_upload_limit.go,internal/plugin/file_upload_limit_test.go internal/plugin/plugin.go,internal/plugin/registry_catalog.go internal/plugin/registry_permissions.go,internal/plugin/registry_workers.go plugins/files/plugin.yaml,scripts/test-admin-browser.mjs scripts/test-admin-live.mjs
-- `d1de78bb` — 2026-11-27 20:11:09 +0330 — Invalidate expired admin sessions centrally and show standalone login without protected shell
-  Files: admin-nextjs/app/components/admin-shell.tsx,admin-nextjs/app/components/toast-provider.tsx admin-nextjs/app/lib/admin-api.ts,admin-nextjs/app/lib/admin-session-response.ts admin-nextjs/app/plugins/[plugin]/view.tsx,admin-nextjs/app/view.tsx admin-nextjs/app/workers/view.tsx,docs/admin-pages/login.md scripts/test-admin-browser.mjs,tests/admin/admin-session-response.test.ts
-- `887ace77` — 2026-11-27 16:37:47 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `eee64e74` — 2026-11-27 20:07:36 +0330 — Merge pull request #42 from arashrasoulzadeh/feat/plugin-admin-workspaces
-  Files: 
-- `bf909810` — 2026-11-27 19:57:25 +0330 — Type the shared file action state transition as a string record
-  Files: admin-nextjs/app/components/admin-renderer.tsx
-- `056d1fe7` — 2026-11-27 19:56:24 +0330 — Clear prior object key when starting an upload and identify stored representation size
-  Files: admin-nextjs/app/components/admin-inventory.tsx,admin-nextjs/app/components/admin-renderer.tsx
-- `ccda373c` — 2026-11-27 19:55:54 +0330 — Add individual plugin workspaces and trusted file upload/download controls
-  Files: admin-nextjs/app/components/admin-file-controls.tsx,admin-nextjs/app/components/admin-renderer.tsx admin-nextjs/app/components/legacy-admin-page.tsx,admin-nextjs/app/lib/admin-file-data.ts admin-nextjs/app/lib/admin-menu.ts,admin-nextjs/app/lib/admin-registry.ts admin-nextjs/app/lib/admin-sdk.ts,admin-nextjs/app/theme.css docs/admin-pages/README.md,docs/admin-pages/extensions.md docs/admin-pages/files.md,docs/admin-pages/live-sessions.md docs/plugin-guides/files.md,plugins/access-management/plugin.yaml plugins/analytics/plugin.yaml,plugins/arena/plugin.yaml plugins/auth/plugin.yaml,plugins/games/plugin.yaml plugins/invites/plugin.yaml,plugins/matchmaking/plugin.yaml plugins/pvp/plugin.yaml,plugins/rooms/plugin.yaml plugins/subscriptions/plugin.yaml,scripts/test-admin-live.mjs tests/admin/admin-file-data.test.ts,tests/admin/admin-menu.test.ts tests/admin/admin-registry.test.ts,tests/plugin/all_manifests_test.go
-- `e69aa54f` — 2026-11-27 16:19:42 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `c415bea9` — 2026-11-27 19:49:31 +0330 — Merge pull request #41 from arashrasoulzadeh/fix/canonical-project-http-paths
-  Files: 
-- `ddc4fd1e` — 2026-11-27 19:48:07 +0330 — Synchronize live admin navigation assertions with Next.js client routing
-  Files: scripts/test-admin-live.mjs
-- `bd2b5a66` — 2026-11-27 19:43:34 +0330 — Check mobile project identity after opening the collapsed navigation
-  Files: scripts/test-admin-browser.mjs
-- `14991857` — 2026-11-27 19:41:14 +0330 — Resolve NodeNext TypeScript imports in the Next.js production build
-  Files: admin-nextjs/next.config.ts
-- `e97b772a` — 2026-11-27 19:39:55 +0330 — Reject ambiguous project UI mounts and verify direct URL project authority in Chromium
-  Files: admin-nextjs/app/components/admin-shell.tsx,docs/admin-pages/login.md docs/admins.md,scripts/test-admin-browser.mjs scripts/test-admin-live.mjs,tests/plugin/http_manifest_test.go
-- `b1079469` — 2026-11-27 19:39:42 +0330 — Add URL authority and project navigation regressions and update admin route documentation
-  Files: admin-nextjs/app/[project]/ui/layout.tsx,admin-nextjs/app/[project]/ui/template.tsx admin-nextjs/app/components/admin-chrome.tsx,admin-nextjs/app/functions/view.tsx admin-nextjs/app/lib/admin-api.ts,admin-nextjs/app/lib/admin-menu.ts admin-nextjs/next.config.ts,docs/admin-pages/README.md docs/admin-pages/audit.md,docs/admin-pages/database.md docs/admin-pages/files.md,docs/admin-pages/function-detail.md docs/admin-pages/function-new.md,docs/admin-pages/functions.md docs/admin-pages/live-sessions.md,docs/admin-pages/login.md docs/admin-pages/monitoring.md,docs/admin-pages/plugin-detail.md docs/admin-pages/plugins.md,docs/admin-pages/projects.md docs/admin-pages/routes.md,docs/admin-pages/system.md docs/admin-pages/workers.md,docs/admin-pages/workflows.md docs/http-api.md,docs/plugin-manifest.md scripts/documentation_inventory.py,scripts/test-admin-browser.mjs tests/admin/admin-api.test.ts,tests/admin/admin-menu.test.ts tests/admin/admin-registry.test.ts,tests/admin/admin-shell.test.ts
-- `9e476612` — 2026-11-27 19:37:03 +0330 — Move admin browser routes into explicit project and system UI namespaces
-  Files: admin-nextjs/app/%5Fsystem/ui/audit/page.tsx,admin-nextjs/app/%5Fsystem/ui/page.tsx admin-nextjs/app/%5Fsystem/ui/projects/page.tsx,admin-nextjs/app/[legacy]/page.tsx admin-nextjs/app/[project]/ui/[legacy]/page.tsx,admin-nextjs/app/[project]/ui/extensions/[plugin]/[version]/[page]/page.tsx admin-nextjs/app/[project]/ui/functions/[name]/page.tsx,admin-nextjs/app/[project]/ui/functions/new/page.tsx admin-nextjs/app/[project]/ui/functions/page.tsx,admin-nextjs/app/[project]/ui/monitoring/page.tsx admin-nextjs/app/[project]/ui/page.tsx,admin-nextjs/app/[project]/ui/plugins/[plugin]/page.tsx admin-nextjs/app/[project]/ui/plugins/page.tsx,admin-nextjs/app/[project]/ui/routes/page.tsx admin-nextjs/app/[project]/ui/system/page.tsx,admin-nextjs/app/[project]/ui/workers/page.tsx admin-nextjs/app/audit/page.tsx,admin-nextjs/app/components/admin-chrome.tsx admin-nextjs/app/components/admin-shell.tsx,admin-nextjs/app/components/legacy-admin-page.tsx admin-nextjs/app/components/plugin-catalog-panel.tsx,admin-nextjs/app/database/page.tsx admin-nextjs/app/extensions/[project]/[plugin]/[version]/[page]/view.tsx,admin-nextjs/app/files/page.tsx admin-nextjs/app/functions/[name]/view.tsx,admin-nextjs/app/functions/new/view.tsx admin-nextjs/app/functions/page.tsx,admin-nextjs/app/functions/view.tsx admin-nextjs/app/lib/admin-api.ts,admin-nextjs/app/lib/admin-menu.ts admin-nextjs/app/lib/admin-registry.ts,admin-nextjs/app/live-sessions/page.tsx admin-nextjs/app/monitoring/page.tsx,admin-nextjs/app/plugins/[plugin]/view.tsx admin-nextjs/app/plugins/page.tsx,admin-nextjs/app/projects/page.tsx admin-nextjs/app/routes/page.tsx,admin-nextjs/app/system/page.tsx admin-nextjs/app/view.tsx,admin-nextjs/app/workers/view.tsx admin-nextjs/app/workflows/page.tsx,admin-nextjs/next.config.ts internal/plugin/manifest_http.go
-- `ef4f2644` — 2026-11-27 19:32:37 +0330 — Verify project slug function URLs and document canonical route discovery
-  Files: docs/admin-pages/routes.md,docs/http-api.md tests/admin/admin-api.test.ts,tests/app/function_http_coverage_test.go
-- `3c68702e` — 2026-11-27 19:32:02 +0330 — Expose canonical project-scoped routes and migrate remaining admin HTTP callers
-  Files: admin-nextjs/app/components/admin-config-form.tsx,admin-nextjs/app/components/routes-panel.tsx admin-nextjs/app/functions/[name]/page.tsx,admin-nextjs/app/workers/page.tsx internal/app/project_http.go,tests/app/project_plugin_http_test.go
-- `ceef22f3` — 2026-11-27 15:57:58 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `05ba5ce0` — 2026-11-27 19:26:14 +0330 — Merge pull request #38 from arashrasoulzadeh/feat/project-scoped-http-and-plugin-routes
-  Files: 
-- `173da987` — 2026-11-27 19:25:20 +0330 — Exercise authenticated Arena admission and invalid durable snapshots
-  Files: tests/arena/arena-routes.test.ts
-- `71fd24bd` — 2026-11-27 19:24:23 +0330 — Format WebSocket gateway table test
-  Files: tests/plugin/websocket_gateway_test.go
-- `0046b6b9` — 2026-11-27 19:24:18 +0330 — Cover project namespace configuration and persistence on memory and SQLite stores
-  Files: tests/project/url_namespace_test.go
-- `97834de2` — 2026-11-27 19:23:55 +0330 — Cover WebSocket gateway boundary and rejected socket messages
-  Files: tests/plugin/websocket_gateway_test.go
-- `d249e585` — 2026-11-27 19:23:28 +0330 — Cover WebSocket upgrade tokens and conflicting project identity
-  Files: tests/plugin/websocket_endpoint_test.go
-- `ca5405fe` — 2026-11-27 19:23:21 +0330 — Require an exact Connection upgrade token for WebSocket admission
-  Files: internal/plugin/websocket_endpoint.go
