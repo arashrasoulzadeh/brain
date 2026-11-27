@@ -6,6 +6,7 @@ on:
       - 'admin-nextjs/**'
       - 'scripts/test-admin-browser.mjs'
       - 'scripts/test-admin-live.mjs'
+      - 'scripts/admin-ci-backend-relay.mjs'
       - 'internal/**'
       - 'cmd/**'
       - 'plugins/**'
@@ -20,6 +21,7 @@ on:
       - 'admin-nextjs/**'
       - 'scripts/test-admin-browser.mjs'
       - 'scripts/test-admin-live.mjs'
+      - 'scripts/admin-ci-backend-relay.mjs'
       - 'internal/**'
       - 'cmd/**'
       - 'plugins/**'
@@ -73,12 +75,14 @@ jobs:
       - name: Verify admin against the packaged backend
         run: |
           docker build -t brain:admin-browser .
-          container=$(docker run -d --privileged -p 127.0.0.1:18082:8080 -e HTTP_ADDRESS=:8080 -e OPERATOR_USERNAME=ci-operator -e OPERATOR_SECRET=ci-fixture-only -e PROJECTS_FILE=/workspace/.local/brain.sqlite brain:admin-browser)
+          container=$(docker run -d --privileged --network none -e HTTP_ADDRESS=:8080 -e OPERATOR_USERNAME=ci-operator -e OPERATOR_SECRET=ci-fixture-only -e PROJECTS_FILE=/workspace/.local/brain.sqlite brain:admin-browser)
+          node scripts/admin-ci-backend-relay.mjs "$container" > "$RUNNER_TEMP/brain-relay.log" 2>&1 &
+          relay=$!
           (cd admin-nextjs && exec npm run start -- --hostname 127.0.0.1 --port 3100) > "$RUNNER_TEMP/brain-admin-live.log" 2>&1 &
           server=$!
           cleanup() {
-            kill "$server" 2>/dev/null || true
-            docker logs "$container" > "$RUNNER_TEMP/brain-backend.log" 2>&1 || true
+            kill "$server" "$relay" 2>/dev/null || true
+            docker logs "$container" 2>&1 | tee "$RUNNER_TEMP/brain-backend.log" || true
             docker rm -f "$container" >/dev/null 2>&1 || true
           }
           trap cleanup EXIT
@@ -97,3 +101,4 @@ jobs:
             ${{ runner.temp }}/brain-admin.log
             ${{ runner.temp }}/brain-admin-live.log
             ${{ runner.temp }}/brain-backend.log
+            ${{ runner.temp }}/brain-relay.log
