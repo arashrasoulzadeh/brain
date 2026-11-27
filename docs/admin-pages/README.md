@@ -62,3 +62,5 @@ The sidebar is populated from the selected project's eligible manifests. These d
 The old `live-sessions` URL remains a compatibility alias, not a separate sidebar entry. Individual plugin pages remain independently accessible even when they also appear in extension tabs. New bundled plugins must explicitly declare an operator workspace or be covered by an existing trusted/generated UI; the manifest inventory test detects omissions.
 
 Every enabled plugin has a project-scoped sidebar destination: declared workspaces, the trusted Dashboard or Functions workspace, or the plugin's own Manage page if it has no declared action UI. Manage always exposes installation and capability settings, plus declared configuration fields. No arbitrary settings are invented for plugins without a configuration schema.
+
+The TypeScript coverage workflow also executes the real Chromium and packaged-runtime integration scripts under V8 coverage and merges those profiles with the unit and DOM profiles. The per-file 100% lines/functions/branches/statements gate remains unchanged; executing an integration script does not waive uncovered failure branches.

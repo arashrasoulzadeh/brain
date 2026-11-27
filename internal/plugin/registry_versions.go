@@ -22,7 +22,7 @@ func (r *Registry) Promote(projectID, id, version string) error {
 	if !r.readiness[id+"@"+version] {
 		return ErrNotReady
 	}
-	if !i.Enabled || i.Draining {
+	if !i.Enabled {
 		return ErrDisabled
 	}
 	manifest := r.registered[id+"@"+version].Manifest
