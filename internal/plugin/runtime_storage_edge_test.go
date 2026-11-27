@@ -15,7 +15,7 @@ func TestCoverageInviteCommitExpiry(t *testing.T) {
 			id := "invite-" + operation
 			expires := time.Now().Add(500 * time.Millisecond)
 			coverageState(t, s, inviteNamespace, id, storedInvite{ID: id, ProjectID: "coverage", RoomID: "room", TargetPlayerID: "player", CodeDigest: authTokenDigest(code), ExpiresAt: expires.UnixMilli()})
-			req := coverageRequest(operation, `{"roomId":"room","inviteId":"`+id+`","playerId":"player","code":"`+code+`"}`)
+			req := coverageRequest(operation, `{"roomId":"room","inviteId":"`+id+`","playerId":"player"}`)
 			_, commit, err := prepareInviteStorageEffect(s, req)
 			if err != nil || commit == nil {
 				t.Fatalf("invite admission: %v", err)
