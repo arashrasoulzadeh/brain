@@ -48,7 +48,7 @@ export function FunctionRunner({ project, name, source, disabled = false, onComp
       if (!response.ok) throw new Error(body || "Execution failed (" + response.status + ").");
       const data = JSON.parse(body) as { valid?: boolean; result?: unknown };
       if (data.valid !== true || !Object.prototype.hasOwnProperty.call(data, "result")) throw new Error("Unexpected execution response.");
-      setResult({ status: "success", message: JSON.stringify(data.result, null, 2), ...snapshot });
+      setResult({ status: "success", message: JSON.stringify(data.result, null, 2) ?? "null", ...snapshot });
     } catch (reason) {
       if (current()) setResult({ status: "error", message: reason instanceof Error ? reason.message : String(reason), ...snapshot });
     } finally {

@@ -101,6 +101,11 @@ function NewFunctionStudio({ namespace }: { namespace?: string }) {
     }
     pending.current = true; setBusy(true); setMessage("");
     try {
+      const existing = await fetch(projectAdminURL(project, "functions"), { headers: adminHeaders(token), signal });
+      if (!existing.ok) throw new Error("Could not check the existing function catalog.");
+      const records = (await existing.json() as { project_id: string; name: string }[] | null) ?? [];
+      if (records.some(record => record.project_id === project && record.name === name.trim())) throw new Error("A function with this name already exists. Open its editor instead.");
+      if (signal.aborted || readAdminSession() !== token) return;
       const response = await fetch(projectAdminURL(project, "functions"), { method: "POST", headers: adminHeaders(token, { "content-type": "application/json" }), signal,
         body: JSON.stringify({ operation: "functions.create", project_id: project, name: name.trim(), source, function_version: number, public: publicRoute, permissions: functionPermissions(permissions) }) });
       if (!response.ok) throw new Error(await response.text() || "Creation failed.");

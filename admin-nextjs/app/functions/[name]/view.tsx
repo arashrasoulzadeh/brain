@@ -37,6 +37,7 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
   const [logError, setLogError] = useState("");
+  const [logsLoaded, setLogsLoaded] = useState(false);
   const [validationOK, setValidationOK] = useState(false);
   const [settingsPending, setSettingsPending] = useState<{ permissions: string[]; publicRoute: boolean }>();
   const [publishPending, setPublishPending] = useState(false);
@@ -110,8 +111,8 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
         const response = await fetch(projectAdminURL(project, "function-logs") + "?name=" + encodeURIComponent(name), { headers: adminHeaders(session, { "x-brain-quiet": "1" }), signal: controller.signal });
         if (!response.ok) throw new Error("Function logs unavailable");
         const rows = (await response.json() as Log[] | null) ?? [];
-        if (!controller.signal.aborted && readAdminSession() === session) { setLogs(rows); setLogError(""); setLogPage(page => Math.min(page, Math.max(0, Math.ceil(rows.length / 10) - 1))); }
-      } catch (reason) { if (!controller.signal.aborted) { setLogs([]); setSelectedLog(null); setLogError(String(reason)); } }
+        if (!controller.signal.aborted && readAdminSession() === session) { setLogs(rows); setLogsLoaded(true); setLogError(""); setLogPage(page => Math.min(page, Math.max(0, Math.ceil(rows.length / 10) - 1))); }
+      } catch (reason) { if (!controller.signal.aborted) { setLogs([]); setLogsLoaded(false); setSelectedLog(null); setLogError(String(reason)); } }
       finally { if (!controller.signal.aborted) timer = setTimeout(() => void poll(), 5000); }
     }
     void poll();
@@ -173,7 +174,7 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
           project_id: project,
           name: draft.name,
           function_version: version,
-          permissions: draft.permissions ?? ["functions.invoke"],
+          permissions: draft.permissions ?? [],
         }),
       });
       const body = await response.text();
@@ -230,6 +231,8 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
       setMessage("Select an active project and sign in before saving.");
       return;
     }
+    const version = functionVersion(versionInput);
+    if (version === undefined) { setMessage("Version must be a positive integer."); return; }
     if (!draft.name.trim() || !draft.source.trim()) {
       setMessage("Cannot save: function name and source are required.");
       return;
@@ -300,14 +303,14 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
               <label>Source version<input type="number" min="1" step="1" value={versionInput} disabled={publishing || validating} onChange={event => setVersionInput(event.target.value)} /></label>
             </div>
             <span role="status">{dirty ? "Unsaved draft changes" : "Source saved"}</span>
-            <button type="button" className="secondary" disabled={!dirty || publishing || validating} onClick={() => setDiscardPending(true)}>Restore saved source</button>
+            <button type="button" className="secondary" disabled={!dirty || publishing || validating} onClick={() => setDiscardPending(true)}>Restore saved changes</button>
             <div
               className={`rounded-lg px-3 py-2 text-sm font-semibold ${draft.public ? "bg-emerald-100 text-emerald-800" : "bg-slate-100 text-slate-700"}`}
             >
               {draft.public ? "Public" : "Private"}
             </div>
             <div className="rounded-lg bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700">
-              Method {draft.method ?? "—"} · set in source config
+              Saved method {draft.method ?? "—"} · set in source config
             </div>
             <button
               type="button"
@@ -319,7 +322,7 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
             </button>
             <button
               type="button"
-              disabled={publishing || validating}
+              disabled={publishing || validating || functionVersion(versionInput) === undefined}
               className="h-10 rounded-lg bg-indigo-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
               onClick={() => { setMessage(""); setPublishPending(true); }}
             >
@@ -333,7 +336,7 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
           )}
           {route && (
             <p className="notice">
-              Published route: <code>{route}</code>
+              Recorded route: <code>{route}</code>
             </p>
           )}
           <FunctionEditor
@@ -396,7 +399,8 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
           </tbody></table></div> : <div className="empty-panel">No publication recorded. Publish from the editor when ready.</div>}
         </section>
       )}
-      {tab === "analytics" && !logError && (
+      {(tab === "analytics" || tab === "logs") && !logError && !logsLoaded && <AdminProgress label="Loading execution logs…" />}
+      {tab === "analytics" && !logError && logsLoaded && (
         <div className="metric-grid">
           <article>
             <strong>{logs.length}</strong>
@@ -415,7 +419,7 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
           <article><strong>{p95 === null ? "—" : `${p95} ms`}</strong><span>p95 latency (loaded logs)</span></article>
         </div>
       )}
-      {tab === "logs" && !logError && (
+      {tab === "logs" && !logError && logsLoaded && (
         <section className="function-log-page">
           <div className="log-summary-grid">
             <article>

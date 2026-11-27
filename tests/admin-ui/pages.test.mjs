@@ -228,3 +228,13 @@ test("sandbox runner rejects invalid JSON and sends the current source in a scop
   await change(find("textarea"), "null");
   assert.match(text(), /previous source or input/);
 });
+
+test("sandbox runner reports host rejection without exposing a success result", async () => {
+  session();
+  stubFetch(() => new Response("Permission denied", { status: 403 }));
+  await mount(FunctionRunner, { project: "dev", name: "echo", source: "source" });
+  await click(button("Run test"));
+  assert.match(text(), /Execution failed/);
+  assert.match(text(), /Permission denied/);
+  assert.doesNotMatch(text(), /Execution succeeded/);
+});
