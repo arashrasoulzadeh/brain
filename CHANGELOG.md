@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `904d0fe` — 2026-11-27 03:39:24 +0330 — Centralize project access management across plugins
+  Files: internal/admin/functions.go,internal/admin/lifecycle.go internal/plugin/access_management.go,internal/plugin/broker.go internal/plugin/manifest.go,internal/plugin/model_runtime.go internal/plugin/observations.go,internal/plugin/plugin_call.go internal/plugin/registry_workers.go,internal/plugin/worker.go plugins/README.md,plugins/access-management/README.md plugins/access-management/index.ts,plugins/access-management/plugin.yaml plugins/analytics/plugin.yaml,plugins/arena/plugin.yaml plugins/files/plugin.yaml,plugins/files/routes.ts plugins/functions/plugin.yaml,plugins/invites/plugin.yaml plugins/matchmaking/plugin.yaml,plugins/matchmaking/routes.ts plugins/rooms/plugin.yaml,plugins/rooms/routes.ts plugins/sdk-typescript/src/index.ts,plugins/sdk-typescript/src/request.ts plugins/subscriptions/plugin.yaml,plugins/tables/plugin.yaml tests/files/files.test.ts,tests/matchmaking/matchmaking.test.ts tests/plugin/access_management_test.go,tests/plugin/resource-request.test.ts tests/rooms/rooms.test.ts
+- `d6c635b` — 2026-11-26 23:54:59 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `94cca6f` — 2026-11-27 03:24:21 +0330 — Fix gofmt alignment in declarative manifest test
   Files: internal/plugin/manifest_declarative_test.go
 - `43467eb` — 2026-11-26 23:52:36 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: 
 - `4b56685` — 2026-11-27 02:34:42 +0330 — test(plugins): cover declarative descriptor and shared resource contracts
   Files: docs/developers.md,internal/plugin/manifest_response.go scripts/typescript-worker.mjs,tests/plugin/manifest_response_test.go tests/plugin/resource-request.test.ts
-- `5b9a8ce` — 2026-11-27 02:33:56 +0330 — refactor(sdk): share resource request and validation primitives; verify source inventories
-  Files: AGENTS.md,plugins/arena/index.ts plugins/files/routes.ts,plugins/files/uploads.ts plugins/functions/compiler.ts,plugins/invites/index.ts plugins/matchmaking/routes.ts,plugins/rooms/routes.ts plugins/sdk-typescript/src/index.ts,plugins/sdk-typescript/src/request.ts plugins/sdk-typescript/src/validation.ts,plugins/subscriptions/subscription-request.ts plugins/tables/routes.ts,tests/dashboard/bridge-messages.test.ts tests/plugin/all_manifests_test.go,tests/plugin/resource-request.test.ts
-- `843dc67` — 2026-11-27 02:32:22 +0330 — refactor(dashboard): group views, bridge security, requests and audit
-  Files: plugins/dashboard/admin-request.ts,plugins/dashboard/audit.ts plugins/dashboard/bridge.ts,plugins/dashboard/custom-admin-view.ts plugins/dashboard/custom-view-origin.ts,plugins/dashboard/form-audit-reader.ts plugins/dashboard/host-owned-admin-view.ts,plugins/dashboard/index.ts plugins/dashboard/plugin-health-contribution.ts,plugins/dashboard/plugin.yaml plugins/dashboard/project-overview-contribution.ts,plugins/dashboard/reject-sensitive-bridge-data.ts plugins/dashboard/requests.ts,plugins/dashboard/restricted-frame.ts plugins/dashboard/validate-bridge-message.ts,plugins/dashboard/validate-csrf-token.ts plugins/dashboard/views.ts
