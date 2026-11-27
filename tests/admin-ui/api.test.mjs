@@ -11,7 +11,8 @@ test("session storage and sign-out preserve operator boundaries", async () => {
   const previousWindow = globalThis.window;
   const previousFetch = globalThis.fetch;
   const values = new Map();
-  globalThis.window = { sessionStorage: { getItem: key => values.get(key) ?? null, setItem: (key, value) => values.set(key, value), removeItem: key => values.delete(key) } };
+  const events = [];
+  globalThis.window = { dispatchEvent: event => { events.push(event.type); return true; }, sessionStorage: { getItem: key => values.get(key) ?? null, setItem: (key, value) => values.set(key, value), removeItem: key => values.delete(key) } };
   try {
     assert.equal(api.readAdminSession(), "");
     api.saveAdminSession("fixture");
@@ -23,6 +24,7 @@ test("session storage and sign-out preserve operator boundaries", async () => {
     api.saveAdminProject("a");
     assert.equal(api.preferredAdminProject(projects), undefined);
     api.saveAdminProject("");
+    assert.deepEqual(events, Array(3).fill(api.ADMIN_PROJECT_CHANGED));
     assert.equal(api.preferredAdminProject(projects).ID, "b");
     globalThis.fetch = async (url, init) => {
       assert.equal(url, "/api/admin/session");

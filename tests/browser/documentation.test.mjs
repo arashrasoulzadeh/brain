@@ -21,7 +21,7 @@ test("documentation homepage, navigation, search and responsive dark/light layou
     await page.screenshot({ path: resolve(artifacts, "documentation-desktop-dark.png"), fullPage: true });
     await page.getByRole("link", { name: "Start developing", exact: true }).click();
     await page.waitForURL("**/developers.html");
-    await visible(page.locator("main h1"));
+    await visible(page.locator("#developer-guide"));
     await page.goto(base + "/reference/plugins/index.html");
     await visible(page.getByRole("heading", { name: "Plugin reference", exact: true }));
     const reference = page.getByText(/^Manifest reference coverage: (\d+)\/\d+\.$/);

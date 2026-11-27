@@ -51,7 +51,7 @@ test("SDK validates exact models, transitions, request identity and retry errors
   assert.deepEqual({ ...validated }, { name: "", count: 0, enabled: false });
   for (const value of [null, [], 42]) assert.throws(() => validateModel({}, value), /object/);
   assert.throws(() => validateModel({ id: "string" }, { other: "x" }), /field/);
-  assert.throws(() => validateModel({ constructor: "string" }, { constructor: "x" }), /field/);
+  assert.throws(() => validateModel({ ["constructor"]: "string" as const }, { constructor: "x" }), /field/);
   assert.throws(() => validateModel({ "bad-key": "string" }, { "bad-key": "x" }), /field/);
   assert.throws(() => validateModel({ n: "integer" }, { n: 1.2 }), /type/);
   assert.throws(() => validateModel({ n: "integer" }, { n: "1" }), /type/);
