@@ -42,18 +42,25 @@ jobs:
       - run: npm ci
       - run: npm ci --prefix admin-nextjs
       - name: Measure plugin, client, admin and worker coverage
-        run: >-
-          npx --yes --package=c8@10.1.3 c8 --all
-          --src=plugins --src=clients/javascript/src --src=admin-nextjs/app --src=scripts
-          --include='**/*.ts' --include='**/*.tsx' --include='**/*.mjs'
-          --exclude='**/*.d.ts' --reporter=text --reporter=json-summary --reporter=html
-          --check-coverage --per-file --lines=100 --functions=100 --branches=100 --statements=100
-          npm run test:ts
+        run: |
+          mkdir -p coverage/raw
+          NODE_V8_COVERAGE="$PWD/coverage/raw" npm run test:ts
+          python scripts/prepare-v8-coverage.py coverage/raw coverage/c8-input
+          npx --yes --package=c8@10.1.3 c8 report --temp-directory=coverage/c8-input --all \
+            --src=plugins --src=clients/javascript/src --src=admin-nextjs/app --src=scripts \
+            --include='**/*.ts' --include='**/*.tsx' --include='**/*.mjs' \
+            --exclude='**/*.d.ts' --reporter=text --reporter=json-summary --reporter=html
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: typescript-coverage
           path: coverage/
+      - name: Require 100% in every measured source file
+        run: |
+          npx --yes --package=c8@10.1.3 c8 check-coverage --temp-directory=coverage/c8-input --all \
+            --src=plugins --src=clients/javascript/src --src=admin-nextjs/app --src=scripts \
+            --include='**/*.ts' --include='**/*.tsx' --include='**/*.mjs' \
+            --exclude='**/*.d.ts' --per-file --lines=100 --functions=100 --branches=100 --statements=100
   flutter-coverage:
     runs-on: ubuntu-latest
     defaults:
