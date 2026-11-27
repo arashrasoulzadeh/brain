@@ -90,7 +90,7 @@ func TestWebSocketGatewayBindsSessionMembershipResourceAndDurableSequence(t *tes
 	gateway := plugin.NewWebSocketGateway(r)
 	for _, tc := range []struct {
 		name, method, path, origin, bearer, body, identity, protocol string
-		want                                                        int
+		want                                                         int
 	}{
 		{"wrong path", "GET", "/alpha/other", "", "", "", "", "", 403},
 		{"query token", "GET", "/alpha/ws?ticket=secret", "", "", "", "", "", 403},
