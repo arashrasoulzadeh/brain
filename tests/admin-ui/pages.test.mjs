@@ -169,32 +169,32 @@ test("plugin details stage a new version without changing routing, and confirm n
   await click(button("Confirm action"));
   assert.equal(calls.at(-1).body.operation, "plugin.install");
   assert.equal(calls.at(-1).body.confirmed, true);
-  await click(button("Close dialog"));
+  await click(button("Close"));
   assert.match(text(), /New capability approvals required: write/);
   await click(button("Mark artifact ready"));
   await click(button("Confirm action"));
   assert.equal(calls.at(-1).url, "/_system/admin/actions");
-  await click(button("Close dialog"));
+  await click(button("Close"));
   assert.equal(button("Enable").disabled, true);
   for (const capability of ["read", "write"]) {
     const row = [...document.querySelectorAll("tr")].find(row => row.querySelector("td code")?.textContent === capability);
     await click(button("Grant", row));
     await click(button("Confirm action"));
     assert.equal(calls.at(-1).body.capability, capability);
-    await click(button("Close dialog"));
+    await click(button("Close"));
   }
   await click(button("Enable"));
   await click(button("Confirm action"));
-  await click(button("Close dialog"));
+  await click(button("Close"));
   assert.equal([...document.querySelectorAll("button")].some(node => node.textContent === "Promote version"), false);
   await click(button("Approve upgrade"));
   await click(button("Confirm action"));
   assert.equal(calls.at(-1).body.operation, "plugin.approve-capability");
   assert.equal(calls.at(-1).body.capability, "write");
-  await click(button("Close dialog"));
+  await click(button("Close"));
   await click(button("Promote version"));
   await click(button("Confirm action"));
-  await click(button("Close dialog"));
+  await click(button("Close"));
   assert.match(text(), /Promoted version: 2/);
   assert.ok(calls.every(call => call.body.project_id === "dev" && call.body.version === "2"));
 });

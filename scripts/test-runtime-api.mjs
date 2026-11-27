@@ -81,6 +81,35 @@ async function invoke(plugin_id, target_operation, payload) {
   assert.equal(response.Success,true, target_operation + ": " + response.ErrorCode);
   return JSON.parse(Buffer.from(response.Payload,"base64").toString("utf8"));
 }
+// Exercise the authenticated streaming endpoint in the instrumented host too.
+const blobPath = base + "/ci-project/admin/files/blob?";
+const blobURL = (key, more = {}) => blobPath + new URLSearchParams({version:"0.1.0",key,...more});
+const blobHeaders = {...headers,"content-type":"application/octet-stream"};
+const binaryKey = "ci-binary";
+assert.equal((await fetch(blobURL(binaryKey))).status,401);
+assert.equal((await fetch(blobPath+"key=ci-binary",{headers})).status,400);
+assert.equal((await fetch(blobURL(binaryKey)+"&key=duplicate",{headers})).status,400);
+assert.equal((await fetch(blobURL(binaryKey),{headers})).status,404);
+assert.equal((await fetch(blobURL(binaryKey),{method:"POST",headers:blobHeaders,body:"abc"})).status,400);
+assert.equal((await fetch(blobURL(binaryKey,{confirmed:"true"}),{method:"POST",headers,body:"abc"})).status,415);
+await action("plugin.configure",{plugin_id:"files",values:{maxUploadBytes:16}});
+assert.equal((await fetch(blobURL(binaryKey,{confirmed:"true"}),{method:"POST",headers:blobHeaders,body:Buffer.alloc(17)})).status,413);
+await action("plugin.configure",{plugin_id:"files",values:{maxUploadBytes:2*1024*1024}});
+const binaryData = Buffer.alloc(1024*1024+5,0xa5);
+binaryData[0]=0;
+binaryData[binaryData.length-1]=42;
+const binaryUpload = await fetch(blobURL(binaryKey,{confirmed:"true",filename:"fixture.bin",contentType:"application/octet-stream"}),{method:"POST",headers:blobHeaders,body:binaryData});
+assert.equal(binaryUpload.status,200,await binaryUpload.clone().text());
+const binaryMetadata = (await binaryUpload.json()).metadata;
+assert.equal(binaryMetadata.size_bytes,binaryData.length);
+assert.equal(binaryMetadata.encoding,"binary");
+assert.equal(binaryMetadata.filename,"fixture.bin");
+assert.match(binaryMetadata.sha256,/^[a-f0-9]{64}$/);
+const binaryDownload = await fetch(blobURL(binaryKey),{headers});
+assert.equal(binaryDownload.status,200);
+assert.equal(binaryDownload.headers.get("content-length"),String(binaryData.length));
+assert.equal(binaryDownload.headers.get("cache-control"),"no-store");
+assert.deepEqual(Buffer.from(await binaryDownload.arrayBuffer()),binaryData);
 assert.deepEqual(await invoke("games","games.modes",{}),{projectId:"ci-project",modes:["tic-tac-toe"]});
 assert.deepEqual(await invoke("pvp","pvp.describe",{}),{projectId:"ci-project",turnBased:true,revisionedCommands:true});
 const rules = await invoke("games","games.mode.describe",{mode:"tic-tac-toe"});

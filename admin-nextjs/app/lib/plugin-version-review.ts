@@ -22,7 +22,7 @@ export function pluginVersionReview(projectID: string, manifest: PluginManifest,
   const promoted = versions.find(item => item.installation?.Promoted);
   const otherEnabled = versions.filter(item => item.manifest.Version !== manifest.Version && item.installation?.Enabled);
   const previous = promoted?.manifest;
-  const newlyRequested = previous && previous.Version !== manifest.Version ? (manifest.Capabilities ?? []).filter(capability => !previous.Capabilities.includes(capability)) : [];
+  const newlyRequested = previous && previous.Version !== manifest.Version ? (manifest.Capabilities ?? []).filter(capability => !(previous.Capabilities ?? []).includes(capability)) : [];
   const missingApprovals = newlyRequested.filter(capability => !selected?.ApprovedCapabilities?.includes(capability));
   const missingGrants = (manifest.Capabilities ?? []).filter(capability => !selected?.Grants?.includes(capability));
   const missingConfig = Object.keys(manifest.ConfigSchema ?? {}).filter(name => !selected?.ConfiguredFields?.includes(name));
@@ -33,7 +33,7 @@ export function pluginVersionReview(projectID: string, manifest: PluginManifest,
     const active = scoped.find(item => item.PluginID === installation?.PluginID && item.Promoted);
     const state = pluginCatalogState(installation);
     const available = !!installation && !!registered && installation.Enabled && installation.Ready && !installation.Draining &&
-      (!active || active.Version === installation.Version) && registered.Capabilities.every(capability => installation.Grants?.includes(capability));
+      (!active || active.Version === installation.Version) && (registered.Capabilities ?? []).every(capability => installation.Grants?.includes(capability));
     return { ...dep, state, available, registered: !!registered, selectedOtherVersion: !!active && active.Version !== installation?.Version };
   });
   const requiredUnavailable = dependencies.filter(item => item.required && !item.available);
