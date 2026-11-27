@@ -3,6 +3,12 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `3e70d30e` — 2026-11-27 14:52:55 +0330 — Merge pull request #29 from arashrasoulzadeh/fix/reconcile-restore-verification
+  Files: 
+- `544c722f` — 2026-11-27 14:52:36 +0330 — test: reconcile isolated restore verification
+  Files: tests/deploy/clean_environment_script_test.go
+- `eb3caacf` — 2026-11-27 11:22:11 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `9ac473ff` — 2026-11-27 14:51:55 +0330 — Merge pull request #28 from arashrasoulzadeh/test/complete-go-coverage
   Files: internal/plugin/registry_workers.go
 - `ccd23f08` — 2026-11-27 11:20:51 +0000 — docs: update changelog [skip ci]
@@ -97,9 +103,3 @@ Automatically generated from commits on main.
   Files: 
 - `f149ff75` — 2026-11-27 13:45:15 +0330 — Merge pull request #20 from arashrasoulzadeh/fix/admin-revocation-refresh
   Files: 
-- `a42e093b` — 2026-11-27 13:15:05 +0330 — Prevent stale project catalog and function responses after switching projects
-  Files: admin-nextjs/app/components/projects-panel.tsx,admin-nextjs/app/lib/project-requests.ts admin-nextjs/app/page.tsx,docs/admin-pages/projects.md tests/admin/project-requests.test.ts
-- `be4d97d5` — 2026-11-27 13:13:39 +0330 — Keep live browser backend network-disabled and relay CI HTTP over docker exec
-  Files: .github/workflows/admin-browser.yml,docs/admin-pages/theme.md scripts/admin-ci-backend-relay.mjs
-- `e8846874` — 2026-11-27 13:12:32 +0330 — Test function result validation and unavailable runtime behavior
-  Files: tests/admin/function_result_coverage_test.go
