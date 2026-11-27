@@ -107,6 +107,12 @@ func productionServer() (*app.Server, error) {
 	if err != nil {
 		return nil, fmt.Errorf("project storage unavailable: %w", err)
 	}
+	// This database now includes credential hashes. Restrict its file mode
+	// before opening the plugin storage connection.
+	if err := os.Chmod(projectsPath, 0o600); err != nil {
+		_ = projects.Close()
+		return nil, fmt.Errorf("project storage permissions unavailable: %w", err)
+	}
 	storage, err := plugin.OpenSQLiteStorage(projectsPath)
 	if err != nil {
 		_ = projects.Close()

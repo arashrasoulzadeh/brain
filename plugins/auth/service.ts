@@ -1,7 +1,7 @@
 import { createRequestDispatcher, requireOperator, requireProjectInput, validateProjectId, type PluginFunction, type PluginContext, type RpcRequest } from "../sdk-typescript/src/index.js";
-import { createAuthState, type AuthState } from "./state.js";
+import { createAuthState, type Account, type AuthSession, type AuthState } from "./state.js";
 import { AccountSignup, AccountSignin, projectUserID } from "./accounts.js";
-import { AccountSessionReader, GuestSessionIssuer } from "./sessions.js";
+import { AccountSessionReader, GuestSessionIssuer, sessionTokenDigest } from "./sessions.js";
 
 export function createAuthOperations(state: AuthState = createAuthState()) {
   const signup = new AccountSignup(state);
@@ -21,8 +21,65 @@ export function createAuthOperations(state: AuthState = createAuthState()) {
 
 export type AuthOperations = ReturnType<typeof createAuthOperations>;
 
-// One service instance per worker; project identity comes from its validated RPC request.
-export const dispatchRequest = createRequestDispatcher(functions());
+// Standalone SDK fixtures retain their local service. Production requests carry
+// a host-owned, operation-scoped snapshot; the registry rejects caller snapshots.
+const transientDispatch = createRequestDispatcher(functions());
+
+type DurableAuthInput = {
+  account?: Account;
+  session?: AuthSession;
+  page?: { rows: { username: string; userId: string; guest: boolean; activeSessions: number }[]; next: string };
+};
+
+export function dispatchRequest(name: string, rpc: RpcRequest, context?: PluginContext): unknown {
+  const payload = rpc.params.payload;
+  if (!payload || typeof payload !== "object" || !Object.hasOwn(payload, "_brainAuth"))
+    return transientDispatch(name, rpc, context);
+  return dispatchDurable(name, rpc, context);
+}
+
+async function dispatchDurable(name: string, rpc: RpcRequest, context?: PluginContext): Promise<unknown> {
+  if (!context) throw new Error("host project context required");
+  const payload = requireProjectInput(context, rpc.params.payload);
+  const project = projectOf(rpc, context);
+  const stored = payload._brainAuth as DurableAuthInput;
+  if (!stored || typeof stored !== "object" || Array.isArray(stored)) throw new Error("invalid stored authentication state");
+  if (name === "listAccounts") {
+    requireOperator(context, "auth.admin.read");
+    if (!stored.page || !Array.isArray(stored.page.rows) || typeof stored.page.next !== "string")
+      throw new Error("invalid account page");
+    return stored.page;
+  }
+  if (name === "revokeSessions") {
+    const username = validateProjectId(String(payload.username ?? ""), "invalid username");
+    requireOperator(context, "auth.admin.manage", username);
+    // The host computes the actual affected-row count in its transaction.
+    context.plugins.observe.fire("sessions.revoked", {});
+    return { username, revoked: 0 };
+  }
+  const state = createAuthState();
+  if (stored.account) {
+    if (stored.account.userId !== project + ":" + stored.account.username) throw new Error("invalid account state");
+    state.accounts.set(project, new Map([[stored.account.username, stored.account]]));
+  }
+  if (stored.session) {
+    if (stored.session.projectId !== project || typeof payload.token !== "string") throw new Error("invalid session state");
+    state.sessions.set(sessionTokenDigest(payload.token), stored.session);
+  }
+  const result = await createRequestDispatcher(functions(createAuthOperations(state)))(name, rpc, context);
+  if (name === "signup") {
+    const account = state.accounts.get(project)?.get(String(payload.username));
+    if (!account) throw new Error("account state missing");
+    return { result, passwordHash: account.passwordHash };
+  }
+  if (name === "signin" || name === "guest") {
+    const token = (result as { token?: string }).token;
+    const session = typeof token === "string" ? state.sessions.get(sessionTokenDigest(token)) : undefined;
+    if (!session) throw new Error("session state missing");
+    return { result, expiresAt: session.expiresAt };
+  }
+  return result;
+}
 
 export function functions(
   service: AuthOperations = createAuthOperations(),
@@ -65,7 +122,9 @@ export function functions(
       if (typeof payload.username !== "string") throw new Error("invalid username");
       const username = validateProjectId(payload.username, "invalid username");
       requireOperator(context, "auth.admin.manage", username);
-      return service.revokeSessions(projectOf(rpc, context), username);
+      const result = service.revokeSessions(projectOf(rpc, context), username);
+      context.plugins.observe.fire("sessions.revoked", {});
+      return result;
     },
     guest: (rpc, context) => {
       const result = service.guest(projectOf(rpc, context));

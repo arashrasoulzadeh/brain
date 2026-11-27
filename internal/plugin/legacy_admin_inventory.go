@@ -20,7 +20,8 @@ func (p legacyStoragePlanner) adminInventory(projectID, pluginID, kind, capabili
 	var args []any
 	switch {
 	case pluginID == "rooms" && kind == "state_keys" && capability == "rooms.result",
-		pluginID == "matchmaking" && kind == "state_keys" && capability == "matchmaking.status":
+		pluginID == "matchmaking" && kind == "state_keys" && capability == "matchmaking.status",
+		pluginID == "arena" && kind == "state_keys" && capability == "arena.snapshot":
 		query, key = `SELECT state_key FROM plugin_state WHERE project_id=? AND namespace=? AND state_key>?`, "state_key"
 		args = []any{projectID, pluginID, after}
 	case pluginID == "files" && kind == "file_keys" && capability == "files.metadata":

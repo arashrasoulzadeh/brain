@@ -47,6 +47,8 @@ events:
     fields: {created: boolean}
   - name: session.established
     fields: {guest: boolean}
+  - name: sessions.revoked
+    fields: {}
 routes:
   - operation: auth.signup
     function: signup
@@ -83,7 +85,7 @@ admin:
   pages:
     - id: accounts
       title: Accounts and sessions
-      refresh_on: [auth.account.created, auth.session.established]
+      refresh_on: [auth.account.created, auth.session.established, auth.sessions.revoked]
       actions:
         - title: List accounts
           operation: auth.admin.accounts

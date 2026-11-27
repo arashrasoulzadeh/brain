@@ -1,9 +1,12 @@
 package plugin_test
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"strings"
 	"testing"
+	"time"
 
 	"brain/internal/plugin"
 )
@@ -15,7 +18,14 @@ func TestUserSessionRejectsMalformedIdentityAndAmbiguousAuthVersion(t *testing.T
 	}
 	second := auth
 	second.Version = "99.0.0"
-	r, _ := accessRegistry(t, auth, second)
+	r, storage := accessRegistry(t, auth, second)
+	digest := sha256.Sum256([]byte("token"))
+	if err := storage.PutState("alpha", "auth.sessions", hex.EncodeToString(digest[:]), map[string]any{"projectId": "alpha", "username": "alice", "expiresAt": time.Now().Add(time.Hour).UnixMilli()}); err != nil {
+		t.Fatal(err)
+	}
+	if err := storage.PutState("alpha", "auth.accounts", "alice", map[string]any{"username": "alice", "userId": "alpha:alice", "passwordHash": "$argon2id$fixture"}); err != nil {
+		t.Fatal(err)
+	}
 	for _, project := range []string{"alpha", "beta"} {
 		installAccessTestPlugin(t, r, project, accessManifest(t), &contractWorker{ready: true})
 	}

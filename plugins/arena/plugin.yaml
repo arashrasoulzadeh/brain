@@ -63,6 +63,11 @@ admin:
       title: Arena matches
       extends: rooms/operations
       extends_slot: tab
+      inventory:
+        kind: state_keys
+        capability: arena.snapshot
+        title: Matches
+        select_field: roomId
       refresh_on: [arena.started, arena.finished]
       actions:
         - title: Inspect match

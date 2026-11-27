@@ -45,3 +45,19 @@ test("arena routes reject absent or inactive host project contexts", () => {
   throws(() => snapshot(inactive, { roomId: "room" }), /host project context required/);
   throws(() => start(undefined as unknown as PluginContext, { roomId: "room", players: ["one", "two"] }), /host project context required/);
 });
+
+test("host-owned arena snapshots rehydrate a fresh runtime without replaying prior input", () => {
+  const ctx = context("durable-arena", []);
+  const roomId = "durable-room";
+  const players = ["one", "two"];
+  deepEqual(start(ctx, { roomId, players, _brainArena: null }), { projectId: "durable-arena", roomId, players, state: "active" });
+  const stored = { state: "active", players, sequences: { one: 3 } };
+  equal(snapshot(ctx, { roomId, _brainArena: stored }).state, "active");
+  throws(() => input(ctx, { roomId, playerId: "one", sequence: 3, _brainArena: stored }), /sequence conflict/);
+  deepEqual(input(ctx, { roomId, playerId: "one", sequence: 4, _brainArena: stored }), { projectId: "durable-arena", roomId, accepted: true });
+  const completedAt = "2026-01-01T00:00:00Z";
+  const match = result(ctx, { roomId, winnerIds: ["one"], completedAt, _brainArena: stored });
+  deepEqual(snapshot(ctx, { roomId, _brainArena: { ...stored, state: "finished", result: { winnerIds: ["one"], completedAt } } }), { projectId: "durable-arena", roomId, players, state: "finished", result: match });
+  throws(() => snapshot(ctx, { roomId }), /arena not found/);
+  throws(() => snapshot(ctx, { roomId, _brainArena: { ...stored, sequences: { outsider: 3 } } }), /invalid stored sequence/);
+});

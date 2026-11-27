@@ -15,7 +15,7 @@ type legacyStoragePlanner struct {
 
 func (p legacyStoragePlanner) Supports(pluginID string) bool {
 	switch pluginID {
-	case "files", "matchmaking", "rooms", "analytics", "tables":
+	case "files", "matchmaking", "rooms", "analytics", "tables", "arena", "auth", "invites", "subscriptions":
 		return true
 	default:
 		return false
@@ -23,11 +23,30 @@ func (p legacyStoragePlanner) Supports(pluginID string) bool {
 }
 
 func (p legacyStoragePlanner) Prepare(request WorkerRequest) (WorkerRequest, func() error, error) {
+	if request.PluginID == "auth" {
+		return request, nil, ErrInvalidWorkerRequest // requires response-aware commit
+	}
 	prepared, effect, err := prepareLegacyStorageEffect(p.storage, request)
 	if err != nil || effect == nil {
 		return prepared, nil, err
 	}
 	return prepared, func() error { return effect(p.storage.db) }, nil
+}
+
+// prepareResponseWithObservations extends the trusted planner for operations
+// whose durable state depends on successful worker output (e.g. generated
+// password hashes and sessions). Private material is removed before returning.
+func (p legacyStoragePlanner) prepareResponseWithObservations(request WorkerRequest) (WorkerRequest, func(*WorkerResponse, []observationDelivery) error, error) {
+	if request.PluginID == "auth" {
+		return p.prepareAuthStorage(request)
+	}
+	prepared, commit, err := p.prepareWithObservations(request)
+	if err != nil || commit == nil {
+		return prepared, nil, err
+	}
+	return prepared, func(_ *WorkerResponse, deliveries []observationDelivery) error {
+		return commit(deliveries)
+	}, nil
 }
 
 // prepareWithObservations binds the existing storage effect and outbox inserts
@@ -69,6 +88,15 @@ func prepareLegacyStorageRequest(storage *SQLiteStorage, request WorkerRequest) 
 func prepareLegacyStorageEffect(storage *SQLiteStorage, request WorkerRequest) (WorkerRequest, func(sqliteExecutor) error, error) {
 	if storage == nil {
 		return request, nil, nil
+	}
+	if request.PluginID == "arena" {
+		return prepareArenaStorageEffect(storage, request)
+	}
+	if request.PluginID == "invites" {
+		return prepareInviteStorageEffect(storage, request)
+	}
+	if request.PluginID == "subscriptions" {
+		return prepareSubscriptionStorageEffect(storage, request)
 	}
 	var keyField string
 	switch request.PluginID + "/" + request.Operation {
