@@ -84,6 +84,10 @@ jobs:
       - run: npm ci
       - name: Verify native macOS worker isolation
         run: BRAIN_TEST_MACOS_SANDBOX=1 go test -v ./tests/plugin -run '^TestMacOSWorkerIsolation$'
+      - name: Report macOS sandbox diagnostics
+        if: failure()
+        run: |
+          /usr/bin/log show --last 3m --style compact --predicate 'eventMessage CONTAINS "deny" AND (eventMessage CONTAINS "node" OR eventMessage CONTAINS "sandbox-exec" OR eventMessage CONTAINS "esbuild")' || true
       - name: Verify native development server and plugin operations
         run: |
           set -euo pipefail

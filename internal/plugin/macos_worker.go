@@ -79,7 +79,7 @@ func NewManifestMacOSTypeScriptWorker(launcher, workerScript, descriptor, plugin
 		}
 		fmt.Fprintf(&profile, "(allow file-read* file-map-executable (literal %s))\n", strconv.Quote(path))
 	}
-	fmt.Fprintf(&profile, "(allow process-exec (literal %s))\n", strconv.Quote(node))
+	fmt.Fprintf(&profile, "(allow process-exec* (literal %s))\n", strconv.Quote(node))
 	// tsx uses the installed esbuild service. Allow only the packaged native
 	// executables, not arbitrary binaries or a shell.
 	for _, pattern := range []string{"node_modules/@esbuild/darwin-*/bin/esbuild", "node_modules/esbuild/bin/esbuild"} {
@@ -95,7 +95,7 @@ func NewManifestMacOSTypeScriptWorker(launcher, workerScript, descriptor, plugin
 			if !strings.HasPrefix(canonical, filepath.Join(root, "node_modules")+string(filepath.Separator)) {
 				return nil, ErrInvalidManifest
 			}
-			fmt.Fprintf(&profile, "(allow process-exec (literal %s))\n", strconv.Quote(canonical))
+			fmt.Fprintf(&profile, "(allow process-exec* (literal %s))\n", strconv.Quote(canonical))
 		}
 	}
 	worker.env = append(worker.env, "NODE_BIN="+node, "BRAIN_MACOS_PROFILE="+profile.String())

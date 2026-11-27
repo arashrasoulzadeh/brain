@@ -43,7 +43,17 @@ export async function health(input: { secret: string }) {
 	}
 	manifest := plugin.Manifest{ID: "macos-probe", Version: "1.0.0", HostAPI: 1, Entry: "index.mts", SourceFiles: []string{"index.mts"}, Imports: []string{"node:fs", "node:net"}, Capabilities: []string{"health"}, Routes: []plugin.Route{{Operation: "health", Function: "health", Capability: "health"}}}
 	policy := plugin.IsolationPolicy{FilesystemReadOnly: true, CPUMillis: 30000, MemoryBytes: 2 << 30, ProcessLimit: 512, WallTime: 2 * time.Second}
-	worker, err := plugin.NewManifestMacOSTypeScriptWorker(filepath.Join(root, "scripts/run-macos-typescript-worker.sh"), filepath.Join(root, "scripts/typescript-worker.mjs"), filepath.Join(directory, "descriptor.json"), directory, "dev", manifest, policy)
+	// The wrapper is test-only: capture the exit status and the trusted
+	// generated profile if the OS terminates a worker before its handshake.
+	launcher := filepath.Join(directory, "diagnostic-launcher.sh")
+	diagnostic := "#!/bin/bash\n" +
+		"printf '%s\\n' \"$BRAIN_MACOS_PROFILE\" >&2\n" +
+		"/bin/bash " + "'" + filepath.Join(root, "scripts/run-macos-typescript-worker.sh") + "'\n" +
+		"status=$?; echo \"macOS worker exit: $status\" >&2; exit \"$status\"\n"
+	if err := os.WriteFile(launcher, []byte(diagnostic), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	worker, err := plugin.NewManifestMacOSTypeScriptWorker(launcher, filepath.Join(root, "scripts/typescript-worker.mjs"), filepath.Join(directory, "descriptor.json"), directory, "dev", manifest, policy)
 	if err != nil {
 		t.Fatal(err)
 	}
