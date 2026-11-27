@@ -215,7 +215,7 @@ func (r *Registry) planObservations(publisher WorkerRequest, manifest Manifest, 
 				return deliveries
 			}
 			target.Payload = payload
-			deliveries = append(deliveries, observationDelivery{ID: id, Publisher: metadata, Target: target, Source: source, Principal: publisher.accessPrincipal})
+			deliveries = append(deliveries, observationDelivery{ID: id, Publisher: metadata, Target: target, Source: source, Principal: publisher.accessPrincipal, RequireAccessPolicy: publisher.requireAccessPolicy})
 		}
 	}
 	return deliveries
@@ -265,7 +265,7 @@ func (r *Registry) observationTargets(publisher WorkerRequest, event string) []W
 		}
 		for _, observer := range manifest.Manifest.Observers {
 			if observer.Plugin == publisher.PluginID && observer.Event == event {
-				target := WorkerRequest{Protocol: publisher.Protocol, ProjectID: publisher.ProjectID, PluginID: installation.PluginID, Version: installation.Version, Operation: observer.operation(), accessPrincipal: pluginAccessPrincipal(publisher.PluginID, publisher.Version), originPrincipal: publisher.originalPrincipal()}
+				target := WorkerRequest{Protocol: publisher.Protocol, ProjectID: publisher.ProjectID, PluginID: installation.PluginID, Version: installation.Version, Operation: observer.operation(), accessPrincipal: pluginAccessPrincipal(publisher.PluginID, publisher.Version), originPrincipal: publisher.originalPrincipal(), requireAccessPolicy: publisher.requireAccessPolicy}
 				if r.authorizeInvocationLocked(target, true) == nil {
 					candidates[installation.PluginID] = append(candidates[installation.PluginID], target)
 				}

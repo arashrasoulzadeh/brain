@@ -212,6 +212,9 @@ func (r *Registry) authorizeInvocation(request WorkerRequest, observer bool) err
 }
 
 func (r *Registry) authorizeInvocationLocked(request WorkerRequest, observer bool) error {
+	if request.requireAccessPolicy && !r.accessInstalledLocked(request.ProjectID) {
+		return ErrActorDenied
+	}
 	if err := r.LifecycleStorageHealth(); err != nil {
 		return err
 	}

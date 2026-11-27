@@ -73,8 +73,11 @@ func (r *Registry) AdminInventory(projectID, pluginID, version, pageID, after st
 	if err := r.LifecycleStorageHealth(); err != nil {
 		return AdminInventoryPage{}, err
 	}
-	if r.projectResolver != nil && r.projectResolver(projectID) != nil {
-		return AdminInventoryPage{}, ErrProjectInvalid
+	if r.projectResolver != nil {
+		model, err := r.projectResolver(projectID)
+		if err != nil || model.ID != projectID || !model.Active {
+			return AdminInventoryPage{}, ErrProjectInvalid
+		}
 	}
 	// Inventory enumeration has no declared per-resource policy operation yet.
 	// Never bypass the policy plugin, even if it is installed but unavailable.
