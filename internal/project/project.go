@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
-	"strings"
 	"sync"
 )
 
