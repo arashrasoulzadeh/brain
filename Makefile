@@ -3,6 +3,8 @@
 ADMIN_HOST ?= 127.0.0.1
 ADMIN_PORT ?= 3000
 BRAIN_API_ORIGIN ?= http://127.0.0.1:18082
+WORKERS ?= 4
+WORKER_SLOTS ?= 1
 
 .PHONY: help setup dev server admin
 
@@ -15,7 +17,7 @@ endif
 endif
 
 help:
-	@printf '%s\n' 'make setup       Install server and admin Node dependencies' 'make dev         Start the local Go server and Next.js admin together' 'make dev server  Start only the local Go server' 'make dev admin   Start only the Next.js admin'
+	@printf '%s\n' 'make setup       Install server and admin Node dependencies' 'make dev         Start Brain, admin and four local Neurons (WORKERS=4)' 'make dev server  Start only the local Go server' 'make dev admin   Start only the Next.js admin'
 
 setup:
 	npm ci
@@ -23,7 +25,7 @@ setup:
 
 dev:
 ifeq ($(filter server admin,$(MAKECMDGOALS)),)
-	ADMIN_HOST="$(ADMIN_HOST)" ADMIN_PORT="$(ADMIN_PORT)" BRAIN_API_ORIGIN="$(BRAIN_API_ORIGIN)" python3 scripts/dev-stack.py
+	ADMIN_HOST="$(ADMIN_HOST)" ADMIN_PORT="$(ADMIN_PORT)" BRAIN_API_ORIGIN="$(BRAIN_API_ORIGIN)" BRAIN_DEV_WORKERS="$(WORKERS)" BRAIN_DEV_SLOTS="$(WORKER_SLOTS)" python3 scripts/dev-stack.py
 else
 	@:
 endif

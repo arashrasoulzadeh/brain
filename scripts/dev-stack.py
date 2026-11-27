@@ -26,6 +26,13 @@ def settings():
     address = f"127.0.0.1:{origin.port}"
     if env.get("HTTP_ADDRESS", address) != address:
         raise ValueError("HTTP_ADDRESS must match BRAIN_API_ORIGIN")
+    workers = int(env.get("BRAIN_DEV_WORKERS", "4"))
+    slots = int(env.get("BRAIN_DEV_SLOTS", "1"))
+    if not 0 <= workers <= 32 or not 1 <= slots <= 8:
+        raise ValueError("WORKERS must be 0–32 and WORKER_SLOTS must be 1–8")
+    env["BRAIN_LOCAL_DEV"] = "1"
+    env["BRAIN_DEV_WORKERS"] = str(workers)
+    env["BRAIN_DEV_SLOTS"] = str(slots)
     env["HTTP_ADDRESS"] = address
     env["BRAIN_API_ORIGIN"] = f"http://{address}"
     return env, host, port
@@ -40,7 +47,7 @@ def stop_all(children):
             except ProcessLookupError:
                 pass
         if sig == signal.SIGTERM:
-            deadline = time.monotonic() + 3
+            deadline = time.monotonic() + 12
             while time.monotonic() < deadline:
                 if all(child.poll() is not None for _, child in children):
                     break
@@ -73,6 +80,7 @@ def run():
             children.append((name, subprocess.Popen(command, cwd=ROOT, env=env,
                                                    start_new_session=True)))
         print(f"Admin: http://{host}:{port} | Brain: {env['BRAIN_API_ORIGIN']}", flush=True)
+        print(f"Managed Neurons: {env['BRAIN_DEV_WORKERS']} requested · {env['BRAIN_DEV_SLOTS']} slots each", flush=True)
         print("Ctrl+C stops the entire development stack.", flush=True)
         while not stopped:
             for name, child in children:

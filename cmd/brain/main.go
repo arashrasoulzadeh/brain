@@ -23,6 +23,15 @@ import (
 )
 
 func main() {
+	if len(os.Args) > 1 && os.Args[1] == "neuron" {
+		if len(os.Args) < 3 || os.Args[2] != "connect" {
+			log.Fatal("usage: brain neuron connect --brain host:port --id ID --cert FILE --key FILE --ca FILE --server-name NAME")
+		}
+		if err := neuronConnect(os.Args[3:]); err != nil {
+			log.Fatal(err)
+		}
+		return
+	}
 	if len(os.Args) > 1 && os.Args[1] == "plugin-contract" {
 		if len(os.Args) != 4 {
 			log.Fatal("usage: brain plugin-contract <plugin.yaml> <markdown|typescript>")
@@ -68,7 +77,20 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	cluster, err := startDevCluster(server, cfg.HTTPAddress)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if cluster != nil {
+		defer cluster.Close()
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		go cluster.monitor(ctx)
+	}
 	if err := serveHTTP(cfg.HTTPAddress, server.Handler()); err != nil {
+		if cluster != nil {
+			cluster.Close()
+		}
 		log.Fatal(err)
 	}
 }
