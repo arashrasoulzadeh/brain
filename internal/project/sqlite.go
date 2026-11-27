@@ -8,11 +8,13 @@ import (
 	"os"
 	"path/filepath"
 
+	"brain/internal/sqliteconfig"
+
 	_ "modernc.org/sqlite"
 )
 
 func NewSQLiteStore(path string) (*Store, error) {
-	database, err := sql.Open("sqlite", path)
+	database, err := sql.Open("sqlite", sqliteconfig.DSN(path))
 	if err != nil {
 		return nil, err
 	}
