@@ -11,13 +11,19 @@ const projects = [{ ID: "alpha", Active: true }, { ID: "beta", Active: true }];
 const manifest = {
   ID: "files", Title: "Files", Description: "Project-scoped object metadata.", Version: "0.1.0",
   Capabilities: ["files.metadata", "files.publish"],
-  Routes: [{ Operation: "files.metadata", Capability: "files.metadata" }, { Operation: "files.publish", Capability: "files.publish" }],
+  Routes: [{ Operation: "files.metadata", Capability: "files.metadata" }, { Operation: "files.publish", Capability: "files.publish" }, { Operation: "files.model.list", Capability: "files.metadata" }, { Operation: "files.model.read", Capability: "files.metadata" }],
   Admin: { version: 1, pages: [{
     id: "operations", title: "File metadata",
     inventory: { kind: "file_keys", capability: "files.metadata", title: "Files", select_field: "key" },
     actions: [
       { title: "Inspect file", operation: "files.metadata", read_only: true, fields: [{ name: "key", type: "string", required: true }], result: { type: "detail" } },
       { title: "Publish file", operation: "files.publish", fields: [{ name: "key", type: "string", required: true }] },
+    ],
+  }, {
+    id: "model-record", title: "Model records", model: { name: "record", schema: { version: 1, fields: { name: "string" } } },
+    actions: [
+      { title: "list", operation: "files.model.list", read_only: true, model_action: "list", fields: [{ name: "after", type: "string" }] },
+      { title: "read", operation: "files.model.read", read_only: true, model_action: "read", fields: [{ name: "id", type: "string", required: true }] },
     ],
   }] },
 };
@@ -37,6 +43,7 @@ async function fixture(viewport, project = "alpha") {
   }, { project });
   const page = await context.newPage();
   let allowed = true;
+  let modelAllowed = true;
   page.on("pageerror", error => runtimeErrors.push(error.message));
   await page.route("**/api/admin/**", async route => {
     const request = route.request();
@@ -65,6 +72,13 @@ async function fixture(viewport, project = "alpha") {
         assert.equal(body.project_id, "alpha");
         assert.equal(body.plugin_id, "files");
         assert.equal(body.version, manifest.Version);
+        if (body.page_id === "model-record") {
+          assert.equal(body.target_operation, "files.model.list");
+          if (!modelAllowed) return route.fulfill({ status: 403, body: "Model permission revoked" });
+          if (body.operation === "plugin.admin.revision") return json({ revision: 0 });
+          assert.equal(body.operation, "plugin.admin.query");
+          return json({ Success: true, Payload: Buffer.from(JSON.stringify([{ id: "record-one", revision: "fixture-revision", fields: { name: "private-name" } }])).toString("base64") });
+        }
         assert.equal(body.page_id, "operations");
         if (body.operation === "plugin.admin.inventory") {
           return json({ rows: allowed ? [{ key: "sample.txt", size_bytes: 12, published: false }] : [] });
@@ -90,7 +104,7 @@ async function fixture(viewport, project = "alpha") {
       default: return route.fulfill({ status: 404, body: "Unknown fixture endpoint" });
     }
   });
-  return { page, context, setAllowed(value) { allowed = value; } };
+  return { page, context, setAllowed(value) { allowed = value; }, setModelAllowed(value) { modelAllowed = value; } };
 }
 
 async function visible(locator) {
@@ -144,6 +158,18 @@ try {
   await page.getByRole("button", { name: "Run action" }).click();
   await visible(page.getByText("fixture-result", { exact: false }).last());
   assert.equal(commands.filter(command => command.operation === "plugin.admin.invoke").length, 1);
+
+  await menuSearch(page, "Model records");
+  await page.getByRole("navigation", { name: "Admin navigation" }).getByRole("link", { name: /Model records/ }).click();
+  await visible(page.getByText("record-one", { exact: true }));
+  await page.getByRole("button", { name: "Select", exact: true }).click();
+  assert.equal(await page.getByLabel("Record ID").inputValue(), "record-one");
+  assert.equal(await page.getByLabel("name", { exact: true }).inputValue(), "private-name");
+  desktop.setModelAllowed(false);
+  await visible(page.getByRole("status").filter({ hasText: "Model permission revoked" }));
+  assert.equal(await page.getByText("record-one", { exact: true }).count(), 0);
+  assert.equal(await page.getByLabel("Record ID").inputValue(), "");
+  assert.equal(await page.getByLabel("name", { exact: true }).inputValue(), "");
 
   await page.getByRole("navigation", { name: "Admin navigation" }).getByRole("link", { name: "Projects", exact: true }).click();
   await visible(page.getByRole("heading", { name: "Projects", level: 1 }));
