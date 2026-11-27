@@ -3,6 +3,34 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `d781058c` — 2026-11-28 00:50:52 +0330 — Merge pull request #53 from arashrasoulzadeh/functions/host-plugin-read-bridge
+  Files: 
+- `c94cbfbb` — 2026-11-28 00:50:48 +0330 — Merge pull request #52 from arashrasoulzadeh/admin/confirmed-dependency-enable
+  Files: 
+- `2caae147` — 2026-11-28 00:50:34 +0330 — Merge main and preserve both function studio and dependency regression tests
+  Files: tests/admin-ui/pages.test.mjs
+- `62ba9575` — 2026-11-28 00:50:01 +0330 — Merge pull request #51 from arashrasoulzadeh/admin/function-development-studio
+  Files: 
+- `ad86bc6e` — 2026-11-28 00:48:58 +0330 — Apply gofmt to new regression tests
+  Files: tests/plugin/function_read_bridge_test.go
+- `7bb316e2` — 2026-11-28 00:48:52 +0330 — Apply gofmt to new regression tests
+  Files: tests/plugin/registry_enable_dependencies_test.go
+- `09e7885d` — 2026-11-28 00:48:04 +0330 — Test function plugin metadata delegation and denied authority boundaries
+  Files: tests/plugin/function_read_bridge_test.go
+- `4cabff79` — 2026-11-28 00:47:04 +0330 — Add host-mediated read-only plugin bridge to operator function tests
+  Files: docs/functions-runtime.md,docs/plugin-guides/functions.md internal/admin/function_plugin_bridge.go,internal/admin/functions.go internal/plugin/function_read.go,internal/plugin/manifest.go internal/plugin/registry_workers.go,internal/plugin/worker.go plugins/files/plugin.yaml
+- `308b8764` — 2026-11-28 00:45:41 +0330 — Test exact dependency consent, project scope and atomic rollback
+  Files: tests/plugin/registry_enable_dependencies_test.go
+- `918082f8` — 2026-11-28 00:45:04 +0330 — Confirm exact required dependency activation before enabling plugins
+  Files: admin-nextjs/app/components/plugin-catalog-panel.tsx,admin-nextjs/app/components/plugin-enable-dependencies.tsx admin-nextjs/app/lib/plugin-version-review.ts,admin-nextjs/app/plugins/[plugin]/view.tsx admin-nextjs/app/view.tsx,docs/admin-pages/plugin-detail.md docs/admin-pages/plugins.md,internal/admin/lifecycle.go internal/app/admin.go,internal/plugin/registry_enable_dependencies.go tests/admin-ui/pages.test.mjs
+- `cb9fe3a3` — 2026-11-28 00:40:34 +0330 — Redesign function editor as a source-first IDE workspace
+  Files: admin-nextjs/app/functions/[name]/view.tsx,admin-nextjs/app/functions/function-editor.tsx admin-nextjs/app/functions/function-workspace.tsx,admin-nextjs/app/theme.css docs/admin-pages/function-detail.md,docs/admin-pages/function-new.md tests/admin-ui/pages.test.mjs
+- `06304377` — 2026-11-28 00:38:02 +0330 — Guard studio saves and distinguish unavailable logs
+  Files: admin-nextjs/app/functions/[name]/view.tsx,admin-nextjs/app/functions/function-runner.tsx admin-nextjs/app/functions/new/view.tsx,tests/admin-ui/pages.test.mjs
+- `6f97511d` — 2026-11-28 00:37:42 +0330 — Build function development studio with scoped sandbox execution
+  Files: admin-nextjs/app/functions/[name]/view.tsx,admin-nextjs/app/functions/function-runner.tsx admin-nextjs/app/functions/new/view.tsx,admin-nextjs/app/lib/function-studio.ts admin-nextjs/app/theme.css,docs/admin-pages/function-detail.md docs/admin-pages/function-new.md,tests/admin-ui/pages.test.mjs tests/admin/function-inspection.test.ts
+- `bce1988e` — 2026-11-27 21:06:25 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `c70d1bda` — 2026-11-28 00:36:14 +0330 — Merge pull request #50 from arashrasoulzadeh/admin/functions-catalog-rework
   Files: 
 - `a81a7997` — 2026-11-28 00:20:16 +0330 — Rebuild project Functions catalog and preserve access boundaries
@@ -75,31 +103,3 @@ Automatically generated from commits on main.
   Files: admin-nextjs/app/dashboard/view.tsx,admin-nextjs/app/lib/admin-types.ts admin-nextjs/app/plugins/[plugin]/view.tsx,admin-nextjs/app/workers/view.tsx docs/admin-pages/dashboard.md,docs/admin-pages/plugin-detail.md internal/plugin/plugin.go,internal/plugin/registry_catalog.go tests/admin/lifecycle_read_test.go
 - `54f4e4ff` — 2026-11-27 21:53:32 +0330 — feat: improve admin audit, inventory, worker health and request isolation
   Files: admin-nextjs/app/components/admin-inventory.tsx,admin-nextjs/app/components/audit-panel.tsx admin-nextjs/app/components/monitoring-panel.tsx,admin-nextjs/app/lib/admin-observability.ts admin-nextjs/app/lib/admin-types.ts,admin-nextjs/app/view.tsx admin-nextjs/app/workers/view.tsx,docs/admin-pages/audit.md docs/admin-pages/extensions.md,docs/admin-pages/monitoring.md docs/admin-pages/workers.md,internal/admin/lifecycle.go internal/operator/operator.go,internal/plugin/registry_audit.go tests/admin/admin-observability.test.ts,tests/admin/lifecycle_read_test.go
-- `dcec131f` — 2026-11-27 18:20:51 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `43d7023b` — 2026-11-27 21:48:36 +0330 — Merge pull request #14 from arashrasoulzadeh/quality/coverage-completion
-  Files: 
-- `e462a13e` — 2026-11-27 21:48:25 +0330 — Merge main into coverage completion and retain existing CI checks
-  Files: .github/workflows/test.yml
-- `efdc3992` — 2026-11-27 21:48:05 +0330 — Merge pull request #47 from arashrasoulzadeh/fix/admin-page-consistency
-  Files: 
-- `46fd8ff0` — 2026-11-27 21:47:53 +0330 — Merge main into admin page consistency and preserve file MB settings
-  Files: admin-nextjs/app/components/admin-config-form.tsx,admin-nextjs/app/components/routes-panel.tsx
-- `97aee320` — 2026-11-27 18:07:54 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `2aff993c` — 2026-11-27 21:37:44 +0330 — Merge pull request #45 from arashrasoulzadeh/feat/files-megabyte-limit
-  Files: 
-- `3865c2ba` — 2026-11-27 21:21:23 +0330 — Cover admin access, route failures and cancelled project edits in browser regression tests
-  Files: admin-nextjs/app/view.tsx,docs/admin-pages/function-detail.md docs/admin-pages/projects.md,docs/admin-pages/routes.md scripts/test-admin-browser.mjs
-- `ac357976` — 2026-11-27 21:20:25 +0330 — Isolate live admin server and allow bounded binary fixtures through CI relay
-  Files: .github/workflows/admin-browser.yml,scripts/admin-ci-backend-relay.mjs scripts/test-admin-live.mjs
-- `20cc1a03` — 2026-11-27 21:18:30 +0330 — Improve admin page access, lifecycle dialogs, route invocation and function editor consistency
-  Files: admin-nextjs/app/components/admin-chrome.tsx,admin-nextjs/app/components/admin-config-form.tsx admin-nextjs/app/components/audit-panel.tsx,admin-nextjs/app/components/legacy-admin-page.tsx admin-nextjs/app/components/monitoring-panel.tsx,admin-nextjs/app/components/plugin-catalog-panel.tsx admin-nextjs/app/components/routes-panel.tsx,admin-nextjs/app/extensions/[project]/[plugin]/[version]/[page]/view.tsx admin-nextjs/app/functions/[name]/view.tsx,admin-nextjs/app/functions/function-editor.tsx admin-nextjs/app/functions/new/view.tsx,admin-nextjs/app/functions/view.tsx admin-nextjs/app/view.tsx,admin-nextjs/app/workers/view.tsx
-- `699e98c7` — 2026-11-27 17:48:05 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `98e11603` — 2026-11-27 21:15:32 +0330 — Merge main and preserve confirmed installation, file transport and combined regression coverage
-  Files: admin-nextjs/app/components/admin-config-form.tsx,docs/http-api.md scripts/test-admin-live.mjs
-- `557658d8` — 2026-11-27 21:15:03 +0330 — Merge pull request #46 from arashrasoulzadeh/feat/confirmed-plugin-install
-  Files: 
-- `644bfc1e` — 2026-11-27 21:13:51 +0330 — Document binary routes and verify streaming through the admin host above proxy buffer limits
-  Files: admin-nextjs/app/[project]/admin/files/blob/route.ts,admin-nextjs/app/components/admin-file-controls.tsx admin-nextjs/app/lib/admin-file-transfer.ts,docs/http-api.md internal/app/admin_files.go,scripts/test-admin-live.mjs
