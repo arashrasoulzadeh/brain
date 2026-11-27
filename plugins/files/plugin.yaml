@@ -30,6 +30,7 @@ extension_points:
   - files.storage
 config_schema:
   bucket: string
+  maxUploadBytes: int
 events:
   - name: uploaded
     fields: {size: number}

@@ -27,6 +27,8 @@ export type PluginStatus = {
   WorkerReady?: boolean;
   Draining: boolean;
   Grants?: string[];
+  ConfiguredFields?: string[];
+  MaxUploadBytes?: number;
 };
 export type AuditRecord = {
   source: string;

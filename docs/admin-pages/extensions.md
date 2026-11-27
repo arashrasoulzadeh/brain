@@ -37,3 +37,7 @@ Production startup restricts the SQLite file to owner read/write permissions bef
 Generated model lists and selected records also recheck their exact read scope every five seconds while visible. Revocation clears both cached rows and the selected form without replaying writes or overwriting authorized edits.
 
 Upgrade note: the previous worker-local arena, account, invitation and subscription state is not automatically migrated. For existing deployments, export or explicitly reconcile that state before replacing workers; existing transient credentials must be reissued. Do not treat this forward migration as a lossless upgrade.
+
+## Action dialogs
+
+Manifest actions and generated model record editors open a shared native dialog. Inventory stays on the page. Mutations require an explicit in-dialog confirmation and display pending, success or error states; read results are still checked against current authorization. Escape and Close dismiss idle dialogs; active requests are not interrupted by accidental dismissal. File reading displays measured progress when available; the fetch-based request and durable save show indeterminate progress until the server confirms the result. Manage links target the exact project's plugin/version settings.

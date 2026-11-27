@@ -156,6 +156,9 @@ func (r *Registry) invokeUsingWorker(request WorkerRequest, observer bool, overr
 	if err != nil {
 		return WorkerResponse{}, err
 	}
+	if err := validateConfiguredFileUpload(request, hostContext.Config); err != nil {
+		return WorkerResponse{}, err
+	}
 	prepared.HostContext = hostContext
 	prepared.Project = &model
 	response, err := InvokeForProject(worker, prepared, r.HostAPI, request.ProjectID)

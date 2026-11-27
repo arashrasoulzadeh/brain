@@ -1,7 +1,7 @@
 import { projectUIURL } from "./admin-api.js";
 import type { AdminPage, PluginStatus, SystemManifest } from "./admin-types.js";
 
-export type AdminContribution = { projectID: string; pluginID: string; version: string; page: AdminPage; href: string };
+export type AdminContribution = { projectID: string; pluginID: string; version: string; page: AdminPage; href: string; maxUploadBytes?: number };
 export type AdminCatalog = { manifests: SystemManifest[] | null; installations: PluginStatus[] | null };
 
 export function adminContributions(projectID: string, catalog: AdminCatalog): AdminContribution[] {
@@ -18,7 +18,7 @@ export function adminContributions(projectID: string, catalog: AdminCatalog): Ad
       });
       if (!actions.length) continue;
       const href = projectUIURL(projectID, "extensions", manifest.ID, manifest.Version, page.id);
-      result.push({ projectID, pluginID: manifest.ID, version: manifest.Version, page: { ...page, actions }, href });
+      result.push({ projectID, pluginID: manifest.ID, version: manifest.Version, page: { ...page, actions }, href, ...(manifest.ID === "files" && installation.MaxUploadBytes ? { maxUploadBytes: installation.MaxUploadBytes } : {}) });
     }
   }
   return result.sort((a, b) => a.page.title.localeCompare(b.page.title) || a.href.localeCompare(b.href));
