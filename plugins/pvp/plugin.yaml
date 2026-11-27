@@ -24,3 +24,15 @@ routes:
     function: describe
     helper: sdk.context
     capability: pvp.describe
+
+admin:
+  version: 1
+  pages:
+    - id: runtime
+      title: PvP runtime
+      legacy_route: pvp
+      actions:
+        - title: Inspect runtime capabilities
+          operation: pvp.describe
+          read_only: true
+          result: {type: detail}

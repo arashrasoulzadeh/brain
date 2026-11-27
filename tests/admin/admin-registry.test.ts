@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { adminContributions, adminPageExtensions, adminLegacyContributions, adminEmbeddedExtensions, adminLegacyRootPages } from "../../admin-nextjs/app/lib/admin-registry.js";
+import { adminContributions, adminPageExtensions, adminLegacyContributions, adminEmbeddedExtensions, adminLegacyRootPages, adminAliasMatches } from "../../admin-nextjs/app/lib/admin-registry.js";
 import type { AdminCatalog } from "../../admin-nextjs/app/lib/admin-registry.js";
 
 test("admin contributions require exact project, version, readiness and grants", () => {
@@ -34,4 +34,13 @@ test("embedded tabs require target opt-in and preserve standalone access", () =>
   assert.deepEqual(adminEmbeddedExtensions(enabled, [extension, { ...extension, projectID: "two" }]), [extension]);
   assert.deepEqual(adminLegacyRootPages([enabled, extension]), [enabled]);
   assert.deepEqual(adminLegacyRootPages([extension]), [extension]);
+});
+
+test("the old live sessions link is a compatibility alias only for room and matchmaking pages", () => {
+  const contribution = { projectID: "one", pluginID: "rooms", version: "1", href: "/one/ui/extensions/rooms/1/operations", page: { id: "operations", title: "Rooms", actions: [], legacy_route: "rooms" } };
+  assert.equal(adminAliasMatches(contribution, "rooms"), true);
+  assert.equal(adminAliasMatches(contribution, "live-sessions"), true);
+  assert.equal(adminAliasMatches({ ...contribution, pluginID: "matchmaking", page: { ...contribution.page, legacy_route: "matchmaking" } }, "live-sessions"), true);
+  assert.equal(adminAliasMatches({ ...contribution, pluginID: "unrelated" }, "live-sessions"), false);
+  assert.equal(adminAliasMatches(contribution, "matchmaking"), false);
 });

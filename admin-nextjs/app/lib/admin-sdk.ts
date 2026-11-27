@@ -5,13 +5,14 @@ import type { AdminInventoryPage } from "./admin-types";
 export async function invokeAdminAction(token: string, contribution: AdminContribution, operation: string, payload: unknown, signal: AbortSignal, query = false): Promise<unknown> {
   const action = contribution.page.actions.find(item => item.operation === operation);
   if (!action || (query && !action.read_only)) throw new Error("Action unavailable");
+  const body = JSON.stringify({ operation: query ? "plugin.admin.query" : "plugin.admin.invoke", project_id: contribution.projectID,
+    plugin_id: contribution.pluginID, version: contribution.version, page_id: contribution.page.id,
+    target_operation: operation, payload, confirmed: !query });
+  if (new TextEncoder().encode(body).byteLength > 64 * 1024) throw new Error("Admin request exceeds 64 KiB; choose a smaller file or payload");
   const response = await fetch(projectAdminURL(contribution.projectID, "actions"), {
     method: "POST",
     headers: adminHeaders(token, { "content-type": "application/json" }),
-    signal,
-    body: JSON.stringify({ operation: query ? "plugin.admin.query" : "plugin.admin.invoke", project_id: contribution.projectID,
-      plugin_id: contribution.pluginID, version: contribution.version, page_id: contribution.page.id,
-      target_operation: operation, payload, confirmed: !query }),
+    signal, body,
   });
   if (!response.ok) throw new Error(await response.text());
   const result = await response.json() as { Success: boolean; Payload?: string; ErrorCode?: string };

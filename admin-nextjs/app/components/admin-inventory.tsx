@@ -51,7 +51,7 @@ export function AdminInventory({ contribution, refresh, disabled, onSelect }: {
       <button type="button" className="secondary" disabled={loading || disabled} onClick={() => setReload(value => value + 1)}>Refresh</button></div>
     {error && <p role="alert">{error}</p>}
     {loading && <p role="status">Loading resources…</p>}
-    {page && <><div className="table-wrap"><table><thead><tr><th>Resource</th>{fileColumns && <><th>Bytes</th><th>Published</th></>}{onSelect && <th>Action</th>}</tr></thead>
+    {page && <><div className="table-wrap"><table><thead><tr><th>Resource</th>{fileColumns && <><th>Stored bytes</th><th>Published</th></>}{onSelect && <th>Action</th>}</tr></thead>
       <tbody>{page.rows.map(row => <tr key={row.key}><td>{row.key}</td>{fileColumns && <><td>{row.size_bytes ?? "—"}</td><td>{row.published === undefined ? "—" : row.published ? "Yes" : "No"}</td></>}{onSelect && <td><button className="secondary" type="button" disabled={disabled} onClick={() => onSelect(row.key)}>Select</button></td>}</tr>)}</tbody>
     </table></div>
     {page.rows.length === 0 && <p className="muted empty-state">No resources on this page.</p>}</>}

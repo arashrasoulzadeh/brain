@@ -24,3 +24,14 @@ test("project links are not generated without a project and never match another 
   assert.deepEqual(adminMenu(["projects", "plugins", "functions", "audit"], [page]).flatMap(group => group.items.map(item => item.href)), ["/_system/ui/projects", "/_system/ui/audit"]);
   assert.equal(menuItemActive("/two/ui/functions/new", "/one/ui/functions"), false);
 });
+
+test("each enabled operational plugin has its own project sidebar destination", () => {
+  const aliases = ["rooms", "matchmaking", "arena", "invitations", "subscriptions", "auth", "access-management", "analytics", "games", "pvp", "database", "files"];
+  const extensions = aliases.map(alias => ({ ...page, pluginID: alias, href: "/one/ui/extensions/" + alias + "/1/operations", page: { ...page.page, legacy_route: alias } }));
+  const items = adminMenu(["projects", "functions", "plugins"], extensions, "", "one").flatMap(group => group.items);
+  for (const alias of aliases) assert.equal(items.filter(item => item.href === "/one/ui/" + alias).length, 1);
+  assert.equal(items.find(item => item.href === "/one/ui/pvp")?.label, "PvP");
+  assert.equal(items.find(item => item.href === "/one/ui/auth")?.label, "Authentication");
+  assert.equal(items.some(item => item.href === "/two/ui/files"), false);
+  assert.equal(items.some(item => item.href === "/one/ui/live-sessions"), false);
+});

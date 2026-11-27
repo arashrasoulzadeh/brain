@@ -75,6 +75,7 @@ admin:
   pages:
     - id: rules
       title: Access rules
+      legacy_route: access-management
       actions:
         - title: List rules
           operation: access.rules.list
