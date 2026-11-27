@@ -10,7 +10,7 @@ import (
 
 type dependencyEnableWorker struct {
 	ready bool
-	fail error
+	fail  error
 }
 
 func (w *dependencyEnableWorker) Start() error {
@@ -35,7 +35,9 @@ func TestEnableExactDependenciesRequiresConsentAndRollsBack(t *testing.T) {
 	}
 	for _, m := range manifests {
 		for _, err := range []error{r.Register(m), r.Install("one", m.ID, m.Version), r.SetReadiness(m.ID, m.Version, true), r.Grant("one", m.ID, m.Version, "read")} {
-			if err != nil { t.Fatal(err) }
+			if err != nil {
+				t.Fatal(err)
+			}
 		}
 	}
 	var order []string
@@ -43,10 +45,14 @@ func TestEnableExactDependenciesRequiresConsentAndRollsBack(t *testing.T) {
 	failure := errors.New("parent startup failed")
 	fail := true
 	r.BindWorkerFactory(func(project, id, version string) (plugin.ContractWorker, error) {
-		if project != "one" { t.Fatalf("wrong project %s", project) }
+		if project != "one" {
+			t.Fatalf("wrong project %s", project)
+		}
 		order = append(order, id+"@"+version)
 		w := &dependencyEnableWorker{}
-		if id == "parent" && fail { w.fail = failure }
+		if id == "parent" && fail {
+			w.fail = failure
+		}
 		workers = append(workers, w)
 		return w, nil
 	})
@@ -56,7 +62,9 @@ func TestEnableExactDependenciesRequiresConsentAndRollsBack(t *testing.T) {
 			t.Fatalf("invalid consent accepted: %v", invalid)
 		}
 	}
-	if len(order) != 0 { t.Fatal("started workers without consent") }
+	if len(order) != 0 {
+		t.Fatal("started workers without consent")
+	}
 	if err := r.EnableWithDependencies("two", "parent", "1", plan); err == nil {
 		t.Fatal("cross-project activation accepted")
 	}
@@ -65,20 +73,28 @@ func TestEnableExactDependenciesRequiresConsentAndRollsBack(t *testing.T) {
 	}
 	for _, m := range manifests {
 		status, err := r.Status("one", m.ID, m.Version)
-		if err != nil || status.Enabled { t.Fatalf("partial activation: %+v %v", status, err) }
+		if err != nil || status.Enabled {
+			t.Fatalf("partial activation: %+v %v", status, err)
+		}
 	}
 	for _, worker := range workers {
-		if worker.Ready() { t.Fatal("partial worker left running") }
+		if worker.Ready() {
+			t.Fatal("partial worker left running")
+		}
 	}
 	order = nil
 	fail = false
-	if err := r.EnableWithDependencies("one", "parent", "1", plan); err != nil { t.Fatal(err) }
+	if err := r.EnableWithDependencies("one", "parent", "1", plan); err != nil {
+		t.Fatal(err)
+	}
 	if !reflect.DeepEqual(order, []string{"leaf@3", "child@2", "parent@1"}) {
 		t.Fatalf("wrong startup order %v", order)
 	}
 	for _, m := range manifests {
 		status, err := r.Status("one", m.ID, m.Version)
-		if err != nil || !status.Enabled || !status.WorkerReady { t.Fatalf("not enabled: %+v %v", status, err) }
+		if err != nil || !status.Enabled || !status.WorkerReady {
+			t.Fatalf("not enabled: %+v %v", status, err)
+		}
 	}
 	if err := r.EnableWithDependencies("one", "parent", "1", plan); err == nil {
 		t.Fatal("stale confirmation accepted")
