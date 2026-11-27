@@ -13,7 +13,7 @@ const nextConfig: NextConfig = {
       { source: "/_system/admin/:path*", destination: `${origin}/_system/admin/:path*`, basePath: false },
       { source: "/:project/admin/:path*", destination: `${origin}/:project/admin/:path*`, basePath: false },
       { source: "/:project/functions/:name", destination: `${origin}/:project/functions/:name`, basePath: false },
-      { source: "/:project/:resource*", destination: `${origin}/:project/:resource*`, basePath: false },
+      { source: "/:project([A-Za-z0-9][A-Za-z0-9_-]*)/:resource*", destination: `${origin}/:project/:resource*`, basePath: false },
     ];
   },
 };
