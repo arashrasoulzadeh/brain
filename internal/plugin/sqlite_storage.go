@@ -7,6 +7,8 @@ import (
 	"errors"
 	"strings"
 
+	"brain/internal/sqliteconfig"
+
 	_ "modernc.org/sqlite"
 )
 
@@ -25,7 +27,7 @@ type persistedRegistryState struct {
 }
 
 func OpenSQLiteStorage(path string) (*SQLiteStorage, error) {
-	db, err := sql.Open("sqlite", path)
+	db, err := sql.Open("sqlite", sqliteconfig.DSN(path))
 	if err != nil {
 		return nil, err
 	}

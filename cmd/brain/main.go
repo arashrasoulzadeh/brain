@@ -203,18 +203,23 @@ func registerDiscoveredPlugins(registry *plugin.Registry) (map[string]plugin.Plu
 	return registered, nil
 }
 
-func bindSandboxedTypeScriptWorkers(registry *plugin.Registry, locations map[string]plugin.PluginLocation) error {
-	launcherPath := "scripts/run-sandboxed-typescript-worker.sh"
-	sandboxBinary := "bwrap"
-	workerFactory := plugin.NewManifestBubblewrapTypeScriptWorker
-	if runtime.GOOS == "darwin" {
-		if os.Getenv("BRAIN_LOCAL_MACOS") != "1" || !strings.HasPrefix(os.Getenv("HTTP_ADDRESS"), "127.0.0.1:") {
-			return fmt.Errorf("macOS worker runtime is for loopback-only local development; use make dev server")
+type sandboxWorkerFactory func(launcher, workerScript, descriptor, pluginRoot, projectID string, manifest plugin.Manifest, policy plugin.IsolationPolicy) (*plugin.TypeScriptWorker, error)
+
+func sandboxRuntime(platform, local, address string) (string, string, sandboxWorkerFactory, error) {
+	if platform == "darwin" {
+		if local != "1" || !strings.HasPrefix(address, "127.0.0.1:") {
+			return "", "", nil, fmt.Errorf("macOS worker runtime is for loopback-only local development; use make dev server")
 		}
-		launcherPath = "scripts/run-macos-typescript-worker.sh"
-		sandboxBinary = "/usr/bin/sandbox-exec"
-		workerFactory = plugin.NewManifestMacOSTypeScriptWorker
 		log.Print("macOS local development: Seatbelt worker isolation (not the Linux production sandbox)")
+		return "scripts/run-macos-typescript-worker.sh", "/usr/bin/sandbox-exec", plugin.NewManifestMacOSTypeScriptWorker, nil
+	}
+	return "scripts/run-sandboxed-typescript-worker.sh", "bwrap", plugin.NewManifestBubblewrapTypeScriptWorker, nil
+}
+
+func bindSandboxedTypeScriptWorkers(registry *plugin.Registry, locations map[string]plugin.PluginLocation) error {
+	launcherPath, sandboxBinary, workerFactory, err := sandboxRuntime(runtime.GOOS, os.Getenv("BRAIN_LOCAL_MACOS"), os.Getenv("HTTP_ADDRESS"))
+	if err != nil {
+		return err
 	}
 	launcher, err := filepath.Abs(launcherPath)
 	if err != nil {
