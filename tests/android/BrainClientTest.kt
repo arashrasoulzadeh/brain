@@ -66,4 +66,26 @@ class BrainClientTest {
             assertFailsWith<IllegalArgumentException>(invalid) { parseAuthCallback(invalid) }
         }
     }
+
+    @Test
+    fun clientResponsesExposeStableValueSemantics() {
+        val session = SignInResponse("session-token", "alice")
+        val (token, username) = session
+        assertEquals("session-token", token)
+        assertEquals("alice", username)
+        assertEquals(session, session.copy())
+        assertEquals(SignInResponse("new-token", "alice"), session.copy(token = "new-token"))
+        assertEquals(SignInResponse("session-token", "bob"), session.copy(username = "bob"))
+        assertEquals(session.hashCode(), session.copy().hashCode())
+        assertEquals("SignInResponse(token=session-token, username=alice)", session.toString())
+        val callback = AuthCallback("abc", "xyz")
+        val (code, state) = callback
+        assertEquals("abc", code)
+        assertEquals("xyz", state)
+        assertEquals(callback, callback.copy())
+        assertEquals(AuthCallback("new", "xyz"), callback.copy(code = "new"))
+        assertEquals(AuthCallback("abc", "new"), callback.copy(state = "new"))
+        assertEquals(callback.hashCode(), callback.copy().hashCode())
+        assertEquals("AuthCallback(code=abc, state=xyz)", callback.toString())
+    }
 }

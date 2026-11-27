@@ -52,7 +52,10 @@ func TestDurableObservationDeliverySurvivesRestartAndRetries(t *testing.T) {
 	}}); err != nil {
 		t.Fatal(err)
 	}
-	request := plugin.WorkerRequest{Protocol: 1, ProjectID: "project", PluginID: "rooms", Version: "1", Operation: "rooms.join"}
+	if err := storage.PutState("project", "rooms", "room", map[string]any{"id": "room", "members": []any{}}); err != nil {
+		t.Fatal(err)
+	}
+	request := plugin.WorkerRequest{Protocol: 1, ProjectID: "project", PluginID: "rooms", Version: "1", Operation: "rooms.join", Payload: []byte(`{"id":"room","member":"alice"}`)}
 	if response, err := r.Invoke(request); err != nil || !response.Success {
 		t.Fatalf("publisher blocked by missing observer worker: %+v %v", response, err)
 	}
