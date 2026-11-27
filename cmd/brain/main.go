@@ -4,13 +4,16 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"os/exec"
+	"os/signal"
 	"path/filepath"
 	"strings"
+	"syscall"
 	"time"
 
 	"brain/internal/admin"
@@ -59,13 +62,42 @@ func main() {
 	}
 	if len(os.Args) > 1 && os.Args[1] == "health-only" {
 		log.Print("health-only mode: no application routes; readiness is unavailable")
-		log.Fatal(http.ListenAndServe(cfg.HTTPAddress, app.NewServer().Handler()))
+		if err := serveHTTP(cfg.HTTPAddress, app.NewServer().Handler()); err != nil {
+			log.Fatal(err)
+		}
+		return
 	}
 	server, err := productionServer()
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Fatal(http.ListenAndServe(cfg.HTTPAddress, server.Handler()))
+	if err := serveHTTP(cfg.HTTPAddress, server.Handler()); err != nil {
+		log.Fatal(err)
+	}
+}
+
+// serveHTTP lets in-flight requests finish on an ordinary process shutdown.
+func serveHTTP(address string, handler http.Handler) error {
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	server := &http.Server{Addr: address, Handler: handler}
+	result := make(chan error, 1)
+	go func() { result <- server.ListenAndServe() }()
+	select {
+	case err := <-result:
+		return err
+	case <-ctx.Done():
+		shutdown, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		if err := server.Shutdown(shutdown); err != nil {
+			_ = server.Close()
+			return err
+		}
+		if err := <-result; !errors.Is(err, http.ErrServerClosed) {
+			return err
+		}
+		return nil
+	}
 }
 
 func productionServer() (*app.Server, error) {

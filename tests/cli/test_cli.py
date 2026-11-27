@@ -1,5 +1,10 @@
 """Run the actual Brain executable; GOCOVERDIR is inherited in coverage CI."""
 import os
+import signal
+import socket
+import time
+from urllib.error import HTTPError
+from urllib.request import urlopen
 from pathlib import Path
 import subprocess
 import tempfile
@@ -27,6 +32,41 @@ class CLITest(unittest.TestCase):
         self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
         self.assertIn(contains, result.stdout + result.stderr)
         return result.stdout
+
+    def test_health_only_serves_and_shuts_down(self):
+        with socket.socket() as listener:
+            listener.bind(("127.0.0.1", 0))
+            port = listener.getsockname()[1]
+        env = os.environ.copy()
+        env.update(HTTP_ADDRESS=f"127.0.0.1:{port}", RUNTIME_DSN="", MIGRATION_DSN="")
+        process = subprocess.Popen([str(self.binary), "health-only"], cwd=ROOT, env=env,
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        try:
+            for _ in range(100):
+                if process.poll() is not None:
+                    self.fail(f"health server exited: {process.communicate()}")
+                try:
+                    with urlopen(f"http://127.0.0.1:{port}/livez", timeout=1) as response:
+                        self.assertEqual(response.status, 200)
+                    break
+                except OSError:
+                    time.sleep(0.05)
+            else:
+                self.fail("health server never became live")
+            with self.assertRaises(HTTPError) as error:
+                urlopen(f"http://127.0.0.1:{port}/readyz", timeout=1)
+            self.assertEqual(error.exception.code, 503)
+            process.send_signal(signal.SIGTERM)
+            stdout, stderr = process.communicate(timeout=10)
+            self.assertEqual(process.returncode, 0, stdout + stderr)
+        finally:
+            if process.poll() is None:
+                process.kill()
+                process.communicate()
+
+    def test_health_only_reports_listen_failure(self):
+        self.cli("health-only", expected=1, contains="missing port in address",
+                 HTTP_ADDRESS="invalid-address")
 
     def test_every_plugin_contract_in_both_formats(self):
         for manifest in sorted(ROOT.glob("plugins/*/plugin.yaml")) + sorted(ROOT.glob("examples/*/plugin.yaml")):

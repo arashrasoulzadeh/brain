@@ -15,12 +15,23 @@ printf '%s\n' "$output" | grep -F 'PROJECTS_FILE must name an explicit durable S
 
 # Privileged namespace access is used only in this isolated CI test, never in
 # production deployment. No host paths, credentials, or network are attached.
-container=$(docker run -d --privileged --network none -e HTTP_ADDRESS=:8080 -e OPERATOR_USERNAME=ci-operator -e OPERATOR_SECRET=ci-fixture-only -e PROJECTS_FILE=/workspace/.local/brain.sqlite "$image")
+args=(--privileged --network none -e HTTP_ADDRESS=:8080 -e OPERATOR_USERNAME=ci-operator -e OPERATOR_SECRET=ci-fixture-only -e PROJECTS_FILE=/workspace/.local/brain.sqlite)
+coverage_output="${BRAIN_COVERAGE_OUTPUT:-}"
+if [ -n "$coverage_output" ]; then
+  test -x "${BRAIN_TEST_CLI:?coverage requires an instrumented CLI}"
+  container=$(docker create "${args[@]}" -e GOCOVERDIR=/workspace/.local "$image")
+else
+  container=$(docker create "${args[@]}" "$image")
+fi
 cleanup() {
   docker logs "$container" 2>&1 || true
   docker rm -f "$container" >/dev/null 2>&1 || true
 }
 trap cleanup EXIT
+if [ -n "$coverage_output" ]; then
+  docker cp "$BRAIN_TEST_CLI" "$container:/brain"
+fi
+docker start "$container" >/dev/null
 # Do not race an immediately exiting host with docker exec.
 for attempt in $(seq 1 5); do
   if [ "$(docker inspect -f '{{.State.Running}}' "$container")" != true ]; then
@@ -116,3 +127,14 @@ assert.ok(analyticsDelivered,"analytics did not receive rooms.connected");
 await invoke("subscriptions","subscriptions.close",{channel,ticket:subscription.ticket});
 assert.ok((await fetch(base + "/readyz")).ok);
 NODE
+
+# Graceful termination flushes instrumented Go counters and checks normal shutdown.
+docker stop --time 10 "$container" >/dev/null
+test "$(docker inspect -f '{{.State.ExitCode}}' "$container")" = 0
+if [ -n "$coverage_output" ]; then
+  mkdir -p "$coverage_output"
+  scratch=$(mktemp -d)
+  docker cp "$container:/workspace/.local/." "$scratch"
+  cp "$scratch"/covmeta.* "$scratch"/covcounters.* "$coverage_output/"
+  rm -rf "$scratch"
+fi

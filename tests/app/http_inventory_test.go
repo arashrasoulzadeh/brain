@@ -88,12 +88,12 @@ func TestOperatorHTTPInventoryAndLifecycle(t *testing.T) {
 func TestAdminHandlerMethodAndDependencyBoundaries(t *testing.T) {
 	for name, handler := range map[string]http.Handler{
 		"projects": app.AuthenticatedProjectsHandler(nil, nil),
-		"plugins": app.AuthenticatedPluginsHandler(nil, nil),
-		"audit": app.AuthenticatedAuditHandler(nil, nil),
-		"system": app.AuthenticatedSystemHandler(nil, nil),
-		"actions": app.AdminHandler(nil),
-		"session": app.OperatorSessionHandler(nil, nil),
-		"logout": app.OperatorLogoutHandler(nil),
+		"plugins":  app.AuthenticatedPluginsHandler(nil, nil),
+		"audit":    app.AuthenticatedAuditHandler(nil, nil),
+		"system":   app.AuthenticatedSystemHandler(nil, nil),
+		"actions":  app.AdminHandler(nil),
+		"session":  app.OperatorSessionHandler(nil, nil),
+		"logout":   app.OperatorLogoutHandler(nil),
 	} {
 		t.Run(name, func(t *testing.T) {
 			rec := httptest.NewRecorder()
