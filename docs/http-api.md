@@ -60,7 +60,8 @@ Send project creation, configuration, activation, deactivation, uninstall and re
 | `plugin.admin.query` | identity, page_id, target_operation, payload | Read-only declared admin action. |
 | `plugin.invoke` | identity, target_operation, payload | Invoke declared plugin operation as operator. |
 | `plugin.revoke` | identity, capability, confirmed | Revoke capability. |
-| `plugin.promote` | identity | Promote eligible version. |
+| `plugin.approve-capability` | identity, capability, confirmed | Persist explicit approval for a newly requested capability on an exact candidate version. |
+| `plugin.promote` | identity | Promote eligible version and persist the exact routing selection. |
 | `plugin.drain` | identity | Drain version. |
 | `plugin.stop-immediate` | identity, confirmed | Stop without waiting for drain. |
 | `plugin.stop` | identity, confirmed | Stop version. |

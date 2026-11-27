@@ -3,6 +3,8 @@ import { test } from "node:test";
 import { create as createInvite, inspect as inspectInvites } from "../../plugins/invites/index.js";
 import { open, inspect as inspectSubscriptions, revokeChannel, receive } from "../../plugins/subscriptions/index.js";
 import { dispatchRequest, signUpRequest, signInRequest, guestRequest } from "../../plugins/auth/index.js";
+import { administerSchema } from "../../plugins/tables/index.js";
+import { manageRoom } from "../../plugins/rooms/index.js";
 import { pluginRequest, requireOperator, type InvocationActor, type PluginContext } from "../../plugins/sdk-typescript/src/index.js";
 
 const operator: InvocationActor = { kind: "operator", id: "root", authenticated: true, level: "authenticated" };
@@ -87,4 +89,35 @@ test("auth account metadata and session revocation never expose credential mater
   assert.deepEqual(dispatchRequest("revokeSessions", revoke, revoker), { username, revoked: 1 });
   assert.throws(() => dispatchRequest("session", pluginRequest("auth", project, "auth", "0.1.0", "auth.session", { token: signedIn.token })), /invalid session/);
   assert.deepEqual(dispatchRequest("session", pluginRequest("auth", foreign, "auth", "0.1.0", "auth.session", { token: foreignSession.token })), { username });
+});
+
+test("table schema operations use the exact admitted capability and host snapshot", () => {
+  const table = "messages";
+  const result = { table, revision: "revision", exists: true, total_rows: 2 };
+  const events: string[] = [];
+  const read = context("alpha", "tables", "tables.schema.profile", "tables.schema", table);
+  assert.deepEqual(administerSchema(read, { projectId: "alpha", table, result }), result);
+  assert.throws(() => administerSchema(read, { table: "foreign", result }), /operator authorization/);
+  assert.throws(() => administerSchema(read, { table, result: null }), /host schema snapshot/);
+  const write = { ...context("alpha", "tables", "tables.admin.rename-column", "tables.admin.schema", table), plugins: { observe: { fire(event: string) { events.push(event); } } } };
+  assert.deepEqual(administerSchema(write, { table, result }), result);
+  assert.deepEqual(events, ["record.written"]);
+  assert.throws(() => administerSchema(read, { projectId: "beta", table, result }), /project context mismatch/);
+});
+
+test("room administrative operations validate exact scope and proposed membership", () => {
+  const id = "room";
+  const events: string[] = [];
+  const close = { ...context("alpha", "rooms", "rooms.admin.close", "rooms.admin.manage", id), plugins: { observe: { fire(event: string) { events.push(event); } } } };
+  const closed = { id, members: ["member"], closed: true };
+  assert.deepEqual(manageRoom(close, { id, room: closed }), closed);
+  assert.throws(() => manageRoom(close, { id: "other", room: closed }), /operator authorization/);
+  assert.throws(() => manageRoom(close, { id, room: { id, members: [] } }), /closed room snapshot/);
+  assert.throws(() => manageRoom(close, { id, room: null }), /host room snapshot/);
+  const remove = { ...close, execution: { operation: "rooms.admin.remove-member" } };
+  assert.deepEqual(manageRoom(remove, { id, member: "member", room: { id, members: [] } }), { id, members: [] });
+  assert.throws(() => manageRoom(remove, { id, member: "member", room: { id, members: ["member"] } }), /removed membership snapshot/);
+  assert.throws(() => manageRoom(remove, { id, member: "member", room: closed }), /removed membership snapshot/);
+  assert.throws(() => manageRoom({ ...close, execution: { operation: "rooms.unknown" } }, { id, room: closed }), /unknown room management/);
+  assert.deepEqual(events, ["closed", "membership.changed"]);
 });

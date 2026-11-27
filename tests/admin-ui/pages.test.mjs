@@ -133,3 +133,68 @@ test("workers page sends a scoped restart request and reloads readiness", async 
   assert.ok(![...document.querySelectorAll("button")].some(node => node.textContent === "Start worker"));
   assert.deepEqual(calls.at(-1), { auth: "Bearer fixture-token", body: { operation: "plugin.worker.start", project_id: "dev", plugin_id: "rooms", version: "1" } });
 });
+
+test("plugin details stage a new version without changing routing, and confirm new capability approval", async () => {
+  const Plugin = app("plugins/[plugin]/view.tsx").default;
+  await mount(Plugin, {}, { pathname: "/dev/ui/plugins/sample%402", params: { plugin: "sample%402" } });
+  assert.deepEqual(navigations.at(-1), ["replace", "/_system/ui"]);
+  session();
+  const first = { ID: "sample", Title: "Sample", Description: "First", Version: "1", Capabilities: ["read"], ConfigSchema: {}, Routes: [] };
+  const candidate = { ...first, Version: "2", Capabilities: ["read", "write"] };
+  const installations = [{ ProjectID: "dev", PluginID: "sample", Version: "1", Enabled: true, Ready: true, WorkerReady: true, Draining: false, Promoted: true, Grants: ["read"] }];
+  const calls = [];
+  stubFetch((url, init) => {
+    if (url === "/_system/admin/projects") return json([{ ID: "dev", Active: true }]);
+    if (url === "/dev/admin/plugins") return json({ manifests: [first, candidate], installations });
+    if (url === "/dev/admin/actions" || url === "/_system/admin/actions") {
+      const body = JSON.parse(init.body); calls.push({ url, body });
+      const current = installations.find(item => item.Version === "2");
+      if (body.operation === "plugin.install") installations.push({ ProjectID: "dev", PluginID: "sample", Version: "2", Ready: false, Enabled: false, Draining: false, Grants: [] });
+      else if (body.operation === "plugin.readiness") current.Ready = true;
+      else if (body.operation === "plugin.grant") current.Grants.push(body.capability);
+      else if (body.operation === "plugin.approve-capability") current.ApprovedCapabilities = [body.capability];
+      else if (body.operation === "plugin.enable") { current.Enabled = true; current.WorkerReady = true; }
+      else if (body.operation === "plugin.promote") { installations[0].Promoted = false; current.Promoted = true; }
+      else throw new Error("unexpected operation " + body.operation);
+      return new Response(null, { status: 204 });
+    }
+    throw new Error("unexpected request " + url);
+  });
+  await mount(Plugin, {}, { pathname: "/dev/ui/plugins/sample%402", params: { plugin: "sample%402" } });
+  assert.match(text(), /Promoted version: 1/);
+  assert.ok(button("Stage installation"));
+  assert.equal([...document.querySelectorAll("button")].some(node => node.textContent === "Install"), false);
+  await click(button("Stage installation"));
+  assert.equal(calls.length, 0);
+  await click(button("Confirm action"));
+  assert.equal(calls.at(-1).body.operation, "plugin.install");
+  assert.equal(calls.at(-1).body.confirmed, true);
+  await click(button("Close dialog"));
+  assert.match(text(), /New capability approvals required: write/);
+  await click(button("Mark artifact ready"));
+  await click(button("Confirm action"));
+  assert.equal(calls.at(-1).url, "/_system/admin/actions");
+  await click(button("Close dialog"));
+  assert.equal(button("Enable").disabled, true);
+  for (const capability of ["read", "write"]) {
+    const row = [...document.querySelectorAll("tr")].find(row => row.querySelector("td code")?.textContent === capability);
+    await click(button("Grant", row));
+    await click(button("Confirm action"));
+    assert.equal(calls.at(-1).body.capability, capability);
+    await click(button("Close dialog"));
+  }
+  await click(button("Enable"));
+  await click(button("Confirm action"));
+  await click(button("Close dialog"));
+  assert.equal([...document.querySelectorAll("button")].some(node => node.textContent === "Promote version"), false);
+  await click(button("Approve upgrade"));
+  await click(button("Confirm action"));
+  assert.equal(calls.at(-1).body.operation, "plugin.approve-capability");
+  assert.equal(calls.at(-1).body.capability, "write");
+  await click(button("Close dialog"));
+  await click(button("Promote version"));
+  await click(button("Confirm action"));
+  await click(button("Close dialog"));
+  assert.match(text(), /Promoted version: 2/);
+  assert.ok(calls.every(call => call.body.project_id === "dev" && call.body.version === "2"));
+});
