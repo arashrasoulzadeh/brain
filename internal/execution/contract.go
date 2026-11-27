@@ -32,11 +32,16 @@ type Artifact struct {
 // Verify checks the bytes of a complete immutable artifact, not its individual
 // source files. The registry must define and pin the artifact serialization.
 func (a Artifact) Verify(bundle []byte) error {
-	sum := sha256.Sum256(bundle)
-	if a.Digest != "sha256:"+hex.EncodeToString(sum[:]) {
+	if a.Digest != ArtifactDigest(bundle) {
 		return ErrArtifactMismatch
 	}
 	return nil
+}
+
+// ArtifactDigest identifies canonical artifact bytes.
+func ArtifactDigest(bundle []byte) string {
+	sum := sha256.Sum256(bundle)
+	return "sha256:" + hex.EncodeToString(sum[:])
 }
 
 // Runtime identifies a capability and isolation profile, not a claim that the
