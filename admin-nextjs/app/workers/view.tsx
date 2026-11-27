@@ -1,5 +1,5 @@
 "use client";
-import { adminHeaders, readAdminSession, preferredAdminProject, clearAdminSession, signOutAdminSession, projectAdminURL, systemAdminURL, systemUIURL, adminUIContext } from "../lib/admin-api";
+import { adminHeaders, readAdminSession, preferredAdminProject, signOutAdminSession, projectAdminURL, systemAdminURL, systemUIURL, adminUIContext } from "../lib/admin-api";
 
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
@@ -31,7 +31,7 @@ export default function WorkersPage() {
     const token = readAdminSession();
     if (!token) { router.replace(systemUIURL()); return; }
     setSession(token);
-    void load(token).catch(() => { clearAdminSession(); router.replace(systemUIURL()); });
+    void load(token).catch(reason => { if (readAdminSession() === token) setMessage(String(reason)); });
   }, [router, namespace]);
 
   async function spinUp(worker: Installation) {

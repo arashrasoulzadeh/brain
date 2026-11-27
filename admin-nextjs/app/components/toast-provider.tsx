@@ -1,6 +1,9 @@
 "use client";
 
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useLayoutEffect, useState } from "react";
+
+import { clearAdminSession, readAdminSession, systemUIURL } from "../lib/admin-api";
+import { adminRequestIdentity, adminSessionRejected } from "../lib/admin-session-response";
 
 type ToastKind = "error" | "warning" | "info" | "success";
 type ToastEvent = { kind: ToastKind; message: string };
@@ -24,7 +27,7 @@ export function showToast(kind: ToastKind, message: string): void {
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Array<ToastEvent & { id: number }>>([]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const onToast = (event: Event) => {
       const toast = (event as CustomEvent<ToastEvent>).detail;
       const id = Date.now() + Math.random();
@@ -34,11 +37,22 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     const originalFetch = window.fetch.bind(window);
     window.fetch = async (input, init) => {
       // Background polling opts out of error toasts; the marker never leaves the browser.
-      const headers = new Headers(init?.headers);
+      const headers = new Headers(init?.headers ?? (input instanceof Request ? input.headers : undefined));
+      const identity = adminRequestIdentity(input, headers, window.location.origin);
       const quiet = headers.has(QUIET_REQUEST_HEADER);
       headers.delete(QUIET_REQUEST_HEADER);
       const response = await originalFetch(input, quiet ? { ...init, headers } : init);
-      if (!quiet && response.url.includes("/api/")) {
+      if (identity && identity.token === readAdminSession() && (response.status === 401 || response.status === 403)) {
+        const rejected = await adminSessionRejected(identity, response.status, originalFetch);
+        // Never allow an older response to invalidate a newly signed-in operator.
+        if (rejected && identity.token === readAdminSession()) {
+          clearAdminSession();
+          setToasts([]);
+          window.location.replace(systemUIURL());
+          return response;
+        }
+      }
+      if (!quiet && (identity || response.url.includes("/api/"))) {
         const body = await response.clone().text();
         if (!response.ok) showToast("error", parseMessage(body, `Request failed (${response.status})`));
         else if (body) {
