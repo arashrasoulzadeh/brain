@@ -30,9 +30,9 @@ func ValidateID(id string) error {
 type Project struct {
 	ID       string
 	Active   bool
-	Name     string         `json:"name,omitempty"`
-	Slug     string         `json:"slug,omitempty"`
-	Settings map[string]any `json:"settings,omitempty"`
+	Name     string         `json:"Name,omitempty"`
+	Slug     string         `json:"Slug,omitempty"`
+	Settings map[string]any `json:"Settings,omitempty"`
 }
 
 func (s *Store) Create(id string) error {
