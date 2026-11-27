@@ -10,7 +10,7 @@ The admin host accepts `admin.version: 1` and declarative `admin.pages` in plugi
 - The database, files, workflows and live-session consoles now use manifest aliases. A new plugin can contribute a custom alias without modifying Next.js. The specialized function editor and trusted platform lifecycle screens remain separate.
 - Plugin settings generate configuration forms from the existing config schema; only changed fields are submitted and existing values are not exposed.
 
-Arena, invites and subscriptions declare routes without matching exported runtime handlers; they do not get speculative action pages. Auth user/session operations are not automatically exposed as admin controls. Durable event replay, broader resource inventory providers and full end-to-end deployment verification are follow-up work.
+Arena, invitations and subscriptions contribute operational pages. Authentication contributes operator-only account metadata and session revocation, never credential or token inspection. The host now supports durable observation delivery through its SQLite outbox; the browser invalidation feed remains bounded and in memory. Broader inventory providers and full end-to-end deployment verification remain follow-up work.
 
 ## Resource inventory and embedded tabs
 
@@ -25,3 +25,9 @@ Room inventories also listen to declared observation revisions. Inventory lists 
 Declared `host.model` routes automatically produce admin pages without additional YAML or React code. The host derives only declared actions, exposes their typed model schema, and distinguishes read/list queries from confirmed create/update/delete/transition operations. Model records load through the same authenticated admin SDK and retain optimistic revision checks. Plugin settings link to the generated pages instead of maintaining a duplicate form implementation.
 
 With access-management installed, inventories require an authenticated operator and a unique declared read-only resource route. They filter rows by the exact operator/project/plugin/version/operation/capability rules, intersect with installation resource grants, honor explicit deny (including wildcard deny), and never return a denied key or cursor. Unavailable policy providers, ambiguous routes, unsupported storage providers and excessive policy sets fail closed. The legacy compatibility API remains unavailable in policy-managed projects.
+
+## Additional plugin administration
+
+Arena provides match inspection, start and finish. Invitations provide room-scoped inspection (redacted codes) and cancellation. Realtime subscriptions expose channel counts and cursor metadata, plus confirmed channel-wide ticket revocation without displaying any ticket. Authentication exposes bounded account metadata (registered users and active guests) and project/user-scoped session revocation. Administrative inspection routes check the effective operator and admitted capability in host-injected context; user and delegated plugin principals cannot use them. New capabilities require explicit installation grants and, for policy-managed projects, matching operator access rules.
+
+These views reflect the existing worker-local runtime state of Auth, Invites, Arena and Subscriptions. They do not imply durable accounts, invitations or live channel state across worker restarts.

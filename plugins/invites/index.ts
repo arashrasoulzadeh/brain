@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { createResourceRequest, requireProjectInput, requiredString, validateProjectId, type PluginContext } from "../sdk-typescript/src/index.js";
+import { createResourceRequest, requireProjectInput, requireOperator, requiredString, validateProjectId, type PluginContext } from "../sdk-typescript/src/index.js";
 
 export type Invite = {
   id: string;
@@ -100,27 +100,41 @@ export function create(context: PluginContext, input: unknown): Invite {
 
 export function accept(context: PluginContext, input: unknown): Invite {
   const payload = requireProjectInput(context, input);
+  const roomId = boundedId(payload.roomId, "room id");
   const playerId = boundedId(payload.playerId, "player id");
   const inviteId = typeof payload.inviteId === "string" ? payload.inviteId : "";
   const code = typeof payload.code === "string" ? payload.code : "";
   if (Boolean(inviteId) === Boolean(code) || inviteId.length > 256 || code.length > 256)
     throw new Error("invite unavailable");
-  const invite = inviteId
-    ? new InviteAccepter(routeInvites).accept(inviteId, context.project.id, playerId)
-    : new InviteCodeAccepter(routeInvites).acceptCode(code, context.project.id, playerId);
+  const candidate = inviteId ? routeInvites.get(inviteId) : [...routeInvites.values()].find(item => item.code === code);
+  if (!candidate || candidate.projectId !== context.project.id || candidate.roomId !== roomId)
+    throw new Error("invite unavailable");
+  const invite = new InviteAccepter(routeInvites).accept(candidate.id, context.project.id, playerId);
   context.plugins.observe.fire("accepted", {});
   return { ...invite, code: "" };
 }
 
 export function cancel(context: PluginContext, input: unknown) {
   const payload = requireProjectInput(context, input);
+  const roomId = boundedId(payload.roomId, "room id");
   const id = requiredString(payload.inviteId, "invite id is required");
   const invite = routeInvites.get(id);
-  if (!invite || invite.projectId !== context.project.id || invite.used || invite.expiresAt <= Date.now())
+  if (!invite || invite.projectId !== context.project.id || invite.roomId !== roomId || invite.used || invite.expiresAt <= Date.now())
     throw new Error("invite unavailable");
   routeInvites.delete(id);
   context.plugins.observe.fire("cancelled", {});
   return { id, cancelled: true };
+}
+
+/** Operators inspect metadata, never a reusable invitation code. */
+export function inspect(context: PluginContext, input: unknown) {
+  const payload = requireProjectInput(context, input);
+  const roomId = boundedId(payload.roomId, "room id");
+  requireOperator(context, "invites.inspect", roomId);
+  const now = Date.now();
+  return [...routeInvites.values()].filter(invite => invite.projectId === context.project.id && invite.roomId === roomId)
+    .map(invite => ({ id: invite.id, roomId: invite.roomId, targetPlayerId: invite.targetPlayerId,
+      expiresAt: new Date(invite.expiresAt).toISOString(), status: invite.used ? "accepted" : invite.expiresAt <= now ? "expired" : "pending" }));
 }
 
 function boundedId(value: unknown, name: string): string {

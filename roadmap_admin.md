@@ -30,7 +30,7 @@ Admin-panel and operator documentation work after backend release gates pass.
 - [x] Paginated metadata inventories for rooms, tickets, tables and files; opt-in embedded extension tabs.
 - [x] Generate admin pages from declared models and route operations.
 - [ ] Broader inventory support for alternative storage adapters and remaining plugins.
-- [ ] Dedicated admin operations for plugins without implemented runtime handlers.
+- [x] Arena, invitation, subscription and authentication administration with redacted operator inspection.
 - [ ] End-to-end and deployment validation of the new paths.
 
 - [x] Policy-aware legacy inventory enumeration with exact operator rules, deny precedence and filtered cursors.
