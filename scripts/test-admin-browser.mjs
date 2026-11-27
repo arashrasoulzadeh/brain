@@ -182,14 +182,17 @@ try {
   await visible(page.locator(".workspace-picker").getByText("beta", { exact: true }));
   await menuSearch(page, "File metadata");
   await visible(page.getByText("No matching pages.", { exact: true }));
+  await page.evaluate(() => sessionStorage.setItem("brain-admin-project", "alpha"));
   await page.goto(origin + "/beta/ui/extensions/files/0.1.0/operations");
   assert.equal(new URL(page.url()).pathname, "/beta/ui/extensions/files/0.1.0/operations");
   await visible(page.getByRole("alert").filter({ hasText: "Page unavailable or permission revoked" }));
   await desktop.context.close();
 
-  const mobile = await fixture({ width: 390, height: 844 });
+  // The URL must win over the saved selection in a fresh browser context.
+  const mobile = await fixture({ width: 390, height: 844 }, "beta");
   await mobile.page.goto(origin + "/alpha/ui/plugins");
   await visible(mobile.page.getByRole("heading", { name: "Plugins", level: 1 }));
+  await visible(mobile.page.locator(".workspace-picker").getByText("alpha", { exact: true }));
   const toggle = mobile.page.getByRole("button", { name: "Toggle navigation" });
   await visible(toggle);
   assert.equal(await toggle.getAttribute("aria-expanded"), "false");

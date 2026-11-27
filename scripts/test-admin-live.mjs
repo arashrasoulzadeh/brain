@@ -79,6 +79,7 @@ try {
   await page.locator("#selected-project").selectOption(project);
   await visible(page.locator(".workspace-picker").getByText(project,{exact:true}));
   await page.getByRole("navigation",{name:"Admin navigation"}).getByRole("link",{name:"Files",exact:true}).click();
+  assert.equal(new URL(page.url()).pathname, "/" + project + "/ui/files");
   const inventory = page.locator(".admin-inventory-panel");
   await visible(inventory.getByText("visible.txt",{exact:true}));
   assert.equal(await inventory.getByText("hidden.txt",{exact:true}).count(),0);
@@ -117,6 +118,7 @@ try {
   await visible(page.locator(".workspace-picker").getByText(other,{exact:true}));
   await page.getByRole("navigation",{name:"Admin navigation"}).getByRole("link",{name:"Files",exact:true}).click();
   await visible(inventory.getByText("foreign.txt",{exact:true}));
+  assert.equal(new URL(page.url()).pathname, "/" + other + "/ui/files");
   assert.equal(await inventory.getByText("visible.txt",{exact:true}).count(),0);
   await screenshot("live-project-isolation");
   await page.getByRole("button",{name:"Sign out",exact:true}).click();

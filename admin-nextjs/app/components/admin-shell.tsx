@@ -20,8 +20,10 @@ export function AdminShell({ children }: { children: ReactNode }) {
   const [authenticated, setAuthenticated] = useState(false);
   const [heading, setHeading] = useState<PageHeading>();
   useEffect(() => {
-    setAuthenticated(Boolean(readAdminSession()));
-  }, [pathname]);
+    const token = readAdminSession();
+    setAuthenticated(Boolean(token));
+    if (!token && pathname !== systemUIURL()) router.replace(systemUIURL());
+  }, [pathname, router]);
   if (legacyShellRoutes.has(pathname) || !authenticated) return <>{children}</>;
   const { page: pageName, namespace } = adminUIContext(pathname);
   return (
