@@ -3,7 +3,10 @@ import { createRequire } from "node:module";
 import { test } from "node:test";
 
 const require = createRequire(new URL("../../admin-nextjs/package.json", import.meta.url));
-const { createElement: h } = require("react");
+// tsx uses the classic transform for files under Next\x27s jsx: preserve config.
+// Provide the real React runtime rather than changing the production compiler.
+globalThis.React = require("react");
+const { createElement: h } = globalThis.React;
 const { renderToStaticMarkup: render } = require("react-dom/server");
 const { AdminResultRenderer } = require("./app/components/admin-results.tsx");
 const { AuditPanel } = require("./app/components/audit-panel.tsx");
