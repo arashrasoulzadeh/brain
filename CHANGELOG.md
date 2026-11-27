@@ -3,6 +3,42 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `334bcded` — 2026-11-27 16:09:20 +0330 — Merge pull request #34 from arashrasoulzadeh/test/remaining-host-coverage
+  Files: 
+- `a0ad040c` — 2026-11-27 16:09:16 +0330 — Merge pull request #33 from arashrasoulzadeh/fix/sqlite-coverage-stability
+  Files: 
+- `e45fa348` — 2026-11-27 16:03:49 +0330 — test: cover draft persistence failures and request identity fallback
+  Files: internal/admin/function_persistence_failure_test.go
+- `988aedb5` — 2026-11-27 16:03:06 +0330 — test: cover empty API error and login entropy failure
+  Files: internal/app/response_failure_coverage_test.go
+- `a4c0cf12` — 2026-11-27 16:03:04 +0330 — refactor: remove redundant newline check after TrimSpace
+  Files: internal/app/api_response.go
+- `d555bcc9` — 2026-11-27 16:02:48 +0330 — test: cover storage planner identity rejection, duplicate events and atomic rollback
+  Files: internal/plugin/legacy_adapter_failure_matrix_test.go
+- `8f59f70d` — 2026-11-27 16:02:39 +0330 — test: cover ambiguous publishers, bounded deliveries and outbox rollback
+  Files: internal/plugin/observation_failure_matrix_test.go
+- `6c1c1690` — 2026-11-27 16:02:25 +0330 — test: cover delegated operation policy, worker readiness and entropy failures
+  Files: internal/plugin/delegation_coverage_test.go
+- `91887a1c` — 2026-11-27 16:02:05 +0330 — test: cover macOS opt-in and loopback restrictions across platforms
+  Files: cmd/brain/sandbox_runtime_coverage_test.go
+- `8a8f3c5c` — 2026-11-27 16:02:03 +0330 — refactor: isolate platform sandbox configuration for coverage without changing runtime selection
+  Files: cmd/brain/main.go
+- `7376c8d2` — 2026-11-27 16:01:51 +0330 — test: exercise macOS sandbox profile generation and fail-closed paths on all hosts
+  Files: internal/plugin/macos_profile_coverage_test.go
+- `80ce28bf` — 2026-11-27 16:01:40 +0330 — refactor: isolate macOS profile construction from runtime platform check
+  Files: internal/plugin/macos_worker.go
+- `e9cc3e94` — 2026-11-27 16:00:50 +0330 — test: verify lifecycle persistence survives temporary SQLite write contention
+  Files: internal/plugin/sqlite_contention_test.go
+- `3a97c86b` — 2026-11-27 16:00:48 +0330 — test: cover SQLite DSN preservation and per-connection timeout
+  Files: internal/sqliteconfig/config_test.go
+- `abf651e4` — 2026-11-27 16:00:38 +0330 — fix: apply per-connection busy timeout to shared SQLite database
+  Files: internal/project/sqlite.go
+- `4ff3ffee` — 2026-11-27 16:00:35 +0330 — fix: apply per-connection busy timeout to shared SQLite database
+  Files: internal/plugin/sqlite_storage.go
+- `ce35f373` — 2026-11-27 16:00:33 +0330 — fix: configure bounded SQLite busy handling on every connection
+  Files: internal/sqliteconfig/config.go
+- `6ffece22` — 2026-11-27 12:30:24 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `ae39ac29` — 2026-11-27 15:59:53 +0330 — Merge pull request #32 from arashrasoulzadeh/fix/native-macos-dev
   Files: .github/workflows/test.yml
 - `a7746253` — 2026-11-27 15:59:51 +0330 — Merge pull request #30 from arashrasoulzadeh/test/durable-storage-coverage
@@ -67,39 +103,3 @@ Automatically generated from commits on main.
   Files: internal/plugin/registry_workers.go
 - `ccd23f08` — 2026-11-27 11:20:51 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
-- `b3369bec` — 2026-11-27 14:50:40 +0330 — Merge pull request #27 from arashrasoulzadeh/fix/durable-subscriptions
-  Files: 
-- `c249e66a` — 2026-11-27 10:53:10 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `3743518e` — 2026-11-27 14:14:16 +0330 — Integrate all durable runtime fixes with current main and document migration limitations
-  Files: docs/admin-pages/extensions.md
-- `ff186c39` — 2026-11-27 14:14:14 +0330 — Verify registry catalog ordering and revoked version approvals
-  Files: tests/plugin/catalog_failure_test.go
-- `61c35258` — 2026-11-27 14:13:00 +0330 — Test subscription restart, deduplication and in-flight credential revocation
-  Files: internal/plugin/legacy_subscription_storage.go,internal/plugin/legacy_subscription_storage_test.go
-- `e2b61cf8` — 2026-11-27 14:12:42 +0330 — Reject nil worker factory results and test startup rollback
-  Files: internal/plugin/registry_lifecycle.go,internal/plugin/registry_workers.go tests/plugin/worker_factory_failure_test.go
-- `6733ca7f` — 2026-11-27 14:12:19 +0330 — Merge pull request #25 from arashrasoulzadeh/fix/admin-model-revocation
-  Files: 
-- `4217b7ef` — 2026-11-27 14:12:11 +0330 — Reconcile verified model permission refresh with latest main
-  Files: 
-- `13112d96` — 2026-11-27 14:11:32 +0330 — Validate baseline observation manifests before checking rejected mutations
-  Files: tests/plugin/observation_limits_test.go
-- `4ee9b2f8` — 2026-11-27 14:11:23 +0330 — Persist subscription tickets and bounded observation streams across worker recovery
-  Files: docs/admin-pages/extensions.md,internal/plugin/legacy_storage_adapter.go internal/plugin/legacy_subscription_storage.go,internal/plugin/registry_workers.go plugins/subscriptions/routes.ts,roadmap_admin.md scripts/test-production-runtime.sh
-- `a477829d` — 2026-11-27 14:11:12 +0330 — Verify observation fanout limits and reject stale durable deliveries
-  Files: tests/plugin/observation_limits_test.go
-- `7a76ca89` — 2026-11-27 10:40:46 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `5de27cb8` — 2026-11-27 14:10:38 +0330 — Reconcile invitations with current main and test durable single-use semantics
-  Files: internal/plugin/legacy_invite_storage_test.go,scripts/test-production-runtime.sh
-- `365c4cd8` — 2026-11-27 14:10:17 +0330 — Reconcile auth persistence with current main and validate exact worker identity results
-  Files: cmd/brain/main.go,internal/plugin/legacy_auth_storage.go scripts/test-production-runtime.sh,tests/plugin/session_failure_test.go
-- `0ad77473` — 2026-11-27 14:09:55 +0330 — Verify worker admission and commit reject resource substitution and context loss
-  Files: tests/plugin/invocation_failure_matrix_test.go
-- `ee4ad3a8` — 2026-11-27 14:09:41 +0330 — Reconcile arena recovery with game separation and instrumented runtime smoke
-  Files: scripts/test-production-runtime.sh
-- `065c73fe` — 2026-11-27 14:08:31 +0330 — Keep failed function draft writes from exposing uncommitted publications
-  Files: internal/admin/functions.go,tests/admin/function_persistence_failure_test.go
-- `a46c5c38` — 2026-11-27 14:08:29 +0330 — Persist project-scoped invitations with digest-only codes and conditional consumption
-  Files: docs/admin-pages/extensions.md,internal/plugin/legacy_invite_storage.go internal/plugin/legacy_storage_adapter.go,internal/plugin/registry_workers.go plugins/invites/index.ts,plugins/invites/plugin.yaml roadmap_admin.md,scripts/test-production-runtime.sh
