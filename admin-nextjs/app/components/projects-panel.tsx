@@ -26,7 +26,7 @@ export function ProjectsPanel({ activePage, text, selectedProjectID, projects, p
           value={selectedProjectID}
           onChange={(event) => onSelectProject(event.target.value)}
         >
-          <option value="">—</option>
+          <option value="" disabled={projects.some(project => project.Active)}>—</option>
           {projects.map((project) => (
             <option key={project.ID} value={project.ID} disabled={!project.Active}>
               {project.ID}
