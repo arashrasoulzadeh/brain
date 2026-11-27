@@ -19,20 +19,30 @@ See the [roadmap](roadmap.md), [developer guide](docs/developers.md), and [admin
 
 ## Local development
 
-With Go, Node.js 20+, npm and Make installed, install the locked Node dependencies once:
+With Go 1.26.11, Python 3, Node.js 20.15+, npm and Make installed, install the locked Node dependencies once:
 
 ```bash
 make setup
 ```
 
-Start the server and admin in separate terminals:
+Start the complete stack in a single terminal:
 
 ```bash
-make dev server
-make dev admin
+make dev
 ```
 
-The Go server listens on `http://127.0.0.1:18082` and uses local SQLite storage at `.local/brain.sqlite`. The Next.js admin listens on `http://127.0.0.1:3000` and proxies to the server. Stop either process with Ctrl+C. The local startup script supports `HTTP_ADDRESS`, `PROJECTS_FILE`, `OPERATOR_USERNAME` and `OPERATOR_SECRET` overrides. The admin supports `ADMIN_HOST`, `ADMIN_PORT` and `BRAIN_API_ORIGIN`, for example:
+This launches Brain, the Next.js admin and four independent local Neurons, each with one execution slot. The Neurons authenticate via loopback mutual-TLS Synapse gRPC and must pass the local OS-sandbox probe before connecting. Ctrl+C shuts down the managed stack.
+
+```bash
+make dev WORKERS=6 WORKER_SLOTS=2
+make dev WORKERS=0
+```
+
+Open [the Neurons console](http://127.0.0.1:3000/_system/ui/workers) after signing in. The console reports the real scheduler snapshot, including connections, capacity, runtime profiles, heartbeats and current queue state. The standalone TypeScript pool is separate from existing plugin execution; application routing migration remains outstanding.
+
+For separate server/admin processes without the managed pool, use `make dev server` and `make dev admin`.
+
+The Go server listens on `http://127.0.0.1:18082` and uses local SQLite storage at `.local/brain.sqlite`. The Next.js admin listens on `http://127.0.0.1:3000` and proxies to the server. Stop the stack or individually launched services with Ctrl+C. The local startup script supports `HTTP_ADDRESS`, `PROJECTS_FILE`, `OPERATOR_USERNAME` and `OPERATOR_SECRET` overrides. The admin supports `ADMIN_HOST`, `ADMIN_PORT` and `BRAIN_API_ORIGIN`, for example:
 
 ```bash
 make dev server HTTP_ADDRESS=127.0.0.1:18090
