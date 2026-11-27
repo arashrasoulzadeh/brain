@@ -13,7 +13,7 @@ endif
 endif
 
 help:
-	@printf '%s\n' 'make setup       Install server and admin Node dependencies' 'make dev server  Start the local Go server' 'make dev admin   Start the Next.js admin'
+	@printf '%s\n' 'make setup       Install server and admin Node dependencies' 'make dev server  Start the sandboxed server (native Linux or local Docker)' 'make dev admin   Start the Next.js admin'
 
 setup:
 	npm ci

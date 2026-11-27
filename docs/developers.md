@@ -2,7 +2,7 @@
 
 ## Quickstart
 
-With Go, Node.js 20+, npm, GNU Make and Linux bubblewrap available, install the locked Node dependencies once:
+Install Node.js 20+, npm and GNU Make, then install the locked Node dependencies once:
 
 ```bash
 make setup
@@ -22,7 +22,7 @@ make dev server HTTP_ADDRESS=127.0.0.1:18090
 make dev admin ADMIN_PORT=3100 BRAIN_API_ORIGIN=http://127.0.0.1:18090
 ```
 
-Development requires no Docker and keeps the production worker sandbox enabled. Use a Linux environment with permitted user namespaces (including an appropriately configured WSL2 environment). Do not use the local script's default credentials in production.
+On Linux (including appropriately configured WSL2), the default server runs natively and requires Go, Node.js 20+, bubblewrap (`sudo apt install bubblewrap` on Debian/Ubuntu), and permitted user namespaces. On macOS, the default server builds and runs the same Linux backend image through a local Docker Desktop or Colima engine; start that engine first. To choose explicitly, run `make dev server BRAIN_DEV_RUNTIME=native` or `make dev server BRAIN_DEV_RUNTIME=docker`. Docker mode uses loopback-only port forwarding and mounts only the repository's `.local` data directory, with `PROJECTS_FILE` required to be directly inside it. The container relaxes Docker seccomp/AppArmor profiles for nested namespaces; use it for trusted local development only. The production worker sandbox and startup probe remain mandatory. No automatic sudo, privileged container, or unsandboxed fallback is used. Do not use the local script's default credentials in production.
 
 Run the development checks:
 
@@ -37,7 +37,7 @@ npm run test:ts
 (cd admin-nextjs && npm ci && npm run typecheck)
 ```
 
-These commands do not start Docker. Use Docker/Compose only for an explicit PostgreSQL or release integration check.
+These test commands do not start Docker. The local server's Docker mode is independent of the PostgreSQL/release integration checks.
 
 ## Plugin contract
 

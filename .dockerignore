@@ -4,3 +4,12 @@
 **/.next-dev
 .git
 .local
+
+# Local secrets and generated reports must not enter the build context.
+.env
+.env.*
+**/.env
+**/.env.*
+coverage
+.generated-docs
+.generated-site

@@ -70,6 +70,24 @@ jobs:
       - uses: actions/checkout@v4
       - name: Test packaged production startup and sandboxed invocation
         run: timeout 300s bash scripts/test-production-runtime.sh
+  local-development-runtime:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify the local Docker server retains the worker sandbox
+        run: |
+          set -euo pipefail
+          mkdir -p .local
+          BRAIN_DEV_RUNTIME=docker HTTP_ADDRESS=127.0.0.1:18092 bash scripts/start-local.sh > /tmp/brain-dev.log 2>&1 &
+          launcher=$!
+          trap 'kill "$launcher" 2>/dev/null || true; cat /tmp/brain-dev.log' EXIT
+          for i in $(seq 1 180); do
+            if curl -fsS http://127.0.0.1:18092/readyz; then break; fi
+            if ! kill -0 "$launcher" 2>/dev/null; then exit 1; fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:18092/readyz
+          test -f .local/brain.sqlite
   typescript:
     runs-on: ubuntu-24.04
     steps:
