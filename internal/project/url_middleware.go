@@ -41,11 +41,22 @@ func (r Resolver) URLMiddleware(next http.Handler) http.Handler {
 			http.Error(w, http.StatusText(status), status)
 			return
 		}
-		for _, identity := range []string{
-			req.Header.Get("X-Project-ID"), req.Header.Get("X-Project-Slug"),
-			req.URL.Query().Get("project_id"), req.URL.Query().Get("projectId"), req.URL.Query().Get("project"),
-		} {
-			if identity != "" && identity != model.ID && identity != model.Slug {
+		for _, header := range []string{"X-Project-ID", "X-Project-Slug"} {
+			values := req.Header.Values(header)
+			if len(values) > 1 {
+				http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+				return
+			}
+			for _, identity := range values {
+				if identity != "" && identity != model.ID && identity != model.Slug {
+					http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+					return
+				}
+			}
+		}
+		for _, field := range []string{"project_id", "projectId", "project"} {
+			values := req.URL.Query()[field]
+			if len(values) > 1 || len(values) == 1 && values[0] != "" && values[0] != model.ID && values[0] != model.Slug {
 				http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 				return
 			}

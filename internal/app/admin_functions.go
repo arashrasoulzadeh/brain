@@ -159,6 +159,20 @@ func PublicFunctionHandler(service *admin.LifecycleService) http.Handler {
 				return
 			}
 		}
+		if trusted && len(input) > 0 {
+			var body map[string]json.RawMessage
+			if json.Unmarshal(input, &body) == nil {
+				for _, field := range []string{"project_id", "projectId", "project"} {
+					if value, exists := body[field]; exists {
+						var requested string
+						if json.Unmarshal(value, &requested) != nil || requested != p.ID && requested != p.Slug {
+							http.Error(w, "conflicting project identity", http.StatusBadRequest)
+							return
+						}
+					}
+				}
+			}
+		}
 		var result map[string]any
 		var err error
 		if r.Header.Get("Authorization") != "" {
