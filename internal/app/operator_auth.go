@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
+	"io"
 	"net/http"
 	"strings"
 
@@ -40,7 +41,7 @@ func OperatorSessionHandler(sessions *operator.Store, digest func(string) string
 			return
 		}
 		tokenBytes := make([]byte, 32)
-		if _, err := rand.Read(tokenBytes); err != nil {
+		if _, err := io.ReadFull(rand.Reader, tokenBytes); err != nil {
 			http.Error(w, "operator session unavailable", http.StatusInternalServerError)
 			return
 		}
