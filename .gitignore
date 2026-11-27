@@ -3,3 +3,7 @@
 .generated-site/
 coverage/
 __pycache__/
+clients/android/.gradle/
+clients/android/build/
+clients/flutter/.dart_tool/
+clients/flutter/build/
