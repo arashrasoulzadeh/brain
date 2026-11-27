@@ -51,10 +51,10 @@ jobs:
           export COMPOSE_PROJECT_NAME=brain-clean-rehearsal
           docker compose -p "$COMPOSE_PROJECT_NAME" -f "$COMPOSE_FILE" down --volumes --remove-orphans
           docker compose -p "$COMPOSE_PROJECT_NAME" -f "$COMPOSE_FILE" up -d --build
-          curl --fail --silent --show-error http://127.0.0.1:18080/livez
+          curl --fail --silent --show-error http://127.0.0.1:18080/_system/livez
           docker compose -p "$COMPOSE_PROJECT_NAME" -f "$COMPOSE_FILE" down --volumes --remove-orphans
           scripts/start-compose-no-build.sh
-          curl --fail --silent --show-error http://127.0.0.1:18080/livez
+          curl --fail --silent --show-error http://127.0.0.1:18080/_system/livez
           docker compose -p "$COMPOSE_PROJECT_NAME" -f "$COMPOSE_FILE" down --volumes --remove-orphans
       - name: Full deploy rollback and restore rehearsal
         if: ${{ vars.BRAIN_REHEARSAL_ENABLED == 'true' }}

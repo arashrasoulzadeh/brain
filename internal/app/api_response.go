@@ -39,7 +39,7 @@ func normalizeAPIError(status int, body []byte) []byte {
 }
 
 func normalizeAPISuccess(path string, status int, body []byte) []byte {
-	if !strings.HasPrefix(path, "/admin/") && !strings.HasPrefix(path, "/public/") {
+	if !strings.HasPrefix(path, "/_system/admin/") && !strings.Contains(path, "/admin/") && !strings.Contains(path, "/functions/") {
 		return body
 	}
 	if len(bytes.TrimSpace(body)) > 0 {
