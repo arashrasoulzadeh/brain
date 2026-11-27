@@ -324,6 +324,9 @@ func (r *Registry) StartWorker(projectID, id, version string) error {
 	if err != nil {
 		return err
 	}
+	if worker == nil {
+		return ErrWorkerUnavailable
+	}
 	if err := worker.Start(); err != nil {
 		return err
 	}
