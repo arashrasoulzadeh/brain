@@ -144,13 +144,16 @@ func AuthenticatedFunctionLogsHandler(service *admin.LifecycleService, sessions 
 func PublicFunctionHandler(service *admin.LifecycleService) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		p, trusted := project.FromContext(r.Context())
-        projectID := r.PathValue("project_id")
-        if trusted {
-            projectID = p.ID
-        }
-        if projectID == "" { http.NotFound(w,r); return }
-        var input json.RawMessage
-        if r.Method != http.MethodGet {
+		projectID := r.PathValue("project_id")
+		if trusted {
+			projectID = p.ID
+		}
+		if projectID == "" {
+			http.NotFound(w, r)
+			return
+		}
+		var input json.RawMessage
+		if r.Method != http.MethodGet {
 			if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<20)).Decode(&input); err != nil {
 				http.Error(w, "invalid JSON input", http.StatusBadRequest)
 				return

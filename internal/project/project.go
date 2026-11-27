@@ -28,15 +28,15 @@ func ValidateID(id string) error {
 }
 
 type Project struct {
-	ID string
-	Active bool
-	Name string `json:"name,omitempty"`
-	Slug string `json:"slug,omitempty"`
+	ID       string
+	Active   bool
+	Name     string         `json:"name,omitempty"`
+	Slug     string         `json:"slug,omitempty"`
 	Settings map[string]any `json:"settings,omitempty"`
 }
 
 func (s *Store) Create(id string) error {
-	return s.CreateWithDetails(id,id,id,nil)
+	return s.CreateWithDetails(id, id, id, nil)
 }
 
 type Store struct {
@@ -86,15 +86,23 @@ func (s *Store) Resolve(id string) (Project, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	if s.db != nil {
-    var p Project
-    var settings string
-    err := s.db.QueryRow(`SELECT id, active, name, slug, settings FROM projects WHERE id=?`,id).Scan(&p.ID,&p.Active,&p.Name,&p.Slug,&settings)
-    if errors.Is(err,sql.ErrNoRows){return Project{},ErrNotFound}
-    if err!=nil{return Project{},err}
-    if !p.Active{return Project{},ErrInactive}
-    if err:=json.Unmarshal([]byte(settings),&p.Settings);err!=nil{return Project{},err}
-    return p,nil
-}
+		var p Project
+		var settings string
+		err := s.db.QueryRow(`SELECT id, active, name, slug, settings FROM projects WHERE id=?`, id).Scan(&p.ID, &p.Active, &p.Name, &p.Slug, &settings)
+		if errors.Is(err, sql.ErrNoRows) {
+			return Project{}, ErrNotFound
+		}
+		if err != nil {
+			return Project{}, err
+		}
+		if !p.Active {
+			return Project{}, ErrInactive
+		}
+		if err := json.Unmarshal([]byte(settings), &p.Settings); err != nil {
+			return Project{}, err
+		}
+		return p, nil
+	}
 	p, ok := s.projects[id]
 	if !ok {
 		return Project{}, ErrNotFound
@@ -109,19 +117,23 @@ func (s *Store) List() []Project {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	if s.db != nil {
-    rows,err:=s.db.Query(`SELECT id, active, name, slug, settings FROM projects ORDER BY id`)
-    if err!=nil{return nil}
-    defer rows.Close()
-    projects:=make([]Project,0)
-    for rows.Next(){
-        var p Project
-        var settings string
-        if rows.Scan(&p.ID,&p.Active,&p.Name,&p.Slug,&settings)==nil {
-            if json.Unmarshal([]byte(settings),&p.Settings)==nil{projects=append(projects,p)}
-        }
-    }
-    return projects
-}
+		rows, err := s.db.Query(`SELECT id, active, name, slug, settings FROM projects ORDER BY id`)
+		if err != nil {
+			return nil
+		}
+		defer rows.Close()
+		projects := make([]Project, 0)
+		for rows.Next() {
+			var p Project
+			var settings string
+			if rows.Scan(&p.ID, &p.Active, &p.Name, &p.Slug, &settings) == nil {
+				if json.Unmarshal([]byte(settings), &p.Settings) == nil {
+					projects = append(projects, p)
+				}
+			}
+		}
+		return projects
+	}
 	projects := make([]Project, 0, len(s.projects))
 	for _, project := range s.projects {
 		projects = append(projects, project)

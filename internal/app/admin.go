@@ -161,13 +161,13 @@ func AdminHandler(service *admin.LifecycleService) http.Handler {
 		var err error
 		switch command.Operation {
 		case "project.create":
-            if command.Name!="" || command.Slug!="" || command.Values!=nil {
-                err=service.CreateProjectWithDetails(actor,command.ProjectID,command.Name,command.Slug,command.Values)
-            }else{
-                err=service.CreateProject(actor,command.ProjectID)
-            }
-        case "project.configure":
-            err=service.ConfigureProject(actor,command.ProjectID,command.Name,command.Slug,command.Values)
+			if command.Name != "" || command.Slug != "" || command.Values != nil {
+				err = service.CreateProjectWithDetails(actor, command.ProjectID, command.Name, command.Slug, command.Values)
+			} else {
+				err = service.CreateProject(actor, command.ProjectID)
+			}
+		case "project.configure":
+			err = service.ConfigureProject(actor, command.ProjectID, command.Name, command.Slug, command.Values)
 		case "project.activate":
 			err = service.SetProjectActive(actor, command.ProjectID, true)
 		case "project.deactivate":

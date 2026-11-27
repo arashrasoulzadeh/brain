@@ -23,23 +23,27 @@ func NewSQLiteStore(path string) (*Store, error) {
 		_ = database.Close()
 		return nil, err
 	}
-    for _,column:=range []string{
-        "name TEXT NOT NULL DEFAULT ''",
-        "slug TEXT NOT NULL DEFAULT ''",
-        "settings TEXT NOT NULL DEFAULT '{}'",
-    }{
-        if _,err:=database.Exec("ALTER TABLE projects ADD COLUMN "+column);err!=nil && !strings.Contains(err.Error(),"duplicate column name"){
-            _=database.Close();return nil,err
-        }
-    }
-    for _,sqlStatement:=range []string{
-        "UPDATE projects SET name=id WHERE name=''",
-        "UPDATE projects SET slug=id WHERE slug=''",
-        "CREATE UNIQUE INDEX IF NOT EXISTS projects_slug_unique ON projects(slug)",
-    }{
-        if _,err:=database.Exec(sqlStatement);err!=nil{_=database.Close();return nil,err}
-    }
-    var count int
+	for _, column := range []string{
+		"name TEXT NOT NULL DEFAULT ''",
+		"slug TEXT NOT NULL DEFAULT ''",
+		"settings TEXT NOT NULL DEFAULT '{}'",
+	} {
+		if _, err := database.Exec("ALTER TABLE projects ADD COLUMN " + column); err != nil && !strings.Contains(err.Error(), "duplicate column name") {
+			_ = database.Close()
+			return nil, err
+		}
+	}
+	for _, sqlStatement := range []string{
+		"UPDATE projects SET name=id WHERE name=''",
+		"UPDATE projects SET slug=id WHERE slug=''",
+		"CREATE UNIQUE INDEX IF NOT EXISTS projects_slug_unique ON projects(slug)",
+	} {
+		if _, err := database.Exec(sqlStatement); err != nil {
+			_ = database.Close()
+			return nil, err
+		}
+	}
+	var count int
 	if err := database.QueryRow(`SELECT COUNT(*) FROM projects`).Scan(&count); err == nil && count == 0 {
 		legacyPath := filepath.Join(filepath.Dir(path), "projects.json")
 		if data, readErr := os.ReadFile(legacyPath); readErr == nil {
