@@ -55,6 +55,7 @@ routes:
     capability: files.download
     resource_field: key
   - operation: files.metadata
+    function_read: true
     method: POST
     path: /metadata
     auth: operator
