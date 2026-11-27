@@ -78,7 +78,12 @@ try {
   await visible(page.getByRole("heading",{name:"Projects",level:1}));
   await page.locator("#selected-project").selectOption(project);
   await visible(page.locator(".workspace-picker").getByText(project,{exact:true}));
-  await page.getByRole("navigation",{name:"Admin navigation"}).getByRole("link",{name:"Files",exact:true}).click();
+  const filesLink = page.getByRole("navigation",{name:"Admin navigation"}).getByRole("link",{name:"Files",exact:true});
+  assert.equal(await filesLink.getAttribute("href"), "/" + project + "/ui/files");
+  await Promise.all([
+    page.waitForURL(origin + "/" + project + "/ui/files", {timeout:20000}),
+    filesLink.click(),
+  ]);
   assert.equal(new URL(page.url()).pathname, "/" + project + "/ui/files");
   const inventory = page.locator(".admin-inventory-panel");
   await visible(inventory.getByText("visible.txt",{exact:true}));
@@ -116,7 +121,11 @@ try {
   await page.getByRole("navigation",{name:"Admin navigation"}).getByRole("link",{name:"Projects",exact:true}).click();
   await page.locator("#selected-project").selectOption(other);
   await visible(page.locator(".workspace-picker").getByText(other,{exact:true}));
-  await page.getByRole("navigation",{name:"Admin navigation"}).getByRole("link",{name:"Files",exact:true}).click();
+  assert.equal(await filesLink.getAttribute("href"), "/" + other + "/ui/files");
+  await Promise.all([
+    page.waitForURL(origin + "/" + other + "/ui/files", {timeout:20000}),
+    filesLink.click(),
+  ]);
   await visible(inventory.getByText("foreign.txt",{exact:true}));
   assert.equal(new URL(page.url()).pathname, "/" + other + "/ui/files");
   assert.equal(await inventory.getByText("visible.txt",{exact:true}).count(),0);
