@@ -9,15 +9,7 @@ func RecordDeployedVersion(path string, releaseSHA string) error {
 	if err := ValidateReleaseSHA(releaseSHA); err != nil {
 		return err
 	}
-	temporaryPath := path + ".tmp"
-	if err := os.WriteFile(temporaryPath, []byte(releaseSHA+"\n"), 0o600); err != nil {
-		return err
-	}
-	if err := os.Rename(temporaryPath, path); err != nil {
-		_ = os.Remove(temporaryPath)
-		return err
-	}
-	return nil
+	return writeAtomicRecord(path, []byte(releaseSHA+"\n"))
 }
 
 func ReadDeployedVersion(path string) (string, error) {

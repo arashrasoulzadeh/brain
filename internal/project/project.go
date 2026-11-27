@@ -54,7 +54,11 @@ func (s *Store) Create(id string) error {
 		}
 		return nil
 	}
-	return s.persistLocked()
+	if err := s.persistLocked(); err != nil {
+		delete(s.projects, id)
+		return err
+	}
+	return nil
 }
 
 type Store struct {
@@ -177,9 +181,18 @@ func (s *Store) SetActive(id string, active bool) error {
 	if !ok {
 		return ErrNotFound
 	}
+	previous := project
 	project.Active = active
 	s.projects[id] = project
-	return s.persistLocked()
+	if err := s.persistLocked(); err != nil {
+		// Never grant access after a failed durable activation. A failed
+		// deactivation remains denied in memory until storage is repaired.
+		if active {
+			s.projects[id] = previous
+		}
+		return err
+	}
+	return nil
 }
 
 func (s *Store) persistLocked() error {

@@ -3,6 +3,14 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `7d63f098` — 2026-11-27 13:54:53 +0330 — Merge pull request #22 from arashrasoulzadeh/fix/admin-critical-ci
+  Files: 
+- `322c17a3` — 2026-11-27 13:49:23 +0330 — Exclude generated frontend artifacts and local state from Docker build context
+  Files: .dockerignore
+- `da36eb34` — 2026-11-27 13:49:08 +0330 — Use runner Chrome for sandbox-compatible admin browser CI
+  Files: .github/workflows/admin-browser.yml,docs/admin-pages/theme.md scripts/test-admin-browser.mjs,scripts/test-admin-live.mjs
+- `f23ac892` — 2026-11-27 10:18:42 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `0d513e57` — 2026-11-27 13:46:35 +0330 — Merge pull request #19 from arashrasoulzadeh/test/admin-live-backend
   Files: 
 - `ec2d74da` — 2026-11-27 13:46:17 +0330 — Merge current main and align live Chromium runner with packaged runtime CI
@@ -95,11 +103,3 @@ Automatically generated from commits on main.
   Files: docs/plugin-auth-context.md,internal/admin/functions.go internal/admin/lifecycle.go,tests/admin/functions_test.go
 - `8990792a` — 2026-11-27 03:45:40 +0330 — Reconcile authentication context with durable observation runtime
   Files: internal/plugin/broker.go,internal/plugin/observation_queue.go internal/plugin/observations.go,internal/plugin/worker.go plugins/sdk-typescript/src/index.ts,scripts/typescript-worker.mjs tests/plugin/access_management_test.go,tests/plugin/observation_queue_test.go tests/plugin/project-context.test.ts,tests/plugin/worker_test.go
-- `f65be743` — 2026-11-27 00:14:03 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `42af18e9` — 2026-11-27 03:43:49 +0330 — Merge pull request #6 from arashrasoulzadeh/plugin-project-context-observations
-  Files: 
-- `4f00c7ba` — 2026-11-27 03:43:35 +0330 — Reconcile host-owned storage snapshots, admin inventory and resource-scoped execution
-  Files: internal/admin/lifecycle.go,internal/plugin/legacy_storage_adapter.go internal/plugin/manifest.go,internal/plugin/registry_workers.go plugins/sdk-typescript/src/index.ts,scripts/test-production-runtime.sh tests/plugin/project-context.test.ts
-- `ba191356` — 2026-11-27 03:43:26 +0330 — Expose host-verified actor and scoped permissions in plugin context
-  Files: docs/plugin-auth-context.md,internal/plugin/broker.go internal/plugin/invocation_context.go,internal/plugin/manifest_pipeline.go internal/plugin/manifest_response.go,internal/plugin/observations.go internal/plugin/plugin_call.go,internal/plugin/worker.go plugins/sdk-typescript/src/index.ts,scripts/typescript-worker.mjs tests/plugin/project-context.test.ts,tests/plugin/worker_test.go

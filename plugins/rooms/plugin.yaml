@@ -8,16 +8,12 @@ source_files:
   - routes.ts
   - index.ts
   - directory.ts
-  - gameplay.ts
-  - recovery.ts
   - access.ts
 imports:
   - ./routes.js
   - ../sdk-typescript/src/index.js
   - node:crypto
   - ./directory.js
-  - ./gameplay.js
-  - ./recovery.js
   - ./access.js
   - ./index.js
 plugin_imports:

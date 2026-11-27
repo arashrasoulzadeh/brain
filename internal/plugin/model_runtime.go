@@ -222,7 +222,8 @@ func (s *SQLiteStorage) executeModel(req WorkerRequest, spec ModelSpec, route Mo
 		if err != nil {
 			return nil, err
 		}
-		encoded, err := json.Marshal(current.Fields)
+		var encoded []byte
+		encoded, err = json.Marshal(current.Fields)
 		if err != nil {
 			return nil, err
 		}
