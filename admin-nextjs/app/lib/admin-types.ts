@@ -48,4 +48,5 @@ export type SystemManifest = PluginManifest & {
   Dependencies: string[];
 };
 export type Language = "en" | "fa";
-\nexport type ProjectHTTPRoute = { plugin_id: string; version: string; method: string; path: string; function: string; capability: string; operation: string; auth: "public" | "user" | "operator" };\n
+
+export type ProjectHTTPRoute = { plugin_id: string; version: string; method: string; path: string; function: string; capability: string; operation: string; auth: "public" | "user" | "operator" };
