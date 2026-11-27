@@ -23,7 +23,7 @@ const manifest = {
 };
 const commands = [];
 const runtimeErrors = [];
-const browser = await chromium.launch({ headless: true });
+const browser = await chromium.launch({ headless: true, executablePath: process.env.BRAIN_BROWSER_EXECUTABLE || undefined });
 await mkdir(output, { recursive: true });
 
 async function fixture(viewport, project = "alpha") {

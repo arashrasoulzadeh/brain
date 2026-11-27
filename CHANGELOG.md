@@ -3,8 +3,38 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `7d63f098` — 2026-11-27 13:54:53 +0330 — Merge pull request #22 from arashrasoulzadeh/fix/admin-critical-ci
+  Files: 
+- `322c17a3` — 2026-11-27 13:49:23 +0330 — Exclude generated frontend artifacts and local state from Docker build context
+  Files: .dockerignore
+- `da36eb34` — 2026-11-27 13:49:08 +0330 — Use runner Chrome for sandbox-compatible admin browser CI
+  Files: .github/workflows/admin-browser.yml,docs/admin-pages/theme.md scripts/test-admin-browser.mjs,scripts/test-admin-live.mjs
+- `f23ac892` — 2026-11-27 10:18:42 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
+- `0d513e57` — 2026-11-27 13:46:35 +0330 — Merge pull request #19 from arashrasoulzadeh/test/admin-live-backend
+  Files: 
+- `ec2d74da` — 2026-11-27 13:46:17 +0330 — Merge current main and align live Chromium runner with packaged runtime CI
+  Files: .github/workflows/admin-browser.yml
+- `c263bc03` — 2026-11-27 10:15:40 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
+- `c350a896` — 2026-11-27 13:45:21 +0330 — Merge pull request #21 from arashrasoulzadeh/fix/admin-project-scope
+  Files: 
+- `f149ff75` — 2026-11-27 13:45:15 +0330 — Merge pull request #20 from arashrasoulzadeh/fix/admin-revocation-refresh
+  Files: 
+- `a42e093b` — 2026-11-27 13:15:05 +0330 — Prevent stale project catalog and function responses after switching projects
+  Files: admin-nextjs/app/components/projects-panel.tsx,admin-nextjs/app/lib/project-requests.ts admin-nextjs/app/page.tsx,docs/admin-pages/projects.md tests/admin/project-requests.test.ts
+- `be4d97d5` — 2026-11-27 13:13:39 +0330 — Keep live browser backend network-disabled and relay CI HTTP over docker exec
+  Files: .github/workflows/admin-browser.yml,docs/admin-pages/theme.md scripts/admin-ci-backend-relay.mjs
+- `02c6c423` — 2026-11-27 13:12:24 +0330 — Cover delegated admin read checks and revoked target grants
+  Files: tests/plugin/plugin_call_test.go
+- `999e95b0` — 2026-11-27 09:41:41 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `9824af94` — 2026-11-27 13:11:02 +0330 — Merge pull request #17 from arashrasoulzadeh/fix/compose-node-runtime
   Files: 
+- `aa7506d1` — 2026-11-27 13:10:38 +0330 — Revalidate displayed admin results and inventories after silent policy revocation
+  Files: admin-nextjs/app/components/admin-inventory.tsx,admin-nextjs/app/components/admin-renderer.tsx admin-nextjs/app/components/model-panel.tsx,admin-nextjs/app/lib/admin-sdk.ts docs/admin-pages/extensions.md,internal/admin/lifecycle.go internal/app/admin.go,internal/plugin/access_management.go roadmap_admin.md,scripts/test-admin-browser.mjs tests/admin/manifest_admin_test.go,tests/plugin/access_management_test.go
+- `96a2a32b` — 2026-11-27 13:08:54 +0330 — Exercise real packaged admin backend with Chromium policy and persistence tests
+  Files: .github/workflows/admin-browser.yml,docs/admin-pages/theme.md scripts/test-admin-live.mjs
 - `45b52cd2` — 2026-11-27 09:38:17 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
 - `029e8746` — 2026-11-27 13:07:42 +0330 — Merge pull request #18 from arashrasoulzadeh/test/admin-browser-smoke
@@ -73,33 +103,3 @@ Automatically generated from commits on main.
   Files: docs/plugin-auth-context.md,internal/admin/functions.go internal/admin/lifecycle.go,tests/admin/functions_test.go
 - `8990792a` — 2026-11-27 03:45:40 +0330 — Reconcile authentication context with durable observation runtime
   Files: internal/plugin/broker.go,internal/plugin/observation_queue.go internal/plugin/observations.go,internal/plugin/worker.go plugins/sdk-typescript/src/index.ts,scripts/typescript-worker.mjs tests/plugin/access_management_test.go,tests/plugin/observation_queue_test.go tests/plugin/project-context.test.ts,tests/plugin/worker_test.go
-- `f65be743` — 2026-11-27 00:14:03 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `42af18e9` — 2026-11-27 03:43:49 +0330 — Merge pull request #6 from arashrasoulzadeh/plugin-project-context-observations
-  Files: 
-- `4f00c7ba` — 2026-11-27 03:43:35 +0330 — Reconcile host-owned storage snapshots, admin inventory and resource-scoped execution
-  Files: internal/admin/lifecycle.go,internal/plugin/legacy_storage_adapter.go internal/plugin/manifest.go,internal/plugin/registry_workers.go plugins/sdk-typescript/src/index.ts,scripts/test-production-runtime.sh tests/plugin/project-context.test.ts
-- `ba191356` — 2026-11-27 03:43:26 +0330 — Expose host-verified actor and scoped permissions in plugin context
-  Files: docs/plugin-auth-context.md,internal/plugin/broker.go internal/plugin/invocation_context.go,internal/plugin/manifest_pipeline.go internal/plugin/manifest_response.go,internal/plugin/observations.go internal/plugin/plugin_call.go,internal/plugin/worker.go plugins/sdk-typescript/src/index.ts,scripts/typescript-worker.mjs tests/plugin/project-context.test.ts,tests/plugin/worker_test.go
-- `5a70d688` — 2026-11-27 03:43:04 +0330 — Stage concurrent admin inventory and resource-scoped authorization additions
-  Files: CHANGELOG.md,admin-nextjs/app/components/admin-inventory.tsx admin-nextjs/app/components/admin-renderer.tsx,admin-nextjs/app/components/legacy-admin-page.tsx admin-nextjs/app/components/model-panel.tsx,admin-nextjs/app/lib/admin-registry.ts admin-nextjs/app/lib/admin-sdk.ts,admin-nextjs/app/lib/admin-types.ts admin-nextjs/app/plugins/[plugin]/page.tsx,docs/admin-pages/extensions.md docs/declarative-runtime.md,internal/app/admin.go internal/plugin/admin_inventory.go,internal/plugin/admin_inventory_test.go internal/plugin/admin_manifest.go,internal/plugin/admin_model_pages.go internal/plugin/admin_model_pages_test.go,internal/plugin/legacy_admin_inventory.go internal/plugin/legacy_storage_adapter_test.go,internal/plugin/route_resources_test.go plugins/files/plugin.yaml,plugins/matchmaking/plugin.yaml plugins/rooms/plugin.yaml,plugins/tables/plugin.yaml plugins/tables/routes.ts,roadmap_admin.md tests/admin/admin-registry.test.ts,tests/plugin/resource_scope_invoke_test.go
-- `4fd3711c` — 2026-11-27 03:42:23 +0330 — Unify project snapshot, declarative runtime, credential and access-policy authorization paths
-  Files: internal/plugin/registry_workers.go,internal/plugin/worker.go
-- `453fb721` — 2026-11-27 03:42:00 +0330 — Reconcile declarative worker, function VM helpers, resource-aware queue and manifest contracts
-  Files: internal/admin/functions.go,internal/plugin/legacy_storage_adapter.go internal/plugin/manifest.go,internal/plugin/observation_queue.go internal/plugin/typescript_worker.go
-- `3c3edd6a` — 2026-11-27 03:41:28 +0330 — Preserve operator admission, project resolver, storage models and post-commit observation routing
-  Files: cmd/brain/main.go,internal/admin/lifecycle.go internal/plugin/broker.go,internal/plugin/observations.go internal/plugin/plugin.go,internal/plugin/registry_catalog.go internal/plugin/sqlite_storage.go
-- `c4406cdf` — 2026-11-27 00:11:12 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `25f8f3ef` — 2026-11-27 03:40:58 +0330 — Reconcile project context and observation manifests with declarative and resource-scoped routes
-  Files: plugins/analytics/plugin.yaml,plugins/arena/plugin.yaml plugins/functions/plugin.yaml,plugins/invites/plugin.yaml plugins/sdk-typescript/src/index.ts,plugins/subscriptions/plugin.yaml plugins/template/plugin.yaml,scripts/typescript-worker.mjs tests/plugin/project-context.test.ts
-- `2a909a3a` — 2026-11-27 03:40:47 +0330 — Merge pull request #9 from arashrasoulzadeh/admin/resource-inventory
-  Files: 
-- `565b8260` — 2026-11-27 00:10:43 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `58f49a91` — 2026-11-27 03:40:35 +0330 — Stage concurrent main changes and non-overlapping observation migration files for reconciliation
-  Files: CHANGELOG.md,admin-nextjs/app/components/model-panel.tsx admin-nextjs/app/plugins/[plugin]/page.tsx,cmd/brain/main.go docs/declarative-runtime.md,examples/declarative-plugin/plugin.yaml implementation/dynamic-runtime.md,internal/admin/functions.go internal/admin/lifecycle.go,internal/plugin/access_management.go internal/plugin/broker.go,internal/plugin/contract_types.go internal/plugin/contract_types_test.go,internal/plugin/invocation_context.go internal/plugin/legacy_storage_adapter.go,internal/plugin/manifest.go internal/plugin/manifest_declarative_test.go,internal/plugin/manifest_model.go internal/plugin/manifest_pipeline.go,internal/plugin/manifest_pipeline_test.go internal/plugin/model_runtime.go,internal/plugin/observations.go internal/plugin/plugin.go,internal/plugin/plugin_call.go internal/plugin/registry_catalog.go,internal/plugin/registry_permissions.go internal/plugin/registry_workers.go,internal/plugin/sqlite_storage.go internal/plugin/typescript_worker.go,internal/plugin/worker.go plugins/README.md,plugins/access-management/README.md plugins/access-management/index.ts,plugins/access-management/plugin.yaml plugins/analytics/plugin.yaml,plugins/arena/plugin.yaml plugins/auth/plugin.yaml,plugins/auth/service.ts plugins/files/plugin.yaml,plugins/files/routes.ts plugins/functions/plugin.yaml,plugins/invites/plugin.yaml plugins/matchmaking/plugin.yaml,plugins/matchmaking/routes.ts plugins/rooms/plugin.yaml,plugins/rooms/routes.ts plugins/sdk-typescript/helpers.go,plugins/sdk-typescript/src/declarative.ts plugins/sdk-typescript/src/helpers.d.mts,plugins/sdk-typescript/src/helpers.mjs plugins/sdk-typescript/src/index.ts,plugins/sdk-typescript/src/request.ts plugins/subscriptions/plugin.yaml,plugins/tables/plugin.yaml plugins/tables/routes.ts,plugins/template/plugin.yaml scripts/run-sandboxed-typescript-worker.sh,scripts/typescript-worker.mjs tests/admin/function_helpers_test.go,tests/files/files.test.ts tests/matchmaking/matchmaking.test.ts,tests/plugin/access_management_test.go tests/plugin/declarative.test.ts,tests/plugin/model_runtime_test.go tests/plugin/pipeline-worker.test.ts,tests/plugin/plugin_call_test.go tests/plugin/project-context.test.ts,tests/plugin/resource-request.test.ts tests/rooms/rooms.test.ts
-- `96089fb9` — 2026-11-27 03:40:24 +0330 — Merge pull request #10 from arashrasoulzadeh/dynamic-runtime-storage-hardening
-  Files: 
-- `4e35a0c7` — 2026-11-27 03:40:17 +0330 — Merge main and preserve central operator access policy in admin inventory
-  Files: docs/admin-pages/extensions.md,internal/admin/lifecycle.go internal/plugin/admin_inventory.go,internal/plugin/admin_inventory_test.go plugins/files/plugin.yaml,plugins/matchmaking/plugin.yaml plugins/rooms/plugin.yaml,plugins/tables/plugin.yaml roadmap_admin.md
