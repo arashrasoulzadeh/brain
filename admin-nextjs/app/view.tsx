@@ -50,6 +50,8 @@ export default function AdminPage() {
   const [projectDone, setProjectDone] = useState(false);
   const [playgroundOpen, setPlaygroundOpen] = useState(false);
   const [playgroundBusy, setPlaygroundBusy] = useState(false);
+  const [playgroundDone, setPlaygroundDone] = useState(false);
+  const [playgroundResult, setPlaygroundResult] = useState("");
   const [auditFilter, setAuditFilter] = useState("");
   const [playgroundRoute, setPlaygroundRoute] = useState("");
   const [playgroundPayload, setPlaygroundPayload] = useState("{}");
@@ -88,6 +90,7 @@ export default function AdminPage() {
     setPlaygroundRoute("");
     setPlaygroundPayload("{}");
     setPlaygroundMessage("");
+    setPlaygroundResult(""); setPlaygroundDone(false); setPlaygroundOpen(false);
     setFunctionMessage("");
     saveAdminProject(id);
   }
@@ -311,7 +314,7 @@ export default function AdminPage() {
     }
   }
   async function sendPlayground() {
-    if (playgroundBusy) return;
+    if (playgroundBusy || playgroundDone) return;
     testPlayground();
     if (!playgroundRoute) {
       setPlaygroundMessage("Select a route first");
@@ -365,7 +368,7 @@ export default function AdminPage() {
     if (typeof encoded === "string") {
       try { output = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(encoded), character => character.charCodeAt(0)))); } catch { output = encoded; }
     }
-    if (projectRequests.current() === project) setPlaygroundPayload(JSON.stringify(output, null, 2));
+    if (projectRequests.current() === project) { setPlaygroundResult(JSON.stringify(output, null, 2)); setPlaygroundDone(true); }
     } catch (reason) { setPlaygroundMessage(String(reason)); } finally { setPlaygroundBusy(false); }
   }
   async function installPlugin(manifest: PluginManifest, projectID: string) {
@@ -621,7 +624,7 @@ export default function AdminPage() {
         {!projectDone && <button type="button" disabled={projectBusy} onClick={() => void submitProjectAction()}>Confirm action</button>}
         {projectBusy && <AdminProgress label="Updating project…" />}{projectDone && <p role="status">Project updated</p>}{projectMessage && <p role="alert">{projectMessage}</p>}
       </AdminDialog>}
-      {playgroundOpen && activePage === "routes" && <AdminDialog title="Invoke plugin operation" scope={selectedProjectID} busy={playgroundBusy} onClose={() => setPlaygroundOpen(false)}><p>Execute the selected operation as the authenticated operator? This may change project data. This invokes the host operation, not a public HTTP route.</p><code>{playgroundRoute}</code><button type="button" disabled={playgroundBusy} onClick={() => void sendPlayground()}>Confirm invocation</button>{playgroundBusy && <AdminProgress label="Executing operation…" />}{playgroundMessage && <p role="status">{playgroundMessage}</p>}</AdminDialog>}
+      {playgroundOpen && activePage === "routes" && <AdminDialog title="Invoke plugin operation" scope={selectedProjectID} busy={playgroundBusy} onClose={() => setPlaygroundOpen(false)}><p>Execute the selected operation as the authenticated operator? This may change project data. This invokes the host operation, not a public HTTP route.</p><code>{playgroundRoute}</code>{!playgroundDone && <button type="button" disabled={playgroundBusy} onClick={() => void sendPlayground()}>Confirm invocation</button>}{playgroundBusy && <AdminProgress label="Executing operation…" />}{playgroundMessage && <p role="status">{playgroundMessage}</p>}{playgroundResult && <pre className="admin-result-panel">{playgroundResult}</pre>}</AdminDialog>}
       <ProjectsPanel
         activePage={activePage}
         text={text}
@@ -691,7 +694,7 @@ export default function AdminPage() {
         playgroundPayload={playgroundPayload}
         setPlaygroundPayload={setPlaygroundPayload}
         testPlayground={testPlayground}
-        sendPlayground={() => { setPlaygroundMessage(""); setPlaygroundOpen(true); }}
+        sendPlayground={() => { setPlaygroundMessage(""); setPlaygroundResult(""); setPlaygroundDone(false); setPlaygroundOpen(true); }}
         playgroundMessage={playgroundMessage}
         selectedProjectID={selectedProjectID}
       />

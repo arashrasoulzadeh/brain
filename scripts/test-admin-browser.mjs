@@ -73,6 +73,7 @@ async function fixture(viewport, project = "alpha") {
             Enabled: id === "alpha" || betaEnabled, Ready: true, WorkerReady: id === "alpha" || betaEnabled, Draining: false, Grants: manifest.Capabilities }] : [],
         });
       }
+      case "/admin/routes": return json(namespace === "alpha" ? [{ plugin_id: "files", version: manifest.Version, method: "POST", path: "/alpha/files/metadata", function: "metadata", capability: "files.metadata", operation: "files.metadata", auth: "operator" }] : []);
       case "/admin/audit":
       case "/admin/system":
       case "/admin/functions": return json([]);
@@ -105,6 +106,11 @@ async function fixture(viewport, project = "alpha") {
           if (body.operation === "plugin.admin.revision") return json({ revision: 0 });
           assert.equal(body.operation, "plugin.admin.query");
           return json({ Success: true, Payload: Buffer.from(JSON.stringify([{ id: "record-one", revision: "fixture-revision", fields: { name: "private-name" } }])).toString("base64") });
+        }
+        if (body.operation === "plugin.invoke") {
+          assert.equal(body.target_operation, "files.metadata");
+          assert.deepEqual(body.payload, { key: "sample.txt" });
+          return json({ Success: false, ErrorCode: "fixture-failure", Payload: Buffer.from(JSON.stringify({ detail: "résultat" })).toString("base64") });
         }
         assert.equal(body.page_id, "operations");
         if (body.operation === "plugin.admin.inventory") {
@@ -256,6 +262,40 @@ try {
   await target.getByRole("button", { name: "Close dialog" }).click();
   await visible(nav.getByRole("link", { name: /File metadata/ }));
   await installation.context.close();
+
+  // Page access failure stays in the authenticated shell. The route
+  // playground uses the exact discovered version and does not replace input.
+  const review = await fixture({ width: 1440, height: 900 });
+  const reviewed = review.page;
+  await reviewed.goto(origin + "/alpha/ui/functions");
+  await visible(reviewed.getByRole("alert").filter({ hasText: "This plugin is disabled" }));
+  assert.equal(new URL(reviewed.url()).pathname, "/alpha/ui/functions");
+  assert.equal(await reviewed.locator("aside.sidebar").count(), 1);
+  assert.equal(await reviewed.evaluate(() => sessionStorage.getItem("brain-admin-session")), "browser-fixture");
+  await reviewed.goto(origin + "/alpha/ui/routes");
+  await reviewed.getByLabel("Select a route").selectOption("files:" + manifest.Version + ":files.metadata");
+  await reviewed.getByLabel("JSON payload", { exact: true }).fill('{"key":"sample.txt"}');
+  const beforeInvoke = commands.length;
+  await reviewed.getByRole("button", { name: "Send", exact: true }).click();
+  const invocation = reviewed.getByRole("dialog", { name: "Invoke plugin operation" });
+  await visible(invocation);
+  assert.equal(commands.length, beforeInvoke);
+  await invocation.getByRole("button", { name: "Confirm invocation" }).click();
+  await visible(invocation.getByRole("status").filter({ hasText: "Plugin error: fixture-failure" }));
+  await visible(invocation.getByText(/résultat/));
+  assert.equal(await invocation.getByRole("button", { name: "Confirm invocation" }).count(), 0);
+  await invocation.getByRole("button", { name: "Close dialog" }).click();
+  assert.equal(await reviewed.getByLabel("JSON payload", { exact: true }).inputValue(), '{"key":"sample.txt"}');
+  await reviewed.goto(origin + "/_system/ui/projects");
+  await visible(reviewed.getByRole("heading", { name: "Projects", level: 1 }));
+  const beforeProject = commands.length;
+  await reviewed.getByRole("button", { name: "Configure", exact: true }).first().click();
+  await visible(reviewed.getByRole("dialog", { name: "Configure project" }));
+  await reviewed.getByLabel("Display name", { exact: true }).fill("Cancelled edit");
+  await reviewed.keyboard.press("Escape");
+  assert.equal(commands.length, beforeProject);
+  assert.equal(await reviewed.getByRole("dialog").count(), 0);
+  await review.context.close();
 
   // The URL must win over the saved selection in a fresh browser context.
   const mobile = await fixture({ width: 390, height: 844 }, "beta");
