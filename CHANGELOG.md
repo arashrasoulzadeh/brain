@@ -3,6 +3,14 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `029e8746` — 2026-11-27 13:07:42 +0330 — Merge pull request #18 from arashrasoulzadeh/test/admin-browser-smoke
+  Files: 
+- `7f2ecef9` — 2026-11-27 13:05:09 +0330 — Resolve browser test paths at step execution time
+  Files: .github/workflows/admin-browser.yml
+- `fbbb0e69` — 2026-11-27 13:04:32 +0330 — Add production-build Chromium admin smoke tests and screenshots
+  Files: .github/workflows/admin-browser.yml,docs/admin-pages/theme.md scripts/test-admin-browser.mjs
+- `6fceee46` — 2026-11-27 09:33:06 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `53f3a75b` — 2026-11-27 13:02:53 +0330 — Merge pull request #16 from arashrasoulzadeh/admin/compact-control-plane
   Files: 
 - `d4f6b960` — 2026-11-27 12:51:23 +0330 — Unify catalog, inventory and generated form layouts around compact panels
@@ -95,11 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `904d0fef` — 2026-11-27 03:39:24 +0330 — Centralize project access management across plugins
   Files: internal/admin/functions.go,internal/admin/lifecycle.go internal/plugin/access_management.go,internal/plugin/broker.go internal/plugin/manifest.go,internal/plugin/model_runtime.go internal/plugin/observations.go,internal/plugin/plugin_call.go internal/plugin/registry_workers.go,internal/plugin/worker.go plugins/README.md,plugins/access-management/README.md plugins/access-management/index.ts,plugins/access-management/plugin.yaml plugins/analytics/plugin.yaml,plugins/arena/plugin.yaml plugins/files/plugin.yaml,plugins/files/routes.ts plugins/functions/plugin.yaml,plugins/invites/plugin.yaml plugins/matchmaking/plugin.yaml,plugins/matchmaking/routes.ts plugins/rooms/plugin.yaml,plugins/rooms/routes.ts plugins/sdk-typescript/src/index.ts,plugins/sdk-typescript/src/request.ts plugins/subscriptions/plugin.yaml,plugins/tables/plugin.yaml tests/files/files.test.ts,tests/matchmaking/matchmaking.test.ts tests/plugin/access_management_test.go,tests/plugin/resource-request.test.ts tests/rooms/rooms.test.ts
-- `d6c635b4` — 2026-11-26 23:54:59 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `904d1014` — 2026-11-27 03:24:32 +0330 — Merge main formatting fix into storage hardening
-  Files: 
-- `94cca6f5` — 2026-11-27 03:24:21 +0330 — Fix gofmt alignment in declarative manifest test
-  Files: internal/plugin/manifest_declarative_test.go
-- `552c0381` — 2026-11-27 03:23:50 +0330 — Unify declared model CRUD and state transitions with dynamic admin pages
-  Files: admin-nextjs/app/components/admin-renderer.tsx,admin-nextjs/app/components/model-panel.tsx admin-nextjs/app/lib/admin-types.ts,admin-nextjs/app/plugins/[plugin]/page.tsx docs/admin-pages/extensions.md,roadmap_admin.md
