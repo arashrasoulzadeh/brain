@@ -55,7 +55,9 @@ The sidebar is populated from the selected project's eligible manifests. These d
 | Games | `games` | Read-only supported game modes. |
 | PvP | `pvp` | Read-only runtime capability discovery. |
 | Functions | `functions`, `workflows` | Function editor, publication, logs and declared runtime operations. |
-| Dashboard | Global project controls and project plugin catalog | Trusted host lifecycle screens; no duplicate manifest-driven editor. |
+| Dashboard | `dashboard` | [Project overview](dashboard.md), installation status, Manage links and trusted lifecycle screens. |
 | Example template | Generated model contribution | Declared item records, state transitions and name normalization. |
 
 The old `live-sessions` URL remains a compatibility alias, not a separate sidebar entry. Individual plugin pages remain independently accessible even when they also appear in extension tabs. New bundled plugins must explicitly declare an operator workspace or be covered by an existing trusted/generated UI; the manifest inventory test detects omissions.
+
+Every enabled plugin has a project-scoped sidebar destination: declared workspaces, the trusted Dashboard or Functions workspace, or the plugin's own Manage page if it has no declared action UI. Manage always exposes installation and capability settings, plus declared configuration fields. No arbitrary settings are invented for plugins without a configuration schema.

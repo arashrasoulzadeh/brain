@@ -100,6 +100,12 @@ func (s *LifecycleService) InstallPlugin(actor operator.Actor, projectID, plugin
 	})
 }
 
+func (s *LifecycleService) InstallAndActivatePlugin(actor operator.Actor, projectID, pluginID, version string, capabilities []string) error {
+	return s.executeProjectLifecycle(actor, projectID, pluginID, version, "plugin.install.activate", func() error {
+		return s.registry.InstallAndActivate(projectID, pluginID, version, capabilities)
+	})
+}
+
 func (s *LifecycleService) SetPluginReadiness(actor operator.Actor, pluginID, version string, ready bool) error {
 	return s.execute(actor, "plugin.readiness", func() error {
 		return s.registry.SetReadiness(pluginID, version, ready)

@@ -1,5 +1,5 @@
 "use client";
-import { adminHeaders, readAdminSession, preferredAdminProject, signOutAdminSession, projectAdminURL, systemAdminURL, systemUIURL, adminUIContext } from "../lib/admin-api";
+import { adminHeaders, readAdminSession, preferredAdminProject, signOutAdminSession, projectAdminURL, systemAdminURL, systemUIURL, adminUIContext, notifyPluginCatalogChanged } from "../lib/admin-api";
 
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
@@ -38,7 +38,7 @@ export default function WorkersPage() {
     if (!session || !project) return;
     const response = await fetch(projectAdminURL(project, "actions"), { method: "POST", headers: adminHeaders(session, { "content-type": "application/json" }), body: JSON.stringify({ operation: "plugin.worker.start", project_id: project, plugin_id: worker.PluginID, version: worker.Version }) });
     setMessage(response.ok ? `${worker.PluginID}@${worker.Version} worker started.` : await response.text());
-    if (response.ok) await load(session);
+    if (response.ok) { notifyPluginCatalogChanged(project); await load(session); }
   }
 
   return <AdminPageFrame activePage="workers" title="Workers" projectID={project} onSignOut={() => { void signOutAdminSession().finally(() => router.replace(systemUIURL())); }}><p className="muted">Project: {project || "—"}. A plugin is executable only after its worker is ready.</p>{message && <p className="notice">{message}</p>}<div className="audit-list">{workers.map((worker) => <div className="audit" key={`${worker.PluginID}@${worker.Version}`}><span className={worker.WorkerReady ? "success" : "failure"}>{worker.WorkerReady ? "✓" : "!"}</span><div><strong>{worker.PluginID}@{worker.Version}</strong><small>{worker.WorkerReady ? "Worker ready" : "Worker not ready"}</small></div>{worker.Enabled && worker.Ready && !worker.WorkerReady && <button type="button" onClick={() => void spinUp(worker)}>Spin up worker</button>}</div>)}</div></AdminPageFrame>;

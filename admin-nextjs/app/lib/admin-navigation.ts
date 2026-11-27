@@ -1,7 +1,7 @@
-type PluginReadiness = { PluginID: string; Enabled: boolean; Ready: boolean };
+type PluginReadiness = { PluginID: string; Enabled: boolean; Ready: boolean; Draining?: boolean };
 
 export function enabledPluginIDs(installations: readonly PluginReadiness[]): ReadonlySet<string> {
-  return new Set(installations.filter((item) => item.Enabled && item.Ready).map((item) => item.PluginID));
+  return new Set(installations.filter((item) => item.Enabled && item.Ready && !item.Draining).map((item) => item.PluginID));
 }
 
 export function canViewAdminPage(page: string, enabled: ReadonlySet<string>): boolean {

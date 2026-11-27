@@ -45,6 +45,8 @@ async function fixture(viewport, project = "alpha") {
   let allowed = true;
   let modelAllowed = true;
   let sessionStatus = 0;
+  let betaInstalled = false;
+  let betaEnabled = false;
   page.on("pageerror", error => runtimeErrors.push(error.message));
   await page.route("**/*/admin/**", async route => {
     const request = route.request();
@@ -67,8 +69,8 @@ async function fixture(viewport, project = "alpha") {
         const id = url.searchParams.get("project_id") ?? (namespace === "_system" ? "" : namespace);
         return json({
           manifests: [manifest],
-          installations: id === "alpha" ? [{ ProjectID: id, PluginID: "files", Version: manifest.Version,
-            Enabled: true, Ready: true, Draining: false, Grants: manifest.Capabilities }] : [],
+          installations: id === "alpha" || (id === "beta" && betaInstalled) ? [{ ProjectID: id, PluginID: "files", Version: manifest.Version,
+            Enabled: id === "alpha" || betaEnabled, Ready: true, WorkerReady: id === "alpha" || betaEnabled, Draining: false, Grants: manifest.Capabilities }] : [],
         });
       }
       case "/admin/audit":
@@ -78,6 +80,21 @@ async function fixture(viewport, project = "alpha") {
       case "/admin/actions": {
         const body = request.postDataJSON();
         commands.push(body);
+        if (namespace === "beta") {
+          assert.equal(body.project_id, "beta");
+          assert.equal(body.plugin_id, "files");
+          assert.equal(body.version, manifest.Version);
+          if (body.operation === "plugin.install.activate") {
+            assert.equal(body.confirmed, true);
+            assert.deepEqual(body.capabilities, manifest.Capabilities);
+            betaInstalled = true; betaEnabled = true;
+            return json({ status: "success" });
+          }
+          if (body.operation === "plugin.disable.preview") return json({ Revision: 1, Dependents: [] });
+          if (body.operation === "plugin.disable.apply") { assert.equal(body.confirmed, true); betaEnabled = false; return json({ status: "success" }); }
+          if (body.operation === "plugin.enable") { betaEnabled = true; return json({ status: "success" }); }
+          return route.fulfill({ status: 400, body: "Unsupported beta command" });
+        }
         assert.equal(namespace, "alpha");
         assert.equal(body.project_id, "alpha");
         assert.equal(body.plugin_id, "files");
@@ -202,6 +219,40 @@ try {
   assert.equal(new URL(page.url()).pathname, "/beta/ui/extensions/files/0.1.0/operations");
   await visible(page.getByRole("alert").filter({ hasText: "Page unavailable or permission revoked" }));
   await desktop.context.close();
+
+  // Confirmation is read-only until accepted; sidebar refreshes without navigation.
+  const installation = await fixture({ width: 1440, height: 900 }, "beta");
+  const target = installation.page;
+  await target.goto(origin + "/beta/ui/plugins");
+  const nav = target.getByRole("navigation", { name: "Admin navigation" });
+  await visible(target.getByRole("button", { name: "Install", exact: true }));
+  assert.equal(await nav.getByRole("link", { name: "Files", exact: true }).count(), 0);
+  const beforeInstall = commands.length;
+  await target.getByRole("button", { name: "Install", exact: true }).click();
+  const consent = target.getByRole("dialog", { name: "Install Files" });
+  await visible(consent);
+  for (const capability of manifest.Capabilities) await visible(consent.getByText(capability, { exact: true }));
+  await consent.getByRole("button", { name: "Cancel", exact: true }).click();
+  assert.equal(commands.length, beforeInstall);
+  await target.getByRole("button", { name: "Install", exact: true }).click();
+  await consent.getByRole("button", { name: "Install and enable" }).click();
+  await visible(consent.getByRole("status").filter({ hasText: "Plugin installed and enabled" }));
+  await consent.getByRole("button", { name: "Done" }).click();
+  await visible(nav.getByRole("link", { name: "Files", exact: true }));
+  assert.equal(new URL(target.url()).pathname, "/beta/ui/plugins");
+  await target.getByRole("link", { name: "View files" }).click();
+  await visible(target.getByRole("heading", { name: "Project settings" }));
+  await target.getByRole("button", { name: "Disable", exact: true }).click();
+  await target.getByRole("button", { name: "Confirm action" }).click();
+  await visible(target.getByRole("status").filter({ hasText: "Action completed" }));
+  await target.getByRole("button", { name: "Close dialog" }).click();
+  await nav.getByRole("link", { name: "Files", exact: true }).waitFor({ state: "detached" });
+  await target.getByRole("button", { name: "Enable", exact: true }).click();
+  await target.getByRole("button", { name: "Confirm action" }).click();
+  await visible(target.getByRole("status").filter({ hasText: "Action completed" }));
+  await target.getByRole("button", { name: "Close dialog" }).click();
+  await visible(nav.getByRole("link", { name: "Files", exact: true }));
+  await installation.context.close();
 
   // The URL must win over the saved selection in a fresh browser context.
   const mobile = await fixture({ width: 390, height: 844 }, "beta");
