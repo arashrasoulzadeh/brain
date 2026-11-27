@@ -16,7 +16,7 @@ const platform: MenuItem[] = [
 ];
 
 export function adminMenu(allowed: readonly string[], extensions: readonly AdminContribution[], search = "", projectID = ""): MenuGroup[] {
-  const aliases = [...new Set(extensions.flatMap(item => item.page.legacy_route ? [item.page.legacy_route] : []))].sort();
+  const aliases = [...new Set(extensions.filter(item => item.projectID === projectID).flatMap(item => item.page.legacy_route ? [item.page.legacy_route] : []))].sort();
   const project: MenuItem[] = [
     ...(projectID && allowed.includes("functions") ? [{ href: projectUIURL(projectID, "functions"), label: "Functions", icon: "functions" as const }] : []),
     ...(projectID ? aliases : []).map(alias => ({ href: projectUIURL(projectID, alias), label: alias[0].toUpperCase() + alias.slice(1).replaceAll("-", " "), icon: "resource" as const })),

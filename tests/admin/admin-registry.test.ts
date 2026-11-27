@@ -8,7 +8,7 @@ test("admin contributions require exact project, version, readiness and grants",
     manifests: [{ ID: "custom", Title: "Custom", Description: "", Version: "1", Capabilities: ["read"], Routes: [{ Operation: "custom.list", Capability: "read" }], ExtensionPoints: [], SourceFiles: [], Imports: [], PluginImports: [], Dependencies: [], Admin: { version: 1, pages: [{ id: "list", title: "List", actions: [{ title: "List", operation: "custom.list" }] }] } }],
     installations: [{ ProjectID: "one", PluginID: "custom", Version: "1", Enabled: true, Ready: true, Draining: false, Grants: ["read"] }],
   };
-  assert.equal(adminContributions("one", catalog)[0].href, "/extensions/one/custom/1/list");
+  assert.equal(adminContributions("one", catalog)[0].href, "/one/ui/extensions/custom/1/list");
   catalog.manifests![0].Admin!.pages[0].legacy_route = "records";
   assert.equal(adminLegacyContributions("one", catalog, "records").length, 1);
   assert.deepEqual(adminLegacyContributions("two", catalog, "records"), []);

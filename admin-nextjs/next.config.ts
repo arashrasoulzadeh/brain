@@ -12,7 +12,7 @@ const nextConfig: NextConfig = {
   async rewrites() {
     const origin = process.env.BRAIN_API_ORIGIN ?? "http://127.0.0.1:18082";
     return { beforeFiles: [], afterFiles: [], fallback: [
-      { source: "/_system/admin/:path*", destination: `${origin}/_system/admin/:path*` },
+      { source: "/_system/:resource*", destination: `${origin}/_system/:resource*` },
       { source: "/:project/admin/:path*", destination: `${origin}/:project/admin/:path*` },
       { source: "/:project/functions/:name", destination: `${origin}/:project/functions/:name` },
       { source: "/:project([A-Za-z0-9][A-Za-z0-9_-]*)/:resource*", destination: `${origin}/:project/:resource*` },

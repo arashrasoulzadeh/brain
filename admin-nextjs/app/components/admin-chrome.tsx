@@ -30,6 +30,7 @@ export function AdminSidebar({
   const requestedProject = adminUIContext(pathname).namespace ?? (projectID || undefined);
   const [projectEpoch, setProjectEpoch] = useState(0);
   const [activeProject, setActiveProject] = useState("");
+  const [loadedScope, setLoadedScope] = useState<string>();
   const [search, setSearch] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
@@ -57,6 +58,7 @@ export function AdminSidebar({
       const active = preferredAdminProject(projects, requestedProject)?.ID;
       if (!active || signal.aborted) return;
       setActiveProject(active);
+      setLoadedScope(requestedProject);
       const response = await fetch(projectAdminURL(active, "plugins"), { headers, signal });
       if (!response.ok) return;
       const payload = (await response.json()) as AdminCatalog;
@@ -66,7 +68,9 @@ export function AdminSidebar({
     })().catch(() => undefined);
     return () => controller.abort();
   }, [requestedProject, activePage, projectEpoch]);
-  const groups = adminMenu(visiblePages ?? discoveredPages, extensions, search, activeProject);
+  const menuProject = loadedScope === requestedProject ? activeProject : "";
+  const groups = adminMenu(visiblePages ?? discoveredPages, menuProject ? extensions : [], search, menuProject);
+  const menuPath = requestedProject && menuProject ? pathname.replace("/" + requestedProject + "/ui", "/" + menuProject + "/ui") : pathname;
   return (
     <aside className="sidebar">
       <div className="sidebar-brand">
@@ -74,17 +78,17 @@ export function AdminSidebar({
         <button type="button" className="menu-toggle secondary" aria-label="Toggle navigation" aria-expanded={mobileOpen} aria-controls="admin-menu" onClick={() => setMobileOpen(value => !value)}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4 6h16M4 12h16M4 18h16" /></svg></button>
       </div>
       <div id="admin-menu" className={"sidebar-menu" + (mobileOpen ? " is-open" : "")}>
-        <Link href={systemUIURL("projects")} className="workspace-picker" title="Change project"><MenuGlyph name="projects" /><span><small>Current project</small><strong>{activeProject || "Select project"}</strong></span><span aria-hidden="true">⌄</span></Link>
+        <Link href={systemUIURL("projects")} className="workspace-picker" title="Change project"><MenuGlyph name="projects" /><span><small>Current project</small><strong>{menuProject || "Select project"}</strong></span><span aria-hidden="true">⌄</span></Link>
         <label className="menu-search"><MenuGlyph name="search" /><input aria-label="Filter navigation" placeholder="Find a page…" value={search} onChange={event => setSearch(event.target.value)} /></label>
         <nav className="sidebar-nav" aria-label="Admin navigation">
           {groups.map(group => {
-            const active = group.items.some(item => menuItemActive(pathname, item.href));
+            const active = group.items.some(item => menuItemActive(menuPath, item.href));
             const filtering = !!search.trim();
             const expanded = filtering || !(collapsed[group.label] ?? (group.label === "Extensions" && !active));
             return <div key={group.label} className="menu-group">
               <button type="button" className="menu-group-title" aria-expanded={expanded} disabled={filtering} onClick={() => setCollapsed(previous => ({ ...previous, [group.label]: expanded }))}>{group.label}<span aria-hidden="true">{expanded ? "−" : "+"}</span></button>
               {expanded && group.items.map(item => {
-                const current = menuItemActive(pathname, item.href);
+                const current = menuItemActive(menuPath, item.href);
                 return <Link className={current ? "active" : ""} aria-current={current ? "page" : undefined} href={item.href} title={item.detail ? item.label + " · " + item.detail : item.label} key={item.href}><MenuGlyph name={item.icon} /><span className="menu-label">{item.label}{item.detail && <small>{item.detail}</small>}</span></Link>;
               })}
             </div>;

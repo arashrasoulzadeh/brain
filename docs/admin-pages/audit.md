@@ -1,6 +1,6 @@
 # Audit log
 
-Route: `/audit`
+Route: `/_system/ui/audit`
 
 Shows operator and plugin lifecycle audit records. Uses the shared admin sidebar.
 

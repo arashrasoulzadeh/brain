@@ -1,6 +1,6 @@
 # HTTP API reference
 
-This is the HTTP surface mounted by the current application in [app.go](../internal/app/app.go), not a speculative client gateway. Plugin operations are declared separately in their manifests. The Next.js admin UI lives under `/_system/ui`; its project API calls use `/{project}/admin/...`. No legacy root aliases exist.
+This is the HTTP surface mounted by the current application in [app.go](../internal/app/app.go), not a speculative client gateway. Plugin operations are declared separately in their manifests. The global Next.js admin UI lives under `/_system/ui`; project pages live under `/{project}/ui/...` and their API calls use `/{project}/admin/...`. No legacy root aliases exist.
 
 ## Endpoints
 

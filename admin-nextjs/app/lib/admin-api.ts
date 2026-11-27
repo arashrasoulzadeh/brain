@@ -19,7 +19,7 @@ export function projectAdminURL(project: string, resource: string): string {
 }
 
 export function selectedProjectAdminURL(resource: string): string {
-  const project = window.sessionStorage.getItem(PROJECT_KEY);
+  const project = adminUIContext(window.location.pathname).namespace ?? window.sessionStorage.getItem(PROJECT_KEY);
   if (!project) throw new Error("select a project before using its API");
   return projectAdminURL(project, resource);
 }
