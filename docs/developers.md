@@ -2,7 +2,7 @@
 
 ## Quickstart
 
-With Go, Node.js 20+, npm and Make installed, install the locked Node dependencies once:
+With Go, Node.js 20.15+, npm and Make installed, install the locked Node dependencies once:
 
 ```bash
 make setup
@@ -39,6 +39,10 @@ npm run test:ts
 
 These commands do not start Docker. Use Docker/Compose only for an explicit PostgreSQL or release integration check.
 
+## Current reference
+
+Use the [HTTP API](http-api.md), [SDK reference](sdk-reference.md), [runtime configuration](runtime-operations.md), and [function authoring guide](functions-runtime.md). The client SDKs require an application-supplied transport; a generic user RPC HTTP endpoint is not mounted. SQLite is the current storage adapter, not PostgreSQL.
+
 ## Plugin contract
 
 Every product capability is a TypeScript plugin:
@@ -51,7 +55,7 @@ plugins/<plugin-id>/
 
 `plugin.yaml` is authoritative for title, description, version, routes, functions, capabilities, source files, imports, and plugin dependencies. Every source and runtime import must be declared. `index.ts` is the public boundary; cohesive modules own related responsibilities and reuse shared SDK helpers.
 
-The Go host does not implement product capabilities. Keep product behavior in `plugins/<plugin-id>/`; keep Go host changes limited to shared infrastructure, lifecycle, permissions, storage primitives, worker supervision, and versioned contracts.
+The Go host is intended to provide infrastructure only; existing product-specific SQLite compatibility adapters remain transitional. Keep product behavior in `plugins/<plugin-id>/`; keep Go host changes limited to shared infrastructure, lifecycle, permissions, storage primitives, worker supervision, and versioned contracts.
 
 Example:
 

@@ -13,9 +13,9 @@ ROOT = Path(__file__).resolve().parents[1]
 GITHUB = "https://github.com/arashrasoulzadeh/brain/blob/main/"
 LINK = re.compile(r"(\]\()([^\s)]+)(\))")
 FENCE = re.compile(r"^\s*(```+|~~~+)")
-DOC_PREFIXES = ("docs/", "implementation/", "plugins/", "clients/", "protocol/", "tests/")
+DOC_PREFIXES = (".agents/", "docs/", "implementation/", "plugins/", "clients/", "protocol/", "tests/")
 ROOT_DOCS = {"README.md", "CHANGELOG.md", "plan.md", "phases.md", "roadmap.md",
-             "roadmap_backend.md", "roadmap_admin.md", "roadmap_client.md", "AGENTS.md"}
+             "roadmap_backend.md", "roadmap_admin.md", "roadmap_client.md", "AGENTS.md", "CLAUDE.md"}
 
 
 def source_map(root):
@@ -95,37 +95,55 @@ def generate(root, output, contract):
     catalog = ["# Plugin reference", "", "Generated from the host's validated manifest contract. "
                "The examples are not automatically installed.", ""]
     names = set()
+    guides = set()
     for manifest in manifests:
         relative = manifest.relative_to(root)
         name = "-".join(relative.parts[:-1])
         if name in names:
             raise ValueError(f"Duplicate plugin reference: {name}")
         names.add(name)
+        guide = f"docs/plugin-guides/{relative.parent.name}.md"
+        if guide not in mapping:
+            raise ValueError(f"Missing developer/administrator guide: {guide}")
+        guide_text = (root / guide).read_text(encoding="utf-8")
+        for heading in ("Developer", "Administrator", "Example payloads", "Limitations"):
+            if not re.search(rf"^## {heading}$\n\n\S", guide_text, re.MULTILINE):
+                raise ValueError(f"Missing substantive {heading} section: {guide}")
+        guides.add(guide)
         rendered = subprocess.check_output([str(contract), "plugin-contract", str(manifest), "markdown"],
                                            cwd=root, text=True)
         if not rendered.strip():
             raise ValueError(f"Empty contract documentation: {relative}")
         raw = manifest.read_text(encoding="utf-8")
-        page = rendered.rstrip() + "\n\n## Complete manifest\n\n"
+        typed = subprocess.check_output([str(contract), "plugin-contract", str(manifest), "typescript"], cwd=root, text=True)
+        if not typed.strip():
+            raise ValueError(f"Empty TypeScript contract: {relative}")
+        guide_link = posixpath.relpath(mapping[guide], "reference/plugins")
+        page = rendered.rstrip() + f"\n\n[Developer and administrator guide]({guide_link})\n\n## TypeScript contract\n\n~~~ts\n{typed.rstrip()}\n~~~\n\n## Complete manifest\n\n"
         page += f"[Source manifest]({GITHUB}{relative.as_posix()})\n\n~~~yaml\n{raw.rstrip()}\n~~~\n"
         (reference / f"{name}.md").write_text(page, encoding="utf-8")
-        catalog.append(f"- [{relative.parent.name}]({name}.md) — `{relative.as_posix()}`")
+        catalog.append(f"- [{relative.parent.name}]({name}.md) — [usage and administration]({guide_link}) · `{relative.as_posix()}`")
     catalog.extend(["", f"Manifest reference coverage: {len(names)}/{len(manifests)}.", "",
+                    f"Developer and administrator guide coverage: {len(guides)}/{len(manifests)}.", "",
                     "This count measures manifest reference generation, not narrative or test coverage."])
     (reference / "index.md").write_text("\n".join(catalog) + "\n", encoding="utf-8")
     with (output / "index.md").open("a", encoding="utf-8") as home:
         home.write("\n## Explore Brain\n\n"
                    '<div class="grid cards" markdown>\n\n'
                    "- **Plugin API reference**\n\n    Browse generated operations, grants, models and events.\n\n"
-                   "    [Explore plugins](reference/plugins/index.md)\n\n"
+                   "    [Explore plugins](reference/plugins/index.md) · [Usage guides](plugin-guides/index.md)\n\n"
                    "- **Browser and mobile clients**\n\n    Integrate with project-scoped transports.\n\n"
-                   "    [Browser](browser-quickstart.md) · [Flutter](flutter-quickstart.md)\n\n"
+                   "    [Browser](browser-quickstart.md) · [Flutter](flutter-quickstart.md) · [Kotlin](clients/android/README.md)\n\n"
                    "- **Operations**\n\n    Deploy, recover and administer installations.\n\n"
                    "    [Runbooks](deployment-runbook.md) · [Admin pages](admin-pages/README.md)\n\n"
                    "- **Quality and roadmap**\n\n    Understand coverage, release checks and planned work.\n\n"
                    "    [Testing](tests/README.md) · [Roadmap](roadmap.md)\n\n"
                    "</div>\n\n[Changelog](CHANGELOG.md) · [Repository overview](repository.md)\n")
     shutil.copytree(root / "docs" / "assets", output / "assets", dirs_exist_ok=True)
+    from documentation_inventory import audit
+    (output / "reference" / "coverage.md").write_text(audit(root), encoding="utf-8")
+    with (output / "index.md").open("a", encoding="utf-8") as home:
+        home.write("\n[Documentation coverage inventory](reference/coverage.md)\n")
     print(f"Staged {len(mapping)} Markdown sources; generated {len(names)}/{len(manifests)} manifest references.")
 
 
