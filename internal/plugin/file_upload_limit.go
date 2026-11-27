@@ -7,8 +7,9 @@ import (
 	"strings"
 )
 
-// The admin JSON envelope is capped at 64 KiB; leave room for base64 and metadata.
-const adminFileUploadLimit = 40 * 1024
+// File limits use decimal MB. JSON request limits remain independent.
+const adminFileUploadLimit = 1_000_000_000
+const defaultFileUploadLimit = 100_000_000
 const adminFileDataPrefix = "data:application/octet-stream;base64,"
 
 func configuredFileUploadLimit(config map[string]any) (int, bool) {

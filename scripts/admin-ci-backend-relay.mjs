@@ -16,11 +16,14 @@ for await (const line of lines) {
     request = JSON.parse(line);
     if (!request.path.startsWith("/") || request.path.startsWith("//")) throw new Error("invalid path");
     const headers = {};
-    for (const name of ["authorization","content-type","accept"]) if (request.headers[name]) headers[name] = request.headers[name];
+    for (const name of ["authorization","content-type","accept","x-project-id","x-project-slug"]) if (request.headers[name]) headers[name] = request.headers[name];
     const response = await fetch("http://127.0.0.1:8080"+request.path,{method:request.method,headers,body:request.body ? Buffer.from(request.body,"base64") : undefined,signal:AbortSignal.timeout(25000),redirect:"manual"});
     const body = Buffer.from(await response.arrayBuffer());
-    if (body.length > 8*1024*1024) throw new Error("response too large");
-    console.log(JSON.stringify({id:request.id,status:response.status,headers:{"content-type":response.headers.get("content-type") ?? "application/octet-stream"},body:body.toString("base64")}));
+    const binary = /^\\/[A-Za-z0-9][A-Za-z0-9_-]*\\/admin\\/files\\/blob$/.test(request.path.split("?")[0]);
+    if (body.length > (binary ? 24 : 8)*1024*1024) throw new Error("response too large");
+    const outgoing = {"content-type":response.headers.get("content-type") ?? "application/octet-stream"};
+    for (const name of ["content-disposition","content-length","cache-control","x-content-type-options"]) { const value = response.headers.get(name); if (value !== null) outgoing[name] = value; }
+    console.log(JSON.stringify({id:request.id,status:response.status,headers:outgoing,body:body.toString("base64")}));
   } catch {
     console.log(JSON.stringify({id:request?.id,status:502,headers:{"content-type":"text/plain"},body:Buffer.from("isolated backend unavailable").toString("base64")}));
   }
@@ -47,11 +50,15 @@ const server=createServer(async (request,response)=>{
     response.writeHead(400).end(); return;
   }
   try {
+    // The test relay buffers requests; keep the normal cap and permit only
+    // the reserved binary endpoint enough room for the integration fixture.
+    const binary = /^\/[A-Za-z0-9][A-Za-z0-9_-]*\/admin\/files\/blob$/.test(request.url.split("?")[0]);
+    const maximum = (binary ? 24 : 1)*1024*1024;
     const chunks=[];
     let size=0;
     for await (const chunk of request) {
       size+=chunk.length;
-      if (size>1024*1024) { response.writeHead(413).end(); return; }
+      if (size>maximum) { response.writeHead(413).end(); return; }
       chunks.push(chunk);
     }
     const id=++sequence;

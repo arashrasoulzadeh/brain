@@ -61,6 +61,11 @@ func withAPIEnvelope(next http.Handler) http.Handler {
 			next.ServeHTTP(w, r)
 			return
 		}
+		// Only this reserved authenticated binary download uses the streaming writer.
+		if r.Method == http.MethodGet && strings.Count(r.URL.Path, "/") == 4 && strings.HasSuffix(r.URL.Path, "/admin/files/blob") {
+			next.ServeHTTP(w, r)
+			return
+		}
 		buffer := newAPIBuffer(w.Header())
 		next.ServeHTTP(buffer, r)
 		if buffer.status >= http.StatusBadRequest {

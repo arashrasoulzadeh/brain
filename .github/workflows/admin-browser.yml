@@ -68,10 +68,11 @@ jobs:
           echo "BRAIN_BROWSER_EXECUTABLE=$chrome" >> "$GITHUB_ENV"
       - name: Verify the production admin in Chromium
         run: |
-          (cd admin-nextjs && exec npm run start -- --hostname 127.0.0.1 --port 3100) > "$RUNNER_TEMP/brain-admin.log" 2>&1 &
+          (cd admin-nextjs && exec node node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3100) > "$RUNNER_TEMP/brain-admin.log" 2>&1 &
           server=$!
           trap 'kill "$server" 2>/dev/null || true' EXIT
           for i in $(seq 1 60); do
+            if ! kill -0 "$server" 2>/dev/null; then echo "Admin server stopped before readiness"; exit 1; fi
             if curl --fail --silent "$BRAIN_ADMIN_ORIGIN/_system/ui" > /dev/null; then break; fi
             sleep 1
           done
@@ -79,6 +80,7 @@ jobs:
           node scripts/test-admin-browser.mjs
       - name: Verify admin against the packaged backend
         run: |
+          export BRAIN_ADMIN_ORIGIN=http://127.0.0.1:3101
           docker build -t brain:admin-browser .
           container=$(docker run -d --privileged --network none -e HTTP_ADDRESS=:8080 -e OPERATOR_USERNAME=ci-operator -e OPERATOR_SECRET=ci-fixture-only -e PROJECTS_FILE=/workspace/.local/brain.sqlite brain:admin-browser)
           for attempt in $(seq 1 5); do
@@ -91,7 +93,7 @@ jobs:
           done
           node scripts/admin-ci-backend-relay.mjs "$container" > "$RUNNER_TEMP/brain-relay.log" 2>&1 &
           relay=$!
-          (cd admin-nextjs && exec npm run start -- --hostname 127.0.0.1 --port 3100) > "$RUNNER_TEMP/brain-admin-live.log" 2>&1 &
+          (cd admin-nextjs && exec node node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3101) > "$RUNNER_TEMP/brain-admin-live.log" 2>&1 &
           server=$!
           cleanup() {
             kill "$server" "$relay" 2>/dev/null || true
@@ -100,6 +102,7 @@ jobs:
           }
           trap cleanup EXIT
           for i in $(seq 1 60); do
+            if ! kill -0 "$server" 2>/dev/null; then echo "Admin server stopped before readiness"; exit 1; fi
             if curl --fail --silent "$BRAIN_ADMIN_ORIGIN/_system/ui" > /dev/null; then break; fi
             sleep 1
           done

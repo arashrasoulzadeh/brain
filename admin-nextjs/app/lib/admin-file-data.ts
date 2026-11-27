@@ -1,6 +1,17 @@
 // Existing Files routes store strings. A deliberately identifiable data URI
 // preserves selected file bytes without changing the existing text contract.
-export const ADMIN_FILE_LIMIT = 40 * 1024;
+export const ADMIN_FILE_LIMIT = 40 * 1024; // legacy JSON transport only
+export const FILE_MB = 1_000_000;
+export const MAX_FILE_MB = 1000;
+export const DEFAULT_FILE_LIMIT = 100 * FILE_MB;
+export function fileLimitBytes(megabytes: string): number {
+  const match = /^(\d+)(?:\.(\d{1,6}))?$/.exec(megabytes);
+  if (!match) throw new Error("Enter a file limit in MB, with at most six decimal places");
+  const bytes = Number(match[1]) * FILE_MB + Number((match[2] ?? "").padEnd(6, "0"));
+  if (!Number.isSafeInteger(bytes) || bytes < 1 || bytes > MAX_FILE_MB * FILE_MB) throw new Error("File limit must be greater than zero and at most 1,000 MB (1 GB)");
+  return bytes;
+}
+export function fileLimitMB(bytes: number): string { return String(bytes / FILE_MB); }
 const prefix = "data:application/octet-stream;base64,";
 
 export function encodeAdminFile(bytes: Uint8Array): string {

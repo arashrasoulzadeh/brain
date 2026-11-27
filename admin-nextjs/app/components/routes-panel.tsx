@@ -41,6 +41,7 @@ export function RoutesPanel({ activePage, text, playgroundRoute, setPlaygroundRo
           <label>
             {text.payload}
             <textarea
+              aria-label={text.payload}
               value={playgroundPayload}
               onChange={(event) => setPlaygroundPayload(event.target.value)}
               rows={8}

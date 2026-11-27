@@ -3,6 +3,30 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `2aff993c` — 2026-11-27 21:37:44 +0330 — Merge pull request #45 from arashrasoulzadeh/feat/files-megabyte-limit
+  Files: 
+- `ac357976` — 2026-11-27 21:20:25 +0330 — Isolate live admin server and allow bounded binary fixtures through CI relay
+  Files: .github/workflows/admin-browser.yml,scripts/admin-ci-backend-relay.mjs scripts/test-admin-live.mjs
+- `699e98c7` — 2026-11-27 17:48:05 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
+- `98e11603` — 2026-11-27 21:15:32 +0330 — Merge main and preserve confirmed installation, file transport and combined regression coverage
+  Files: admin-nextjs/app/components/admin-config-form.tsx,docs/http-api.md scripts/test-admin-live.mjs
+- `557658d8` — 2026-11-27 21:15:03 +0330 — Merge pull request #46 from arashrasoulzadeh/feat/confirmed-plugin-install
+  Files: 
+- `644bfc1e` — 2026-11-27 21:13:51 +0330 — Document binary routes and verify streaming through the admin host above proxy buffer limits
+  Files: admin-nextjs/app/[project]/admin/files/blob/route.ts,admin-nextjs/app/components/admin-file-controls.tsx admin-nextjs/app/lib/admin-file-transfer.ts,docs/http-api.md internal/app/admin_files.go,scripts/test-admin-live.mjs
+- `03ac9885` — 2026-11-27 21:13:19 +0330 — Document confirmed install command and Dashboard route in inventory
+  Files: docs/admin-pages/README.md
+- `73531656` — 2026-11-27 21:13:16 +0330 — Document confirmed install command and Dashboard route in inventory
+  Files: docs/http-api.md
+- `ad138e98` — 2026-11-27 21:07:34 +0330 — Test actual sidebar links and safeguard active version and project scope
+  Files: admin-nextjs/app/components/plugin-install-dialog.tsx,admin-nextjs/app/dashboard/view.tsx admin-nextjs/app/view.tsx,internal/plugin/registry_install_activate.go scripts/test-admin-browser.mjs,tests/admin/admin-menu.test.ts
+- `10226493` — 2026-11-27 21:07:15 +0330 — Confirm plugin capabilities and install active workers with live sidebar refresh
+  Files: admin-nextjs/app/[project]/ui/dashboard/page.tsx,admin-nextjs/app/components/admin-chrome.tsx admin-nextjs/app/components/admin-config-form.tsx,admin-nextjs/app/components/admin-shell.tsx admin-nextjs/app/components/legacy-admin-page.tsx,admin-nextjs/app/components/plugin-catalog-panel.tsx admin-nextjs/app/components/plugin-install-dialog.tsx,admin-nextjs/app/dashboard/view.tsx admin-nextjs/app/lib/admin-api.ts,admin-nextjs/app/lib/admin-menu.ts admin-nextjs/app/lib/admin-navigation.ts,admin-nextjs/app/lib/admin-registry.ts admin-nextjs/app/lib/admin-types.ts,admin-nextjs/app/lib/plugin-install.ts admin-nextjs/app/plugins/[plugin]/view.tsx,admin-nextjs/app/view.tsx admin-nextjs/app/workers/view.tsx,docs/admin-pages/README.md docs/admin-pages/dashboard.md,docs/admin-pages/plugins.md internal/admin/lifecycle.go,internal/app/admin.go internal/plugin/registry_install_activate.go,internal/plugin/registry_install_activate_test.go scripts/test-admin-browser.mjs,scripts/test-admin-live.mjs
+- `c0257087` — 2026-11-27 21:00:00 +0330 — Configure file limits in decimal MB up to 1 GB and add bounded binary transfer
+  Files: admin-nextjs/app/components/admin-config-form.tsx,admin-nextjs/app/components/admin-file-controls.tsx admin-nextjs/app/components/admin-renderer.tsx,admin-nextjs/app/lib/admin-file-data.ts admin-nextjs/app/lib/admin-file-transfer.ts,docs/admin-pages/files.md docs/http-api.md,internal/admin/file_transfer.go internal/app/admin_files.go,internal/app/api_response.go internal/app/app.go,internal/plugin/file_binary_storage.go internal/plugin/file_upload_limit.go,internal/plugin/file_upload_limit_test.go internal/plugin/legacy_storage_adapter.go,internal/plugin/registry_catalog.go internal/plugin/sqlite_storage.go,plugins/files/routes.ts scripts/test-admin-live.mjs,tests/admin/admin-file-data.test.ts
+- `c26b3f3d` — 2026-11-27 17:21:01 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `048b932a` — 2026-11-27 20:50:06 +0330 — Merge pull request #44 from arashrasoulzadeh/feat/plugin-action-dialogs
   Files: 
 - `35136672` — 2026-11-27 20:49:32 +0330 — Merge main and preserve session-expiry and plugin dialog regression tests; align plugin admin documentation
@@ -79,27 +103,3 @@ Automatically generated from commits on main.
   Files: docs/http-api.md,internal/plugin/websocket_ticket.go tests/plugin/websocket_ticket_test.go
 - `5efdf699` — 2026-11-27 18:55:17 +0330 — Update admin transport fixture and format routing regression test
   Files: tests/coverage/plugin-boundaries.test.ts,tests/plugin/http_version_routing_test.go
-- `86e71f47` — 2026-11-27 18:54:29 +0330 — Revalidate manifest HTTP route selection at invocation and commit
-  Files: CHANGELOG.md,internal/admin/lifecycle.go internal/plugin/http_routes.go,internal/plugin/model_runtime.go internal/plugin/registry_workers.go,internal/plugin/worker.go tests/plugin/http_version_routing_test.go
-- `79a83e02` — 2026-11-27 18:52:06 +0330 — Enforce project command namespace and reserve global lifecycle operations
-  Files: admin-nextjs/app/page.tsx,admin-nextjs/app/plugins/[plugin]/page.tsx clients/javascript/src/admin.ts,docs/http-api.md internal/app/admin.go,internal/app/app.go scripts/test-admin-browser.mjs,scripts/test-admin-live.mjs scripts/test-runtime-api.mjs,tests/app/admin_namespace_test.go tests/app/admin_test.go,tests/client/admin-client.test.ts
-- `f15998af` — 2026-11-27 15:19:36 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `6e6115eb` — 2026-11-27 18:49:07 +0330 — Integrate merged manifest SDK improvements into project routing
-  Files: docs/sdk-reference.md
-- `c6f51829` — 2026-11-27 18:48:32 +0330 — Merge pull request #39 from arashrasoulzadeh/refactor/manifest-driven-runtime
-  Files: 
-- `07f5ee22` — 2026-11-27 18:44:19 +0330 — Use atomic CLI coverage mode consistently
-  Files: cmd/manifest-sdk/main_test.go
-- `8dea3425` — 2026-11-27 18:43:57 +0330 — Exercise manifest generator command success and failure with CLI coverage
-  Files: cmd/manifest-sdk/main_test.go
-- `7cce76cd` — 2026-11-27 18:41:17 +0330 — Test manifest generator failure paths and emit type-only declaration file
-  Files: cmd/manifest-sdk/main.go,cmd/manifest-sdk/main_test.go plugins/sdk-typescript/src/manifest-operations.generated.d.ts,tests/plugin/manifest_sdk_test.go
-- `5a1e26f6` — 2026-11-27 18:40:19 +0330 — Migrate remaining admin views to project routes and retain macOS startup fix
-  Files: .github/workflows/test.yml,admin-nextjs/app/components/legacy-admin-page.tsx admin-nextjs/app/functions/page.tsx
-- `c9633148` — 2026-11-27 18:38:20 +0330 — Reconcile manifest runtime refactor with current secure host and SDK
-  Files: docs/sdk-reference.md,plugins/functions/scheduling.ts plugins/matchmaking/queue.ts,plugins/sdk-typescript/src/index.ts plugins/sdk-typescript/src/manifest-operations.generated.ts,plugins/sdk-typescript/src/request.ts tests/plugin/manifest-request.test.ts
-- `c1b6c8e8` — 2026-11-27 15:05:18 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `8bf6cb5c` — 2026-11-27 18:34:14 +0330 — Merge pull request #40 from arashrasoulzadeh/fix/macos-homebrew-openssl
-  Files: 
