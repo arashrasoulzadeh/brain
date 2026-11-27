@@ -8,36 +8,63 @@ permissions:
 jobs:
   generate:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-go@v5
         with:
-          go-version-file: go.mod
+          go-version: '1.26.11'
           cache: false
-      - name: Generate pinned protobuf bindings and resolve dependencies
+      - name: Generate pinned protobuf bindings and vendor dependencies
         run: |
           set -euo pipefail
           sudo apt-get update
           sudo apt-get install -y protobuf-compiler
-          go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.5
-          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.5.1
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.12
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.6.2
           export PATH="$(go env GOPATH)/bin:$PATH"
           protoc -I . --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative proto/synapse/v1/synapse.proto
-          go get google.golang.org/grpc@v1.70.0 google.golang.org/protobuf@v1.36.5
+          go mod edit -go=1.26.0 -toolchain=go1.26.11
+          go get google.golang.org/grpc@v1.85.0 google.golang.org/protobuf@v1.36.12
           go mod tidy
+          go mod vendor
           go test ./proto/synapse/v1
           go test -race -coverpkg=./internal/execution,./internal/cortex,./internal/synapse -coverprofile=/tmp/synapse.cover ./tests/execution ./tests/cortex ./tests/synapse
           go tool cover -func=/tmp/synapse.cover | tail -1
-      - name: Export only generated public repository source files
+          go test ./...
+          go vet ./...
+      - uses: actions/upload-artifact@v4
+        with:
+          name: synapse-generated-source
+          path: |
+            go.mod
+            go.sum
+            proto/synapse/v1/synapse.pb.go
+            proto/synapse/v1/synapse_grpc.pb.go
+            vendor/
+          if-no-files-found: error
+          retention-days: 7
+  publish-generated:
+    needs: generate
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: synapse-generated-source
+          path: /tmp/synapse-generated
+      - name: Commit only generated dependency and protocol files to the bootstrap branch
         run: |
-          python3 - <<'PY'
-          import base64
-          from pathlib import Path
-          for name in ('go.mod','go.sum','proto/synapse/v1/synapse.pb.go','proto/synapse/v1/synapse_grpc.pb.go'):
-              encoded = base64.b64encode(Path(name).read_bytes()).decode('ascii')
-              print('BRAIN_GENERATED_BEGIN ' + name)
-              for i in range(0,len(encoded),2048):
-                  print('BRAIN_GENERATED_CHUNK ' + encoded[i:i+2048])
-              print('BRAIN_GENERATED_END ' + name)
-          PY
+          set -euo pipefail
+          test "$GITHUB_REF" = refs/heads/architecture/synapse-codegen
+          cp /tmp/synapse-generated/go.mod /tmp/synapse-generated/go.sum .
+          cp /tmp/synapse-generated/proto/synapse/v1/synapse*.pb.go proto/synapse/v1/
+          rsync -a --delete /tmp/synapse-generated/vendor/ vendor/
+          git add -- go.mod go.sum proto/synapse/v1/synapse.pb.go proto/synapse/v1/synapse_grpc.pb.go vendor
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'build: generate Synapse bindings with patched vendored gRPC'
+          git push origin HEAD:refs/heads/architecture/synapse-codegen
