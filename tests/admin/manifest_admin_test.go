@@ -73,6 +73,9 @@ func TestManifestAdminInvocationAuthorization(t *testing.T) {
 	if response, err := service.QueryAdminPage(actor, "records", request); err != nil || !response.Success {
 		t.Fatalf("read query failed: %#v %v", response, err)
 	}
+	if _, err := service.AdminPageRevision(actor, "records", request); err != nil {
+		t.Fatalf("authorized read revision: %v", err)
+	}
 	wrongProject := request
 	wrongProject.ProjectID = "two"
 	if _, err := service.QueryAdminPage(actor, "records", wrongProject); err == nil {
@@ -86,6 +89,9 @@ func TestManifestAdminInvocationAuthorization(t *testing.T) {
 	write.Payload = json.RawMessage(`{"value":"data"}`)
 	if _, err := service.QueryAdminPage(actor, "records", write); !errors.Is(err, plugin.ErrGrantDenied) {
 		t.Fatalf("write accepted through query: %v", err)
+	}
+	if _, err := service.AdminPageRevision(actor, "records", write); !errors.Is(err, plugin.ErrGrantDenied) {
+		t.Fatalf("write accepted through revision: %v", err)
 	}
 	if _, err := service.InvokeAdminPage(actor, "records", write); err != nil {
 		t.Fatal(err)

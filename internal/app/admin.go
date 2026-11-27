@@ -204,7 +204,7 @@ func AdminHandler(service *admin.LifecycleService) http.Handler {
 			_ = json.NewEncoder(w).Encode(inventory)
 			return
 		case "plugin.admin.revision":
-			revision, revisionErr := service.AdminPageRevision(actor, command.PageID, admin.PluginInvocation{ProjectID: command.ProjectID, PluginID: command.PluginID, Version: command.Version})
+			revision, revisionErr := service.AdminPageRevision(actor, command.PageID, admin.PluginInvocation{ProjectID: command.ProjectID, PluginID: command.PluginID, Version: command.Version, Operation: command.TargetOperation, Payload: command.Payload})
 			if revisionErr != nil {
 				http.Error(w, revisionErr.Error(), http.StatusForbidden)
 				return

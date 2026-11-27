@@ -39,3 +39,5 @@ Admin-panel and operator documentation work after backend release gates pass.
 
 - [x] Compact responsive theme, searchable grouped menus, consistent tables and controls, dynamic headings and keyboard navigation.
 - [ ] Browser screenshot and deployed visual verification.
+
+- [x] Recheck displayed query permissions and filtered inventories on background refresh, including revocation without observation events.
