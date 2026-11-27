@@ -7,6 +7,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"brain/internal/sqliteconfig"
 
@@ -18,9 +19,29 @@ func NewSQLiteStore(path string) (*Store, error) {
 	if err != nil {
 		return nil, err
 	}
-	if _, err := database.Exec(`CREATE TABLE IF NOT EXISTS projects (id TEXT PRIMARY KEY, active INTEGER NOT NULL)`); err != nil {
+	if _, err := database.Exec(`CREATE TABLE IF NOT EXISTS projects (id TEXT PRIMARY KEY, active INTEGER NOT NULL, name TEXT NOT NULL DEFAULT '', slug TEXT NOT NULL DEFAULT '', settings TEXT NOT NULL DEFAULT '{}')`); err != nil {
 		_ = database.Close()
 		return nil, err
+	}
+	for _, column := range []string{
+		"name TEXT NOT NULL DEFAULT ''",
+		"slug TEXT NOT NULL DEFAULT ''",
+		"settings TEXT NOT NULL DEFAULT '{}'",
+	} {
+		if _, err := database.Exec("ALTER TABLE projects ADD COLUMN " + column); err != nil && !strings.Contains(err.Error(), "duplicate column name") {
+			_ = database.Close()
+			return nil, err
+		}
+	}
+	for _, sqlStatement := range []string{
+		"UPDATE projects SET name=id WHERE name=''",
+		"UPDATE projects SET slug=id WHERE slug=''",
+		"CREATE UNIQUE INDEX IF NOT EXISTS projects_slug_unique ON projects(slug)",
+	} {
+		if _, err := database.Exec(sqlStatement); err != nil {
+			_ = database.Close()
+			return nil, err
+		}
 	}
 	var count int
 	if err := database.QueryRow(`SELECT COUNT(*) FROM projects`).Scan(&count); err == nil && count == 0 {
@@ -30,7 +51,7 @@ func NewSQLiteStore(path string) (*Store, error) {
 			if json.Unmarshal(data, &projects) == nil {
 				for _, item := range projects {
 					if ValidateID(item.ID) == nil {
-						_, _ = database.Exec(`INSERT OR IGNORE INTO projects (id, active) VALUES (?, ?)`, item.ID, item.Active)
+						_, _ = database.Exec(`INSERT OR IGNORE INTO projects (id, active, name, slug, settings) VALUES (?, ?, ?, ?, ?)`, item.ID, item.Active, item.ID, item.ID, "{}")
 					}
 				}
 			}

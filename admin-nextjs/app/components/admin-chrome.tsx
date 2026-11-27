@@ -1,15 +1,15 @@
 "use client";
-import { adminHeaders, readAdminSession, preferredAdminProject } from "../lib/admin-api";
+import { adminHeaders, readAdminSession, preferredAdminProject, projectAdminURL, systemAdminURL, systemUIURL, projectUIURL, adminUIContext } from "../lib/admin-api";
 import { enabledPluginIDs, visibleAdminPages } from "../lib/admin-navigation";
-import { adminContributions } from "../lib/admin-registry";
+import { adminContributions, adminWorkspaceFallbacks } from "../lib/admin-registry";
 import type { AdminCatalog, AdminContribution } from "../lib/admin-registry";
 
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { createContext, useContext, useEffect, useState } from "react";
-import { adminMenu, menuItemActive, type MenuIcon } from "../lib/admin-menu";
-import { useParams, usePathname, useRouter } from "next/navigation";
-import { ADMIN_PROJECT_CHANGED } from "../lib/admin-api";
+import { adminMenu, menuItemActive, type MenuIcon, type MenuItem } from "../lib/admin-menu";
+import { usePathname, useRouter } from "next/navigation";
+import { ADMIN_PROJECT_CHANGED, ADMIN_PLUGIN_CATALOG_CHANGED } from "../lib/admin-api";
 
 type AdminSidebarProps = {
   activePage: string;
@@ -26,25 +26,28 @@ export function AdminSidebar({
   title = "Brain",
   visiblePages,
 }: AdminSidebarProps) {
-  const params = useParams<{ project?: string }>();
-  const requestedProject = projectID ?? params.project;
   const pathname = usePathname();
+  const requestedProject = adminUIContext(pathname).namespace ?? (projectID || undefined);
   const [projectEpoch, setProjectEpoch] = useState(0);
   const [activeProject, setActiveProject] = useState("");
+  const [loadedScope, setLoadedScope] = useState<string>();
   const [search, setSearch] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   useEffect(() => {
     const changed = () => setProjectEpoch(value => value + 1);
     window.addEventListener(ADMIN_PROJECT_CHANGED, changed);
-    return () => window.removeEventListener(ADMIN_PROJECT_CHANGED, changed);
+    window.addEventListener(ADMIN_PLUGIN_CATALOG_CHANGED, changed);
+    return () => { window.removeEventListener(ADMIN_PROJECT_CHANGED, changed); window.removeEventListener(ADMIN_PLUGIN_CATALOG_CHANGED, changed); };
   }, []);
   useEffect(() => { setMobileOpen(false); setSearch(""); }, [pathname]);
   const [discoveredPages, setDiscoveredPages] = useState<string[]>(["projects"]);
   const [extensions, setExtensions] = useState<AdminContribution[]>([]);
+  const [fallback, setFallback] = useState<MenuItem[]>([]);
   useEffect(() => {
     const controller = new AbortController();
     setExtensions([]);
+    setFallback([]);
     setActiveProject("");
     setDiscoveredPages(["projects"]);
     const token = readAdminSession();
@@ -52,42 +55,45 @@ export function AdminSidebar({
     const headers = adminHeaders(token);
     const signal = controller.signal;
     void (async () => {
-      const projectsResponse = await fetch("/api/admin/projects", { headers, signal });
+      const projectsResponse = await fetch(systemAdminURL("projects"), { headers, signal });
       if (!projectsResponse.ok) return;
-      const projects = (await projectsResponse.json()) as Array<{ ID: string; Active: boolean }>;
-      const active = requestedProject === undefined
-        ? preferredAdminProject(projects)?.ID
-        : projects.find(candidate => candidate.Active && candidate.ID === requestedProject)?.ID;
+      const projects = (await projectsResponse.json()) as Array<{ ID: string; Slug?: string; Active: boolean }>;
+      const active = preferredAdminProject(projects, requestedProject)?.ID;
       if (!active || signal.aborted) return;
       setActiveProject(active);
-      const response = await fetch("/api/admin/plugins?project_id=" + encodeURIComponent(active), { headers, signal });
+      setLoadedScope(requestedProject);
+      const response = await fetch(projectAdminURL(active, "plugins"), { headers, signal });
       if (!response.ok) return;
       const payload = (await response.json()) as AdminCatalog;
       if (signal.aborted) return;
       setDiscoveredPages(visibleAdminPages(payload.manifests?.length ?? 0, enabledPluginIDs(payload.installations ?? [])));
-      setExtensions(adminContributions(active, payload));
+      const contributions = adminContributions(active, payload);
+      setExtensions(contributions);
+      setFallback(adminWorkspaceFallbacks(active, payload, contributions));
     })().catch(() => undefined);
     return () => controller.abort();
   }, [requestedProject, activePage, projectEpoch]);
-  const groups = adminMenu(visiblePages ?? discoveredPages, extensions, search);
+  const menuProject = loadedScope === requestedProject ? activeProject : "";
+  const groups = adminMenu(visiblePages ?? discoveredPages, menuProject ? extensions : [], search, menuProject, menuProject ? fallback : []);
+  const menuPath = requestedProject && menuProject ? pathname.replace("/" + requestedProject + "/ui", "/" + menuProject + "/ui") : pathname;
   return (
     <aside className="sidebar">
       <div className="sidebar-brand">
-        <Link href="/projects" className="brand-link"><span className="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><path d="M12 3 3 8l9 5 9-5-9-5ZM3 12l9 5 9-5M3 16l9 5 9-5" /></svg></span><span><strong>{title}</strong><small>Control plane</small></span></Link>
+        <Link href={systemUIURL("projects")} className="brand-link"><span className="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><path d="M12 3 3 8l9 5 9-5-9-5ZM3 12l9 5 9-5M3 16l9 5 9-5" /></svg></span><span><strong>{title}</strong><small>Control plane</small></span></Link>
         <button type="button" className="menu-toggle secondary" aria-label="Toggle navigation" aria-expanded={mobileOpen} aria-controls="admin-menu" onClick={() => setMobileOpen(value => !value)}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4 6h16M4 12h16M4 18h16" /></svg></button>
       </div>
       <div id="admin-menu" className={"sidebar-menu" + (mobileOpen ? " is-open" : "")}>
-        <Link href="/projects" className="workspace-picker" title="Change project"><MenuGlyph name="projects" /><span><small>Current project</small><strong>{activeProject || "Select project"}</strong></span><span aria-hidden="true">⌄</span></Link>
+        <Link href={systemUIURL("projects")} className="workspace-picker" title="Change project"><MenuGlyph name="projects" /><span><small>Current project</small><strong>{menuProject || "Select project"}</strong></span><span aria-hidden="true">⌄</span></Link>
         <label className="menu-search"><MenuGlyph name="search" /><input aria-label="Filter navigation" placeholder="Find a page…" value={search} onChange={event => setSearch(event.target.value)} /></label>
         <nav className="sidebar-nav" aria-label="Admin navigation">
           {groups.map(group => {
-            const active = group.items.some(item => menuItemActive(pathname, item.href));
+            const active = group.items.some(item => menuItemActive(menuPath, item.href));
             const filtering = !!search.trim();
             const expanded = filtering || !(collapsed[group.label] ?? (group.label === "Extensions" && !active));
             return <div key={group.label} className="menu-group">
               <button type="button" className="menu-group-title" aria-expanded={expanded} disabled={filtering} onClick={() => setCollapsed(previous => ({ ...previous, [group.label]: expanded }))}>{group.label}<span aria-hidden="true">{expanded ? "−" : "+"}</span></button>
               {expanded && group.items.map(item => {
-                const current = menuItemActive(pathname, item.href);
+                const current = menuItemActive(menuPath, item.href);
                 return <Link className={current ? "active" : ""} aria-current={current ? "page" : undefined} href={item.href} title={item.detail ? item.label + " · " + item.detail : item.label} key={item.href}><MenuGlyph name={item.icon} /><span className="menu-label">{item.label}{item.detail && <small>{item.detail}</small>}</span></Link>;
               })}
             </div>;
@@ -162,42 +168,40 @@ export function AdminPageFrame({
   const pathname = usePathname();
   const setHeading = useContext(AdminHeadingContext);
   useEffect(() => { setHeading?.({ path: pathname, title, eyebrow }); }, [setHeading, pathname, title, eyebrow]);
-  const [access, setAccess] = useState(requiredPluginID ? "checking" : "allowed");
+  const [access, setAccess] = useState<{ path: string; epoch: number; status: "allowed" | "denied"; message?: string; project?: string }>();
+  const [catalogEpoch, setCatalogEpoch] = useState(0);
+  useEffect(() => {
+    const changed = () => setCatalogEpoch(value => value + 1);
+    window.addEventListener(ADMIN_PLUGIN_CATALOG_CHANGED, changed);
+    return () => window.removeEventListener(ADMIN_PLUGIN_CATALOG_CHANGED, changed);
+  }, []);
   useEffect(() => {
     if (!requiredPluginID) return;
+    const controller = new AbortController();
     const token = readAdminSession();
-    if (!token) {
-      router.replace("/");
-      return;
-    }
-    void fetch("/api/admin/projects", { headers: adminHeaders(token) })
-      .then(async (projectsResponse) => {
-        if (!projectsResponse.ok) throw new Error("session expired");
-        const projects = (await projectsResponse.json()) as Array<{ ID: string; Active: boolean }>;
-        const activeProject = preferredAdminProject(projects)?.ID;
-        if (!activeProject) throw new Error("no active project");
-        const pluginsResponse = await fetch(
-          `/api/admin/plugins?project_id=${encodeURIComponent(activeProject)}`,
-          { headers: adminHeaders(token) },
-        );
-        if (!pluginsResponse.ok) throw new Error("plugin access unavailable");
-        const payload = (await pluginsResponse.json()) as {
-          installations: Array<{ PluginID: string; Enabled: boolean; Ready: boolean }>;
-        };
-        const active = payload.installations.some(
-          (installation) =>
-            installation.PluginID === requiredPluginID &&
-            installation.Enabled &&
-            installation.Ready,
-        );
-        if (!active) {
-          router.replace("/");
-          return;
-        }
-        setAccess("allowed");
-      })
-      .catch(() => router.replace("/"));
-  }, [requiredPluginID, router]);
-  if (access !== "allowed") return <p className="muted" role="status">Checking page access…</p>;
+    if (!token) { router.replace(systemUIURL()); return; }
+    const options = { headers: adminHeaders(token), signal: controller.signal };
+    let project: string | undefined;
+    void (async () => {
+      const response = await fetch(systemAdminURL("projects"), options);
+      if (!response.ok) throw new Error("Project access unavailable");
+      project = preferredAdminProject(await response.json() as Array<{ ID: string; Slug?: string; Active: boolean }>, adminUIContext(pathname).namespace)?.ID;
+      if (!project) throw new Error("Project unavailable");
+      const plugins = await fetch(projectAdminURL(project, "plugins"), options);
+      if (!plugins.ok) throw new Error("Plugin catalog unavailable");
+      const catalog = await plugins.json() as AdminCatalog;
+      const manifest = catalog.manifests ?? [];
+      const allowed = (catalog.installations ?? []).some(item => item.ProjectID === project && item.PluginID === requiredPluginID && item.Enabled && item.Ready && !item.Draining && manifest.some(m => m.ID === item.PluginID && m.Version === item.Version && m.Capabilities.every(capability => item.Grants?.includes(capability))));
+      if (!allowed) throw new Error("This plugin is disabled, draining, not ready or missing required capabilities.");
+      if (!controller.signal.aborted) setAccess({ path: pathname, epoch: catalogEpoch, status: "allowed", project });
+    })().catch(reason => {
+      if (!controller.signal.aborted) setAccess({ path: pathname, epoch: catalogEpoch, status: "denied", message: String(reason), project });
+    });
+    return () => controller.abort();
+  }, [requiredPluginID, router, pathname, catalogEpoch]);
+  if (requiredPluginID) {
+    if (!access || access.path !== pathname || access.epoch !== catalogEpoch) return <p className="muted" role="status">Checking page access…</p>;
+    if (access.status === "denied") return <section className="section"><p role="alert">{access.message}</p><Link href={access.project ? projectUIURL(access.project, "plugins") : systemUIURL("projects")}>{access.project ? "Manage plugins" : "Choose a project"}</Link><button type="button" className="secondary" onClick={() => setCatalogEpoch(value => value + 1)}>Retry</button></section>;
+  }
   return <>{children}</>;
 }

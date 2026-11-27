@@ -3,6 +3,7 @@ title: Matchmaking
 description: Project-scoped queue and assignment functions.
 version: 0.1.0
 host_api: 1
+mount: /matchmaking
 entrypoint: index.ts
 source_files:
   - routes.ts
@@ -30,6 +31,7 @@ extension_points:
 config_schema:
   ticketTtlSeconds: int
   matchSize: int
+public_config: [ticketTtlSeconds, matchSize]
 events:
   - name: queued
     fields: {status: string}
@@ -39,21 +41,33 @@ events:
     fields: {status: string}
 routes:
   - operation: matchmaking.queue
+    method: POST
+    path: /queue
+    auth: operator
     function: queue
     helper: sdk.dispatch
     capability: matchmaking.queue
     resource_field: id
   - operation: matchmaking.cancel
+    method: POST
+    path: /cancel
+    auth: operator
     function: cancel
     helper: sdk.dispatch
     capability: matchmaking.cancel
     resource_field: id
   - operation: matchmaking.status
+    method: POST
+    path: /status
+    auth: operator
     function: status
     helper: sdk.dispatch
     capability: matchmaking.status
     resource_field: id
   - operation: matchmaking.assign
+    method: POST
+    path: /assign
+    auth: operator
     function: assign
     helper: sdk.dispatch
     capability: matchmaking.assign
@@ -63,7 +77,7 @@ admin:
   pages:
     - id: operations
       title: Matchmaking
-      legacy_route: live-sessions
+      legacy_route: matchmaking
       inventory:
         kind: state_keys
         capability: matchmaking.status

@@ -3,6 +3,7 @@ title: Tables
 description: Project-scoped data table functions.
 version: 0.1.0
 host_api: 1
+mount: /tables
 entrypoint: index.ts
 source_files:
   - routes.ts
@@ -29,21 +30,31 @@ extension_points:
   - data.policy
 config_schema:
   exposure: string
+public_config: [exposure]
 events:
   - name: record.written
     fields: {written: boolean}
 routes:
   - operation: tables.read
+    method: GET
+    path: /read
+    auth: operator
     function: read
     helper: sdk.dispatch
     capability: tables.read
     resource_field: table
   - operation: tables.write
+    method: POST
+    path: /write
+    auth: operator
     function: write
     helper: sdk.dispatch
     capability: tables.write
     resource_field: table
   - operation: tables.schema
+    method: GET
+    path: /schema
+    auth: operator
     function: schema
     helper: sdk.dispatch
     capability: tables.schema

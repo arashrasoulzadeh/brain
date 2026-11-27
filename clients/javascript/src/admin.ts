@@ -1,3 +1,4 @@
+import { projectHTTPURL } from "./client.js";
 export type AdminSessionResponse = { session: string };
 export type AdminAction = {
   operation: string;
@@ -16,7 +17,7 @@ export async function adminLogin(
   secret: string,
   request: typeof fetch = fetch,
 ): Promise<AdminSessionResponse> {
-  const response = await request(`${apiOrigin}/admin/session`, {
+  const response = await request(`${apiOrigin}/_system/admin/session`, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ username, secret }),
@@ -31,7 +32,10 @@ export async function adminAction(
   action: AdminAction,
   request: typeof fetch = fetch,
 ): Promise<void> {
-  const response = await request(`${apiOrigin}/admin/actions`, {
+  const system = ["project.create", "project.configure", "project.activate", "project.deactivate", "project.uninstall", "plugin.readiness"].includes(action.operation);
+  if (!system && !action.project_id) throw new Error("project ID is required for project admin commands");
+  const url = system ? `${apiOrigin}/_system/admin/actions` : projectHTTPURL(apiOrigin, action.project_id!, "/admin/actions");
+  const response = await request(url, {
     method: "POST",
     headers: { authorization: `Bearer ${session}`, "content-type": "application/json" },
     body: JSON.stringify(action),

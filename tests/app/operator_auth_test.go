@@ -9,6 +9,7 @@ import (
 	"brain/internal/app"
 	"brain/internal/operator"
 	"brain/internal/plugin"
+	"brain/internal/project"
 )
 
 func TestAdminRoutesRequireBearerScheme(t *testing.T) {
@@ -42,22 +43,22 @@ func TestAdminRoutesRequireBearerScheme(t *testing.T) {
 	if err := registry.Enable("dev", manifest.ID, manifest.Version); err != nil {
 		t.Fatal(err)
 	}
-	service := admin.NewLifecycleService(operators, registry)
+	service := admin.NewLifecycleServiceWithProjects(operators, registry, project.NewStore(project.Project{ID: "dev", Active: true}))
 	handler := app.NewServerWithOperatorAdmin(service, operators, digest).Handler()
 
 	routes := []struct {
 		method string
 		path   string
 	}{
-		{http.MethodGet, "/admin/projects"},
-		{http.MethodGet, "/admin/plugins"},
-		{http.MethodGet, "/admin/audit"},
-		{http.MethodGet, "/admin/system"},
-		{http.MethodGet, "/admin/functions?project_id=dev"},
-		{http.MethodPost, "/admin/functions"},
-		{http.MethodGet, "/admin/function-logs?project_id=dev"},
-		{http.MethodPost, "/admin/actions"},
-		{http.MethodDelete, "/admin/session"},
+		{http.MethodGet, "/_system/admin/projects"},
+		{http.MethodGet, "/_system/admin/plugins"},
+		{http.MethodGet, "/_system/admin/audit"},
+		{http.MethodGet, "/_system/admin/system"},
+		{http.MethodGet, "/dev/admin/functions"},
+		{http.MethodPost, "/dev/admin/functions"},
+		{http.MethodGet, "/dev/admin/function-logs"},
+		{http.MethodPost, "/_system/admin/actions"},
+		{http.MethodDelete, "/_system/admin/session"},
 	}
 	for _, route := range routes {
 		t.Run(route.method+" "+route.path, func(t *testing.T) {
@@ -73,7 +74,7 @@ func TestAdminRoutesRequireBearerScheme(t *testing.T) {
 		})
 	}
 
-	request := httptest.NewRequest(http.MethodGet, "/admin/function-logs?project_id=dev", nil)
+	request := httptest.NewRequest(http.MethodGet, "/dev/admin/function-logs", nil)
 	request.Header.Set("Authorization", "Bearer "+token)
 	recorder := httptest.NewRecorder()
 	handler.ServeHTTP(recorder, request)

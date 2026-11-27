@@ -8,7 +8,7 @@ Upload nonempty string data under a key; read metadata/download through the host
 
 ## Administrator
 
-The Files page lists authorized keys, metadata and publication state. Grant metadata for inventory and separate upload/download/publish as needed. Review the consequences of publication before confirming.
+The [Files workspace](../admin-pages/files.md) at `/{project}/ui/files` lists authorized keys, metadata and publication state and provides a file picker, manual text input and attachment download. Browser-selected files up to 40 KiB are stored as lossless base64 strings; the API still exposes the stored representation. Grant metadata for inventory and separate upload/download/publish as needed. Review the consequences of publication before confirming.
 
 ## Example payloads
 

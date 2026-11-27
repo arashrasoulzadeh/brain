@@ -24,11 +24,11 @@ func TestReadinessRequiresHealthyDependenciesWithoutLeakingErrors(t *testing.T) 
 			t.Fatal("health response leaked dependency details")
 		}
 	}
-	check("/livez", http.StatusOK)
-	check("/readyz", http.StatusServiceUnavailable)
+	check("/_system/livez", http.StatusOK)
+	check("/_system/readyz", http.StatusServiceUnavailable)
 	server.SetReadinessCheck(func(context.Context) error { return errors.New("private-database-path") })
-	check("/readyz", http.StatusServiceUnavailable)
-	check("/livez", http.StatusOK)
+	check("/_system/readyz", http.StatusServiceUnavailable)
+	check("/_system/livez", http.StatusOK)
 	server.SetReadinessCheck(func(context.Context) error { return nil })
-	check("/readyz", http.StatusOK)
+	check("/_system/readyz", http.StatusOK)
 }

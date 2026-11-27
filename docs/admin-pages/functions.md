@@ -1,6 +1,6 @@
 # Functions
 
-Route: `/functions`
+Route: `/{project}/ui/functions`
 
 Lists authorized drafts for the active project. Requires the Functions installation to be enabled and ready. The list displays name, version, visibility and timestamp. Select a row for the editor or choose Create function.
 

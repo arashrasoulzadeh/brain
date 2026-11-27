@@ -22,3 +22,7 @@ Backend infrastructure, release, deployment, backup, capacity, and security work
 - [x] Multi-architecture images are digest-pinned. Verified by release-manifest validation requiring immutable SHA-256 references for backend, compiler, and runner images.
 - [x] Compose deployment and rollback are rehearsed in CI. Verified by the `test.yml` clean-environment and full deploy/rollback/restore rehearsal jobs, with local development explicitly remaining Docker-free.
 - [x] Production limits are based on measured capacity. Verified by bounded memory/capacity validation and the eight-player capacity gate.
+
+## Project-first HTTP migration (PR #38)
+
+- [ ] Finish all required Go, macOS, TypeScript, admin-browser, security, deployment, documentation and race checks; merge the breaking URL and plugin manifest migration only after all checks pass.

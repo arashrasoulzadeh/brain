@@ -3,6 +3,7 @@ title: Authentication
 description: Project-scoped account and session functions.
 version: 0.1.0
 host_api: 1
+mount: /auth
 entrypoint: index.ts
 source_files:
   - index.ts
@@ -42,6 +43,7 @@ extension_points:
   - auth.provider
 config_schema:
   registration: string
+public_config: [registration]
 events:
   - name: account.created
     fields: {created: boolean}
@@ -51,31 +53,52 @@ events:
     fields: {}
 routes:
   - operation: auth.signup
+    method: POST
+    path: /register
+    auth: public
     function: signup
     helper: sdk.request
     capability: auth.signup
   - operation: auth.signin
+    method: POST
+    path: /login
+    auth: public
     function: signin
     helper: sdk.request
     capability: auth.signin
   - operation: auth.session
+    method: GET
+    path: /session
+    auth: operator
     function: session
     helper: sdk.request
     capability: auth.session
   - operation: auth.identity
+    method: GET
+    path: /identity
+    auth: operator
     function: identity
     helper: sdk.request
     capability: auth.session
   - operation: auth.guest
+    method: POST
+    path: /guest
+    auth: public
     function: guest
     helper: sdk.request
     capability: auth.guest
 
   - operation: auth.admin.accounts
+    method: POST
+    path: /admin-accounts
+    auth: operator
     function: listAccounts
     helper: sdk.request
     capability: auth.admin.read
   - operation: auth.admin.sessions.revoke
+    method: POST
+    path: /admin-sessions-revoke
+    auth: operator
     function: revokeSessions
     helper: sdk.request
     capability: auth.admin.manage
@@ -85,6 +108,7 @@ admin:
   pages:
     - id: accounts
       title: Accounts and sessions
+      legacy_route: auth
       refresh_on: [auth.account.created, auth.session.established, auth.sessions.revoked]
       actions:
         - title: List accounts

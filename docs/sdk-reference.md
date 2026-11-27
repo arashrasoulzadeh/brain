@@ -26,3 +26,9 @@ The trusted shared SDK lives in [plugins/sdk-typescript/src/index.ts](../plugins
 Use `helper: sdk.context` for new project-bound functions. See [developer guide](developers.md) for manifest and event examples and [declarative runtime](declarative-runtime.md) for source-free plugins. Direct SDK tests are not evidence of host-level authorization, persistence or network wiring.
 
 `ManifestOperations` and `ManifestOperation` are generated from the discovered plugin manifests. Regenerate after editing route declarations with `go run ./cmd/manifest-sdk`. `createManifestRequest` binds the plugin ID and preserves explicit resource identity; it does not confer authority.
+
+## Host URL builder and migration
+
+The JavaScript operator client authenticates at `/_system/admin/session`; project commands use `/{project}/admin/actions`. Public function invocations use `/{project}/functions/{functionName}`. Clients must persist the stable project ID separately from its human-readable slug, and never send a contradictory `project_id` header/body/query value. Replace unprefixed `/admin`, `/public/{project_id}` and health URLs; there is no compatibility router.
+
+Use the JavaScript SDK's `projectHTTPURL(base, project, resource)` builder for host HTTP paths. The `JavaScriptClient` operation transport remains adaptable, but its transport implementation must always send to a project-scoped route. The builder rejects unknown format/unsafe project and resource paths rather than guessing a default project.

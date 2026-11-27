@@ -1,8 +1,8 @@
 # Live sessions
 
-Route: `/live-sessions`
+Route: `/{project}/ui/live-sessions`
 
-A manifest alias rendered from eligible contributions. Rooms exposes details and management (create, join, reconnect, result); Matchmaking contributes ticket inventory/status/queue/assignment/cancel; compatible Arena and Invites contributions can appear as independently authorized extensions.
+A compatibility manifest alias rendered from eligible contributions. Rooms and Matchmaking now have dedicated sidebar workspaces at `/{project}/ui/rooms` and `/{project}/ui/matchmaking`; Arena and Invitations have their own destinations too. Rooms exposes details and management (create, join, reconnect, result); Matchmaking contributes ticket inventory/status/queue/assignment/cancel; compatible Arena and Invites contributions can appear as independently authorized extensions.
 
 Use the selected active project and the resource inventory to locate a room or ticket. Read-only queries can refresh after declared observations; writes require explicit confirmation and are never automatically replayed. Verify project and resource identity before changing a room or match.
 

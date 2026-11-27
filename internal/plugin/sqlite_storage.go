@@ -36,6 +36,14 @@ func OpenSQLiteStorage(path string) (*SQLiteStorage, error) {
 		return nil, err
 	}
 	storage := &SQLiteStorage{db: db}
+	if err := storage.initializeFileMetadata(); err != nil {
+		_ = db.Close()
+		return nil, err
+	}
+	if err := storage.initializeFileChunks(); err != nil {
+		_ = db.Close()
+		return nil, err
+	}
 	if err := storage.initializeObservationStorage(); err != nil {
 		_ = db.Close()
 		return nil, err
@@ -94,7 +102,7 @@ func (s *SQLiteStorage) PutFile(projectID, key, data string, published bool) err
 }
 
 func putSQLiteFile(db sqliteExecutor, projectID, key, data string, published bool) error {
-	_, err := db.Exec(`INSERT INTO plugin_file_rows(project_id,file_key,data,published) VALUES(?,?,?,?) ON CONFLICT(project_id,file_key) DO UPDATE SET data=excluded.data,published=excluded.published`, projectID, key, data, published)
+	_, err := db.Exec(`INSERT INTO plugin_file_rows(project_id,file_key,data,published) VALUES(?,?,?,?) ON CONFLICT(project_id,file_key) DO UPDATE SET data=excluded.data,published=excluded.published,metadata_json=''`, projectID, key, data, published)
 	return err
 }
 

@@ -68,7 +68,7 @@ func TestWebSocketAndTransportFailureBoundaries(t *testing.T) {
 		t.Fatalf("close all failed to release sockets: %v", err)
 	}
 	handler := plugin.WebSocketEndpoint()
-	for _, path := range []string{"/wrong", "/v1/projects/alpha/rooms/room/ws"} {
+	for _, path := range []string{"/wrong", "/v1/projects/alpha/rooms/room/ws", "/alpha/ws"} {
 		req := httptest.NewRequest(http.MethodGet, path, nil)
 		req.Header.Set("X-Project-ID", "alpha")
 		req.Header.Set("Connection", "Upgrade")
@@ -77,7 +77,7 @@ func TestWebSocketAndTransportFailureBoundaries(t *testing.T) {
 		rec := httptest.NewRecorder()
 		handler.ServeHTTP(rec, req)
 		want := http.StatusNotFound
-		if path != "/wrong" {
+		if path == "/alpha/ws" {
 			want = http.StatusUnauthorized
 		}
 		if rec.Code != want {

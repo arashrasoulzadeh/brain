@@ -1,6 +1,7 @@
 """Check documented public HTTP commands and SDK exports against tracked source."""
 from pathlib import Path
 import re
+from urllib.parse import unquote
 
 def exact(label, actual, documented):
     missing = actual - documented
@@ -33,7 +34,7 @@ def audit(root: Path) -> str:
     if missing:
         raise ValueError(f"SDK exports missing documentation: {sorted(missing)}")
     pages = root / "admin-nextjs/app"
-    page_routes = {"/" if path.parent == pages else "/" + path.relative_to(pages).parent.as_posix() for path in pages.rglob("page.tsx")}
+    page_routes = {"/" if path.parent == pages else "/" + unquote(path.relative_to(pages).parent.as_posix()) for path in pages.rglob("page.tsx")}
     page_doc = (root / "docs/admin-pages/README.md").read_text()
     page_count = exact("Admin page documentation", page_routes, set(re.findall(r'^\| \`(/[^\`]*)\` \|', page_doc, re.M)))
     manifests = sorted(root.glob("plugins/*/plugin.yaml")) + sorted(root.glob("examples/*/plugin.yaml"))

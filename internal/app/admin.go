@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 
@@ -115,6 +116,7 @@ type adminCommand struct {
 	Version         string          `json:"version"`
 	Ready           bool            `json:"ready"`
 	Capability      string          `json:"capability"`
+	Capabilities    []string        `json:"capabilities"`
 	Resource        string          `json:"resource"`
 	Key             string          `json:"key"`
 	Values          map[string]any  `json:"values"`
@@ -122,6 +124,7 @@ type adminCommand struct {
 	Revision        uint64          `json:"revision"`
 	Dependents      []string        `json:"dependents"`
 	Name            string          `json:"name"`
+	Slug            string          `json:"slug"`
 	Source          string          `json:"source"`
 	Input           json.RawMessage `json:"input"`
 	Payload         json.RawMessage `json:"payload"`
@@ -133,6 +136,26 @@ type adminCommand struct {
 	Public          bool            `json:"public"`
 	Permissions     []string        `json:"permissions"`
 	Method          string          `json:"method"`
+}
+
+type adminNamespaceKey struct{}
+
+func adminNamespaceHandler(next http.Handler, system bool) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), adminNamespaceKey{}, system)))
+	})
+}
+
+// Project lifecycle and artifact readiness are server control-plane operations.
+// All plugin invocation, installation, grants and data commands must be scoped
+// by an active project URL, not a caller-selected project in the command body.
+func isSystemAdminOperation(operation string) bool {
+	switch operation {
+	case "project.create", "project.configure", "project.activate", "project.deactivate", "project.uninstall", "plugin.readiness":
+		return true
+	default:
+		return false
+	}
 }
 
 func AdminHandler(service *admin.LifecycleService) http.Handler {
@@ -153,6 +176,10 @@ func AdminHandler(service *admin.LifecycleService) http.Handler {
 			http.Error(w, "invalid admin command", http.StatusBadRequest)
 			return
 		}
+		if system, scoped := r.Context().Value(adminNamespaceKey{}).(bool); scoped && system != isSystemAdminOperation(command.Operation) {
+			http.Error(w, "admin operation belongs to a different namespace", http.StatusForbidden)
+			return
+		}
 		if requiresAdminConfirmation(command.Operation) && !command.Confirmed {
 			http.Error(w, "explicit confirmation required", http.StatusBadRequest)
 			return
@@ -160,13 +187,21 @@ func AdminHandler(service *admin.LifecycleService) http.Handler {
 		var err error
 		switch command.Operation {
 		case "project.create":
-			err = service.CreateProject(actor, command.ProjectID)
+			if command.Name != "" || command.Slug != "" || command.Values != nil {
+				err = service.CreateProjectWithDetails(actor, command.ProjectID, command.Name, command.Slug, command.Values)
+			} else {
+				err = service.CreateProject(actor, command.ProjectID)
+			}
+		case "project.configure":
+			err = service.ConfigureProject(actor, command.ProjectID, command.Name, command.Slug, command.Values)
 		case "project.activate":
 			err = service.SetProjectActive(actor, command.ProjectID, true)
 		case "project.deactivate":
 			err = service.SetProjectActive(actor, command.ProjectID, false)
 		case "plugin.install":
 			err = service.InstallPlugin(actor, command.ProjectID, command.PluginID, command.Version)
+		case "plugin.install.activate":
+			err = service.InstallAndActivatePlugin(actor, command.ProjectID, command.PluginID, command.Version, command.Capabilities)
 		case "plugin.readiness":
 			err = service.SetPluginReadiness(actor, command.PluginID, command.Version, command.Ready)
 		case "plugin.enable":
@@ -283,7 +318,7 @@ func AdminHandler(service *admin.LifecycleService) http.Handler {
 
 func requiresAdminConfirmation(operation string) bool {
 	switch operation {
-	case "plugin.remove", "plugin.revoke", "plugin.stop-immediate", "plugin.stop", "plugin.rollback", "plugin.disable.apply", "project.deactivate", "project.uninstall", "durable-data.delete":
+	case "plugin.install.activate", "plugin.remove", "plugin.revoke", "plugin.stop-immediate", "plugin.stop", "plugin.rollback", "plugin.disable.apply", "project.deactivate", "project.uninstall", "durable-data.delete":
 		return true
 	default:
 		return false

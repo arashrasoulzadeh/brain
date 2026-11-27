@@ -207,3 +207,26 @@ form > button[type=submit], form > button:not([type]) { margin-top: 14px; }
 .empty-state { text-align: center; padding: 18px 10px; margin: 0; }
 .model-form > [role=status] { grid-column: 1 / -1; margin: 0; }
 @media (max-width: 720px) { .admin-action-panel { padding: 12px; } .admin-operation-form, .model-form { grid-template-columns: minmax(0, 1fr); } .plugin-search { max-width: none; } }
+
+
+/* File workspace uses the same surface, form and action primitives as other plugins. */
+.admin-file-upload { min-width: 0; margin: 0; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius); }
+.admin-file-upload legend { padding: 0 6px; font-size: 13px; font-weight: 600; }
+.admin-file-upload input[type="file"] { width: 100%; max-width: 100%; min-width: 0; }
+.admin-file-upload .muted, .admin-file-upload [role="status"] { overflow-wrap: anywhere; }
+.card .lifecycle-actions button[aria-pressed="true"], .card .lifecycle-actions button[aria-pressed="true"]:hover { background: var(--surface-subtle); border-color: currentColor; font-weight: 600; }
+
+
+/* Shared plugin action and settings dialogs. Native modal backdrop is inert. */
+.admin-dialog { width: min(680px, calc(100vw - 32px)); max-width: 100%; max-height: calc(100dvh - 32px); margin: auto; padding: 0; overflow: auto; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--text); box-shadow: 0 16px 64px #0003; }
+.admin-dialog::backdrop { background: rgb(15 23 42 / 45%); }
+.admin-dialog-header { position: sticky; top: 0; z-index: 1; background: var(--surface); border-bottom: 1px solid var(--border); padding: 16px; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.admin-dialog-header h2 { margin: 0; font-size: 18px; }
+.admin-dialog-header p { margin: 4px 0 0; overflow-wrap: anywhere; }
+.admin-dialog-body { padding: 16px; min-width: 0; }
+.admin-dialog .model-form, .admin-dialog .admin-operation-form { margin: 0; }
+.admin-dialog .admin-result-panel { overflow-wrap: anywhere; }
+.admin-progress { display: grid; gap: 6px; margin: 12px 0; }
+.admin-progress progress { display: block; width: 100%; height: 10px; accent-color: var(--text); }
+.admin-confirmation { margin: 12px 0; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface-subtle); }
+@media (max-width: 720px) { .admin-dialog { width: calc(100vw - 16px); max-height: calc(100dvh - 16px); } .admin-dialog-body { padding: 12px; } }

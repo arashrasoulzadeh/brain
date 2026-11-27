@@ -1,36 +1,26 @@
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import { join } from "node:path";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
 const root = process.cwd();
 const pageFiles = [
-  "admin-nextjs/app/[legacy]/page.tsx",
-  "admin-nextjs/app/audit/page.tsx",
-  "admin-nextjs/app/database/page.tsx",
-  "admin-nextjs/app/files/page.tsx",
-  "admin-nextjs/app/functions/[name]/page.tsx",
-  "admin-nextjs/app/functions/new/page.tsx",
-  "admin-nextjs/app/functions/page.tsx",
-  "admin-nextjs/app/live-sessions/page.tsx",
-  "admin-nextjs/app/monitoring/page.tsx",
-  "admin-nextjs/app/page.tsx",
-  "admin-nextjs/app/plugins/[plugin]/page.tsx",
-  "admin-nextjs/app/plugins/page.tsx",
-  "admin-nextjs/app/projects/page.tsx",
-  "admin-nextjs/app/routes/page.tsx",
-  "admin-nextjs/app/system/page.tsx",
-  "admin-nextjs/app/workers/page.tsx",
-  "admin-nextjs/app/workflows/page.tsx",
+  "admin-nextjs/app/view.tsx",
+  "admin-nextjs/app/components/legacy-admin-page.tsx",
+  "admin-nextjs/app/functions/[name]/view.tsx",
+  "admin-nextjs/app/functions/new/view.tsx",
+  "admin-nextjs/app/functions/view.tsx",
+  "admin-nextjs/app/plugins/[plugin]/view.tsx",
+  "admin-nextjs/app/workers/view.tsx",
+  "admin-nextjs/app/extensions/[project]/[plugin]/[version]/[page]/view.tsx",
 ];
 
 test("every admin page uses the one shared shell or its shared main-page alias", async () => {
   for (const relativePath of pageFiles) {
     const source = await readFile(join(root, relativePath), "utf8");
-    const isMainPage = relativePath === "admin-nextjs/app/page.tsx";
-    const isAlias = source.includes('export { default } from "../page"') || source.includes('export { default } from "../components/legacy-admin-page"');
+    const isMainPage = relativePath === "admin-nextjs/app/view.tsx";
     assert.ok(
-      isMainPage || isAlias || source.includes("AdminPageFrame"),
+      isMainPage || source.includes("AdminPageFrame"),
       `${relativePath} bypasses AdminPageFrame`,
     );
     assert.equal(
@@ -57,4 +47,21 @@ test("authenticated route content is mounted below the persistent root shell", a
   assert.match(shell, /export function AdminShell/);
   assert.match(shell, /!authenticated/);
   assert.doesNotMatch(frame, /return <main className="shell">/);
+});
+
+test("all mounted admin pages are inside project UI or system UI namespaces", async () => {
+  const app = join(root, "admin-nextjs/app");
+  const walk = async (directory: string): Promise<string[]> => {
+    const entries = await readdir(directory, { withFileTypes: true });
+    const nested = await Promise.all(entries.map(entry => entry.isDirectory() ? walk(join(directory, entry.name)) : entry.name === "page.tsx" ? [join(directory, entry.name)] : []));
+    return nested.flat();
+  };
+  const pages = await walk(app);
+  assert.ok(pages.length >= 15);
+  for (const page of pages) {
+    const route = page.slice(app.length + 1);
+    assert.ok(route.startsWith("[project]/ui/") || route.startsWith("%5Fsystem/ui/"), route);
+  }
+  assert.ok(pages.includes(join(app, "[project]/ui/functions/[name]/page.tsx")));
+  assert.ok(pages.includes(join(app, "%5Fsystem/ui/page.tsx")));
 });

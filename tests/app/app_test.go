@@ -11,7 +11,7 @@ import (
 func TestServerLiveness(t *testing.T) {
 	server := app.NewServer()
 	recorder := httptest.NewRecorder()
-	request := httptest.NewRequest(http.MethodGet, "/livez", nil)
+	request := httptest.NewRequest(http.MethodGet, "/_system/livez", nil)
 
 	server.Handler().ServeHTTP(recorder, request)
 

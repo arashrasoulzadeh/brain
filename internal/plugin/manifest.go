@@ -14,6 +14,7 @@ type Manifest struct {
 	Title                string               `yaml:"title"`
 	Description          string               `yaml:"description"`
 	ID                   string               `yaml:"id"`
+	Mount                string               `yaml:"mount,omitempty"`
 	Entry                string               `yaml:"entrypoint"`
 	Declarative          bool                 `yaml:"declarative,omitempty"`
 	Version              string               `yaml:"version"`
@@ -23,6 +24,7 @@ type Manifest struct {
 	Capabilities         []string             `yaml:"capabilities"`
 	ExtensionPoints      []string             `yaml:"extension_points"`
 	ConfigSchema         map[string]string    `yaml:"config_schema"`
+	PublicConfig         []string             `yaml:"public_config,omitempty" json:",omitempty"`
 	Routes               []Route              `yaml:"routes"`
 	SourceFiles          []string             `yaml:"source_files"`
 	Imports              []string             `yaml:"imports"`
@@ -34,6 +36,9 @@ type Manifest struct {
 }
 
 type Route struct {
+	Method     string        `yaml:"method,omitempty"`
+	Path       string        `yaml:"path,omitempty"`
+	Auth       string        `yaml:"auth,omitempty"`
 	Operation  string        `yaml:"operation"`
 	Function   string        `yaml:"function"`
 	Capability string        `yaml:"capability"`
@@ -44,7 +49,8 @@ type Route struct {
 	Call       *PluginCall   `yaml:"call,omitempty"`
 
 	// ResourceField binds resource-scoped policy to a manifest-declared payload field.
-	ResourceField string `yaml:"resource_field,omitempty" json:",omitempty"`
+	ResourceField      string `yaml:"resource_field,omitempty" json:",omitempty"`
+	WebSocketAdmission string `yaml:"websocket_admission,omitempty" json:",omitempty"`
 }
 
 func LoadManifest(path string) (Manifest, error) {
@@ -63,6 +69,14 @@ func LoadManifest(path string) (Manifest, error) {
 }
 
 func ValidateManifestContract(manifest Manifest) error {
+	public := map[string]bool{}
+	for _, name := range manifest.PublicConfig {
+		kind := manifest.ConfigSchema[name]
+		if public[name] || (kind != "int" && kind != "bool" && kind != "string") {
+			return ErrInvalidManifest
+		}
+		public[name] = true
+	}
 	if manifest.Declarative && (manifest.Entry != "" || len(manifest.SourceFiles) != 0 || len(manifest.Imports) != 0 || len(manifest.PluginImports) != 0 || len(manifest.Observers) != 0) {
 		return ErrInvalidManifest
 	}
@@ -104,7 +118,7 @@ func ValidateManifestContract(manifest Manifest) error {
 		}
 		declaredCapabilities[capability] = true
 	}
-	if !validOptionalDependencies(manifest) || !validModels(manifest.Models) {
+	if !validOptionalDependencies(manifest) || !validModels(manifest.Models) || !validHTTPRoutes(manifest) {
 		return ErrInvalidManifest
 	}
 	seenRoutes := map[string]bool{}
@@ -174,6 +188,12 @@ func Documentation(m Manifest) string {
 	fmt.Fprintf(&b, "# %s\n\n%s\n\n## Routes\n\n", m.Title, m.Description)
 	for _, route := range m.Routes {
 		fmt.Fprintf(&b, "- `%s` → `%s` (capability: `%s`)\n", route.Operation, route.Function, route.Capability)
+		if route.Method != "" {
+			fmt.Fprintf(&b, "  - HTTP: `%s %s%s` (auth: `%s`)\n", route.Method, m.Mount, route.Path, route.Auth)
+		}
+		if route.WebSocketAdmission != "" {
+			fmt.Fprintf(&b, "  - WebSocket admission: `%s`\n", route.WebSocketAdmission)
+		}
 	}
 	if len(m.Models) > 0 {
 		b.WriteString("\n## Models\n\n")

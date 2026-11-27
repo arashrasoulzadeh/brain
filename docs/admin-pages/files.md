@@ -1,9 +1,13 @@
 # Files
 
-Route: `/files`
+Route: `/{project}/ui/files`
 
 Runs project-scoped object storage operations through the Files plugin. Requires Files to be ready and enabled. Uses the shared admin sidebar.
 
-Select an authorized file key from inventory, inspect size and publication state, query content, or explicitly confirm upload/publication. Do not treat the published flag as a public CDN URL. File contents are returned only through the declared download action.
+Select an authorized file key from inventory, inspect size and publication state, or use the visible Upload file, Download file and Publish file actions. Choose a local file or enter text manually. The local-file picker accepts up to 100 MB by default, configurable up to 1,000 MB (1 GB) and fills the object key from the filename if the key is blank. Upload requires confirmation; replacing an existing key resets its publication state. The inventory refreshes after a successful mutation.
+
+Small selected files (up to 40 KiB) are encoded as `data:application/octet-stream;base64,...` strings through the existing Files storage contract. Download file offers Save original file for a recognized, valid base64 representation, or Save stored text for the literal stored string. Downloads use a browser attachment, not an inline executable preview. New uploads persist the original filename, extension, server-detected content type, declared MIME type, decoded and stored byte counts, SHA-256, encoding and timestamps. Inventory reports the decoded size for new uploads and labels legacy stored-size counts. Legacy metadata is derived on inspection where possible; original filenames and timestamps that were never saved are not recoverable. Downloads use the original filename where available. Direct API callers still receive the stored string. The 64 KiB admin JSON request limit applies, including key and envelope overhead; large selected files use the authenticated binary endpoint, with disk staging, fixed-size SQLite chunks and atomic replacement. Network upload progress is measured; server commit is indeterminate.
+
+Do not treat the published flag as a public CDN URL. Every action still uses the authenticated project, enabled version, declared operation and resource grants. Actions open the shared modal with file reading progress, an explicit confirmation, an indeterminate server-save indicator and a success/error result. The Manage button opens the exact project installation. Set Maximum file size (MB) there up to 1,000 MB. The stored configuration remains `maxUploadBytes` in bytes for compatibility; 1 MB = 1,000,000 bytes. Previously configured values are unchanged and displayed in MB. The backend enforces the project limit on binary uploads and explicitly configured limits on text and base64 uploads. Existing JSON and worker request caps remain independent. Binary files are stored as chunks; the JSON download query returns metadata and a streamed descriptor, then the authenticated binary GET returns the bytes.
 
 See the [admin route index](README.md) and [HTTP API](../http-api.md).

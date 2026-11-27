@@ -103,7 +103,7 @@ func TestHealthOnlyShutdownDoesNotStartProduction(t *testing.T) {
 	deadline := time.Now().Add(5 * time.Second)
 	ready := false
 	for time.Now().Before(deadline) {
-		res, err := client.Get("http://" + address + "/livez")
+		res, err := client.Get("http://" + address + "/_system/livez")
 		if err == nil {
 			res.Body.Close()
 			if res.StatusCode == http.StatusOK {

@@ -9,6 +9,7 @@ title: Analytics
 description: Project-scoped validated event capture.
 version: 0.1.0
 host_api: 1
+mount: /analytics
 dependencies: []
 capabilities:
   - analytics.capture
@@ -16,6 +17,7 @@ capabilities:
 extension_points: []
 config_schema:
   maxFields: int
+public_config: [maxFields]
 event_fields:
   - roomId
   - players
@@ -31,6 +33,9 @@ observe:
     persist: true
 routes:
   - operation: analytics.capture
+    method: POST
+    path: /capture
+    auth: operator
     function: captureForProject
     helper: sdk.context
     capability: analytics.capture
@@ -39,10 +44,12 @@ admin:
   version: 1
   pages:
     - id: operations
-      title: Analytics operations
+      title: Analytics events
+      legacy_route: analytics
       actions:
-        - title: capture
+        - title: Capture event
           operation: analytics.capture
+          result: {type: detail}
           fields:
             - name: name
               type: string

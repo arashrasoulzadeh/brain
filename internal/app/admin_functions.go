@@ -8,6 +8,7 @@ import (
 
 	"brain/internal/admin"
 	"brain/internal/operator"
+	"brain/internal/project"
 )
 
 func publicFunctionURL(r *http.Request, projectID, functionName string) string {
@@ -15,7 +16,7 @@ func publicFunctionURL(r *http.Request, projectID, functionName string) string {
 	if r.TLS != nil {
 		scheme = "https"
 	}
-	return scheme + "://" + r.Host + "/public/" + url.PathEscape(projectID) + "/" + url.PathEscape(functionName)
+	return scheme + "://" + r.Host + "/" + url.PathEscape(projectID) + "/functions/" + url.PathEscape(functionName)
 }
 
 func AuthenticatedFunctionsHandler(service *admin.LifecycleService, sessions *operator.Store) http.Handler {
@@ -102,7 +103,7 @@ func AuthenticatedFunctionsHandler(service *admin.LifecycleService, sessions *op
 				return
 			}
 			w.Header().Set("Content-Type", "application/json")
-			_ = json.NewEncoder(w).Encode(map[string]any{"published": true, "project_id": command.ProjectID, "name": command.Name, "version": draft.Version, "method": draft.Method, "published_at": draft.PublishedAt, "route": publicFunctionURL(r, command.ProjectID, command.Name)})
+			_ = json.NewEncoder(w).Encode(map[string]any{"published": true, "project_id": command.ProjectID, "name": command.Name, "version": draft.Version, "method": draft.Method, "published_at": draft.PublishedAt, "route": publicFunctionURL(r, service.ProjectURLNamespace(command.ProjectID), command.Name)})
 			return
 		}
 		if command.Operation != "functions.create" {
@@ -142,11 +143,34 @@ func AuthenticatedFunctionLogsHandler(service *admin.LifecycleService, sessions 
 
 func PublicFunctionHandler(service *admin.LifecycleService) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		p, trusted := project.FromContext(r.Context())
+		projectID := r.PathValue("project_id")
+		if trusted {
+			projectID = p.ID
+		}
+		if projectID == "" {
+			http.NotFound(w, r)
+			return
+		}
 		var input json.RawMessage
 		if r.Method != http.MethodGet {
 			if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<20)).Decode(&input); err != nil {
 				http.Error(w, "invalid JSON input", http.StatusBadRequest)
 				return
+			}
+		}
+		if trusted && len(input) > 0 {
+			var body map[string]json.RawMessage
+			if json.Unmarshal(input, &body) == nil {
+				for _, field := range []string{"project_id", "projectId", "project"} {
+					if value, exists := body[field]; exists {
+						var requested string
+						if json.Unmarshal(value, &requested) != nil || requested != p.ID && requested != p.Slug {
+							http.Error(w, "conflicting project identity", http.StatusBadRequest)
+							return
+						}
+					}
+				}
 			}
 		}
 		var result map[string]any
@@ -157,9 +181,9 @@ func PublicFunctionHandler(service *admin.LifecycleService) http.Handler {
 				http.Error(w, "invalid authorization", http.StatusForbidden)
 				return
 			}
-			result, err = service.PublicInvokeFunctionWithSession(r.PathValue("project_id"), r.PathValue("function_name"), r.Method, input, token)
+			result, err = service.PublicInvokeFunctionWithSession(projectID, r.PathValue("function_name"), r.Method, input, token)
 		} else {
-			result, err = service.PublicInvokeFunction(r.PathValue("project_id"), r.PathValue("function_name"), r.Method, input)
+			result, err = service.PublicInvokeFunction(projectID, r.PathValue("function_name"), r.Method, input)
 		}
 		if err != nil {
 			if errors.Is(err, admin.ErrFunctionMethodNotAllowed) {

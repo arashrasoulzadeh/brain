@@ -19,6 +19,7 @@ export function AuditPanel({ activePage, text, audit, auditFilter, setAuditFilte
       </div>
       <input
         className="plugin-search"
+        aria-label={text.searchAudit}
         placeholder={text.searchAudit}
         value={auditFilter}
         onChange={(event) => setAuditFilter(event.target.value)}
@@ -29,7 +30,7 @@ export function AuditPanel({ activePage, text, audit, auditFilter, setAuditFilte
             .slice()
             .reverse()
             .filter((record) =>
-              `${record.action} ${record.source} ${record.project_id ?? ""} ${record.plugin_id ?? ""} ${record.detail ?? ""}`
+              `${record.action} ${record.source} ${record.project_id ?? ""} ${record.plugin_id ?? ""} ${record.actor_id ?? ""} ${record.detail ?? ""}`
                 .toLowerCase()
                 .includes(auditFilter.toLowerCase()),
             )
@@ -44,7 +45,10 @@ export function AuditPanel({ activePage, text, audit, auditFilter, setAuditFilte
                     {record.source}
                     {record.plugin_id ? ` · ${record.plugin_id}@${record.version}` : ""}
                     {record.project_id ? ` · ${record.project_id}` : ""}
+                    {record.actor_id ? ` · ${record.actor_id}` : ""}
+                    {record.success ? " · Success" : " · Failed"}
                   </small>
+                  {record.detail && <p className="muted">{record.detail}</p>}
                 </div>
               </div>
             ))

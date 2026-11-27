@@ -3,6 +3,7 @@ title: PvP
 description: Reusable player-versus-player turn, revision, replay and authorization primitives.
 version: 0.1.0
 host_api: 1
+mount: /pvp
 entrypoint: index.ts
 source_files:
   - index.ts
@@ -17,6 +18,21 @@ extension_points:
 config_schema: {}
 routes:
   - operation: pvp.describe
+    method: GET
+    path: /
+    auth: operator
     function: describe
     helper: sdk.context
     capability: pvp.describe
+
+admin:
+  version: 1
+  pages:
+    - id: runtime
+      title: PvP runtime
+      legacy_route: pvp
+      actions:
+        - title: Inspect runtime capabilities
+          operation: pvp.describe
+          read_only: true
+          result: {type: detail}

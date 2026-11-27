@@ -1,6 +1,6 @@
 # Workflows
 
-Route: `/workflows`
+Route: `/{project}/ui/workflows`
 
 This route is a manifest-driven alias. The current registered manifests do not declare a workflows page, so the console shows Page unavailable until an installed, authorized plugin contributes that alias. Enabling Functions alone does not implement a workflow scheduler.
 

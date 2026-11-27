@@ -12,7 +12,7 @@ import (
 // its proposed state and observations. Never forward a caller-owned snapshot.
 func prepareArenaStorageEffect(storage *SQLiteStorage, request WorkerRequest) (WorkerRequest, func(sqliteExecutor) error, error) {
 	switch request.Operation {
-	case "arena.start", "arena.input", "arena.snapshot", "arena.result":
+	case "arena.start", "arena.input", "arena.snapshot", "arena.result", "arena.connect", "arena.player.input":
 	default:
 		return request, nil, nil
 	}
@@ -51,9 +51,16 @@ func prepareArenaStorageEffect(storage *SQLiteStorage, request WorkerRequest) (W
 	case "arena.start":
 		payload["players"] = input["players"]
 		state = map[string]any{"state": "active", "players": input["players"], "sequences": map[string]any{}}
-	case "arena.input":
+	case "arena.input", "arena.player.input":
 		player, _ := input["playerId"].(string)
 		player = strings.TrimSpace(player)
+		if request.Operation == "arena.player.input" {
+			actor := invocationActor(request.accessPrincipal)
+			if actor.Kind != "user" || !actor.Authenticated || !strings.HasPrefix(actor.ID, request.ProjectID+":") || (input["playerId"] != nil && input["playerId"] != actor.ID) {
+				return request, nil, ErrActorDenied
+			}
+			player = actor.ID
+		}
 		payload["playerId"], payload["sequence"], payload["payload"] = player, input["sequence"], input["payload"]
 		sequences, ok := state["sequences"].(map[string]any)
 		if !ok {
@@ -71,7 +78,7 @@ func prepareArenaStorageEffect(storage *SQLiteStorage, request WorkerRequest) (W
 		return request, nil, err
 	}
 	request.Payload = encoded
-	if request.Operation == "arena.snapshot" {
+	if request.Operation == "arena.snapshot" || request.Operation == "arena.connect" {
 		return request, nil, nil
 	}
 	// Freeze the proposed bytes. The CAS prevents stale writes across host

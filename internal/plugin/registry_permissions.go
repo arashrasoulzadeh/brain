@@ -121,6 +121,11 @@ func (r *Registry) Configure(projectID, id, version string, values map[string]an
 		if !declared || !configTypeMatches(want, value) {
 			return fmt.Errorf("%w: %s", ErrInvalidConfig, name)
 		}
+		if id == "files" && name == "maxUploadBytes" {
+			if _, ok := configuredFileUploadLimit(map[string]any{name: value}); !ok {
+				return fmt.Errorf("%w: %s must be between 1 and %d", ErrInvalidConfig, name, adminFileUploadLimit)
+			}
+		}
 		i.Config[name] = value
 	}
 	if err := r.saveInstallationLocked(key, i); err != nil {

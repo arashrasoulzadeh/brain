@@ -82,3 +82,64 @@ func TestDocumentationIncludesObservationContract(t *testing.T) {
 		}
 	}
 }
+
+func TestBundledPluginAdminWorkspaceInventory(t *testing.T) {
+	aliases := map[string]string{
+		"access-management": "access-management",
+		"analytics":         "analytics",
+		"arena":             "arena",
+		"auth":              "auth",
+		"files":             "files",
+		"functions":         "workflows",
+		"games":             "games",
+		"invites":           "invitations",
+		"matchmaking":       "matchmaking",
+		"pvp":               "pvp",
+		"rooms":             "rooms",
+		"subscriptions":     "subscriptions",
+		"tables":            "database",
+	}
+	entries, err := os.ReadDir("../../plugins")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, entry := range entries {
+		if !entry.IsDir() || entry.Name() == "sdk-typescript" {
+			continue
+		}
+		name := entry.Name()
+		t.Run(name, func(t *testing.T) {
+			m, err := plugin.LoadManifest(filepath.Join("../../plugins", name, "plugin.yaml"))
+			if err != nil {
+				t.Fatal(err)
+			}
+			if name == "dashboard" {
+				// Trusted lifecycle operations already have dedicated host pages.
+				return
+			}
+			spec := m.AdminForOperator()
+			if spec == nil || len(spec.Pages) == 0 {
+				t.Fatal("plugin has no operator workspace")
+			}
+			if name == "template" {
+				// The example exposes its generated model editor.
+				for _, page := range spec.Pages {
+					if page.Model != nil {
+						return
+					}
+				}
+				t.Fatal("template model editor missing")
+			}
+			alias, ok := aliases[name]
+			if !ok {
+				t.Fatal("new bundled plugin needs an explicit admin workspace decision")
+			}
+			for _, page := range spec.Pages {
+				if page.LegacyRoute == alias && len(page.Actions) > 0 {
+					return
+				}
+			}
+			t.Fatalf("missing admin workspace alias %q", alias)
+		})
+	}
+}

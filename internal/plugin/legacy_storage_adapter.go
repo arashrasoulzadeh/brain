@@ -135,25 +135,39 @@ func prepareLegacyStorageEffect(storage *SQLiteStorage, request WorkerRequest) (
 			if !ok || data == "" {
 				return request, nil, ErrInvalidWorkerRequest
 			}
-			payload["data"] = data
-			commit = func(db sqliteExecutor) error {
-				return putSQLiteFile(db, request.ProjectID, key, data, false)
-			}
-		} else {
-			data, published, err := storage.File(request.ProjectID, key)
+			filename, _ := input["filename"].(string)
+			contentType, _ := input["contentType"].(string)
+			_, _, previous, err := storage.fileWithMetadata(request.ProjectID, key)
 			if err != nil {
 				return request, nil, err
 			}
-			if data == "" {
+			meta := deriveFileMetadata(key, data, filename, contentType)
+			meta.CreatedAt, meta.UpdatedAt = previous.CreatedAt, fileTimestamp()
+			if meta.CreatedAt == "" {
+				meta.CreatedAt = meta.UpdatedAt
+			}
+			payload["data"], payload["metadata"] = data, meta
+			commit = func(db sqliteExecutor) error {
+				return putSQLiteFileMetadata(db, request.ProjectID, key, data, false, meta)
+			}
+		} else {
+			data, published, meta, err := storage.fileWithMetadata(request.ProjectID, key)
+			if err != nil {
+				return request, nil, err
+			}
+			if data == "" && meta.Encoding != "binary" {
 				return request, nil, ErrStoredResourceMissing
 			}
 			if request.Operation == "files.publish" {
+				if !published || meta.PublishedAt == "" {
+					meta.PublishedAt = fileTimestamp()
+				}
 				published = true
 				commit = func(db sqliteExecutor) error {
-					return putSQLiteFile(db, request.ProjectID, key, data, true)
+					return putSQLiteFileMetadata(db, request.ProjectID, key, data, true, meta)
 				}
 			}
-			payload["data"], payload["published"] = data, published
+			payload["data"], payload["published"], payload["metadata"] = data, published, meta
 		}
 	case "matchmaking":
 		state, err := storage.State(request.ProjectID, "matchmaking", key)

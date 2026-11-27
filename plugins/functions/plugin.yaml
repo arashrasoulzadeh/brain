@@ -28,6 +28,7 @@ title: Functions
 description: Project-scoped serverless function compilation and invocation controls.
 version: 0.1.0
 host_api: 1
+mount: /function-runtime
 dependencies: []
 capabilities:
   - functions.invoke
@@ -36,6 +37,7 @@ capabilities:
 extension_points: []
 config_schema:
   maxSourceBytes: int
+public_config: [maxSourceBytes]
 events:
   - name: published
     source: host
@@ -47,6 +49,9 @@ events:
     fields: {}
 routes:
   - operation: functions.invoke
+    method: POST
+    path: /invoke
+    auth: operator
     function: invoke
     helper: sdk.response
     capability: functions.invoke
@@ -65,6 +70,9 @@ routes:
         input: $input.input
         invoked: true
   - operation: functions.publish
+    method: POST
+    path: /publish
+    auth: operator
     function: publish
     helper: sdk.response
     capability: functions.publish
@@ -90,11 +98,17 @@ routes:
         version: $input.version
         published: true
   - operation: functions.call
+    method: POST
+    path: /call
+    auth: operator
     function: call
     helper: sdk.dispatch
     capability: functions.call
     resource_field: name
   - operation: functions.inspect
+    method: POST
+    path: /inspect
+    auth: operator
     function: inspect
     helper: sdk.response
     capability: functions.invoke
@@ -108,6 +122,9 @@ routes:
       output:
         name: $input.name
   - operation: functions.logs
+    method: POST
+    path: /logs
+    auth: operator
     function: logs
     helper: sdk.response
     capability: functions.invoke
@@ -127,7 +144,7 @@ admin:
       title: Function operations
       legacy_route: workflows
       actions:
-        - title: Invoke function
+        - title: Validate invocation payload
           operation: functions.invoke
           fields:
             - name: name
@@ -135,7 +152,7 @@ admin:
               required: true
             - name: input
               type: json
-        - title: Publish function
+        - title: Validate publication payload
           operation: functions.publish
           fields:
             - name: name

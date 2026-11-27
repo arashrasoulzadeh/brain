@@ -3,6 +3,7 @@ title: Invites
 description: Project-scoped invitation functions.
 version: 0.1.0
 host_api: 1
+mount: /invites
 entrypoint: index.ts
 source_files:
   - index.ts
@@ -21,6 +22,7 @@ capabilities:
 extension_points: []
 config_schema:
   ttlSeconds: int
+public_config: [ttlSeconds]
 events:
   - name: created
     fields: {}
@@ -30,22 +32,34 @@ events:
     fields: {}
 routes:
   - operation: invites.create
+    method: POST
+    path: /create
+    auth: operator
     function: create
     helper: sdk.context
     capability: invites.create
     resource_field: roomId
   - operation: invites.accept
+    method: POST
+    path: /accept
+    auth: operator
     function: accept
     helper: sdk.context
     capability: invites.accept
     resource_field: roomId
   - operation: invites.cancel
+    method: POST
+    path: /cancel
+    auth: operator
     function: cancel
     helper: sdk.context
     capability: invites.cancel
     resource_field: roomId
 
   - operation: invites.inspect
+    method: POST
+    path: /inspect
+    auth: operator
     function: inspect
     helper: sdk.context
     capability: invites.inspect
@@ -55,6 +69,7 @@ admin:
   pages:
     - id: invitations
       title: Invitations
+      legacy_route: invitations
       extends: rooms/operations
       extends_slot: tab
       refresh_on: [invites.created, invites.accepted, invites.cancelled]
@@ -66,6 +81,13 @@ admin:
           fields:
             - {name: roomId, type: string, required: true}
             - {name: after, label: After invitation ID, type: string}
+        - title: Create invitation
+          operation: invites.create
+          fields:
+            - {name: roomId, type: string, required: true}
+            - {name: targetPlayerId, type: string, required: true}
+            - {name: ttlSeconds, type: number}
+          result: {type: detail}
         - title: Cancel invitation
           operation: invites.cancel
           fields:

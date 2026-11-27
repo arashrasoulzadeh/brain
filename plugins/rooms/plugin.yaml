@@ -3,6 +3,7 @@ title: Rooms
 description: Project-scoped room and membership functions.
 version: 0.1.0
 host_api: 1
+mount: /rooms
 entrypoint: index.ts
 source_files:
   - routes.ts
@@ -27,6 +28,7 @@ extension_points:
   - rooms.runtime
 config_schema:
   maxPlayers: int
+public_config: [maxPlayers]
 events:
   - name: connected
     fields:
@@ -40,21 +42,33 @@ events:
     fields: {roomId: string}
 routes:
   - operation: rooms.create
+    method: POST
+    path: /
+    auth: operator
     function: create
     helper: sdk.dispatch
     capability: rooms.create
     resource_field: id
   - operation: rooms.join
+    method: POST
+    path: /{id}/join
+    auth: operator
     function: join
     helper: sdk.dispatch
     capability: rooms.join
     resource_field: id
   - operation: rooms.reconnect
+    method: POST
+    path: /{id}/reconnect
+    auth: operator
     function: reconnect
     helper: sdk.dispatch
     capability: rooms.reconnect
     resource_field: id
   - operation: rooms.result
+    method: GET
+    path: /{id}
+    auth: operator
     function: result
     helper: sdk.dispatch
     capability: rooms.result
@@ -66,7 +80,7 @@ admin:
       title: Room details
       extension_slots:
         - tab
-      legacy_route: live-sessions
+      legacy_route: rooms
       inventory:
         kind: state_keys
         capability: rooms.result
@@ -89,7 +103,7 @@ admin:
               required: true
     - id: manage
       title: Manage rooms
-      legacy_route: live-sessions
+      legacy_route: rooms
       actions:
         - title: Create room
           operation: rooms.create

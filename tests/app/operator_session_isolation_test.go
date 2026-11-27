@@ -25,7 +25,7 @@ func TestFailedOperatorLoginDoesNotInvalidateExistingSession(t *testing.T) {
 	handler := app.NewServerWithOperatorAdmin(service, store, digest).Handler()
 
 	login := httptest.NewRecorder()
-	handler.ServeHTTP(login, httptest.NewRequest(http.MethodPost, "/admin/session", strings.NewReader(`{"username":"admin","secret":"secret"}`)))
+	handler.ServeHTTP(login, httptest.NewRequest(http.MethodPost, "/_system/admin/session", strings.NewReader(`{"username":"admin","secret":"secret"}`)))
 	if login.Code != http.StatusOK {
 		t.Fatalf("login status = %d, body = %s", login.Code, login.Body.String())
 	}
@@ -37,11 +37,11 @@ func TestFailedOperatorLoginDoesNotInvalidateExistingSession(t *testing.T) {
 	}
 
 	failed := httptest.NewRecorder()
-	handler.ServeHTTP(failed, httptest.NewRequest(http.MethodPost, "/admin/session", strings.NewReader(`{"username":"admin","secret":"wrong"}`)))
+	handler.ServeHTTP(failed, httptest.NewRequest(http.MethodPost, "/_system/admin/session", strings.NewReader(`{"username":"admin","secret":"wrong"}`)))
 	if failed.Code != http.StatusForbidden {
 		t.Fatalf("failed login status = %d", failed.Code)
 	}
-	action := httptest.NewRequest(http.MethodPost, "/admin/actions", strings.NewReader(`{"operation":"project.create","project_id":"session-test"}`))
+	action := httptest.NewRequest(http.MethodPost, "/_system/admin/actions", strings.NewReader(`{"operation":"project.create","project_id":"session-test"}`))
 	action.Header.Set("Authorization", "Bearer "+response.Session)
 	result := httptest.NewRecorder()
 	handler.ServeHTTP(result, action)

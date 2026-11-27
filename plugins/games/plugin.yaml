@@ -3,6 +3,7 @@ title: Games
 description: Game-specific rules and modes, including Tic-Tac-Toe.
 version: 0.1.0
 host_api: 1
+mount: /games
 entrypoint: index.ts
 source_files:
   - index.ts
@@ -22,6 +23,21 @@ extension_points:
 config_schema: {}
 routes:
   - operation: games.modes
+    method: GET
+    path: /
+    auth: operator
     function: modes
     helper: sdk.context
     capability: games.modes
+
+admin:
+  version: 1
+  pages:
+    - id: modes
+      title: Game modes
+      legacy_route: games
+      actions:
+        - title: List supported modes
+          operation: games.modes
+          read_only: true
+          result: {type: detail}

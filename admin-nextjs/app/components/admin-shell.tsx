@@ -1,13 +1,14 @@
 "use client";
-import { readAdminSession, signOutAdminSession } from "../lib/admin-api";
+import { readAdminSession, signOutAdminSession, systemUIURL, adminUIContext, ADMIN_SESSION_CHANGED } from "../lib/admin-api";
 
 import { usePathname, useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { AdminFooter, AdminHeader, AdminSidebar, AdminHeadingContext, type PageHeading } from "./admin-chrome";
 
-const legacyShellRoutes = new Set(["/"]);
+const legacyShellRoutes = new Set([systemUIURL()]);
 const pageTitles: Record<string, string> = {
+  dashboard: "Dashboard",
   functions: "Functions",
   workflows: "Workflows",
   workers: "Workers",
@@ -20,10 +21,18 @@ export function AdminShell({ children }: { children: ReactNode }) {
   const [authenticated, setAuthenticated] = useState(false);
   const [heading, setHeading] = useState<PageHeading>();
   useEffect(() => {
-    setAuthenticated(Boolean(readAdminSession()));
-  }, [pathname]);
-  if (legacyShellRoutes.has(pathname) || !authenticated) return <>{children}</>;
-  const pageName = pathname.split("/")[1] ?? "projects";
+    const sync = () => {
+      const token = readAdminSession();
+      setAuthenticated(Boolean(token));
+      if (!token && pathname !== systemUIURL()) router.replace(systemUIURL());
+    };
+    window.addEventListener(ADMIN_SESSION_CHANGED, sync);
+    sync();
+    return () => window.removeEventListener(ADMIN_SESSION_CHANGED, sync);
+  }, [pathname, router]);
+  if (legacyShellRoutes.has(pathname)) return <>{children}</>;
+  if (!authenticated) return <main className="shell"><p role="status">Checking operator session…</p></main>;
+  const { page: pageName, namespace } = adminUIContext(pathname);
   return (
     <AdminHeadingContext.Provider value={setHeading}>
     <main className="shell">
@@ -31,8 +40,9 @@ export function AdminShell({ children }: { children: ReactNode }) {
       <div className="workspace">
         <AdminSidebar
           activePage={pageName}
+          projectID={namespace}
           onSignOut={() => {
-            void signOutAdminSession().finally(() => router.replace("/"));
+            void signOutAdminSession().finally(() => router.replace(systemUIURL()));
           }}
         />
         <section className="card admin-content" id="admin-content">

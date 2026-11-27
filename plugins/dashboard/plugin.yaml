@@ -3,6 +3,7 @@ title: Dashboard
 description: Trusted operator project and plugin administration.
 version: 0.1.0
 host_api: 1
+mount: /dashboard
 entrypoint: index.ts
 source_files:
   - index.ts
@@ -38,6 +39,7 @@ extension_points:
   - admin.page
 config_schema:
   title: string
+public_config: [title]
 events:
   - name: lifecycleChanged
     source: host
@@ -47,54 +49,93 @@ events:
       targetVersion: string
 routes:
   - operation: project.create
+    method: POST
+    path: /create
+    auth: operator
     function: createProject
     helper: host.admin
     capability: project.manage
   - operation: plugin.install
+    method: POST
+    path: /install
+    auth: operator
     function: installPlugin
     helper: host.admin
     capability: plugin.install
   - operation: plugin.grant
+    method: POST
+    path: /grant
+    auth: operator
     function: grantCapability
     helper: host.admin
     capability: plugin.grant
   - operation: plugin.enable
+    method: POST
+    path: /enable
+    auth: operator
     function: enablePlugin
     helper: host.admin
     capability: plugin.enable
   - operation: plugin.promote
+    method: POST
+    path: /promote
+    auth: operator
     function: promotePlugin
     helper: host.admin
     capability: plugin.promote
   - operation: plugin.rollback
+    method: POST
+    path: /rollback
+    auth: operator
     function: rollbackPlugin
     helper: host.admin
     capability: plugin.rollback
   - operation: plugin.disable.preview
+    method: POST
+    path: /disable-preview
+    auth: operator
     function: previewPluginDisable
     helper: host.admin
     capability: plugin.disable
   - operation: plugin.disable.apply
+    method: POST
+    path: /disable-apply
+    auth: operator
     function: applyPluginDisable
     helper: host.admin
     capability: plugin.disable
   - operation: plugin.drain
+    method: POST
+    path: /drain
+    auth: operator
     function: drainPlugin
     helper: host.admin
     capability: plugin.lifecycle
   - operation: plugin.resume
+    method: POST
+    path: /resume
+    auth: operator
     function: resumePlugin
     helper: host.admin
     capability: plugin.lifecycle
   - operation: plugin.stop
+    method: POST
+    path: /stop
+    auth: operator
     function: stopPlugin
     helper: host.admin
     capability: plugin.lifecycle
   - operation: plugin.uninstall
+    method: POST
+    path: /uninstall
+    auth: operator
     function: uninstallPlugin
     helper: host.admin
     capability: plugin.uninstall
   - operation: plugin.readiness
+    method: POST
+    path: /readiness
+    auth: operator
     function: showReadiness
     helper: host.admin
     capability: plugin.readiness

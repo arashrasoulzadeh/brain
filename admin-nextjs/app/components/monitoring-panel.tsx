@@ -1,3 +1,4 @@
+import { PluginManageLink } from "./plugin-manage-link";
 import type { AdminCopy } from "../lib/admin-copy";
 import type { PluginManifest, PluginStatus } from "../lib/admin-types";
 
@@ -49,6 +50,7 @@ export function MonitoringPanel({ activePage, text, manifests, installations }: 
                   {manifest.ID}@{manifest.Version} · {state}
                 </small>
               </div>
+              {installation && <PluginManageLink projectID={installation.ProjectID} pluginID={installation.PluginID} version={installation.Version} />}
             </div>
           );
         })}

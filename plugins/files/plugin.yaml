@@ -3,6 +3,7 @@ title: Files
 description: Project-scoped object storage functions.
 version: 0.1.0
 host_api: 1
+mount: /files
 entrypoint: index.ts
 source_files:
   - routes.ts
@@ -29,6 +30,8 @@ extension_points:
   - files.storage
 config_schema:
   bucket: string
+  maxUploadBytes: int
+public_config: [maxUploadBytes]
 events:
   - name: uploaded
     fields: {size: number}
@@ -36,21 +39,33 @@ events:
     fields: {published: boolean}
 routes:
   - operation: files.upload
+    method: POST
+    path: /upload
+    auth: operator
     function: upload
     helper: sdk.dispatch
     capability: files.upload
     resource_field: key
   - operation: files.download
+    method: POST
+    path: /download
+    auth: operator
     function: download
     helper: sdk.dispatch
     capability: files.download
     resource_field: key
   - operation: files.metadata
+    method: POST
+    path: /metadata
+    auth: operator
     function: metadata
     helper: sdk.dispatch
     capability: files.metadata
     resource_field: key
   - operation: files.publish
+    method: POST
+    path: /publish
+    auth: operator
     function: publish
     helper: sdk.dispatch
     capability: files.publish
@@ -80,7 +95,10 @@ admin:
                 title: Size (bytes)
                 path: size
               - type: detail
-                title: File metadata
+                title: Object details
+              - type: detail
+                title: Original file metadata
+                path: metadata
           fields:
             - name: key
               type: string
@@ -101,6 +119,10 @@ admin:
             - name: data
               type: string
               required: true
+            - name: filename
+              type: string
+            - name: contentType
+              type: string
         - title: Publish file
           operation: files.publish
           fields:
