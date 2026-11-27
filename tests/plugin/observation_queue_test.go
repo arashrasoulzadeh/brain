@@ -24,6 +24,8 @@ func TestDurableObservationDeliverySurvivesRestartAndRetries(t *testing.T) {
 		if err := r.BindSQLiteStorage(storage); err != nil {
 			t.Fatal(err)
 		}
+		// This fixture tests the outbox independently of domain storage mutations.
+		r.BindInvocationStorage(nil)
 		return r
 	}
 	storage, err := plugin.OpenSQLiteStorage(path)

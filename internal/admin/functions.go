@@ -471,7 +471,8 @@ const result=await Promise.race([Promise.resolve(vm.runInContext("__brainHandler
 const invokeMs=clock()-invokeStart;
 process.stdout.write(JSON.stringify({result:result??null,timings:{compile_ms:compileMs,evaluate_ms:evaluateMs,invoke_ms:invokeMs}}));
 } finally {clearTimeout(timer);}`
-	commandContext, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	// Allow cold Node startup under load without relaxing the VM execution deadlines.
+	commandContext, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	command := exec.CommandContext(commandContext, "node", "--no-warnings", "--experimental-vm-modules", "--input-type=module", "-e", runner)
 	command.Env = []string{"PATH=" + os.Getenv("PATH"), "BRAIN_FUNCTION_SOURCE=" + source, "BRAIN_FUNCTION_INPUT=" + string(input), "BRAIN_FUNCTION_PROJECT=" + string(projectJSON), "BRAIN_FUNCTION_AUTH=" + string(authJSON), "BRAIN_INVOCATION_ID=" + requestID, "BRAIN_PURE_HELPERS=" + pluginsdk.PureHelperSource}
@@ -480,7 +481,10 @@ process.stdout.write(JSON.stringify({result:result??null,timings:{compile_ms:com
 	if err != nil {
 		var exitError *exec.ExitError
 		detail := ""
-		if errors.As(err, &exitError) {
+		if commandContext.Err() != nil {
+			detail = commandContext.Err().Error()
+		}
+		if errors.As(err, &exitError) && detail == "" {
 			detail = strings.TrimSpace(string(exitError.Stderr))
 		}
 		if len(detail) > 4096 {
