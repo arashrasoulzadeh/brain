@@ -33,7 +33,7 @@ export class FileRouteStore {
 export const fileRouteStore = new FileRouteStore();
 
 type FileOperation = "upload" | "download" | "metadata" | "publish";
-type FileInput = { key?: unknown; data?: unknown; published?: unknown; metadata?: { size_bytes?: number; filename?: string } };
+type FileInput = { key?: unknown; data?: unknown; published?: unknown; metadata?: { size_bytes?: number; filename?: string; encoding?: string } };
 
 function fileDetails(payload: FileInput) {
   return payload.metadata && typeof payload.metadata === "object" ? { metadata: payload.metadata } : {};
@@ -57,7 +57,7 @@ function executeFileRoute(operation: FileOperation, input: unknown, context?: Pl
   }
   if (typeof payload.data === "string") {
     if (operation === "download")
-      return { key, data: payload.data, published: Boolean(payload.published), ...fileDetails(payload) };
+      return payload.metadata?.encoding === "binary" ? { key, streamed: true, published: Boolean(payload.published), ...fileDetails(payload) } : { key, data: payload.data, published: Boolean(payload.published), ...fileDetails(payload) };
     if (operation === "metadata")
       return { key, published: Boolean(payload.published), size: payload.metadata?.size_bytes ?? Buffer.byteLength(payload.data, "utf8"), ...fileDetails(payload) };
   }

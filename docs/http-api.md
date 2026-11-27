@@ -20,6 +20,8 @@ This is the HTTP surface mounted by the current application in [app.go](../inter
 | `POST /{project}/admin/functions` | Operator bearer | Function draft and publication commands. |
 | `GET /{project}/admin/function-logs` | Operator bearer | Function execution logs (optional `name`). |
 | `GET /{project}/admin/routes` | Operator bearer | Live manifest-declared route discovery; each returned `path` includes the canonical project slug (or ID). |
+| `POST /{project}/admin/files/blob` | Operator bearer | Confirmed raw file upload; project limit up to 1 GB. |
+| `GET /{project}/admin/files/blob` | Operator bearer | Download an authorized file as a binary attachment. |
 | `POST /{project}/admin/actions` | Operator bearer | Project plugin, grant, invocation and data commands. |
 | `ANY /{project}/functions/{function_name}` | Anonymous or authorized bearer | Published functions; only their declared GET, POST, PUT or PATCH method is accepted. |
 | `POST /{project}/ws` | Project user bearer | Request a one-time ticket for a declared socket route. |
@@ -121,3 +123,10 @@ The generic worker RPC and SDK transport interfaces do not expose a network endp
 ### WebSocket admission boundary
 
 A manifest can opt a user-authenticated POST route into socket transport with `websocket_admission`, naming a separate user-authenticated worker operation using the same single path resource. Its worker must return `{"admitted":true}` only after membership validation. POST `/{project}/ws` with the project user bearer, same-host Origin and JSON `{"path":"/plugin/resource/command"}`. Use the returned ticket once within 60 seconds with WebSocket subprotocols `["brain.v1","ticket.<token>"]` on GET `/{project}/ws`. Do not put credentials in the URL. Send one JSON object per text message, omitting the resource and project identity. The host binds that resource, revalidates the session, exact installed route and worker admission for each invocation, and returns the worker response. Same-host HTTPS or loopback HTTP only; 64 KiB messages, 30-second idle timeout, 10-minute maximum connection lifetime and 256 concurrent connections. Tickets are process-local. Cross-origin, stale, unauthorized and replayed connections fail closed.
+
+
+### Authenticated Files binary transport
+
+`POST /{project}/admin/files/blob?version=0.1.0&key=object-key&filename=photo.jpg&contentType=image%2Fjpeg&confirmed=true` accepts raw bytes with an operator bearer token. The host checks the exact Files installation, operation, resource grant and access policy; it stages at most the configured size plus one byte, rechecks authorization and the size limit, and commits metadata and chunks together. The maximum setting is 1,000 MB (1 GB, decimal), default 100 MB. The stored `maxUploadBytes` remains a byte count. Excess size returns 413; concurrent staging is bounded. Existing 64 KiB admin JSON and 1 MiB worker limits are unchanged.
+
+`GET /{project}/admin/files/blob?version=0.1.0&key=object-key` uses the existing Files download admission and returns an attachment as `application/octet-stream` with the original filename. Binary objects are represented by a `streamed: true` descriptor in the JSON download response, not an inline base64 body. Legacy objects remain readable. This is an admin-only trusted storage transport; it does not expose a public bucket URL.

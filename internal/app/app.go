@@ -77,6 +77,8 @@ func NewServerWithOperatorAdmin(adminService *admin.LifecycleService, sessions *
 	mux.Handle("POST /{project}/admin/functions", AuthenticatedProjectCommandHandler(AuthenticatedFunctionsHandler(adminService, sessions), sessions))
 	mux.Handle("GET /{project}/admin/function-logs", ProjectQueryHandler(AuthenticatedFunctionLogsHandler(adminService, sessions)))
 	mux.Handle("GET /{project}/admin/routes", AuthenticatedProjectRoutesHandler(adminService, sessions))
+	mux.Handle("POST /{project}/admin/files/blob", AuthenticatedFileTransferHandler(adminService, sessions))
+	mux.Handle("GET /{project}/admin/files/blob", AuthenticatedFileTransferHandler(adminService, sessions))
 	mux.Handle("/{project}/functions/{function_name}", PublicFunctionHandler(adminService))
 	socket := adminService.WebSocketHandler()
 	mux.Handle("GET /{project}/ws", socket)

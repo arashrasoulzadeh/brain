@@ -153,14 +153,14 @@ try {
   await visible(page.getByRole("heading",{name:"Project settings"}));
   await page.getByRole("button",{name:"Edit settings"}).click();
   await visible(page.getByRole("dialog",{name:"Edit project settings"}));
-  await page.getByLabel("maxUploadBytes (int)").fill("1024");
+  await page.getByLabel("Maximum file size (MB)").fill("0.001024");
   await page.getByRole("button",{name:"Save configuration"}).click();
   await page.getByRole("button",{name:"Confirm settings"}).click();
   await visible(page.getByRole("status").filter({hasText:"Configuration updated"}));
   await page.getByRole("button",{name:"Close dialog"}).click();
-  await visible(page.getByText("1,024 bytes",{exact:true}));
+  await visible(page.getByText("0.001024 MB",{exact:true}));
   // The setting must not leak into another project or expose stored secrets.
-  for (const [id, limit] of [[project,40960],[other,1024]]) {
+  for (const [id, limit] of [[project,100000000],[other,1024]]) {
     const response = await fetch(backend+"/"+id+"/admin/plugins",{headers});
     assert.ok(response.ok);
     const catalog = await response.json();
@@ -177,7 +177,7 @@ try {
   const key = "custom-key-without-extension";
   await page.getByRole("button",{name:"Upload file",exact:true}).click();
   await page.getByLabel("Local file").setInputFiles({name:"too-large.bin",mimeType:"application/octet-stream",buffer:Buffer.alloc(1025)});
-  await visible(page.getByRole("alert").filter({hasText:"1024 bytes or less"}));
+  await visible(page.getByRole("alert").filter({hasText:"0.001024 MB"}));
   await page.getByLabel("Local file").setInputFiles({name:filename,mimeType:"application/octet-stream",buffer:bytes});
   await visible(page.getByRole("status").filter({hasText:"ready to upload"}));
   assert.equal(await page.getByRole("textbox",{name:/key/}).inputValue(),filename);
@@ -215,6 +215,65 @@ try {
   assert.deepEqual(await readFile(await download.path()),bytes);
   await screenshot("live-file-upload-download");
   await page.getByRole("button",{name:"Close dialog"}).click();
+  // A larger upload crosses the JSON and worker payload ceilings. The raw
+  // binary transport preserves content and metadata without increasing either.
+  const configure = async value => action("plugin.configure",{project_id:other,values:{maxUploadBytes:value}});
+  const badLimit = await fetch(backend+"/"+other+"/admin/actions",{method:"POST",headers,body:JSON.stringify({operation:"plugin.configure",project_id:other,plugin_id:"files",version,values:{maxUploadBytes:1000000001}})});
+  assert.equal(badLimit.ok,false);
+  await configure(20000000);
+  await page.reload();
+  await visible(inventory.locator("td:first-child").getByText(key,{exact:true}));
+  const bigKey = "binary-large";
+  const large = Buffer.alloc(12 * 1024 * 1024 + 17,0xab);
+  large[0]=0; large[large.length-1]=42;
+  const blobURL = (id, object, more={}) => backend+"/"+id+"/admin/files/blob?"+new URLSearchParams({version,key:object,...more});
+  const binaryHeaders = {...headers,"content-type":"application/octet-stream"};
+  const unauth = await fetch(blobURL(other,bigKey));
+  assert.equal(unauth.status,401);
+  const oversized = await fetch(blobURL(other,bigKey,{confirmed:"true",filename:"large.bin"}),{method:"POST",headers:binaryHeaders,body:Buffer.alloc(20000001)});
+  assert.equal(oversized.status,413);
+  const missingConfirm = await fetch(blobURL(other,bigKey),{method:"POST",headers:binaryHeaders,body:Buffer.from("confirmation required")});
+  assert.equal(missingConfirm.status,400,await missingConfirm.text());
+  const blocked = await fetch(blobURL(project,bigKey,{confirmed:"true",filename:"large.bin"}),{method:"POST",headers:binaryHeaders,body:Buffer.from("denied")});
+  assert.equal(blocked.status,403,await blocked.text());
+  await page.getByRole("button",{name:"Upload file",exact:true}).click();
+  await page.getByLabel("Local file").setInputFiles({name:"large.bin",mimeType:"application/octet-stream",buffer:large});
+  await visible(page.getByRole("status").filter({hasText:"ready to upload"}));
+  await page.getByRole("textbox",{name:/key/}).fill(bigKey);
+  await page.getByRole("button",{name:"Run action"}).click();
+  await page.getByRole("button",{name:"Confirm action"}).click();
+  try {
+    await visible(page.getByRole("status").filter({hasText:"File uploaded successfully"}));
+  } catch (reason) {
+    console.error("Binary upload dialog:", await page.getByRole("dialog").innerText().catch(()=>"not open"));
+    await screenshot("binary-upload-failure");
+    throw reason;
+  }
+  await page.getByRole("button",{name:"Close dialog"}).click();
+  await visible(inventory.locator("td:first-child").getByText(bigKey,{exact:true}));
+  const binary = decode(await action("plugin.admin.query",{project_id:other,page_id:"operations",target_operation:"files.download",payload:{key:bigKey}}));
+  assert.equal(binary.streamed,true);
+  assert.equal(binary.metadata.encoding,"binary");
+  assert.equal(binary.metadata.size_bytes,large.length);
+  assert.equal(binary.metadata.filename,"large.bin");
+  assert.equal(binary.data,undefined);
+  const foreign = await fetch(blobURL(project,bigKey),{headers});
+  assert.equal(foreign.status,403);
+  await page.getByRole("button",{name:"Download file",exact:true}).click();
+  await page.getByRole("textbox",{name:/key/}).fill(bigKey);
+  await page.getByRole("button",{name:"Query",exact:true}).click();
+  await visible(page.getByRole("button",{name:"Save original file",exact:true}));
+  const largeDownload = page.waitForEvent("download");
+  await page.getByRole("button",{name:"Save original file",exact:true}).click();
+  const saved = await largeDownload;
+  assert.equal(saved.suggestedFilename(),"large.bin");
+  assert.deepEqual(await readFile(await saved.path()),large);
+  await page.getByRole("button",{name:"Close dialog"}).click();
+  decode(await action("plugin.admin.invoke",{project_id:other,page_id:"operations",target_operation:"files.publish",payload:{key:bigKey},confirmed:true}));
+  const published = await fetch(blobURL(other,bigKey),{headers});
+  assert.equal(published.status,200);
+  assert.equal(Number(published.headers.get("content-length")),large.length);
+  assert.deepEqual(Buffer.from(await published.arrayBuffer()),large);
   await page.getByRole("button",{name:"Sign out",exact:true}).click();
   await visible(page.getByRole("heading",{name:"Welcome back"}));
   assert.equal(await page.evaluate(()=>sessionStorage.getItem("brain-admin-session")),null);

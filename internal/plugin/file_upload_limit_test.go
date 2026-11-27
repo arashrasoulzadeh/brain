@@ -75,7 +75,7 @@ func TestFileUploadConfigurationIsProjectScoped(t *testing.T) {
 		t.Fatalf("wrong first project status: %#v %v", one, err)
 	}
 	two, err := r.Status("two", m.ID, m.Version)
-	if err != nil || two.MaxUploadBytes != adminFileUploadLimit || len(two.ConfiguredFields) != 0 {
+	if err != nil || two.MaxUploadBytes != defaultFileUploadLimit || len(two.ConfiguredFields) != 0 {
 		t.Fatalf("wrong second project status: %#v %v", two, err)
 	}
 	serialized, err := json.Marshal(one)

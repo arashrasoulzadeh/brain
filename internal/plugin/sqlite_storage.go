@@ -40,6 +40,10 @@ func OpenSQLiteStorage(path string) (*SQLiteStorage, error) {
 		_ = db.Close()
 		return nil, err
 	}
+	if err := storage.initializeFileChunks(); err != nil {
+		_ = db.Close()
+		return nil, err
+	}
 	if err := storage.initializeObservationStorage(); err != nil {
 		_ = db.Close()
 		return nil, err

@@ -94,7 +94,7 @@ func (r *Registry) Status(projectID, pluginID, version string) (InstallationStat
 	}
 	maxUploadBytes := 0
 	if pluginID == "files" {
-		maxUploadBytes = adminFileUploadLimit
+		maxUploadBytes = defaultFileUploadLimit
 		if limit, ok := configuredFileUploadLimit(installation.Config); ok {
 			maxUploadBytes = limit
 		}
