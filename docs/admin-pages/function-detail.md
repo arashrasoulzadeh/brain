@@ -2,12 +2,13 @@
 
 Route: `/{project}/ui/functions/{name}`
 
-Edits source, permissions, publication, deployments, analytics, and logs. Requires Functions to be ready and enabled. Uses the shared admin sidebar and the source config is the only method authority.
+The function workspace separates Code & test, Publication, Settings, Logs and Analytics.
 
-Use the editor for source/version updates and source validation; publish returns a route and method. Permissions and visibility are stored settings, while actual caller authorization is host-enforced. Logs show execution status, request ID, durations and step details. Deployment/analytics panels reflect the current draft/log adapter; do not assume an immutable deployment history or distributed telemetry store.
+- Code & test: JavaScript Monaco editor, editable version metadata, unsaved-source indicator, explicit restore, source size limit, host preflight and real `functions.run` execution against JSON input (UI limit 64 KiB). Test output and elapsed request time appear beside the editor. Editing source or input invalidates the displayed test result. Tests run under the authenticated operator, do not publish, and are logged.
+- Publication: current version, method, timestamp and project-slug endpoint. No deployment history or rollback is fabricated. Saving source or access settings of an already-published record can immediately affect the endpoint; the UI warns and requires confirmation for saved changes.
+- Settings: edit permissions and configured visibility with confirmation. Actual caller authorization remains host-enforced.
+- Logs and Analytics: project/function-filtered records, manual and optional five-second refresh, outcome/search filters, pagination, execution step details and raw record. Counts, success rate, average and p95 are calculated over loaded records, not an external telemetry system.
 
-See the [admin route index](README.md) and [HTTP API](../http-api.md).
+Host preflight is not execution. Source config is the method authority. Request failures do not imply that a mutation was rolled back; refresh before retrying uncertain writes. Browser unload and the workspace breadcrumb protect unsaved edits; unrelated sidebar navigation is not globally intercepted.
 
-Publication and permission/visibility changes require explicit confirmation. Editing settings preserves unsaved source; failed host validation is not labeled as successful. The logs view refreshes without overlapping requests and clears stale results if access is lost.
-
-The editor displays Monaco diagnostics separately from authoritative host validation. Unsaved source is marked and may be restored with confirmation; browser unload warns while local changes are unsaved. Source-save success is distinguished from publication or refresh failure. Execution logs can be searched and filtered by outcome, with a manual refresh, timestamps and p95 latency calculated from the currently loaded logs only.
+Requires Functions to be ready and enabled. See the [admin route index](README.md), [HTTP API](../http-api.md), and [function runtime](../functions-runtime.md).

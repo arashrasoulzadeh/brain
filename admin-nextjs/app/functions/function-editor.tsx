@@ -29,7 +29,7 @@ export function FunctionEditor({
   return (
     <section className="monaco-function-editor" aria-label="Function source code editor">
       <div className="monaco-editor-actions">
-        <span>Function source · Monaco</span>
+        <span>JavaScript · Monaco</span>
         {onValidate && (
           <button type="button" disabled={validating || readOnly} onClick={onValidate}>
             {validating ? "Checking…" : "Check syntax"}
@@ -37,11 +37,11 @@ export function FunctionEditor({
         )}
       </div>
       <MonacoEditor
-        height="520px"
-        language="typescript"
+        height="480px"
+        language="javascript"
         theme="vs"
         value={source}
-        onChange={(value) => { setDiagnostics([]); onChange(value ?? ""); }}
+        onChange={(value) => { if (!readOnly) { setDiagnostics([]); onChange(value ?? ""); } }}
         onValidate={showDiagnostics}
         options={{
           automaticLayout: true,
@@ -53,8 +53,8 @@ export function FunctionEditor({
           tabSize: 2,
           insertSpaces: true,
           scrollBeyondLastLine: false,
-          fontSize: 12,
-          lineHeight: 18,
+          fontSize: 13,
+          lineHeight: 21,
           suggestOnTriggerCharacters: true,
           quickSuggestions: true,
         }}
@@ -66,7 +66,7 @@ export function FunctionEditor({
           className={`editor-diagnostic ${validationMessage && validationOK ? "valid" : "invalid"}`}
           role="status"
         >
-          <strong>{validationOK ? "✓ Host validation passed" : "Host validation failed"}</strong>
+          <strong>{validationOK ? "✓ Host preflight passed" : "Host preflight failed"}</strong>
           <span>{validationMessage}</span>
         </div>
       )}

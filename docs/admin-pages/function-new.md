@@ -2,8 +2,8 @@
 
 Route: `/{project}/ui/functions/new`
 
-Creates a function draft. Requires Functions to be ready and enabled. The HTTP method is declared in source with `export const config = { method: "POST" }`. Uses the shared admin sidebar.
+Choose a JavaScript starter (JSON echo, health endpoint, or input transformation). Switching templates confirms before replacing edited source. Supply a valid name, source, positive version, permissions and visibility. Client validation checks the supported name pattern and the 256 KiB source limit; the host remains authoritative.
 
-The form takes name, source, positive version, permissions and public-route setting. Author JavaScript-compatible module source with the method config and default handler. Saving creates a draft and navigates to its detail page; validate and test separately. Keep public disabled until ready to expose the route.
+Creating saves an unpublished function and navigates to its detail page. Enabling public visibility requires confirmation; no endpoint is published by creation. Use the detail workspace to preflight and actually execute the current source against JSON before publishing.
 
-See the [admin route index](README.md) and [HTTP API](../http-api.md).
+Requires the Functions installation to be ready and enabled. See the [admin route index](README.md) and [HTTP API](../http-api.md).
