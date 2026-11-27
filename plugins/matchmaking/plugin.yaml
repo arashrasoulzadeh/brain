@@ -19,6 +19,7 @@ imports:
 plugin_imports:
   - rooms@0.1.0
 dependencies:
+optional_dependencies: [rooms@0.1.0]
 capabilities:
   - matchmaking.queue
   - matchmaking.cancel
@@ -29,91 +30,74 @@ extension_points:
 config_schema:
   ticketTtlSeconds: int
   matchSize: int
+events:
+  - name: queued
+    fields: {status: string}
+  - name: assigned
+    fields: {status: string}
+  - name: cancelled
+    fields: {status: string}
 routes:
   - operation: matchmaking.queue
     function: queue
-    response:
-      input:
-        - name: id
-          type: string
-          trim: true
-          required: true
-          error: ticket id is required
-        - name: ticket
-          type: object
-          required: true
-          error: ticket not found
-      result: $input.ticket
-    helper: sdk.resource
+    helper: sdk.dispatch
     capability: matchmaking.queue
-    storage:
-      action: state.create
-      key: id
-      target: ticket
-      values:
-        id: $input.id
-        status: queued
+    resource_field: id
   - operation: matchmaking.cancel
     function: cancel
-    response:
-      input:
-        - name: id
-          type: string
-          trim: true
-          required: true
-          error: ticket id is required
-        - name: ticket
-          type: object
-          required: true
-          error: ticket not found
-      result: $input.ticket
-    helper: sdk.resource
+    helper: sdk.dispatch
     capability: matchmaking.cancel
-    storage:
-      action: state.patch
-      key: id
-      target: ticket
-      values:
-        status: cancelled
+    resource_field: id
   - operation: matchmaking.status
     function: status
-    response:
-      input:
-        - name: id
-          type: string
-          trim: true
-          required: true
-          error: ticket id is required
-        - name: ticket
-          type: object
-          required: true
-          error: ticket not found
-      result: $input.ticket
-    helper: sdk.resource
+    helper: sdk.dispatch
     capability: matchmaking.status
-    storage:
-      action: state.read
-      key: id
-      target: ticket
+    resource_field: id
   - operation: matchmaking.assign
     function: assign
-    response:
-      input:
-        - name: id
-          type: string
-          trim: true
-          required: true
-          error: ticket id is required
-        - name: ticket
-          type: object
-          required: true
-          error: ticket not found
-      result: $input.ticket
-    helper: sdk.resource
+    helper: sdk.dispatch
     capability: matchmaking.assign
-    storage:
-      action: state.patch
-      key: id
-      target: ticket
-      values:
-        status: assigned
+    resource_field: id
+admin:
+  version: 1
+  pages:
+    - id: operations
+      title: Matchmaking
+      legacy_route: live-sessions
+      inventory:
+        kind: state_keys
+        capability: matchmaking.status
+        title: Tickets
+        select_field: id
+      extends: rooms/operations
+      extends_slot: tab
+      refresh_on:
+        - matchmaking.queued
+        - matchmaking.assigned
+        - matchmaking.cancelled
+      actions:
+        - title: Get ticket status
+          operation: matchmaking.status
+          read_only: true
+          fields:
+            - name: id
+              type: string
+              required: true
+        - title: Queue ticket
+          operation: matchmaking.queue
+          fields:
+            - name: id
+              type: string
+              required: true
+        - title: Cancel ticket
+          operation: matchmaking.cancel
+          fields:
+            - name: id
+              type: string
+              required: true
+        - title: Assign ticket
+          operation: matchmaking.assign
+          fields:
+            - name: id
+              type: string
+              required: true

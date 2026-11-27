@@ -1,7 +1,9 @@
 import {
   createRouteDispatcher,
+  requireProjectInput,
   requiredString,
   trimmedString,
+  type PluginContext,
 } from "../sdk-typescript/src/index.js";
 
 type FunctionInput = {
@@ -30,12 +32,13 @@ export function publish(input: unknown): unknown {
   return { name, version, published: true };
 }
 
-export function call(input: unknown): unknown {
-  const payload = (input ?? {}) as FunctionInput;
+export function call(input: unknown, context?: PluginContext): unknown {
+  const payload = (context ? requireProjectInput(context, input) : input ?? {}) as FunctionInput;
   const name = requiredString(payload.name, "function name is required");
   const version = trimmedString(payload.version, "latest");
   const permission = trimmedString(payload.permission, "public");
   if (permission !== "public") throw new Error("function is not public");
+  context?.plugins.observe.fire("callAccepted", {});
   return { name, version, input: payload.input ?? null, accepted: true, route: "public" };
 }
 

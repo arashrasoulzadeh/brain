@@ -1,6 +1,7 @@
 package admin_test
 
 import (
+	"encoding/json"
 	"errors"
 	"testing"
 
@@ -83,5 +84,55 @@ func TestPublicFunctionUsesMethodDeclaredInSource(t *testing.T) {
 	}
 	if _, err := service.PublicInvokeFunction("dev", "public_method", "GET", nil); !errors.Is(err, admin.ErrFunctionMethodNotAllowed) {
 		t.Fatalf("GET error = %v, want method denial", err)
+	}
+}
+
+func TestFunctionDraftReceivesTrustedProjectContext(t *testing.T) {
+	service := admin.NewLifecycleService(nil, nil)
+	actor := operator.Actor{ID: "admin", Kind: operator.ActorOperator}
+	source := "export const config = { method: 'POST' };\nexport default (input, ctx) => ({id: ctx.project.id, active: ctx.project.active, frozen: Object.isFrozen(ctx.project), plugin: ctx.plugin.id, operation: ctx.execution.operation, actor: ctx.auth.actor.id, caller: ctx.auth.caller.kind, allowed: ctx.auth.can('functions.invoke', 'context_contract'), input})"
+	result, err := service.RunFunctionDraft(actor, "dev", "context_contract", source, json.RawMessage(`{"projectId":"forged"}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result == nil {
+		t.Fatal("expected function execution result")
+	}
+	encoded, err := json.Marshal(result)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var output struct {
+		Result struct {
+			ID      string `json:"id"`
+			Active  bool   `json:"active"`
+			Frozen  bool   `json:"frozen"`
+			Actor   string `json:"actor"`
+			Caller  string `json:"caller"`
+			Allowed bool   `json:"allowed"`
+		} `json:"result"`
+	}
+	if err := json.Unmarshal(encoded, &output); err != nil || output.Result.ID != "dev" || !output.Result.Active || !output.Result.Frozen || output.Result.Actor != "admin" || output.Result.Caller != "operator" || !output.Result.Allowed {
+		t.Fatalf("project context = %s, err = %v", encoded, err)
+	}
+}
+
+func TestPublicFunctionAuthContextIsAnonymous(t *testing.T) {
+	service := admin.NewLifecycleService(nil, nil)
+	actor := operator.Actor{ID: "admin", Kind: operator.ActorOperator}
+	source := "export const config = { method: 'POST' }; export default (input, ctx) => ({ kind: ctx.auth.actor.kind, authenticated: ctx.auth.actor.authenticated, allowed: ctx.auth.can('functions.call', 'public_auth_context'), admin: ctx.auth.can('functions.invoke', 'public_auth_context') })"
+	if _, err := service.CreateFunctionDraftWithSettings(actor, "dev", "public_auth_context", source, 1, true, nil, "POST"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := service.PublishFunction(actor, "dev", "public_auth_context", "POST"); err != nil {
+		t.Fatal(err)
+	}
+	output, err := service.PublicInvokeFunction("dev", "public_auth_context", "POST", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, ok := output["result"].(map[string]any)
+	if !ok || result["kind"] != "public" || result["authenticated"] != false || result["allowed"] != true || result["admin"] != false {
+		t.Fatalf("public caller was not anonymous: %+v", output)
 	}
 }

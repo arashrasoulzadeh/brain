@@ -1,0 +1,6 @@
+# Generated dependency trees and frontend build outputs are not source inputs.
+**/node_modules
+**/.next
+**/.next-dev
+.git
+.local

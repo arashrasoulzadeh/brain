@@ -1,10 +1,10 @@
-import { expiresAt, isActiveToken, validateProjectId } from "../sdk-typescript/src/index.js";
-import { randomToken, tokenDigest } from "../sdk-typescript/src/tokens.js";
+import { createHash, randomBytes } from "node:crypto";
+import { validateProjectId } from "../sdk-typescript/src/index.js";
 import { projectUserID } from "./accounts.js";
 import type { AuthState } from "./state.js";
 
 export function sessionTokenDigest(token: string): string {
-  return tokenDigest(token);
+  return createHash("sha256").update(token).digest("hex");
 }
 
 export function newSession(
@@ -13,11 +13,11 @@ export function newSession(
   username: string,
   now: number,
 ): { token: string; username: string } {
-  const token = randomToken(32, "hex");
+  const token = randomBytes(32).toString("hex");
   state.sessions.set(sessionTokenDigest(token), {
     projectId,
     username,
-    expiresAt: expiresAt(now, state.sessionTtlMs, "invalid session"),
+    expiresAt: now + state.sessionTtlMs,
   });
   return { token, username };
 }
@@ -27,9 +27,14 @@ export class AccountSessionReader {
   session(projectId: string, token: string, now = Date.now()) {
     validateProjectId(projectId);
     const session = this.state.sessions.get(sessionTokenDigest(token));
-    if (!isActiveToken(session, now) || session.projectId !== projectId)
+    if (!session || session.projectId !== projectId || session.expiresAt <= now)
       throw new Error("invalid session");
     return { username: session.username };
+  }
+  identity(projectId: string, token: string, now = Date.now()) {
+    const { username } = this.session(projectId, token, now);
+    const account = this.state.accounts.get(projectId)?.get(username);
+    return { userId: account?.userId ?? projectUserID(projectId, username) };
   }
 }
 
@@ -40,11 +45,16 @@ export class AccountSessionRotator {
     const digest = sessionTokenDigest(token);
     const session = this.state.sessions.get(digest);
     if (!session && this.state.rotated.has(digest)) throw new Error("refresh token reuse detected");
-    if (!isActiveToken(session, now) || session.projectId !== projectId)
+    if (!session || session.projectId !== projectId || session.expiresAt <= now)
       throw new Error("invalid session");
-    const rotated = newSession(this.state, projectId, session.username, now).token;
     this.state.sessions.delete(digest);
     this.state.rotated.add(digest);
+    const rotated = randomBytes(32).toString("hex");
+    this.state.sessions.set(sessionTokenDigest(rotated), {
+      projectId,
+      username: session.username,
+      expiresAt: now + this.state.sessionTtlMs,
+    });
     return rotated;
   }
 }
@@ -64,7 +74,7 @@ export class GuestSessionIssuer {
   constructor(private readonly state: AuthState) {}
   guest(projectId: string) {
     validateProjectId(projectId);
-    const username = `guest-${randomToken(8, "hex")}`;
+    const username = `guest-${randomBytes(8).toString("hex")}`;
     const session = newSession(this.state, projectId, username, Date.now());
     return { ...session, userId: projectUserID(projectId, username), guest: true };
   }
@@ -74,7 +84,7 @@ export class OperatorSessionIssuer {
   constructor(private readonly sessions: Map<string, string>) {}
   issue(operatorId: string): string {
     if (!operatorId.trim()) throw new Error("operator id required");
-    const token = randomToken(32, "hex");
+    const token = randomBytes(32).toString("hex");
     this.sessions.set(sessionTokenDigest(token), operatorId);
     return token;
   }
@@ -115,6 +125,6 @@ export function requireRecentAuthentication(
   now: number,
   maxAgeMs: number,
 ): void {
-  if (![authenticatedAt, now, maxAgeMs].every(Number.isFinite) || maxAgeMs <= 0 || authenticatedAt > now || now - authenticatedAt > maxAgeMs)
+  if (maxAgeMs <= 0 || now - authenticatedAt > maxAgeMs)
     throw new Error("recent authentication required");
 }

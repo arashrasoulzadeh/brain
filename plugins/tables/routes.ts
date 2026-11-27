@@ -1,6 +1,6 @@
-import { createManifestRequest, createRouteDispatcher, requiredString } from "../sdk-typescript/src/index.js";
+import { createResourceRequest, createRouteDispatcher, requiredString, type PluginContext } from "../sdk-typescript/src/index.js";
 
-export const dataRequest = createManifestRequest("tables", "table");
+export const dataRequest = createResourceRequest<"tables.read" | "tables.write" | "tables.schema">("tables", "table");
 
 type TableRecord = Record<string, unknown>;
 
@@ -40,15 +40,22 @@ export function read(input: unknown): TableRead {
   return tableStore.execute("read", table) as TableRead;
 }
 
-export function write(input: unknown): TableWrite {
+export function write(input: unknown, context?: PluginContext): TableWrite {
   const payload = (input ?? {}) as TableInput;
   const table = requiredString(payload.table, "table is required");
   if (payload.row === undefined || payload.row === null || typeof payload.row !== "object")
     throw new Error("row is required");
-  return tableStore.execute("write", table, payload.row as Record<string, unknown>) as TableWrite;
+  const result = tableStore.execute("write", table, payload.row as Record<string, unknown>) as TableWrite;
+  context?.plugins.observe.fire("record.written", { written: true });
+  return result;
 }
 
 export function schema(input: unknown): TableSchema {
   const payload = (input ?? {}) as TableInput;
-  return tableStore.execute("schema", requiredString(payload.table, "table is required")) as TableSchema;
+  const table = requiredString(payload.table, "table is required");
+  if (Array.isArray(payload.rows)) {
+    const columns = [...new Set(payload.rows.flatMap((row) => row && typeof row === "object" && !Array.isArray(row) ? Object.keys(row) : []))].sort();
+    return { table, columns };
+  }
+  return tableStore.execute("schema", table) as TableSchema;
 }

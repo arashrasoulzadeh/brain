@@ -2,7 +2,7 @@ import {
   initializeTicTacToe,
   ticTacToeWinner,
   validateTicTacToeMove,
-} from "../../plugins/rooms/index.js";
+} from "../../plugins/games/index.js";
 
 let game = initializeTicTacToe("dev", "gate-room", "player-a", "player-b");
 for (const [player, cell] of [

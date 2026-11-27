@@ -17,3 +17,35 @@ Admin-panel and operator documentation work after backend release gates pass.
 - [x] Verify admin operations against the packaged backend. The production command composition test boots the configured server, logs in through `/admin/session`, and exercises bearer-authenticated `/admin/actions`; Compose CI remains the deployment-level check.
 - [x] Verify cross-project isolation in the admin panel. Covered by dashboard host-handler, view, auth, table-policy, and file-access isolation tests.
 - [x] Verify permission revocation in the admin panel. Covered by broker credential revocation tests, plugin lifecycle revocation tests, and audited admin lifecycle tests.
+
+## Manifest-driven admin migration
+
+- [x] Versioned admin metadata and generic action discovery.
+- [x] Typed forms and explicit server-side action confirmation and payload validation.
+- [x] Project/version/grant-aware page contributions and cross-plugin extension links.
+- [x] Declarative result components with filtering and client-side pagination.
+- [x] Authenticated observation-driven invalidation and read-only refresh (bounded polling).
+- [x] Schema-generated configuration forms.
+- [x] Migrate database, files, workflows and live-session consoles away from hard-coded plugin dispatch.
+- [x] Paginated metadata inventories for rooms, tickets, tables and files; opt-in embedded extension tabs.
+- [x] Generate admin pages from declared models and route operations.
+- [ ] Broader inventory support for alternative storage adapters and remaining plugins.
+- [x] Arena, invitation, subscription and authentication administration with redacted operator inspection.
+- [ ] End-to-end and deployment validation of the new paths.
+
+- [x] Policy-aware legacy inventory enumeration with exact operator rules, deny precedence and filtered cursors.
+
+## Control-plane UI
+
+- [x] Compact responsive theme, searchable grouped menus, consistent tables and controls, dynamic headings and keyboard navigation.
+- [ ] Browser screenshot and deployed visual verification.
+
+- [x] Recheck displayed query permissions and filtered inventories on background refresh, including revocation without observation events.
+
+- [x] Persist arena match snapshots, input sequence counters and results through worker recovery; expose a scoped match inventory.
+
+- [x] Persist auth accounts and token digests, redact admin projections, and verify recovery and durable revocation.
+
+- [x] Persist invitations with digest-only code storage and single-use conditional writes.
+
+- [x] Persist subscription ticket digests, retained event cursors and bounded observation deduplication through worker recovery.

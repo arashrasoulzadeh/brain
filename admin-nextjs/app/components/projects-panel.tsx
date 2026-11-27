@@ -26,7 +26,7 @@ export function ProjectsPanel({ activePage, text, selectedProjectID, projects, p
           value={selectedProjectID}
           onChange={(event) => onSelectProject(event.target.value)}
         >
-          <option value="">—</option>
+          <option value="" disabled={projects.some(project => project.Active)}>—</option>
           {projects.map((project) => (
             <option key={project.ID} value={project.ID} disabled={!project.Active}>
               {project.ID}
@@ -40,6 +40,7 @@ export function ProjectsPanel({ activePage, text, selectedProjectID, projects, p
         onSubmit={createProject}
       >
         <input
+          aria-label={text.newProject}
           placeholder={text.newProject}
           value={projectID}
           onChange={(event) => setProjectID(event.target.value)}
@@ -59,7 +60,7 @@ export function ProjectsPanel({ activePage, text, selectedProjectID, projects, p
             {projects.map((project) => (
               <div className="project-table-row" key={project.ID}>
                 <strong>{project.ID}</strong>
-                <span className={project.Active ? "success" : "failure"}>
+                <span className={"status-pill " + (project.Active ? "is-success" : "is-inactive")}>
                   {project.Active ? text.active : text.inactive}
                 </span>
                 <span className="project-actions">

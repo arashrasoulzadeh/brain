@@ -3,103 +3,103 @@
 Automatically generated from commits on main.
 
 ## Unreleased
-- `2b9a52e` — 2026-11-27 02:49:22 +0330 — fix(sandbox): apply bounded Wasm mode to JavaScript workers too
-  Files: scripts/run-sandboxed-typescript-worker.sh
-- `34e57b3` — 2026-11-26 23:18:18 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `4a550df` — 2026-11-27 02:48:06 +0330 — fix(sandbox): allow bounded WebAssembly allocation without raising memory cap
-  Files: .github/workflows/test.yml,cmd/brain/main.go docs/deployment-runbook.md,scripts/run-sandboxed-typescript-worker.sh scripts/test-sandboxed-typescript-worker.sh
-- `c3c3006` — 2026-11-26 23:13:00 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `43b7dc0` — 2026-11-27 02:42:47 +0330 — Merge pull request #3 from arashrasoulzadeh/fix/production-safety
+- `8bf6cb5c` — 2026-11-27 18:34:14 +0330 — Merge pull request #40 from arashrasoulzadeh/fix/macos-homebrew-openssl
   Files: 
-- `0ef81fb` — 2026-11-27 02:40:37 +0330 — Merge main and preserve declarative manifest responses in hardened worker
-  Files: internal/plugin/typescript_worker.go,scripts/typescript-worker.mjs
-- `18f22d6` — 2026-11-27 02:39:48 +0330 — fix(plugin): persist restrictive transitions and stop bound workers
-  Files: .github/workflows/test.yml,docs/deployment-runbook.md internal/plugin/registry_lifecycle.go,internal/plugin/registry_permissions.go internal/plugin/registry_workers.go,tests/plugin/lifecycle_runtime_persistence_test.go
-- `3ec3726` — 2026-11-26 23:08:54 +0000 — docs: update changelog [skip ci]
+- `03f401b1` — 2026-11-27 18:33:23 +0330 — Correct Homebrew isolation CI step formatting
+  Files: .github/workflows/test.yml
+- `c80d4a0e` — 2026-11-27 18:33:02 +0330 — Fix native macOS worker startup with Homebrew OpenSSL
+  Files: .github/workflows/test.yml,internal/plugin/macos_profile_coverage_test.go internal/plugin/macos_worker.go
+- `abd9aacf` — 2026-11-27 14:02:28 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
-- `d78a0fb` — 2026-11-27 02:38:49 +0330 — fix(plugin): fail closed on lifecycle persistence errors and persist enable after startup
-  Files: cmd/brain/main.go,internal/plugin/plugin.go internal/plugin/registry_catalog.go,internal/plugin/registry_lifecycle.go internal/plugin/registry_permissions.go,internal/plugin/registry_storage.go internal/plugin/registry_workers.go,tests/plugin/lifecycle_storage_failure_test.go
-- `0f995c3` — 2026-11-27 02:38:43 +0330 — Merge pull request #4 from arashrasoulzadeh/refactor/compact-plugin-domains
+- `5611abbb` — 2026-11-27 17:31:56 +0330 — Merge pull request #35 from arashrasoulzadeh/fix/macos-seatbelt-startup
   Files: 
-- `8c5fcbd` — 2026-11-27 02:37:45 +0330 — fix(runtime): expose trusted sandbox probe diagnostics and correct smoke response contract
-  Files: cmd/brain/main.go,internal/plugin/typescript_worker.go scripts/run-sandboxed-typescript-worker.sh,scripts/test-production-runtime.sh
-- `028dfc5` — 2026-11-27 02:34:57 +0330 — Merge main and preserve concurrent dashboard SDK import fix and changelog
-  Files: 
-- `4b56685` — 2026-11-27 02:34:42 +0330 — test(plugins): cover declarative descriptor and shared resource contracts
-  Files: docs/developers.md,internal/plugin/manifest_response.go scripts/typescript-worker.mjs,tests/plugin/manifest_response_test.go tests/plugin/resource-request.test.ts
-- `5b9a8ce` — 2026-11-27 02:33:56 +0330 — refactor(sdk): share resource request and validation primitives; verify source inventories
-  Files: AGENTS.md,plugins/arena/index.ts plugins/files/routes.ts,plugins/files/uploads.ts plugins/functions/compiler.ts,plugins/invites/index.ts plugins/matchmaking/routes.ts,plugins/rooms/routes.ts plugins/sdk-typescript/src/index.ts,plugins/sdk-typescript/src/request.ts plugins/sdk-typescript/src/validation.ts,plugins/subscriptions/subscription-request.ts plugins/tables/routes.ts,tests/dashboard/bridge-messages.test.ts tests/plugin/all_manifests_test.go,tests/plugin/resource-request.test.ts
-- `843dc67` — 2026-11-27 02:32:22 +0330 — refactor(dashboard): group views, bridge security, requests and audit
-  Files: plugins/dashboard/admin-request.ts,plugins/dashboard/audit.ts plugins/dashboard/bridge.ts,plugins/dashboard/custom-admin-view.ts plugins/dashboard/custom-view-origin.ts,plugins/dashboard/form-audit-reader.ts plugins/dashboard/host-owned-admin-view.ts,plugins/dashboard/index.ts plugins/dashboard/plugin-health-contribution.ts,plugins/dashboard/plugin.yaml plugins/dashboard/project-overview-contribution.ts,plugins/dashboard/reject-sensitive-bridge-data.ts plugins/dashboard/requests.ts,plugins/dashboard/restricted-frame.ts plugins/dashboard/validate-bridge-message.ts,plugins/dashboard/validate-csrf-token.ts plugins/dashboard/views.ts
-- `76a34b1` — 2026-11-27 02:31:47 +0330 — refactor(tables): group schema, authorization, records and change capture
-  Files: plugins/tables/access.ts,plugins/tables/capture.ts plugins/tables/create-api-change-capture.ts,plugins/tables/create-direct-sql-change-capture.ts plugins/tables/create-schema-publication-audit.ts,plugins/tables/data-request.ts plugins/tables/idempotent-create-store.ts,plugins/tables/index.ts plugins/tables/paginate.ts,plugins/tables/plan-schema-change.ts plugins/tables/plugin.yaml,plugins/tables/preview-schema-sql.ts plugins/tables/project-role-name.ts,plugins/tables/project-row.ts plugins/tables/project-schema-name.ts,plugins/tables/records.ts plugins/tables/require-primary-key.ts,plugins/tables/require-recent-schema-auth.ts plugins/tables/routes.ts,plugins/tables/row-policy-checker.ts plugins/tables/row-policy-granter.ts,plugins/tables/schema-types.ts plugins/tables/schema.ts,plugins/tables/table-exposure-reader.ts plugins/tables/table-exposure-writer.ts,plugins/tables/table-exposure.ts plugins/tables/table-store.ts,plugins/tables/validate-column-types.ts plugins/tables/validate-filter.ts,plugins/tables/validate-value.ts plugins/tables/versioned-record.ts
-- `6de21e1` — 2026-11-27 02:31:10 +0330 — refactor(files): group access, uploads, quota and routes
-  Files: plugins/files/access.ts,plugins/files/authorized-upload-writer.ts plugins/files/bucket.ts,plugins/files/enforce-upload-size.ts plugins/files/file-access-deleter.ts,plugins/files/file-access-reader.ts plugins/files/file-grant-store.ts,plugins/files/file-request.ts plugins/files/file-route-store.ts,plugins/files/index.ts plugins/files/object-key.ts,plugins/files/pending-upload-creator.ts plugins/files/pending-upload-publisher.ts,plugins/files/pending-upload-reader.ts plugins/files/pending-upload-reconciler.ts,plugins/files/plugin.yaml plugins/files/protected-download-headers.ts,plugins/files/quota-reader.ts plugins/files/quota-releaser.ts,plugins/files/quota.ts plugins/files/reconcile-orphaned-objects.ts,plugins/files/require-explicit-publication.ts plugins/files/routes.ts,plugins/files/upload-grant-store.ts plugins/files/uploads.ts
-- `3d328b7` — 2026-11-27 02:30:19 +0330 — refactor(matchmaking): consolidate config, queues and routes
-  Files: plugins/matchmaking/assignment-creator.ts,plugins/matchmaking/config.ts plugins/matchmaking/index.ts,plugins/matchmaking/is-project-assignments-paused.ts plugins/matchmaking/matchmaking-config-reader.ts,plugins/matchmaking/matchmaking-config-status.ts plugins/matchmaking/matchmaking-config-writer.ts,plugins/matchmaking/matchmaking-request.ts plugins/matchmaking/matchmaking-route-store.ts,plugins/matchmaking/pause-project-assignments.ts plugins/matchmaking/plugin.yaml,plugins/matchmaking/queue-runtime.ts plugins/matchmaking/queue.ts,plugins/matchmaking/resume-project-assignments.ts plugins/matchmaking/routes.ts,plugins/matchmaking/scope-ticket-canceller.ts plugins/matchmaking/ticket-canceller.ts,plugins/matchmaking/ticket-enqueuer.ts plugins/matchmaking/ticket-expirer.ts,plugins/matchmaking/ticket-matcher.ts plugins/matchmaking/ticket-reader.ts,plugins/matchmaking/ticket-requeuer.ts plugins/matchmaking/validate-config.ts
-- `28ce06b` — 2026-11-27 02:29:51 +0330 — refactor(rooms): consolidate directory, access, gameplay and recovery
-  Files: plugins/rooms/access.ts,plugins/rooms/authorize-room-command.ts plugins/rooms/authorize-tic-tac-toe-command.ts,plugins/rooms/authorized-room-snapshot.ts plugins/rooms/authorized-tic-tac-toe-state.ts,plugins/rooms/command-deduplicator.ts plugins/rooms/connection-ticket-consumer.ts,plugins/rooms/connection-ticket-issuer.ts plugins/rooms/create-room-directory.ts,plugins/rooms/create-tic-tac-toe-coordinator.ts plugins/rooms/directory.ts,plugins/rooms/expire-tic-tac-toe-turn.ts plugins/rooms/gameplay.ts,plugins/rooms/hidden-tic-tac-toe-view.ts plugins/rooms/index.ts,plugins/rooms/initialize-tic-tac-toe.ts plugins/rooms/is-room-draining.ts,plugins/rooms/pause-tic-tac-toe-turn.ts plugins/rooms/plugin.yaml,plugins/rooms/project-room-id.ts plugins/rooms/publish-tic-tac-toe-rules.ts,plugins/rooms/reconnect-tic-tac-toe.ts plugins/rooms/reconstruct-tic-tac-toe-history.ts,plugins/rooms/recovery.ts plugins/rooms/resume-tic-tac-toe-turn.ts,plugins/rooms/room-creator.ts plugins/rooms/room-event-reader.ts,plugins/rooms/room-joiner.ts plugins/rooms/room-leaver.ts,plugins/rooms/room-membership-reader.ts plugins/rooms/room-reader.ts,plugins/rooms/room-request.ts plugins/rooms/room-route-store.ts,plugins/rooms/room-runtime.ts plugins/rooms/room-transition.ts,plugins/rooms/routes.ts plugins/rooms/serialize-tic-tac-toe-state.ts,plugins/rooms/start-room-drain.ts plugins/rooms/stop-room-drain.ts,plugins/rooms/tic-tac-toe-draw.ts plugins/rooms/tic-tac-toe-mover.ts,plugins/rooms/tic-tac-toe-revision-reader.ts plugins/rooms/tic-tac-toe-runtime.ts,plugins/rooms/tic-tac-toe-winner.ts plugins/rooms/validate-membership.ts,plugins/rooms/validate-tic-tac-toe-command-payload.ts plugins/rooms/validate-tic-tac-toe-move.ts,plugins/rooms/validate-tic-tac-toe-rule-result.ts
-- `74e15b8` — 2026-11-27 02:28:58 +0330 — refactor(auth): organize accounts, sessions, OIDC, requests and state by domain
-  Files: plugins/auth/account-password-resetter.ts,plugins/auth/account-project.ts plugins/auth/account-session-reader.ts,plugins/auth/account-session-revoker.ts plugins/auth/account-session-rotator.ts,plugins/auth/account-signin.ts plugins/auth/account-signup.ts,plugins/auth/accounts.ts plugins/auth/authorization-code-consumer.ts,plugins/auth/authorization-code-issuer.ts plugins/auth/authorization-code-types.ts,plugins/auth/create-auth-operations.ts plugins/auth/create-auth-state.ts,plugins/auth/create-pkce-challenge.ts plugins/auth/first-party-session-cookie.ts,plugins/auth/guest-account-upgrader.ts plugins/auth/guest-request.ts,plugins/auth/guest-session-issuer.ts plugins/auth/identity-linker.ts,plugins/auth/index.ts plugins/auth/new-session.ts,plugins/auth/oidc-config-reader.ts plugins/auth/oidc-config-writer.ts,plugins/auth/oidc-state-consumer.ts plugins/auth/oidc-state-issuer.ts,plugins/auth/oidc-types.ts plugins/auth/oidc.ts,plugins/auth/operator-session-issuer.ts plugins/auth/operator-session-revoker.ts,plugins/auth/operator-session-validator.ts plugins/auth/password-hash.ts,plugins/auth/plugin.yaml plugins/auth/project-user-id.ts,plugins/auth/public-auth-error.ts plugins/auth/rate-limits.ts,plugins/auth/requests.ts plugins/auth/require-recent-authentication.ts,plugins/auth/service.ts plugins/auth/session-token-digest.ts,plugins/auth/sessions.ts plugins/auth/sign-in-request.ts,plugins/auth/sign-up-request.ts plugins/auth/state.ts,plugins/auth/validate-account.ts plugins/auth/validate-oidc-token.ts,plugins/auth/verify-pkce.ts
-- `85d92a5` — 2026-11-27 02:27:51 +0330 — refactor(functions): organize compiler, invocation, publication and workflows by domain
-  Files: plugins/functions/authorize-deployment-plugin.ts,plugins/functions/authorize-project-workflow-action.ts plugins/functions/compiler-environment.ts,plugins/functions/compiler-limits.ts plugins/functions/compiler.ts,plugins/functions/create-approval-store.ts plugins/functions/create-deployment-hook-set.ts,plugins/functions/create-function-draft-store.ts plugins/functions/create-function-publication-store.ts,plugins/functions/create-invocation-commit-store.ts plugins/functions/create-invocation-effects.ts,plugins/functions/create-invocation-request.ts plugins/functions/create-job-lease-store.ts,plugins/functions/create-record-change-trigger-store.ts plugins/functions/create-shared-package-store.ts,plugins/functions/diagnose-source.ts plugins/functions/diagnostic-cap.ts,plugins/functions/disposable-compiler-workspace.ts plugins/functions/evaluate-workflow-condition.ts,plugins/functions/execute-fixture.ts plugins/functions/function-input-validation.ts,plugins/functions/function-request.ts plugins/functions/index.ts,plugins/functions/invocation-types.ts plugins/functions/invocation.ts,plugins/functions/invoke-direct-https.ts plugins/functions/parse-invocation-result.ts,plugins/functions/plugin.yaml plugins/functions/publication.ts,plugins/functions/redact-run-status.ts plugins/functions/register-project-workflow-action.ts,plugins/functions/reject-plugin-credentials.ts plugins/functions/reject-plugin-host-resources.ts,plugins/functions/reject-sandbox-escape.ts plugins/functions/replace-project-workflow-step.ts,plugins/functions/require-sdk-imports.ts plugins/functions/retry-invocation.ts,plugins/functions/run-idempotent-workflow.ts plugins/functions/sandbox.ts,plugins/functions/scheduling.ts plugins/functions/shared-helper-publisher.ts,plugins/functions/validate-build-overrides.ts plugins/functions/validate-compiler-environment.ts,plugins/functions/validate-deployment-workflow.ts plugins/functions/validate-execution-limits.ts,plugins/functions/validate-function-limits.ts plugins/functions/validate-invocation-result.ts,plugins/functions/validate-sandbox-capabilities.ts plugins/functions/validate-sdk-imports.ts,plugins/functions/validate-source-project.ts plugins/functions/validate-stale-input-versions.ts,plugins/functions/validate-startup-duration.ts plugins/functions/validate-wasi-imports.ts,plugins/functions/validate-workflow-graph.ts plugins/functions/wasm-build-settings.ts,plugins/functions/workflow.ts plugins/functions/write-intent-validation.ts
-- `89627c8` — 2026-11-27 02:26:46 +0330 — test(host): verify startup rejection and require packaged runtime release gate
-  Files: .github/workflows/release-backend.yml,cmd/brain/main_test.go scripts/test-production-runtime.sh,tests/deploy/production_startup_test.go
-- `ae975c5` — 2026-11-27 02:26:35 +0330 — refactor(subscriptions): group authorization and stream operations
-  Files: plugins/subscriptions/authorization.ts,plugins/subscriptions/index.ts plugins/subscriptions/initial-fetch-completer.ts,plugins/subscriptions/initial-fetch-writer.ts plugins/subscriptions/origin.ts,plugins/subscriptions/plugin.yaml plugins/subscriptions/slow-consumer-pusher.ts,plugins/subscriptions/slow-consumer-shifter.ts plugins/subscriptions/slow-consumer-size.ts,plugins/subscriptions/stream.ts plugins/subscriptions/subscription-authorization.ts,plugins/subscriptions/subscription-event-appender.ts plugins/subscriptions/subscription-event-reader.ts,plugins/subscriptions/subscription-grant-store.ts plugins/subscriptions/subscription-owner-invalidator.ts,plugins/subscriptions/subscription-ticket-consumer.ts plugins/subscriptions/subscription-ticket-issuer.ts,plugins/subscriptions/subscription-ticket-validator.ts
-- `5df305c` — 2026-11-27 02:26:18 +0330 — refactor(arena): group state machine and durable result operations
-  Files: plugins/arena/arena-action-recorder.ts,plugins/arena/arena-finisher.ts plugins/arena/arena-measurer.ts,plugins/arena/arena-request.ts plugins/arena/arena-start.ts,plugins/arena/arena-starter.ts plugins/arena/arena-state-reader.ts,plugins/arena/arena-state.ts plugins/arena/eye-event.ts,plugins/arena/index.ts plugins/arena/interrupt-expired-action-room.ts,plugins/arena/match-result-reader.ts plugins/arena/match-result-saver.ts,plugins/arena/match-results.ts plugins/arena/plugin.yaml,plugins/arena/state-machine.ts plugins/arena/validate-result.ts
-- `5257703` — 2026-11-27 02:26:12 +0330 — fix(sandbox): remount declared-source filesystem read-only after descriptor bind
-  Files: scripts/run-sandboxed-typescript-worker.sh
-- `d0d3354` — 2026-11-27 02:25:58 +0330 — fix(security): restrict sandbox mounts to declared sources and clean descriptors
-  Files: Dockerfile.runner,cmd/brain/main.go docs/deployment-runbook.md,internal/plugin/typescript_worker.go scripts/run-sandboxed-typescript-worker.sh,scripts/test-production-runtime.sh scripts/test-sandboxed-typescript-worker.sh
-- `fa1a0d2` — 2026-11-27 02:25:55 +0330 — refactor(dashboard): consolidate page builders and fix stale SDK import
-  Files: plugins/dashboard/admin-panel.ts,plugins/dashboard/auth-settings-page.ts plugins/dashboard/browser-quickstart.ts,plugins/dashboard/custom-admin-view.ts plugins/dashboard/file-management-page.ts,plugins/dashboard/function-management-page.ts plugins/dashboard/index.ts,plugins/dashboard/live-session-page.ts plugins/dashboard/pages.ts,plugins/dashboard/plugin.yaml plugins/dashboard/record-browser-page.ts,plugins/dashboard/record-edit-page.ts plugins/dashboard/signup-settings-page.ts,plugins/dashboard/table-management-page.ts plugins/dashboard/workflow-management-page.ts,plugins/sdk-typescript/src/index.ts
-- `917feb0` — 2026-11-27 02:25:18 +0330 — feat(plugins): add bounded declarative response routes to manifest worker
-  Files: docs/developers.md,internal/plugin/manifest.go internal/plugin/manifest_response.go,internal/plugin/typescript_worker.go plugins/functions/plugin.yaml,scripts/typescript-worker.mjs tests/plugin/manifest-response.test.ts,tests/plugin/manifest_response_test.go
-- `1f78ac5` — 2026-11-27 02:25:08 +0330 — test(security): verify sandbox isolation and integrate current manifest dispatch contracts
-  Files: .github/workflows/test.yml,cmd/brain/main.go docs/deployment-runbook.md,internal/plugin/registry_workers.go internal/plugin/typescript_worker.go,internal/project/sqlite.go scripts/test-production-runtime.sh,scripts/test-sandboxed-typescript-worker.sh scripts/typescript-worker.mjs,tests/plugin/production_worker_test.go
-- `6a303ac` — 2026-11-27 02:24:35 +0330 — refactor(plugins): collapse analytics and invites into cohesive modules
-  Files: plugins/analytics/analytics-route-sink.ts,plugins/analytics/capture-request.ts plugins/analytics/capture.ts,plugins/analytics/index.ts plugins/analytics/plugin.yaml,plugins/analytics/types.ts plugins/analytics/validate-event.ts,plugins/invites/index.ts plugins/invites/invite-accepter.ts,plugins/invites/invite-code-accepter.ts plugins/invites/invite-creator.ts,plugins/invites/invite-request.ts plugins/invites/plugin.yaml,plugins/invites/types.ts
-- `2b2a31f` — 2026-11-26 22:54:07 +0000 — docs: update changelog [skip ci]
+- `b6110f87` — 2026-11-27 17:13:55 +0330 — Emit actual newline between Seatbelt directory rules
+  Files: internal/plugin/macos_worker.go
+- `1ac264e9` — 2026-11-27 17:13:50 +0330 — Fix macOS worker getcwd with literal ancestor directory permissions
+  Files: internal/plugin/macos_worker.go
+- `a3cfcb65` — 2026-11-27 13:07:55 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
-- `67d80c7` — 2026-11-27 02:24:07 +0330 — refactor(auth): consolidate OTP, recovery, delivery and rate limits
-  Files: plugins/auth/account-rate-limiter.ts,plugins/auth/delivery-reader.ts plugins/auth/delivery-writer.ts,plugins/auth/delivery.ts plugins/auth/email-otp-issuer.ts,plugins/auth/email-otp-verifier.ts plugins/auth/index.ts,plugins/auth/normalize-phone-number.ts plugins/auth/otp-limiter.ts,plugins/auth/otp-types.ts plugins/auth/otp.ts,plugins/auth/plugin.yaml plugins/auth/project-rate-limiter.ts,plugins/auth/rate-limits.ts plugins/auth/recovery-token-consumer.ts,plugins/auth/recovery-token-issuer.ts plugins/auth/sms-otp-issuer.ts,plugins/auth/sms-otp-verifier.ts plugins/auth/validate-delivery-config.ts,plugins/sdk-typescript/src/execution.ts plugins/sdk-typescript/src/index.ts,tests/plugin/rate-limiter.test.ts
-- `86cf113` — 2026-11-27 02:23:56 +0330 — fix(ci): import dashboard project validation through public SDK
-  Files: plugins/dashboard/custom-admin-view.ts,plugins/dashboard/plugin.yaml
-- `de3baeb` — 2026-11-27 02:22:52 +0330 — fix(security): require sandboxed worker startup and package the runtime
-  Files: Dockerfile,Dockerfile.runner cmd/brain/main.go,internal/plugin/typescript_worker.go scripts/run-sandboxed-typescript-worker.sh,scripts/typescript-worker.mjs
-- `f311d19` — 2026-11-26 22:52:28 +0000 — docs: update changelog [skip ci]
+- `2432526a` — 2026-11-27 16:28:23 +0330 — Merge pull request #37 from arashrasoulzadeh/docs/current-complete-reference
+  Files: 
+- `fd4ed616` — 2026-11-27 16:27:17 +0330 — Merge main into macOS startup fix preserving platform coverage helper
+  Files: internal/plugin/macos_worker.go
+- `e30d893f` — 2026-11-27 16:17:38 +0330 — Merge pull request #36 from arashrasoulzadeh/test/host-coverage-edge-cases
+  Files: 
+- `0c1edeb0` — 2026-11-27 16:16:55 +0330 — docs: recognize generic SDK types and direct exports in coverage audit
+  Files: scripts/documentation_inventory.py
+- `b3c62868` — 2026-11-27 16:16:22 +0330 — docs: expand every admin page guide and audit Next.js routes
+  Files: docs/admin-pages/README.md,docs/admin-pages/audit.md docs/admin-pages/database.md,docs/admin-pages/files.md docs/admin-pages/function-detail.md,docs/admin-pages/function-new.md docs/admin-pages/functions.md,docs/admin-pages/live-sessions.md docs/admin-pages/login.md,docs/admin-pages/monitoring.md docs/admin-pages/plugin-detail.md,docs/admin-pages/plugins.md docs/admin-pages/routes.md,docs/admin-pages/system.md docs/admin-pages/workers.md,docs/admin-pages/workflows.md docs/plugin-guides/dashboard.md,docs/quality.md scripts/documentation_inventory.py,tests/documentation/test_inventory.py
+- `3877b9fe` — 2026-11-27 16:14:41 +0330 — docs: add every plugin guide and enforce public contract documentation inventory
+  Files: docs/plugin-guides/access-management.md,docs/plugin-guides/analytics.md docs/plugin-guides/arena.md,docs/plugin-guides/auth.md docs/plugin-guides/dashboard.md,docs/plugin-guides/declarative-plugin.md docs/plugin-guides/files.md,docs/plugin-guides/functions.md docs/plugin-guides/games.md,docs/plugin-guides/index.md docs/plugin-guides/invites.md,docs/plugin-guides/matchmaking.md docs/plugin-guides/pvp.md,docs/plugin-guides/rooms.md docs/plugin-guides/subscriptions.md,docs/plugin-guides/tables.md docs/plugin-guides/template.md,docs/quality.md scripts/build-docs.py,scripts/documentation_inventory.py tests/documentation/test_inventory.py
+- `abe3a4d5` — 2026-11-27 12:44:19 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
-- `5e9187f` — 2026-11-27 02:22:14 +0330 — fix(host): fail closed at startup and separate readiness from liveness
-  Files: cmd/brain/main.go,compose.test.yml internal/app/app.go,internal/plugin/registry_storage.go internal/plugin/sqlite_storage.go,internal/project/sqlite.go scripts/check-api-readiness.sh,tests/app/readiness_test.go tests/deploy/readiness_script_test.go
-- `39fa867` — 2026-11-27 02:21:46 +0330 — Merge pull request #2 from arashrasoulzadeh/refactor/plugin-sdk-yaml-helpers
+- `cf684327` — 2026-11-27 16:13:33 +0330 — docs: refresh host, client, SDK, deployment and HTTP references against current main
+  Files: clients/android/README.md,docs/admins.md docs/assets/brain.css,docs/browser-quickstart.md docs/declarative-runtime.md,docs/developers.md docs/flutter-quickstart.md,docs/functions-runtime.md docs/http-api.md,docs/index.md docs/restore-runbook.md,docs/runtime-operations.md docs/sdk-reference.md,mkdocs.yml plugins/README.md
+- `743e3dce` — 2026-11-27 16:11:01 +0330 — test: verify close failures cannot be mistaken for lock release
+  Files: internal/deploy/lock_failure_coverage_test.go
+- `4abec123` — 2026-11-27 16:10:51 +0330 — test: exercise successful admin lifecycle and page response dispatch
+  Files: internal/app/admin_edge_coverage_test.go
+- `2f002ed0` — 2026-11-27 16:10:22 +0330 — test: use one invitation selector for expiry commit checks
+  Files: internal/plugin/runtime_storage_edge_test.go
+- `7f5f756b` — 2026-11-27 16:10:13 +0330 — test: cover late invitation expiry and storage read failures
+  Files: internal/plugin/runtime_storage_edge_test.go
+- `795f83eb` — 2026-11-27 16:10:04 +0330 — test: cover model admission and invalid action without durable mutation
+  Files: internal/plugin/model_admission_edge_test.go
+- `4a65e87b` — 2026-11-27 16:09:47 +0330 — test: cover manifest discovery, stale credentials, and registry admission failures
+  Files: internal/plugin/host_edge_coverage_test.go
+- `b3c2af8c` — 2026-11-27 16:09:35 +0330 — Run the actual native launcher with the confirmed dyld root lookup fix
+  Files: .github/workflows/test.yml,tests/plugin/macos_worker_test.go
+- `334bcded` — 2026-11-27 16:09:20 +0330 — Merge pull request #34 from arashrasoulzadeh/test/remaining-host-coverage
   Files: 
-- `ad1afc4` — 2026-11-27 02:20:32 +0330 — Merge current main while preserving SDK helpers and JSON worker contract
-  Files: docs/developers.md,internal/plugin/manifest.go internal/plugin/typescript_worker.go,scripts/typescript-worker.mjs tests/plugin/manifest-helpers.test.ts
-- `4707c7e` — 2026-11-27 02:19:14 +0330 — refactor: consolidate SDK routing, request and validation modules
-  Files: plugins/sdk-typescript/src/create-function-handler.ts,plugins/sdk-typescript/src/create-host-handler.ts plugins/sdk-typescript/src/create-route-handler.ts,plugins/sdk-typescript/src/index.ts plugins/sdk-typescript/src/plugin-request.ts,plugins/sdk-typescript/src/project-store.ts plugins/sdk-typescript/src/request.ts,plugins/sdk-typescript/src/routes.ts plugins/sdk-typescript/src/validate-identifier.ts,plugins/sdk-typescript/src/validate-project-id.ts plugins/sdk-typescript/src/validation.ts,plugins/sdk-typescript/src/worker.ts tests/plugin/sdk.test.ts
-- `8e42517` — 2026-11-27 02:19:13 +0330 — Merge pull request #1 from arashrasoulzadeh/refactor/admin-http-boundaries
+- `a0ad040c` — 2026-11-27 16:09:16 +0330 — Merge pull request #33 from arashrasoulzadeh/fix/sqlite-coverage-stability
   Files: 
-- `6894d95` — 2026-11-27 02:18:25 +0330 — docs: record shared architecture boundaries and remaining release checks
-  Files: README.md,docs/developers.md docs/refactoring.md
-- `9ac98ff` — 2026-11-27 02:18:00 +0330 — fix(clients): align project identity validation with host
-  Files: clients/android/src/main/kotlin/com/brain/client/BrainClient.kt,clients/flutter/lib/native_transport.dart clients/flutter/lib/project_identity.dart,clients/flutter/lib/web_transport.dart clients/javascript/src/client.ts,protocol/README.md tests/client/javascript-client.test.ts,tests/flutter/project_identity_test.dart
-- `33410f2` — 2026-11-27 02:17:34 +0330 — refactor: support context-aware SDK request helpers in Auth
-  Files: AGENTS.md,docs/developers.md internal/plugin/plugin.go,plugins/auth/auth-functions.ts plugins/auth/auth-guest-function.ts,plugins/auth/auth-session-function.ts plugins/auth/auth-signin-function.ts,plugins/auth/auth-signup-function.ts plugins/auth/index.ts,plugins/auth/plugin.yaml plugins/sdk-typescript/src/create-function-handler.ts,plugins/sdk-typescript/src/index.ts plugins/sdk-typescript/src/routes.ts,scripts/typescript-worker.mjs tests/auth/sdk-dispatch.test.ts,tests/plugin/manifest-helpers.test.ts tests/plugin/manifest_helpers_test.go
-- `b45896c` — 2026-11-27 02:17:34 +0330 — refactor(admin): split project catalog draft and route panels
-  Files: admin-nextjs/app/components/function-drafts-panel.tsx,admin-nextjs/app/components/plugin-catalog-panel.tsx admin-nextjs/app/components/projects-panel.tsx,admin-nextjs/app/components/routes-panel.tsx admin-nextjs/app/page.tsx
-- `84fba6a` — 2026-11-27 02:16:42 +0330 — refactor: share transaction helpers across Tables and Functions
-  Files: plugins/functions/create-invocation-effects.ts,plugins/sdk-typescript/src/execution.ts plugins/sdk-typescript/src/index.ts,plugins/tables/api-change-reader.ts plugins/tables/api-change-state.ts,plugins/tables/api-change-writer.ts plugins/tables/create-api-change-capture.ts,plugins/tables/create-direct-sql-change-capture.ts plugins/tables/create-schema-publication-audit.ts,plugins/tables/create-transactional-change-capture.ts plugins/tables/index.ts,plugins/tables/plugin.yaml plugins/tables/routes.ts,plugins/tables/schema-audit-state.ts plugins/tables/schema-publication-reader.ts,plugins/tables/schema-publication-recorder.ts plugins/tables/scoped-transaction-change-reader.ts,plugins/tables/scoped-transaction-change-writer.ts plugins/tables/sql-change-reader.ts,plugins/tables/sql-change-state.ts plugins/tables/sql-change-writer.ts,plugins/tables/tables-read.ts plugins/tables/tables-schema.ts,plugins/tables/tables-write.ts plugins/tables/transaction-change-reader.ts,plugins/tables/transaction-change-state.ts plugins/tables/transaction-change-writer.ts,plugins/tables/versioned-record-reader.ts plugins/tables/versioned-record-state.ts,plugins/tables/versioned-record-updater.ts plugins/tables/versioned-record.ts,tests/plugin/manifest-helpers.test.ts tests/plugin/transaction-helpers.test.ts
-- `6e930c9` — 2026-11-27 02:16:01 +0330 — refactor(plugin): inject storage planners and normalize registry lock ordering
-  Files: internal/plugin/legacy_storage_adapter.go,internal/plugin/plugin.go internal/plugin/registry_catalog.go,internal/plugin/registry_lifecycle.go internal/plugin/registry_permissions.go,internal/plugin/registry_storage.go internal/plugin/registry_workers.go,tests/plugin/storage_planner_test.go
-- `d3e37d3` — 2026-11-27 02:15:33 +0330 — refactor: migrate Files and Rooms to shared operation routes
-  Files: docs/developers.md,plugins/files/files-download.ts plugins/files/files-metadata.ts,plugins/files/files-publish.ts plugins/files/files-upload.ts,plugins/files/index.ts plugins/files/plugin.yaml,plugins/files/routes.ts plugins/functions/routes.ts,plugins/matchmaking/routes.ts plugins/rooms/index.ts,plugins/rooms/plugin.yaml plugins/rooms/rooms-create-route.ts,plugins/rooms/rooms-join-route.ts plugins/rooms/rooms-reconnect-route.ts,plugins/rooms/rooms-result-route.ts plugins/rooms/routes.ts,plugins/sdk-typescript/src/index.ts plugins/sdk-typescript/src/routes.ts,tests/plugin/manifest-helpers.test.ts tests/plugin/sdk.test.ts
-- `2b9eb61` — 2026-11-27 02:15:16 +0330 — fix(operator): enforce absolute session expiry with a controlled clock
-  Files: docs/admins.md,internal/operator/operator.go internal/operator/session.go,tests/operator/session_expiry_test.go
-- `ba62d07` — 2026-11-27 02:14:51 +0330 — refactor: consolidate Functions stores and share execution helpers
-  Files: .github/workflows/test.yml,plugins/functions/approval-granter.ts plugins/functions/approval-reader.ts,plugins/functions/approval-requester.ts plugins/functions/approval-state.ts,plugins/functions/commit-with-grant.ts plugins/functions/create-approval-store.ts,plugins/functions/create-function-draft-store.ts plugins/functions/create-function-publication-store.ts,plugins/functions/create-invocation-commit-store.ts plugins/functions/create-invocation-effects.ts,plugins/functions/create-job-lease-store.ts plugins/functions/create-record-change-trigger-store.ts,plugins/functions/create-schedule-store.ts plugins/functions/create-shared-package-store.ts,plugins/functions/function-draft-reader.ts plugins/functions/function-draft-state.ts,plugins/functions/function-draft-writer.ts plugins/functions/function-publication-reader.ts,plugins/functions/function-publication-rollback.ts plugins/functions/function-publication-state.ts,plugins/functions/function-publication-writer.ts plugins/functions/function-version-enqueuer.ts,plugins/functions/index.ts plugins/functions/invocation-commit-reader.ts,plugins/functions/invocation-commit-state.ts plugins/functions/invocation-commit-writer.ts,plugins/functions/invocation-effects-reader.ts plugins/functions/invocation-effects-state.ts,plugins/functions/invocation-effects-writer.ts plugins/functions/invocation-existence-reader.ts,plugins/functions/invocation-result-reader.ts plugins/functions/job-lease-acquirer.ts,plugins/functions/job-lease-renewer.ts plugins/functions/job-lease-state.ts,plugins/functions/missed-schedule-enqueuer.ts plugins/functions/plugin.yaml,plugins/functions/record-trigger-adder.ts plugins/functions/record-trigger-dispatcher.ts,plugins/functions/record-trigger-matcher.ts plugins/functions/record-trigger-state.ts,plugins/functions/run-capped-retries.ts plugins/functions/run-idempotent-workflow.ts,plugins/functions/run-with-timeout.ts plugins/functions/schedule-adder.ts,plugins/functions/schedule-claimer.ts plugins/functions/schedule-occurrence-recorder.ts,plugins/functions/schedule-reader.ts plugins/functions/schedule-state.ts,plugins/functions/shared-package-reader.ts plugins/functions/shared-package-state.ts,plugins/functions/shared-package-writer.ts plugins/sdk-typescript/src/execution.ts,plugins/sdk-typescript/src/index.ts plugins/sdk-typescript/src/project-store.ts,tests/functions/shared-sdk-stores.test.ts
-- `a96932d` — 2026-11-27 02:14:45 +0330 — refactor(admin): share navigation policy and verify frontend types in CI
-  Files: .github/workflows/test.yml,admin-nextjs/app/components/admin-chrome.tsx admin-nextjs/app/lib/admin-navigation.ts,admin-nextjs/app/page.tsx admin-nextjs/package.json,tests/admin/admin-navigation.test.ts
+- `d6eaa8fe` — 2026-11-27 16:06:29 +0330 — Permit literal root directory lookup and narrowly scoped dyld runtime files
+  Files: internal/plugin/macos_worker.go
+- `008a8f49` — 2026-11-27 16:04:37 +0330 — Allow macOS system runtime paths and diagnose Seatbelt startup
+  Files: .github/workflows/test.yml,internal/plugin/macos_worker.go tests/plugin/macos_worker_test.go
+- `e45fa348` — 2026-11-27 16:03:49 +0330 — test: cover draft persistence failures and request identity fallback
+  Files: internal/admin/function_persistence_failure_test.go
+- `988aedb5` — 2026-11-27 16:03:06 +0330 — test: cover empty API error and login entropy failure
+  Files: internal/app/response_failure_coverage_test.go
+- `a4c0cf12` — 2026-11-27 16:03:04 +0330 — refactor: remove redundant newline check after TrimSpace
+  Files: internal/app/api_response.go
+- `d555bcc9` — 2026-11-27 16:02:48 +0330 — test: cover storage planner identity rejection, duplicate events and atomic rollback
+  Files: internal/plugin/legacy_adapter_failure_matrix_test.go
+- `8f59f70d` — 2026-11-27 16:02:39 +0330 — test: cover ambiguous publishers, bounded deliveries and outbox rollback
+  Files: internal/plugin/observation_failure_matrix_test.go
+- `6c1c1690` — 2026-11-27 16:02:25 +0330 — test: cover delegated operation policy, worker readiness and entropy failures
+  Files: internal/plugin/delegation_coverage_test.go
+- `91887a1c` — 2026-11-27 16:02:05 +0330 — test: cover macOS opt-in and loopback restrictions across platforms
+  Files: cmd/brain/sandbox_runtime_coverage_test.go
+- `8a8f3c5c` — 2026-11-27 16:02:03 +0330 — refactor: isolate platform sandbox configuration for coverage without changing runtime selection
+  Files: cmd/brain/main.go
+- `7376c8d2` — 2026-11-27 16:01:51 +0330 — test: exercise macOS sandbox profile generation and fail-closed paths on all hosts
+  Files: internal/plugin/macos_profile_coverage_test.go
+- `80ce28bf` — 2026-11-27 16:01:40 +0330 — refactor: isolate macOS profile construction from runtime platform check
+  Files: internal/plugin/macos_worker.go
+- `e9cc3e94` — 2026-11-27 16:00:50 +0330 — test: verify lifecycle persistence survives temporary SQLite write contention
+  Files: internal/plugin/sqlite_contention_test.go
+- `3a97c86b` — 2026-11-27 16:00:48 +0330 — test: cover SQLite DSN preservation and per-connection timeout
+  Files: internal/sqliteconfig/config_test.go
+- `abf651e4` — 2026-11-27 16:00:38 +0330 — fix: apply per-connection busy timeout to shared SQLite database
+  Files: internal/project/sqlite.go
+- `4ff3ffee` — 2026-11-27 16:00:35 +0330 — fix: apply per-connection busy timeout to shared SQLite database
+  Files: internal/plugin/sqlite_storage.go
+- `ce35f373` — 2026-11-27 16:00:33 +0330 — fix: configure bounded SQLite busy handling on every connection
+  Files: internal/sqliteconfig/config.go
+- `6ffece22` — 2026-11-27 12:30:24 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
+- `ae39ac29` — 2026-11-27 15:59:53 +0330 — Merge pull request #32 from arashrasoulzadeh/fix/native-macos-dev
+  Files: .github/workflows/test.yml
+- `a7746253` — 2026-11-27 15:59:51 +0330 — Merge pull request #30 from arashrasoulzadeh/test/durable-storage-coverage
+  Files: 
+- `5fe94dac` — 2026-11-27 15:13:27 +0330 — Use a valid temporary directory for Seatbelt initialization and add native launch probes
+  Files: .github/workflows/test.yml,scripts/run-macos-typescript-worker.sh tests/plugin/macos_worker_test.go
+- `d71d6616` — 2026-11-27 15:11:45 +0330 — Diagnose native worker startup and permit scoped executable operations
+  Files: .github/workflows/test.yml,internal/plugin/macos_worker.go tests/plugin/macos_worker_test.go
+- `fe04fd13` — 2026-11-27 15:11:35 +0330 — test: cover sandbox factory manifest and descriptor failure paths
+  Files: cmd/brain/worker_factory_failure_test.go
+- `24e7f2ff` — 2026-11-27 15:11:12 +0330 — test: exercise production startup failures with isolated process fixtures
+  Files: cmd/brain/startup_runtime_failure_test.go
+- `7092f906` — 2026-11-27 15:10:44 +0330 — test: cover ambiguous policy routes and corrupt access rule inventories
+  Files: internal/plugin/access_inventory_failure_test.go

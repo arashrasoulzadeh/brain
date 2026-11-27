@@ -1,0 +1,14 @@
+.md-header, .md-tabs { background: #182548; }
+.md-typeset h1 { font-weight: 750; letter-spacing: -.035em; color: var(--md-default-fg-color); }
+.md-typeset h2 { font-weight: 650; letter-spacing: -.015em; }
+.md-typeset .grid.cards > ul > li { border-radius: .75rem; }
+.md-typeset .grid.cards > ul > li:hover { border-color: var(--md-accent-fg-color); }
+.md-typeset table:not([class]) { border-radius: .4rem; }
+.md-typeset a:focus-visible { outline: 2px solid var(--md-accent-fg-color); outline-offset: 3px; }
+
+.md-typeset .brain-hero { padding: clamp(1.4rem,4vw,2.4rem); border-radius: 1rem; color: #eef4ff; background: linear-gradient(125deg,#182548,#24476a 68%,#17615e); margin-bottom: 2rem; }
+.md-typeset .brain-hero h2 { color: white; font-size: clamp(1.5rem,4vw,2.2rem); line-height: 1.16; margin: .6rem 0 1rem; }
+.md-typeset .brain-hero .md-button { color: white; border-color: #b4c6da; margin: .2rem .4rem .2rem 0; border-radius: .4rem; }
+.md-typeset .brain-hero .md-button--primary { background: #d4f3ed; border-color: #d4f3ed; color: #183c48; }
+.md-typeset .brain-hero .md-button:hover { background: white; color: #183c48; border-color: white; }
+@media (max-width: 34em) { .md-typeset .brain-hero .md-button { display:block; text-align:center; margin:.5rem 0; } }

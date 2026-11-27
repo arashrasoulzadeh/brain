@@ -1,6 +1,6 @@
 # Restore runbook
 
-Use this procedure when restoring a Brain deployment or rehearsing recovery. Restore PostgreSQL data and referenced object data as one recovery unit.
+This procedure describes the PostgreSQL/object-storage release recovery rehearsal. The currently wired application host instead uses SQLite and local function files; follow the [current runtime backup and restore guidance](runtime-operations.md#durable-data-and-restart) for those deployments. Do not restore a PostgreSQL backup expecting the SQLite application to read it. Restore PostgreSQL data and referenced object data as one recovery unit when exercising that release architecture.
 
 ## Preconditions
 

@@ -36,11 +36,21 @@ capabilities:
 extension_points: []
 config_schema:
   maxSourceBytes: int
+events:
+  - name: published
+    source: host
+    fields: {name: string, version: number}
+  - name: invoked
+    source: host
+    fields: {name: string, executionId: string}
+  - name: callAccepted
+    fields: {}
 routes:
   - operation: functions.invoke
     function: invoke
     helper: sdk.response
     capability: functions.invoke
+    resource_field: name
     response:
       input:
         - name: name
@@ -58,6 +68,7 @@ routes:
     function: publish
     helper: sdk.response
     capability: functions.publish
+    resource_field: name
     response:
       input:
         - name: name
@@ -82,3 +93,57 @@ routes:
     function: call
     helper: sdk.dispatch
     capability: functions.call
+    resource_field: name
+  - operation: functions.inspect
+    function: inspect
+    helper: sdk.response
+    capability: functions.invoke
+    resource_field: name
+    response:
+      input:
+        - name: name
+          type: string
+          required: true
+          error: function name is required
+      output:
+        name: $input.name
+  - operation: functions.logs
+    function: logs
+    helper: sdk.response
+    capability: functions.invoke
+    resource_field: name
+    response:
+      input:
+        - name: name
+          type: string
+          required: true
+          error: function name is required
+      output:
+        name: $input.name
+admin:
+  version: 1
+  pages:
+    - id: operations
+      title: Function operations
+      legacy_route: workflows
+      actions:
+        - title: Invoke function
+          operation: functions.invoke
+          fields:
+            - name: name
+              type: string
+              required: true
+            - name: input
+              type: json
+        - title: Publish function
+          operation: functions.publish
+          fields:
+            - name: name
+              type: string
+              required: true
+            - name: source
+              type: string
+              required: true
+            - name: version
+              type: string
+              required: true

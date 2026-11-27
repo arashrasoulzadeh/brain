@@ -30,7 +30,7 @@ func TestRegistryCommitsStorageOnlyAfterSuccessfulAuthorizedExecution(t *testing
 			registry := plugin.NewRegistry(1)
 			manifest := plugin.Manifest{
 				ID: "tables", Version: "1.0.0", HostAPI: 1, Capabilities: []string{"tables.write"},
-				Routes: []plugin.Route{{Operation: "tables.write", Function: "write", Capability: "tables.write", Storage: &plugin.StorageSpec{Action: "rows.append", Key: "table", Input: "row"}}},
+				Routes: []plugin.Route{{Operation: "tables.write", Function: "write", Capability: "tables.write"}},
 			}
 			if err := registry.Register(manifest); err != nil {
 				t.Fatal(err)

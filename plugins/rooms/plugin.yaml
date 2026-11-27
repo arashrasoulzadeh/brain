@@ -8,16 +8,12 @@ source_files:
   - routes.ts
   - index.ts
   - directory.ts
-  - gameplay.ts
-  - recovery.ts
   - access.ts
 imports:
   - ./routes.js
   - ../sdk-typescript/src/index.js
   - node:crypto
   - ./directory.js
-  - ./gameplay.js
-  - ./recovery.js
   - ./access.js
   - ./index.js
 plugin_imports:
@@ -31,109 +27,100 @@ extension_points:
   - rooms.runtime
 config_schema:
   maxPlayers: int
+events:
+  - name: connected
+    fields:
+      roomId: string
+      reconnected: boolean
+  - name: created
+    fields: {roomId: string}
+  - name: reconnected
+    fields: {roomId: string}
+  - name: result.committed
+    fields: {roomId: string}
 routes:
   - operation: rooms.create
     function: create
-    response:
-      input:
-        - name: id
-          type: string
-          trim: true
-          required: true
-          error: room id is required
-        - name: room
-          type: object
-          required: true
-          error: room not found
-      result: $input.room
-    helper: sdk.resource
+    helper: sdk.dispatch
     capability: rooms.create
-    storage:
-      action: state.create
-      key: id
-      target: room
-      values:
-        id: $input.id
-        members: []
+    resource_field: id
   - operation: rooms.join
     function: join
-    response:
-      input:
-        - name: id
-          type: string
-          trim: true
-          required: true
-          error: room id and member are required
-        - name: member
-          type: string
-          trim: true
-          required: true
-          error: room id and member are required
-        - name: room
-          type: object
-          required: true
-          error: room not found
-      merge: room
-      output:
-        member: $input.member
-        reconnected: false
-    helper: sdk.resource
+    helper: sdk.dispatch
     capability: rooms.join
-    storage:
-      action: state.add_unique
-      key: id
-      target: room
-      field: members
-      input: member
+    resource_field: id
   - operation: rooms.reconnect
     function: reconnect
-    response:
-      input:
-        - name: id
-          type: string
-          trim: true
-          required: true
-          error: room id and member are required
-        - name: member
-          type: string
-          trim: true
-          required: true
-          error: room id and member are required
-        - name: room
-          type: object
-          required: true
-          error: room not found
-      merge: room
-      output:
-        member: $input.member
-        reconnected: true
-    helper: sdk.resource
+    helper: sdk.dispatch
     capability: rooms.reconnect
-    storage:
-      action: state.add_unique
-      key: id
-      target: room
-      field: members
-      input: member
+    resource_field: id
   - operation: rooms.result
     function: result
-    response:
-      input:
-        - name: id
-          type: string
-          trim: true
-          required: true
-          error: room id is required
-        - name: room
-          type: object
-          required: true
-          error: room not found
-      result: $input.room
-    helper: sdk.resource
+    helper: sdk.dispatch
     capability: rooms.result
-    storage:
-      action: state.patch
-      key: id
-      target: room
-      field: result
-      input: result
+    resource_field: id
+admin:
+  version: 1
+  pages:
+    - id: operations
+      title: Room details
+      extension_slots:
+        - tab
+      legacy_route: live-sessions
+      inventory:
+        kind: state_keys
+        capability: rooms.result
+        title: Rooms
+        select_field: id
+      refresh_on:
+        - rooms.connected
+        - rooms.created
+        - rooms.reconnected
+        - rooms.result.committed
+      actions:
+        - title: Get room result
+          operation: rooms.result
+          read_only: true
+          result:
+            type: detail
+          fields:
+            - name: id
+              type: string
+              required: true
+    - id: manage
+      title: Manage rooms
+      legacy_route: live-sessions
+      actions:
+        - title: Create room
+          operation: rooms.create
+          fields:
+            - name: id
+              type: string
+              required: true
+        - title: Join room
+          operation: rooms.join
+          fields:
+            - name: id
+              type: string
+              required: true
+            - name: member
+              type: string
+              required: true
+        - title: Reconnect member
+          operation: rooms.reconnect
+          fields:
+            - name: id
+              type: string
+              required: true
+            - name: member
+              type: string
+              required: true
+        - title: Submit result
+          operation: rooms.result
+          fields:
+            - name: id
+              type: string
+              required: true
+            - name: result
+              type: json
+              required: true

@@ -1,10 +1,5 @@
-export {
-  roomRequest, RoomRouteStore, roomRouteStore, create, join, reconnect, result,
-  dispatchRoute,
-} from "./routes.js";
-export {
-  projectRoomID, createRoomDirectory, canTransitionRoom, validateMembership,
-} from "./directory.js";
+export { roomRequest } from "./routes.js";
+export { projectRoomID } from "./directory.js";
 export type PlayerSlot = { playerId: string; slot: number };
 export type RoomState = "waiting" | "matching" | "active" | "finished" | "closed";
 export type Room = {
@@ -30,28 +25,12 @@ export type RoomEvent = {
   sequence: number;
 };
 export type MembershipStore = { save(roomId: string, slots: readonly PlayerSlot[]): void };
-export type TicTacToeState = {
-  projectId: string;
-  roomId: string;
-  players: readonly [string, string];
-  board: readonly ("X" | "O" | null)[];
-  turn: string;
-  status: "active" | "paused";
-  turnDeadlineAt?: number;
-};
-export type CommittedTicTacToeMove = { revision: number; playerId: string; cell: number };
-export {
-  authorizedRoomSnapshot, authorizeRoomCommand, ConnectionTicketIssuer,
-  ConnectionTicketConsumer, authorizedTicTacToeState, authorizeTicTacToeCommand,
-  CommandDeduplicator, validateTicTacToeCommandPayload,
-} from "./access.js";
-export {
-  initializeTicTacToe, validateTicTacToeMove, ticTacToeWinner, ticTacToeDraw,
-  validateTicTacToeRuleResult, TIC_TAC_TOE_RULES_SOURCE, publishTicTacToeRules,
-  createTicTacToeCoordinator, TicTacToeRevisionReader, TicTacToeMover,
-} from "./gameplay.js";
-export {
-  expireTicTacToeTurn, pauseTicTacToeTurn, resumePausedTicTacToeTurn,
-  reconstructTicTacToeHistory, serializeTicTacToeState, reconnectTicTacToe,
-  hiddenTicTacToeView,
-} from "./recovery.js";
+export { authorizedRoomSnapshot } from "./access.js";
+export { authorizeRoomCommand } from "./access.js";
+export { ConnectionTicketIssuer } from "./access.js";
+export { ConnectionTicketConsumer } from "./access.js";
+export { createRoomDirectory } from "./directory.js";
+export { canTransitionRoom } from "./directory.js";
+export { validateMembership } from "./directory.js";
+export { RoomRouteStore, roomRouteStore } from "./routes.js";
+export { create, join, reconnect, result, dispatchRoute } from "./routes.js";

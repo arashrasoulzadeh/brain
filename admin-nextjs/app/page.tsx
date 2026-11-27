@@ -1,5 +1,5 @@
 "use client";
-import { adminHeaders, readAdminSession, saveAdminSession, clearAdminSession, signOutAdminSession } from "./lib/admin-api";
+import { adminHeaders, readAdminSession, saveAdminSession, clearAdminSession, signOutAdminSession, saveAdminProject, preferredAdminProject } from "./lib/admin-api";
 import { FormEvent, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
@@ -7,11 +7,11 @@ import { AdminFooter, AdminHeader, AdminSidebar } from "./components/admin-chrom
 import { QUIET_REQUEST_HEADER } from "./components/toast-provider";
 import type { Project, PluginManifest, PluginStatus, AuditRecord, FunctionDraft, SystemManifest, Language } from "./lib/admin-types";
 import { copy } from "./lib/admin-copy";
+import { createProjectRequestGate } from "./lib/project-requests";
 import { canViewAdminPage, enabledPluginIDs, visibleAdminPages } from "./lib/admin-navigation";
 import { AuditPanel } from "./components/audit-panel";
 import { SystemPanel } from "./components/system-panel";
 import { MonitoringPanel } from "./components/monitoring-panel";
-import { PluginConsole } from "./components/plugin-console";
 import { ProjectsPanel } from "./components/projects-panel";
 import { PluginCatalogPanel } from "./components/plugin-catalog-panel";
 import { FunctionDraftsPanel } from "./components/function-drafts-panel";
@@ -31,6 +31,7 @@ export default function AdminPage() {
   const [secret, setSecret] = useState("");
   const [projectID, setProjectID] = useState("");
   const [selectedProjectID, setSelectedProjectID] = useState("");
+  const [projectRequests] = useState(createProjectRequestGate);
   const [error, setError] = useState("");
   const [configuration, setConfiguration] = useState<
     Record<string, Record<string, string | boolean>>
@@ -50,18 +51,6 @@ export default function AdminPage() {
   const [functionPublic, setFunctionPublic] = useState(false);
   const [functionPermissions, setFunctionPermissions] = useState("functions.invoke");
   const [functionDrafts, setFunctionDrafts] = useState<FunctionDraft[]>([]);
-  const [databaseOperation, setDatabaseOperation] = useState("tables.schema");
-  const [databasePayload, setDatabasePayload] = useState("{}");
-  const [databaseMessage, setDatabaseMessage] = useState("");
-  const [fileOperation, setFileOperation] = useState("files.metadata");
-  const [filePayload, setFilePayload] = useState('{"key":"example.txt"}');
-  const [fileMessage, setFileMessage] = useState("");
-  const [workflowOperation, setWorkflowOperation] = useState("functions.invoke");
-  const [workflowPayload, setWorkflowPayload] = useState("{}");
-  const [workflowMessage, setWorkflowMessage] = useState("");
-  const [sessionOperation, setSessionOperation] = useState("rooms.create");
-  const [sessionPayload, setSessionPayload] = useState("{}");
-  const [sessionMessage, setSessionMessage] = useState("");
   const text = copy[language];
   const pageTitle =
     (
@@ -70,17 +59,24 @@ export default function AdminPage() {
         plugins: text.plugins,
         system: text.system,
         audit: text.audit,
-        database: text.database,
         functions: text.functions,
-        workflows: text.workflows,
-        files: text.files,
-        "live-sessions": text.liveSessions,
         routes: text.routesPage,
         monitoring: text.monitoring,
         workers: text.workers,
       } as Record<string, string>
     )[activePage] ?? text.projects;
   const activePluginIDs = enabledPluginIDs(installations);
+  function selectProject(id: string) {
+    if (!projectRequests.select(id)) return;
+    setSelectedProjectID(id);
+    setInstallations([]);
+    setFunctionDrafts([]);
+    setPlaygroundRoute("");
+    setPlaygroundPayload("{}");
+    setPlaygroundMessage("");
+    setFunctionMessage("");
+    saveAdminProject(id);
+  }
   useEffect(() => {
     if (!session) return;
     const refresh = () =>
@@ -109,8 +105,8 @@ export default function AdminPage() {
     setSession(savedSession);
     loadProjects(savedSession)
       .then((loadedProjects) => {
-        const activeProjectID = loadedProjects.find((project) => project.Active)?.ID ?? "";
-        setSelectedProjectID(activeProjectID);
+        const activeProjectID = preferredAdminProject(loadedProjects)?.ID ?? "";
+        selectProject(activeProjectID);
         return Promise.all([
           loadPlugins(savedSession, activeProjectID),
           loadAudit(savedSession),
@@ -139,17 +135,23 @@ export default function AdminPage() {
     return loadedProjects;
   }
   async function loadPlugins(token: string, projectID = selectedProjectID) {
+    const current = projectRequests.begin(projectID, "catalog");
+    if (!current) return;
+    const valid = () => current() && readAdminSession() === token;
     const query = projectID ? `?project_id=${encodeURIComponent(projectID)}` : "";
-    const response = await fetch(`/api/admin/plugins${query}`, {
-      headers: adminHeaders(token),
-    });
-    if (!response.ok) throw new Error("Could not load plugins");
-    const result = (await response.json()) as {
-      manifests: PluginManifest[];
-      installations: PluginStatus[];
-    };
-    setManifests(result.manifests);
-    setInstallations(result.installations);
+    try {
+      const response = await fetch(`/api/admin/plugins${query}`, { headers: adminHeaders(token) });
+      if (!valid()) return;
+      if (!response.ok) throw new Error("Could not load plugins");
+      const result = (await response.json()) as { manifests: PluginManifest[] | null; installations: PluginStatus[] | null };
+      if (!valid()) return;
+      setManifests(result.manifests ?? []);
+      setInstallations((result.installations ?? []).filter(item => item.ProjectID === projectID));
+    } catch (reason) {
+      if (!valid()) return;
+      setInstallations([]);
+      throw reason;
+    }
   }
   async function loadAudit(token: string) {
     const response = await fetch("/api/admin/audit", {
@@ -166,15 +168,20 @@ export default function AdminPage() {
     setSystem((await response.json()) as SystemManifest[]);
   }
   async function loadFunctionDrafts(token: string, projectID = selectedProjectID) {
-    if (!projectID) {
-      setFunctionDrafts([]);
-      return;
+    const current = projectRequests.begin(projectID, "functions");
+    if (!current) return;
+    const valid = () => current() && readAdminSession() === token;
+    if (!projectID) { setFunctionDrafts([]); return; }
+    try {
+      const response = await fetch(
+        `/api/admin/functions?project_id=${encodeURIComponent(projectID)}`,
+        { headers: adminHeaders(token, { [QUIET_REQUEST_HEADER]: "1" }) },
+      );
+      const result = response.ok ? (await response.json()) as FunctionDraft[] | null : [];
+      if (valid()) setFunctionDrafts((result ?? []).filter(item => item.project_id === projectID));
+    } catch {
+      if (valid()) setFunctionDrafts([]);
     }
-    const response = await fetch(
-      `/api/admin/functions?project_id=${encodeURIComponent(projectID)}`,
-      { headers: adminHeaders(token, { [QUIET_REQUEST_HEADER]: "1" }) },
-    );
-    if (response.ok) setFunctionDrafts((await response.json()) as FunctionDraft[]);
   }
   async function signIn(event: FormEvent) {
     event.preventDefault();
@@ -200,8 +207,9 @@ export default function AdminPage() {
       setSession(token);
       saveAdminSession(token);
       const loadedProjects = await loadProjects(token);
-      setSelectedProjectID(loadedProjects.find((project) => project.Active)?.ID ?? "");
-      await loadPlugins(token, loadedProjects.find((project) => project.Active)?.ID ?? "");
+      const activeProject = preferredAdminProject(loadedProjects)?.ID ?? "";
+      setSelectedProjectID(activeProject);
+      await Promise.all([loadPlugins(token, activeProject), loadFunctionDrafts(token, activeProject)]);
       await loadAudit(token);
       await loadSystem(token);
     } catch (reason) {
@@ -209,6 +217,7 @@ export default function AdminPage() {
     }
   }
   async function signOut() {
+    selectProject("");
     await signOutAdminSession();
     setSession("");
   }
@@ -223,7 +232,12 @@ export default function AdminPage() {
       });
       if (!response.ok) throw new Error(await response.text());
       setProjectID("");
-      await loadProjects(session);
+      const loaded = await loadProjects(session);
+      if (!projectRequests.current()) {
+        const next = loaded.find(candidate => candidate.ID === projectID && candidate.Active)?.ID ?? loaded.find(candidate => candidate.Active)?.ID ?? "";
+        selectProject(next);
+        await Promise.all([loadPlugins(session, next), loadFunctionDrafts(session, next)]);
+      }
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Could not create project");
     }
@@ -244,9 +258,12 @@ export default function AdminPage() {
       return;
     }
     const loadedProjects = await loadProjects(session);
-    if (selectedProjectID === project.ID && !active)
-      setSelectedProjectID(loadedProjects.find((candidate) => candidate.Active)?.ID ?? "");
-    await loadPlugins(session, active ? project.ID : "");
+    const current = projectRequests.current();
+    const next = !current || (current === project.ID && !active)
+      ? loadedProjects.find(candidate => candidate.Active)?.ID ?? ""
+      : current;
+    selectProject(next);
+    await Promise.all([loadPlugins(session, next), loadFunctionDrafts(session, next)]);
     await loadAudit(session);
   }
   function testPlayground() {
@@ -312,89 +329,6 @@ export default function AdminPage() {
       }
     }
     setPlaygroundPayload(JSON.stringify(output, null, 2));
-  }
-  async function runDatabaseOperation() {
-    await runPluginConsoleOperation("tables", databaseOperation, databasePayload, setDatabasePayload, setDatabaseMessage);
-  }
-  async function runFileOperation() {
-    await runPluginConsoleOperation("files", fileOperation, filePayload, setFilePayload, setFileMessage);
-  }
-  async function runWorkflowOperation() {
-    await runPluginConsoleOperation(
-      "functions",
-      workflowOperation,
-      workflowPayload,
-      setWorkflowPayload,
-      setWorkflowMessage,
-    );
-  }
-  async function runSessionOperation() {
-    const pluginID = sessionOperation.startsWith("rooms.") ? "rooms" : "matchmaking";
-    await runPluginConsoleOperation(
-      pluginID,
-      sessionOperation,
-      sessionPayload,
-      setSessionPayload,
-      setSessionMessage,
-    );
-  }
-  async function runPluginConsoleOperation(
-    pluginID: string,
-    operation: string,
-    rawPayload: string,
-    setPayload: (value: string) => void,
-    setMessage: (value: string) => void,
-  ) {
-    if (!selectedProjectID) {
-      setMessage("Select an active project first");
-      return;
-    }
-    let payload: unknown;
-    try {
-      payload = JSON.parse(rawPayload || "{}");
-    } catch {
-      setMessage("Invalid JSON payload");
-      return;
-    }
-    const manifest = system.find((candidate) => candidate.ID === pluginID);
-    if (!manifest) {
-      setMessage(`${pluginID} plugin manifest unavailable`);
-      return;
-    }
-    setMessage("Executing through the host...");
-    const response = await fetch("/api/admin/actions", {
-      method: "POST",
-      headers: adminHeaders(session, { "content-type": "application/json" }),
-      body: JSON.stringify({
-        operation: "plugin.invoke",
-        project_id: selectedProjectID,
-        plugin_id: pluginID,
-        version: manifest.Version,
-        target_operation: operation,
-        payload,
-      }),
-    });
-    if (!response.ok) {
-      setMessage(await response.text());
-      return;
-    }
-    const result = await response.json();
-    if (result.success === false) {
-      setMessage(`Plugin error: ${result.errorCode ?? "execution failed"}`);
-      return;
-    }
-    try {
-      setPayload(
-        JSON.stringify(
-          typeof result.payload === "string" ? JSON.parse(atob(result.payload)) : result,
-          null,
-          2,
-        ),
-      );
-    } catch {
-      setPayload(JSON.stringify(result, null, 2));
-    }
-    setMessage("Operation completed");
   }
   async function installPlugin(manifest: PluginManifest) {
     setError("");
@@ -480,8 +414,11 @@ export default function AdminPage() {
       return;
     }
     const loadedProjects = await loadProjects(session);
-    setSelectedProjectID(loadedProjects.find((candidate) => candidate.Active)?.ID ?? "");
-    await loadPlugins(session, loadedProjects.find((candidate) => candidate.Active)?.ID ?? "");
+    const current = projectRequests.current();
+    const next = loadedProjects.some(candidate => candidate.ID === current && candidate.Active)
+      ? current : loadedProjects.find(candidate => candidate.Active)?.ID ?? "";
+    selectProject(next);
+    await Promise.all([loadPlugins(session, next), loadFunctionDrafts(session, next)]);
     await loadAudit(session);
   }
   async function runPluginAction(
@@ -673,7 +610,7 @@ export default function AdminPage() {
   if (!canViewAdminPage(activePage, activePluginIDs))
     return (
       <main className="shell" dir={language === "fa" ? "rtl" : "ltr"}>
-        <section className="card">
+        <section className="card admin-content" id="admin-content">
           <AdminHeader title={pageTitle} eyebrow={text.eyebrow} />
           <p className="error">This page is unavailable until its plugin is ready and enabled.</p>
           <Link href="/plugins">Open Plugins to enable it</Link>
@@ -694,7 +631,12 @@ export default function AdminPage() {
         setProjectActive={setProjectActive}
         uninstallProject={uninstallProject}
         error={error}
-        onSelectProject={(id) => { setSelectedProjectID(id); void loadPlugins(session, id); }}
+        onSelectProject={(id) => {
+          selectProject(id);
+          void Promise.all([loadPlugins(session, id), loadFunctionDrafts(session, id)]).catch(reason => {
+            if (projectRequests.current() === id) setError(String(reason));
+          });
+        }}
       />
       <PluginCatalogPanel
         activePage={activePage}
@@ -718,21 +660,6 @@ export default function AdminPage() {
         text={text}
         system={system}
       />
-      <PluginConsole
-        visible={activePage === "database"}
-        title={text.database}
-        description="Run project-scoped table operations through the installed Tables plugin."
-        operation={databaseOperation}
-        onOperationChange={setDatabaseOperation}
-        operations={["tables.schema", "tables.read", "tables.write"]}
-        payload={databasePayload}
-        onPayloadChange={setDatabasePayload}
-        payloadLabel={text.payload}
-        sendLabel={text.send}
-        onRun={() => void runDatabaseOperation()}
-        message={databaseMessage}
-        manifests={system.filter((manifest) => manifest.ID === "tables")}
-      />
       <FunctionDraftsPanel
         activePage={activePage}
         text={text}
@@ -746,50 +673,6 @@ export default function AdminPage() {
         functionMessage={functionMessage}
         functionDrafts={functionDrafts}
         system={system}
-      />
-      <PluginConsole
-        visible={activePage === "workflows"}
-        title={text.workflows}
-        description="Run project-scoped Functions plugin operations through the host."
-        operation={workflowOperation}
-        onOperationChange={setWorkflowOperation}
-        operations={["functions.invoke", "functions.publish"]}
-        payload={workflowPayload}
-        onPayloadChange={setWorkflowPayload}
-        payloadLabel={text.payload}
-        sendLabel={text.send}
-        onRun={() => void runWorkflowOperation()}
-        message={workflowMessage}
-      />
-      <PluginConsole
-        visible={activePage === "files"}
-        title={text.files}
-        description="Run project-scoped file operations through the installed Files plugin."
-        operation={fileOperation}
-        onOperationChange={setFileOperation}
-        operations={["files.upload", "files.download", "files.metadata", "files.publish"]}
-        payload={filePayload}
-        onPayloadChange={setFilePayload}
-        payloadLabel={text.payload}
-        sendLabel={text.send}
-        onRun={() => void runFileOperation()}
-        message={fileMessage}
-        manifests={system.filter((manifest) => manifest.ID === "files")}
-      />
-      <PluginConsole
-        visible={activePage === "live-sessions"}
-        title={text.liveSessions}
-        description="Manage project-scoped Rooms and Matchmaking operations through the host."
-        operation={sessionOperation}
-        onOperationChange={setSessionOperation}
-        operations={["rooms.create", "rooms.join", "rooms.reconnect", "rooms.result", "matchmaking.queue", "matchmaking.cancel", "matchmaking.status", "matchmaking.assign"]}
-        payload={sessionPayload}
-        onPayloadChange={setSessionPayload}
-        payloadLabel={text.payload}
-        sendLabel={text.send}
-        onRun={() => void runSessionOperation()}
-        message={sessionMessage}
-        manifests={system.filter((manifest) => ["rooms", "matchmaking"].includes(manifest.ID))}
       />
       <RoutesPanel
         activePage={activePage}
@@ -818,6 +701,7 @@ export default function AdminPage() {
   if (pathname !== "/") return pageContent;
   return (
     <main className="shell" dir={language === "fa" ? "rtl" : "ltr"}>
+      <a className="skip-link" href="#admin-content">Skip to content</a>
       <div className="workspace">
         <AdminSidebar
           activePage={activePage}
@@ -825,7 +709,7 @@ export default function AdminPage() {
           onSignOut={() => void signOut()}
           visiblePages={visibleAdminPages(manifests.length, activePluginIDs)}
         />
-        <section className="card">
+        <section className="card admin-content" id="admin-content">
           <AdminHeader title={pageTitle} eyebrow={text.eyebrow} />
           {pageContent}
           <AdminFooter />

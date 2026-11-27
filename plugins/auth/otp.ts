@@ -1,15 +1,19 @@
-import { createDigestToken, consumeDigestToken, numericOTP, randomToken, type DigestToken } from "../sdk-typescript/src/tokens.js";
+import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { validateProjectId } from "../sdk-typescript/src/index.js";
 
-export type OTPChallenge = DigestToken;
+export type OTPChallenge = { digest: string; expiresAt: number; used: boolean };
 export type RecoveryToken = OTPChallenge;
 type Inbox = { deliver(destination: string, body: string): void };
 
+function digest(secret: string, token: string): string {
+  return createHmac("sha256", secret).update(token).digest("hex");
+}
+
 function deliverToken(
   records: Map<string, OTPChallenge>, secret: string, inbox: Inbox,
-  key: string, destination: string, token: string, now: number, ttlSeconds: number, error: string,
+  key: string, destination: string, token: string, now: number, ttlSeconds: number,
 ): void {
-  records.set(key, createDigestToken(secret, token, now, ttlSeconds * 1000, error));
+  records.set(key, { digest: digest(secret, token), expiresAt: now + ttlSeconds * 1000, used: false });
   inbox.deliver(destination, token);
 }
 
@@ -17,7 +21,13 @@ function consumeToken(
   records: ReadonlyMap<string, OTPChallenge>, secret: string, key: string,
   token: string, now: number,
 ): boolean {
-  return consumeDigestToken(records.get(key), secret, token, now);
+  const record = records.get(key);
+  if (!record || record.used || record.expiresAt <= now) return false;
+  const actual = Buffer.from(record.digest);
+  const expected = Buffer.from(digest(secret, token));
+  if (actual.length !== expected.length || !timingSafeEqual(actual, expected)) return false;
+  record.used = true;
+  return true;
 }
 
 class OTPIssuer {
@@ -31,8 +41,8 @@ class OTPIssuer {
   issue(projectId: string, destination: string, purpose: string, now: number, ttlSeconds: number): void {
     validateProjectId(projectId);
     if (!this.validDestination(destination) || !purpose || ttlSeconds <= 0) throw new Error(this.error);
-    const code = numericOTP();
-    deliverToken(this.challenges, this.secret, this.inbox, `${projectId}:${destination}:${purpose}`, destination, code, now, ttlSeconds, this.error);
+    const code = String(100000 + (randomBytes(4).readUInt32BE(0) % 900000));
+    deliverToken(this.challenges, this.secret, this.inbox, `${projectId}:${destination}:${purpose}`, destination, code, now, ttlSeconds);
   }
 }
 
@@ -64,7 +74,7 @@ export class RecoveryTokenIssuer {
   issue(projectId: string, destination: string, now: number, ttlSeconds: number): void {
     validateProjectId(projectId);
     if (!destination.includes("@") || ttlSeconds <= 0) throw new Error("invalid recovery request");
-    deliverToken(this.tokens, this.secret, this.inbox, `${projectId}:${destination}`, destination, randomToken(), now, ttlSeconds, "invalid recovery request");
+    deliverToken(this.tokens, this.secret, this.inbox, `${projectId}:${destination}`, destination, randomBytes(24).toString("base64url"), now, ttlSeconds);
   }
 }
 

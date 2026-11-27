@@ -1,14 +1,17 @@
-import { createManifestRequest } from "../sdk-typescript/src/index.js";
+import { createResourceRequest } from "../sdk-typescript/src/index.js";
 
-export const arenaRequest = createManifestRequest("arena", "roomId");
+export const arenaRequest = createResourceRequest<"arena.start" | "arena.input" | "arena.snapshot" | "arena.result">("arena", "roomId");
 
-export {
-  arenaStartCommand, createArena, ArenaStateReader, ArenaStarter, ArenaActionRecorder,
-  ArenaMeasurer, ArenaFinisher, interruptExpiredActionRoom,
-} from "./state-machine.js";
-export {
-  exportEyeEvent, MatchResultSaver, MatchResultReader, validateMatchResult,
-} from "./match-results.js";
-export {
-  type ArenaMeasurement, type ArenaState, type DurableMatchResult, type EyeEvent,
-} from "./types.js";
+export { arenaStartCommand, start, input, snapshot, result } from "./state-machine.js";
+export { exportEyeEvent } from "./match-results.js";
+export { MatchResultSaver } from "./match-results.js";
+export { MatchResultReader } from "./match-results.js";
+export { createArena } from "./state-machine.js";
+export { ArenaStateReader } from "./state-machine.js";
+export { ArenaStarter } from "./state-machine.js";
+export { ArenaActionRecorder } from "./state-machine.js";
+export { ArenaMeasurer } from "./state-machine.js";
+export { ArenaFinisher } from "./state-machine.js";
+export { interruptExpiredActionRoom } from "./state-machine.js";
+export { validateMatchResult } from "./match-results.js";
+export type { ArenaMeasurement, ArenaState, DurableMatchResult, EyeEvent } from "./types.js";

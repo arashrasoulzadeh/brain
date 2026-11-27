@@ -1,5 +1,5 @@
+import type { ManifestOperation, ManifestOperations } from "./manifest-operations.generated.js";
 import type { RpcRequest, WorkerParams } from "./index.js";
-import type { ManifestOperations } from "./manifest-operations.generated.js";
 export function request(id: string, params: WorkerParams): RpcRequest {
   if (!id || !params.projectId || !params.pluginId || !params.version || !params.operation)
     throw new Error("invalid plugin request");
@@ -32,10 +32,13 @@ export function createResourceRequest<Operation extends string>(prefix: string, 
     operation: Operation, identity: string, payload: unknown = {},
   ): RpcRequest => pluginRequest(
     prefix, projectId, pluginId, version, operation,
-    { [field]: identity, ...(payload as Record<string, unknown>) }, identity,
+    { ...(payload as Record<string, unknown>), [field]: identity }, identity,
   );
 }
 
+/** Serialize a declared operation for a fixed plugin ID. Host authorization remains authoritative. */
 export function createManifestRequest<Id extends keyof ManifestOperations>(plugin: Id, field: string) {
-  return createResourceRequest<ManifestOperations[Id]>(plugin, field);
+  const serialize = createResourceRequest<ManifestOperation<Id>>(plugin, field);
+  return (projectId: string, version: string, operation: ManifestOperation<Id>, identity: string, payload: unknown = {}): RpcRequest =>
+    serialize(projectId, plugin, version, operation, identity, payload);
 }

@@ -8,9 +8,7 @@ import (
 // ResponseSpec describes bounded input validation and response mapping, not executable code.
 type ResponseSpec struct {
 	Input  []ResponseField `yaml:"input" json:"input"`
-	Output map[string]any  `yaml:"output,omitempty" json:"output,omitempty"`
-	Result string          `yaml:"result,omitempty" json:"result,omitempty"`
-	Merge  string          `yaml:"merge,omitempty" json:"merge,omitempty"`
+	Output map[string]any  `yaml:"output" json:"output"`
 }
 
 type ResponseField struct {
@@ -35,19 +33,16 @@ func validResponseKey(key string) bool {
 }
 
 func (s *ResponseSpec) valid() bool {
-	if s == nil || len(s.Input) > 32 || len(s.Output) > 32 || (len(s.Output) == 0) == (s.Result == "") || (s.Merge != "" && s.Result != "") {
+	if s == nil || len(s.Input) > 32 || len(s.Output) == 0 || len(s.Output) > 32 {
 		return false
 	}
-	fields := map[string]string{}
+	fields := map[string]bool{}
 	for _, field := range s.Input {
-		if !validResponseKey(field.Name) || fields[field.Name] != "" || !validResponseType(field.Type) ||
+		if !validResponseKey(field.Name) || fields[field.Name] || (field.Type != "string" && field.Type != "value") ||
 			(field.Type != "string" && (field.Trim || field.Default != nil)) || (field.Required && field.Error == "") {
 			return false
 		}
-		fields[field.Name] = field.Type
-	}
-	if (s.Result != "" && !validResponseReference(s.Result, fields)) || (s.Merge != "" && fields[s.Merge] != "object") {
-		return false
+		fields[field.Name] = true
 	}
 	for key, value := range s.Output {
 		if !validResponseKey(key) {
@@ -55,7 +50,7 @@ func (s *ResponseSpec) valid() bool {
 		}
 		switch value := value.(type) {
 		case string:
-			if strings.HasPrefix(value, "$") && !validResponseReference(value, fields) {
+			if strings.HasPrefix(value, "$") && value != "$project.id" && value != "$plugin.id" && !authReference(value) && (!strings.HasPrefix(value, "$input.") || !fields[strings.TrimPrefix(value, "$input.")]) {
 				return false
 			}
 		case float64:
@@ -68,23 +63,4 @@ func (s *ResponseSpec) valid() bool {
 		}
 	}
 	return true
-}
-
-func validResponseType(kind string) bool {
-	switch kind {
-	case "string", "value", "object", "array", "boolean", "number":
-		return true
-	}
-	return false
-}
-
-func validResponseReference(reference string, fields map[string]string) bool {
-	if strings.HasPrefix(reference, "$input.") {
-		return fields[strings.TrimPrefix(reference, "$input.")] != ""
-	}
-	if strings.HasPrefix(reference, "$length.") {
-		kind := fields[strings.TrimPrefix(reference, "$length.")]
-		return kind == "string" || kind == "array"
-	}
-	return false
 }

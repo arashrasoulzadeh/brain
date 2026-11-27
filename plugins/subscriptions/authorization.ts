@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { expiresAt, isActiveToken, validateProjectId } from "../sdk-typescript/src/index.js";
+import { validateProjectId } from "../sdk-typescript/src/index.js";
 import type { SubscriptionTicket } from "./types.js";
 
 export function validateBrowserOrigin(origin: string, allowedOrigins: readonly string[]): void {
@@ -63,7 +63,7 @@ export class SubscriptionTicketIssuer {
     validateProjectId(projectId, "invalid subscription ticket");
     if (!channel || !operation || !Number.isFinite(now) || ttlMs <= 0)
       throw new Error("invalid subscription ticket");
-    const ticket = { ticket: randomUUID(), projectId, channel, operation, expiresAt: expiresAt(now, ttlMs, "invalid subscription ticket") };
+    const ticket = { ticket: randomUUID(), projectId, channel, operation, expiresAt: now + ttlMs };
     this.tickets.set(ticket.ticket, ticket);
     return { ...ticket };
   }
@@ -83,10 +83,11 @@ export class SubscriptionTicketValidator {
       throw new Error("invalid subscription ticket");
     const found = this.tickets.get(ticket);
     if (
-      !isActiveToken(found, now) ||
+      !found ||
       found.projectId !== projectId ||
       found.channel !== channel ||
-      found.operation !== operation
+      found.operation !== operation ||
+      now >= found.expiresAt
     )
       throw new Error("invalid subscription ticket");
     return { ...found };

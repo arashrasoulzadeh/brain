@@ -1,0 +1,118 @@
+name: coverage
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  go-coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Measure host statement coverage
+        run: |
+          mkdir -p coverage/cli
+          export BRAIN_CLI_COVERDIR="$PWD/coverage/cli"
+          status=0
+          go test -count=1 -covermode=atomic -coverpkg=./internal/...,./cmd/... -coverprofile=coverage/go.out ./... || status=$?
+          # Include actual coverage from instrumented subprocess CLI integration tests.
+          go tool covdata textfmt -i="$BRAIN_CLI_COVERDIR" -o=coverage/cli.out
+          test -s coverage/cli.out
+          test "$(wc -l < coverage/cli.out)" -gt 1
+          tail -n +2 coverage/cli.out >> coverage/go.out
+          # Exercise the packaged server and isolated workers, not just Go mocks.
+          BRAIN_PRODUCTION_COVERDIR="$PWD/coverage/production" timeout 300s bash scripts/test-production-runtime.sh || status=$?
+          go tool covdata textfmt -i=coverage/production -o=coverage/production.out
+          test -s coverage/production.out
+          test "$(wc -l < coverage/production.out)" -gt 1
+          tail -n +2 coverage/production.out >> coverage/go.out
+          if test -s coverage/go.out; then
+            go tool cover -func=coverage/go.out | tee coverage/go-summary.txt
+            go tool cover -html=coverage/go.out -o coverage/go.html
+          fi
+          exit "$status"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: go-coverage
+          path: coverage/
+      - name: Test Go coverage accounting
+        run: python -m unittest discover -s tests/coverage -p 'test_*.py'
+      - name: Require every measured statement to execute
+        run: python scripts/check-go-coverage.py coverage/go.out
+  typescript-coverage:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm ci --prefix admin-nextjs
+      - name: Measure plugin, client, admin and worker coverage
+        run: |
+          mkdir -p coverage/raw
+          NODE_V8_COVERAGE="$PWD/coverage/raw" npm run test:ts
+          python scripts/prepare-v8-coverage.py coverage/raw coverage/c8-input
+          npx --yes --package=c8@10.1.3 c8 report --temp-directory=coverage/c8-input --all \
+            --src=plugins --src=clients/javascript/src --src=admin-nextjs/app --src=scripts \
+            --include='plugins/**/*.ts' --include='plugins/**/*.mjs' --include='clients/javascript/src/**/*.ts' --include='admin-nextjs/app/**/*.ts' --include='admin-nextjs/app/**/*.tsx' --include='scripts/**/*.mjs' \
+            --exclude='**/*.d.ts' --reporter=text --reporter=json-summary --reporter=html
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: typescript-coverage
+          path: coverage/
+      - name: Require 100% in every measured source file
+        run: |
+          npx --yes --package=c8@10.1.3 c8 check-coverage --temp-directory=coverage/c8-input --all \
+            --src=plugins --src=clients/javascript/src --src=admin-nextjs/app --src=scripts \
+            --include='plugins/**/*.ts' --include='plugins/**/*.mjs' --include='clients/javascript/src/**/*.ts' --include='admin-nextjs/app/**/*.ts' --include='admin-nextjs/app/**/*.tsx' --include='scripts/**/*.mjs' \
+            --exclude='**/*.d.ts' --per-file --lines=100 --functions=100 --branches=100 --statements=100
+  flutter-coverage:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: clients/flutter
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter test --coverage ../../tests/flutter
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: flutter-coverage
+          path: clients/flutter/coverage/
+      - run: python ../../scripts/check-lcov.py coverage/lcov.info lib
+  kotlin-coverage:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: clients/android
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.10.2'
+      - run: gradle test jacocoTestReport jacocoTestCoverageVerification
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: kotlin-coverage
+          path: clients/android/build/reports/

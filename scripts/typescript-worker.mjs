@@ -1,6 +1,7 @@
 import readline from "node:readline";
 import { readFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
+import { callHelper, hasHelper } from "../plugins/sdk-typescript/src/helpers.mjs";
 
 const descriptorPath = process.argv[2];
 if (!descriptorPath) {
@@ -9,21 +10,21 @@ if (!descriptorPath) {
 }
 
 const descriptor = JSON.parse(await readFile(descriptorPath, "utf8"));
-const declarative = descriptor.runtime === "declarative";
-if ((declarative ? Boolean(descriptor.entrypoint) : !descriptor.entrypoint) || !descriptor.pluginId || !descriptor.version || !descriptor.projectId || !Array.isArray(descriptor.routes)) {
+if ((!descriptor.entrypoint && descriptor.declarative !== true) || !descriptor.pluginId || !descriptor.version || !descriptor.projectId || !Array.isArray(descriptor.routes)) {
   process.stderr.write("invalid execution descriptor\n");
   process.exit(65);
 }
-const codeRequired = descriptor.routes.some((route) => route.helper !== "sdk.response" && route.helper !== "sdk.resource");
-const plugin = declarative || !codeRequired ? Object.freeze({}) : await import(pathToFileURL(descriptor.entrypoint).href);
+const plugin = descriptor.declarative === true ? Object.freeze({}) : await import(pathToFileURL(descriptor.entrypoint).href);
 const handler = plugin.handle ?? plugin.createHandler?.();
 const routeHelpers = new Map([
   ["sdk.dispatch", { exported: "dispatchRoute", input: (request) => request.params.payload ?? null }],
   ["sdk.request", { exported: "dispatchRequest", input: (request) => request }],
 ]);
 if (descriptor.routes.some((route) => {
-  if (route.helper === "sdk.response" || route.helper === "sdk.resource") return !validResponse(route.response);
-  if (declarative) return true;
+  if (route.helper === "host.model" || route.helper === "host.call") return false; // Executed exclusively by the Go registry.
+  if (route.helper === "sdk.pipeline") return !validPipeline(route.pipeline);
+  if (route.helper === "sdk.response") return !validResponse(route.response);
+  if (route.helper === "sdk.context") return typeof plugin[route.function] !== "function";
   if (route.helper) {
     const helper = routeHelpers.get(route.helper);
     return !helper || typeof plugin[helper.exported] !== "function";
@@ -40,6 +41,7 @@ const input = readline.createInterface({ input: process.stdin, crlfDelay: Infini
 for await (const line of input) {
   if (!line.trim()) continue;
   let request;
+  let acceptingObservations = true;
   try {
     request = JSON.parse(line);
     if (JSON.stringify(request).length > 1_048_576) throw new Error("request too large");
@@ -47,27 +49,98 @@ for await (const line of input) {
     if (params.pluginId !== descriptor.pluginId || params.version !== descriptor.version || params.projectId !== descriptor.projectId) {
       throw new Error("execution context mismatch");
     }
+    const observations = [];
+    const fire = (event, payload) => {
+      if (!acceptingObservations || params.operation.startsWith("@observe/")) throw new Error("observation cannot be published outside a publisher invocation");
+      if (observations.length >= 16) throw new Error("observation event limit exceeded");
+      const spec = (descriptor.events ?? []).find((item) => item.name === event && !item.source);
+      if (!spec || !payload || typeof payload !== "object" || Array.isArray(payload)) throw new Error("undeclared or invalid observation");
+      const serialized = JSON.stringify(payload);
+      if (!serialized || Buffer.byteLength(serialized, "utf8") > 16 * 1024) throw new Error("observation payload too large");
+      const snapshot = JSON.parse(serialized);
+      if (!validEventPayload(spec, snapshot)) throw new Error("invalid observation fields");
+      observations.push({ event, payload: snapshot });
+    };
+    if ((descriptor.requireProject && !params.project) || (params.project && (params.project.id !== descriptor.projectId || params.project.active !== true))) throw new Error("project model mismatch");
+    if (params.payload && typeof params.payload === "object" && !Array.isArray(params.payload)) {
+      for (const key of ["projectId", "project_id"]) {
+        if (Object.hasOwn(params.payload, key) && params.payload[key] !== descriptor.projectId) throw new Error("host project context mismatch");
+      }
+    }
+    const hostContext = params.hostContext;
+    const available = new Set(Array.isArray(hostContext?.available) ? hostContext.available : []);
+    const context = Object.freeze({
+      auth: invocationAuth(hostContext?.auth, params.operation),
+      project: Object.freeze({ id: descriptor.projectId, ...((params.project?.active || hostContext?.projectVerified) ? { active: true } : {}) }),
+      plugin: Object.freeze({ id: descriptor.pluginId, version: descriptor.version }),
+      execution: Object.freeze({ operation: params.operation, ...(hostContext?.invocationId ? { invocationId: hostContext.invocationId } : {}) }),
+      ...(hostContext ? { config: Object.freeze({ ...hostContext.config }) } : {}),
+      helpers: Object.freeze({ call: callHelper }),
+      plugins: Object.freeze({ observe: Object.freeze({ fire }), has: (id) => typeof id === "string" && [...available].some((dependency) => dependency === id || dependency.split("@")[0] === id) }),
+    });
+    // Never accept a context supplied by the request or payload.
+    request = { ...request, context };
     const route = descriptor.routes.find((candidate) => candidate.operation === params.operation);
     if (!route) throw new Error("operation not declared in plugin manifest");
+    if (route.helper === "host.model" || route.helper === "host.call") throw new Error("host-only operation");
     const helper = routeHelpers.get(route.helper);
-    const result = (route.helper === "sdk.response" || route.helper === "sdk.resource")
-      ? mapResponse(route.response, params.payload)
+    const result = route.helper === "sdk.pipeline"
+      ? await executePipeline(route.pipeline, params.payload ?? null, context)
+      : route.helper === "sdk.response"
+      ? mapResponse(route.response, params.payload, context)
+      : route.helper === "sdk.context"
+      ? await plugin[route.function](context, params.payload ?? null)
       : helper
-      ? await plugin[helper.exported](route.function, helper.input(request))
-      : typeof handler === "function" ? await handler(request) : await invokeDeclaredRoute(plugin, route.function, request);
-    process.stdout.write(`${JSON.stringify({ jsonrpc: "2.0", id: request.id, result: { protocol: params.protocol, success: true, payload: result } })}\n`);
+      ? await plugin[helper.exported](route.function, helper.input(request), context)
+      : typeof handler === "function" ? await handler(request, context) : await invokeDeclaredRoute(plugin, route.function, request);
+    acceptingObservations = false;
+    process.stdout.write(`${JSON.stringify({ jsonrpc: "2.0", id: request.id, result: { protocol: params.protocol, success: true, payload: result, ...(observations.length ? { observations } : {}) } })}\n`);
   } catch (error) {
+    acceptingObservations = false;
     process.stdout.write(`${JSON.stringify({ jsonrpc: "2.0", id: request?.id ?? "", errorCode: error instanceof Error ? error.message : "plugin execution failed" })}\n`);
   }
 }
 
+function invocationAuth(auth, operation) {
+  const anonymous = Object.freeze({ kind: "public", id: "", authenticated: false, level: "anonymous" });
+  const actor = (value) => {
+    if (!value || typeof value.id !== "string") return anonymous;
+    if (["user", "operator"].includes(value.kind) && value.id && value.authenticated === true && value.level === "authenticated") {
+      return Object.freeze({ kind: value.kind, id: value.id, authenticated: true, level: "authenticated" });
+    }
+    if (["host", "plugin"].includes(value.kind) && value.authenticated === false && value.level === "system") {
+      return Object.freeze({ kind: value.kind, id: value.id, authenticated: false, level: "system" });
+    }
+    return anonymous;
+  };
+  const permissions = Object.freeze((Array.isArray(auth?.permissions) ? auth.permissions : [])
+    .filter((permission) => permission && permission.operation === operation && typeof permission.capability === "string" && permission.capability && typeof permission.resource === "string")
+    .map(({ capability, operation, resource }) => Object.freeze({ capability, operation, resource })));
+  return Object.freeze({
+    actor: actor(auth?.actor),
+    caller: actor(auth?.caller),
+    permissions,
+    can: (capability, resource = "") => permissions.some((permission) => permission.capability === capability && permission.resource === resource),
+  });
+}
+
 async function invokeDeclaredRoute(plugin, functionName, request) {
   const directExport = plugin[functionName];
-  if (typeof directExport === "function") return directExport(request.params.payload ?? null);
+  if (typeof directExport === "function") return directExport(request.params.payload ?? null, request.context);
   const functionMap = typeof plugin.functions === "function" ? plugin.functions() : null;
   const mappedExport = functionMap?.[functionName];
-  if (functionMap && Object.hasOwn(functionMap, functionName) && typeof mappedExport === "function") return mappedExport(request);
+  if (functionMap && Object.hasOwn(functionMap, functionName) && typeof mappedExport === "function") return mappedExport(request, request.context);
   throw new Error(`declared plugin function is not exported: ${functionName}`);
+}
+
+function validEventPayload(spec, payload) {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) return false;
+  const fields = Object.entries(spec.fields ?? {});
+  return Object.keys(payload).length === fields.length && fields.every(([key, kind]) => {
+    if (!Object.hasOwn(payload, key) || typeof payload[key] !== kind) return false;
+    if (kind === "string") return Buffer.byteLength(payload[key], "utf8") <= 1024;
+    return kind === "boolean" || (kind === "number" && Number.isFinite(payload[key]));
+  });
 }
 
 function responseKey(key) {
@@ -75,42 +148,26 @@ function responseKey(key) {
 }
 
 function validResponse(spec) {
-  if (!spec || (!Array.isArray(spec.input) && spec.input !== null) ||
-      (spec.output !== undefined && (!spec.output || typeof spec.output !== "object" || Array.isArray(spec.output)))) return false;
+  if (!spec || (!Array.isArray(spec.input) && spec.input !== null) || !spec.output || typeof spec.output !== "object" || Array.isArray(spec.output)) return false;
   const fields = spec.input ?? [];
-  const output = Object.entries(spec.output ?? {});
-  if (fields.length > 32 || output.length > 32 || (output.length === 0) === !spec.result || (spec.merge && spec.result)) return false;
-  const names = new Map();
+  const output = Object.entries(spec.output);
+  if (fields.length > 32 || !output.length || output.length > 32) return false;
+  const names = new Set();
   for (const field of fields) {
-    if (!field || !responseKey(field.name) || names.has(field.name) || !["string", "value", "object", "array", "boolean", "number"].includes(field.type) ||
+    if (!field || !responseKey(field.name) || names.has(field.name) || !["string", "value"].includes(field.type) ||
         (field.type !== "string" && (field.trim || field.default !== undefined)) ||
         (field.default !== undefined && typeof field.default !== "string") ||
         (field.trim !== undefined && typeof field.trim !== "boolean") ||
         (field.required !== undefined && typeof field.required !== "boolean") ||
         (field.required && (typeof field.error !== "string" || !field.error))) return false;
-    names.set(field.name, field.type);
+    names.add(field.name);
   }
-  if ((spec.result && !validReference(spec.result, names)) || (spec.merge && names.get(spec.merge) !== "object")) return false;
   return output.every(([key, value]) => responseKey(key) &&
     (value === null || typeof value === "boolean" || (typeof value === "number" && Number.isFinite(value)) ||
-      (typeof value === "string" && (!value.startsWith("$") || validReference(value, names)))));
+      (typeof value === "string" && (!value.startsWith("$") || (value.startsWith("$input.") && names.has(value.slice(7))) || value === "$project.id" || value === "$plugin.id" || authReference(value)))));
 }
 
-function validReference(value, fields) {
-  if (typeof value !== "string") return false;
-  if (value.startsWith("$input.")) return fields.has(value.slice(7));
-  if (value.startsWith("$length.")) return ["string", "array"].includes(fields.get(value.slice(8)));
-  return false;
-}
-
-function readReference(value, values) {
-  if (typeof value !== "string") return value;
-  if (value.startsWith("$input.")) return values.get(value.slice(7));
-  if (value.startsWith("$length.")) return values.get(value.slice(8))?.length ?? 0;
-  return value;
-}
-
-function mapResponse(spec, payload) {
+function mapResponse(spec, payload, context) {
   const values = new Map();
   for (const field of spec.input ?? []) {
     const raw = payload && typeof payload === "object" && Object.hasOwn(payload, field.name) ? payload[field.name] : undefined;
@@ -118,21 +175,70 @@ function mapResponse(spec, payload) {
     if (field.type === "string") {
       value = typeof raw === "string" ? raw : field.default ?? "";
       if (field.trim) value = value.trim();
-    } else if (field.type === "object" && (value === null || typeof value !== "object" || Array.isArray(value))) {
-      value = null;
-    } else if (field.type === "array" && !Array.isArray(value)) {
-      value = null;
-    } else if (field.type === "boolean" && typeof value !== "boolean") {
-      value = null;
-    } else if (field.type === "number" && (typeof value !== "number" || !Number.isFinite(value))) {
-      value = null;
     }
     if (field.required && (value === null || value === "")) throw new Error(field.error);
     values.set(field.name, value);
   }
-  if (spec.result) return readReference(spec.result, values);
-  return Object.fromEntries([
-    ...Object.entries(spec.merge ? values.get(spec.merge) ?? {} : {}),
-    ...Object.entries(spec.output).map(([key, value]) => [key, readReference(value, values)]),
-  ]);
+  return Object.fromEntries(Object.entries(spec.output).map(([key, value]) =>
+    [key, value === "$project.id" ? context.project.id : value === "$plugin.id" ? context.plugin.id :
+      authReference(value) ? resolveAuth(value, context) :
+      typeof value === "string" && value.startsWith("$input.") ? values.get(value.slice(7)) : value]));
+}
+
+
+
+function authReference(value) {
+  return ["$auth.actor.id","$auth.actor.kind","$auth.actor.authenticated","$auth.actor.level","$auth.caller.id","$auth.caller.kind","$auth.caller.authenticated","$auth.caller.level"].includes(value);
+}
+
+function resolveAuth(reference, context) {
+  const [, principal, field] = reference.split(".");
+  return context.auth[principal][field];
+}
+
+function pipelineReference(value, available) {
+  if (value === "$input" || value === "$project.id" || value === "$plugin.id" || authReference(value)) return true;
+  if (typeof value !== "string") return false;
+  const parts = value.split(".");
+  if (parts[0] === "$input") return parts.length <= 8 && parts.slice(1).every(responseKey);
+  return parts[0] === "$steps" && parts.length >= 2 && parts.length <= 8 &&
+    available.has(parts[1]) && parts.slice(1).every(responseKey);
+}
+
+function validPipeline(spec) {
+  if (!spec || !Array.isArray(spec.steps) || spec.steps.length > 32) return false;
+  const names = new Set();
+  for (const step of spec.steps) {
+    if (!step || !responseKey(step.save) || names.has(step.save) ||
+        !(hasHelper(step.helper) || step.helper === "observe.fire") || !pipelineReference(step.input, names)) return false;
+    names.add(step.save);
+  }
+  return pipelineReference(spec.return, names);
+}
+
+async function executePipeline(spec, input, context) {
+  const values = new Map();
+  const resolve = (reference) => {
+    if (reference === "$project.id") return context.project.id;
+    if (reference === "$plugin.id") return context.plugin.id;
+    if (authReference(reference)) return resolveAuth(reference, context);
+    const parts = reference.split(".");
+    let value = parts[0] === "$input" ? input : values.get(parts[1]);
+    for (const key of parts.slice(parts[0] === "$input" ? 1 : 2)) {
+      if (!value || typeof value !== "object" || !Object.hasOwn(value, key)) throw new Error("missing pipeline value");
+      value = value[key];
+    }
+    return value;
+  };
+  for (const step of spec.steps) {
+    const value = resolve(step.input);
+    if (step.helper === "observe.fire") {
+      if (!value || typeof value !== "object" || !Object.hasOwn(value, "event") || !Object.hasOwn(value, "payload")) throw new Error("invalid observation input");
+      context.plugins.observe.fire(value.event, value.payload);
+      values.set(step.save, null);
+    } else {
+      values.set(step.save, await callHelper(step.helper, value));
+    }
+  }
+  return resolve(spec.return);
 }

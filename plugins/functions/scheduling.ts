@@ -1,4 +1,4 @@
-import { createProjectLeaseStore, createProjectSet, validateProjectId } from "../sdk-typescript/src/index.js";
+import { createProjectLeaseStore, createProjectSet, validateProjectId, requireProjectInput, type PluginContext } from "../sdk-typescript/src/index.js";
 import { type FunctionSchedule, type RecordChangeTrigger } from "./index.js";
 
 export function createScheduleStore() {
@@ -95,3 +95,36 @@ export function createRecordChangeTriggerStore() {
 }
 
 export const createJobLeaseStore = () => createProjectLeaseStore();
+
+/** Bind scheduling, triggers and leases to the trusted project once, not per job. */
+export function bindProjectSchedule(context: PluginContext, store: ReturnType<typeof createScheduleStore>) {
+  requireProjectInput(context, {});
+  const id = context.project.id;
+  return {
+    add: (functionId: string, expression: string, dueAt: number) => store.add(id, functionId, expression, dueAt),
+    due: (now: number) => store.due(now).filter(schedule => schedule.projectId === id),
+    claim: (functionId: string, workerId: string, now: number, leaseMs: number) => store.claim(id, functionId, workerId, now, leaseMs),
+    recordOccurrence: (functionId: string, utc: string) => store.recordOccurrence(id, functionId, utc),
+    enqueueLatestMissed: (functionId: string, now: number) => store.enqueueLatestMissed(id, functionId, now),
+    enqueueVersion: (functionId: string, version: number, now: number) => store.enqueueVersion(id, functionId, version, now),
+  };
+}
+
+export function bindProjectTriggers(context: PluginContext, store: ReturnType<typeof createRecordChangeTriggerStore>) {
+  requireProjectInput(context, {});
+  const id = context.project.id;
+  return {
+    add: (collection: string, operation: string, target: { functionId: string; version: number }) => store.add(id, collection, operation, target),
+    match: (collection: string, operation: string) => store.match(id, collection, operation),
+    dispatch: (collection: string, operation: string, committed: boolean, ancestry: readonly string[] = []) => store.dispatch(id, collection, operation, committed, ancestry),
+  };
+}
+
+export function bindProjectJobLeases(context: PluginContext, store: ReturnType<typeof createJobLeaseStore>) {
+  requireProjectInput(context, {});
+  const id = context.project.id;
+  return {
+    acquire: (jobId: string, workerId: string, now: number, leaseMs: number) => store.acquire(id, jobId, workerId, now, leaseMs),
+    renew: (jobId: string, workerId: string, now: number, leaseMs: number) => store.renew(id, jobId, workerId, now, leaseMs),
+  };
+}

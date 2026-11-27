@@ -66,7 +66,7 @@ func (b *Broker) Authorize(call HostCall, now time.Time) error {
 	if b == nil {
 		return ErrRegistryUnavailable
 	}
-	if !isValidProjectID(call.ProjectID) || call.ActorID == "" {
+	if !isValidProjectID(call.ProjectID) || !validAccessIdentity(call.ActorID) {
 		return ErrProjectInvalid
 	}
 	if !call.ExpiresAt.After(now) {
@@ -86,7 +86,7 @@ func (b *Broker) Authorize(call HostCall, now time.Time) error {
 			return ErrNotRegistered
 		}
 		route, ok := registered.Manifest.Route(call.Operation)
-		if !ok || route.Capability != call.Capability {
+		if !ok || route.Helper == "host.admin" || route.Capability != call.Capability {
 			return ErrActorDenied
 		}
 	}
@@ -96,14 +96,14 @@ func (b *Broker) Authorize(call HostCall, now time.Time) error {
 	if b.ActorAllows == nil || !b.ActorAllows(call.ActorID, call.Capability, call.Resource) {
 		return ErrActorDenied
 	}
-	if call.Resource != "" {
-		if b.Registry == nil {
-			return ErrRegistryUnavailable
-		}
-		return b.Registry.AuthorizeResource(call.ProjectID, call.PluginID, call.Version, call.Capability, call.Resource)
-	}
 	if b.Registry == nil {
 		return ErrRegistryUnavailable
+	}
+	if err := b.Registry.authorizeActorAccess(call); err != nil {
+		return err
+	}
+	if call.Resource != "" {
+		return b.Registry.AuthorizeResource(call.ProjectID, call.PluginID, call.Version, call.Capability, call.Resource)
 	}
 	return b.Registry.Authorize(call.ProjectID, call.PluginID, call.Version, call.Capability)
 }

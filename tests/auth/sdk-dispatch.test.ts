@@ -16,3 +16,9 @@ throws(() => dispatchRequest("constructor", request), /not exported/);
 
 const handler = createFunctionHandler({}, [{ operation: "auth.session", function: "constructor", capability: "auth.session" }], { projectId: project, invocationId: "sdk-test" });
 throws(() => handler(request), /route function not implemented/);
+
+const identity = pluginRequest("auth", project, "auth", "0.1.0", "auth.identity", { token: session.token, userId: "forged" });
+deepEqual(dispatchRequest("identity", identity), { userId: project + ":sdk-user" });
+throws(() => dispatchRequest("identity", { ...identity, params: { ...identity.params, projectId: "other-project" } }), /invalid session/);
+throws(() => dispatchRequest("identity", pluginRequest("auth", project, "auth", "0.1.0", "auth.identity", { token: "invalid" })), /invalid session/);
+deepEqual(dispatchRequest("identity", pluginRequest("auth", project, "auth", "0.1.0", "auth.identity", { token: guest.token })), { userId: project + ":" + guest.username });

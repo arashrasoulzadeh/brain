@@ -26,9 +26,13 @@ Promotion rechecks readiness, configuration compatibility, grants, approvals, an
 
 ### Local development
 
-Run `./scripts/start-local.sh` from the repository root. It uses SQLite at `.local/brain.sqlite` and creates the local operator `admin` with secret `secret` unless `OPERATOR_USERNAME` and `OPERATOR_SECRET` are explicitly provided. Never use these development defaults in production.
+Run `make setup`, then `make dev server` and `make dev admin` in separate terminals (the server target invokes `scripts/start-local.sh`). It uses SQLite at `.local/brain.sqlite` and creates the local operator `admin` with secret `secret` unless `OPERATOR_USERNAME` and `OPERATOR_SECRET` are explicitly provided. Never use these development defaults in production.
 
 The packaged admin boundary uses a Go operator session in the trusted host. After operator authentication, send the returned session as `Authorization: Bearer <session>` to `POST /admin/actions`. The host hashes session tokens, rejects missing, revoked, or expired sessions, and invalidates all operator sessions during recovery. Operator bearer sessions expire eight hours after issuance (not after the last request); sign in again when expired. Browser sign-out revokes the server session when the host is reachable. Destructive operations additionally require `"confirmed": true` and are audited.
+
+## Current administration surface
+
+See the [HTTP API](http-api.md), [runtime settings and troubleshooting](runtime-operations.md), [admin page contracts](admin-pages/README.md), and [function publication guide](functions-runtime.md). The packaged host currently uses SQLite; do not configure PostgreSQL application DSNs. Access Management is an opt-in additional deny-by-default policy; prepare rules and enroll deliberately.
 
 ## Security checklist
 
@@ -46,3 +50,31 @@ The packaged admin boundary uses a Go operator session in the trusted host. Afte
 Ordinary local checks use `go test ./...` and `go vet ./...`; they do not start Docker. PostgreSQL/Compose checks are explicit release or integration checks. Record the command, expected evidence, and rollback result before running them.
 
 See the [deployment runbook](deployment-runbook.md) and [restore runbook](restore-runbook.md) for operational procedures.
+
+## Observation delivery
+
+A subscriber must be installed, ready and enabled in the same project and
+granted its declared `observe.<publisher>.<event>` capability. Existing Analytics
+installations need the new `observe.rooms.connected` grant; Subscriptions also
+requires its declared observation and close capabilities. Review new capabilities
+before granting them. Publisher and subscriber permissions and project activity
+are rechecked before delivery; revoked or disabled subscriptions are dropped.
+
+The production SQLite queue persists pending deliveries across restart, bounds
+pending work to 1,000 per project / 10,000 globally, and retries transient
+failures up to three attempts with backoff. Audit actions include
+`observation_queued`, `observation_delivered`, `observation_retry`,
+`observation_failed` and `observation_enqueue_failed`. Payloads are not written
+to audit messages. Monitor queue failures; storage-backed writes fail closed
+when their atomic outbox insert cannot be committed. Other host or memory-backed
+actions use best-effort post-commit enqueue. Persisted receipts are project
+scoped; protect and back up the SQLite file. Multiple host instances and
+exactly-once delivery are not supported by this adapter.
+
+The current Subscriptions polling adapter is operator-only and carries the
+`rooms.connected` observation channel. It is not a substitute for end-user
+WebSocket membership authorization.
+
+## Game plugin separation
+
+Rooms continues to own room creation, joining, reconnecting and generic results. Install and grant `games.modes` to enumerate supported game modes, or `pvp.describe` to discover reusable PvP features. These read-only project-bound routes do not create matches or grant access to player state. Existing room routes, capabilities, storage and observation names are unchanged; there is no room data migration. TypeScript callers must update game-specific imports from Rooms to Games and generic command deduplication imports to PvP.

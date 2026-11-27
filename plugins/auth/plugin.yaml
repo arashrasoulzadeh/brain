@@ -6,6 +6,7 @@ host_api: 1
 entrypoint: index.ts
 source_files:
   - index.ts
+  - requests.ts
   - oidc.ts
   - delivery.ts
   - sessions.ts
@@ -16,9 +17,9 @@ source_files:
   - service.ts
 imports:
   - ../sdk-typescript/src/index.js
-  - ../sdk-typescript/src/tokens.js
   - node:crypto
   - "@node-rs/argon2"
+  - ./requests.js
   - ./oidc.js
   - ./delivery.js
   - ./sessions.js
@@ -35,10 +36,19 @@ capabilities:
   - auth.signin
   - auth.session
   - auth.guest
+  - auth.admin.read
+  - auth.admin.manage
 extension_points:
   - auth.provider
 config_schema:
   registration: string
+events:
+  - name: account.created
+    fields: {created: boolean}
+  - name: session.established
+    fields: {guest: boolean}
+  - name: sessions.revoked
+    fields: {}
 routes:
   - operation: auth.signup
     function: signup
@@ -52,7 +62,42 @@ routes:
     function: session
     helper: sdk.request
     capability: auth.session
+  - operation: auth.identity
+    function: identity
+    helper: sdk.request
+    capability: auth.session
   - operation: auth.guest
     function: guest
     helper: sdk.request
     capability: auth.guest
+
+  - operation: auth.admin.accounts
+    function: listAccounts
+    helper: sdk.request
+    capability: auth.admin.read
+  - operation: auth.admin.sessions.revoke
+    function: revokeSessions
+    helper: sdk.request
+    capability: auth.admin.manage
+    resource_field: username
+admin:
+  version: 1
+  pages:
+    - id: accounts
+      title: Accounts and sessions
+      refresh_on: [auth.account.created, auth.session.established, auth.sessions.revoked]
+      actions:
+        - title: List accounts
+          operation: auth.admin.accounts
+          read_only: true
+          fields:
+            - {name: after, type: string}
+          result:
+            type: grid
+            children:
+              - {type: table, path: rows, title: Accounts, page_size: 25}
+              - {type: detail, path: next, title: Next cursor}
+        - title: Revoke user sessions
+          operation: auth.admin.sessions.revoke
+          fields:
+            - {name: username, type: string, required: true}

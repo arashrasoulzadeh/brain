@@ -1,6 +1,8 @@
-import { validateProjectId } from "../sdk-typescript/src/index.js";
+import { createProjectMap, requireProjectInput, requiredString, validateProjectId, type PluginContext } from "../sdk-typescript/src/index.js";
 import type { ArenaState, ArenaMeasurement, DurableMatchResult } from "./types.js";
 import { validateMatchResult } from "./match-results.js";
+
+const arenas = createProjectMap<ReturnType<typeof createArena>>();
 
 export type ArenaRuntime = {
   projectId: string;
@@ -42,7 +44,7 @@ export class ArenaActionRecorder {
   record(playerId: string, sequence: number, payload: unknown): void {
     if (this.runtime.state !== "active") throw new Error("arena is not active");
     if (!this.runtime.players.includes(playerId)) throw new Error("player not in arena");
-    if (!Number.isInteger(sequence) || sequence <= (this.runtime.sequences.get(playerId) ?? 0))
+    if (!Number.isSafeInteger(sequence) || sequence <= (this.runtime.sequences.get(playerId) ?? 0))
       throw new Error("action sequence conflict");
     void payload;
     this.runtime.sequences.set(playerId, sequence);
@@ -72,11 +74,11 @@ export class ArenaFinisher {
     if (this.runtime.state !== "active") throw new Error("arena is not active");
     if (
       !winnerIds.length ||
+      new Set(winnerIds).size !== winnerIds.length ||
       winnerIds.some((winner) => !this.runtime.players.includes(winner)) ||
-      !completedAt
+      !Number.isFinite(Date.parse(completedAt))
     )
       throw new Error("invalid arena result");
-    this.runtime.state = "finished";
     const result = {
       resultId: `${this.runtime.projectId}:${this.runtime.roomId}-${Date.parse(completedAt)}`,
       projectId: this.runtime.projectId,
@@ -85,12 +87,20 @@ export class ArenaFinisher {
       completedAt,
     };
     validateMatchResult(result);
+    this.runtime.state = "finished";
     return result;
   }
 }
 
-export function createArena(projectId: string, roomId: string) {
+type RestoredArena = Readonly<{ state: ArenaState; players: string[]; sequences: Map<string, number> }>;
+
+export function createArena(projectId: string, roomId: string, restored?: RestoredArena) {
   const runtime = createArenaRuntime(projectId, roomId);
+  if (restored) {
+    runtime.state = restored.state;
+    runtime.players = [...restored.players];
+    runtime.sequences = new Map(restored.sequences);
+  }
   const reader = new ArenaStateReader(runtime);
   const starter = new ArenaStarter(runtime);
   const actions = new ArenaActionRecorder(runtime);
@@ -131,4 +141,90 @@ export function interruptExpiredActionRoom(
   if (state !== "active" || !Number.isFinite(now) || !Number.isFinite(expiresAt) || now < expiresAt)
     throw new Error("action room has not expired");
   return "interrupted";
+}
+
+/** Operator-invoked worker routes; realtime actor/membership binding remains a host responsibility. */
+export function start(context: PluginContext, input: unknown) {
+  const payload = requireProjectInput(context, input);
+  const roomId = routeRoomId(payload);
+  const projectId = context.project.id;
+  const durable = Object.hasOwn(payload, "_brainArena");
+  if (durable ? payload._brainArena !== null : arenas.get(projectId, roomId)) throw new Error("arena already started");
+  const players = playerList(payload.players);
+  const arena = createArena(projectId, roomId);
+  arena.start(players);
+  context.plugins.observe.fire("started", { roomId, playerCount: players.length });
+  if (!durable) arenas.set(projectId, roomId, arena);
+  return arenaSnapshot(arena);
+}
+
+export function input(context: PluginContext, request: unknown) {
+  const payload = requireProjectInput(context, request);
+  const arena = routeArena(context, payload);
+  const playerId = requiredString(payload.playerId, "player id is required");
+  if (typeof payload.sequence !== "number") throw new Error("invalid action sequence");
+  arena.action(playerId, payload.sequence, payload.payload);
+  return { projectId: arena.projectId, roomId: arena.roomId, accepted: true };
+}
+
+export function snapshot(context: PluginContext, input: unknown) {
+  const payload = requireProjectInput(context, input);
+  const arena = routeArena(context, payload);
+  const restored = payload._brainArena as { result?: { winnerIds: string[]; completedAt: string } } | undefined;
+  const summary = arenaSnapshot(arena);
+  if (summary.state === "finished" && restored?.result) {
+    const { winnerIds, completedAt } = restored.result;
+    const match = { resultId: `${arena.projectId}:${arena.roomId}-${Date.parse(completedAt)}`, projectId: arena.projectId, roomId: arena.roomId, winnerIds, completedAt };
+    validateMatchResult(match);
+    return { ...summary, result: match };
+  }
+  return summary;
+}
+
+export function result(context: PluginContext, input: unknown) {
+  const payload = requireProjectInput(context, input);
+  const arena = routeArena(context, payload);
+  const completedAt = requiredString(payload.completedAt, "completion time is required");
+  const finished = arena.result(playerList(payload.winnerIds), completedAt);
+  context.plugins.observe.fire("finished", { roomId: arena.roomId, winnerCount: finished.winnerIds.length });
+  return finished;
+}
+
+function routeRoomId(payload: Record<string, unknown>): string {
+  const roomId = requiredString(payload.roomId, "room id is required");
+  if (roomId.length > 128) throw new Error("invalid arena room");
+  return validateProjectId(roomId, "invalid arena room");
+}
+
+function routeArena(context: PluginContext, payload: Record<string, unknown>) {
+  const roomId = routeRoomId(payload);
+  if (Object.hasOwn(payload, "_brainArena")) {
+    const stored = payload._brainArena as { state?: ArenaState; players?: unknown; sequences?: unknown } | null;
+    if (!stored || !["active", "finished"].includes(stored.state ?? "") ||
+        !stored.sequences || typeof stored.sequences !== "object" || Array.isArray(stored.sequences))
+      throw new Error("invalid stored arena");
+    const players = playerList(stored.players);
+    if (players.length < 2 || new Set(players).size !== players.length) throw new Error("invalid stored players");
+    const sequences = new Map<string, number>();
+    for (const [player, sequence] of Object.entries(stored.sequences)) {
+      if (!players.includes(player) || typeof sequence !== "number" || !Number.isSafeInteger(sequence) || sequence < 1)
+        throw new Error("invalid stored sequence");
+      sequences.set(player, sequence);
+    }
+    return createArena(context.project.id, roomId, { state: stored.state!, players, sequences });
+  }
+  const arena = arenas.get(context.project.id, roomId);
+  if (!arena) throw new Error("arena not found");
+  return arena;
+}
+
+function playerList(value: unknown): string[] {
+  if (!Array.isArray(value) || value.length > 64 ||
+      value.some((player: unknown) => typeof player !== "string" || !player.trim() || player.length > 128))
+    throw new Error("invalid arena players");
+  return value as string[];
+}
+
+function arenaSnapshot(arena: ReturnType<typeof createArena>) {
+  return { projectId: arena.projectId, roomId: arena.roomId, state: arena.getState(), players: [...arena.players] };
 }

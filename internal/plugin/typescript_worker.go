@@ -22,12 +22,14 @@ var ErrTypeScriptWorkerTimedOut = errors.New("typescript worker invocation timed
 var ErrTypeScriptWorkerManifest = errors.New("invalid typescript worker manifest")
 
 type executionDescriptor struct {
-	Entrypoint string           `json:"entrypoint,omitempty"`
-	Runtime    string           `json:"runtime,omitempty"`
-	PluginID   string           `json:"pluginId"`
-	Version    string           `json:"version"`
-	ProjectID  string           `json:"projectId"`
-	Routes     []executionRoute `json:"routes"`
+	Entrypoint     string           `json:"entrypoint"`
+	Declarative    bool             `json:"declarative,omitempty"`
+	PluginID       string           `json:"pluginId"`
+	Version        string           `json:"version"`
+	ProjectID      string           `json:"projectId"`
+	RequireProject bool             `json:"requireProject"`
+	Routes         []executionRoute `json:"routes"`
+	Events         []EventSpec      `json:"events,omitempty"`
 }
 
 type executionRoute struct {
@@ -35,6 +37,7 @@ type executionRoute struct {
 	Function  string        `json:"function"`
 	Helper    string        `json:"helper,omitempty"`
 	Response  *ResponseSpec `json:"response,omitempty"`
+	Pipeline  *PipelineSpec `json:"pipeline,omitempty"`
 }
 
 type TypeScriptWorkerOptions struct {
@@ -102,7 +105,7 @@ func NewManifestBubblewrapTypeScriptWorker(launcher, workerScript, descriptor, p
 		"WORKER_RUNTIME_ROOT=" + runtimeRoot,
 		"WORKER_SOURCE_FILES=" + strings.Join(manifest.SourceFiles, "\n"),
 		"REQUIRE_DECLARED_SOURCES=1",
-		"WORKER_RUNTIME=" + manifest.Runtime,
+		"DECLARATIVE_PLUGIN=" + strconv.FormatBool(manifest.Declarative),
 		"BRAIN_WORKER_READY=1",
 	}
 	return worker, nil
@@ -119,14 +122,20 @@ func NewManifestTypeScriptWorker(command, workerScript, descriptor, pluginRoot, 
 		return nil, err
 	}
 	entrypoint := ""
-	if manifest.Runtime != "declarative" {
+	if !manifest.Declarative {
 		entrypoint = filepath.Join(pluginRoot, manifest.EntryPoint())
 	}
 	routes := make([]executionRoute, 0, len(manifest.Routes))
 	for _, route := range manifest.Routes {
-		routes = append(routes, executionRoute{Operation: route.Operation, Function: route.Function, Helper: route.Helper, Response: route.Response})
+		if route.Helper == "host.admin" {
+			continue
+		}
+		routes = append(routes, executionRoute{Operation: route.Operation, Function: route.Function, Helper: route.Helper, Response: route.Response, Pipeline: route.Pipeline})
 	}
-	data, err := json.Marshal(executionDescriptor{Entrypoint: entrypoint, Runtime: manifest.Runtime, PluginID: manifest.ID, Version: manifest.Version, ProjectID: projectID, Routes: routes})
+	for _, observer := range manifest.Observers {
+		routes = append(routes, executionRoute{Operation: observer.operation(), Function: observer.Function, Helper: "sdk.context"})
+	}
+	data, err := json.Marshal(executionDescriptor{Entrypoint: entrypoint, Declarative: manifest.Declarative, PluginID: manifest.ID, Version: manifest.Version, ProjectID: projectID, RequireProject: true, Routes: routes, Events: manifest.Events})
 	if err != nil {
 		return nil, err
 	}
@@ -259,11 +268,13 @@ func (w *TypeScriptWorker) Handle(request WorkerRequest) WorkerResponse {
 		Method  string `json:"method"`
 		Params  struct {
 			WorkerRequest
-			Payload json.RawMessage `json:"payload"`
+			Payload     json.RawMessage    `json:"payload"`
+			HostContext *InvocationContext `json:"hostContext,omitempty"`
 		} `json:"params"`
 	}{JSONRPC: "2.0", ID: request.Operation, Method: "invoke"}
 	message.Params.WorkerRequest = request
 	message.Params.Payload = json.RawMessage(request.Payload)
+	message.Params.HostContext = request.HostContext
 	data, err := json.Marshal(message)
 	if err != nil {
 		return WorkerResponse{Protocol: request.Protocol, ErrorCode: err.Error()}
@@ -323,10 +334,11 @@ func (w *TypeScriptWorker) Handle(request WorkerRequest) WorkerResponse {
 	line := exchange.line
 	var response struct {
 		Result *struct {
-			Protocol  int             `json:"protocol"`
-			Success   bool            `json:"success"`
-			Payload   json.RawMessage `json:"payload"`
-			ErrorCode string          `json:"errorCode"`
+			Protocol     int                 `json:"protocol"`
+			Success      bool                `json:"success"`
+			Payload      json.RawMessage     `json:"payload"`
+			ErrorCode    string              `json:"errorCode"`
+			Observations []ObservationIntent `json:"observations"`
 		} `json:"result"`
 		ErrorCode string `json:"errorCode"`
 	}
@@ -341,6 +353,6 @@ func (w *TypeScriptWorker) Handle(request WorkerRequest) WorkerResponse {
 	}
 	return WorkerResponse{
 		Protocol: response.Result.Protocol, Success: response.Result.Success,
-		Payload: response.Result.Payload, ErrorCode: response.Result.ErrorCode,
+		Payload: response.Result.Payload, ErrorCode: response.Result.ErrorCode, Observations: response.Result.Observations,
 	}
 }

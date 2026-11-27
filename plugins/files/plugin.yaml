@@ -10,11 +10,13 @@ source_files:
   - types.ts
   - access.ts
   - uploads.ts
+  - quota.ts
 imports:
   - ./routes.js
   - ../sdk-typescript/src/index.js
   - ./access.js
   - ./uploads.js
+  - ./quota.js
   - ./types.js
 plugin_imports:
 dependencies: []
@@ -27,105 +29,81 @@ extension_points:
   - files.storage
 config_schema:
   bucket: string
+events:
+  - name: uploaded
+    fields: {size: number}
+  - name: published
+    fields: {published: boolean}
 routes:
   - operation: files.upload
     function: upload
-    response:
-      input:
-        - name: key
-          type: string
-          trim: true
-          required: true
-          error: file key is required
-        - name: data
-          type: string
-          required: true
-          error: file data is required
-      output:
-        key: $input.key
-        uploaded: true
-        published: false
-    helper: sdk.resource
+    helper: sdk.dispatch
     capability: files.upload
-    storage:
-      action: blob.put
-      key: key
-      input: data
+    resource_field: key
   - operation: files.download
     function: download
-    response:
-      input:
-        - name: key
-          type: string
-          trim: true
-          required: true
-          error: file key is required
-        - name: data
-          type: string
-          required: true
-          error: file data is required
-        - name: published
-          type: boolean
-          required: true
-          error: file not found
-      output:
-        key: $input.key
-        data: $input.data
-        published: $input.published
-    helper: sdk.resource
+    helper: sdk.dispatch
     capability: files.download
-    storage:
-      action: blob.read
-      key: key
-      target: data
-      field: published
+    resource_field: key
   - operation: files.metadata
     function: metadata
-    response:
-      input:
-        - name: key
-          type: string
-          trim: true
-          required: true
-          error: file key is required
-        - name: data
-          type: string
-          required: true
-          error: file data is required
-        - name: published
-          type: boolean
-          required: true
-          error: file not found
-      output:
-        key: $input.key
-        published: $input.published
-        size: $length.data
-    helper: sdk.resource
+    helper: sdk.dispatch
     capability: files.metadata
-    storage:
-      action: blob.read
-      key: key
-      target: data
-      field: published
+    resource_field: key
   - operation: files.publish
     function: publish
-    response:
-      input:
-        - name: key
-          type: string
-          trim: true
-          required: true
-          error: file key is required
-        - name: published
-          type: boolean
-          required: true
-          error: file not found
-      output:
-        key: $input.key
-        published: $input.published
-    helper: sdk.resource
+    helper: sdk.dispatch
     capability: files.publish
-    storage:
-      action: blob.publish
-      key: key
-      target: published
+    resource_field: key
+admin:
+  version: 1
+  pages:
+    - id: operations
+      title: Files
+      legacy_route: files
+      inventory:
+        kind: file_keys
+        capability: files.metadata
+        title: Files
+        select_field: key
+      refresh_on:
+        - files.uploaded
+        - files.published
+      actions:
+        - title: File metadata
+          operation: files.metadata
+          read_only: true
+          result:
+            type: grid
+            children:
+              - type: metric
+                title: Size (bytes)
+                path: size
+              - type: detail
+                title: File metadata
+          fields:
+            - name: key
+              type: string
+              required: true
+        - title: Download file
+          operation: files.download
+          read_only: true
+          fields:
+            - name: key
+              type: string
+              required: true
+        - title: Upload file
+          operation: files.upload
+          fields:
+            - name: key
+              type: string
+              required: true
+            - name: data
+              type: string
+              required: true
+        - title: Publish file
+          operation: files.publish
+          fields:
+            - name: key
+              type: string
+              required: true

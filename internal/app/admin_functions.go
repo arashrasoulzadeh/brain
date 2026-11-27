@@ -149,7 +149,18 @@ func PublicFunctionHandler(service *admin.LifecycleService) http.Handler {
 				return
 			}
 		}
-		result, err := service.PublicInvokeFunction(r.PathValue("project_id"), r.PathValue("function_name"), r.Method, input)
+		var result map[string]any
+		var err error
+		if r.Header.Get("Authorization") != "" {
+			token, ok := operatorBearerToken(r)
+			if !ok {
+				http.Error(w, "invalid authorization", http.StatusForbidden)
+				return
+			}
+			result, err = service.PublicInvokeFunctionWithSession(r.PathValue("project_id"), r.PathValue("function_name"), r.Method, input, token)
+		} else {
+			result, err = service.PublicInvokeFunction(r.PathValue("project_id"), r.PathValue("function_name"), r.Method, input)
+		}
 		if err != nil {
 			if errors.Is(err, admin.ErrFunctionMethodNotAllowed) {
 				w.Header().Set("Allow", "GET, POST, PUT, PATCH")

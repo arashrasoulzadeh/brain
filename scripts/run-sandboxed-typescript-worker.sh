@@ -13,6 +13,7 @@ runtime_root="${WORKER_RUNTIME_ROOT:-}"
 ready="${BRAIN_WORKER_READY:-0}"
 source_files="${WORKER_SOURCE_FILES:-}"
 require_sources="${REQUIRE_DECLARED_SOURCES:-0}"
+declarative="${DECLARATIVE_PLUGIN:-false}"
 
 if ! command -v "$bwrap_bin" >/dev/null 2>&1; then
   echo "sandbox launcher requires bubblewrap (set BWRAP_BIN)" >&2
@@ -44,6 +45,15 @@ done
 # Bind only the descriptor, worker script, plugin directory, and trusted runtime
 # dependencies. Never bind the descriptor directory (it may contain a database).
 mounts+=(--ro-bind "$node_path" "$node_path" --ro-bind "$worker_script" "$worker_script")
+# Standalone workers still need the trusted pure helper registry. Production
+# mounts the whole SDK through WORKER_RUNTIME_ROOT below.
+if [ -z "$runtime_root" ]; then
+  helper_path="$(dirname "$worker_script")/../plugins/sdk-typescript/src/helpers.mjs"
+  if [ -f "$helper_path" ]; then
+    helper_path=$(realpath "$helper_path")
+    mounts+=(--ro-bind "$helper_path" "$helper_path")
+  fi
+fi
 if [ -n "$source_files" ]; then
   mounts+=(--tmpfs "$plugin_root")
   while IFS= read -r source; do
@@ -58,8 +68,8 @@ if [ -n "$source_files" ]; then
     fi
     mounts+=(--ro-bind "$source_path" "$source_path")
   done <<< "$source_files"
-elif [ "${WORKER_RUNTIME:-}" = declarative ]; then
-  mounts+=(--tmpfs "$plugin_root" --remount-ro "$plugin_root")
+elif [ "$declarative" = true ]; then
+  mounts+=(--tmpfs "$plugin_root")
 elif [ "$require_sources" = 1 ]; then
   echo "sandbox requires manifest-declared source files" >&2
   exit 78
@@ -68,7 +78,7 @@ else
   mounts+=(--ro-bind "$plugin_root" "$plugin_root")
 fi
 mounts+=(--ro-bind "$descriptor" "$descriptor")
-if [ -n "$source_files" ]; then mounts+=(--remount-ro "$plugin_root"); fi
+if [ -n "$source_files" ] || [ "$declarative" = true ]; then mounts+=(--remount-ro "$plugin_root"); fi
 # V8's default Wasm guard region exceeds our address-space limit, even for
 # plain JavaScript (Node's built-in HTTP client uses Wasm).
 node_args=(--max-old-space-size=128 --disable-wasm-trap-handler)

@@ -1,3 +1,20 @@
+import type { PluginContext } from "./index.js";
+
+/** Only use with context injected by the trusted worker; payload identity is never authoritative. */
+export function requireProjectInput(context: PluginContext, input: unknown): Record<string, unknown> {
+  if (!context?.project?.id || context.project.active !== true)
+    throw new Error("host project context required");
+  validateProjectId(context.project.id);
+  if (!input || typeof input !== "object" || Array.isArray(input))
+    throw new Error("invalid plugin input");
+  const payload = input as Record<string, unknown>;
+  for (const key of ["projectId", "project_id"]) {
+    if (Object.hasOwn(payload, key) && payload[key] !== context.project.id)
+      throw new Error("host project context mismatch");
+  }
+  return payload;
+}
+
 export function validateProjectId(projectId: string, errorMessage = "invalid project id"): string {
   if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(projectId)) throw new Error(errorMessage);
   return projectId;
@@ -30,23 +47,15 @@ export function requireAllowedValues(values: readonly string[], allowed: readonl
   if (values.some((value) => !allowed.includes(value))) throw new Error(error);
 }
 
-export type ExpiringToken = { expiresAt: number; used?: boolean };
-
-export function expiresAt(now: number, ttlMs: number, error: string): number {
-  const expiry = now + ttlMs;
-  if (!Number.isFinite(now) || !Number.isFinite(ttlMs) || ttlMs <= 0 || !Number.isFinite(expiry))
-    throw new Error(error);
-  return expiry;
+export function projectRoomID(projectId: string, roomId: string): string {
+  validateProjectId(projectId);
+  validateProjectId(roomId, "invalid project room id");
+  return `${projectId}:${roomId}`;
 }
 
-export function isActiveToken<T extends ExpiringToken>(record: T | undefined, now: number): record is T {
-  return !!record && !record.used && Number.isFinite(now) && Number.isFinite(record.expiresAt) && record.expiresAt > now;
-}
-
-export function consumeOnce<T extends ExpiringToken & { used: boolean }>(
-  record: T | undefined, now: number, matches: (record: T) => boolean,
-): T | undefined {
-  if (!isActiveToken(record, now) || !matches(record)) return undefined;
-  record.used = true;
-  return record;
+/** Require the effective host-verified operator and the admitted operation scope. */
+export function requireOperator(context: PluginContext | undefined, capability: string, resource = ""): PluginContext {
+  if (!context?.auth || context.auth.caller.kind !== "operator" || !context.auth.caller.authenticated ||
+      !context.auth.can(capability, resource)) throw new Error("operator authorization required");
+  return context;
 }

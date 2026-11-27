@@ -7,13 +7,17 @@ entrypoint: index.ts
 source_files:
   - index.ts
   - types.ts
+  - subscription-request.ts
   - authorization.ts
   - stream.ts
+  - routes.ts
 imports:
   - ../sdk-typescript/src/index.js
   - node:crypto
   - ./authorization.js
   - ./stream.js
+  - ./routes.js
+  - ./subscription-request.js
   - ./types.js
 plugin_imports:
 dependencies: []
@@ -21,17 +25,70 @@ capabilities:
   - subscriptions.open
   - subscriptions.receive
   - subscriptions.resync
+  - subscriptions.close
+  - subscriptions.inspect
+  - subscriptions.revoke
+  - observe.rooms.connected
 extension_points:
   - realtime.transport
 config_schema:
   maxSubscriptions: int
+events:
+  - name: opened
+    fields: {}
+  - name: closed
+    fields: {}
+observe:
+  - plugin: rooms
+    event: connected
+    function: observeRoomConnected
+    capability: observe.rooms.connected
 routes:
   - operation: subscriptions.open
     function: open
+    helper: sdk.context
     capability: subscriptions.open
+    resource_field: channel
   - operation: subscriptions.receive
     function: receive
+    helper: sdk.context
     capability: subscriptions.receive
+    resource_field: channel
   - operation: subscriptions.resync
     function: resync
+    helper: sdk.context
     capability: subscriptions.resync
+    resource_field: channel
+  - operation: subscriptions.close
+    function: close
+    helper: sdk.context
+    capability: subscriptions.close
+    resource_field: channel
+
+  - operation: subscriptions.inspect
+    function: inspect
+    helper: sdk.context
+    capability: subscriptions.inspect
+    resource_field: channel
+  - operation: subscriptions.revoke
+    function: revokeChannel
+    helper: sdk.context
+    capability: subscriptions.revoke
+    resource_field: channel
+admin:
+  version: 1
+  pages:
+    - id: channels
+      title: Realtime subscriptions
+      refresh_on: [subscriptions.opened, subscriptions.closed, rooms.connected]
+      actions:
+        - title: Inspect channel
+          operation: subscriptions.inspect
+          read_only: true
+          result: {type: detail}
+          fields:
+            - {name: channel, type: string, required: true}
+        - title: Revoke channel tickets
+          operation: subscriptions.revoke
+          fields:
+            - {name: channel, type: string, required: true}
