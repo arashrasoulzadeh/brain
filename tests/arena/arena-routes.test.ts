@@ -1,6 +1,6 @@
 import { deepEqual, equal, throws } from "node:assert/strict";
 import { test } from "node:test";
-import { input, result, snapshot, start, connect, playerInput } from "../../plugins/arena/index.js";
+import { input, result, snapshot, start, connect, playerInput, interrupt } from "../../plugins/arena/index.js";
 import type { ObservationIntent, PluginContext } from "../../plugins/sdk-typescript/src/index.js";
 
 function context(id: string, observations: ObservationIntent[]): PluginContext {
@@ -126,4 +126,26 @@ test("arena rejects malformed durable state and unauthorized realtime callers", 
   throws(() => snapshot(ctx, { roomId: "x".repeat(129), _brainArena: stored }), /invalid arena room/);
   throws(() => start(ctx, { roomId, players, _brainArena: stored }), /already started/);
   throws(() => input(ctx, { ...request, playerId: actor.id, sequence: "1" }), /invalid action sequence/);
+});
+
+test("operator interruption requires exact room authorization and retains a terminal snapshot", () => {
+  const events: ObservationIntent[] = [];
+  const ctx = context("interrupt-project", events);
+  const actor = { kind: "operator" as const, id: "operator", authenticated: true, level: "authenticated" as const };
+  const admitted: PluginContext = { ...ctx, execution: { operation: "arena.admin.interrupt" }, auth: { actor, caller: actor, permissions: [], can: (capability, resource) => capability === "arena.admin.manage" && resource === "r" } };
+  const stored = { state: "active", players: ["a", "b"], sequences: { a: 1 } };
+  const request = { roomId: "r", reason: "maintenance", interruptedAt: "2026-01-01T00:00:00Z", _brainArena: stored };
+  throws(() => interrupt(ctx, request), /operator authorization/);
+  throws(() => interrupt(admitted, { ...request, roomId: "other" }), /operator authorization/);
+  throws(() => interrupt(admitted, { roomId: "r", reason: "maintenance" }), /host arena snapshot/);
+  throws(() => interrupt(admitted, { ...request, reason: "" }), /reason required/);
+  throws(() => interrupt(admitted, { ...request, interruptedAt: "invalid" }), /invalid arena interruption/);
+  const finished = interrupt(admitted, request);
+  equal(finished.state, "interrupted");
+  deepEqual(events, [{ event: "interrupted", payload: { roomId: "r" } }]);
+  const terminal = { ...stored, state: "interrupted", interruption: finished.interruption };
+  deepEqual(snapshot(ctx, { roomId: "r", _brainArena: terminal }), finished);
+  throws(() => input(ctx, { roomId: "r", playerId: "a", sequence: 2, _brainArena: terminal }), /not active/);
+  throws(() => result(ctx, { roomId: "r", winnerIds: ["a"], completedAt: request.interruptedAt, _brainArena: terminal }), /not active/);
+  throws(() => interrupt(admitted, { ...request, _brainArena: terminal }), /invalid arena interruption/);
 });

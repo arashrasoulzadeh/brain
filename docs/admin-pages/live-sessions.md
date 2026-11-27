@@ -11,3 +11,5 @@ This console is for trusted operators. It is not a public realtime socket server
 See [Rooms](../plugin-guides/rooms.md), [Arena](../plugin-guides/arena.md), [Matchmaking](../plugin-guides/matchmaking.md), [Invites](../plugin-guides/invites.md), and [extension contracts](extensions.md).
 
 Authorized room inventories show stored membership counts and open/closed state; ticket inventories show persisted assignment status. Room management supports explicit membership removal and closure, subject to its new resource-scoped grant. This does not manage active sockets or a distributed scheduler.
+
+Arena matches expose persisted match status and player count, and the confirmed interruption operation terminates an active match without awarding a result. The stored interruption reason and time remain visible in match inspection.
