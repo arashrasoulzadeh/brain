@@ -86,6 +86,54 @@ func TestWebSocketGatewayBindsSessionMembershipResourceAndDurableSequence(t *tes
 			t.Fatal(err)
 		}
 	}
+	// Verify rejected requests before any session or worker is consulted.
+	gateway := plugin.NewWebSocketGateway(r)
+	for _, tc := range []struct {
+		name, method, path, origin, bearer, body, identity, protocol string
+		want                                                        int
+	}{
+		{"wrong path", "GET", "/alpha/other", "", "", "", "", "", 403},
+		{"query token", "GET", "/alpha/ws?ticket=secret", "", "", "", "", "", 403},
+		{"wrong project", "POST", "/beta/ws", "", "", "", "", "", 403},
+		{"wrong identity", "POST", "/alpha/ws", "", "", "", "beta", "", 403},
+		{"not upgrade", "GET", "/alpha/ws", "", "", "", "", "", 426},
+		{"wrong method", "DELETE", "/alpha/ws", "", "", "", "", "", 404},
+		{"no origin", "POST", "/alpha/ws", "", "", "", "", "", 403},
+		{"foreign origin", "POST", "/alpha/ws", "https://foreign.example", "", "", "", "", 403},
+		{"insecure remote", "POST", "/alpha/ws", "http://example.test", "", "", "", "", 403},
+		{"missing token", "POST", "/alpha/ws", "https://example.test", "", "", "", "", 401},
+		{"wrong auth scheme", "POST", "/alpha/ws", "https://example.test", "Basic abc", "", "", "", 401},
+		{"invalid JSON", "POST", "/alpha/ws", "https://example.test", "Bearer abc", "{", "", "", 400},
+		{"unknown field", "POST", "/alpha/ws", "https://example.test", "Bearer abc", `{"path":"/arena/one/input","extra":1}`, "", "", 400},
+		{"relative route", "POST", "/alpha/ws", "https://example.test", "Bearer abc", `{"path":"arena/one/input"}`, "", "", 400},
+		{"encoded route", "POST", "/alpha/ws", "https://example.test", "Bearer abc", `{"path":"/arena/%2e/input"}`, "", "", 400},
+		{"missing ticket", "GET", "/alpha/ws", "https://example.test", "", "", "", "brain.v1", 401},
+		{"invalid ticket protocol", "GET", "/alpha/ws", "https://example.test", "", "", "", "brain.v1, bad.abc", 401},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			req := httptest.NewRequest(tc.method, "https://example.test"+tc.path, strings.NewReader(tc.body))
+			req = req.WithContext(project.WithProject(req.Context(), project.Project{ID: "alpha", Active: true}))
+			if tc.origin != "" {
+				req.Header.Set("Origin", tc.origin)
+			}
+			if tc.bearer != "" {
+				req.Header.Set("Authorization", tc.bearer)
+			}
+			if tc.identity != "" {
+				req.Header.Set("X-Project-ID", tc.identity)
+			}
+			if tc.protocol != "" {
+				req.Header.Set("Upgrade", "websocket")
+				req.Header.Set("Connection", "Upgrade")
+				req.Header.Set("Sec-WebSocket-Protocol", tc.protocol)
+			}
+			rec := httptest.NewRecorder()
+			gateway.ServeHTTP(rec, req)
+			if rec.Code != tc.want {
+				t.Fatalf("status = %d, want %d", rec.Code, tc.want)
+			}
+		})
+	}
 	operators := &operator.Store{}
 	server := httptest.NewServer(app.NewServerWithOperatorAdmin(admin.NewLifecycleServiceWithProjects(operators, r, projects), operators, func(value string) string { return value }).Handler())
 	defer server.Close()
@@ -172,6 +220,30 @@ func TestWebSocketGatewayBindsSessionMembershipResourceAndDurableSequence(t *tes
 	sequences, ok := state["sequences"].(map[string]any)
 	if !ok || sequences["alpha:alice"] != float64(1) {
 		t.Fatalf("durable input not bound to actor: %v", state)
+	}
+	for _, tc := range []struct {
+		name string
+		kind websocket.MessageType
+		body string
+		want websocket.StatusCode
+	}{
+		{"binary", websocket.MessageBinary, "invalid", websocket.StatusPolicyViolation},
+		{"null", websocket.MessageText, "null", websocket.StatusInvalidFramePayloadData},
+		{"resource override", websocket.MessageText, `{"roomId":"two","sequence":2}`, websocket.StatusPolicyViolation},
+		{"project override", websocket.MessageText, `{"projectId":"beta","sequence":2}`, websocket.StatusPolicyViolation},
+		{"host field override", websocket.MessageText, `{"_brainArena":{},"sequence":2}`, websocket.StatusPolicyViolation},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			bad := dial("alpha", issue("/arena/one/input", "valid-session", server.URL, http.StatusOK), http.StatusSwitchingProtocols)
+			defer bad.CloseNow()
+			if err := bad.Write(ctx, tc.kind, []byte(tc.body)); err != nil {
+				t.Fatal(err)
+			}
+			_, _, err := bad.Read(ctx)
+			if websocket.CloseStatus(err) != tc.want {
+				t.Fatalf("close status = %v, want %v", err, tc.want)
+			}
+		})
 	}
 	revokeAccessRule(t, r, "alpha", "input-one", revision)
 	if err := conn.Write(ctx, websocket.MessageText, []byte(`{"sequence":2}`)); err == nil {
