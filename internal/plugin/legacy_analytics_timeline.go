@@ -7,6 +7,7 @@ import (
 
 type analyticsWindow struct {
 	from, until time.Time
+	bounded     bool
 }
 
 func readAnalyticsWindow(input map[string]any, required bool) (analyticsWindow, error) {
@@ -28,7 +29,7 @@ func readAnalyticsWindow(input map[string]any, required bool) (analyticsWindow, 
 	if err != nil || !end.After(start) || end.Sub(start) > 366*24*time.Hour {
 		return analyticsWindow{}, ErrInvalidWorkerRequest
 	}
-	return analyticsWindow{from: start.UTC(), until: end.UTC()}, nil
+	return analyticsWindow{from: start.UTC(), until: end.UTC(), bounded: true}, nil
 }
 
 func eventTime(record map[string]any) (time.Time, bool) {
@@ -41,7 +42,7 @@ func eventTime(record map[string]any) (time.Time, bool) {
 }
 
 func (w analyticsWindow) contains(stamp time.Time, known bool) bool {
-	return w.from.IsZero() || (known && !stamp.Before(w.from) && stamp.Before(w.until))
+	return !w.bounded || (known && !stamp.Before(w.from) && stamp.Before(w.until))
 }
 
 func prepareAnalyticsTimeline(storage *SQLiteStorage, request WorkerRequest) (WorkerRequest, func(sqliteExecutor) error, error) {

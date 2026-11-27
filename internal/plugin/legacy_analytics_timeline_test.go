@@ -51,3 +51,53 @@ func TestAnalyticsTimelineBoundariesAndMissingDates(t *testing.T) {
 		}
 	}
 }
+
+func TestAnalyticsTimelineDayAndZeroTime(t *testing.T) {
+	s := coverageStorage(t)
+	coverageState(t, s, "analytics", "events", map[string]any{"events": []any{
+		map[string]any{"projectId": "coverage", "name": "test", "occurred_at": "0001-01-01T00:00:00Z"},
+		map[string]any{"projectId": "coverage", "name": "test", "occurred_at": "2026-01-01T00:00:00Z"},
+		map[string]any{"projectId": "coverage", "name": "test", "occurred_at": "invalid"},
+		"malformed record",
+	}})
+	request := WorkerRequest{ProjectID: "coverage", Operation: "analytics.timeline", Payload: []byte(`{"from":"0001-01-01T00:00:00Z","until":"0001-01-03T00:00:00Z","bucket":"day"}`)}
+	got, commit, err := prepareAnalyticsTimeline(s, request)
+	if err != nil || commit != nil {
+		t.Fatalf("timeline: %v", err)
+	}
+	var envelope struct {
+		Result struct {
+			Total   int `json:"total_events"`
+			Undated int `json:"undated_events"`
+			Rows    []struct {
+				Count int `json:"count"`
+			} `json:"rows"`
+		} `json:"result"`
+	}
+	if err := json.Unmarshal(got.Payload, &envelope); err != nil || envelope.Result.Total != 1 || envelope.Result.Undated != 1 || len(envelope.Result.Rows) != 2 || envelope.Result.Rows[0].Count != 1 || envelope.Result.Rows[1].Count != 0 {
+		t.Fatalf("bounded timeline: %s %v", got.Payload, err)
+	}
+	for _, payload := range []string{
+		"null",
+		`{"projectId":"foreign","from":"2026-01-01T00:00:00Z","until":"2026-01-02T00:00:00Z","bucket":"day"}`,
+		`{"from":"2026-01-01T00:00:00Z","until":"bad","bucket":"day"}`,
+		`{"from":"2026-01-02T00:00:00Z","until":"2026-01-01T00:00:00Z","bucket":"day"}`,
+		`{"from":"2026-01-01T00:00:00Z","until":"2028-01-01T00:00:00Z","bucket":"day"}`,
+		`{"from":"2026-01-01T00:00:00Z","until":"2026-01-02T00:00:00Z","bucket":"day","name":"!"}`,
+	} {
+		request.Payload = []byte(payload)
+		if _, effect, err := prepareAnalyticsTimeline(s, request); !errors.Is(err, ErrInvalidWorkerRequest) || effect != nil {
+			t.Fatalf("invalid timeline %s: %v", payload, err)
+		}
+	}
+	if _, _, err := prepareAnalyticsTimeline(nil, request); !errors.Is(err, ErrStoredResourceMissing) {
+		t.Fatal(err)
+	}
+	request.Payload = []byte(`{"from":"2026-01-01T00:00:00Z","until":"2026-01-02T00:00:00Z","bucket":"day"}`)
+	if err := s.Close(); err != nil {
+		t.Fatal(err)
+	}
+	if _, _, err := prepareAnalyticsTimeline(s, request); err == nil {
+		t.Fatal("closed event store accepted")
+	}
+}
