@@ -66,7 +66,7 @@ func (b *Broker) Authorize(call HostCall, now time.Time) error {
 	if b == nil {
 		return ErrRegistryUnavailable
 	}
-	if !isValidProjectID(call.ProjectID) || call.ActorID == "" {
+	if !isValidProjectID(call.ProjectID) || !validAccessIdentity(call.ActorID) {
 		return ErrProjectInvalid
 	}
 	if !call.ExpiresAt.After(now) {

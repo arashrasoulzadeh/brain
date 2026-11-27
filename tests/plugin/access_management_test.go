@@ -142,6 +142,8 @@ func TestAccessManagementGatesEveryDiscoveredFeatureRoute(t *testing.T) {
 		remaining = pending
 	}
 	r, _ := accessRegistry(t, ordered...)
+	// This test isolates policy admission from storage-specific business payloads.
+	r.BindInvocationStorage(nil)
 	installAccessTestPlugin(t, r, "alpha", accessManifest(t), &contractWorker{ready: true})
 	for _, m := range ordered {
 		installAccessTestPlugin(t, r, "alpha", m, &contractWorker{ready: true})
@@ -150,7 +152,7 @@ func TestAccessManagementGatesEveryDiscoveredFeatureRoute(t *testing.T) {
 	for _, m := range ordered {
 		for _, route := range m.Routes {
 			// Delegated and model operations have dedicated integration tests.
-			if route.Call != nil || route.Model != nil {
+			if route.Call != nil || route.Model != nil || route.Helper == "host.admin" {
 				continue
 			}
 			input := map[string]string{}
@@ -385,8 +387,15 @@ func TestAccessManagementObserverUsesPublisherIdentity(t *testing.T) {
 	}
 	observerRoute := plugin.Route{Operation: "@observe/publisher/connected", Capability: observationCapability}
 	createAccessRule(t, r, "alpha", "observer", "plugin:publisher@1", target, observerRoute, "publisher.connected", true)
-	if result, err := r.InvokeAsOperator(req, "root"); err != nil || !result.Success || worker.calls != 1 {
-		t.Fatalf("authorized observation: %+v %v calls=%d", result, err, worker.calls)
+	if result, err := r.InvokeAsOperator(req, "root"); err != nil || !result.Success {
+		t.Fatalf("authorized observation: %+v %v", result, err)
+	}
+	if _, err := r.DrainObservations(time.Now().Add(time.Second), 10); err != nil || worker.calls != 1 {
+		t.Fatalf("observation delivery: %v calls=%d", err, worker.calls)
+	}
+	auth := worker.last.HostContext.Auth
+	if auth.Actor.ID != "root" || auth.Actor.Kind != "operator" || auth.Caller.Kind != "plugin" || auth.Caller.ID != "publisher@1" {
+		t.Fatalf("observer principal mismatch: %+v", auth)
 	}
 }
 

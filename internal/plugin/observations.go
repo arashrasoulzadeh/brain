@@ -141,6 +141,15 @@ func (r *Registry) planWorkerObservations(publisher WorkerRequest, intents []Obs
 // after their effect succeeds. It cannot be reached through worker RPC. A host
 // event is explicitly distinguished from worker-published events in the manifest.
 func (r *Registry) PublishHostObservation(projectID, pluginID, event string, payload map[string]any) {
+	r.PublishHostObservationAs(projectID, pluginID, event, "host", payload)
+}
+
+// PublishHostObservationAs attributes a host event to a verified principal.
+// This is a trusted host API; it never grants that principal to the observer.
+func (r *Registry) PublishHostObservationAs(projectID, pluginID, event, principal string, payload map[string]any) {
+	if !validAccessPrincipal(principal) {
+		return
+	}
 	if !isValidProjectID(projectID) || r.LifecycleStorageHealth() != nil {
 		return
 	}
@@ -169,7 +178,7 @@ func (r *Registry) PublishHostObservation(projectID, pluginID, event string, pay
 	if err != nil {
 		return
 	}
-	publisher := WorkerRequest{Protocol: r.HostAPI, ProjectID: projectID, PluginID: selected.ID, Version: selected.Version}
+	publisher := WorkerRequest{Protocol: r.HostAPI, ProjectID: projectID, PluginID: selected.ID, Version: selected.Version, accessPrincipal: principal}
 	intents := []ObservationIntent{{Event: event, Payload: encoded}}
 	r.recordCommittedAdminObservations(publisher, intents, "host")
 	r.executeObservationPlan(r.planObservations(publisher, selected, intents, "host"))
@@ -256,7 +265,7 @@ func (r *Registry) observationTargets(publisher WorkerRequest, event string) []W
 		}
 		for _, observer := range manifest.Manifest.Observers {
 			if observer.Plugin == publisher.PluginID && observer.Event == event {
-				target := WorkerRequest{Protocol: publisher.Protocol, ProjectID: publisher.ProjectID, PluginID: installation.PluginID, Version: installation.Version, Operation: observer.operation(), accessPrincipal: pluginAccessPrincipal(publisher.PluginID, publisher.Version)}
+				target := WorkerRequest{Protocol: publisher.Protocol, ProjectID: publisher.ProjectID, PluginID: installation.PluginID, Version: installation.Version, Operation: observer.operation(), accessPrincipal: pluginAccessPrincipal(publisher.PluginID, publisher.Version), originPrincipal: publisher.originalPrincipal()}
 				if r.authorizeInvocationLocked(target, true) == nil {
 					candidates[installation.PluginID] = append(candidates[installation.PluginID], target)
 				}

@@ -26,6 +26,7 @@ type WorkerRequest struct {
 
 	// Set only by trusted host entry points; never serialized to a worker.
 	accessPrincipal string
+	originPrincipal string
 }
 
 type WorkerResponse struct {

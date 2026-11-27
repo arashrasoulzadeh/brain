@@ -73,6 +73,7 @@ func (r *Registry) DrainObservations(now time.Time, limit int) (int, error) {
 	for i, delivery := range deliveries {
 		delivery.Publisher.accessPrincipal = delivery.Principal
 		delivery.Target.accessPrincipal = pluginAccessPrincipal(delivery.Publisher.PluginID, delivery.Publisher.Version)
+		delivery.Target.originPrincipal = delivery.Publisher.originalPrincipal()
 		event, persist, err := r.validateQueuedObservation(delivery)
 		if err == nil {
 			response, invokeErr := r.invokeOnce(delivery.Target, true)

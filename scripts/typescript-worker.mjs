@@ -70,6 +70,7 @@ for await (const line of input) {
     const hostContext = params.hostContext;
     const available = new Set(Array.isArray(hostContext?.available) ? hostContext.available : []);
     const context = Object.freeze({
+      auth: invocationAuth(hostContext?.auth, params.operation),
       project: Object.freeze({ id: descriptor.projectId, ...((params.project?.active || hostContext?.projectVerified) ? { active: true } : {}) }),
       plugin: Object.freeze({ id: descriptor.pluginId, version: descriptor.version }),
       execution: Object.freeze({ operation: params.operation, ...(hostContext?.invocationId ? { invocationId: hostContext.invocationId } : {}) }),
@@ -98,6 +99,29 @@ for await (const line of input) {
     acceptingObservations = false;
     process.stdout.write(`${JSON.stringify({ jsonrpc: "2.0", id: request?.id ?? "", errorCode: error instanceof Error ? error.message : "plugin execution failed" })}\n`);
   }
+}
+
+function invocationAuth(auth, operation) {
+  const anonymous = Object.freeze({ kind: "public", id: "", authenticated: false, level: "anonymous" });
+  const actor = (value) => {
+    if (!value || typeof value.id !== "string") return anonymous;
+    if (["user", "operator"].includes(value.kind) && value.id && value.authenticated === true && value.level === "authenticated") {
+      return Object.freeze({ kind: value.kind, id: value.id, authenticated: true, level: "authenticated" });
+    }
+    if (["host", "plugin"].includes(value.kind) && value.authenticated === false && value.level === "system") {
+      return Object.freeze({ kind: value.kind, id: value.id, authenticated: false, level: "system" });
+    }
+    return anonymous;
+  };
+  const permissions = Object.freeze((Array.isArray(auth?.permissions) ? auth.permissions : [])
+    .filter((permission) => permission && permission.operation === operation && typeof permission.capability === "string" && permission.capability && typeof permission.resource === "string")
+    .map(({ capability, operation, resource }) => Object.freeze({ capability, operation, resource })));
+  return Object.freeze({
+    actor: actor(auth?.actor),
+    caller: actor(auth?.caller),
+    permissions,
+    can: (capability, resource = "") => permissions.some((permission) => permission.capability === capability && permission.resource === resource),
+  });
 }
 
 async function invokeDeclaredRoute(plugin, functionName, request) {
@@ -140,7 +164,7 @@ function validResponse(spec) {
   }
   return output.every(([key, value]) => responseKey(key) &&
     (value === null || typeof value === "boolean" || (typeof value === "number" && Number.isFinite(value)) ||
-      (typeof value === "string" && (!value.startsWith("$") || (value.startsWith("$input.") && names.has(value.slice(7))) || value === "$project.id" || value === "$plugin.id"))));
+      (typeof value === "string" && (!value.startsWith("$") || (value.startsWith("$input.") && names.has(value.slice(7))) || value === "$project.id" || value === "$plugin.id" || authReference(value)))));
 }
 
 function mapResponse(spec, payload, context) {
@@ -157,13 +181,23 @@ function mapResponse(spec, payload, context) {
   }
   return Object.fromEntries(Object.entries(spec.output).map(([key, value]) =>
     [key, value === "$project.id" ? context.project.id : value === "$plugin.id" ? context.plugin.id :
+      authReference(value) ? resolveAuth(value, context) :
       typeof value === "string" && value.startsWith("$input.") ? values.get(value.slice(7)) : value]));
 }
 
 
 
+function authReference(value) {
+  return ["$auth.actor.id","$auth.actor.kind","$auth.actor.authenticated","$auth.actor.level","$auth.caller.id","$auth.caller.kind","$auth.caller.authenticated","$auth.caller.level"].includes(value);
+}
+
+function resolveAuth(reference, context) {
+  const [, principal, field] = reference.split(".");
+  return context.auth[principal][field];
+}
+
 function pipelineReference(value, available) {
-  if (value === "$input" || value === "$project.id" || value === "$plugin.id") return true;
+  if (value === "$input" || value === "$project.id" || value === "$plugin.id" || authReference(value)) return true;
   if (typeof value !== "string") return false;
   const parts = value.split(".");
   if (parts[0] === "$input") return parts.length <= 8 && parts.slice(1).every(responseKey);
@@ -187,6 +221,7 @@ async function executePipeline(spec, input, context) {
   const resolve = (reference) => {
     if (reference === "$project.id") return context.project.id;
     if (reference === "$plugin.id") return context.plugin.id;
+    if (authReference(reference)) return resolveAuth(reference, context);
     const parts = reference.split(".");
     let value = parts[0] === "$input" ? input : values.get(parts[1]);
     for (const key of parts.slice(parts[0] === "$input" ? 1 : 2)) {
