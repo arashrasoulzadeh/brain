@@ -21,8 +21,6 @@ jobs:
     timeout-minutes: 15
     env:
       BRAIN_ADMIN_ORIGIN: http://127.0.0.1:3100
-      BRAIN_BROWSER_DEPS: ${{ runner.temp }}/brain-admin-browser
-      BRAIN_BROWSER_OUTPUT: ${{ runner.temp }}/brain-admin-screenshots
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -30,6 +28,10 @@ jobs:
           node-version: 20
           cache: npm
           cache-dependency-path: admin-nextjs/package-lock.json
+      - name: Set isolated test paths
+        run: |
+          echo "BRAIN_BROWSER_DEPS=$RUNNER_TEMP/brain-admin-browser" >> "$GITHUB_ENV"
+          echo "BRAIN_BROWSER_OUTPUT=$RUNNER_TEMP/brain-admin-screenshots" >> "$GITHUB_ENV"
       - run: npm ci
         working-directory: admin-nextjs
       - run: npm run build
