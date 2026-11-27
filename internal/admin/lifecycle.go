@@ -37,7 +37,7 @@ func NewLifecycleServiceWithProjects(operators *operator.Store, registry *plugin
 }
 
 func (s *LifecycleService) CreateProject(actor operator.Actor, projectID string) error {
-	return s.execute(actor, "project.create", func() error {
+	return s.executeProjectLifecycle(actor, projectID, "", "", "project.create", func() error {
 		if s.projects == nil {
 			return operator.ErrInvalidOperatorAction
 		}
@@ -53,7 +53,7 @@ func (s *LifecycleService) ListProjects(actor operator.Actor) ([]project.Project
 }
 
 func (s *LifecycleService) SetProjectActive(actor operator.Actor, projectID string, active bool) error {
-	return s.execute(actor, "project.active", func() error {
+	return s.executeProjectLifecycle(actor, projectID, "", "", "project.active", func() error {
 		if s.projects == nil {
 			return operator.ErrInvalidOperatorAction
 		}
@@ -90,7 +90,7 @@ func (s *LifecycleService) SystemCapabilities(actor operator.Actor) ([]plugin.Ma
 }
 
 func (s *LifecycleService) InstallPlugin(actor operator.Actor, projectID, pluginID, version string) error {
-	return s.execute(actor, "plugin.install", func() error {
+	return s.executeProjectLifecycle(actor, projectID, pluginID, version, "plugin.install", func() error {
 		return s.registry.Install(projectID, pluginID, version)
 	})
 }
@@ -127,37 +127,37 @@ func (s *LifecycleService) AuditRecords(actor operator.Actor) ([]AuditRecord, er
 }
 
 func (s *LifecycleService) GrantCapability(actor operator.Actor, projectID, pluginID, version, capability string) error {
-	return s.execute(actor, "plugin.grant", func() error {
+	return s.executeProjectLifecycle(actor, projectID, pluginID, version, "plugin.grant", func() error {
 		return s.registry.Grant(projectID, pluginID, version, capability)
 	})
 }
 
 func (s *LifecycleService) GrantResource(actor operator.Actor, projectID, pluginID, version, capability, resource string) error {
-	return s.execute(actor, "plugin.grant-resource", func() error {
+	return s.executeProjectLifecycle(actor, projectID, pluginID, version, "plugin.grant-resource", func() error {
 		return s.registry.GrantResource(projectID, pluginID, version, capability, resource)
 	})
 }
 
 func (s *LifecycleService) ConfigurePlugin(actor operator.Actor, projectID, pluginID, version string, values map[string]any) error {
-	return s.execute(actor, "plugin.configure", func() error {
+	return s.executeProjectLifecycle(actor, projectID, pluginID, version, "plugin.configure", func() error {
 		return s.registry.Configure(projectID, pluginID, version, values)
 	})
 }
 
 func (s *LifecycleService) RevokeCapability(actor operator.Actor, projectID, pluginID, version, capability string) error {
-	return s.execute(actor, "plugin.revoke", func() error {
+	return s.executeProjectLifecycle(actor, projectID, pluginID, version, "plugin.revoke", func() error {
 		return s.registry.Revoke(projectID, pluginID, version, capability)
 	})
 }
 
 func (s *LifecycleService) EnablePlugin(actor operator.Actor, projectID, pluginID, version string) error {
-	return s.execute(actor, "plugin.enable", func() error {
+	return s.executeProjectLifecycle(actor, projectID, pluginID, version, "plugin.enable", func() error {
 		return s.registry.Enable(projectID, pluginID, version)
 	})
 }
 
 func (s *LifecycleService) StartPluginWorker(actor operator.Actor, projectID, pluginID, version string) error {
-	return s.execute(actor, "plugin.worker.start", func() error {
+	return s.executeProjectLifecycle(actor, projectID, pluginID, version, "plugin.worker.start", func() error {
 		return s.registry.StartWorker(projectID, pluginID, version)
 	})
 }
@@ -257,19 +257,19 @@ func (s *LifecycleService) AdminPageRevision(actor operator.Actor, pageID string
 }
 
 func (s *LifecycleService) PromotePlugin(actor operator.Actor, projectID, pluginID, version string) error {
-	return s.execute(actor, "plugin.promote", func() error {
+	return s.executeProjectLifecycle(actor, projectID, pluginID, version, "plugin.promote", func() error {
 		return s.registry.Promote(projectID, pluginID, version)
 	})
 }
 
 func (s *LifecycleService) RemovePlugin(actor operator.Actor, projectID, pluginID, version string) error {
-	return s.execute(actor, "plugin.remove", func() error {
+	return s.executeProjectLifecycle(actor, projectID, pluginID, version, "plugin.remove", func() error {
 		return s.registry.Remove(projectID, pluginID, version)
 	})
 }
 
 func (s *LifecycleService) UninstallProject(actor operator.Actor, projectID string) error {
-	return s.execute(actor, "project.uninstall", func() error {
+	return s.executeProjectLifecycle(actor, projectID, "", "", "project.uninstall", func() error {
 		return s.registry.UninstallProject(projectID)
 	})
 }
@@ -281,13 +281,13 @@ func (s *LifecycleService) DeleteDurableData(actor operator.Actor, projectID, pl
 }
 
 func (s *LifecycleService) DrainPlugin(actor operator.Actor, projectID, pluginID, version string) error {
-	return s.execute(actor, "plugin.drain", func() error {
+	return s.executeProjectLifecycle(actor, projectID, pluginID, version, "plugin.drain", func() error {
 		return s.registry.Drain(projectID, pluginID, version)
 	})
 }
 
 func (s *LifecycleService) StopPluginImmediately(actor operator.Actor, projectID, pluginID, version string) error {
-	return s.execute(actor, "plugin.stop-immediate", func() error {
+	return s.executeProjectLifecycle(actor, projectID, pluginID, version, "plugin.stop-immediate", func() error {
 		return s.registry.StopImmediately(projectID, pluginID, version)
 	})
 }
@@ -303,31 +303,31 @@ func (s *LifecycleService) PreviewDisable(actor operator.Actor, projectID, plugi
 }
 
 func (s *LifecycleService) ApplyDisable(actor operator.Actor, preview plugin.DisablePreview) error {
-	return s.execute(actor, "plugin.disable.apply", func() error {
+	return s.executeProjectLifecycle(actor, preview.ProjectID, preview.PluginID, preview.Version, "plugin.disable.apply", func() error {
 		return s.registry.ApplyDisablePreview(preview)
 	})
 }
 
 func (s *LifecycleService) RecoverPlugin(actor operator.Actor, projectID, pluginID, version string) error {
-	return s.execute(actor, "plugin.recover", func() error {
+	return s.executeProjectLifecycle(actor, projectID, pluginID, version, "plugin.recover", func() error {
 		return s.registry.Recover(projectID, pluginID, version)
 	})
 }
 
 func (s *LifecycleService) ResumePlugin(actor operator.Actor, projectID, pluginID, version string) error {
-	return s.execute(actor, "plugin.resume", func() error {
+	return s.executeProjectLifecycle(actor, projectID, pluginID, version, "plugin.resume", func() error {
 		return s.registry.Recover(projectID, pluginID, version)
 	})
 }
 
 func (s *LifecycleService) StopPlugin(actor operator.Actor, projectID, pluginID, version string) error {
-	return s.execute(actor, "plugin.stop", func() error {
+	return s.executeProjectLifecycle(actor, projectID, pluginID, version, "plugin.stop", func() error {
 		return s.registry.StopImmediately(projectID, pluginID, version)
 	})
 }
 
 func (s *LifecycleService) RollbackPlugin(actor operator.Actor, projectID, pluginID, version string) error {
-	return s.execute(actor, "plugin.rollback", func() error {
+	return s.executeProjectLifecycle(actor, projectID, pluginID, version, "plugin.rollback", func() error {
 		return s.registry.Rollback(projectID, pluginID, version)
 	})
 }
@@ -354,4 +354,17 @@ func (s *LifecycleService) execute(actor operator.Actor, action string, operatio
 		return operator.ErrInvalidOperatorAction
 	}
 	return s.operators.ExecuteAction(actor, action, operation)
+}
+
+func (s *LifecycleService) executeProjectLifecycle(actor operator.Actor, projectID, pluginID, version, action string, operation func() error) error {
+	if err := s.execute(actor, action, operation); err != nil {
+		return err
+	}
+	if s.registry == nil {
+		return nil
+	}
+	s.registry.PublishHostObservation(projectID, "dashboard", "lifecycleChanged", map[string]any{
+		"action": action, "targetPlugin": pluginID, "targetVersion": version,
+	})
+	return nil
 }

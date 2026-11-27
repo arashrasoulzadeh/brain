@@ -86,7 +86,7 @@ func (b *Broker) Authorize(call HostCall, now time.Time) error {
 			return ErrNotRegistered
 		}
 		route, ok := registered.Manifest.Route(call.Operation)
-		if !ok || route.Capability != call.Capability {
+		if !ok || route.Helper == "host.admin" || route.Capability != call.Capability {
 			return ErrActorDenied
 		}
 	}
