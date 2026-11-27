@@ -1,4 +1,4 @@
-import { createResourceRequest, createOperationRoutes, requiredString, trimmedString, type PluginContext } from "../sdk-typescript/src/index.js";
+import { createResourceRequest, createOperationRoutes, requiredString, trimmedString, requireProjectInput, requireOperator, type PluginContext } from "../sdk-typescript/src/index.js";
 
 export const roomRequest = createResourceRequest<"rooms.create" | "rooms.join" | "rooms.reconnect" | "rooms.result">("rooms", "id");
 
@@ -55,4 +55,22 @@ function executeRoomRoute(operation: RoomOperation, input: unknown, context?: Pl
   if (operation === "create") context?.plugins.observe.fire("created", { roomId: id });
   if (operation === "result" && value.result !== undefined) context?.plugins.observe.fire("result.committed", { roomId: id });
   return result;
+}
+
+// Administrative writes use the trusted host snapshot and resource-bound operator grant.
+export function manageRoom(context: PluginContext, input: unknown) {
+  const payload = requireProjectInput(context, input);
+  const id = requiredString(payload.id, "room id is required");
+  requireOperator(context, "rooms.admin.manage", id);
+  const room = payload.room as { id?: string; members?: unknown[]; closed?: boolean } | undefined;
+  if (!room || room.id !== id || !Array.isArray(room.members)) throw new Error("host room snapshot required");
+  if (context.execution.operation === "rooms.admin.close") {
+    if (room.closed !== true) throw new Error("closed room snapshot required");
+    context.plugins.observe.fire("closed", { roomId: id });
+  } else if (context.execution.operation === "rooms.admin.remove-member") {
+    const member = requiredString(payload.member, "member is required");
+    if (room.closed || room.members.includes(member)) throw new Error("removed membership snapshot required");
+    context.plugins.observe.fire("membership.changed", { roomId: id });
+  } else throw new Error("unknown room management operation");
+  return room;
 }

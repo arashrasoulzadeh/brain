@@ -191,9 +191,9 @@ export function AdminPageFrame({
       if (!plugins.ok) throw new Error("Plugin catalog unavailable");
       const catalog = await plugins.json() as AdminCatalog;
       const manifest = catalog.manifests ?? [];
-      const allowed = (catalog.installations ?? []).some(item => item.ProjectID === project && item.PluginID === requiredPluginID && item.Enabled && item.Ready && !item.Draining && manifest.some(m => m.ID === item.PluginID && m.Version === item.Version && m.Capabilities.every(capability => item.Grants?.includes(capability))));
+      const allowed = (catalog.installations ?? []).some(item => item.ProjectID === project && item.PluginID === requiredPluginID && item.Enabled && item.Ready && !item.Draining && manifest.some(m => m.ID === item.PluginID && m.Version === item.Version && (m.Capabilities ?? []).every(capability => item.Grants?.includes(capability))));
       if (!allowed) throw new Error("This plugin is disabled, draining, not ready or missing required capabilities.");
-      if (!controller.signal.aborted) setAccess({ path: pathname, epoch: catalogEpoch, status: "allowed", project });
+      if (!controller.signal.aborted && readAdminSession() === token) setAccess({ path: pathname, epoch: catalogEpoch, status: "allowed", project });
     })().catch(reason => {
       if (!controller.signal.aborted) setAccess({ path: pathname, epoch: catalogEpoch, status: "denied", message: String(reason), project });
     });

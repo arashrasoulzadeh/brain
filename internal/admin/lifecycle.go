@@ -9,6 +9,7 @@ import (
 	"errors"
 	"net/http"
 	"strings"
+	"time"
 )
 
 var ErrPluginUnavailable = errors.New("plugin is not enabled and ready")
@@ -121,6 +122,8 @@ type AuditRecord struct {
 	Version   string `json:"version,omitempty"`
 	Success   bool   `json:"success"`
 	Detail    string `json:"detail,omitempty"`
+
+	OccurredAt string `json:"occurred_at,omitempty"`
 }
 
 func (s *LifecycleService) AuditRecords(actor operator.Actor) ([]AuditRecord, error) {
@@ -129,10 +132,10 @@ func (s *LifecycleService) AuditRecords(actor operator.Actor) ([]AuditRecord, er
 	}
 	records := make([]AuditRecord, 0)
 	for _, event := range s.operators.Audit() {
-		records = append(records, AuditRecord{Source: "operator", Action: event.Action, ActorID: event.ActorID, Success: event.Success, Detail: event.Detail})
+		records = append(records, AuditRecord{Source: "operator", Action: event.Action, ActorID: event.ActorID, Success: event.Success, Detail: event.Detail, OccurredAt: event.OccurredAt.Format(time.RFC3339Nano)})
 	}
 	for _, event := range s.registry.Audit() {
-		records = append(records, AuditRecord{Source: "plugin", Action: event.Action, ProjectID: event.ProjectID, PluginID: event.PluginID, Version: event.Version, Success: true, Detail: event.Detail})
+		records = append(records, AuditRecord{Source: "plugin", Action: event.Action, ProjectID: event.ProjectID, PluginID: event.PluginID, Version: event.Version, Success: true, Detail: event.Detail, OccurredAt: event.OccurredAt.Format(time.RFC3339Nano)})
 	}
 	return records, nil
 }
@@ -280,6 +283,12 @@ func (s *LifecycleService) AdminPageRevision(actor operator.Actor, pageID string
 	return s.registry.AdminObservationRevision(invocation.ProjectID, page.RefreshOn), nil
 }
 
+func (s *LifecycleService) ApprovePluginCapability(actor operator.Actor, projectID, pluginID, version, capability string) error {
+	return s.executeProjectLifecycle(actor, projectID, pluginID, version, "plugin.approve-capability", func() error {
+		return s.registry.ApproveCapability(projectID, pluginID, version, capability)
+	})
+}
+
 func (s *LifecycleService) PromotePlugin(actor operator.Actor, projectID, pluginID, version string) error {
 	return s.executeProjectLifecycle(actor, projectID, pluginID, version, "plugin.promote", func() error {
 		return s.registry.Promote(projectID, pluginID, version)
@@ -394,13 +403,17 @@ func (s *LifecycleService) executeProjectLifecycle(actor operator.Actor, project
 }
 
 func (s *LifecycleService) AdminInventory(actor operator.Actor, pageID string, invocation PluginInvocation, after string, limit int) (plugin.AdminInventoryPage, error) {
+	return s.AdminInventorySearch(actor, pageID, invocation, after, "", limit)
+}
+
+func (s *LifecycleService) AdminInventorySearch(actor operator.Actor, pageID string, invocation PluginInvocation, after, search string, limit int) (plugin.AdminInventoryPage, error) {
 	var result plugin.AdminInventoryPage
 	err := s.execute(actor, "plugin.admin.inventory", func() error {
 		if _, err := s.adminPageManifest(actor, pageID, invocation); err != nil {
 			return err
 		}
 		var err error
-		result, err = s.registry.AdminInventoryAsOperator(actor.ID, invocation.ProjectID, invocation.PluginID, invocation.Version, pageID, after, limit)
+		result, err = s.registry.AdminInventorySearchAsOperator(actor.ID, invocation.ProjectID, invocation.PluginID, invocation.Version, pageID, after, search, limit)
 		return err
 	})
 	return result, err

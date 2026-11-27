@@ -54,13 +54,14 @@ Send project creation, configuration, activation, deactivation, uninstall and re
 | `plugin.grant` | identity, capability | Grant declared capability. |
 | `plugin.grant-resource` | identity, capability, resource | Grant exact resource scope. |
 | `plugin.configure` | identity, values | Set schema-checked configuration; integers must be valid. |
-| `plugin.admin.inventory` | identity, page_id, after, limit | Page of manifest-declared inventory; default limit 50. |
+| `plugin.admin.inventory` | identity, page_id, after, limit, optional search | Page of manifest-declared inventory; default limit 50. Search is a literal substring up to 256 bytes, applied to authorized keys and file metadata before pagination. |
 | `plugin.admin.revision` | identity, page_id, target_operation, payload | Read observation revision. |
 | `plugin.admin.invoke` | identity, page_id, target_operation, payload, confirmed | Invoke declared admin action. |
 | `plugin.admin.query` | identity, page_id, target_operation, payload | Read-only declared admin action. |
 | `plugin.invoke` | identity, target_operation, payload | Invoke declared plugin operation as operator. |
 | `plugin.revoke` | identity, capability, confirmed | Revoke capability. |
-| `plugin.promote` | identity | Promote eligible version. |
+| `plugin.approve-capability` | identity, capability, confirmed | Persist explicit approval for a newly requested capability on an exact candidate version. |
+| `plugin.promote` | identity | Promote eligible version and persist the exact routing selection. |
 | `plugin.drain` | identity | Drain version. |
 | `plugin.stop-immediate` | identity, confirmed | Stop without waiting for drain. |
 | `plugin.stop` | identity, confirmed | Stop version. |

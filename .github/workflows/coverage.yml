@@ -46,7 +46,12 @@ jobs:
         run: python -m unittest discover -s tests/coverage -p 'test_*.py'
       - name: Require every measured statement to execute
         run: python scripts/check-go-coverage.py coverage/go.out
+  typescript-integration-coverage:
+    uses: ./.github/workflows/admin-browser.yml
+    with:
+      collect_v8: true
   typescript-coverage:
+    needs: typescript-integration-coverage
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -58,6 +63,10 @@ jobs:
       - run: npm ci --prefix admin-nextjs
       - name: Install pinned DOM test runtime
         run: npm install --prefix "$RUNNER_TEMP/brain-test-tools" --no-save --ignore-scripts jsdom@26.1.0
+      - uses: actions/download-artifact@v4
+        with:
+          name: typescript-browser-v8
+          path: coverage/raw
       - name: Measure plugin, client, admin and worker coverage
         env:
           BRAIN_TEST_TOOLS: ${{ runner.temp }}/brain-test-tools

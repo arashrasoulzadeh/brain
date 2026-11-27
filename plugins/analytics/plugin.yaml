@@ -6,13 +6,15 @@ imports:
   - ../sdk-typescript/src/index.js
 plugin_imports:
 title: Analytics
-description: Project-scoped validated event capture.
+description: Project-scoped validated event capture, history and counts.
 version: 0.1.0
 host_api: 1
 mount: /analytics
 dependencies: []
 capabilities:
   - analytics.capture
+  - analytics.read
+  - analytics.summary
   - observe.rooms.connected
 extension_points: []
 config_schema:
@@ -40,6 +42,28 @@ routes:
     helper: sdk.context
     capability: analytics.capture
     resource_field: name
+  - operation: analytics.history
+    method: GET
+    path: /history/{name}
+    auth: operator
+    function: readForProject
+    helper: sdk.context
+    capability: analytics.read
+    resource_field: name
+  - operation: analytics.summary
+    method: GET
+    path: /summary
+    auth: operator
+    function: readForProject
+    helper: sdk.context
+    capability: analytics.summary
+  - operation: analytics.timeline
+    method: POST
+    path: /timeline
+    auth: operator
+    function: readForProject
+    helper: sdk.context
+    capability: analytics.summary
 admin:
   version: 1
   pages:
@@ -57,3 +81,49 @@ admin:
             - name: fields
               type: json
               required: true
+        - title: Event history
+          operation: analytics.history
+          read_only: true
+          result:
+            type: grid
+            children:
+              - {type: metric, title: Matching events, path: total_events}
+              - {type: table, title: Recent events, path: rows, columns: [occurred_at, name, fields], page_size: 20}
+              - {type: detail, title: Pagination}
+          fields:
+            - {name: name, type: string, required: true}
+            - {name: offset, type: number}
+            - {name: limit, type: number}
+            - {name: from, type: string}
+            - {name: until, type: string}
+        - title: Event counts
+          operation: analytics.summary
+          read_only: true
+          result:
+            type: grid
+            children:
+              - {type: metric, title: Total events, path: total_events}
+              - {type: metric, title: Distinct event names, path: total_names}
+              - {type: chart, title: Counts by event, path: rows, label_field: name, value_field: count}
+              - {type: table, title: Event counts, path: rows, columns: [name, count], page_size: 20}
+              - {type: detail, title: Pagination}
+          fields:
+            - {name: offset, type: number}
+            - {name: limit, type: number}
+            - {name: from, type: string}
+            - {name: until, type: string}
+        - title: Event timeline (UTC)
+          operation: analytics.timeline
+          read_only: true
+          fields:
+            - {name: from, type: string, required: true}
+            - {name: until, type: string, required: true}
+            - {name: bucket, type: string, required: true}
+            - {name: name, type: string}
+          result:
+            type: grid
+            children:
+              - {type: metric, title: Events in range, path: total_events}
+              - {type: metric, title: Undated legacy events (excluded), path: undated_events}
+              - {type: chart, title: UTC event counts, path: rows, label_field: start, value_field: count}
+              - {type: table, path: rows, columns: [start, count], page_size: 24}

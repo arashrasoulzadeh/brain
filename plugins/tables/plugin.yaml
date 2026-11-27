@@ -26,6 +26,9 @@ capabilities:
   - tables.read
   - tables.write
   - tables.schema
+  - tables.update
+  - tables.delete
+  - tables.admin.schema
 extension_points:
   - data.policy
 config_schema:
@@ -59,6 +62,62 @@ routes:
     helper: sdk.dispatch
     capability: tables.schema
     resource_field: table
+  - operation: tables.update
+    method: PUT
+    path: /rows/update
+    auth: operator
+    function: mutateTableRow
+    helper: sdk.context
+    capability: tables.update
+    resource_field: table
+  - operation: tables.delete
+    method: POST
+    path: /rows/delete
+    auth: operator
+    function: mutateTableRow
+    helper: sdk.context
+    capability: tables.delete
+    resource_field: table
+  - operation: tables.schema.profile
+    method: POST
+    path: /schema/profile
+    auth: operator
+    function: administerSchema
+    helper: sdk.context
+    capability: tables.schema
+    resource_field: table
+  - operation: tables.admin.create
+    method: POST
+    path: /admin/create
+    auth: operator
+    function: administerSchema
+    helper: sdk.context
+    capability: tables.admin.schema
+    resource_field: table
+  - operation: tables.admin.add-column
+    method: POST
+    path: /admin/add-column
+    auth: operator
+    function: administerSchema
+    helper: sdk.context
+    capability: tables.admin.schema
+    resource_field: table
+  - operation: tables.admin.rename-column
+    method: POST
+    path: /admin/rename-column
+    auth: operator
+    function: administerSchema
+    helper: sdk.context
+    capability: tables.admin.schema
+    resource_field: table
+  - operation: tables.admin.drop-column
+    method: POST
+    path: /admin/drop-column
+    auth: operator
+    function: administerSchema
+    helper: sdk.context
+    capability: tables.admin.schema
+    resource_field: table
 admin:
   version: 1
   pages:
@@ -82,17 +141,13 @@ admin:
             - name: table
               type: string
               required: true
-        - title: Read rows
+        - title: Read row page
           operation: tables.read
           read_only: true
-          result:
-            type: table
-            path: rows
-            page_size: 25
           fields:
-            - name: table
-              type: string
-              required: true
+            - {name: table, type: string, required: true}
+            - {name: offset, type: number}
+            - {name: limit, type: number, required: true}
         - title: Write row
           operation: tables.write
           fields:
@@ -102,3 +157,53 @@ admin:
             - name: row
               type: json
               required: true
+        - title: Replace row (revision required)
+          operation: tables.update
+          fields:
+            - {name: table, type: string, required: true}
+            - {name: row_index, type: number, required: true}
+            - {name: revision, type: string, required: true}
+            - {name: row, type: json, required: true}
+        - title: Delete row (revision required)
+          operation: tables.delete
+          fields:
+            - {name: table, type: string, required: true}
+            - {name: row_index, type: number, required: true}
+            - {name: revision, type: string, required: true}
+        - title: Profile observed column types
+          operation: tables.schema.profile
+          read_only: true
+          fields:
+            - {name: table, type: string, required: true}
+            - {name: offset, type: number}
+            - {name: limit, type: number}
+          result:
+            type: grid
+            children:
+              - {type: metric, title: Rows, path: total_rows}
+              - {type: table, path: columns, columns: [name, types, present, missing], page_size: 25}
+              - {type: detail, title: Revision and pagination}
+        - title: Create empty table
+          operation: tables.admin.create
+          fields:
+            - {name: table, type: string, required: true}
+        - title: Add column to all rows (revision required)
+          operation: tables.admin.add-column
+          fields:
+            - {name: table, type: string, required: true}
+            - {name: revision, type: string, required: true}
+            - {name: column, type: string, required: true}
+            - {name: default, type: json}
+        - title: Rename column in all rows (revision required)
+          operation: tables.admin.rename-column
+          fields:
+            - {name: table, type: string, required: true}
+            - {name: revision, type: string, required: true}
+            - {name: column, type: string, required: true}
+            - {name: new_column, type: string, required: true}
+        - title: Drop column from all rows (revision required)
+          operation: tables.admin.drop-column
+          fields:
+            - {name: table, type: string, required: true}
+            - {name: revision, type: string, required: true}
+            - {name: column, type: string, required: true}

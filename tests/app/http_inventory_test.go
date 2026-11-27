@@ -40,8 +40,8 @@ func TestOperatorHTTPInventoryAndLifecycle(t *testing.T) {
 		}
 		return rec
 	}
-	request("POST", "/admin/session", "{", 400)
-	login := request("POST", "/admin/session", `{"username":"operator","secret":"secret"}`, 200)
+	request("POST", "/_system/admin/session", "{", 400)
+	login := request("POST", "/_system/admin/session", `{"username":"operator","secret":"secret"}`, 200)
 	var session struct{ Session string }
 	if err := json.Unmarshal(login.Body.Bytes(), &session); err != nil || session.Session == "" {
 		t.Fatalf("session = %+v, %v", session, err)
@@ -53,36 +53,40 @@ func TestOperatorHTTPInventoryAndLifecycle(t *testing.T) {
 		`{"operation":"plugin.grant","project_id":"dev","plugin_id":"sample","version":"1.0.0","capability":"sample.read"}`,
 		`{"operation":"plugin.readiness","plugin_id":"sample","version":"1.0.0","ready":true}`,
 	} {
-		rec := request("POST", "/admin/actions", body, 200)
+		path := "/dev/admin/actions"
+		if strings.Contains(body, `"project.create"`) || strings.Contains(body, `"plugin.readiness"`) {
+			path = "/_system/admin/actions"
+		}
+		rec := request("POST", path, body, 200)
 		if !strings.Contains(rec.Body.String(), `"status":"success"`) {
 			t.Fatalf("missing success envelope: %s", rec.Body.String())
 		}
 	}
 	for _, endpoint := range []struct{ path, expected string }{
-		{"/admin/projects", "dev"},
-		{"/admin/plugins?project_id=dev", "sample"},
-		{"/admin/system", "sample"},
-		{"/admin/audit", "plugin.grant"},
+		{"/_system/admin/projects", "dev"},
+		{"/dev/admin/plugins", "sample"},
+		{"/_system/admin/system", "sample"},
+		{"/_system/admin/audit", "plugin.grant"},
 	} {
 		rec := request("GET", endpoint.path, "", 200)
 		if !strings.Contains(rec.Body.String(), endpoint.expected) {
 			t.Fatalf("%s response lacks %s: %s", endpoint.path, endpoint.expected, rec.Body.String())
 		}
 	}
-	request("POST", "/admin/actions", "{", 400)
-	request("POST", "/admin/actions", `{"operation":"not.declared"}`, 400)
-	request("POST", "/admin/actions", `{"operation":"plugin.configure","project_id":"dev","plugin_id":"sample","version":"1.0.0","values":{"count":1.5}}`, 400)
-	request("POST", "/admin/actions", `{"operation":"plugin.configure","project_id":"dev","plugin_id":"sample","version":"1.0.0","values":{"unknown":1}}`, 403)
-	request("POST", "/admin/actions", `{"operation":"plugin.admin.inventory","project_id":"dev","plugin_id":"sample","version":"1.0.0","page_id":"not-declared"}`, 403)
-	request("POST", "/admin/actions", `{"operation":"plugin.admin.revision","project_id":"dev","plugin_id":"sample","version":"1.0.0","page_id":"not-declared"}`, 403)
-	request("POST", "/admin/actions", `{"operation":"plugin.admin.query","project_id":"dev","plugin_id":"sample","version":"1.0.0","page_id":"not-declared"}`, 403)
-	request("POST", "/admin/actions", `{"operation":"plugin.worker.start","project_id":"dev","plugin_id":"sample","version":"1.0.0"}`, 403)
-	request("GET", "/admin/functions?project_id=dev", "", 403)
-	request("POST", "/admin/functions", "{", 400)
-	request("POST", "/admin/functions", `{"operation":"functions.create","project_id":"dev"}`, 403)
-	request("POST", "/public/dev/missing", "{", 400)
-	request("DELETE", "/admin/session", "", 200)
-	request("GET", "/admin/projects", "", 403)
+	request("POST", "/dev/admin/actions", "{", 400)
+	request("POST", "/dev/admin/actions", `{"operation":"not.declared"}`, 400)
+	request("POST", "/dev/admin/actions", `{"operation":"plugin.configure","project_id":"dev","plugin_id":"sample","version":"1.0.0","values":{"count":1.5}}`, 400)
+	request("POST", "/dev/admin/actions", `{"operation":"plugin.configure","project_id":"dev","plugin_id":"sample","version":"1.0.0","values":{"unknown":1}}`, 403)
+	request("POST", "/dev/admin/actions", `{"operation":"plugin.admin.inventory","project_id":"dev","plugin_id":"sample","version":"1.0.0","page_id":"not-declared"}`, 403)
+	request("POST", "/dev/admin/actions", `{"operation":"plugin.admin.revision","project_id":"dev","plugin_id":"sample","version":"1.0.0","page_id":"not-declared"}`, 403)
+	request("POST", "/dev/admin/actions", `{"operation":"plugin.admin.query","project_id":"dev","plugin_id":"sample","version":"1.0.0","page_id":"not-declared"}`, 403)
+	request("POST", "/dev/admin/actions", `{"operation":"plugin.worker.start","project_id":"dev","plugin_id":"sample","version":"1.0.0"}`, 403)
+	request("GET", "/dev/admin/functions", "", 403)
+	request("POST", "/dev/admin/functions", "{", 400)
+	request("POST", "/dev/admin/functions", `{"operation":"functions.create","project_id":"dev"}`, 403)
+	request("POST", "/dev/functions/missing", "{", 400)
+	request("DELETE", "/_system/admin/session", "", 200)
+	request("GET", "/_system/admin/projects", "", 403)
 }
 
 func TestAdminHandlerMethodAndDependencyBoundaries(t *testing.T) {

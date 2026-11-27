@@ -5,30 +5,38 @@ import "encoding/json"
 // Keep legacy storage knowledge in the compatibility adapter. The admin
 // registry and frontend never branch on product plugin names.
 func (p legacyStoragePlanner) AdminInventory(projectID, pluginID, kind, capability, after string, limit int) (AdminInventoryPage, error) {
-	return p.adminInventory(projectID, pluginID, kind, capability, after, limit, nil)
+	return p.adminInventory(projectID, pluginID, kind, capability, after, "", limit, nil)
 }
 
 func (p legacyStoragePlanner) AdminInventoryScoped(projectID, pluginID, kind, capability, after string, limit int, filter AdminInventoryFilter) (AdminInventoryPage, error) {
-	return p.adminInventory(projectID, pluginID, kind, capability, after, limit, &filter)
+	return p.adminInventory(projectID, pluginID, kind, capability, after, "", limit, &filter)
 }
 
-func (p legacyStoragePlanner) adminInventory(projectID, pluginID, kind, capability, after string, limit int, filter *AdminInventoryFilter) (AdminInventoryPage, error) {
+func (p legacyStoragePlanner) AdminInventorySearch(projectID, pluginID, kind, capability, after, search string, limit int, filter *AdminInventoryFilter) (AdminInventoryPage, error) {
+	return p.adminInventory(projectID, pluginID, kind, capability, after, search, limit, filter)
+}
+
+func (p legacyStoragePlanner) adminInventory(projectID, pluginID, kind, capability, after, search string, limit int, filter *AdminInventoryFilter) (AdminInventoryPage, error) {
 	if p.storage == nil {
 		return AdminInventoryPage{}, ErrAdminInventoryUnavailable
 	}
 	var query, key string
 	var args []any
 	switch {
-	case pluginID == "rooms" && kind == "state_keys" && capability == "rooms.result",
-		pluginID == "matchmaking" && kind == "state_keys" && capability == "matchmaking.status",
-		pluginID == "arena" && kind == "state_keys" && capability == "arena.snapshot":
-		query, key = `SELECT state_key FROM plugin_state WHERE project_id=? AND namespace=? AND state_key>?`, "state_key"
+	case pluginID == "rooms" && kind == "state_keys" && capability == "rooms.result":
+		query, key = `SELECT state_key, CASE WHEN json_extract(value_json,'$.closed')=1 THEN 'closed' ELSE 'open' END, COALESCE(json_array_length(value_json,'$.members'),0) FROM plugin_state WHERE project_id=? AND namespace=? AND state_key>?`, "state_key"
+		args = []any{projectID, pluginID, after}
+	case pluginID == "matchmaking" && kind == "state_keys" && capability == "matchmaking.status":
+		query, key = `SELECT state_key, COALESCE(json_extract(value_json,'$.status'),'unknown') FROM plugin_state WHERE project_id=? AND namespace=? AND state_key>?`, "state_key"
+		args = []any{projectID, pluginID, after}
+	case pluginID == "arena" && kind == "state_keys" && capability == "arena.snapshot":
+		query, key = `SELECT state_key, COALESCE(json_extract(value_json,'$.state'),'unknown'), COALESCE(json_array_length(value_json,'$.players'),0) FROM plugin_state WHERE project_id=? AND namespace=? AND state_key>?`, "state_key"
 		args = []any{projectID, pluginID, after}
 	case pluginID == "files" && kind == "file_keys" && capability == "files.metadata":
 		query, key = `SELECT file_key,length(CAST(data AS BLOB)),published,metadata_json FROM plugin_file_rows WHERE project_id=? AND file_key>?`, "file_key"
 		args = []any{projectID, after}
 	case pluginID == "tables" && kind == "table_names" && capability == "tables.read":
-		query, key = `SELECT table_name FROM plugin_table_rows WHERE project_id=? AND table_name>?`, "table_name"
+		query, key = `SELECT DISTINCT table_name FROM plugin_table_rows WHERE project_id=? AND table_name>?`, "table_name"
 		args = []any{projectID, after}
 	default:
 		return AdminInventoryPage{}, ErrGrantDenied
@@ -47,6 +55,19 @@ func (p legacyStoragePlanner) adminInventory(projectID, pluginID, kind, capabili
 		query += " AND NOT EXISTS (SELECT 1 FROM json_each(?) WHERE value=" + key + ")"
 		query += " AND (? OR " + key + " IN (SELECT value FROM json_each(?)))"
 		args = append(args, filter.AllowAll, string(allowed), string(denied), !filter.Restricted, string(grants))
+	}
+	if search != "" {
+		// Literal substring matching, not LIKE wildcard matching. The column
+		// and JSON paths are fixed host-owned SQL, and search is a bound value.
+		query += " AND (instr(lower(" + key + "),lower(?))>0"
+		args = append(args, search)
+		if kind == "file_keys" {
+			for _, field := range []string{"filename", "extension", "content_type"} {
+				query += " OR instr(lower(CASE WHEN json_valid(metadata_json) THEN coalesce(json_extract(metadata_json, ?), '') ELSE '' END), lower(?))>0"
+				args = append(args, "$."+field, search)
+			}
+		}
+		query += ")"
 	}
 	query += " ORDER BY " + key
 	if filter == nil {
@@ -72,6 +93,12 @@ func (p legacyStoragePlanner) adminInventory(projectID, pluginID, kind, capabili
 				row.Filename, row.Extension, row.ContentType, row.UpdatedAt = meta.Filename, meta.Extension, meta.ContentType, meta.UpdatedAt
 				row.SizeBytes, row.StoredBytes = &meta.SizeBytes, &meta.StoredBytes
 			}
+		} else if (pluginID == "rooms" || pluginID == "arena") && kind == "state_keys" {
+			var count int
+			err = rows.Scan(&row.Key, &row.Status, &count)
+			row.MemberCount = &count
+		} else if pluginID == "matchmaking" && kind == "state_keys" {
+			err = rows.Scan(&row.Key, &row.Status)
 		} else {
 			err = rows.Scan(&row.Key)
 		}

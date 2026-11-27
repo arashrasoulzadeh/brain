@@ -24,10 +24,10 @@ test("session storage and sign-out preserve operator boundaries", async () => {
     api.saveAdminProject("a");
     assert.equal(api.preferredAdminProject(projects), undefined);
     api.saveAdminProject("");
-    assert.deepEqual(events, Array(3).fill(api.ADMIN_PROJECT_CHANGED));
+    assert.deepEqual(events, [api.ADMIN_SESSION_CHANGED, ...Array(3).fill(api.ADMIN_PROJECT_CHANGED)]);
     assert.equal(api.preferredAdminProject(projects).ID, "b");
     globalThis.fetch = async (url, init) => {
-      assert.equal(url, "/api/admin/session");
+      assert.equal(url, "/_system/admin/session");
       assert.equal(init.method, "DELETE");
       assert.equal(init.headers.authorization, "Bearer fixture");
       throw new Error("offline");
@@ -69,6 +69,11 @@ test("admin SDK validates action declarations, project scope and response envelo
     next = Response.json({ rows: [{ key: "a" }], next: "a" });
     assert.deepEqual(await sdk.fetchAdminInventory("token", contribution, "", signal), { rows: [{ key: "a" }], next: "a" });
     assert.equal(calls.at(-1).body.limit, 50);
+    next = Response.json({ rows: [{ key: "a" }] });
+    await sdk.fetchAdminInventory("token", contribution, "", signal, true, "alpha");
+    assert.equal(calls.at(-1).body.search, "alpha");
+    assert.equal(calls.at(-1).url, "/p/admin/actions");
+    assert.equal(calls.at(-1).init.headers["x-brain-quiet"], "1");
     next = Response.json({ rows: [] });
     assert.deepEqual(await sdk.fetchAdminInventory("token", contribution, "a", signal), { rows: [] });
     for (const bad of [{ rows: null }, { rows: [{ key: 1 }] }, { rows: [], next: 1 }]) {

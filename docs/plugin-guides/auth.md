@@ -19,3 +19,5 @@ Payload snippets are arguments to the declared operation, not standalone HTTP ro
 ## Limitations
 
 The transport SDK is not a public authentication gateway or integrated OAuth provider. Keep real credentials out of samples and logs.
+
+The account list supports literal case-insensitive username/user-ID search, kind (registered, guest or suspended), limit 1–50 and an after cursor. Session inspection returns active-session count and earliest/latest expiry as Unix milliseconds, never credentials or session identifiers. Suspend and reactivate use the existing resource-bound `auth.admin.manage` capability; suspension atomically invalidates stored sessions and blocks new sign-ins. Reactivation does not recreate revoked sessions. Guest accounts are not suspendable; revoke their sessions instead. These operations use the durable host adapter, not the standalone SDK fixture store.

@@ -19,3 +19,5 @@ Payload snippets are arguments to the declared operation, not standalone HTTP ro
 ## Limitations
 
 This is a basic ticket state adapter, not a distributed matchmaking scheduler or automatic room allocation service.
+
+The authorized ticket inventory now shows each stored ticket status without needing to open every ticket. The list does not claim to report live queue depth, expiry or automatic assignment.

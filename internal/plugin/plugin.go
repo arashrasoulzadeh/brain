@@ -29,15 +29,17 @@ var (
 type Registered struct{ Manifest Manifest }
 
 type Installation struct {
-	ProjectID  string
-	PluginID   string
-	Version    string
-	Enabled    bool
-	Grants     map[string]bool
-	Config     map[string]any
-	Resources  map[string]map[string]bool
-	Draining   bool
-	DrainUntil time.Time
+	ProjectID            string
+	PluginID             string
+	Version              string
+	Enabled              bool
+	Grants               map[string]bool
+	Config               map[string]any
+	Resources            map[string]map[string]bool
+	Draining             bool
+	DrainUntil           time.Time
+	Promoted             bool            `json:",omitempty"`
+	ApprovedCapabilities map[string]bool `json:",omitempty"`
 }
 
 type InstallationStatus struct {
@@ -50,6 +52,10 @@ type InstallationStatus struct {
 	Grants      []string
 	Draining    bool
 	DrainUntil  time.Time
+
+	ResourceGrants       map[string][]string `json:",omitempty"`
+	Promoted             bool                `json:",omitempty"`
+	ApprovedCapabilities []string            `json:",omitempty"`
 
 	ConfiguredFields []string       `json:",omitempty"`
 	PublicConfig     map[string]any `json:",omitempty"`

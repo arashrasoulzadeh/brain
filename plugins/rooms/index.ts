@@ -33,4 +33,4 @@ export { createRoomDirectory } from "./directory.js";
 export { canTransitionRoom } from "./directory.js";
 export { validateMembership } from "./directory.js";
 export { RoomRouteStore, roomRouteStore } from "./routes.js";
-export { create, join, reconnect, result, dispatchRoute } from "./routes.js";
+export { create, join, reconnect, result, dispatchRoute, manageRoom } from "./routes.js";

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { AdminDialog, AdminProgress } from "../../components/admin-dialog";
 import { AdminPageFrame } from "../../components/admin-chrome";
 import { FunctionEditor } from "../function-editor";
+import { filterFunctionLogs, functionLogMetrics, type FunctionLog as Log, type LogOutcome } from "../../lib/function-inspection";
 type Draft = {
   project_id: string;
   name: string;
@@ -15,17 +16,6 @@ type Draft = {
   permissions?: string[];
   method?: string;
   published_at?: string;
-};
-type Log = {
-  status: string;
-  duration_ms: number;
-  created_at: string;
-  message?: string;
-  reason?: string;
-  error?: string;
-  method?: string;
-  request_id?: string;
-  steps?: { name: string; status: string; duration_ms: number; reason?: string; error?: string }[];
 };
 type Deployment = { version: number; method: string; route: string; published_at: string };
 export default function FunctionDetailPage() {
@@ -44,6 +34,15 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
   const [session, setSession] = useState("");
   const [project, setProject] = useState("");
   const [draft, setDraft] = useState<Draft | null>(null);
+  const [savedSource, setSavedSource] = useState("");
+  const [discardPending, setDiscardPending] = useState(false);
+  const dirty = draft !== null && draft.source !== savedSource;
+  useEffect(() => {
+    if (!dirty) return;
+    function warn(event: BeforeUnloadEvent) { event.preventDefault(); event.returnValue = ""; }
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [dirty]);
   const [logs, setLogs] = useState<Log[]>([]);
   const [deployments, setDeployments] = useState<Deployment[]>([]);
   const [tab, setTab] = useState("editor");
@@ -53,6 +52,9 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
   const [validating, setValidating] = useState(false);
   const [validationMessage, setValidationMessage] = useState("");
   const [logPage, setLogPage] = useState(0);
+  const [logQuery, setLogQuery] = useState("");
+  const [logOutcome, setLogOutcome] = useState<LogOutcome>("all");
+  const [logRefresh, setLogRefresh] = useState(0);
   const [selectedLog, setSelectedLog] = useState<Log | null>(null);
   const lifetime = useRef<AbortController | null>(null);
   async function refresh(token: string, preserveSource?: string) {
@@ -69,8 +71,9 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
     if (!draftsResponse.ok) throw new Error(await draftsResponse.text());
     const drafts = (await draftsResponse.json() as Draft[] | null) ?? [];
     const current = drafts.find(candidate => candidate.project_id === active && candidate.name === name) ?? null;
-    if (signal.aborted) return;
+    if (signal.aborted || readAdminSession() !== token) return;
     setProject(active);
+    setSavedSource(current?.source ?? "");
     setDraft(current && preserveSource !== undefined ? { ...current, source: preserveSource } : current);
     const currentRoute = current?.published_at ? window.location.origin + "/" + encodeURIComponent(selected?.Slug || active) + "/functions/" + encodeURIComponent(name) : "";
     setRoute(currentRoute);
@@ -94,13 +97,13 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
         const response = await fetch(projectAdminURL(project, "function-logs") + "?name=" + encodeURIComponent(name), { headers: adminHeaders(session, { "x-brain-quiet": "1" }), signal: controller.signal });
         if (!response.ok) throw new Error("Function logs unavailable");
         const rows = (await response.json() as Log[] | null) ?? [];
-        if (!controller.signal.aborted) { setLogs(rows); setLogError(""); setLogPage(page => Math.min(page, Math.max(0, Math.ceil(rows.length / 10) - 1))); }
+        if (!controller.signal.aborted && readAdminSession() === session) { setLogs(rows); setLogError(""); setLogPage(page => Math.min(page, Math.max(0, Math.ceil(rows.length / 10) - 1))); }
       } catch (reason) { if (!controller.signal.aborted) { setLogs([]); setSelectedLog(null); setLogError(String(reason)); } }
       finally { if (!controller.signal.aborted) timer = setTimeout(() => void poll(), 5000); }
     }
     void poll();
     return () => { controller.abort(); clearTimeout(timer); };
-  }, [project, session, name]);
+  }, [project, session, name, logRefresh]);
   async function savePermissions(permissions: string[], publicRoute: boolean) {
     if (!draft || publishing) return;
     setPublishing(true); setMessage("");
@@ -130,7 +133,7 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
       const headers = adminHeaders(session, { "content-type": "application/json" });
       const update = await fetch(projectAdminURL(project, "functions"), {
         method: "POST",
-        headers,
+        headers, signal: lifetime.current?.signal,
         body: JSON.stringify({
           operation: "functions.update",
           project_id: project,
@@ -143,9 +146,10 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
         setMessage((await update.text()) || `Source save failed (${update.status}).`);
         return;
       }
+      setSavedSource(draft.source);
       const response = await fetch(projectAdminURL(project, "functions"), {
         method: "POST",
-        headers,
+        headers, signal: lifetime.current?.signal,
         body: JSON.stringify({
           operation: "functions.publish",
           project_id: project,
@@ -165,7 +169,7 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
         result = JSON.parse(body);
       } catch {}
       if (!response.ok) {
-        setMessage(body || `Publish failed (${response.status}).`);
+        setMessage("Source saved; publication failed: " + (body || String(response.status)));
         return;
       }
       setMessage("Published current version.");
@@ -183,7 +187,7 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
           ...items,
         ]);
       }
-      await refresh(session);
+      await refresh(session).catch(reason => setMessage("Published; refresh failed: " + String(reason)));
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Publish request failed.");
     } finally {
@@ -191,6 +195,7 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
     }
   }
   async function validateSource() {
+    if (validating || publishing) return;
     if (!draft || !project || !session) {
       setValidationMessage("Select an active project and sign in before validating.");
       return;
@@ -200,7 +205,7 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
     try {
       const response = await fetch(projectAdminURL(project, "functions"), {
         method: "POST",
-        headers: adminHeaders(session, { "content-type": "application/json" }),
+        headers: adminHeaders(session, { "content-type": "application/json" }), signal: lifetime.current?.signal,
         body: JSON.stringify({
           operation: "functions.test",
           project_id: project,
@@ -222,6 +227,7 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
     }
   }
   async function saveDraft() {
+    if (publishing || validating) return;
     if (!draft || !project || !session) {
       setMessage("Select an active project and sign in before saving.");
       return;
@@ -234,7 +240,7 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
     try {
       const response = await fetch(projectAdminURL(project, "functions"), {
         method: "POST",
-        headers: adminHeaders(session, { "content-type": "application/json" }),
+        headers: adminHeaders(session, { "content-type": "application/json" }), signal: lifetime.current?.signal,
         body: JSON.stringify({
           operation: "functions.update",
           project_id: project,
@@ -244,7 +250,7 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
         }),
       });
       setMessage(response.ok ? "Changes saved." : await response.text());
-      if (response.ok) await refresh(session);
+      if (response.ok) { setSavedSource(draft.source); await refresh(session).catch(reason => setMessage("Source saved; refresh failed: " + String(reason))); }
     } catch (reason) { setMessage(String(reason)); } finally {
       setPublishing(false);
     }
@@ -253,13 +259,11 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
   if (loadError) return <p role="alert">{loadError}</p>;
   if (!draft) return <><p role="status">Function not found.</p>{project && <Link href={projectUIURL(project, "functions")}>Back to functions</Link>}</>;
   const permissions = draft.permissions ?? ["functions.invoke"];
-  const successful = logs.filter((log) => log.status === "success").length;
-  const average = logs.length
-    ? Math.round(logs.reduce((sum, log) => sum + log.duration_ms, 0) / logs.length)
-    : 0;
-  const orderedLogs = logs.slice().reverse();
-  const visibleLogs = orderedLogs.slice(logPage * 10, logPage * 10 + 10);
+  const { successful, average, p95 } = functionLogMetrics(logs);
+  const orderedLogs = filterFunctionLogs(logs, logQuery, logOutcome);
   const logPageCount = Math.max(1, Math.ceil(orderedLogs.length / 10));
+  const currentLogPage = Math.min(logPage, logPageCount - 1);
+  const visibleLogs = orderedLogs.slice(currentLogPage * 10, currentLogPage * 10 + 10);
   return (
     <>
       <div className="section-heading">
@@ -282,6 +286,7 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
           </button>
         ))}
       </div>
+      {discardPending && <AdminDialog title="Discard unsaved source" scope={project + " · " + name} onClose={() => setDiscardPending(false)}><p>Restore the last saved source? Local edits will be lost.</p><button type="button" onClick={() => { setDraft(previous => previous ? { ...previous, source: savedSource } : previous); setValidationMessage(""); setValidationOK(false); setDiscardPending(false); }}>Discard edits</button></AdminDialog>}
       {publishPending && <AdminDialog title="Publish current version" scope={project + " · " + name} busy={publishing} onClose={() => setPublishPending(false)}><p>Save the current source and publish version {draft.version ?? 1}?</p><p>{draft.public ? "This route is configured for public access." : "This route requires authorization."}</p><button type="button" disabled={publishing} onClick={() => void publish()}>Confirm publish</button>{publishing && <AdminProgress label="Saving and publishing…" />}{message && <p role="status">{message}</p>}</AdminDialog>}
       {settingsPending && <AdminDialog title="Update function settings" scope={project + " · " + name} busy={publishing} onClose={() => setSettingsPending(undefined)}><p>{settingsPending.publicRoute ? "Public route enabled" : "Private route"} · Permissions: {settingsPending.permissions.join(", ") || "None"}</p><button type="button" disabled={publishing} onClick={() => void savePermissions(settingsPending.permissions, settingsPending.publicRoute)}>Confirm settings</button>{publishing && <AdminProgress label="Saving function settings…" />}{message && <p role="status">{message}</p>}</AdminDialog>}
       {tab !== "editor" && message && <p role="status">{message}</p>}
@@ -292,6 +297,8 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
             <div className="rounded-lg bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700">
               Version {draft.version ?? 1}
             </div>
+            <span role="status">{dirty ? "Unsaved source changes" : "Source saved"}</span>
+            <button type="button" className="secondary" disabled={!dirty || publishing || validating} onClick={() => setDiscardPending(true)}>Restore saved source</button>
             <div
               className={`rounded-lg px-3 py-2 text-sm font-semibold ${draft.public ? "bg-emerald-100 text-emerald-800" : "bg-slate-100 text-slate-700"}`}
             >
@@ -302,7 +309,7 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
             </div>
             <button
               type="button"
-              disabled={publishing}
+              disabled={publishing || validating}
               className="h-10 rounded-lg bg-slate-700 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
               onClick={() => void saveDraft()}
             >
@@ -310,7 +317,7 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
             </button>
             <button
               type="button"
-              disabled={publishing}
+              disabled={publishing || validating}
               className="h-10 rounded-lg bg-indigo-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
               onClick={() => { setMessage(""); setPublishPending(true); }}
             >
@@ -426,9 +433,10 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
             <span>Success rate</span>
           </article>
           <article>
-            <strong>{logs.length ? `${average} ms` : "—"}</strong>
+            <strong>{average === null ? "—" : `${average} ms`}</strong>
             <span>Average latency</span>
           </article>
+          <article><strong>{p95 === null ? "—" : `${p95} ms`}</strong><span>p95 latency (loaded logs)</span></article>
         </div>
       )}
       {tab === "logs" && (
@@ -448,9 +456,11 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
             </article>
             <article>
               <span>Average latency</span>
-              <strong>{logs.length ? `${average} ms` : "—"}</strong>
+              <strong>{average === null ? "—" : `${average} ms`}</strong>
             </article>
           </div>
+          <div className="lifecycle-actions"><label>Search execution logs<input type="search" value={logQuery} onChange={event => { setLogQuery(event.target.value); setLogPage(0); }} /></label><label>Execution outcome<select value={logOutcome} onChange={event => { setLogOutcome(event.target.value as LogOutcome); setLogPage(0); }}><option value="all">All outcomes</option><option value="success">Success</option><option value="failure">Failed</option></select></label><button type="button" className="secondary" onClick={() => setLogRefresh(value => value + 1)}>Refresh logs</button></div>
+          {!!logs.length && !orderedLogs.length && <p className="muted">No execution logs match the filters.</p>}
           {!logs.length && (
             <div className="empty-panel">
               <strong>No executions yet</strong>
@@ -464,6 +474,7 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
             <table>
               <thead>
                 <tr>
+                  <th>Time</th>
                   <th>Status</th>
                   <th>Reason</th>
                   <th>Duration</th>
@@ -476,7 +487,8 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
                 {visibleLogs.map((log, index) => {
                   const failed = log.status.toLowerCase() !== "success";
                   return (
-                    <tr key={`${log.created_at}-${logPage}-${index}`}>
+                    <tr key={`${log.created_at}-${currentLogPage}-${index}`}>
+                      <td><time dateTime={log.created_at}>{new Date(log.created_at).toLocaleString()}</time></td>
                       <td>
                         <span className={`log-status ${failed ? "failure" : "success"}`}>
                           {log.status}
@@ -639,19 +651,19 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
             <div className="log-pagination">
               <button
                 type="button"
-                disabled={logPage === 0}
-                onClick={() => setLogPage((page) => Math.max(0, page - 1))}
+                disabled={currentLogPage === 0}
+                onClick={() => setLogPage(currentLogPage - 1)}
               >
                 Newer
               </button>
               <span>
-                Page {logPage + 1} of {logPageCount} · Showing {visibleLogs.length} of{" "}
+                Page {currentLogPage + 1} of {logPageCount} · Showing {visibleLogs.length} of{" "}
                 {orderedLogs.length}
               </span>
               <button
                 type="button"
-                disabled={logPage >= logPageCount - 1}
-                onClick={() => setLogPage((page) => Math.min(logPageCount - 1, page + 1))}
+                disabled={currentLogPage >= logPageCount - 1}
+                onClick={() => setLogPage(currentLogPage + 1)}
               >
                 Older
               </button>

@@ -97,7 +97,7 @@ func TestFunctionHTTPAuthoringPublishingAndExecution(t *testing.T) {
 		for key, value := range fields {
 			body[key] = value
 		}
-		return request(http.MethodPost, "/admin/functions", auth, body, status)
+		return request(http.MethodPost, "/"+projectID+"/admin/functions", auth, body, status)
 	}
 	command("functions.create", map[string]any{"source": source, "function_version": -1}, 400)
 	command("functions.create", map[string]any{"source": "export default () => null"}, 400)
@@ -117,11 +117,11 @@ func TestFunctionHTTPAuthoringPublishingAndExecution(t *testing.T) {
 	command("functions.permissions", map[string]any{"name": "missing", "permissions": []string{"functions.invoke"}}, 400)
 	command("functions.permissions", map[string]any{"name": "invalid name"}, 400)
 	command("functions.permissions", map[string]any{"permissions": []string{"functions.invoke"}, "public": false}, 200)
-	list := request(http.MethodGet, "/admin/functions?project_id="+projectID, auth, nil, 200)
+	list := request(http.MethodGet, "/"+projectID+"/admin/functions", auth, nil, 200)
 	if !strings.Contains(list.Body.String(), "functions.invoke") || !strings.Contains(list.Body.String(), "echo") {
 		t.Fatalf("draft list: %s", list.Body.String())
 	}
-	publicPath := "/public/" + projectID + "/echo"
+	publicPath := "/" + projectID + "/functions/echo"
 	request(http.MethodPost, publicPath, "", map[string]any{}, 404)
 	run := command("functions.run", map[string]any{"source": source, "input": map[string]any{"value": 7}}, 200)
 	if !strings.Contains(run.Body.String(), projectID) || !strings.Contains(run.Body.String(), `"value":7`) {
@@ -139,7 +139,7 @@ func TestFunctionHTTPAuthoringPublishingAndExecution(t *testing.T) {
 	request(http.MethodPost, publicPath, "Basic forged", map[string]any{}, 403)
 	request(http.MethodPost, publicPath, "Bearer forged", map[string]any{}, 404)
 	request(http.MethodPost, publicPath, "", map[string]any{"value": 8}, 200)
-	logs := request(http.MethodGet, "/admin/function-logs?project_id="+projectID+"&name=echo", auth, nil, 200)
+	logs := request(http.MethodGet, "/"+projectID+"/admin/function-logs?name=echo", auth, nil, 200)
 	var records []admin.FunctionLog
 	if err := json.Unmarshal(logs.Body.Bytes(), &records); err != nil {
 		t.Fatal(err)
@@ -159,8 +159,8 @@ func TestFunctionHTTPAuthoringPublishingAndExecution(t *testing.T) {
 	if err := projects.SetActive(projectID, false); err != nil {
 		t.Fatal(err)
 	}
-	request(http.MethodGet, "/admin/functions?project_id="+projectID, auth, nil, 400)
-	command("functions.create", map[string]any{"source": source}, 400)
-	command("functions.publish", nil, 400)
-	command("functions.test", map[string]any{"source": source}, 400)
+	request(http.MethodGet, "/"+projectID+"/admin/functions", auth, nil, 403)
+	command("functions.create", map[string]any{"source": source}, 403)
+	command("functions.publish", nil, 403)
+	command("functions.test", map[string]any{"source": source}, 403)
 }

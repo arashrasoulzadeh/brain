@@ -1,6 +1,11 @@
 name: admin-browser
 
 on:
+  workflow_call:
+    inputs:
+      collect_v8:
+        type: boolean
+        default: false
   push:
     paths:
       - 'admin-nextjs/**'
@@ -43,6 +48,8 @@ jobs:
     env:
       BRAIN_ADMIN_ORIGIN: http://127.0.0.1:3100
       BRAIN_API_ORIGIN: http://127.0.0.1:18082
+      BRAIN_COLLECT_V8: ${{ inputs.collect_v8 || false }}
+      BRAIN_V8_DIR: ${{ github.workspace }}/coverage/browser-v8
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -77,7 +84,12 @@ jobs:
             sleep 1
           done
           curl --fail --silent --show-error "$BRAIN_ADMIN_ORIGIN/_system/ui" > /dev/null
-          node scripts/test-admin-browser.mjs
+          v8_env=()
+          if [ "$BRAIN_COLLECT_V8" = true ]; then
+            mkdir -p "$BRAIN_V8_DIR"
+            v8_env=("NODE_V8_COVERAGE=$BRAIN_V8_DIR")
+          fi
+          env "${v8_env[@]}" node scripts/test-admin-browser.mjs
       - name: Verify admin against the packaged backend
         run: |
           export BRAIN_ADMIN_ORIGIN=http://127.0.0.1:3101
@@ -91,12 +103,18 @@ jobs:
             fi
             sleep 1
           done
-          node scripts/admin-ci-backend-relay.mjs "$container" > "$RUNNER_TEMP/brain-relay.log" 2>&1 &
+          v8_env=()
+          if [ "$BRAIN_COLLECT_V8" = true ]; then
+            mkdir -p "$BRAIN_V8_DIR"
+            v8_env=("NODE_V8_COVERAGE=$BRAIN_V8_DIR")
+          fi
+          env "${v8_env[@]}" node scripts/admin-ci-backend-relay.mjs "$container" > "$RUNNER_TEMP/brain-relay.log" 2>&1 &
           relay=$!
           (cd admin-nextjs && exec node node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3101) > "$RUNNER_TEMP/brain-admin-live.log" 2>&1 &
           server=$!
           cleanup() {
             kill "$server" "$relay" 2>/dev/null || true
+            wait "$server" "$relay" 2>/dev/null || true
             docker logs "$container" 2>&1 | tee "$RUNNER_TEMP/brain-backend.log" || true
             docker rm -f "$container" >/dev/null 2>&1 || true
           }
@@ -107,7 +125,17 @@ jobs:
             sleep 1
           done
           curl --fail --silent --show-error "$BRAIN_ADMIN_ORIGIN/_system/ui" > /dev/null
-          node scripts/test-admin-live.mjs
+          env "${v8_env[@]}" node scripts/test-admin-live.mjs
+          if [ "$BRAIN_COLLECT_V8" = true ]; then
+            # The same network-isolated real backend, with an independent project.
+            env "${v8_env[@]}" BRAIN_TEST_ORIGIN="$BRAIN_API_ORIGIN" node scripts/test-runtime-api.mjs
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always() && inputs.collect_v8
+        with:
+          name: typescript-browser-v8
+          path: coverage/browser-v8/*.json
+          if-no-files-found: error
       - uses: actions/upload-artifact@v4
         if: always()
         with:

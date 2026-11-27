@@ -9,3 +9,5 @@ Use the editor for source/version updates and source validation; publish returns
 See the [admin route index](README.md) and [HTTP API](../http-api.md).
 
 Publication and permission/visibility changes require explicit confirmation. Editing settings preserves unsaved source; failed host validation is not labeled as successful. The logs view refreshes without overlapping requests and clears stale results if access is lost.
+
+The editor displays Monaco diagnostics separately from authoritative host validation. Unsaved source is marked and may be restored with confirmation; browser unload warns while local changes are unsaved. Source-save success is distinguished from publication or refresh failure. Execution logs can be searched and filtered by outcome, with a manual refresh, timestamps and p95 latency calculated from the currently loaded logs only.

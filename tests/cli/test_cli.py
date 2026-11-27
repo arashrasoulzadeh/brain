@@ -46,7 +46,7 @@ class CLITest(unittest.TestCase):
                 if process.poll() is not None:
                     self.fail(f"health server exited: {process.communicate()}")
                 try:
-                    with urlopen(f"http://127.0.0.1:{port}/livez", timeout=1) as response:
+                    with urlopen(f"http://127.0.0.1:{port}/_system/livez", timeout=1) as response:
                         self.assertEqual(response.status, 200)
                     break
                 except OSError:
@@ -54,7 +54,7 @@ class CLITest(unittest.TestCase):
             else:
                 self.fail("health server never became live")
             with self.assertRaises(HTTPError) as error:
-                urlopen(f"http://127.0.0.1:{port}/readyz", timeout=1)
+                urlopen(f"http://127.0.0.1:{port}/_system/readyz", timeout=1)
             self.assertEqual(error.exception.code, 503)
             process.send_signal(signal.SIGTERM)
             stdout, stderr = process.communicate(timeout=10)

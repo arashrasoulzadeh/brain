@@ -23,7 +23,7 @@ export { createSchemaPublicationAudit } from "./schema.js";
 export { createTransactionalChangeCapture } from "./capture.js";
 export { createApiChangeCapture } from "./capture.js";
 export { createDirectSQLChangeCapture } from "./capture.js";
-export { read, write, schema, dispatchRoute } from "./routes.js";
+export { read, write, schema, dispatchRoute, mutateTableRow, administerSchema } from "./routes.js";
 export { TableStore, tableStore } from "./routes.js";
 export type RowChange<T> = { projectId: string; table: string; oldValue: T; newValue: T };
 export type ScopedRowChange<T> = RowChange<T> & {

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"strings"
+	"time"
 )
 
 // Arena state is keyed by the admitted project and room. The worker remains
@@ -12,7 +13,7 @@ import (
 // its proposed state and observations. Never forward a caller-owned snapshot.
 func prepareArenaStorageEffect(storage *SQLiteStorage, request WorkerRequest) (WorkerRequest, func(sqliteExecutor) error, error) {
 	switch request.Operation {
-	case "arena.start", "arena.input", "arena.snapshot", "arena.result", "arena.connect", "arena.player.input":
+	case "arena.start", "arena.input", "arena.snapshot", "arena.result", "arena.connect", "arena.player.input", "arena.admin.interrupt":
 	default:
 		return request, nil, nil
 	}
@@ -67,6 +68,19 @@ func prepareArenaStorageEffect(storage *SQLiteStorage, request WorkerRequest) (W
 			return request, nil, ErrModelSchema
 		}
 		sequences[player] = input["sequence"]
+	case "arena.admin.interrupt":
+		reason, _ := input["reason"].(string)
+		reason = strings.TrimSpace(reason)
+		if reason == "" || len(reason) > 256 || strings.ContainsRune(reason, 0) {
+			return request, nil, ErrInvalidWorkerRequest
+		}
+		if state["state"] != "active" {
+			return request, nil, ErrModelConflict
+		}
+		payload["reason"] = reason
+		payload["interruptedAt"] = time.Now().UTC().Format(time.RFC3339Nano)
+		state["state"] = "interrupted"
+		state["interruption"] = map[string]any{"reason": reason, "interruptedAt": payload["interruptedAt"]}
 	case "arena.result":
 		payload["winnerIds"], payload["completedAt"] = input["winnerIds"], input["completedAt"]
 		completed, _ := input["completedAt"].(string)

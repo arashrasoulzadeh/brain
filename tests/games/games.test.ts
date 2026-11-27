@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  describeMode,
   createTicTacToeCoordinator,
   authorizeTicTacToeCommand,
   authorizedTicTacToeState,
@@ -194,4 +195,14 @@ test("second player wins and completed games are not draws", () => {
     state = validateTicTacToeMove(state, state.turn, cell);
   assert.equal(ticTacToeWinner(state), "b");
   assert.equal(ticTacToeDraw(state), false);
+});
+
+test("game mode description is project-scoped read-only metadata", () => {
+  const ctx = { project: { id: "dev", active: true }, plugin: { id: "games", version: "0.1.0" }, execution: { operation: "games.mode.describe" }, plugins: { observe: { fire() { throw new Error("unexpected observation"); } } } };
+  const rules = describeMode(ctx, { mode: "tic-tac-toe" });
+  assert.equal(rules.projectId, "dev");
+  assert.deepEqual(rules.board, { rows: 3, columns: 3 });
+  assert.equal(rules.players, 2);
+  assert.throws(() => describeMode(ctx, { mode: "other" }), /unknown game mode/);
+  assert.throws(() => describeMode(ctx, { mode: "tic-tac-toe", projectId: "foreign" }), /project context mismatch/);
 });

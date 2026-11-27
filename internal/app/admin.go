@@ -131,6 +131,7 @@ type adminCommand struct {
 	TargetOperation string          `json:"target_operation"`
 	PageID          string          `json:"page_id"`
 	After           string          `json:"after"`
+	Search          string          `json:"search"`
 	Limit           int             `json:"limit"`
 	FunctionVersion int             `json:"function_version"`
 	Public          bool            `json:"public"`
@@ -230,7 +231,7 @@ func AdminHandler(service *admin.LifecycleService) http.Handler {
 			if command.Limit == 0 {
 				command.Limit = 50
 			}
-			inventory, inventoryErr := service.AdminInventory(actor, command.PageID, admin.PluginInvocation{ProjectID: command.ProjectID, PluginID: command.PluginID, Version: command.Version}, command.After, command.Limit)
+			inventory, inventoryErr := service.AdminInventorySearch(actor, command.PageID, admin.PluginInvocation{ProjectID: command.ProjectID, PluginID: command.PluginID, Version: command.Version}, command.After, command.Search, command.Limit)
 			if inventoryErr != nil {
 				http.Error(w, inventoryErr.Error(), http.StatusForbidden)
 				return
@@ -275,6 +276,8 @@ func AdminHandler(service *admin.LifecycleService) http.Handler {
 			return
 		case "plugin.revoke":
 			err = service.RevokeCapability(actor, command.ProjectID, command.PluginID, command.Version, command.Capability)
+		case "plugin.approve-capability":
+			err = service.ApprovePluginCapability(actor, command.ProjectID, command.PluginID, command.Version, command.Capability)
 		case "plugin.promote":
 			err = service.PromotePlugin(actor, command.ProjectID, command.PluginID, command.Version)
 		case "plugin.drain":
@@ -318,7 +321,7 @@ func AdminHandler(service *admin.LifecycleService) http.Handler {
 
 func requiresAdminConfirmation(operation string) bool {
 	switch operation {
-	case "plugin.install.activate", "plugin.remove", "plugin.revoke", "plugin.stop-immediate", "plugin.stop", "plugin.rollback", "plugin.disable.apply", "project.deactivate", "project.uninstall", "durable-data.delete":
+	case "plugin.install.activate", "plugin.approve-capability", "plugin.remove", "plugin.revoke", "plugin.stop-immediate", "plugin.stop", "plugin.rollback", "plugin.disable.apply", "project.deactivate", "project.uninstall", "durable-data.delete":
 		return true
 	default:
 		return false

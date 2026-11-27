@@ -44,7 +44,7 @@ The sidebar is populated from the selected project's eligible manifests. These d
 | Plugin | Destination | Operator workflow |
 | --- | --- | --- |
 | Files | `files` | Inventory, inspect, choose a local file, upload, download, publish. |
-| Tables | `database` | Table inventory, schema, rows and confirmed write. |
+| Tables | `database` | Table inventory and search, inferred schema, bounded row pages, confirmed append, revision-checked replacement and deletion. |
 | Auth | `auth` | Bounded account metadata and session revocation; no password/token inspection. |
 | Access management | `access-management` | Read, create and revoke resource rules. |
 | Rooms | `rooms` | Room inventory, details, membership and result operations. |
@@ -52,7 +52,7 @@ The sidebar is populated from the selected project's eligible manifests. These d
 | Arena | `arena` | Inspect, start, record operator input and finish matches. |
 | Invites | `invitations` | Create invitations, redacted invitation list and cancellation. |
 | Subscriptions | `subscriptions` | Channel metadata and ticket revocation. |
-| Analytics | `analytics` | Validated event capture; no event-list or aggregate API exists yet. |
+| Analytics | `analytics` | Validated capture, exact-name event history and project event-count aggregates. |
 | Games | `games` | Read-only supported game modes. |
 | PvP | `pvp` | Read-only runtime capability discovery. |
 | Functions | `functions`, `workflows` | Function editor, publication, logs and declared runtime operations. |
@@ -62,3 +62,5 @@ The sidebar is populated from the selected project's eligible manifests. These d
 The old `live-sessions` URL remains a compatibility alias, not a separate sidebar entry. Individual plugin pages remain independently accessible even when they also appear in extension tabs. New bundled plugins must explicitly declare an operator workspace or be covered by an existing trusted/generated UI; the manifest inventory test detects omissions.
 
 Every enabled plugin has a project-scoped sidebar destination: declared workspaces, the trusted Dashboard or Functions workspace, or the plugin's own Manage page if it has no declared action UI. Manage always exposes installation and capability settings, plus declared configuration fields. No arbitrary settings are invented for plugins without a configuration schema.
+
+The TypeScript coverage workflow also executes the real Chromium and packaged-runtime integration scripts under V8 coverage and merges those profiles with the unit and DOM profiles. The per-file 100% lines/functions/branches/statements gate remains unchanged; executing an integration script does not waive uncovered failure branches.

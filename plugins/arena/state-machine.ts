@@ -1,4 +1,4 @@
-import { createProjectMap, requireProjectInput, requiredString, validateProjectId, type PluginContext } from "../sdk-typescript/src/index.js";
+import { createProjectMap, requireProjectInput, requiredString, validateProjectId, requireOperator, type PluginContext } from "../sdk-typescript/src/index.js";
 import type { ArenaState, ArenaMeasurement, DurableMatchResult } from "./types.js";
 import { validateMatchResult } from "./match-results.js";
 
@@ -194,7 +194,7 @@ export function playerInput(context: PluginContext, input: unknown) {
 export function snapshot(context: PluginContext, input: unknown) {
   const payload = requireProjectInput(context, input);
   const arena = routeArena(context, payload);
-  const restored = payload._brainArena as { result?: { winnerIds: string[]; completedAt: string } } | undefined;
+  const restored = payload._brainArena as { result?: { winnerIds: string[]; completedAt: string }; interruption?: { reason: string; interruptedAt: string } } | undefined;
   const summary = arenaSnapshot(arena);
   if (summary.state === "finished" && restored?.result) {
     const { winnerIds, completedAt } = restored.result;
@@ -202,7 +202,21 @@ export function snapshot(context: PluginContext, input: unknown) {
     validateMatchResult(match);
     return { ...summary, result: match };
   }
+  if (summary.state === "interrupted" && restored?.interruption) return { ...summary, interruption: restored.interruption };
   return summary;
+}
+
+export function interrupt(context: PluginContext, input: unknown) {
+  const payload = requireProjectInput(context, input);
+  const roomId = routeRoomId(payload);
+  requireOperator(context, "arena.admin.manage", roomId);
+  if (!Object.hasOwn(payload, "_brainArena")) throw new Error("host arena snapshot required");
+  const arena = routeArena(context, payload);
+  const reason = requiredString(payload.reason, "interruption reason required");
+  const interruptedAt = requiredString(payload.interruptedAt, "host interruption time required");
+  if (arena.getState() !== "active" || reason.length > 256 || !Number.isFinite(Date.parse(interruptedAt))) throw new Error("invalid arena interruption");
+  context.plugins.observe.fire("interrupted", { roomId });
+  return { ...arenaSnapshot(arena), state: "interrupted", interruption: { reason, interruptedAt } };
 }
 
 export function result(context: PluginContext, input: unknown) {
@@ -224,7 +238,7 @@ function routeArena(context: PluginContext, payload: Record<string, unknown>) {
   const roomId = routeRoomId(payload);
   if (Object.hasOwn(payload, "_brainArena")) {
     const stored = payload._brainArena as { state?: ArenaState; players?: unknown; sequences?: unknown } | null;
-    if (!stored || !["active", "finished"].includes(stored.state ?? "") ||
+    if (!stored || !["active", "finished", "interrupted"].includes(stored.state ?? "") ||
         !stored.sequences || typeof stored.sequences !== "object" || Array.isArray(stored.sequences))
       throw new Error("invalid stored arena");
     const players = playerList(stored.players);

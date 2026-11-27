@@ -1,6 +1,7 @@
 package plugin
 
 import (
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"strings"
@@ -8,6 +9,7 @@ import (
 )
 
 var ErrStoredResourceMissing = errors.New("stored resource not found")
+var ErrRoomClosed = errors.New("room is closed")
 
 type legacyStoragePlanner struct {
 	storage *SQLiteStorage
@@ -86,7 +88,22 @@ func prepareLegacyStorageRequest(storage *SQLiteStorage, request WorkerRequest) 
 // Prepare only host-owned storage snapshots. Never let a caller provide the
 // stored state consumed by the worker, even when the record does not exist.
 func prepareLegacyStorageEffect(storage *SQLiteStorage, request WorkerRequest) (WorkerRequest, func(sqliteExecutor) error, error) {
+	if request.PluginID == "tables" && tableSchemaOperation(request.Operation) {
+		return prepareTableSchema(storage, request)
+	}
+	if request.PluginID == "tables" && (needsTablePage(request) || request.Operation == "tables.update" || request.Operation == "tables.delete") {
+		return prepareTableAdmin(storage, request)
+	}
+	if request.PluginID == "analytics" && request.Operation == "analytics.timeline" {
+		return prepareAnalyticsTimeline(storage, request)
+	}
+	if request.PluginID == "analytics" && (request.Operation == "analytics.history" || request.Operation == "analytics.summary") {
+		return prepareAnalyticsRead(storage, request)
+	}
 	if storage == nil {
+		if requiresDurableAdminSnapshot(request) {
+			return request, nil, ErrStoredResourceMissing
+		}
 		return request, nil, nil
 	}
 	if request.PluginID == "arena" {
@@ -104,7 +121,7 @@ func prepareLegacyStorageEffect(storage *SQLiteStorage, request WorkerRequest) (
 		keyField = "key"
 	case "matchmaking/matchmaking.queue", "matchmaking/matchmaking.cancel", "matchmaking/matchmaking.assign", "matchmaking/matchmaking.status":
 		keyField = "id"
-	case "rooms/rooms.create", "rooms/rooms.join", "rooms/rooms.reconnect", "rooms/rooms.result":
+	case "rooms/rooms.create", "rooms/rooms.join", "rooms/rooms.reconnect", "rooms/rooms.result", "rooms/rooms.admin.remove-member", "rooms/rooms.admin.close":
 		keyField = "id"
 	case "tables/tables.write", "tables/tables.read", "tables/tables.schema":
 		keyField = "table"
@@ -192,18 +209,65 @@ func prepareLegacyStorageEffect(storage *SQLiteStorage, request WorkerRequest) (
 		}
 		payload["ticket"] = state
 	case "rooms":
-		state, err := storage.State(request.ProjectID, "rooms", key)
-		if err != nil {
+		// Freeze the stored bytes. Even a second host process must not be able
+		// to overwrite a closure with a previously planned join or result.
+		var previous string
+		err := storage.db.QueryRow(`SELECT value_json FROM plugin_state WHERE project_id=? AND namespace='rooms' AND state_key=?`, request.ProjectID, key).Scan(&previous)
+		if err != nil && !errors.Is(err, sql.ErrNoRows) {
 			return request, nil, err
 		}
-		if request.Operation == "rooms.create" {
-			state = map[string]any{"id": key, "members": []any{}}
-			commit = func(db sqliteExecutor) error {
-				return putSQLiteState(db, request.ProjectID, "rooms", key, state)
+		exists := err == nil
+		var state map[string]any
+		if exists {
+			if err := json.Unmarshal([]byte(previous), &state); err != nil {
+				return request, nil, err
 			}
+			if state == nil {
+				return request, nil, ErrModelSchema
+			}
+		}
+		changed := false
+		if request.Operation == "rooms.create" {
+			if state != nil && state["closed"] == true {
+				return request, nil, ErrRoomClosed
+			}
+			state = map[string]any{"id": key, "members": []any{}}
+			changed = true
 		}
 		if state == nil {
 			return request, nil, ErrStoredResourceMissing
+		}
+		if state["closed"] == true && request.Operation != "rooms.admin.close" {
+			_, writesResult := input["result"]
+			if request.Operation != "rooms.result" || writesResult {
+				return request, nil, ErrRoomClosed
+			}
+		}
+		if request.Operation == "rooms.admin.close" || request.Operation == "rooms.admin.remove-member" {
+			if request.Operation == "rooms.admin.close" {
+				state["closed"] = true
+			} else {
+				member, _ := input["member"].(string)
+				if member == "" || strings.TrimSpace(member) != member {
+					return request, nil, ErrInvalidWorkerRequest
+				}
+				members, _ := state["members"].([]any)
+				remaining := make([]any, 0, len(members))
+				found := false
+				for _, existing := range members {
+					if existing == member {
+						found = true
+					} else {
+						remaining = append(remaining, existing)
+					}
+				}
+				if !found {
+					return request, nil, ErrStoredResourceMissing
+				}
+				state["members"] = remaining
+				payload["member"] = member
+			}
+			changed = true
 		}
 		if request.Operation == "rooms.join" || request.Operation == "rooms.reconnect" {
 			member, _ := input["member"].(string)
@@ -223,17 +287,22 @@ func prepareLegacyStorageEffect(storage *SQLiteStorage, request WorkerRequest) (
 				members = append(members, member)
 			}
 			state["members"] = members
-			commit = func(db sqliteExecutor) error {
-				return putSQLiteState(db, request.ProjectID, "rooms", key, state)
-			}
+			changed = true
 		}
 		if request.Operation == "rooms.result" {
 			if value, ok := input["result"]; ok {
 				state["result"] = value
 				payload["result"] = value
-				commit = func(db sqliteExecutor) error {
-					return putSQLiteState(db, request.ProjectID, "rooms", key, state)
-				}
+				changed = true
+			}
+		}
+		if changed {
+			next, err := json.Marshal(state)
+			if err != nil {
+				return request, nil, err
+			}
+			commit = func(db sqliteExecutor) error {
+				return compareAndSwapPluginState(db, request.ProjectID, "rooms", key, previous, exists, string(next))
 			}
 		}
 		payload["room"] = state
@@ -267,6 +336,7 @@ func prepareLegacyStorageEffect(storage *SQLiteStorage, request WorkerRequest) (
 				}
 			}
 		}
+		event["occurred_at"] = time.Now().UTC().Format(time.RFC3339Nano)
 		state["events"] = append(events, event)
 		commit = func(db sqliteExecutor) error {
 			return putSQLiteState(db, request.ProjectID, "analytics", "events", state)
