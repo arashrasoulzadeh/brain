@@ -22,4 +22,12 @@ void main() {
     final client = FlutterAuthClient((operation, payload) => transport.send(operation, payload));
     expect((await client.signIn('alice', 'password'))['username'], 'alice');
   });
+  test('rejects non-map and malformed sign-in and session responses', () async {
+    for (final value in <Object?>[null, 'not a response', <String, Object?>{},
+      {'token': 7, 'username': 9}]) {
+      final client = FlutterAuthClient((operation, payload) async => value);
+      await expectLater(client.signIn('alice', 'password'), throwsStateError);
+      await expectLater(client.session('token'), throwsStateError);
+    }
+  });
 }

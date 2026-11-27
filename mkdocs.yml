@@ -1,0 +1,47 @@
+site_name: Brain
+site_description: Project-isolated backend for apps, websites, and games
+site_url: https://arashrasoulzadeh.github.io/brain/
+repo_url: https://github.com/arashrasoulzadeh/brain
+repo_name: arashrasoulzadeh/brain
+docs_dir: .generated-docs
+site_dir: .generated-site
+use_directory_urls: false
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: teal
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: teal
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - toc.follow
+plugins:
+  - search
+markdown_extensions:
+  - admonition
+  - attr_list
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+extra_css:
+  - assets/brain.css

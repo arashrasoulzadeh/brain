@@ -8,4 +8,12 @@ void main() {
       '__Host-brain_session=token; Max-Age=3600; Path=/; Secure; SameSite=Lax',
     );
   });
+  test('rejects unsafe tokens and invalid expiry', () {
+    for (final token in ['', 'with space', 'injected; Secure']) {
+      expect(() => firstPartyWebCookie(token, 60), throwsArgumentError);
+    }
+    for (final age in [0, -1]) {
+      expect(() => firstPartyWebCookie('token', age), throwsArgumentError);
+    }
+  });
 }
