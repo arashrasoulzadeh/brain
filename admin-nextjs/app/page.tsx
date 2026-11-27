@@ -7,6 +7,7 @@ import { AdminFooter, AdminHeader, AdminSidebar } from "./components/admin-chrom
 import { QUIET_REQUEST_HEADER } from "./components/toast-provider";
 import type { Project, PluginManifest, PluginStatus, AuditRecord, FunctionDraft, SystemManifest, Language } from "./lib/admin-types";
 import { copy } from "./lib/admin-copy";
+import { createProjectRequestGate } from "./lib/project-requests";
 import { canViewAdminPage, enabledPluginIDs, visibleAdminPages } from "./lib/admin-navigation";
 import { AuditPanel } from "./components/audit-panel";
 import { SystemPanel } from "./components/system-panel";
@@ -30,6 +31,7 @@ export default function AdminPage() {
   const [secret, setSecret] = useState("");
   const [projectID, setProjectID] = useState("");
   const [selectedProjectID, setSelectedProjectID] = useState("");
+  const [projectRequests] = useState(createProjectRequestGate);
   const [error, setError] = useState("");
   const [configuration, setConfiguration] = useState<
     Record<string, Record<string, string | boolean>>
@@ -64,7 +66,17 @@ export default function AdminPage() {
       } as Record<string, string>
     )[activePage] ?? text.projects;
   const activePluginIDs = enabledPluginIDs(installations);
-  useEffect(() => { if (selectedProjectID) saveAdminProject(selectedProjectID); }, [selectedProjectID]);
+  function selectProject(id: string) {
+    if (!projectRequests.select(id)) return;
+    setSelectedProjectID(id);
+    setInstallations([]);
+    setFunctionDrafts([]);
+    setPlaygroundRoute("");
+    setPlaygroundPayload("{}");
+    setPlaygroundMessage("");
+    setFunctionMessage("");
+    saveAdminProject(id);
+  }
   useEffect(() => {
     if (!session) return;
     const refresh = () =>
@@ -94,7 +106,7 @@ export default function AdminPage() {
     loadProjects(savedSession)
       .then((loadedProjects) => {
         const activeProjectID = preferredAdminProject(loadedProjects)?.ID ?? "";
-        setSelectedProjectID(activeProjectID);
+        selectProject(activeProjectID);
         return Promise.all([
           loadPlugins(savedSession, activeProjectID),
           loadAudit(savedSession),
@@ -123,17 +135,23 @@ export default function AdminPage() {
     return loadedProjects;
   }
   async function loadPlugins(token: string, projectID = selectedProjectID) {
+    const current = projectRequests.begin(projectID, "catalog");
+    if (!current) return;
+    const valid = () => current() && readAdminSession() === token;
     const query = projectID ? `?project_id=${encodeURIComponent(projectID)}` : "";
-    const response = await fetch(`/api/admin/plugins${query}`, {
-      headers: adminHeaders(token),
-    });
-    if (!response.ok) throw new Error("Could not load plugins");
-    const result = (await response.json()) as {
-      manifests: PluginManifest[];
-      installations: PluginStatus[];
-    };
-    setManifests(result.manifests);
-    setInstallations(result.installations);
+    try {
+      const response = await fetch(`/api/admin/plugins${query}`, { headers: adminHeaders(token) });
+      if (!valid()) return;
+      if (!response.ok) throw new Error("Could not load plugins");
+      const result = (await response.json()) as { manifests: PluginManifest[] | null; installations: PluginStatus[] | null };
+      if (!valid()) return;
+      setManifests(result.manifests ?? []);
+      setInstallations((result.installations ?? []).filter(item => item.ProjectID === projectID));
+    } catch (reason) {
+      if (!valid()) return;
+      setInstallations([]);
+      throw reason;
+    }
   }
   async function loadAudit(token: string) {
     const response = await fetch("/api/admin/audit", {
@@ -150,15 +168,20 @@ export default function AdminPage() {
     setSystem((await response.json()) as SystemManifest[]);
   }
   async function loadFunctionDrafts(token: string, projectID = selectedProjectID) {
-    if (!projectID) {
-      setFunctionDrafts([]);
-      return;
+    const current = projectRequests.begin(projectID, "functions");
+    if (!current) return;
+    const valid = () => current() && readAdminSession() === token;
+    if (!projectID) { setFunctionDrafts([]); return; }
+    try {
+      const response = await fetch(
+        `/api/admin/functions?project_id=${encodeURIComponent(projectID)}`,
+        { headers: adminHeaders(token, { [QUIET_REQUEST_HEADER]: "1" }) },
+      );
+      const result = response.ok ? (await response.json()) as FunctionDraft[] | null : [];
+      if (valid()) setFunctionDrafts((result ?? []).filter(item => item.project_id === projectID));
+    } catch {
+      if (valid()) setFunctionDrafts([]);
     }
-    const response = await fetch(
-      `/api/admin/functions?project_id=${encodeURIComponent(projectID)}`,
-      { headers: adminHeaders(token, { [QUIET_REQUEST_HEADER]: "1" }) },
-    );
-    if (response.ok) setFunctionDrafts((await response.json()) as FunctionDraft[]);
   }
   async function signIn(event: FormEvent) {
     event.preventDefault();
@@ -186,7 +209,7 @@ export default function AdminPage() {
       const loadedProjects = await loadProjects(token);
       const activeProject = preferredAdminProject(loadedProjects)?.ID ?? "";
       setSelectedProjectID(activeProject);
-      await loadPlugins(token, activeProject);
+      await Promise.all([loadPlugins(token, activeProject), loadFunctionDrafts(token, activeProject)]);
       await loadAudit(token);
       await loadSystem(token);
     } catch (reason) {
@@ -194,6 +217,7 @@ export default function AdminPage() {
     }
   }
   async function signOut() {
+    selectProject("");
     await signOutAdminSession();
     setSession("");
   }
@@ -208,7 +232,12 @@ export default function AdminPage() {
       });
       if (!response.ok) throw new Error(await response.text());
       setProjectID("");
-      await loadProjects(session);
+      const loaded = await loadProjects(session);
+      if (!projectRequests.current()) {
+        const next = loaded.find(candidate => candidate.ID === projectID && candidate.Active)?.ID ?? loaded.find(candidate => candidate.Active)?.ID ?? "";
+        selectProject(next);
+        await Promise.all([loadPlugins(session, next), loadFunctionDrafts(session, next)]);
+      }
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Could not create project");
     }
@@ -229,14 +258,12 @@ export default function AdminPage() {
       return;
     }
     const loadedProjects = await loadProjects(session);
-    if (selectedProjectID === project.ID && !active) {
-      const next = loadedProjects.find((candidate) => candidate.Active)?.ID ?? "";
-      saveAdminProject(next);
-      setSelectedProjectID(next);
-      await loadPlugins(session, next);
-    } else {
-      await loadPlugins(session, selectedProjectID);
-    }
+    const current = projectRequests.current();
+    const next = !current || (current === project.ID && !active)
+      ? loadedProjects.find(candidate => candidate.Active)?.ID ?? ""
+      : current;
+    selectProject(next);
+    await Promise.all([loadPlugins(session, next), loadFunctionDrafts(session, next)]);
     await loadAudit(session);
   }
   function testPlayground() {
@@ -387,10 +414,11 @@ export default function AdminPage() {
       return;
     }
     const loadedProjects = await loadProjects(session);
-    const next = loadedProjects.find((candidate) => candidate.Active)?.ID ?? "";
-    saveAdminProject(next);
-    setSelectedProjectID(next);
-    await loadPlugins(session, next);
+    const current = projectRequests.current();
+    const next = loadedProjects.some(candidate => candidate.ID === current && candidate.Active)
+      ? current : loadedProjects.find(candidate => candidate.Active)?.ID ?? "";
+    selectProject(next);
+    await Promise.all([loadPlugins(session, next), loadFunctionDrafts(session, next)]);
     await loadAudit(session);
   }
   async function runPluginAction(
@@ -603,7 +631,12 @@ export default function AdminPage() {
         setProjectActive={setProjectActive}
         uninstallProject={uninstallProject}
         error={error}
-        onSelectProject={(id) => { saveAdminProject(id); setSelectedProjectID(id); void loadPlugins(session, id); }}
+        onSelectProject={(id) => {
+          selectProject(id);
+          void Promise.all([loadPlugins(session, id), loadFunctionDrafts(session, id)]).catch(reason => {
+            if (projectRequests.current() === id) setError(String(reason));
+          });
+        }}
       />
       <PluginCatalogPanel
         activePage={activePage}
@@ -676,7 +709,7 @@ export default function AdminPage() {
           onSignOut={() => void signOut()}
           visiblePages={visibleAdminPages(manifests.length, activePluginIDs)}
         />
-        <section className="card">
+        <section className="card admin-content" id="admin-content">
           <AdminHeader title={pageTitle} eyebrow={text.eyebrow} />
           {pageContent}
           <AdminFooter />
