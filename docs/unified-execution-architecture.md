@@ -82,3 +82,23 @@ Each phase gets a focused failing test first, reviewable commits and a separate 
 ## Verification and limitations of this draft
 
 Read-only GitHub source/tree and branch comparisons were performed against the pinned baseline. No runtime code was edited; no build, test, sandbox, race or deployment command was executed in a repository checkout. Direct git access from the execution environment failed DNS resolution; GitHub API access is available. The branch/PR carrying this document is for review, not a phase-complete or security sign-off. Before Phase 2, obtain a working checkout and run the actual repository gates; do not mark unchecked items complete merely because the plan exists.
+
+
+## Phase 2 implementation progress (not phase exit)
+
+The following reviewable implementation commits are present on the architecture branch:
+
+| Commit | Verified increment |
+| --- | --- |
+| d249425 | Host-owned execution contract and structural request/result validation, exact version syntax, SHA-256 verification, identity binding, deadlines and limits. |
+| 87060df | Canonical immutable file bundles; path, case, ancestor, format, depth, count and size validation. |
+| 2014342 | Bounded in-memory artifact catalog with explicit project/shared scope, immutable version/runtime/entrypoint registration and defensive copies. |
+| 6d56319 | Catalog-bound assignment validation, effective deadline propagation, fail-closed missing capacity and rejected late/cancelled or mismatched results. |
+
+The initial artifact format is canonical JSON with base64 file bytes, maximum encoded size 64 MiB (configurable downward), 4096 files, 32 path components, ASCII canonical paths, and no direct filesystem extraction. The registry must select all declared files and pin runtime/dependency identities. The catalog is deliberately in-memory; durable pins and host authorization are still required before live use. ExecuteAssigned is a boundary helper, not a scheduler; it relies on the selected runtime adapter to honor cancellation and enforce actual resource limits.
+
+Verification: in an isolated Go 1.23 module with module name brain, the new tests under tests/execution passed with the race detector, ten repetitions, and 100% statement coverage of internal/execution. go vet ./... passed for that isolated module. Remote Git blob hashes were checked against the exact locally formatted and tested files before pushing each code commit.
+
+The full repository checkout remains unavailable in this environment (GitHub DNS resolution fails). GitHub Actions was triggered for each commit. The first implementation commit's repository-wide coverage gate reported 7248/7594 covered statements and 346 missing; the latest CI-tested baseline main commit d781058 reported 7219/7565 and the same 346 missing. The only change between d781058 and the pinned main baseline is CHANGELOG.md. Both the baseline and the first implementation commit also failed the TypeScript 100% coverage gate. Do not lower thresholds or treat these pre-existing failures as a passing phase. The latest implementation CI is not yet verified.
+
+No existing production invocation path has been switched. The next increment is a genuine legacy worker adapter with immutable source/runtime binding, preserving the existing broker, storage planner, manifest authorization, commit rechecks, and legacy HTTP behavior. It requires a working full-repository build and sandbox regression environment. No phase checkbox or final acceptance criterion has been marked complete.
