@@ -2,6 +2,7 @@ package plugin
 
 import (
 	"errors"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -128,15 +129,11 @@ func TestDurableCoverageAuthMutationFailure(t *testing.T) {
 		t.Fatal(err)
 	}
 	token := strings.Repeat("a", 64)
-	payload := []byte(`{"result":{"token":"` + token + `","username":"guest-test","userId":"coverage:guest-test","guest":true},"expiresAt":` + fmtCoverageExpiry() + `}`)
+	payload := []byte(`{"result":{"token":"` + token + `","username":"guest-test","userId":"coverage:guest-test","guest":true},"expiresAt":` + strconv.FormatInt(time.Now().Add(time.Hour).UnixMilli(), 10) + `}`)
 	if err := commit(&WorkerResponse{Payload: payload}, nil); err == nil {
 		t.Fatal("failed guest write accepted")
 	}
 	if got, err := s.State("coverage", authSessionsNamespace, authTokenDigest(token)); err != nil || got != nil {
 		t.Fatalf("failed guest write persisted: %v %v", got, err)
 	}
-}
-
-func fmtCoverageExpiry() string {
-	return time.Now().Add(time.Hour).Format("not-used")
 }
