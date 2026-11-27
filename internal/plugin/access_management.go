@@ -204,6 +204,33 @@ func (r *Registry) authorizeAccessLocked(projectID, principal, id, version, oper
 		return ErrActorDenied
 	}
 
+	installed, available := r.accessProviderLocked(projectID)
+	if !installed {
+		return nil
+	}
+	if scopeErr != nil || !available || r.LifecycleStorageHealth() != nil {
+		return ErrActorDenied
+	}
+	if principal == "" {
+		principal = "host"
+	}
+	if !validAccessPrincipal(principal) || operation == "" || capability == "" {
+		return ErrActorDenied
+	}
+	storage, ok := r.storage.(*SQLiteStorage)
+	if !ok || storage == nil {
+		return ErrActorDenied
+	}
+	allowed, err := storage.accessRuleAllows(projectID, principal, id, version, operation, capability, resource)
+	if err != nil || !allowed {
+		return ErrActorDenied
+	}
+	return nil
+}
+
+// accessProviderLocked shares the exact policy readiness check with host inventory reads.
+// Callers hold readiness and installation locks.
+func (r *Registry) accessProviderLocked(projectID string) (bool, bool) {
 	installed, available := false, 0
 	for _, installation := range r.installations {
 		if installation.ProjectID != projectID || installation.PluginID != accessPluginID {
@@ -224,27 +251,7 @@ func (r *Registry) authorizeAccessLocked(projectID, principal, id, version, oper
 		}
 		available++
 	}
-	if !installed {
-		return nil
-	}
-	if scopeErr != nil || available != 1 || r.LifecycleStorageHealth() != nil {
-		return ErrActorDenied
-	}
-	if principal == "" {
-		principal = "host"
-	}
-	if !validAccessPrincipal(principal) || operation == "" || capability == "" {
-		return ErrActorDenied
-	}
-	storage, ok := r.storage.(*SQLiteStorage)
-	if !ok || storage == nil {
-		return ErrActorDenied
-	}
-	allowed, err := storage.accessRuleAllows(projectID, principal, id, version, operation, capability, resource)
-	if err != nil || !allowed {
-		return ErrActorDenied
-	}
-	return nil
+	return installed, available == 1
 }
 
 // Rules are immutable except for the revision-checked revoke transition.
@@ -278,16 +285,17 @@ func (r *Registry) validateAccessRuleLocked(req WorkerRequest) error {
 	return ErrInvalidWorkerRequest
 }
 
-func (s *SQLiteStorage) accessRuleAllows(projectID, principal, id, version, operation, capability, resource string) (bool, error) {
-	const query = `SELECT record_id,schema_version,revision,state,fields_json
+const accessRuleScopeQuery = `SELECT record_id,schema_version,revision,state,fields_json
 FROM plugin_model_records
 WHERE project_id=? AND plugin_id=? AND model_name=? AND state='active'
 AND json_extract(fields_json,'$.principal')=?
 AND json_extract(fields_json,'$.plugin')=?
 AND json_extract(fields_json,'$.version')=?
 AND json_extract(fields_json,'$.operation')=?
-AND json_extract(fields_json,'$.capability')=?
-AND (json_extract(fields_json,'$.resource')=? OR json_extract(fields_json,'$.resource')=?)`
+AND json_extract(fields_json,'$.capability')=?`
+
+func (s *SQLiteStorage) accessRuleAllows(projectID, principal, id, version, operation, capability, resource string) (bool, error) {
+	const query = accessRuleScopeQuery + ` AND (json_extract(fields_json,'$.resource')=? OR json_extract(fields_json,'$.resource')=?)`
 	wildcard := ""
 	if resource != "" {
 		wildcard = "*"

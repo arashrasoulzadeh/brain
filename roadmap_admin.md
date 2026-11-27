@@ -33,7 +33,7 @@ Admin-panel and operator documentation work after backend release gates pass.
 - [ ] Dedicated admin operations for plugins without implemented runtime handlers.
 - [ ] End-to-end and deployment validation of the new paths.
 
-- [ ] Policy-aware legacy inventory enumeration for access-managed projects (currently fails closed).
+- [x] Policy-aware legacy inventory enumeration with exact operator rules, deny precedence and filtered cursors.
 
 ## Control-plane UI
 
