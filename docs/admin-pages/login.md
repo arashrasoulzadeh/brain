@@ -9,3 +9,7 @@ Select an active project. Project selection is stored per browser session for gl
 Sign out to revoke the server session when reachable, and clear local session/project state. If the host is unavailable, clear the browser session and follow operator recovery procedures. Do not expose this admin origin or operator credentials to public product clients.
 
 See [admin routes](README.md) and [HTTP authentication](../http-api.md).
+
+## Session expiry
+
+An authenticated same-origin admin request returning 401 invalidates only the matching current session and returns to `/_system/ui` without navigation or other protected content. For legacy 403 responses the UI checks the global operator project-list endpoint before invalidating the session; a resource-policy denial alone does not log the operator out. Background requests follow the same rule. A failed sign-in without a bearer token stays on the standalone login page. Protected routes do not mount until a local session is available.

@@ -44,13 +44,20 @@ async function fixture(viewport, project = "alpha") {
   const page = await context.newPage();
   let allowed = true;
   let modelAllowed = true;
+  let sessionStatus = 0;
   page.on("pageerror", error => runtimeErrors.push(error.message));
   await page.route("**/*/admin/**", async route => {
     const request = route.request();
     const url = new URL(request.url());
+    if (url.pathname === "/_system/admin/session" && request.method() === "POST") {
+      if (request.postDataJSON().secret !== "valid-fixture") return route.fulfill({ status: 401, json: { message: "Invalid credentials" } });
+      sessionStatus = 0;
+      return route.fulfill({ json: { session: "browser-fixture" } });
+    }
     if (request.headers().authorization !== "Bearer browser-fixture") {
       return route.fulfill({ status: 403, body: "Forbidden" });
     }
+    if (sessionStatus) return route.fulfill({ status: sessionStatus, body: "Operator session expired" });
     const json = body => route.fulfill({ json: body });
     const namespace = url.pathname.split("/")[1];
     const endpoint = url.pathname.replace(/^\/[A-Za-z0-9_-]+\/admin\//, "/admin/");
@@ -107,7 +114,7 @@ async function fixture(viewport, project = "alpha") {
       default: return route.fulfill({ status: 404, body: "Unknown fixture endpoint" });
     }
   });
-  return { page, context, setAllowed(value) { allowed = value; }, setModelAllowed(value) { modelAllowed = value; } };
+  return { page, context, setAllowed(value) { allowed = value; }, setModelAllowed(value) { modelAllowed = value; }, setSessionStatus(value) { sessionStatus = value; } };
 }
 
 async function visible(locator) {
@@ -149,6 +156,8 @@ try {
   desktop.setAllowed(false);
   await visible(page.getByText("No resources on this page.", { exact: true }));
   await visible(page.getByRole("alert").filter({ hasText: "Resource permission revoked" }));
+  assert.equal(await page.evaluate(() => sessionStorage.getItem("brain-admin-session")), "browser-fixture");
+  assert.equal(await page.locator("aside.sidebar").count(), 1);
   assert.equal(await page.getByText("fixture-result", { exact: true }).count(), 0);
   desktop.setAllowed(true);
   await visible(page.getByText("sample.txt", { exact: true }));
@@ -206,6 +215,44 @@ try {
   assert.ok(await mobile.page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1), "mobile page must not overflow horizontally");
   await screenshot(mobile.page, "mobile-plugin");
   await mobile.context.close();
+
+  // A 401 from quiet polling must clear the session and remove the entire
+  // protected shell, rather than nesting the login form inside its content.
+  for (const status of [401, 403]) {
+    const expired = await fixture({ width: 1440, height: 900 });
+    const target = expired.page;
+    await target.goto(origin + "/alpha/ui/plugins");
+    await visible(target.getByRole("link", { name: "Files", exact: true }));
+    expired.setSessionStatus(status);
+    await target.evaluate(() => { void fetch("/alpha/admin/functions", {
+      headers: { authorization: "Bearer browser-fixture", "x-brain-quiet": "1" },
+    }).catch(() => undefined); });
+    await target.waitForURL(origin + "/_system/ui");
+    await visible(target.getByRole("heading", { name: "Welcome back" }));
+    assert.equal(await target.locator("aside.sidebar").count(), 0);
+    assert.equal(await target.locator("#admin-content").count(), 0);
+    assert.equal(await target.evaluate(() => sessionStorage.getItem("brain-admin-session")), null);
+    assert.equal(await target.evaluate(() => sessionStorage.getItem("brain-admin-project")), null);
+    await screenshot(target, "expired-session-" + status);
+
+    // Direct entry to a protected URL without a token also uses standalone login.
+    await target.goto(origin + "/alpha/ui/plugins");
+    await target.waitForURL(origin + "/_system/ui");
+    await visible(target.getByRole("heading", { name: "Welcome back" }));
+    assert.equal(await target.locator("aside.sidebar").count(), 0);
+    await target.getByLabel("Operator username").fill("operator");
+    await target.getByLabel("Secret", { exact: true }).fill("wrong");
+    await target.getByRole("button", { name: "Sign in", exact: true }).click();
+    await visible(target.getByText("Invalid credentials", { exact: true }));
+    assert.equal(new URL(target.url()).pathname, "/_system/ui");
+    assert.equal(await target.locator("aside.sidebar").count(), 0);
+    await target.getByLabel("Secret", { exact: true }).fill("valid-fixture");
+    await target.getByRole("button", { name: "Sign in", exact: true }).click();
+    await visible(target.getByRole("heading", { name: "Projects", level: 1 }));
+    assert.equal(await target.locator("aside.sidebar").count(), 1);
+    assert.equal(await target.evaluate(() => sessionStorage.getItem("brain-admin-session")), "browser-fixture");
+    await expired.context.close();
+  }
 
   assert.deepEqual(runtimeErrors, [], "browser runtime errors");
   console.log("Admin browser smoke passed: desktop, mobile, permissions, project switching and action confirmation.");
