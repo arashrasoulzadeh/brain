@@ -1,13 +1,11 @@
-import { createProjectMap, validateProjectId, requireProjectInput, type PluginContext } from "../sdk-typescript/src/index.js";
+import { createProjectLeaseStore, createProjectSet, validateProjectId, requireProjectInput, type PluginContext } from "../sdk-typescript/src/index.js";
 import { type FunctionSchedule, type RecordChangeTrigger } from "./index.js";
-
-type ScheduleLease = { workerId: string; expiresAt: number };
 
 export function createScheduleStore() {
   const schedules: FunctionSchedule[] = [];
-  const claims = createProjectMap<ScheduleLease>();
-  const occurrences = createProjectMap<Set<string>>();
-  const enqueued = createProjectMap<Set<number>>();
+  const claims = createProjectLeaseStore("invalid schedule claim");
+  const recordOccurrence = createProjectSet<string>();
+  const recordEnqueue = createProjectSet<number>();
 
   return {
     add(projectId: string, functionId: string, expression: string, dueAt: number) {
@@ -27,20 +25,13 @@ export function createScheduleStore() {
         throw new Error("invalid schedule claim");
       if (!schedules.some((candidate) => candidate.projectId === projectId && candidate.functionId === functionId && candidate.dueAt <= now))
         return false;
-      const current = claims.get(projectId, functionId);
-      if (current && current.expiresAt > now) return false;
-      claims.set(projectId, functionId, { workerId, expiresAt: now + leaseMs });
-      return true;
+      return claims.acquire(projectId, functionId, workerId, now, leaseMs);
     },
     recordOccurrence(projectId: string, functionId: string, occurrenceUtc: string): boolean {
       validateProjectId(projectId);
       if (!functionId || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(occurrenceUtc) || Number.isNaN(Date.parse(occurrenceUtc)))
         throw new Error("invalid UTC occurrence");
-      const seen = occurrences.get(projectId, functionId) ?? new Set<string>();
-      if (seen.has(occurrenceUtc)) return false;
-      seen.add(occurrenceUtc);
-      occurrences.set(projectId, functionId, seen);
-      return true;
+      return recordOccurrence(projectId, functionId, occurrenceUtc);
     },
     enqueueLatestMissed(projectId: string, functionId: string, now: number) {
       validateProjectId(projectId);
@@ -48,11 +39,7 @@ export function createScheduleStore() {
       const schedule = schedules.filter((candidate) => candidate.projectId === projectId && candidate.functionId === functionId && candidate.dueAt <= now)
         .sort((left, right) => right.dueAt - left.dueAt)[0];
       if (!schedule) return undefined;
-      const seen = enqueued.get(projectId, functionId) ?? new Set<number>();
-      if (seen.has(schedule.dueAt)) return undefined;
-      seen.add(schedule.dueAt);
-      enqueued.set(projectId, functionId, seen);
-      return { ...schedule };
+      return recordEnqueue(projectId, functionId, schedule.dueAt) ? { ...schedule } : undefined;
     },
     enqueueVersion(projectId: string, functionId: string, functionVersion: number, enqueuedAt: number) {
       validateProjectId(projectId);
@@ -107,33 +94,7 @@ export function createRecordChangeTriggerStore() {
   };
 }
 
-type Lease = { workerId: string; expiresAt: number };
-
-export function createJobLeaseStore() {
-  const leases = createProjectMap<Lease>();
-  return {
-    acquire(projectId: string, jobId: string, workerId: string, now: number, leaseMs: number): boolean {
-      validateLease(projectId, jobId, workerId, now, leaseMs);
-      const current = leases.get(projectId, jobId);
-      if (current && current.expiresAt > now) return false;
-      leases.set(projectId, jobId, { workerId, expiresAt: now + leaseMs });
-      return true;
-    },
-    renew(projectId: string, jobId: string, workerId: string, now: number, leaseMs: number): boolean {
-      validateLease(projectId, jobId, workerId, now, leaseMs);
-      const current = leases.get(projectId, jobId);
-      if (!current || current.workerId !== workerId || current.expiresAt <= now) return false;
-      current.expiresAt = now + leaseMs;
-      return true;
-    },
-  };
-}
-
-function validateLease(projectId: string, jobId: string, workerId: string, now: number, leaseMs: number): void {
-  validateProjectId(projectId);
-  if (!jobId || !workerId || !Number.isSafeInteger(now) || !Number.isSafeInteger(leaseMs) || leaseMs < 1)
-    throw new Error("invalid job lease");
-}
+export const createJobLeaseStore = () => createProjectLeaseStore();
 
 /** Bind scheduling, triggers and leases to the trusted project once, not per job. */
 export function bindProjectSchedule(context: PluginContext, store: ReturnType<typeof createScheduleStore>) {

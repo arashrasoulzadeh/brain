@@ -4,11 +4,11 @@ The trusted shared SDK lives in [plugins/sdk-typescript/src/index.ts](../plugins
 
 | Area | Exported APIs | Contract |
 | --- | --- | --- |
-| Request construction | `request`, `pluginRequest`, `createResourceRequest` | Versioned request serialization; explicit resource identity overrides a conflicting serialized payload field. |
+| Request construction | `request`, `pluginRequest`, `createResourceRequest`, `createManifestRequest` | Versioned request serialization; explicit resource identity overrides a conflicting serialized payload field. |
 | Dispatch | `createRouteHandler`, `createHostHandler`, `createFunctionHandler`, `createOperationRoutes`, `createRequestDispatcher`, `createRouteDispatcher` | Dispatch declared handlers only. Trusted execution context is checked by host-facing handlers. |
 | Context and scope | `validateProjectId`, `projectRoomID`, `requireProjectInput`, `requireOperator` | Validate project/context, reject mismatched identity and enforce required operator permission. |
 | Input validation | `validateIdentifier`, `requiredString`, `trimmedString`, `validateBoundedInteger`, `requireAllowedValues` | Shared identifier, string, integer and allowed-value checks. |
-| In-memory project maps | `createProjectMap` | Isolate local values by project and key; not durable storage. |
+| In-memory project maps | `createProjectMap`, `createProjectSet`, `createProjectLeaseStore` | Isolate local values by project and key; not durable storage. |
 | Execution primitives | `commitWithGrant`, `createCommitRollback`, `createTransactionGate`, `runCappedRetries`, `runWithTimeout`, `createFixedWindowLimiter` | Local bounded execution and commit helpers; host remains final authority. |
 | Declarative helpers | `validateModel`, `transitionState`, `callHelper`, `hasHelper`, `helperNames` | Exact field validation, state transition calculation and allowlisted pure helper evaluation. |
 | PvP | `CommandDeduplicator`, `assertMatchMember`, `nextTurn`, `createRevisionRuntime`, `commitRevision`, `replayHistory`, `expireTurn`, `pauseTurn`, `resumeTurn`, `privatePlayerView`, `parseMatchState` | Reusable game-neutral turn and revision primitives, not an exposed network service. |
@@ -24,3 +24,5 @@ The trusted shared SDK lives in [plugins/sdk-typescript/src/index.ts](../plugins
 `string.trim`, `string.nonempty`, `string.lower`, `string.upper`, `number.integer`, `boolean.require`, `value.identity`. Unknown helper names or invalid argument types are rejected. The same allowlist is shared by declarative pipelines and the function VM.
 
 Use `helper: sdk.context` for new project-bound functions. See [developer guide](developers.md) for manifest and event examples and [declarative runtime](declarative-runtime.md) for source-free plugins. Direct SDK tests are not evidence of host-level authorization, persistence or network wiring.
+
+`ManifestOperations` and `ManifestOperation` are generated from the discovered plugin manifests. Regenerate after editing route declarations with `go run ./cmd/manifest-sdk`. `createManifestRequest` binds the plugin ID and preserves explicit resource identity; it does not confer authority.
