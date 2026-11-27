@@ -233,3 +233,59 @@ func TestVersionRestoreRejectsAmbiguousOrMissingPromotedManifest(t *testing.T) {
 		})
 	}
 }
+
+func TestPromotionPersistenceFailureRetainsPreviousRouting(t *testing.T) {
+	r := installBoundaryRegistry(t)
+	store := &lifecycleBoundaryStore{}
+	if err := r.BindRegistryStorage(store); err != nil {
+		t.Fatal(err)
+	}
+	for _, pluginID := range []string{"dependency", "target"} {
+		versions := []string{"1"}
+		if pluginID == "target" {
+			versions = append(versions, "2")
+		}
+		for _, version := range versions {
+			if err := r.Install("alpha", pluginID, version); err != nil {
+				t.Fatal(err)
+			}
+			if err := r.SetReadiness(pluginID, version, true); err != nil {
+				t.Fatal(err)
+			}
+			for _, capability := range r.registered[pluginID+"@"+version].Manifest.Capabilities {
+				if err := r.Grant("alpha", pluginID, version, capability); err != nil {
+					t.Fatal(err)
+				}
+			}
+			if err := r.Enable("alpha", pluginID, version); err != nil {
+				t.Fatal(err)
+			}
+		}
+	}
+	if err := r.Promote("alpha", "target", "1"); err != nil {
+		t.Fatal(err)
+	}
+	store.saveErr = errors.New("injected promotion persistence failure")
+	if err := r.Promote("alpha", "target", "2"); !errors.Is(err, ErrLifecycleStorage) {
+		t.Fatalf("failed promotion: %v", err)
+	}
+	if v, ok := r.ActiveVersion("alpha", "target"); !ok || v != "1" {
+		t.Fatalf("failed promotion changed routing: %q %v", v, ok)
+	}
+	if !r.installations["alpha:target@1"].Promoted || r.installations["alpha:target@2"].Promoted {
+		t.Fatal("failed promotion changed in-memory version flags")
+	}
+	if !store.installations["alpha:target@1"].Promoted || store.installations["alpha:target@2"].Promoted {
+		t.Fatal("failed promotion changed durable version flags")
+	}
+	store.saveErr = nil
+	if err := r.FlushLifecycleState(); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Promote("alpha", "target", "2"); err != nil {
+		t.Fatal(err)
+	}
+	if v, ok := r.ActiveVersion("alpha", "target"); !ok || v != "2" {
+		t.Fatalf("successful retry: %q %v", v, ok)
+	}
+}
