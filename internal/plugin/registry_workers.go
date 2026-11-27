@@ -343,6 +343,10 @@ func (r *Registry) stopBoundWorker(key string) error {
 func validatePayloadProject(request WorkerRequest) error {
 	var payload map[string]json.RawMessage
 	if json.Unmarshal(request.Payload, &payload) == nil {
+		// Durable snapshots are reserved for the trusted host storage adapter.
+		if _, supplied := payload["_brainArena"]; request.PluginID == "arena" && supplied {
+			return ErrInvalidWorkerRequest
+		}
 		for _, key := range []string{"projectId", "project_id"} {
 			if value, exists := payload[key]; exists {
 				var id string

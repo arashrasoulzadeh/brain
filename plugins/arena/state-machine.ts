@@ -92,8 +92,15 @@ export class ArenaFinisher {
   }
 }
 
-export function createArena(projectId: string, roomId: string) {
+type RestoredArena = Readonly<{ state: ArenaState; players: string[]; sequences: Map<string, number> }>;
+
+export function createArena(projectId: string, roomId: string, restored?: RestoredArena) {
   const runtime = createArenaRuntime(projectId, roomId);
+  if (restored) {
+    runtime.state = restored.state;
+    runtime.players = [...restored.players];
+    runtime.sequences = new Map(restored.sequences);
+  }
   const reader = new ArenaStateReader(runtime);
   const starter = new ArenaStarter(runtime);
   const actions = new ArenaActionRecorder(runtime);
@@ -141,12 +148,13 @@ export function start(context: PluginContext, input: unknown) {
   const payload = requireProjectInput(context, input);
   const roomId = routeRoomId(payload);
   const projectId = context.project.id;
-  if (arenas.get(projectId, roomId)) throw new Error("arena already started");
+  const durable = Object.hasOwn(payload, "_brainArena");
+  if (durable ? payload._brainArena !== null : arenas.get(projectId, roomId)) throw new Error("arena already started");
   const players = playerList(payload.players);
   const arena = createArena(projectId, roomId);
   arena.start(players);
   context.plugins.observe.fire("started", { roomId, playerCount: players.length });
-  arenas.set(projectId, roomId, arena);
+  if (!durable) arenas.set(projectId, roomId, arena);
   return arenaSnapshot(arena);
 }
 
@@ -160,7 +168,17 @@ export function input(context: PluginContext, request: unknown) {
 }
 
 export function snapshot(context: PluginContext, input: unknown) {
-  return arenaSnapshot(routeArena(context, requireProjectInput(context, input)));
+  const payload = requireProjectInput(context, input);
+  const arena = routeArena(context, payload);
+  const restored = payload._brainArena as { result?: { winnerIds: string[]; completedAt: string } } | undefined;
+  const summary = arenaSnapshot(arena);
+  if (summary.state === "finished" && restored?.result) {
+    const { winnerIds, completedAt } = restored.result;
+    const match = { resultId: `${arena.projectId}:${arena.roomId}-${Date.parse(completedAt)}`, projectId: arena.projectId, roomId: arena.roomId, winnerIds, completedAt };
+    validateMatchResult(match);
+    return { ...summary, result: match };
+  }
+  return summary;
 }
 
 export function result(context: PluginContext, input: unknown) {
@@ -179,7 +197,23 @@ function routeRoomId(payload: Record<string, unknown>): string {
 }
 
 function routeArena(context: PluginContext, payload: Record<string, unknown>) {
-  const arena = arenas.get(context.project.id, routeRoomId(payload));
+  const roomId = routeRoomId(payload);
+  if (Object.hasOwn(payload, "_brainArena")) {
+    const stored = payload._brainArena as { state?: ArenaState; players?: unknown; sequences?: unknown } | null;
+    if (!stored || !["active", "finished"].includes(stored.state ?? "") ||
+        !stored.sequences || typeof stored.sequences !== "object" || Array.isArray(stored.sequences))
+      throw new Error("invalid stored arena");
+    const players = playerList(stored.players);
+    if (players.length < 2 || new Set(players).size !== players.length) throw new Error("invalid stored players");
+    const sequences = new Map<string, number>();
+    for (const [player, sequence] of Object.entries(stored.sequences)) {
+      if (!players.includes(player) || typeof sequence !== "number" || !Number.isSafeInteger(sequence) || sequence < 1)
+        throw new Error("invalid stored sequence");
+      sequences.set(player, sequence);
+    }
+    return createArena(context.project.id, roomId, { state: stored.state!, players, sequences });
+  }
+  const arena = arenas.get(context.project.id, roomId);
   if (!arena) throw new Error("arena not found");
   return arena;
 }

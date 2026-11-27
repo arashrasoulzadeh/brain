@@ -82,6 +82,24 @@ async function invoke(plugin_id, target_operation, payload) {
   assert.equal(response.Success,true, target_operation + ": " + response.ErrorCode);
   return JSON.parse(Buffer.from(response.Payload,"base64").toString("utf8"));
 }
+// Arena state and sequence protection must survive replacement of the worker.
+const arenaRoom = "ci-arena";
+await invoke("arena","arena.start",{roomId:arenaRoom,players:["one","two"]});
+await invoke("arena","arena.input",{roomId:arenaRoom,playerId:"one",sequence:1});
+await action("plugin.stop",{plugin_id:"arena",confirmed:true});
+await action("plugin.recover",{plugin_id:"arena"});
+const arenaSnapshot = await invoke("arena","arena.snapshot",{roomId:arenaRoom});
+assert.deepEqual(arenaSnapshot.players,["one","two"]);
+assert.equal(arenaSnapshot.state,"active");
+const replay = await fetch(base+"/admin/actions",{method:"POST",headers,body:JSON.stringify({operation:"plugin.invoke",project_id:"ci-project",plugin_id:"arena",version:"0.1.0",target_operation:"arena.input",payload:{roomId:arenaRoom,playerId:"one",sequence:1}})});
+assert.ok(!replay.ok || !(await replay.json()).Success,"replayed arena sequence accepted after worker recovery");
+const match = await invoke("arena","arena.result",{roomId:arenaRoom,winnerIds:["one"],completedAt:"2026-01-01T00:00:00Z"});
+await action("plugin.stop",{plugin_id:"arena",confirmed:true});
+await action("plugin.recover",{plugin_id:"arena"});
+const finished = await invoke("arena","arena.snapshot",{roomId:arenaRoom});
+assert.deepEqual(finished.result,match);
+const matches = await action("plugin.admin.inventory",{plugin_id:"arena",page_id:"matches",limit:20});
+assert.deepEqual(matches.rows,[{key:arenaRoom}]);
 const channel = "rooms.connected";
 const subscription = await invoke("subscriptions","subscriptions.open",{channel});
 await invoke("rooms","rooms.create",{id:"ci-room"});

@@ -41,3 +41,5 @@ Admin-panel and operator documentation work after backend release gates pass.
 - [ ] Browser screenshot and deployed visual verification.
 
 - [x] Recheck displayed query permissions and filtered inventories on background refresh, including revocation without observation events.
+
+- [x] Persist arena match snapshots, input sequence counters and results through worker recovery; expose a scoped match inventory.
