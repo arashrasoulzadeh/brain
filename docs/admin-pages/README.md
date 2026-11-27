@@ -44,7 +44,7 @@ The sidebar is populated from the selected project's eligible manifests. These d
 | Plugin | Destination | Operator workflow |
 | --- | --- | --- |
 | Files | `files` | Inventory, inspect, choose a local file, upload, download, publish. |
-| Tables | `database` | Table inventory, schema, rows and confirmed write. |
+| Tables | `database` | Table inventory and search, inferred schema, bounded row pages, confirmed append, revision-checked replacement and deletion. |
 | Auth | `auth` | Bounded account metadata and session revocation; no password/token inspection. |
 | Access management | `access-management` | Read, create and revoke resource rules. |
 | Rooms | `rooms` | Room inventory, details, membership and result operations. |

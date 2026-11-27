@@ -14,19 +14,19 @@ test("real Chromium operator login, project management, protected navigation and
     const requests = [];
     let projects = [{ ID: "dev", Active: true }];
     const response = (route, body, status = 200) => route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
-    await page.route("**/api/**", async route => {
+    await page.route("**/*/admin/**", async route => {
       const req = route.request(), url = new URL(req.url()), method = req.method();
       const data = req.postData() ? req.postDataJSON() : undefined;
       requests.push({ path: url.pathname, method, data, authorization: req.headers().authorization });
-      if (url.pathname === "/api/admin/session" && method === "POST") {
+      if (url.pathname === "/_system/admin/session" && method === "POST") {
         return data.secret === "fixture-secret" ? response(route, { session: "browser-fixture" }) : response(route, { message: "Invalid operator credentials" }, 403);
       }
       if (req.headers().authorization !== "Bearer browser-fixture") return response(route, { message: "Forbidden" }, 403);
-      if (url.pathname === "/api/admin/session" && method === "DELETE") return response(route, { status: "success" });
-      if (url.pathname === "/api/admin/projects") return response(route, projects);
-      if (url.pathname === "/api/admin/plugins") return response(route, { manifests: [], installations: [] });
-      if (["/api/admin/audit", "/api/admin/system", "/api/admin/functions"].includes(url.pathname)) return response(route, []);
-      if (url.pathname === "/api/admin/actions" && data.operation === "project.create") {
+      if (url.pathname === "/_system/admin/session" && method === "DELETE") return response(route, { status: "success" });
+      if (url.pathname === "/_system/admin/projects") return response(route, projects);
+      if (url.pathname.endsWith("/admin/plugins")) return response(route, { manifests: [], installations: [] });
+      if (["/_system/admin/audit", "/_system/admin/system"].includes(url.pathname) || url.pathname.endsWith("/admin/functions") || url.pathname.endsWith("/admin/routes")) return response(route, []);
+      if (url.pathname === "/_system/admin/actions" && data.operation === "project.create") {
         projects = [...projects, { ID: data.project_id, Active: true }];
         return response(route, { status: "success", message: "Project created" });
       }
@@ -48,7 +48,7 @@ test("real Chromium operator login, project management, protected navigation and
     await waitFor(() => page.evaluate(() => sessionStorage.getItem("brain-admin-project") === "browser-project"), "project selection was not persisted");
     await page.screenshot({ path: resolve(artifacts, "admin-projects.png"), fullPage: true });
     assert.ok(requests.some(req => req.data?.operation === "project.create" && req.authorization === "Bearer browser-fixture"));
-    await page.goto(base + "/system", { waitUntil: "networkidle" });
+    await page.goto(base + "/browser-project/ui/system", { waitUntil: "networkidle" });
     await visible(page.getByText("This page is unavailable until its plugin is ready and enabled.", { exact: true }));
     await page.goto(base, { waitUntil: "networkidle" });
     await visible(page.getByRole("button", { name: "Sign out", exact: true }));

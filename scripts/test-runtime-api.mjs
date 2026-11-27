@@ -28,13 +28,31 @@ const uninstalled = await fetch(base + "/ci-project/admin/actions", {method:"POS
 assert.equal(uninstalled.status, 403, "uninstalled plugin was enabled");
 await action("plugin.install");
 await action("plugin.readiness", {ready:true});
-for (const capability of ["tables.read","tables.write","tables.schema"]) await action("plugin.grant", {capability});
+for (const capability of ["tables.read","tables.write","tables.schema","tables.update","tables.delete"]) await action("plugin.grant", {capability});
 await action("plugin.enable");
 const result = await action("plugin.invoke", {target_operation:"tables.write",payload:{table:"messages",row:{id:"one"}}});
 assert.equal(result.Success, true);
 const read = await action("plugin.invoke", {target_operation:"tables.read",payload:{table:"messages"}});
 assert.equal(read.Success, true);
 assert.deepEqual(JSON.parse(Buffer.from(read.Payload,"base64").toString("utf8")).rows,[{id:"one"}]);
+// Exercise bounded row reads and confirmed mutations through the manifest admin boundary.
+async function tableAdmin(operation, payload, readOnly = false) {
+  const response = await action(readOnly ? "plugin.admin.query" : "plugin.admin.invoke", {page_id:"operations",target_operation:operation,confirmed:!readOnly,payload});
+  assert.equal(response.Success,true,operation + ": " + response.ErrorCode);
+  return JSON.parse(Buffer.from(response.Payload,"base64").toString("utf8"));
+}
+const tablePage = await tableAdmin("tables.read",{table:"messages",limit:1},true);
+assert.equal(tablePage.total_rows,1);
+assert.deepEqual(tablePage.rows,[{row_index:0,row:{id:"one"}}]);
+assert.ok(tablePage.revision);
+const changed = await tableAdmin("tables.update",{table:"messages",row_index:0,revision:tablePage.revision,row:{id:"updated"}});
+assert.equal(changed.updated,true);
+const staleTable = await fetch(base+"/ci-project/admin/actions",{method:"POST",headers,body:JSON.stringify({operation:"plugin.admin.invoke",project_id:"ci-project",plugin_id:"tables",version:"0.1.0",page_id:"operations",target_operation:"tables.delete",confirmed:true,payload:{table:"messages",row_index:0,revision:tablePage.revision}})});
+assert.ok(!staleTable.ok || !(await staleTable.json()).Success,"stale row revision accepted");
+const currentTable = await tableAdmin("tables.read",{table:"messages",limit:1},true);
+assert.deepEqual(currentTable.rows,[{row_index:0,row:{id:"updated"}}]);
+assert.equal((await tableAdmin("tables.delete",{table:"messages",row_index:0,revision:currentTable.revision})).deleted,true);
+assert.equal((await tableAdmin("tables.read",{table:"messages",limit:1},true)).total_rows,0);
 // Start the registered plugin inventory, not only the tables fixture.
 const catalogResponse = await fetch(base + "/ci-project/admin/plugins", {headers});
 assert.ok(catalogResponse.ok);
@@ -76,6 +94,8 @@ const finished = await invoke("arena","arena.snapshot",{roomId:arenaRoom});
 assert.deepEqual(finished.result,match);
 const matches = await action("plugin.admin.inventory",{plugin_id:"arena",page_id:"matches",limit:20});
 assert.deepEqual(matches.rows,[{key:arenaRoom}]);
+assert.deepEqual((await action("plugin.admin.inventory",{plugin_id:"arena",page_id:"matches",limit:20,search:"CI-ARENA"})).rows,[{key:arenaRoom}]);
+assert.deepEqual((await action("plugin.admin.inventory",{plugin_id:"arena",page_id:"matches",limit:20,search:"not-present"})).rows,[]);
 // Account hashes and token digests survive worker recovery, but never appear in admin results.
 await invoke("auth","auth.signup",{username:"ci-user",password:"ci-fixture-password"});
 const signedIn = await invoke("auth","auth.signin",{username:"ci-user",password:"ci-fixture-password"});
@@ -119,6 +139,10 @@ for (let attempt = 0; attempt < 30; attempt++) {
 }
 assert.ok(observed,"subscriptions did not receive rooms.connected");
 assert.ok(analyticsDelivered,"analytics did not receive rooms.connected");
+const history = await invoke("analytics","analytics.history",{name:"rooms.connected",limit:10});
+assert.ok(history.rows.some(event=>event.fields.roomId==="ci-room" && event.occurred_at));
+const analyticsSummary = await invoke("analytics","analytics.summary",{limit:10});
+assert.ok(analyticsSummary.rows.some(event=>event.name==="rooms.connected" && event.count>=1));
 // The ticket and event cursor survive replacement of the subscription worker.
 await action("plugin.stop",{plugin_id:"subscriptions",confirmed:true});
 await action("plugin.recover",{plugin_id:"subscriptions"});

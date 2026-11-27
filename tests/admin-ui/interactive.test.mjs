@@ -133,6 +133,34 @@ test("inventory selects rows, paginates, refreshes and shows a missing session",
   assert.equal(text(), "");
 });
 
+test("inventory submits search to the server and resets its cursor", async () => {
+  session();
+  const calls = [];
+  const page = contribution({ id: "files", title: "Files", actions: [], inventory: { title: "Objects", kind: "file_keys" } });
+  stubFetch((url, init) => {
+    const body = JSON.parse(init.body); calls.push(body);
+    if (body.search) return json(body.after ? { rows: [{ key: "matching-two" }] } : { rows: [{ key: "matching-one" }], next: "matching-one" });
+    return json(body.after ? { rows: [{ key: "second" }] } : { rows: [{ key: "first" }], next: "first" });
+  });
+  await mount(AdminInventory, { contribution: page, refresh: 0, disabled: false });
+  await click(button("Next"));
+  assert.equal(calls.at(-1).after, "first");
+  await change(find('input[type="search"]'), "  matching  ");
+  await submit(find("form"));
+  assert.equal(calls.at(-1).search, "matching");
+  assert.equal(calls.at(-1).after, "");
+  assert.match(text(), /matching-one/);
+  assert.doesNotMatch(text(), /second/);
+  await click(button("Next"));
+  assert.equal(calls.at(-1).search, "matching");
+  assert.equal(calls.at(-1).after, "matching-one");
+  assert.match(text(), /matching-two/);
+  await click(button("Clear search"));
+  assert.equal(calls.at(-1).search, undefined);
+  assert.equal(calls.at(-1).after, "");
+  assert.match(text(), /first/);
+});
+
 test("model form enforces revisions and sends typed create and update fields", async () => {
   session();
   window.confirm = () => true;
