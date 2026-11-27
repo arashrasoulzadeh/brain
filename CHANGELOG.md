@@ -3,12 +3,20 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `6733ca7f` — 2026-11-27 14:12:19 +0330 — Merge pull request #25 from arashrasoulzadeh/fix/admin-model-revocation
+  Files: 
+- `4217b7ef` — 2026-11-27 14:12:11 +0330 — Reconcile verified model permission refresh with latest main
+  Files: 
+- `7a76ca89` — 2026-11-27 10:40:46 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `7c532baa` — 2026-11-27 14:06:38 +0330 — Merge pull request #15 from arashrasoulzadeh/refactor/rooms-games-pvp
   Files: 
 - `113650e3` — 2026-11-27 14:06:30 +0330 — Integrate current main before merging game separation and coverage improvements
   Files: 
 - `d509e68a` — 2026-11-27 10:29:05 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
+- `9fbc5c9d` — 2026-11-27 13:57:50 +0330 — Clear generated model records and selections on permission revocation
+  Files: admin-nextjs/app/components/model-panel.tsx,docs/admin-pages/extensions.md scripts/test-admin-browser.mjs
 - `4179edce` — 2026-11-27 13:55:33 +0330 — Verify session validation rejects malformed identities and ambiguous auth versions
   Files: tests/plugin/session_failure_test.go
 - `de04449a` — 2026-11-27 13:54:56 +0330 — Register broker fixture before installation
@@ -95,11 +103,3 @@ Automatically generated from commits on main.
   Files: .github/workflows/coverage.yml,tests/plugin/manifest_coverage_edges_test.go
 - `69e37aa3` — 2026-11-27 12:54:59 +0330 — Temporarily export locked Go test workspace for coverage debugging
   Files: .github/workflows/coverage.yml
-- `b100ad06` — 2026-11-27 12:53:47 +0330 — Exercise function lifecycle HTTP routes and sandbox rejection paths
-  Files: tests/admin/function_failure_coverage_test.go,tests/app/function_http_coverage_test.go
-- `f423f1e5` — 2026-11-27 12:52:15 +0330 — Capture packaged backend coverage on graceful service shutdown
-  Files: .github/workflows/coverage.yml,Dockerfile cmd/brain/main.go,cmd/brain/serve.go scripts/test-production-runtime.sh,tests/deploy/production_startup_test.go
-- `d4f6b960` — 2026-11-27 12:51:23 +0330 — Unify catalog, inventory and generated form layouts around compact panels
-  Files: admin-nextjs/app/components/admin-config-form.tsx,admin-nextjs/app/components/admin-inventory.tsx admin-nextjs/app/components/admin-renderer.tsx,admin-nextjs/app/components/admin-results.tsx admin-nextjs/app/components/model-panel.tsx,admin-nextjs/app/components/plugin-catalog-panel.tsx admin-nextjs/app/theme.css,docs/admin-pages/theme.md
-- `e6cb7f7b` — 2026-11-27 12:51:17 +0330 — Cover host transport and manifest validation boundaries and fix test type errors
-  Files: tests/auth/coverage-edges.test.ts,tests/plugin/manifest_coverage_edges_test.go tests/plugin/transport_coverage_edges_test.go
