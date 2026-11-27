@@ -1,4 +1,5 @@
 import "./styles.css";
+import "./theme.css";
 import type { ReactNode } from "react";
 import { ToastProvider } from "./components/toast-provider";
 import { AdminShell } from "./components/admin-shell";

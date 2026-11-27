@@ -485,3 +485,72 @@ func TestAccessManagementFunctionServiceCannotBypassRules(t *testing.T) {
 		t.Fatalf("public rule bypassed method check: %v", err)
 	}
 }
+
+func TestAdminInventoryRespectsOperatorResourceRules(t *testing.T) {
+	m, err := plugin.LoadManifest("../../plugins/files/plugin.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	r, storage := accessRegistry(t, m)
+	for _, project := range []string{"alpha", "beta"} {
+		installAccessTestPlugin(t, r, project, accessManifest(t), &contractWorker{ready: true})
+		installAccessTestPlugin(t, r, project, m, &contractWorker{ready: true})
+	}
+	for _, key := range []string{"a", "b", "c", "d", "*", " invalid"} {
+		if err := storage.PutFile("alpha", key, "content", false); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := storage.PutFile("beta", "foreign", "private", false); err != nil {
+		t.Fatal(err)
+	}
+	route, _ := m.Route("files.metadata")
+	query := plugin.WorkerRequest{Protocol: 1, ProjectID: "alpha", PluginID: m.ID, Version: m.Version, Operation: route.Operation, Payload: []byte(`{"key":"a"}`)}
+	if err := r.CheckAdminReadAsOperator(query, "root"); !errors.Is(err, plugin.ErrActorDenied) {
+		t.Fatalf("ungranted read check: %v", err)
+	}
+	allowRevision := createAccessRule(t, r, "alpha", "inventory-allow", "operator:root", m, route, "*", true)
+	if err := r.CheckAdminReadAsOperator(query, "root"); err != nil {
+		t.Fatal(err)
+	}
+	createAccessRule(t, r, "alpha", "inventory-deny", "operator:root", m, route, "b", false)
+	createAccessRule(t, r, "alpha", "inventory-other", "operator:other", m, route, "b", true)
+	read := func(actor, project, after string, limit int) plugin.AdminInventoryPage {
+		t.Helper()
+		page, err := r.AdminInventoryAsOperator(actor, project, m.ID, m.Version, "operations", after, limit)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return page
+	}
+	first := read("root", "alpha", "", 2)
+	if len(first.Rows) != 2 || first.Rows[0].Key != "a" || first.Rows[1].Key != "c" || first.Next != "c" {
+		t.Fatalf("filtered first page: %#v", first)
+	}
+	second := read("root", "alpha", first.Next, 2)
+	if len(second.Rows) != 1 || second.Rows[0].Key != "d" || second.Next != "" {
+		t.Fatalf("filtered second page: %#v", second)
+	}
+	if page := read("other", "alpha", "", 2); len(page.Rows) != 1 || page.Rows[0].Key != "b" || page.Next != "" {
+		t.Fatalf("wrong actor scope: %#v", page)
+	}
+	if page := read("root", "beta", "", 10); len(page.Rows) != 0 || page.Next != "" {
+		t.Fatalf("foreign project scope: %#v", page)
+	}
+	if err := r.GrantResource("alpha", m.ID, m.Version, route.Capability, "a"); err != nil {
+		t.Fatal(err)
+	}
+	if page := read("root", "alpha", "", 10); len(page.Rows) != 1 || page.Rows[0].Key != "a" {
+		t.Fatalf("installation resource intersection: %#v", page)
+	}
+	revokeAccessRule(t, r, "alpha", "inventory-allow", allowRevision)
+	if err := r.CheckAdminReadAsOperator(query, "root"); !errors.Is(err, plugin.ErrActorDenied) {
+		t.Fatalf("revoked read check: %v", err)
+	}
+	if page := read("root", "alpha", "", 10); len(page.Rows) != 0 {
+		t.Fatalf("revoked operator permission: %#v", page)
+	}
+	if _, err := r.AdminInventory("alpha", m.ID, m.Version, "operations", "", 10); !errors.Is(err, plugin.ErrActorDenied) {
+		t.Fatalf("unauthenticated inventory: %v", err)
+	}
+}

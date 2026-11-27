@@ -256,6 +256,19 @@ func (s *LifecycleService) AdminPageRevision(actor operator.Actor, pageID string
 	if err != nil {
 		return 0, err
 	}
+	// A displayed query must not outlive its exact resource permission, even
+	// when no plugin observation is emitted by a policy change.
+	if invocation.Operation != "" {
+		if !manifest.AdminReadOnly(pageID, invocation.Operation) {
+			return 0, plugin.ErrGrantDenied
+		}
+		if err := manifest.ValidateAdminPayload(pageID, invocation.Operation, invocation.Payload); err != nil {
+			return 0, err
+		}
+		if err := s.registry.CheckAdminReadAsOperator(plugin.WorkerRequest{Protocol: s.registry.HostAPI, ProjectID: invocation.ProjectID, PluginID: invocation.PluginID, Version: invocation.Version, Operation: invocation.Operation, Payload: invocation.Payload}, actor.ID); err != nil {
+			return 0, err
+		}
+	}
 	page, _ := manifest.AdminPageSpec(pageID)
 	return s.registry.AdminObservationRevision(invocation.ProjectID, page.RefreshOn), nil
 }
@@ -380,7 +393,7 @@ func (s *LifecycleService) AdminInventory(actor operator.Actor, pageID string, i
 			return err
 		}
 		var err error
-		result, err = s.registry.AdminInventory(invocation.ProjectID, invocation.PluginID, invocation.Version, pageID, after, limit)
+		result, err = s.registry.AdminInventoryAsOperator(actor.ID, invocation.ProjectID, invocation.PluginID, invocation.Version, pageID, after, limit)
 		return err
 	})
 	return result, err

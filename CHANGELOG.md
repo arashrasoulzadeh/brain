@@ -3,6 +3,36 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `9824af94` — 2026-11-27 13:11:02 +0330 — Merge pull request #17 from arashrasoulzadeh/fix/compose-node-runtime
+  Files: 
+- `45b52cd2` — 2026-11-27 09:38:17 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
+- `029e8746` — 2026-11-27 13:07:42 +0330 — Merge pull request #18 from arashrasoulzadeh/test/admin-browser-smoke
+  Files: 
+- `7f2ecef9` — 2026-11-27 13:05:09 +0330 — Resolve browser test paths at step execution time
+  Files: .github/workflows/admin-browser.yml
+- `fbbb0e69` — 2026-11-27 13:04:32 +0330 — Add production-build Chromium admin smoke tests and screenshots
+  Files: .github/workflows/admin-browser.yml,docs/admin-pages/theme.md scripts/test-admin-browser.mjs
+- `b52ce1a5` — 2026-11-27 13:03:34 +0330 — Install production-matched Node runtime in Go integration test image
+  Files: .github/workflows/test.yml,Dockerfile.test
+- `6fceee46` — 2026-11-27 09:33:06 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
+- `53f3a75b` — 2026-11-27 13:02:53 +0330 — Merge pull request #16 from arashrasoulzadeh/admin/compact-control-plane
+  Files: 
+- `d4f6b960` — 2026-11-27 12:51:23 +0330 — Unify catalog, inventory and generated form layouts around compact panels
+  Files: admin-nextjs/app/components/admin-config-form.tsx,admin-nextjs/app/components/admin-inventory.tsx admin-nextjs/app/components/admin-renderer.tsx,admin-nextjs/app/components/admin-results.tsx admin-nextjs/app/components/model-panel.tsx,admin-nextjs/app/components/plugin-catalog-panel.tsx admin-nextjs/app/theme.css,docs/admin-pages/theme.md
+- `c97e77a4` — 2026-11-27 12:50:16 +0330 — Test operator-only admin inspection, redaction and resource isolation
+  Files: tests/admin/admin-plugin-operations.test.ts
+- `963471ac` — 2026-11-27 12:49:13 +0330 — Add safe manifest admin pages for arena, invites, subscriptions and authentication
+  Files: docs/admin-pages/README.md,docs/admin-pages/extensions.md plugins/arena/plugin.yaml,plugins/auth/plugin.yaml plugins/auth/service.ts,plugins/invites/index.ts plugins/invites/plugin.yaml,plugins/sdk-typescript/src/index.ts plugins/sdk-typescript/src/validation.ts,plugins/subscriptions/index.ts plugins/subscriptions/plugin.yaml,plugins/subscriptions/routes.ts roadmap_admin.md,tests/invites/invite-routes.test.ts
+- `dc528e8b` — 2026-11-27 12:47:31 +0330 — Filter admin inventories using exact operator resource access rules
+  Files: docs/admin-pages/extensions.md,internal/admin/lifecycle.go internal/plugin/access_management.go,internal/plugin/admin_inventory.go internal/plugin/legacy_admin_inventory.go,roadmap_admin.md tests/plugin/access_management_test.go
+- `7e9b28e4` — 2026-11-27 12:46:26 +0330 — Polish responsive menu behavior and accessible content navigation
+  Files: admin-nextjs/app/components/admin-chrome.tsx,admin-nextjs/app/components/admin-shell.tsx admin-nextjs/app/lib/admin-menu.ts,admin-nextjs/app/page.tsx admin-nextjs/app/theme.css,roadmap_admin.md
+- `b4b2f4e8` — 2026-11-27 12:44:35 +0330 — Refresh admin with compact professional theme and dynamic navigation
+  Files: admin-nextjs/app/components/admin-chrome.tsx,admin-nextjs/app/components/admin-shell.tsx admin-nextjs/app/components/projects-panel.tsx,admin-nextjs/app/layout.tsx admin-nextjs/app/lib/admin-api.ts,admin-nextjs/app/lib/admin-menu.ts admin-nextjs/app/styles.css,admin-nextjs/app/theme.css docs/admin-pages/theme.md,tests/admin/admin-menu.test.ts tests/admin/admin-shell.test.ts
+- `6140113d` — 2026-11-27 00:28:59 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `174113c7` — 2026-11-27 03:57:22 +0330 — Merge pull request #12 from arashrasoulzadeh/feature/plugin-auth-context
   Files: 
 - `26ef6069` — 2026-11-27 03:56:57 +0330 — Merge current main and preserve coverage and actor assertions
@@ -73,33 +103,3 @@ Automatically generated from commits on main.
   Files: 
 - `4e35a0c7` — 2026-11-27 03:40:17 +0330 — Merge main and preserve central operator access policy in admin inventory
   Files: docs/admin-pages/extensions.md,internal/admin/lifecycle.go internal/plugin/admin_inventory.go,internal/plugin/admin_inventory_test.go plugins/files/plugin.yaml,plugins/matchmaking/plugin.yaml plugins/rooms/plugin.yaml,plugins/tables/plugin.yaml roadmap_admin.md
-- `7bcad09c` — 2026-11-27 03:40:14 +0330 — Reconcile storage hardening with access-management authorization
-  Files: internal/plugin/manifest.go,internal/plugin/registry_workers.go internal/plugin/route_resources_test.go,plugins/sdk-typescript/src/index.ts
-- `33423138` — 2026-11-27 00:09:34 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `904d0fef` — 2026-11-27 03:39:24 +0330 — Centralize project access management across plugins
-  Files: internal/admin/functions.go,internal/admin/lifecycle.go internal/plugin/access_management.go,internal/plugin/broker.go internal/plugin/manifest.go,internal/plugin/model_runtime.go internal/plugin/observations.go,internal/plugin/plugin_call.go internal/plugin/registry_workers.go,internal/plugin/worker.go plugins/README.md,plugins/access-management/README.md plugins/access-management/index.ts,plugins/access-management/plugin.yaml plugins/analytics/plugin.yaml,plugins/arena/plugin.yaml plugins/files/plugin.yaml,plugins/files/routes.ts plugins/functions/plugin.yaml,plugins/invites/plugin.yaml plugins/matchmaking/plugin.yaml,plugins/matchmaking/routes.ts plugins/rooms/plugin.yaml,plugins/rooms/routes.ts plugins/sdk-typescript/src/index.ts,plugins/sdk-typescript/src/request.ts plugins/subscriptions/plugin.yaml,plugins/tables/plugin.yaml tests/files/files.test.ts,tests/matchmaking/matchmaking.test.ts tests/plugin/access_management_test.go,tests/plugin/resource-request.test.ts tests/rooms/rooms.test.ts
-- `d6c635b4` — 2026-11-26 23:54:59 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `904d1014` — 2026-11-27 03:24:32 +0330 — Merge main formatting fix into storage hardening
-  Files: 
-- `94cca6f5` — 2026-11-27 03:24:21 +0330 — Fix gofmt alignment in declarative manifest test
-  Files: internal/plugin/manifest_declarative_test.go
-- `552c0381` — 2026-11-27 03:23:50 +0330 — Unify declared model CRUD and state transitions with dynamic admin pages
-  Files: admin-nextjs/app/components/admin-renderer.tsx,admin-nextjs/app/components/model-panel.tsx admin-nextjs/app/lib/admin-types.ts,admin-nextjs/app/plugins/[plugin]/page.tsx docs/admin-pages/extensions.md,roadmap_admin.md
-- `0368f2b8` — 2026-11-27 03:23:45 +0330 — Read table schema from durable storage and test direct route context
-  Files: docs/declarative-runtime.md,internal/plugin/legacy_storage_adapter.go internal/plugin/legacy_storage_adapter_test.go,plugins/tables/routes.ts tests/plugin/project-context.test.ts
-- `18d7a515` — 2026-11-27 03:23:27 +0330 — Generate operator admin pages automatically from declared model routes
-  Files: internal/admin/lifecycle.go,internal/plugin/admin_manifest.go internal/plugin/admin_model_pages.go,internal/plugin/admin_model_pages_test.go
-- `ecdeb920` — 2026-11-27 03:23:09 +0330 — Enforce manifest resource scope and forward context to direct exports
-  Files: internal/plugin/manifest.go,internal/plugin/registry_workers.go internal/plugin/route_resources.go,internal/plugin/route_resources_test.go plugins/files/plugin.yaml,plugins/matchmaking/plugin.yaml plugins/rooms/plugin.yaml,plugins/sdk-typescript/src/index.ts plugins/tables/plugin.yaml,scripts/typescript-worker.mjs tests/plugin/resource_scope_invoke_test.go
-- `43467eb1` — 2026-11-26 23:52:36 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `98db7bbc` — 2026-11-27 03:22:35 +0330 — Merge current main into storage hardening branch
-  Files: 
-- `7fbe5a89` — 2026-11-27 03:22:27 +0330 — Merge current main and connect inventories to new domain events
-  Files: internal/plugin/admin_inventory.go,plugins/files/plugin.yaml plugins/matchmaking/plugin.yaml,plugins/rooms/plugin.yaml plugins/tables/plugin.yaml
-- `61fae9b2` — 2026-11-27 03:21:53 +0330 — Merge current main and preserve declarative admin pages with plugin observations
-  Files: plugins/analytics/plugin.yaml,plugins/files/plugin.yaml plugins/functions/plugin.yaml,plugins/matchmaking/plugin.yaml plugins/rooms/plugin.yaml,plugins/tables/plugin.yaml
-- `c993ddd5` — 2026-11-27 03:21:46 +0330 — Merge pull request #7 from arashrasoulzadeh/dynamic-runtime-foundation
-  Files: 

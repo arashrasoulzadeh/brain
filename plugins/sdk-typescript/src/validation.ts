@@ -52,3 +52,10 @@ export function projectRoomID(projectId: string, roomId: string): string {
   validateProjectId(roomId, "invalid project room id");
   return `${projectId}:${roomId}`;
 }
+
+/** Require the effective host-verified operator and the admitted operation scope. */
+export function requireOperator(context: PluginContext | undefined, capability: string, resource = ""): PluginContext {
+  if (!context?.auth || context.auth.caller.kind !== "operator" || !context.auth.caller.authenticated ||
+      !context.auth.can(capability, resource)) throw new Error("operator authorization required");
+  return context;
+}

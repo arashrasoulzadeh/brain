@@ -1,6 +1,7 @@
 package plugin_test
 
 import (
+	"errors"
 	"testing"
 
 	"brain/internal/plugin"
@@ -31,11 +32,30 @@ func TestDeclaredPurePluginCallRequiresBothProjectGrants(t *testing.T) {
 		}
 	}
 	request := plugin.WorkerRequest{Protocol: 1, ProjectID: "alpha", PluginID: "source", Version: "1", Operation: "read", Payload: []byte("{}")}
+	if err := r.CheckAdminReadAsOperator(request, "root"); err != nil {
+		t.Fatalf("delegated read check failed: %v", err)
+	}
+	for _, invalid := range []struct {
+		request plugin.WorkerRequest
+		actor   string
+		want    error
+	}{
+		{request, "", plugin.ErrActorDenied},
+		{plugin.WorkerRequest{Protocol: 2}, "root", plugin.ErrInvalidWorkerRequest},
+		{plugin.WorkerRequest{Protocol: 1, ProjectID: "alpha", PluginID: "source", Version: "1", Operation: "missing", Payload: []byte("{}")}, "root", plugin.ErrGrantDenied},
+	} {
+		if err := r.CheckAdminReadAsOperator(invalid.request, invalid.actor); !errors.Is(err, invalid.want) {
+			t.Fatalf("invalid read check: %v, want %v", err, invalid.want)
+		}
+	}
 	if response, err := r.Invoke(request); err != nil || !response.Success {
 		t.Fatalf("delegation failed: %+v %v", response, err)
 	}
 	if err := r.Revoke("alpha", target.ID, target.Version, "read"); err != nil {
 		t.Fatal(err)
+	}
+	if err := r.CheckAdminReadAsOperator(request, "root"); err == nil {
+		t.Fatal("delegated read check bypassed target grant")
 	}
 	if _, err := r.Invoke(request); err == nil {
 		t.Fatal("delegation bypassed target grant")
