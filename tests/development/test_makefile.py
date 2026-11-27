@@ -46,10 +46,14 @@ class DevelopmentMakefileTest(unittest.TestCase):
         self.assertEqual(setup.returncode, 0, setup.stderr)
         self.assertIn("npm ci\n", setup.stdout)
         self.assertIn("npm --prefix admin-nextjs ci", setup.stdout)
-        for args in [("dev",), ("dev", "server", "admin")]:
+        stack = self.run_make("-n", "dev", "ADMIN_PORT=3100")
+        self.assertEqual(stack.returncode, 0, stack.stderr)
+        self.assertIn('ADMIN_PORT="3100"', stack.stdout)
+        self.assertIn("python3 scripts/dev-stack.py", stack.stdout)
+        for args in [("dev", "server", "admin")]:
             result = self.run_make(*args)
             self.assertNotEqual(result.returncode, 0)
-            self.assertIn("Usage: make dev server or make dev admin", result.stderr)
+            self.assertIn("Usage: make dev, make dev server, or make dev admin", result.stderr)
 
 
 if __name__ == "__main__":

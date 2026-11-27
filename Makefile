@@ -7,20 +7,26 @@ BRAIN_API_ORIGIN ?= http://127.0.0.1:18082
 .PHONY: help setup dev server admin
 
 ifneq ($(filter dev,$(MAKECMDGOALS)),)
+ifneq ($(filter server admin,$(MAKECMDGOALS)),)
 ifneq ($(words $(filter server admin,$(MAKECMDGOALS))),1)
-$(error Usage: make dev server or make dev admin)
+$(error Usage: make dev, make dev server, or make dev admin)
+endif
 endif
 endif
 
 help:
-	@printf '%s\n' 'make setup       Install server and admin Node dependencies' 'make dev server  Start the local Go server' 'make dev admin   Start the Next.js admin'
+	@printf '%s\n' 'make setup       Install server and admin Node dependencies' 'make dev         Start the local Go server and Next.js admin together' 'make dev server  Start only the local Go server' 'make dev admin   Start only the Next.js admin'
 
 setup:
 	npm ci
 	npm --prefix admin-nextjs ci
 
 dev:
+ifeq ($(filter server admin,$(MAKECMDGOALS)),)
+	ADMIN_HOST="$(ADMIN_HOST)" ADMIN_PORT="$(ADMIN_PORT)" BRAIN_API_ORIGIN="$(BRAIN_API_ORIGIN)" python3 scripts/dev-stack.py
+else
 	@:
+endif
 
 server:
 	bash scripts/start-local.sh
