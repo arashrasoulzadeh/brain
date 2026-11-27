@@ -50,12 +50,15 @@ func NewManifestMacOSTypeScriptWorker(launcher, workerScript, descriptor, plugin
 	profile.WriteString(`(version 1)
 (deny default)
 (allow process-fork)
-(allow signal (target children))
-(allow process-info* (target self))
+(allow signal (target same-sandbox))
+(allow process-info* (target same-sandbox))
 (allow sysctl-read)
 (allow file-read-metadata)
+; The dynamic loader and getcwd need access to the root directory itself.
+; A literal rule does not grant access to descendant files.
+(allow file-read* (literal "/"))
 (allow mach-lookup (global-name "com.apple.system.opendirectoryd.libinfo") (global-name "com.apple.system.logger") (global-name "com.apple.logd") (global-name "com.apple.system.notification_center") (global-name "com.apple.cfprefsd.agent") (global-name "com.apple.cfprefsd.daemon"))
-(allow file-read* file-map-executable (subpath "/System") (subpath "/private/preboot") (subpath "/private/var/db/dyld") (subpath "/private/var/db/timezone") (subpath "/usr/lib") (subpath "/usr/share") (literal "/dev/null") (literal "/dev/random") (literal "/dev/urandom") (literal "/private/etc/localtime") (literal "/private/etc/hosts") (literal "/private/etc/resolv.conf"))
+(allow file-read* file-map-executable (subpath "/System/Library") (subpath "/System/Cryptexes/OS") (subpath "/System/Cryptexes/App") (subpath "/System/Volumes/Preboot/Cryptexes/OS") (subpath "/System/Volumes/Preboot/Cryptexes/App/System") (subpath "/private/var/db/dyld") (subpath "/private/var/db/timezone") (subpath "/usr/lib") (subpath "/usr/share") (literal "/dev/null") (literal "/dev/random") (literal "/dev/urandom") (literal "/private/etc/localtime") (literal "/private/etc/hosts") (literal "/private/etc/resolv.conf"))
 (allow file-write-data (literal "/dev/null"))
 `)
 	// The package manager's installed libraries are read-only, not the
