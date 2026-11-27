@@ -72,6 +72,18 @@ func checkedRawIdentity(p project.Project, fields map[string]json.RawMessage) bo
 	return true
 }
 
+// AuthenticatedProjectCommandHandler authenticates before parsing input, so
+// unauthenticated callers never inspect command validation or project data.
+func AuthenticatedProjectCommandHandler(next http.Handler, sessions *operator.Store) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if _, authorized := operatorActorFromRequest(sessions, r); !authorized {
+			http.Error(w, "forbidden", http.StatusForbidden)
+			return
+		}
+		ProjectCommandHandler(next).ServeHTTP(w, r)
+	})
+}
+
 // ProjectCommandHandler binds the command's project ID to host-resolved context
 // before an existing operator or functions handler sees request JSON.
 func ProjectCommandHandler(next http.Handler) http.Handler {

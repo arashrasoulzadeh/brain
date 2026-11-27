@@ -100,6 +100,9 @@ func uniqueHTTPParameters(path string) bool {
 }
 
 func overlappingHTTPPaths(left, right string) bool {
+	if left == "/" || right == "/" {
+		return left == right
+	}
 	first, second := strings.Split(strings.Trim(left, "/"), "/"), strings.Split(strings.Trim(right, "/"), "/")
 	if len(first) != len(second) {
 		return false

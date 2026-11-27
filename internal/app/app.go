@@ -71,10 +71,10 @@ func NewServerWithOperatorAdmin(adminService *admin.LifecycleService, sessions *
 	mux.Handle("GET /_system/admin/system", AuthenticatedSystemHandler(adminService, sessions))
 	mux.Handle("POST /_system/admin/actions", AuthenticatedAdminHandler(adminService, sessions))
 
-	mux.Handle("POST /{project}/admin/actions", ProjectCommandHandler(AuthenticatedAdminHandler(adminService, sessions)))
+	mux.Handle("POST /{project}/admin/actions", AuthenticatedProjectCommandHandler(AuthenticatedAdminHandler(adminService, sessions), sessions))
 	mux.Handle("GET /{project}/admin/plugins", ProjectQueryHandler(AuthenticatedPluginsHandler(adminService, sessions)))
 	mux.Handle("GET /{project}/admin/functions", ProjectQueryHandler(AuthenticatedFunctionsHandler(adminService, sessions)))
-	mux.Handle("POST /{project}/admin/functions", ProjectCommandHandler(AuthenticatedFunctionsHandler(adminService, sessions)))
+	mux.Handle("POST /{project}/admin/functions", AuthenticatedProjectCommandHandler(AuthenticatedFunctionsHandler(adminService, sessions), sessions))
 	mux.Handle("GET /{project}/admin/function-logs", ProjectQueryHandler(AuthenticatedFunctionLogsHandler(adminService, sessions)))
 	mux.Handle("GET /{project}/admin/routes", AuthenticatedProjectRoutesHandler(adminService, sessions))
 	mux.Handle("/{project}/functions/{function_name}", PublicFunctionHandler(adminService))
