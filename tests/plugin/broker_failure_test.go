@@ -35,6 +35,9 @@ func TestBrokerCredentialIssuanceFailsClosed(t *testing.T) {
 		t.Fatalf("unregistered operation: %v", err)
 	}
 	m := plugin.Manifest{ID: "records", Version: "1", HostAPI: 1, Capabilities: []string{"read"}, Routes: []plugin.Route{{Operation: "read", Function: "read", Capability: "read"}}}
+	if err := b.Registry.Register(m); err != nil {
+		t.Fatal(err)
+	}
 	installAccessTestPlugin(t, b.Registry, "alpha", m, &contractWorker{ready: true})
 	failure := errors.New("entropy unavailable")
 	original := rand.Reader
