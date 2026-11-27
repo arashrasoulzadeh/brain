@@ -138,7 +138,6 @@ export default function AdminPage() {
     const current = projectRequests.begin(projectID, "catalog");
     if (!current) return;
     const valid = () => current() && readAdminSession() === token;
-    const query = projectID ? `?project_id=${encodeURIComponent(projectID)}` : "";
     try {
       const response = await fetch(projectAdminURL(projectID, "plugins"), { headers: adminHeaders(token) });
       if (!valid()) return;
@@ -244,7 +243,7 @@ export default function AdminPage() {
   }
   async function setProjectActive(project: Project, active: boolean) {
     if (!active && !window.confirm(`${text.deactivate} ${project.ID}?`)) return;
-    const response = await fetch("/api/admin/actions", {
+    const response = await fetch(systemAdminURL("actions"), {
       method: "POST",
       headers: adminHeaders(session, { "content-type": "application/json" }),
       body: JSON.stringify({
@@ -298,7 +297,7 @@ export default function AdminPage() {
       return;
     }
     setPlaygroundMessage("Executing through the host...");
-    const response = await fetch("/api/admin/actions", {
+    const response = await fetch(systemAdminURL("actions"), {
       method: "POST",
       headers: adminHeaders(session, { "content-type": "application/json" }),
       body: JSON.stringify({
@@ -340,7 +339,7 @@ export default function AdminPage() {
       return;
     }
     try {
-      const response = await fetch("/api/admin/actions", {
+      const response = await fetch(systemAdminURL("actions"), {
         method: "POST",
         headers: adminHeaders(session, { "content-type": "application/json" }),
         body: JSON.stringify({
@@ -400,7 +399,7 @@ export default function AdminPage() {
   async function uninstallProject(project: Project) {
     if (!window.confirm(`${text.uninstall} ${project.ID}?`)) return;
     setError("");
-    const response = await fetch("/api/admin/actions", {
+    const response = await fetch(systemAdminURL("actions"), {
       method: "POST",
       headers: adminHeaders(session, { "content-type": "application/json" }),
       body: JSON.stringify({
@@ -448,7 +447,7 @@ export default function AdminPage() {
       !window.confirm(`${operation} ${installation.PluginID}@${installation.Version}?`)
     )
       return;
-    const response = await fetch("/api/admin/actions", {
+    const response = await fetch(systemAdminURL("actions"), {
       method: "POST",
       headers: adminHeaders(session, { "content-type": "application/json" }),
       body: JSON.stringify({
@@ -491,7 +490,7 @@ export default function AdminPage() {
         manifest?.ConfigSchema?.[name] === "int" ? Number(value) : value,
       ]),
     );
-    const response = await fetch("/api/admin/actions", {
+    const response = await fetch(systemAdminURL("actions"), {
       method: "POST",
       headers: adminHeaders(session, { "content-type": "application/json" }),
       body: JSON.stringify({
@@ -513,7 +512,7 @@ export default function AdminPage() {
       setError("Select an active project first");
       return;
     }
-    const previewResponse = await fetch("/api/admin/actions", {
+    const previewResponse = await fetch(systemAdminURL("actions"), {
       method: "POST",
       headers: adminHeaders(session, { "content-type": "application/json" }),
       body: JSON.stringify({
@@ -537,7 +536,7 @@ export default function AdminPage() {
       )
     )
       return;
-    const applyResponse = await fetch("/api/admin/actions", {
+    const applyResponse = await fetch(systemAdminURL("actions"), {
       method: "POST",
       headers: adminHeaders(session, { "content-type": "application/json" }),
       body: JSON.stringify({

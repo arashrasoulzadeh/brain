@@ -22,7 +22,7 @@ export async function invokeAdminAction(token: string, contribution: AdminContri
 }
 
 export async function adminPageRevision(token: string, contribution: AdminContribution, signal: AbortSignal, scope?: { operation: string; payload: unknown }): Promise<number> {
-  const response = await fetch("/api/admin/actions", {
+  const response = await fetch(projectAdminURL(contribution.projectID, "actions"), {
     method: "POST",
     headers: adminHeaders(token, { "content-type": "application/json" }),
     signal,
@@ -37,7 +37,7 @@ export async function adminPageRevision(token: string, contribution: AdminContri
 }
 
 export async function fetchAdminInventory(token: string, contribution: AdminContribution, after: string, signal: AbortSignal, quiet = false): Promise<AdminInventoryPage> {
-  const response = await fetch("/api/admin/actions", {
+  const response = await fetch(projectAdminURL(contribution.projectID, "actions"), {
     method: "POST",
     headers: adminHeaders(token, { "content-type": "application/json", ...(quiet ? { "x-brain-quiet": "1" } : {}) }),
     signal,

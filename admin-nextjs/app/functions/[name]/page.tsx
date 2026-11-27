@@ -154,7 +154,7 @@ export default function FunctionDetailPage() {
     setMessage("Saving source and publishing…");
     try {
       const headers = adminHeaders(session, { "content-type": "application/json" });
-      const update = await fetch("/api/admin/functions", {
+      const update = await fetch(projectAdminURL(project, "functions"), {
         method: "POST",
         headers,
         body: JSON.stringify({
@@ -169,7 +169,7 @@ export default function FunctionDetailPage() {
         setMessage((await update.text()) || `Source save failed (${update.status}).`);
         return;
       }
-      const response = await fetch("/api/admin/functions", {
+      const response = await fetch(projectAdminURL(project, "functions"), {
         method: "POST",
         headers,
         body: JSON.stringify({
@@ -223,7 +223,7 @@ export default function FunctionDetailPage() {
     setValidating(true);
     setValidationMessage("");
     try {
-      const response = await fetch("/api/admin/functions", {
+      const response = await fetch(projectAdminURL(project, "functions"), {
         method: "POST",
         headers: adminHeaders(session, { "content-type": "application/json" }),
         body: JSON.stringify({
@@ -256,7 +256,7 @@ export default function FunctionDetailPage() {
     }
     setPublishing(true);
     try {
-      const response = await fetch("/api/admin/functions", {
+      const response = await fetch(projectAdminURL(project, "functions"), {
         method: "POST",
         headers: adminHeaders(session, { "content-type": "application/json" }),
         body: JSON.stringify({
