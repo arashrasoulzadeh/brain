@@ -143,7 +143,7 @@ func TestLowLevelProtocolAndHandshakeRejections(t *testing.T) {
 	if res.Code != http.StatusMethodNotAllowed {
 		t.Fatalf("wrong method: %d", res.Code)
 	}
-	req = httptest.NewRequest(http.MethodPost, "/", strings.NewReader(`{"protocol":1,"service":"sample","projectId":"alpha"} {}`))
+	req = httptest.NewRequest(http.MethodPost, "/", strings.NewReader(`{"protocol":1,"serviceId":"sample","projectId":"alpha","pluginId":"sample","version":"1"} {}`))
 	res = httptest.NewRecorder()
 	handler.ServeHTTP(res, req)
 	if res.Code != http.StatusUnauthorized {

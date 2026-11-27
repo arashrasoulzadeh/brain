@@ -61,6 +61,7 @@ func main() {
 		if err := serveHTTP(cfg.HTTPAddress, app.NewServer().Handler()); err != nil {
 			log.Fatal(err)
 		}
+		return
 	}
 	server, err := productionServer()
 	if err != nil {
