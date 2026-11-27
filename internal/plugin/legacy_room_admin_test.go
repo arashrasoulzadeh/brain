@@ -54,3 +54,64 @@ func TestRoomAdminMembershipAndClosure(t *testing.T) {
 		t.Fatalf("room inventory: %+v %v", page, err)
 	}
 }
+
+func TestRoomAdminClosureRejectsPreviouslyPlannedWrites(t *testing.T) {
+	s := coverageStorage(t)
+	plan := func(op, payload string) (func() error, error) {
+		_, commit, err := prepareLegacyStorageRequest(s, WorkerRequest{ProjectID: "alpha", PluginID: "rooms", Operation: op, Payload: []byte(payload)})
+		return commit, err
+	}
+	create, err := plan("rooms.create", `{"id":"r"}`)
+	if err != nil || create == nil {
+		t.Fatal(err)
+	}
+	if err := create(); err != nil {
+		t.Fatal(err)
+	}
+	for _, invalid := range []struct {
+		payload string
+		want    error
+	}{
+		{`{"id":"r","member":""}`, ErrInvalidWorkerRequest},
+		{`{"id":"r","member":" a "}`, ErrInvalidWorkerRequest},
+		{`{"id":"r","member":"missing"}`, ErrStoredResourceMissing},
+	} {
+		if commit, err := plan("rooms.admin.remove-member", invalid.payload); commit != nil || !errors.Is(err, invalid.want) {
+			t.Fatalf("invalid removal: %v", err)
+		}
+	}
+	var pending []func() error
+	for _, item := range []struct{ op, payload string }{
+		{"rooms.create", `{"id":"r"}`},
+		{"rooms.join", `{"id":"r","member":"late"}`},
+		{"rooms.reconnect", `{"id":"r","member":"late"}`},
+		{"rooms.result", `{"id":"r","result":1}`},
+	} {
+		commit, err := plan(item.op, item.payload)
+		if err != nil || commit == nil {
+			t.Fatal(err)
+		}
+		pending = append(pending, commit)
+	}
+	closeRoom, err := plan("rooms.admin.close", `{"id":"r"}`)
+	if err != nil || closeRoom == nil {
+		t.Fatal(err)
+	}
+	if err := closeRoom(); err != nil {
+		t.Fatal(err)
+	}
+	for _, commit := range pending {
+		if err := commit(); !errors.Is(err, ErrModelConflict) {
+			t.Fatalf("stale room write after closure: %v", err)
+		}
+	}
+	state, err := s.State("alpha", "rooms", "r")
+	if err != nil || state["closed"] != true || len(state["members"].([]any)) != 0 || state["result"] != nil {
+		t.Fatalf("closed room overwritten: %+v %v", state, err)
+	}
+	for _, op := range []string{"rooms.admin.close", "rooms.admin.remove-member"} {
+		if _, commit, err := prepareLegacyStorageRequest(nil, WorkerRequest{PluginID: "rooms", Operation: op}); commit != nil || !errors.Is(err, ErrStoredResourceMissing) {
+			t.Fatalf("missing durable room storage admitted %s: %v", op, err)
+		}
+	}
+}

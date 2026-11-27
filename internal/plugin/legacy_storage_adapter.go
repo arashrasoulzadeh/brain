@@ -1,6 +1,7 @@
 package plugin
 
 import (
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"strings"
@@ -208,18 +209,30 @@ func prepareLegacyStorageEffect(storage *SQLiteStorage, request WorkerRequest) (
 		}
 		payload["ticket"] = state
 	case "rooms":
-		state, err := storage.State(request.ProjectID, "rooms", key)
-		if err != nil {
+		// Freeze the stored bytes. Even a second host process must not be able
+		// to overwrite a closure with a previously planned join or result.
+		var previous string
+		err := storage.db.QueryRow(`SELECT value_json FROM plugin_state WHERE project_id=? AND namespace='rooms' AND state_key=?`, request.ProjectID, key).Scan(&previous)
+		if err != nil && !errors.Is(err, sql.ErrNoRows) {
 			return request, nil, err
 		}
+		exists := err == nil
+		var state map[string]any
+		if exists {
+			if err := json.Unmarshal([]byte(previous), &state); err != nil {
+				return request, nil, err
+			}
+			if state == nil {
+				return request, nil, ErrModelSchema
+			}
+		}
+		changed := false
 		if request.Operation == "rooms.create" {
 			if state != nil && state["closed"] == true {
 				return request, nil, ErrRoomClosed
 			}
 			state = map[string]any{"id": key, "members": []any{}}
-			commit = func(db sqliteExecutor) error {
-				return putSQLiteState(db, request.ProjectID, "rooms", key, state)
-			}
+			changed = true
 		}
 		if state == nil {
 			return request, nil, ErrStoredResourceMissing
@@ -254,9 +267,7 @@ func prepareLegacyStorageEffect(storage *SQLiteStorage, request WorkerRequest) (
 				state["members"] = remaining
 				payload["member"] = member
 			}
-			commit = func(db sqliteExecutor) error {
-				return putSQLiteState(db, request.ProjectID, "rooms", key, state)
-			}
+			changed = true
 		}
 		if request.Operation == "rooms.join" || request.Operation == "rooms.reconnect" {
 			member, _ := input["member"].(string)
@@ -276,17 +287,22 @@ func prepareLegacyStorageEffect(storage *SQLiteStorage, request WorkerRequest) (
 				members = append(members, member)
 			}
 			state["members"] = members
-			commit = func(db sqliteExecutor) error {
-				return putSQLiteState(db, request.ProjectID, "rooms", key, state)
-			}
+			changed = true
 		}
 		if request.Operation == "rooms.result" {
 			if value, ok := input["result"]; ok {
 				state["result"] = value
 				payload["result"] = value
-				commit = func(db sqliteExecutor) error {
-					return putSQLiteState(db, request.ProjectID, "rooms", key, state)
-				}
+				changed = true
+			}
+		}
+		if changed {
+			next, err := json.Marshal(state)
+			if err != nil {
+				return request, nil, err
+			}
+			commit = func(db sqliteExecutor) error {
+				return compareAndSwapPluginState(db, request.ProjectID, "rooms", key, previous, exists, string(next))
 			}
 		}
 		payload["room"] = state
