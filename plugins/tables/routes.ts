@@ -52,5 +52,10 @@ export function write(input: unknown, context?: PluginContext): TableWrite {
 
 export function schema(input: unknown): TableSchema {
   const payload = (input ?? {}) as TableInput;
-  return tableStore.execute("schema", requiredString(payload.table, "table is required")) as TableSchema;
+  const table = requiredString(payload.table, "table is required");
+  if (Array.isArray(payload.rows)) {
+    const columns = [...new Set(payload.rows.flatMap((row) => row && typeof row === "object" && !Array.isArray(row) ? Object.keys(row) : []))].sort();
+    return { table, columns };
+  }
+  return tableStore.execute("schema", table) as TableSchema;
 }

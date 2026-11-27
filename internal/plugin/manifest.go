@@ -127,7 +127,7 @@ func ValidateManifestContract(manifest Manifest) error {
 		if (route.Helper == "host.call" && !route.Call.valid(manifest, route.Capability)) || (route.Helper != "host.call" && route.Call != nil) {
 			return ErrInvalidManifest
 		}
-		if route.ResourceField != "" && (!validResponseKey(route.ResourceField) || route.Model != nil) {
+		if route.ResourceField != "" && (!validResponseKey(route.ResourceField) || route.Model != nil || route.Call != nil) {
 			return ErrInvalidManifest
 		}
 		seenRoutes[route.Operation] = true

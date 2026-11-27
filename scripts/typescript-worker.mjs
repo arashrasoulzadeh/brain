@@ -96,7 +96,7 @@ for await (const line of input) {
 
 async function invokeDeclaredRoute(plugin, functionName, request) {
   const directExport = plugin[functionName];
-  if (typeof directExport === "function") return directExport(request.params.payload ?? null);
+  if (typeof directExport === "function") return directExport(request.params.payload ?? null, request.context);
   const functionMap = typeof plugin.functions === "function" ? plugin.functions() : null;
   const mappedExport = functionMap?.[functionName];
   if (functionMap && Object.hasOwn(functionMap, functionName) && typeof mappedExport === "function") return mappedExport(request, request.context);
