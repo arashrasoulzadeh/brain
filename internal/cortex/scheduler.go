@@ -219,16 +219,13 @@ func (s *Scheduler) selectLocked(req execution.Request) *Session {
 
 // Earlier compatible queued work gets first claim on capacity; incompatible
 // or quota-blocked head entries do not stall the whole queue.
-func (s *Scheduler) earlierReadyLocked(target *waiter) bool {
+func (s *Scheduler) firstReadyLocked() *waiter {
 	for _, w := range s.queue {
-		if w == target {
-			break
-		}
 		if s.selectLocked(w.request) != nil {
-			return true
+			return w
 		}
 	}
-	return false
+	return nil
 }
 
 func (s *Scheduler) removeWaiterLocked(w *waiter) {
@@ -274,7 +271,7 @@ func (s *Scheduler) Execute(ctx context.Context, req execution.Request) (executi
 			return execution.Result{}, ErrDuplicateExecution
 		}
 		w := s.selectLocked(req)
-		if w != nil && !s.earlierReadyLocked(queued) {
+		if first := s.firstReadyLocked(); w != nil && (first == nil || first == queued) {
 			if queued != nil {
 				s.removeWaiterLocked(queued)
 			}
