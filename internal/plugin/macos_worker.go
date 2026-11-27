@@ -67,6 +67,11 @@ func newManifestMacOSTypeScriptWorker(platform, launcher, workerScript, descript
 (allow file-read* file-map-executable (subpath "/System/Library") (subpath "/System/Cryptexes/OS") (subpath "/System/Cryptexes/App") (subpath "/System/Volumes/Preboot/Cryptexes/OS") (subpath "/System/Volumes/Preboot/Cryptexes/App/System") (subpath "/private/var/db/dyld") (subpath "/private/var/db/timezone") (subpath "/usr/lib") (subpath "/usr/share") (literal "/dev/null") (literal "/dev/random") (literal "/dev/urandom") (literal "/private/etc/localtime") (literal "/private/etc/hosts") (literal "/private/etc/resolv.conf"))
 (allow file-write-data (literal "/dev/null"))
 `)
+	// Darwin getcwd reads directory entries along the canonical working path.
+	// Literal directory rules permit traversal without reading descendant files.
+	for directory := pluginRoot; directory != string(filepath.Separator); directory = filepath.Dir(directory) {
+		fmt.Fprintf(&profile, "(allow file-read-data (literal %s))\\n", strconv.Quote(directory))
+	}
 	// The package manager's installed libraries are read-only, not the
 	// user's home or arbitrary project directories.
 	for _, directory := range []string{"/opt/homebrew/Cellar", "/opt/homebrew/opt", "/usr/local/Cellar", "/usr/local/opt", "/usr/local/lib"} {
