@@ -95,6 +95,7 @@ routes:
         - name: name
           type: string
           required: true
+          error: function name is required
       output:
         name: $input.name
   - operation: functions.logs
@@ -107,6 +108,7 @@ routes:
         - name: name
           type: string
           required: true
+          error: function name is required
       output:
         name: $input.name
 admin:
