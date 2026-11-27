@@ -65,7 +65,7 @@ func checkedRawIdentity(p project.Project, fields map[string]json.RawMessage) bo
 			continue
 		}
 		var value string
-		if json.Unmarshal(raw, &value) != nil || value != p.ID && value != p.Slug {
+		if json.Unmarshal(raw, &value) != nil || value == "" || value != p.ID && value != p.Slug {
 			return false
 		}
 	}
