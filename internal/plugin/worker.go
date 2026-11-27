@@ -20,6 +20,7 @@ type WorkerRequest struct {
 
 	// Set only by trusted host entry points; never serialized to a worker.
 	accessPrincipal string
+	originPrincipal string
 }
 
 type WorkerResponse struct {
@@ -62,12 +63,25 @@ func InvokeWithCredential(broker *Broker, credential InvocationCredential, worke
 	if broker.Registry != nil && broker.Registry.accessInstalled(request.ProjectID) {
 		return broker.Registry.InvokeWithCredential(broker, credential, request, now)
 	}
+	if broker.Registry == nil {
+		return WorkerResponse{}, ErrRegistryUnavailable
+	}
+	if err := broker.Registry.validateCredentialResource(request, credential.Call); err != nil {
+		return WorkerResponse{}, err
+	}
 	if err := broker.CommitCredential(credential, now); err != nil {
 		return WorkerResponse{}, err
 	}
 	if broker.Registry != nil && broker.Registry.accessInstalled(request.ProjectID) {
 		return WorkerResponse{}, ErrActorDenied
 	}
+	request.accessPrincipal = "user:" + credential.Call.ActorID
+	request.originPrincipal = ""
+	hostContext, err := broker.Registry.invocationContext(request, false)
+	if err != nil {
+		return WorkerResponse{}, err
+	}
+	request.HostContext = hostContext
 	return InvokeForProject(worker, request, protocol, credential.Call.ProjectID)
 }
 

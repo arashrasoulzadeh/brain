@@ -14,8 +14,18 @@ type PipelineStep struct {
 	Save   string `yaml:"save" json:"save"`
 }
 
+func authReference(value string) bool {
+	switch value {
+	case "$auth.actor.id", "$auth.actor.kind", "$auth.actor.authenticated", "$auth.actor.level",
+		"$auth.caller.id", "$auth.caller.kind", "$auth.caller.authenticated", "$auth.caller.level":
+		return true
+	default:
+		return false
+	}
+}
+
 func pipelineReference(value string, available map[string]bool) bool {
-	if value == "$project.id" || value == "$plugin.id" {
+	if value == "$project.id" || value == "$plugin.id" || authReference(value) {
 		return true
 	}
 	parts := strings.Split(value, ".")

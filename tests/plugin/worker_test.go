@@ -44,14 +44,22 @@ func TestInvokeWithCredentialBindsProductionWorkerRequest(t *testing.T) {
 	if response, err := plugin.InvokeWithCredential(b, credential, worker, request, 1, now); err != nil || !response.Success {
 		t.Fatalf("valid credential invocation = %#v, %v", response, err)
 	}
+	ctx := worker.last.HostContext
+	if ctx == nil || ctx.Auth.Actor.ID != "actor" || ctx.Auth.Actor.Kind != "user" || !ctx.Auth.Actor.Authenticated || ctx.Auth.Caller != ctx.Auth.Actor || len(ctx.Auth.Permissions) != 1 || ctx.Auth.Permissions[0].Capability != "read" {
+		t.Fatalf("missing trusted credential context: %+v", ctx)
+	}
 }
 
-type countingWorker struct{ calls int }
+type countingWorker struct {
+	calls int
+	last  plugin.WorkerRequest
+}
 
 func (w *countingWorker) Start() error { return nil }
 func (w *countingWorker) Stop() error  { return nil }
 func (w *countingWorker) Ready() bool  { return true }
-func (w *countingWorker) Handle(plugin.WorkerRequest) plugin.WorkerResponse {
+func (w *countingWorker) Handle(request plugin.WorkerRequest) plugin.WorkerResponse {
+	w.last = request
 	w.calls++
 	return plugin.WorkerResponse{Protocol: 1, Success: true}
 }

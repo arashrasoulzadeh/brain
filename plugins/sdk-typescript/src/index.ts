@@ -20,7 +20,27 @@ export type RpcRequest = {
 
 export type ProjectContext = Readonly<{ id: string; active?: true }>;
 
+export type InvocationActor = Readonly<{
+  kind: "user" | "operator" | "plugin" | "host" | "public";
+  id: string;
+  authenticated: boolean;
+  level: "authenticated" | "system" | "anonymous";
+}>;
+
+export type InvocationPermission = Readonly<{ capability: string; operation: string; resource: string }>;
+
+export type InvocationAuth = Readonly<{
+  /** Original actor, for attribution and behavior; not a delegated grant. */
+  actor: InvocationActor;
+  /** Effective principal checked by the host for the current operation. */
+  caller: InvocationActor;
+  permissions: readonly InvocationPermission[];
+  can: (capability: string, resource?: string) => boolean;
+}>;
+
 export type PluginContext = Readonly<{
+  /** Always supplied by the production worker; optional for legacy local fixtures. */
+  auth?: InvocationAuth;
   project: ProjectContext;
   plugin: Readonly<{ id: string; version: string }>;
   execution: Readonly<{ operation: string; invocationId?: string }>;
