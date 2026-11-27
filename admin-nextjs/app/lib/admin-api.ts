@@ -2,6 +2,28 @@ const SESSION_KEY = "brain-admin-session";
 const PROJECT_KEY = "brain-admin-project";
 export const ADMIN_PROJECT_CHANGED = "brain:project-changed";
 
+// The sole URL contract for the Next.js control plane and project APIs.
+export function systemAdminURL(resource: string): string {
+  if (!/^[a-z][a-z0-9/-]*$/.test(resource) || resource.includes("..") || resource.includes("//")) {
+    throw new Error("invalid admin resource");
+  }
+  return `/_system/admin/${resource}`;
+}
+
+export function projectAdminURL(project: string, resource: string): string {
+  if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(project) || project === "_system" ||
+      !/^[a-z][a-z0-9/-]*$/.test(resource) || resource.includes("..") || resource.includes("//")) {
+    throw new Error("invalid project API URL");
+  }
+  return `/${encodeURIComponent(project)}/admin/${resource}`;
+}
+
+export function selectedProjectAdminURL(resource: string): string {
+  const project = window.sessionStorage.getItem(PROJECT_KEY);
+  if (!project) throw new Error("select a project before using its API");
+  return projectAdminURL(project, resource);
+}
+
 export function readAdminSession(): string {
   return window.sessionStorage.getItem(SESSION_KEY) ?? "";
 }
@@ -21,7 +43,7 @@ export function adminHeaders(token: string, extra: Record<string, string> = {}):
 
 export async function revokeAdminSession(token: string, request: typeof fetch = fetch): Promise<void> {
   if (!token) return;
-  await request("/api/admin/session", { method: "DELETE", headers: adminHeaders(token) });
+  await request(systemAdminURL("session"), { method: "DELETE", headers: adminHeaders(token) });
 }
 
 export async function signOutAdminSession(): Promise<void> {
