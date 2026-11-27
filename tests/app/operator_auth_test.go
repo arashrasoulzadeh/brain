@@ -43,7 +43,7 @@ func TestAdminRoutesRequireBearerScheme(t *testing.T) {
 	if err := registry.Enable("dev", manifest.ID, manifest.Version); err != nil {
 		t.Fatal(err)
 	}
-	service := admin.NewLifecycleServiceWithProjects(operators, registry, project.NewStore(project.Project{ID:"dev",Active:true}))
+	service := admin.NewLifecycleServiceWithProjects(operators, registry, project.NewStore(project.Project{ID: "dev", Active: true}))
 	handler := app.NewServerWithOperatorAdmin(service, operators, digest).Handler()
 
 	routes := []struct {
