@@ -3,8 +3,20 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `048b932a` — 2026-11-27 20:50:06 +0330 — Merge pull request #44 from arashrasoulzadeh/feat/plugin-action-dialogs
+  Files: 
+- `35136672` — 2026-11-27 20:49:32 +0330 — Merge main and preserve session-expiry and plugin dialog regression tests; align plugin admin documentation
+  Files: docs/admin-pages/README.md,docs/admin-pages/files.md docs/admin-pages/plugin-detail.md,scripts/test-admin-browser.mjs
+- `385259dd` — 2026-11-27 17:19:00 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `1544e17b` — 2026-11-27 20:48:49 +0330 — Merge pull request #43 from arashrasoulzadeh/fix/admin-expired-session-layout
   Files: 
+- `42ff350a` — 2026-11-27 20:26:07 +0330 — Persist file metadata and complete per-project plugin management audit
+  Files: admin-nextjs/app/components/admin-config-form.tsx,admin-nextjs/app/components/admin-file-controls.tsx admin-nextjs/app/components/admin-inventory.tsx,admin-nextjs/app/components/admin-renderer.tsx admin-nextjs/app/lib/admin-types.ts,admin-nextjs/app/plugins/[plugin]/view.tsx internal/plugin/admin_inventory.go,internal/plugin/file_metadata.go internal/plugin/file_metadata_test.go,internal/plugin/legacy_admin_inventory.go internal/plugin/legacy_storage_adapter.go,internal/plugin/manifest.go internal/plugin/plugin.go,internal/plugin/registry_catalog.go internal/plugin/sqlite_storage.go,plugins/access-management/plugin.yaml plugins/analytics/plugin.yaml,plugins/arena/plugin.yaml plugins/auth/plugin.yaml,plugins/dashboard/plugin.yaml plugins/files/plugin.yaml,plugins/files/routes.ts plugins/functions/plugin.yaml,plugins/invites/plugin.yaml plugins/matchmaking/plugin.yaml,plugins/rooms/plugin.yaml plugins/subscriptions/plugin.yaml,plugins/tables/plugin.yaml plugins/template/plugin.yaml,scripts/test-admin-live.mjs
+- `10ff7ca7` — 2026-11-27 20:16:54 +0330 — Use dialogs for management lifecycle actions and finish compatibility fixes
+  Files: admin-nextjs/app/components/admin-file-controls.tsx,admin-nextjs/app/plugins/[plugin]/view.tsx internal/plugin/registry_catalog.go
+- `654fb5f0` — 2026-11-27 20:16:20 +0330 — Use shared plugin action dialogs and project-scoped management settings
+  Files: admin-nextjs/app/components/admin-config-form.tsx,admin-nextjs/app/components/admin-dialog.tsx admin-nextjs/app/components/admin-file-controls.tsx,admin-nextjs/app/components/admin-renderer.tsx admin-nextjs/app/components/model-panel.tsx,admin-nextjs/app/components/plugin-manage-link.tsx admin-nextjs/app/functions/view.tsx,admin-nextjs/app/lib/admin-registry.ts admin-nextjs/app/lib/admin-types.ts,admin-nextjs/app/plugins/[plugin]/view.tsx admin-nextjs/app/theme.css,docs/admin-pages/extensions.md docs/admin-pages/files.md,docs/admin-pages/plugin-detail.md internal/plugin/file_upload_limit.go,internal/plugin/file_upload_limit_test.go internal/plugin/plugin.go,internal/plugin/registry_catalog.go internal/plugin/registry_permissions.go,internal/plugin/registry_workers.go plugins/files/plugin.yaml,scripts/test-admin-browser.mjs scripts/test-admin-live.mjs
 - `d1de78bb` — 2026-11-27 20:11:09 +0330 — Invalidate expired admin sessions centrally and show standalone login without protected shell
   Files: admin-nextjs/app/components/admin-shell.tsx,admin-nextjs/app/components/toast-provider.tsx admin-nextjs/app/lib/admin-api.ts,admin-nextjs/app/lib/admin-session-response.ts admin-nextjs/app/plugins/[plugin]/view.tsx,admin-nextjs/app/view.tsx admin-nextjs/app/workers/view.tsx,docs/admin-pages/login.md scripts/test-admin-browser.mjs,tests/admin/admin-session-response.test.ts
 - `887ace77` — 2026-11-27 16:37:47 +0000 — docs: update changelog [skip ci]
@@ -91,15 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `8bf6cb5c` — 2026-11-27 18:34:14 +0330 — Merge pull request #40 from arashrasoulzadeh/fix/macos-homebrew-openssl
   Files: 
-- `03f401b1` — 2026-11-27 18:33:23 +0330 — Correct Homebrew isolation CI step formatting
-  Files: .github/workflows/test.yml
-- `c80d4a0e` — 2026-11-27 18:33:02 +0330 — Fix native macOS worker startup with Homebrew OpenSSL
-  Files: .github/workflows/test.yml,internal/plugin/macos_profile_coverage_test.go internal/plugin/macos_worker.go
-- `421f3c29` — 2026-11-27 18:25:52 +0330 — Migrate transport coverage to project WebSocket route and reject legacy URL
-  Files: tests/plugin/transport_coverage_edges_test.go
-- `8ec51d35` — 2026-11-27 18:24:17 +0330 — Fix HTTP router build and document project WebSocket boundary
-  Files: docs/http-api.md,internal/app/app.go
-- `d9e9c74a` — 2026-11-27 18:22:52 +0330 — Merge current main into project routing; preserve macOS fixes and migrate CI probes
-  Files: .github/workflows/test.yml,CHANGELOG.md
-- `eab67f5c` — 2026-11-27 18:05:34 +0330 — fix: distinguish root routes from parameters and authorize before command parsing
-  Files: internal/app/app.go,internal/app/project_http.go internal/plugin/manifest_http.go
