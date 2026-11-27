@@ -84,7 +84,12 @@ func TestProjectHTTPRoutesResolveInstallationsAndNeverTrustClientProject(t *test
 	}{
 		{"GET", "/alpha/rooms", token, "", 200, "immutable-alpha"},
 		{"GET", "/alpha/rooms/room-1", token, "", 200, "room-1"},
-		{"GET", "/alpha/admin/routes", token, "", 200, "rooms.read"},
+		{"GET", "/alpha/admin/routes", token, "", 200, `"/alpha/rooms/{id}"`},
+		{"GET", "/immutable-alpha/admin/routes", token, "", 200, `"/alpha/rooms/{id}"`},
+		{"GET", "/immutable-alpha/rooms/room-1", token, "", 200, "immutable-alpha"},
+		{"GET", "/beta/admin/routes", token, "", 200, "[]"},
+		{"GET", "/inactive/admin/routes", token, "", 403, ""},
+		{"GET", "/_system/rooms", token, "", 404, ""},
 		{"GET", "/alpha/admin/routes", "", "", 403, ""},
 		{"GET", "/beta/rooms", token, "", 404, ""},
 		{"GET", "/inactive/rooms", token, "", 403, ""},

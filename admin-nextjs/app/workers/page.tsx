@@ -1,5 +1,5 @@
 "use client";
-import { adminHeaders, readAdminSession, preferredAdminProject, clearAdminSession, signOutAdminSession } from "../lib/admin-api";
+import { adminHeaders, readAdminSession, preferredAdminProject, clearAdminSession, signOutAdminSession, projectAdminURL, systemAdminURL } from "../lib/admin-api";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -15,13 +15,13 @@ export default function WorkersPage() {
   const [message, setMessage] = useState("");
 
   async function load(token: string) {
-    const projectsResponse = await fetch("/api/admin/projects", { headers: adminHeaders(token) });
+    const projectsResponse = await fetch(systemAdminURL("projects"), { headers: adminHeaders(token) });
     if (!projectsResponse.ok) throw new Error("session expired");
     const projects = await projectsResponse.json() as { ID: string; Active: boolean }[];
     const activeProject = preferredAdminProject(projects)?.ID ?? "";
     setProject(activeProject);
-    if (!activeProject) return;
-    const pluginsResponse = await fetch(`/api/admin/plugins?project_id=${encodeURIComponent(activeProject)}`, { headers: adminHeaders(token) });
+    if (!activeProject) { setWorkers([]); return; }
+    const pluginsResponse = await fetch(projectAdminURL(activeProject, "plugins"), { headers: adminHeaders(token) });
     if (!pluginsResponse.ok) throw new Error("worker status unavailable");
     setWorkers((await pluginsResponse.json() as { installations: Installation[] }).installations);
   }
@@ -34,7 +34,8 @@ export default function WorkersPage() {
   }, [router]);
 
   async function spinUp(worker: Installation) {
-    const response = await fetch("/api/admin/actions", { method: "POST", headers: adminHeaders(session, { "content-type": "application/json" }), body: JSON.stringify({ operation: "plugin.worker.start", project_id: project, plugin_id: worker.PluginID, version: worker.Version }) });
+    if (!session || !project) return;
+    const response = await fetch(projectAdminURL(project, "actions"), { method: "POST", headers: adminHeaders(session, { "content-type": "application/json" }), body: JSON.stringify({ operation: "plugin.worker.start", project_id: project, plugin_id: worker.PluginID, version: worker.Version }) });
     setMessage(response.ok ? `${worker.PluginID}@${worker.Version} worker started.` : await response.text());
     if (response.ok) await load(session);
   }

@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { adminHeaders } from "../lib/admin-api";
+import { adminHeaders, projectAdminURL } from "../lib/admin-api";
 import { configurationPatch } from "../lib/admin-config";
 
 export function AdminConfigForm({ token, projectID, pluginID, version, schema }: {
@@ -26,7 +26,7 @@ export function AdminConfigForm({ token, projectID, pluginID, version, schema }:
       if (!Object.keys(patch).length) return;
       if (!window.confirm("Update configuration for " + projectID + " / " + pluginID + "@" + version + "?")) return;
       setBusy(true);
-      const response = await fetch("/api/admin/actions", { method: "POST", headers: adminHeaders(token, { "content-type": "application/json" }),
+      const response = await fetch(projectAdminURL(projectID, "actions"), { method: "POST", headers: adminHeaders(token, { "content-type": "application/json" }),
         body: JSON.stringify({ operation: "plugin.configure", project_id: projectID, plugin_id: pluginID, version, values: patch, confirmed: true }) });
       if (!response.ok) throw new Error(await response.text());
       setValues({}); setMessage("Configuration updated");

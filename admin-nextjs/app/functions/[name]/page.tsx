@@ -50,8 +50,10 @@ export default function FunctionDetailPage() {
     const projectsResponse = await fetch(systemAdminURL("projects"), { headers });
     if (!projectsResponse.ok)
       throw new Error((await projectsResponse.text()) || "Could not load projects.");
-    const projects = (await projectsResponse.json()) as { ID: string; Active: boolean }[];
-    const active = preferredAdminProject(projects)?.ID ?? "";
+    const projects = (await projectsResponse.json()) as { ID: string; Slug?: string; Active: boolean }[];
+    const selected = preferredAdminProject(projects);
+    const active = selected?.ID ?? "";
+    const namespace = selected?.Slug || active;
     setProject(active);
     if (!active) throw new Error("No active project selected.");
     const draftsResponse = await fetch(
@@ -73,7 +75,7 @@ export default function FunctionDetailPage() {
         {
           version: current.version ?? 1,
           method: current.method ?? "POST",
-          route: `${window.location.origin}/${encodeURIComponent(active)}/functions/${encodeURIComponent(name)}`,
+          route: `${window.location.origin}/${encodeURIComponent(namespace)}/functions/${encodeURIComponent(name)}`,
           published_at: current.published_at,
         },
       ]);
