@@ -15,6 +15,12 @@ This branch introduces a manifest-first runtime alongside the existing plugin im
 
 See [the source-free catalog](../examples/declarative-plugin/plugin.yaml). It is an example, not automatically installed in existing deployments. To register it, place the directory under the configured plugin root and follow the normal project installation and grant process.
 
+## Resource-scoped legacy routes
+
+Use `resource_field: id` (or the declared input key for the resource) on a route when its capability may have resource-scoped grants. The host checks the declared input before execution and again before commit. Model routes instead use the declared model name. Routes without a resource binding deny scoped grants rather than treating them as unrestricted. Dependency calls still require unrestricted grants.
+
+The SQLite compatibility planner normalizes resource keys and supplies host-owned snapshots for file reads, room membership/results, matchmaking tickets and table rows/schema. Missing durable resources fail closed instead of accepting caller-provided state. Direct TypeScript exports also receive the host context as their second argument.
+
 ## Remaining migration boundaries
 
 Existing product-specific storage adapters and complex business logic are retained for compatibility. General effectful dependency calls, durable observation delivery, all legacy route migrations, PostgreSQL model persistence, schema migration tooling, and complete dashboard navigation generation require further implementation. The user-function VM shares pure helpers only; this does not imply full host API access or OS-level isolation.

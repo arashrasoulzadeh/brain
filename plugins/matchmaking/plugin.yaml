@@ -64,7 +64,17 @@ admin:
     - id: operations
       title: Matchmaking
       legacy_route: live-sessions
+      inventory:
+        kind: state_keys
+        capability: matchmaking.status
+        title: Tickets
+        select_field: id
       extends: rooms/operations
+      extends_slot: tab
+      refresh_on:
+        - matchmaking.queued
+        - matchmaking.assigned
+        - matchmaking.cancelled
       actions:
         - title: Get ticket status
           operation: matchmaking.status

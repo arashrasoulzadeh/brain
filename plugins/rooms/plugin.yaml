@@ -68,9 +68,19 @@ admin:
   pages:
     - id: operations
       title: Room details
+      extension_slots:
+        - tab
       legacy_route: live-sessions
+      inventory:
+        kind: state_keys
+        capability: rooms.result
+        title: Rooms
+        select_field: id
       refresh_on:
         - rooms.connected
+        - rooms.created
+        - rooms.reconnected
+        - rooms.result.committed
       actions:
         - title: Get room result
           operation: rooms.result
