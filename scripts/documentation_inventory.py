@@ -25,11 +25,11 @@ def audit(root: Path) -> str:
     fn_ops = set(re.findall(r'command\.Operation [!=]= "(functions\.[a-z]+)"', fn_source))
     fn_count = exact("Function command documentation", fn_ops, set(re.findall(r'^\| `(functions\.[a-z]+)` \|', function_doc, re.M)))
     sdk = (root / "plugins/sdk-typescript/src/index.ts").read_text()
-    exports = set(re.findall(r'^export type (\w+)', sdk, re.M))
+    exports = set(re.findall(r'^export (?:declare )?(?:async )?(?:type|interface|class|function|const|let|var|enum) (\w+)', sdk, re.M))
     for group in re.findall(r'^export (?:type )?\{([^}]+)\}', sdk, re.M):
         exports.update(name.strip().split(" as ")[-1] for name in group.split(",") if name.strip())
     sdk_doc = (root / "docs/sdk-reference.md").read_text()
-    missing = exports - set(re.findall(r'`([A-Za-z_][A-Za-z0-9_]*)`', sdk_doc))
+    missing = exports - set(re.findall(r'`([A-Za-z_][A-Za-z0-9_]*)(?:<[^`>]+>)?`', sdk_doc))
     if missing:
         raise ValueError(f"SDK exports missing documentation: {sorted(missing)}")
     pages = root / "admin-nextjs/app"
