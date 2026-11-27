@@ -481,14 +481,43 @@ func (s *LifecycleService) runFunctionDraft(actor operator.Actor, projectID, nam
 	}
 	const runner = `const vm=await import("node:vm");
 const clock=()=>Number(process.hrtime.bigint())/1e6;
+const io=await import("node:fs");
+const bridgeMax=256*1024;
+const readExact=(fd,length)=>{
+  const data=Buffer.alloc(length);let offset=0;
+  while(offset<length){const n=io.readSync(fd,data,offset,length-offset,null);if(!n)throw new Error("bridge closed");offset+=n;}
+  return data;
+};
+const writeExact=(fd,data)=>{
+  let offset=0;
+  while(offset<data.length){const n=io.writeSync(fd,data,offset,data.length-offset,null);if(!n)throw new Error("bridge closed");offset+=n;}
+};
+// The outer-realm callback accepts and returns only strings. No Node objects,
+// promises, errors, file handles or functions are exposed to sandbox source.
+const hostCall=(message)=>{
+  try{
+    if(typeof message!=="string")throw new Error("invalid bridge request");
+    const payload=Buffer.from(message,"utf8");
+    if(!payload.length||payload.length>bridgeMax)throw new Error("invalid bridge request");
+    const header=Buffer.alloc(4);header.writeUInt32BE(payload.length);
+    writeExact(3,header);writeExact(3,payload);
+    const length=readExact(4,4).readUInt32BE();
+    if(!length||length>bridgeMax)throw new Error("invalid bridge response");
+    return readExact(4,length).toString("utf8");
+  }catch{return '{"error":"Plugin bridge unavailable or call limit exceeded"}';}
+};
 const sandbox=vm.createContext(Object.create(null),{codeGeneration:{strings:false,wasm:false}});
 const helpers=new vm.SourceTextModule(process.env.BRAIN_PURE_HELPERS,{context:sandbox});
 await helpers.link(()=>{throw new Error("helper imports are not permitted")});
 await helpers.evaluate({timeout:450});
 sandbox.__brainHelper=helpers.namespace.callHelper;
+// Keep the outer-realm callback private in a sandbox-realm closure. Capture
+// JSON primitives before evaluating untrusted source; parse responses in the VM.
+const makePlugins=vm.runInContext("(hostCall)=>{const stringify=JSON.stringify,parse=JSON.parse,Failure=Error;return Object.freeze({call:async (operation,payload)=>{if(typeof operation!=='string')throw new Failure('Plugin operation must be a string');const result=parse(hostCall(stringify({operation,payload})));if(result.error)throw new Failure(result.error);return result.result;}})}",sandbox);
+sandbox.__brainPlugins=makePlugins(hostCall);
 sandbox.__brainInput=vm.runInContext("JSON.parse("+JSON.stringify(process.env.BRAIN_FUNCTION_INPUT)+")",sandbox);
 sandbox.__brainAuth=vm.runInContext("(()=>{const a=JSON.parse("+JSON.stringify(process.env.BRAIN_FUNCTION_AUTH)+");const permissions=Object.freeze(a.permissions.map(p=>Object.freeze(p)));return Object.freeze({actor:Object.freeze(a.actor),caller:Object.freeze(a.caller),permissions,can:(capability,resource='')=>permissions.some(p=>p.capability===capability&&p.resource===resource)})})()",sandbox);
-sandbox.__brainContext=vm.runInContext("Object.freeze({auth:__brainAuth,project:Object.freeze(JSON.parse("+JSON.stringify(process.env.BRAIN_FUNCTION_PROJECT)+")),plugin:Object.freeze({id:'functions'}),execution:Object.freeze({operation:"+JSON.stringify(process.env.BRAIN_FUNCTION_OPERATION)+",id:"+JSON.stringify(process.env.BRAIN_INVOCATION_ID)+",invocationId:"+JSON.stringify(process.env.BRAIN_INVOCATION_ID)+"}),helpers:Object.freeze({call:__brainHelper})})",sandbox);
+sandbox.__brainContext=vm.runInContext("Object.freeze({auth:__brainAuth,project:Object.freeze(JSON.parse("+JSON.stringify(process.env.BRAIN_FUNCTION_PROJECT)+")),plugin:Object.freeze({id:'functions'}),execution:Object.freeze({operation:"+JSON.stringify(process.env.BRAIN_FUNCTION_OPERATION)+",id:"+JSON.stringify(process.env.BRAIN_INVOCATION_ID)+",invocationId:"+JSON.stringify(process.env.BRAIN_INVOCATION_ID)+"}),helpers:Object.freeze({call:__brainHelper}),plugins:__brainPlugins})",sandbox);
 const compileStart=clock();
 const module=new vm.SourceTextModule(process.env.BRAIN_FUNCTION_SOURCE,{context:sandbox});
 await module.link(()=>{throw new Error("imports are not permitted")});
@@ -512,7 +541,7 @@ process.stdout.write(JSON.stringify({result:result??null,timings:{compile_ms:com
 	command := exec.CommandContext(commandContext, "node", "--no-warnings", "--experimental-vm-modules", "--input-type=module", "-e", runner)
 	command.Env = []string{"PATH=" + os.Getenv("PATH"), "BRAIN_FUNCTION_SOURCE=" + source, "BRAIN_FUNCTION_INPUT=" + string(input), "BRAIN_FUNCTION_PROJECT=" + string(projectJSON), "BRAIN_FUNCTION_AUTH=" + string(authJSON), "BRAIN_FUNCTION_OPERATION=" + operation, "BRAIN_INVOCATION_ID=" + requestID, "BRAIN_PURE_HELPERS=" + pluginsdk.PureHelperSource}
 	executionStarted := time.Now()
-	output, err := command.Output()
+	output, err := s.runFunctionCommand(commandContext, command, projectID, name, principal, operation)
 	if err != nil {
 		var exitError *exec.ExitError
 		detail := ""

@@ -51,6 +51,7 @@ type Route struct {
 	// ResourceField binds resource-scoped policy to a manifest-declared payload field.
 	ResourceField      string `yaml:"resource_field,omitempty" json:",omitempty"`
 	WebSocketAdmission string `yaml:"websocket_admission,omitempty" json:",omitempty"`
+	FunctionRead       bool   `yaml:"function_read,omitempty" json:",omitempty"`
 }
 
 func LoadManifest(path string) (Manifest, error) {
@@ -145,6 +146,9 @@ func ValidateManifestContract(manifest Manifest) error {
 			return ErrInvalidManifest
 		}
 		if route.ResourceField != "" && (!validResponseKey(route.ResourceField) || route.Model != nil || route.Call != nil) {
+			return ErrInvalidManifest
+		}
+		if route.FunctionRead && !validFunctionReadRoute(manifest, route) {
 			return ErrInvalidManifest
 		}
 		seenRoutes[route.Operation] = true

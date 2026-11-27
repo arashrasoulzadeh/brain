@@ -3,6 +3,7 @@ package plugin
 import (
 	"encoding/json"
 	"errors"
+	"strings"
 	"time"
 )
 
@@ -121,7 +122,7 @@ func (r *Registry) invokeUsingWorker(request WorkerRequest, observer bool, overr
 
 	// Prepare reads and proposed writes, but do not mutate durable state until
 	// the worker has succeeded and lifecycle and grants have been rechecked.
-	if planner == nil && requiresDurableAdminSnapshot(request) {
+	if planner == nil && (request.functionRead || requiresDurableAdminSnapshot(request)) {
 		return WorkerResponse{}, ErrStoredResourceMissing
 	}
 	prepared := request
@@ -129,7 +130,13 @@ func (r *Registry) invokeUsingWorker(request WorkerRequest, observer bool, overr
 	var atomicCommit func(*WorkerResponse, []observationDelivery) error
 	if planner != nil {
 		var err error
-		if responsePlanner, ok := planner.(interface {
+		if request.functionRead {
+			// Function reads cannot use response-dependent writes or commit effects.
+			prepared, commit, err = planner.Prepare(request)
+			if commit != nil {
+				return WorkerResponse{}, ErrGrantDenied
+			}
+		} else if responsePlanner, ok := planner.(interface {
 			prepareResponseWithObservations(WorkerRequest) (WorkerRequest, func(*WorkerResponse, []observationDelivery) error, error)
 		}); ok {
 			prepared, atomicCommit, err = responsePlanner.prepareResponseWithObservations(request)
@@ -175,7 +182,7 @@ func (r *Registry) invokeUsingWorker(request WorkerRequest, observer bool, overr
 		}
 		return response, err
 	}
-	if response.Protocol != request.Protocol {
+	if response.Protocol != request.Protocol || (request.functionRead && len(response.Observations) != 0) {
 		return WorkerResponse{}, ErrInvalidWorkerRequest
 	}
 	if _, err := r.resolveProject(request.ProjectID); err != nil {
@@ -266,6 +273,9 @@ func (r *Registry) authorizeInvocationLocked(request WorkerRequest, observer boo
 		return ErrGrantDenied
 	}
 	route, declared := registered.Manifest.Route(request.Operation)
+	if request.functionRead && (!declared || !validFunctionReadRoute(registered.Manifest, route) || !route.FunctionRead || installation.Draining || !strings.HasPrefix(request.accessPrincipal, "operator:") || !validAccessPrincipal(request.accessPrincipal)) {
+		return ErrGrantDenied
+	}
 	observerResource := ""
 	if observer {
 		if installation.Draining {

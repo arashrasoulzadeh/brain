@@ -29,6 +29,7 @@ type WorkerRequest struct {
 	originPrincipal     string
 	requireAccessPolicy bool
 	httpRoute           *HTTPRouteMatch
+	functionRead        bool
 }
 
 type WorkerResponse struct {
