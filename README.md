@@ -19,7 +19,29 @@ See the [roadmap](roadmap.md), [developer guide](docs/developers.md), and [admin
 
 ## Local development
 
-Docker is not required for ordinary local development. Run:
+With Go, Node.js 20+, npm, GNU Make and Linux bubblewrap available, install the locked Node dependencies once:
+
+```bash
+make setup
+```
+
+Start the server and admin in separate terminals:
+
+```bash
+make dev server
+make dev admin
+```
+
+The Go server listens on `http://127.0.0.1:18082` and uses local SQLite storage at `.local/brain.sqlite`. The Next.js admin listens on `http://127.0.0.1:3000` and proxies to the server. Stop either process with Ctrl+C. The local startup script supports `HTTP_ADDRESS`, `PROJECTS_FILE`, `OPERATOR_USERNAME` and `OPERATOR_SECRET` overrides. The admin supports `ADMIN_HOST`, `ADMIN_PORT` and `BRAIN_API_ORIGIN`, for example:
+
+```bash
+make dev server HTTP_ADDRESS=127.0.0.1:18090
+make dev admin ADMIN_PORT=3100 BRAIN_API_ORIGIN=http://127.0.0.1:18090
+```
+
+Development requires no Docker and keeps the production worker sandbox enabled. Use a Linux environment with permitted user namespaces (including an appropriately configured WSL2 environment). Do not use the local script's default credentials in production.
+
+Run the unit tests with:
 
 ```bash
 GOCACHE=/tmp/brain-go-cache go test ./...

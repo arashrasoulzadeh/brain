@@ -1,4 +1,4 @@
-import { projectRoomID } from "./directory.js";
+import { projectRoomID, nextTurn, createRevisionRuntime, commitRevision, type RevisionRuntime } from "../sdk-typescript/src/index.js";
 import { type TicTacToeState } from "./index.js";
 
 export function initializeTicTacToe(
@@ -38,7 +38,7 @@ export function validateTicTacToeMove(
   const mark = state.players[0] === playerId ? "X" : "O";
   const board = [...state.board] as ("X" | "O" | null)[];
   board[cell] = mark;
-  return { ...state, board, turn: state.players.find((player) => player !== playerId)! };
+  return { ...state, board, turn: nextTurn(state.players, playerId) };
 }
 
 export function ticTacToeWinner(state: TicTacToeState): string | undefined {
@@ -85,7 +85,7 @@ export function validateTicTacToeRuleResult(value: unknown): {
   return {
     board: [...result.board] as ("X" | "O" | null)[],
     turn: result.turn,
-    status: result.status as "active" | "finished",
+    status: result.status as "active" | "paused" | "finished",
   };
 }
 
@@ -96,25 +96,25 @@ export function publishTicTacToeRules(compile: (source: string) => string): stri
   return artifact;
 }
 
-export type TicTacToeRuntime = { current: TicTacToeState; revision: number };
+export type TicTacToeRuntime = RevisionRuntime<TicTacToeState>;
+
+export function copyTicTacToeState(state: TicTacToeState): TicTacToeState {
+  return { ...state, players: [...state.players] as [string, string], board: [...state.board] };
+}
+
 export function createTicTacToeRuntime(state: TicTacToeState): TicTacToeRuntime {
-  return {
-    current: { ...state, players: [...state.players] as [string, string], board: [...state.board] },
-    revision: 0,
-  };
+  return createRevisionRuntime(state, copyTicTacToeState);
 }
 
 export class TicTacToeMover {
   constructor(private readonly runtime: TicTacToeRuntime) {}
   move(playerId: string, cell: number, expectedRevision: number) {
-    if (expectedRevision !== this.runtime.revision) throw new Error("stale game revision");
-    this.runtime.current = validateTicTacToeMove(this.runtime.current, playerId, cell);
-    this.runtime.revision += 1;
-    return {
-      ...this.runtime.current,
-      players: [...this.runtime.current.players] as [string, string],
-      board: [...this.runtime.current.board],
-    };
+    return commitRevision(
+      this.runtime,
+      expectedRevision,
+      (state) => validateTicTacToeMove(state, playerId, cell),
+      copyTicTacToeState,
+    );
   }
 }
 
