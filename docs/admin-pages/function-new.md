@@ -11,3 +11,5 @@ Use the Monaco editor, host preflight, and operator-authorized sandbox runner be
 Creating saves a draft and navigates to its detail page. Publishing is a separate action. The existing host create operation is not an atomic create-only uniqueness guarantee; use a unique name.
 
 See the [admin route index](README.md) and [HTTP API](../http-api.md).
+
+The shared source editor also provides find, JavaScript formatting, word wrapping, theme switching and line/column status. Its JavaScript language mode reflects the current runtime's lack of TypeScript transpilation.

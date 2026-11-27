@@ -7,6 +7,7 @@ import { AdminDialog, AdminProgress } from "../../components/admin-dialog";
 import { AdminPageFrame } from "../../components/admin-chrome";
 import { FunctionEditor } from "../function-editor";
 import { FunctionRunner } from "../function-runner";
+import { FunctionWorkspace } from "../function-workspace";
 import { functionPermissions, functionVersion } from "../../lib/function-studio";
 import { filterFunctionLogs, functionLogMetrics, type FunctionLog as Log, type LogOutcome } from "../../lib/function-inspection";
 type Draft = {
@@ -60,6 +61,8 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
   const [logs, setLogs] = useState<Log[]>([]);
   const [tab, setTab] = useState("editor");
   const [message, setMessage] = useState("");
+  const [messageError, setMessageError] = useState(false);
+  function report(message: string, error = false) { setMessage(message); setMessageError(error); }
   const [route, setRoute] = useState("");
   const [publishing, setPublishing] = useState(false);
   const [validating, setValidating] = useState(false);
@@ -120,7 +123,7 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
   }, [project, session, name, logRefresh, Boolean(draft)]);
   async function savePermissions(permissions: string[], publicRoute: boolean) {
     if (!draft || publishing || validating || readAdminSession() !== session || lifetime.current?.signal.aborted !== false) return;
-    setPublishing(true); setMessage("");
+    setPublishing(true); report("");
     try {
       const response = await fetch(projectAdminURL(project, "functions"), {
         method: "POST", headers: adminHeaders(session, { "content-type": "application/json" }), signal: lifetime.current?.signal,
@@ -130,23 +133,23 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
       if (lifetime.current?.signal.aborted !== false || readAdminSession() !== session) return;
       setDraft(previous => previous ? { ...previous, permissions, public: publicRoute } : previous);
       setPermissionInput("");
-      setMessage("Settings saved."); setSettingsPending(undefined);
-    } catch (reason) { setMessage(String(reason)); }
+      report("Settings saved."); setSettingsPending(undefined);
+    } catch (reason) { report(String(reason), true); }
     finally { setPublishing(false); }
   }
   async function publish() {
     if (publishing || validating || !draft || !project || !session || readAdminSession() !== session || lifetime.current?.signal.aborted !== false) {
-      setMessage("Select an active project and sign in before publishing.");
+      report("Select an active project and sign in before publishing.", true);
       return;
     }
     const version = functionVersion(versionInput);
-    if (version === undefined) { setMessage("Version must be a positive integer."); return; }
+    if (version === undefined) { report("Version must be a positive integer.", true); return; }
     if (!draft.name.trim() || !draft.source.trim()) {
-      setMessage("Cannot publish: function name and source are required.");
+      report("Cannot publish: function name and source are required.", true);
       return;
     }
     setPublishing(true);
-    setMessage("Saving source and publishing…");
+    report("Saving source and publishing…");
     try {
       const headers = adminHeaders(session, { "content-type": "application/json" });
       const update = await fetch(projectAdminURL(project, "functions"), {
@@ -161,7 +164,7 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
         }),
       });
       if (!update.ok) {
-        setMessage((await update.text()) || `Source save failed (${update.status}).`);
+        report((await update.text()) || `Source save failed (${update.status}).`, true);
         return;
       }
       if (lifetime.current?.signal.aborted !== false || readAdminSession() !== session) return;
@@ -180,14 +183,14 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
       const body = await response.text();
       if (lifetime.current?.signal.aborted !== false || readAdminSession() !== session) return;
       if (!response.ok) {
-        setMessage("Source saved; publication failed: " + (body || String(response.status)));
+        report("Source saved; publication failed: " + (body || String(response.status)), true);
         return;
       }
-      setMessage("Published current version.");
+      report("Published current version.");
       setPublishPending(false);
-      await refresh(session).catch(reason => setMessage("Published; refresh failed: " + String(reason)));
+      await refresh(session).catch(reason => report("Published; refresh failed: " + String(reason), true));
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Publish request failed.");
+      report(error instanceof Error ? error.message : "Publish request failed.", true);
     } finally {
       setPublishing(false);
     }
@@ -228,13 +231,13 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
   async function saveDraft() {
     if (publishing || validating) return;
     if (!draft || !project || !session || readAdminSession() !== session || lifetime.current?.signal.aborted !== false) {
-      setMessage("Select an active project and sign in before saving.");
+      report("Select an active project and sign in before saving.", true);
       return;
     }
     const version = functionVersion(versionInput);
-    if (version === undefined) { setMessage("Version must be a positive integer."); return; }
+    if (version === undefined) { report("Version must be a positive integer.", true); return; }
     if (!draft.name.trim() || !draft.source.trim()) {
-      setMessage("Cannot save: function name and source are required.");
+      report("Cannot save: function name and source are required.", true);
       return;
     }
     setPublishing(true);
@@ -251,9 +254,9 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
         }),
       });
       if (lifetime.current?.signal.aborted !== false || readAdminSession() !== session) return;
-      setMessage(response.ok ? "Changes saved." : await response.text());
-      if (response.ok) { setSavedSource(draft.source); setSavedVersion(version); await refresh(session).catch(reason => setMessage("Source saved; refresh failed: " + String(reason))); }
-    } catch (reason) { setMessage(String(reason)); } finally {
+      report(response.ok ? "Changes saved." : (await response.text() || "Source save failed."), !response.ok);
+      if (response.ok) { setSavedSource(draft.source); setSavedVersion(version); await refresh(session).catch(reason => report("Source saved; refresh failed: " + String(reason), true)); }
+    } catch (reason) { report(String(reason), true); } finally {
       setPublishing(false);
     }
   }
@@ -268,11 +271,11 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
   const visibleLogs = orderedLogs.slice(currentLogPage * 10, currentLogPage * 10 + 10);
   return (
     <>
-      <div className="section-heading">
+      <div className="function-detail-heading">
         <Link href={project ? projectUIURL(project, "functions") : systemUIURL("projects")} onClick={event => { if (dirty && !window.confirm("Discard unsaved function changes?")) event.preventDefault(); }}>Back to functions</Link>
-        <span className="muted">{project} · {draft.published_at ? "Publication recorded" : "Unpublished"} · {dirty ? "Unsaved changes" : "Saved draft"}</span>
+        <div className="function-detail-meta"><span>{project}</span><code>{draft.method ?? "—"}</code><span className={"status-pill " + (draft.published_at ? "is-success" : "is-inactive")}>{draft.published_at ? "Publication recorded" : "Unpublished"}</span><span>{draft.public ? "Public" : "Private"}</span></div>
       </div>
-      <div className="function-tabs">
+      <nav className="function-tabs function-detail-tabs" aria-label="Function workspace views">
         {[
           ["editor", "Editor"],
           ["test", "Test"],
@@ -282,7 +285,7 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
         ].map(([value, label]) => (
           <button
             type="button"
-            className={`${tab === value ? "active" : ""} rounded-lg px-4 py-2 text-sm font-semibold transition-colors`}
+            className={tab === value ? "active" : ""}
             aria-pressed={tab === value}
             onClick={() => setTab(value)}
             key={value}
@@ -290,102 +293,54 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
             {label}
           </button>
         ))}
-      </div>
+      </nav>
       {discardPending && <AdminDialog title="Discard unsaved changes" scope={project + " · " + name} onClose={() => setDiscardPending(false)}><p>Restore the last saved source and version? Local edits will be lost.</p><button type="button" onClick={() => { setDraft(previous => previous ? { ...previous, source: savedSource } : previous); setVersionInput(String(savedVersion)); setValidationMessage(""); setValidationOK(false); setDiscardPending(false); }}>Discard edits</button></AdminDialog>}
-      {publishPending && <AdminDialog title="Publish current version" scope={project + " · " + name} busy={publishing} onClose={() => setPublishPending(false)}><p>Save the current source and publish version {versionInput}?</p><p>Publishing enables public route visibility on the current host record. Caller authorization is still enforced by host policy.</p><button type="button" disabled={publishing} onClick={() => void publish()}>Confirm publish</button>{publishing && <AdminProgress label="Saving and publishing…" />}{message && <p role="status">{message}</p>}</AdminDialog>}
-      {settingsPending && <AdminDialog title="Update function settings" scope={project + " · " + name} busy={publishing} onClose={() => setSettingsPending(undefined)}><p>{settingsPending.publicRoute ? "Public route enabled" : "Private route"} · Permissions: {settingsPending.permissions.join(", ") || "None"}</p><button type="button" disabled={publishing} onClick={() => void savePermissions(settingsPending.permissions, settingsPending.publicRoute)}>Confirm settings</button>{publishing && <AdminProgress label="Saving function settings…" />}{message && <p role="status">{message}</p>}</AdminDialog>}
-      {tab !== "editor" && message && <p role="status">{message}</p>}
+      {publishPending && <AdminDialog title="Publish current version" scope={project + " · " + name} busy={publishing} onClose={() => setPublishPending(false)}><p>Save the current source and publish version {versionInput}?</p><p>Publishing enables public route visibility on the current host record. Caller authorization is still enforced by host policy.</p><button type="button" disabled={publishing} onClick={() => void publish()}>Confirm publish</button>{publishing && <AdminProgress label="Saving and publishing…" />}{message && <p role={messageError ? "alert" : "status"}>{message}</p>}</AdminDialog>}
+      {settingsPending && <AdminDialog title="Update function settings" scope={project + " · " + name} busy={publishing} onClose={() => setSettingsPending(undefined)}><p>{settingsPending.publicRoute ? "Public route enabled" : "Private route"} · Permissions: {settingsPending.permissions.join(", ") || "None"}</p><button type="button" disabled={publishing} onClick={() => void savePermissions(settingsPending.permissions, settingsPending.publicRoute)}>Confirm settings</button>{publishing && <AdminProgress label="Saving function settings…" />}{message && <p role={messageError ? "alert" : "status"}>{message}</p>}</AdminDialog>}
+      {tab !== "editor" && message && <p role={messageError ? "alert" : "status"}>{message}</p>}
       {logError && (tab === "logs" || tab === "analytics") && <section><p role="alert">{logError}</p><button type="button" className="secondary" onClick={() => setLogRefresh(value => value + 1)}>Refresh logs</button></section>}
-      {tab === "editor" && (
-        <>
-          <div className="setting-toolbar flex flex-wrap items-end gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <div className="rounded-lg bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700">
-              <label>Source version<input type="number" min="1" step="1" value={versionInput} disabled={publishing || validating} onChange={event => setVersionInput(event.target.value)} /></label>
-            </div>
-            <span role="status">{dirty ? "Unsaved draft changes" : "Source saved"}</span>
-            <button type="button" className="secondary" disabled={!dirty || publishing || validating} onClick={() => setDiscardPending(true)}>Restore saved changes</button>
-            <div
-              className={`rounded-lg px-3 py-2 text-sm font-semibold ${draft.public ? "bg-emerald-100 text-emerald-800" : "bg-slate-100 text-slate-700"}`}
-            >
-              {draft.public ? "Public" : "Private"}
-            </div>
-            <div className="rounded-lg bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700">
-              Saved method {draft.method ?? "—"} · set in source config
-            </div>
-            <button
-              type="button"
-              disabled={publishing || validating || functionVersion(versionInput) === undefined}
-              className="h-10 rounded-lg bg-slate-700 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
-              onClick={() => void saveDraft()}
-            >
-              {publishing ? "Saving…" : "Save changes"}
-            </button>
-            <button
-              type="button"
-              disabled={publishing || validating || functionVersion(versionInput) === undefined}
-              className="h-10 rounded-lg bg-indigo-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
-              onClick={() => { setMessage(""); setPublishPending(true); }}
-            >
-              {publishing ? "Publishing…" : "Publish current version"}
-            </button>
+      <FunctionWorkspace
+        tab={tab} name={name} version={versionInput} dirty={dirty} busy={publishing} validating={validating}
+        validVersion={functionVersion(versionInput) !== undefined} canPublish={Boolean(draft.source.trim())}
+        message={message} messageError={messageError}
+        onValidate={() => void validateSource()} onSave={() => void saveDraft()}
+        onPublish={() => { report(""); setPublishPending(true); }}
+        onRestore={() => setDiscardPending(true)}
+        editor={expanded => <FunctionEditor
+          source={draft.source}
+          onChange={source => { setDraft(previous => previous ? { ...previous, source } : previous); setValidationMessage(""); setValidationOK(false); report(""); }}
+          readOnly={publishing || validating}
+          expanded={expanded}
+          initialTheme="vs-dark"
+          onSave={() => void saveDraft()}
+          saveEnabled={dirty && functionVersion(versionInput) !== undefined}
+          validationMessage={validationMessage}
+          validationOK={validationOK}
+        />}
+        settings={<div className="function-inspector-content">
+          <h2>Function settings</h2>
+          <label>Source version<input type="number" min="1" step="1" value={versionInput} disabled={publishing || validating} onChange={event => setVersionInput(event.target.value)} /></label>
+          {functionVersion(versionInput) === undefined && <p role="alert">Version must be a positive integer.</p>}
+          <p className="muted">Saved version: {savedVersion}. Changes are applied by saving or publishing.</p>
+          <div className="function-inspector-block"><h3>HTTP method</h3><code>{draft.method ?? "—"}</code><p className="muted">Saved method. Edit the exported config in source to change it.</p></div>
+          <div className="function-inspector-block">
+            <h3>Visibility</h3>
+            <label className="checkbox-label"><input type="checkbox" checked={Boolean(draft.public)} disabled={publishing || validating} onChange={event => setSettingsPending({ permissions, publicRoute: event.target.checked })} /> Public route enabled</label>
+            <p className="muted">Host access policy still controls callers. Publishing enables public visibility.</p>
+            {route && <><small>Recorded route</small><code className="function-inspector-route">{route}</code></>}
           </div>
-          {message && (
-            <p className="notice" role="status" aria-live="polite">
-              {message}
-            </p>
-          )}
-          {route && (
-            <p className="notice">
-              Recorded route: <code>{route}</code>
-            </p>
-          )}
-          <FunctionEditor
-            source={draft.source}
-            onChange={(source) => { setDraft({ ...draft, source }); setValidationMessage(""); setValidationOK(false); }}
-            readOnly={publishing || validating}
-            onValidate={() => void validateSource()}
-            validating={validating}
-            validationMessage={validationMessage}
-            validationOK={validationOK}
-          />
-          <div className="permission-panel">
-            <h2>Function settings</h2>
-            {permissions.map((permission) => (
-              <div className="permission-row" key={permission}>
-                <code>{permission}</code>
-                <button
-                  className="danger"
-                  disabled={publishing || validating}
-                  onClick={() =>
-                    setSettingsPending({ permissions: permissions.filter(candidate => candidate !== permission), publicRoute: Boolean(draft.public) })
-                  }
-                >
-                  Remove
-                </button>
-              </div>
-            ))}
-            <div className="function-catalog-actions"><label>Additional permissions<input value={permissionInput} disabled={publishing || validating} onChange={event => setPermissionInput(event.target.value)} placeholder="Capability names, comma-separated" /></label><button type="button" disabled={publishing || validating || !functionPermissions(permissionInput).some(permission => !permissions.includes(permission))} onClick={() => setSettingsPending({ permissions: [...new Set([...permissions, ...functionPermissions(permissionInput)])], publicRoute: Boolean(draft.public) })}>Add permissions</button></div>
-            <button disabled={publishing || validating || permissions.includes("functions.invoke")}
-              onClick={() =>
-                setSettingsPending({ permissions: [...permissions, "functions.invoke"], publicRoute: Boolean(draft.public) })
-              }
-            >
-              Add invoke permission
-            </button>
-            <label className="checkbox-label">
-              <input
-                type="checkbox"
-                checked={Boolean(draft.public)}
-                disabled={publishing || validating}
-                onChange={(event) => setSettingsPending({ permissions, publicRoute: event.target.checked })}
-              />{" "}
-              Public route enabled
-            </label>
-            <small>{message}</small>
+          <div className="function-inspector-block">
+            <h3>Configured permissions <span className="muted">({permissions.length})</span></h3>
+            {!permissions.length && <p className="muted">No configured permissions.</p>}
+            {permissions.map(permission => <div className="function-inspector-permission" key={permission}><code>{permission}</code><button type="button" className="danger" aria-label={"Remove " + permission} disabled={publishing || validating} onClick={() => setSettingsPending({ permissions: permissions.filter(candidate => candidate !== permission), publicRoute: Boolean(draft.public) })}>Remove</button></div>)}
+            <label>Additional permissions<input value={permissionInput} disabled={publishing || validating} onChange={event => setPermissionInput(event.target.value)} placeholder="Capability names, comma-separated" /></label>
+            <button type="button" className="secondary" disabled={publishing || validating || !functionPermissions(permissionInput).some(permission => !permissions.includes(permission))} onClick={() => setSettingsPending({ permissions: [...new Set([...permissions, ...functionPermissions(permissionInput)])], publicRoute: Boolean(draft.public) })}>Add permissions</button>
+            <button type="button" className="secondary" disabled={publishing || validating || permissions.includes("functions.invoke")} onClick={() => setSettingsPending({ permissions: [...permissions, "functions.invoke"], publicRoute: Boolean(draft.public) })}>Add invoke permission</button>
+            <p className="muted">Stored permission names do not grant plugin access to sandbox source.</p>
           </div>
-        </>
-      )}
-      {tab === "test" && <FunctionRunner project={project} name={name} source={draft.source} disabled={publishing || validating} onComplete={() => setLogRefresh(value => value + 1)} />}
+        </div>}
+        runner={<FunctionRunner project={project} name={name} source={draft.source} disabled={publishing || validating} onComplete={() => setLogRefresh(value => value + 1)} />}
+      />
       {tab === "deployments" && (
         <section className="section">
           <h2>Current publication</h2>
@@ -395,7 +350,7 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
             <tr><th scope="row">Current saved source version</th><td>{savedVersion}</td></tr>
             <tr><th scope="row">Current stored method</th><td>{draft.method ?? "—"}</td></tr>
             <tr><th scope="row">Configured visibility</th><td>{draft.public ? "Public" : "Private"}</td></tr>
-            <tr><th scope="row">Route</th><td><code>{route}</code> <button type="button" className="secondary" onClick={() => { if (!navigator.clipboard) { setMessage("Clipboard unavailable"); return; } void navigator.clipboard.writeText(route).then(() => setMessage("URL copied"), () => setMessage("Could not copy URL")); }}>Copy URL</button></td></tr>
+            <tr><th scope="row">Route</th><td><code>{route}</code> <button type="button" className="secondary" onClick={() => { if (!navigator.clipboard) { report("Clipboard unavailable", true); return; } void navigator.clipboard.writeText(route).then(() => report("URL copied"), () => report("Could not copy URL", true)); }}>Copy URL</button></td></tr>
           </tbody></table></div> : <div className="empty-panel">No publication recorded. Publish from the editor when ready.</div>}
         </section>
       )}
