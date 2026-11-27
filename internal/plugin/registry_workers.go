@@ -121,6 +121,9 @@ func (r *Registry) invokeUsingWorker(request WorkerRequest, observer bool, overr
 
 	// Prepare reads and proposed writes, but do not mutate durable state until
 	// the worker has succeeded and lifecycle and grants have been rechecked.
+	if planner == nil && requiresDurableAdminSnapshot(request) {
+		return WorkerResponse{}, ErrStoredResourceMissing
+	}
 	prepared := request
 	var commit func() error
 	var atomicCommit func(*WorkerResponse, []observationDelivery) error

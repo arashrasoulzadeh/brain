@@ -9,7 +9,7 @@ import (
 
 var analyticsEventName = regexp.MustCompile(`^[a-zA-Z][a-zA-Z0-9_.-]{0,63}$`)
 
-func analyticsPageInt(input map[string]any, key string, fallback, min, max int) (int, error) {
+func boundedStorageInt(input map[string]any, key string, fallback, min, max int) (int, error) {
 	value, supplied := input[key]
 	if !supplied {
 		return fallback, nil
@@ -50,7 +50,7 @@ func prepareAnalyticsRead(storage *SQLiteStorage, request WorkerRequest) (Worker
 	if project, exists := input["projectId"]; exists && project != request.ProjectID {
 		return request, nil, ErrInvalidWorkerRequest
 	}
-	offset, err := analyticsPageInt(input, "offset", 0, 0, 1000000000)
+	offset, err := boundedStorageInt(input, "offset", 0, 0, 1000000000)
 	if err != nil {
 		return request, nil, err
 	}
@@ -59,7 +59,7 @@ func prepareAnalyticsRead(storage *SQLiteStorage, request WorkerRequest) (Worker
 	if summary {
 		maxLimit = 100
 	}
-	limit, err := analyticsPageInt(input, "limit", 20, 1, maxLimit)
+	limit, err := boundedStorageInt(input, "limit", 20, 1, maxLimit)
 	if err != nil {
 		return request, nil, err
 	}

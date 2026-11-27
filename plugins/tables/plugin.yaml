@@ -26,6 +26,8 @@ capabilities:
   - tables.read
   - tables.write
   - tables.schema
+  - tables.update
+  - tables.delete
 extension_points:
   - data.policy
 config_schema:
@@ -59,6 +61,22 @@ routes:
     helper: sdk.dispatch
     capability: tables.schema
     resource_field: table
+  - operation: tables.update
+    method: PUT
+    path: /rows/update
+    auth: operator
+    function: mutateTableRow
+    helper: sdk.context
+    capability: tables.update
+    resource_field: table
+  - operation: tables.delete
+    method: POST
+    path: /rows/delete
+    auth: operator
+    function: mutateTableRow
+    helper: sdk.context
+    capability: tables.delete
+    resource_field: table
 admin:
   version: 1
   pages:
@@ -82,17 +100,13 @@ admin:
             - name: table
               type: string
               required: true
-        - title: Read rows
+        - title: Read row page
           operation: tables.read
           read_only: true
-          result:
-            type: table
-            path: rows
-            page_size: 25
           fields:
-            - name: table
-              type: string
-              required: true
+            - {name: table, type: string, required: true}
+            - {name: offset, type: number}
+            - {name: limit, type: number, required: true}
         - title: Write row
           operation: tables.write
           fields:
@@ -102,3 +116,16 @@ admin:
             - name: row
               type: json
               required: true
+        - title: Replace row (revision required)
+          operation: tables.update
+          fields:
+            - {name: table, type: string, required: true}
+            - {name: row_index, type: number, required: true}
+            - {name: revision, type: string, required: true}
+            - {name: row, type: json, required: true}
+        - title: Delete row (revision required)
+          operation: tables.delete
+          fields:
+            - {name: table, type: string, required: true}
+            - {name: row_index, type: number, required: true}
+            - {name: revision, type: string, required: true}

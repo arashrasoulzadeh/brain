@@ -1,4 +1,4 @@
-import { createResourceRequest, createRouteDispatcher, requiredString, type PluginContext } from "../sdk-typescript/src/index.js";
+import { createResourceRequest, createRouteDispatcher, requiredString, requireProjectInput, type PluginContext } from "../sdk-typescript/src/index.js";
 
 export const dataRequest = createResourceRequest<"tables.read" | "tables.write" | "tables.schema">("tables", "table");
 
@@ -26,8 +26,9 @@ export class TableStore {
 
 export const tableStore = new TableStore();
 
-type TableInput = { table?: unknown; rows?: unknown; row?: unknown };
-type TableRead = { table: string; rows: readonly unknown[] };
+type TablePage = { revision: string; total_rows: number; offset: number; next_offset?: number };
+type TableInput = { table?: unknown; rows?: unknown; row?: unknown; page?: TablePage };
+type TableRead = { table: string; rows: readonly unknown[] } & Partial<TablePage>;
 type TableWrite = { table: string; row: unknown; written: true };
 type TableSchema = { table: string; columns: readonly string[] };
 
@@ -36,7 +37,7 @@ export const dispatchRoute = createRouteDispatcher({ read, write, schema });
 export function read(input: unknown): TableRead {
   const payload = (input ?? {}) as TableInput;
   const table = requiredString(payload.table, "table is required");
-  if (Array.isArray(payload.rows)) return { table, rows: payload.rows };
+  if (Array.isArray(payload.rows)) return { table, rows: payload.rows, ...(payload.page ? { revision: payload.page.revision, total_rows: payload.page.total_rows, offset: payload.page.offset, ...(payload.page.next_offset !== undefined ? { next_offset: payload.page.next_offset } : {}) } : {}) };
   return tableStore.execute("read", table) as TableRead;
 }
 
@@ -58,4 +59,16 @@ export function schema(input: unknown): TableSchema {
     return { table, columns };
   }
   return tableStore.execute("schema", table) as TableSchema;
+}
+
+/** The host commits the revision-checked mutation only after this succeeds. */
+export function mutateTableRow(context: PluginContext, input: unknown) {
+  const payload = requireProjectInput(context, input);
+  const table = requiredString(payload.table, "table is required");
+  const result = payload.result as Record<string, unknown> | undefined;
+  if (!result || typeof result !== "object" || result.table !== table || typeof result.revision !== "string" ||
+      (context.execution.operation === "tables.update" ? result.updated !== true : context.execution.operation !== "tables.delete" || result.deleted !== true))
+    throw new Error("host table mutation snapshot required");
+  context.plugins.observe.fire("record.written", { written: true });
+  return result;
 }

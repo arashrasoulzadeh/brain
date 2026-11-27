@@ -13,7 +13,7 @@ export interface ManifestOperations {
   "pvp": "pvp.describe";
   "rooms": "rooms.create" | "rooms.join" | "rooms.reconnect" | "rooms.result";
   "subscriptions": "subscriptions.close" | "subscriptions.inspect" | "subscriptions.open" | "subscriptions.receive" | "subscriptions.resync" | "subscriptions.revoke";
-  "tables": "tables.read" | "tables.schema" | "tables.write";
+  "tables": "tables.delete" | "tables.read" | "tables.schema" | "tables.update" | "tables.write";
 }
 
 export type ManifestOperation<Id extends keyof ManifestOperations> = ManifestOperations[Id];

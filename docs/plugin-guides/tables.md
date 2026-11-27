@@ -8,7 +8,7 @@ Use table as the resource. Write a JSON row object, read stored rows, and derive
 
 ## Administrator
 
-Use the Database page and table inventory. Confirm writes and grant the minimum resource scope. Current row writes append rather than exposing arbitrary SQL or a full relational CRUD interface.
+Use the Database page and table inventory. Confirm writes and grant the minimum resource scope. Use tables.read with offset and limit (1–100) for bounded pages, then tables.update or tables.delete with table, zero-based row_index and the returned revision; update also requires a replacement JSON row. These new mutation capabilities require explicit grants. The host checks the snapshot and uses a compare-and-swap on the stored JSON in the commit transaction. Indexes are not stable row IDs, and any change to the table invalidates the revision. The legacy tables.read without pagination arguments and tables.write append contract remain compatible. This is snapshot CRUD, not arbitrary SQL or a full relational schema interface.
 
 ## Example payloads
 
