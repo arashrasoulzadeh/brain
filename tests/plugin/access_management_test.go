@@ -8,6 +8,8 @@ import (
 	"testing"
 	"time"
 
+	"brain/internal/admin"
+	"brain/internal/operator"
 	"brain/internal/plugin"
 )
 
@@ -408,5 +410,55 @@ func TestAccessManagementHostAdapterUsesExactPublicPrincipal(t *testing.T) {
 	revokeAccessRule(t, r, "alpha", "public", revision)
 	if err := r.AuthorizeHostOperation("alpha", "public", m.ID, route.Operation, "public-function"); !errors.Is(err, plugin.ErrActorDenied) {
 		t.Fatalf("revoked public rule admitted: %v", err)
+	}
+}
+
+func TestAccessManagementFunctionServiceCannotBypassRules(t *testing.T) {
+	m, err := plugin.LoadManifest("../../plugins/functions/plugin.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	r, _ := accessRegistry(t, m)
+	const project = "access-endpoint-test"
+	const name = "access_endpoint"
+	const source = "export const config = { method: 'POST' }; export default (input) => input"
+	installAccessTestPlugin(t, r, project, accessManifest(t), &contractWorker{ready: true})
+	installAccessTestPlugin(t, r, project, m, &contractWorker{ready: true})
+	service := admin.NewLifecycleService(nil, r)
+	actor := operator.Actor{ID: "root", Kind: operator.ActorOperator}
+	if _, err := service.CreateFunctionDraft(actor, project, name, source); !errors.Is(err, plugin.ErrActorDenied) {
+		t.Fatalf("direct draft creation bypassed access rules: %v", err)
+	}
+	publish, _ := m.Route("functions.publish")
+	createAccessRule(t, r, project, "publish", "operator:root", m, publish, name, true)
+	if _, err := service.CreateFunctionDraft(actor, project, name, source); err != nil {
+		t.Fatal(err)
+	}
+	if drafts, err := service.ListFunctionDrafts(actor, project); err != nil || len(drafts) != 0 {
+		t.Fatalf("ungranted draft visibility: %v %v", drafts, err)
+	}
+	inspect, _ := m.Route("functions.inspect")
+	createAccessRule(t, r, project, "inspect", "operator:root", m, inspect, name, true)
+	if drafts, err := service.ListFunctionDrafts(actor, project); err != nil || len(drafts) != 1 || drafts[0].Name != name {
+		t.Fatalf("granted draft visibility: %v %v", drafts, err)
+	}
+	if _, err := service.TestFunctionDraft(actor, project, name, source); !errors.Is(err, plugin.ErrActorDenied) {
+		t.Fatalf("direct preflight bypassed access rules: %v", err)
+	}
+	invoke, _ := m.Route("functions.invoke")
+	createAccessRule(t, r, project, "invoke", "operator:root", m, invoke, name, true)
+	if result, err := service.TestFunctionDraft(actor, project, name, source); err != nil || result["valid"] != true {
+		t.Fatalf("granted preflight: %v %v", result, err)
+	}
+	if _, err := service.PublishFunction(actor, project, name, "POST"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := service.PublicInvokeFunction(project, name, "GET", nil); !errors.Is(err, plugin.ErrActorDenied) {
+		t.Fatalf("public endpoint disclosed method before access check: %v", err)
+	}
+	call, _ := m.Route("functions.call")
+	createAccessRule(t, r, project, "public", "public", m, call, name, true)
+	if _, err := service.PublicInvokeFunction(project, name, "GET", nil); !errors.Is(err, admin.ErrFunctionMethodNotAllowed) {
+		t.Fatalf("public rule bypassed method check: %v", err)
 	}
 }

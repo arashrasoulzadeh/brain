@@ -303,6 +303,11 @@ func (s *LifecycleService) PublicInvokeFunction(projectID, name, method string, 
 	if !ok || !draft.Public {
 		return nil, ErrFunctionDraftInvalid
 	}
+	if s.registry != nil {
+		if err := s.registry.AuthorizeHostOperation(projectID, "public", "functions", "functions.call", draft.Name); err != nil {
+			return nil, err
+		}
+	}
 	if draft.Method == "" {
 		var err error
 		draft.Method, err = functionMethodFromSource(draft.Source)
@@ -312,11 +317,6 @@ func (s *LifecycleService) PublicInvokeFunction(projectID, name, method string, 
 	}
 	if strings.ToUpper(strings.TrimSpace(method)) != draft.Method {
 		return nil, ErrFunctionMethodNotAllowed
-	}
-	if s.registry != nil {
-		if err := s.registry.AuthorizeHostOperation(projectID, "public", "functions", "functions.call", draft.Name); err != nil {
-			return nil, err
-		}
 	}
 	result, err := s.runFunctionDraft(operator.Actor{Kind: operator.ActorOperator}, projectID, draft.Name, draft.Source, input, []FunctionLogStep{
 		{Name: "edge router", Status: "success", Reason: "public route resolved and function version selected", DurationMs: time.Since(edgeStarted).Milliseconds()},
