@@ -3,10 +3,24 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `43d7023b` — 2026-11-27 21:48:36 +0330 — Merge pull request #14 from arashrasoulzadeh/quality/coverage-completion
+  Files: 
+- `e462a13e` — 2026-11-27 21:48:25 +0330 — Merge main into coverage completion and retain existing CI checks
+  Files: .github/workflows/test.yml
+- `efdc3992` — 2026-11-27 21:48:05 +0330 — Merge pull request #47 from arashrasoulzadeh/fix/admin-page-consistency
+  Files: 
+- `46fd8ff0` — 2026-11-27 21:47:53 +0330 — Merge main into admin page consistency and preserve file MB settings
+  Files: admin-nextjs/app/components/admin-config-form.tsx,admin-nextjs/app/components/routes-panel.tsx
+- `97aee320` — 2026-11-27 18:07:54 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `2aff993c` — 2026-11-27 21:37:44 +0330 — Merge pull request #45 from arashrasoulzadeh/feat/files-megabyte-limit
   Files: 
+- `3865c2ba` — 2026-11-27 21:21:23 +0330 — Cover admin access, route failures and cancelled project edits in browser regression tests
+  Files: admin-nextjs/app/view.tsx,docs/admin-pages/function-detail.md docs/admin-pages/projects.md,docs/admin-pages/routes.md scripts/test-admin-browser.mjs
 - `ac357976` — 2026-11-27 21:20:25 +0330 — Isolate live admin server and allow bounded binary fixtures through CI relay
   Files: .github/workflows/admin-browser.yml,scripts/admin-ci-backend-relay.mjs scripts/test-admin-live.mjs
+- `20cc1a03` — 2026-11-27 21:18:30 +0330 — Improve admin page access, lifecycle dialogs, route invocation and function editor consistency
+  Files: admin-nextjs/app/components/admin-chrome.tsx,admin-nextjs/app/components/admin-config-form.tsx admin-nextjs/app/components/audit-panel.tsx,admin-nextjs/app/components/legacy-admin-page.tsx admin-nextjs/app/components/monitoring-panel.tsx,admin-nextjs/app/components/plugin-catalog-panel.tsx admin-nextjs/app/components/routes-panel.tsx,admin-nextjs/app/extensions/[project]/[plugin]/[version]/[page]/view.tsx admin-nextjs/app/functions/[name]/view.tsx,admin-nextjs/app/functions/function-editor.tsx admin-nextjs/app/functions/new/view.tsx,admin-nextjs/app/functions/view.tsx admin-nextjs/app/view.tsx,admin-nextjs/app/workers/view.tsx
 - `699e98c7` — 2026-11-27 17:48:05 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
 - `98e11603` — 2026-11-27 21:15:32 +0330 — Merge main and preserve confirmed installation, file transport and combined regression coverage
@@ -89,17 +103,3 @@ Automatically generated from commits on main.
   Files: tests/plugin/websocket_endpoint_test.go
 - `ca5405fe` — 2026-11-27 19:23:21 +0330 — Require an exact Connection upgrade token for WebSocket admission
   Files: internal/plugin/websocket_endpoint.go
-- `5995ee43` — 2026-11-27 19:21:47 +0330 — Test project URL validation and reject invalid admin namespaces before transport
-  Files: tests/client/admin-client.test.ts
-- `9dd994b1` — 2026-11-27 19:18:37 +0330 — Exercise actual WebSocket upgrades, membership, replay and durable actor binding
-  Files: tests/plugin/websocket_gateway_test.go
-- `69a841a0` — 2026-11-27 19:18:04 +0330 — Vendor pinned coder WebSocket transport for offline reproducible builds
-  Files: vendor/github.com/coder/websocket/LICENSE.txt,vendor/github.com/coder/websocket/README.md vendor/github.com/coder/websocket/accept.go,vendor/github.com/coder/websocket/close.go vendor/github.com/coder/websocket/compress.go,vendor/github.com/coder/websocket/conn.go vendor/github.com/coder/websocket/dial.go,vendor/github.com/coder/websocket/doc.go vendor/github.com/coder/websocket/errors.go,vendor/github.com/coder/websocket/frame.go vendor/github.com/coder/websocket/hijack.go,vendor/github.com/coder/websocket/internal/bpool/bpool.go vendor/github.com/coder/websocket/internal/errd/wrap.go,vendor/github.com/coder/websocket/internal/util/util.go vendor/github.com/coder/websocket/internal/wsjs/wsjs_js.go,vendor/github.com/coder/websocket/internal/xsync/go.go vendor/github.com/coder/websocket/mask.go,vendor/github.com/coder/websocket/mask_amd64.s vendor/github.com/coder/websocket/mask_arm64.s,vendor/github.com/coder/websocket/mask_asm.go vendor/github.com/coder/websocket/mask_go.go,vendor/github.com/coder/websocket/netconn.go vendor/github.com/coder/websocket/netconn_js.go,vendor/github.com/coder/websocket/netconn_notjs.go vendor/github.com/coder/websocket/read.go,vendor/github.com/coder/websocket/stringer.go vendor/github.com/coder/websocket/write.go,vendor/github.com/coder/websocket/ws_js.go vendor/modules.txt
-- `1abba9c8` — 2026-11-27 19:16:11 +0330 — Implement authenticated arena membership admission and durable player inputs
-  Files: docs/plugin-guides/arena.md,internal/plugin/legacy_arena_storage.go internal/plugin/websocket_gateway.go,plugins/arena/index.ts plugins/arena/plugin.yaml,plugins/arena/state-machine.ts plugins/sdk-typescript/src/manifest-operations.generated.d.ts,tests/arena/arena-routes.test.ts
-- `558af223` — 2026-11-27 19:14:58 +0330 — Wire manifest-opted authenticated WebSocket gateway and bounded transport
-  Files: docs/http-api.md,go.mod go.sum,internal/admin/lifecycle.go internal/app/api_response.go,internal/app/app.go internal/plugin/http_routes.go,internal/plugin/manifest.go internal/plugin/manifest_http.go,internal/plugin/websocket_gateway.go internal/plugin/websocket_ticket.go
-- `8d82d580` — 2026-11-27 19:00:28 +0330 — Add bounded single-use WebSocket transport ticket binding
-  Files: docs/http-api.md,internal/plugin/websocket_ticket.go tests/plugin/websocket_ticket_test.go
-- `5efdf699` — 2026-11-27 18:55:17 +0330 — Update admin transport fixture and format routing regression test
-  Files: tests/coverage/plugin-boundaries.test.ts,tests/plugin/http_version_routing_test.go
