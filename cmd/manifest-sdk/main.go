@@ -7,12 +7,16 @@ import (
 	"brain/internal/plugin"
 )
 
-func main() {
-	source, err := plugin.ManifestSDKTypes("plugins")
+func generate(root, output string) error {
+	source, err := plugin.ManifestSDKTypes(root)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
-	if err := os.WriteFile("plugins/sdk-typescript/src/manifest-operations.generated.ts", []byte(source), 0o644); err != nil {
+	return os.WriteFile(output, []byte(source), 0o644)
+}
+
+func main() {
+	if err := generate("plugins", "plugins/sdk-typescript/src/manifest-operations.generated.d.ts"); err != nil {
 		log.Fatal(err)
 	}
 }
