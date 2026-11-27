@@ -12,7 +12,7 @@ func TestCoverageWasmExecution(t *testing.T) {
 	runner := &WasmRunner{}
 	// A valid empty WebAssembly module (magic and version).
 	module := []byte{0, 97, 115, 109, 1, 0, 0, 0}
-	ctx := project.WithProject(context.Background(), project.Project{ID:"coverage", Active:true})
+	ctx := project.WithProject(context.Background(), project.Project{ID: "coverage", Active: true})
 	if err := runner.RunForProject(ctx, "other", module); !errors.Is(err, ErrWasmProjectMismatch) {
 		t.Fatal(err)
 	}
