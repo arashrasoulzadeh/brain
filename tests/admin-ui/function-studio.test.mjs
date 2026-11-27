@@ -20,6 +20,7 @@ test("function workspace executes current source, rejects malformed JSON, and co
       calls.push(body);
       if (body.operation === "functions.run") return json({ valid: true, project_id: "dev", name: "echo", result: { echo: body.input } });
       if (body.operation === "functions.test") return json({ valid: true, project_id: "dev", name: "echo" });
+      if (body.operation === "functions.update") return json({ ...draft, source: body.source, version: body.function_version, published_at: "2026-01-02T00:00:00Z" });
       if (body.operation === "functions.publish") return json({ published: true, project_id: "dev", name: "echo", version: 1, method: "POST", published_at: "2026-01-02T00:00:00Z" });
       if (body.operation === "functions.permissions") return new Response(null, { status: 204 });
     }
@@ -46,12 +47,23 @@ test("function workspace executes current source, rejects malformed JSON, and co
   await click(button("Confirm publish"));
   assert.equal(calls.at(-1).operation, "functions.publish");
   assert.match(text(), /Publication confirmed/);
+  await click(button("Use plain text"));
+  const edited = draft.source.replace("return input", "return { edited: true }");
+  await change(find("textarea.fn-plain-source"), edited);
+  assert.match(text(), /Unsaved code/);
+  assert.doesNotMatch(text(), /Execution succeeded/);
+  await click(button("Save changes"));
+  assert.equal(calls.at(-1).operation, "functions.publish");
+  await click(button("Confirm save"));
+  assert.equal(calls.at(-1).operation, "functions.update");
+  assert.equal(calls.at(-1).source, edited);
+  assert.match(text(), /Source and version saved/);
   await click(button("Publication"));
   assert.equal(find(".fn-panel input[readonly]").value, "http://localhost:3000/alias/functions/echo");
   await click(button("Settings"));
   await change(find(".fn-panel input:not([type=checkbox])"), "functions.invoke, extra");
   await click(button("Save settings"));
-  assert.equal(calls.at(-1).operation, "functions.publish");
+  assert.equal(calls.at(-1).operation, "functions.update");
   await click(button("Confirm settings"));
   assert.equal(calls.at(-1).operation, "functions.permissions");
   assert.deepEqual(calls.at(-1).permissions, ["extra", "functions.invoke"]);

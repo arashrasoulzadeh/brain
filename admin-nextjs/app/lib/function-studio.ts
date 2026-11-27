@@ -61,6 +61,7 @@ export async function sendFunctionCommand(scope: FunctionScope, command: Functio
   const body = await response.text();
   if (!response.ok) throw new Error(body || "Request rejected (" + response.status + ").");
   if (response.status === 204) return null;
+  if (command.operation === "functions.permissions") throw new Error("Settings update was not confirmed. Refresh before retrying.");
   try { return JSON.parse(body); } catch { throw new Error("Invalid function API response."); }
 }
 export function checkedFunctionDraft(value: unknown, scope: FunctionScope, name: string): FunctionDraft {

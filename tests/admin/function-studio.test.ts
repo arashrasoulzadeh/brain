@@ -110,6 +110,8 @@ test("studio requests bind the canonical project and preserve host rejection", a
     assert.deepEqual(JSON.parse(String(call.init?.body)), { operation: "functions.run", name: "echo", source: draft.source, input: { a: 1 }, project_id: "immutable" });
     response = new Response(null, { status: 204 });
     assert.equal(await sendFunctionCommand(scope, { operation: "functions.permissions", name: "echo" }, controller.signal), null);
+    response = Response.json({});
+    await assert.rejects(sendFunctionCommand(scope, { operation: "functions.permissions", name: "echo" }, controller.signal), /not confirmed/);
     response = new Response("denied", { status: 403 });
     await assert.rejects(sendFunctionCommand(scope, { operation: "functions.publish", name: "echo" }, controller.signal), /denied/);
     response = new Response("", { status: 500 });

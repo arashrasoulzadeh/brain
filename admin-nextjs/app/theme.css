@@ -289,3 +289,6 @@ form > button[type=submit], form > button:not([type]) { margin-top: 14px; }
 .fn-template.active, .fn-template:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
 @media (max-width: 1100px) { .fn-studio-grid { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 680px) { .fn-metrics, .fn-templates, .fn-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); } .fn-panel { padding: 12px; } .fn-tabs button { padding: 8px; } }
+
+.fn-plain-source { display: block; width: 100%; min-height: 480px; border: 0; border-radius: 0; margin: 0; padding: 14px; font: 13px/1.6 ui-monospace, SFMono-Regular, Consolas, monospace; resize: vertical; tab-size: 2; }
+.fn-code .monaco-editor-actions { flex-wrap: wrap; gap: 8px; }
