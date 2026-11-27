@@ -184,6 +184,10 @@ func (r *Registry) invokeUsingWorker(request WorkerRequest, observer bool, overr
 	if atomicCommit != nil && !observer {
 		deliveries = r.planWorkerObservations(request, response.Observations)
 	}
+	if request.httpRoute != nil {
+		r.lifecycleMu.RLock()
+		defer r.lifecycleMu.RUnlock()
+	}
 	r.readinessMu.RLock()
 	defer r.readinessMu.RUnlock()
 	r.installationMu.RLock()
@@ -211,6 +215,10 @@ func (r *Registry) invokeUsingWorker(request WorkerRequest, observer bool, overr
 }
 
 func (r *Registry) authorizeInvocation(request WorkerRequest, observer bool) error {
+	if request.httpRoute != nil {
+		r.lifecycleMu.RLock()
+		defer r.lifecycleMu.RUnlock()
+	}
 	r.readinessMu.RLock()
 	defer r.readinessMu.RUnlock()
 	r.installationMu.RLock()
@@ -219,6 +227,11 @@ func (r *Registry) authorizeInvocation(request WorkerRequest, observer bool) err
 }
 
 func (r *Registry) authorizeInvocationLocked(request WorkerRequest, observer bool) error {
+	if request.httpRoute != nil {
+		if err := r.checkHTTPRouteLocked(request); err != nil {
+			return err
+		}
+	}
 	if request.requireAccessPolicy && !r.accessInstalledLocked(request.ProjectID) {
 		return ErrActorDenied
 	}

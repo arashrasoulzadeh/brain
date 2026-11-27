@@ -425,21 +425,7 @@ func (s *LifecycleService) InvokeHTTPRoute(projectID string, match plugin.HTTPRo
 	if s == nil || s.registry == nil {
 		return plugin.WorkerResponse{}, plugin.ErrNotRegistered
 	}
-	request := plugin.WorkerRequest{Protocol: s.registry.HostAPI, ProjectID: projectID,
-		PluginID: match.PluginID, Version: match.Version, Operation: match.Operation, Payload: payload}
-	if match.Auth == "public" && actorID == "" {
-		return s.registry.InvokeAsPublic(request)
-	}
-	if actorID == "" {
-		return plugin.WorkerResponse{}, plugin.ErrActorDenied
-	}
-	if match.Auth == "user" {
-		return s.registry.InvokeWithUserSession(request, actorID)
-	}
-	if match.Auth == "operator" {
-		return s.registry.InvokeAsOperator(request, actorID)
-	}
-	return plugin.WorkerResponse{}, plugin.ErrActorDenied
+	return s.registry.InvokeHTTPRoute(projectID, match, payload, actorID)
 }
 
 func (s *LifecycleService) ProjectURLNamespace(id string) string {

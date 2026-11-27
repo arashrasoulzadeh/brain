@@ -1,6 +1,7 @@
 package plugin
 
 import (
+	"maps"
 	"sort"
 	"strings"
 )
@@ -17,6 +18,9 @@ type HTTPRouteMatch struct {
 	Operation  string            `json:"operation"`
 	Auth       string            `json:"auth"`
 	Params     map[string]string `json:"-"`
+
+	projectID    string
+	relativePath string
 }
 
 func mountedHTTPPath(mount, relative string) string {
@@ -27,10 +31,10 @@ func mountedHTTPPath(mount, relative string) string {
 }
 
 func matchHTTPPath(pattern, actual string) (map[string]string, bool) {
-	if pattern == actual {
+	if pattern == "/" && actual == "/" {
 		return map[string]string{}, true
 	}
-	left, right := strings.Split(strings.Trim(pattern, "/"), "/"), strings.Split(strings.Trim(actual, "/"), "/")
+	left, right := strings.Split(strings.TrimPrefix(pattern, "/"), "/"), strings.Split(strings.TrimPrefix(actual, "/"), "/")
 	if len(left) != len(right) {
 		return nil, false
 	}
@@ -61,6 +65,11 @@ func (r *Registry) MatchHTTPRoute(projectID, method, relativePath string) (HTTPR
 	defer r.readinessMu.RUnlock()
 	r.installationMu.RLock()
 	defer r.installationMu.RUnlock()
+	return r.matchHTTPRouteLocked(projectID, method, relativePath)
+}
+
+// The caller holds lifecycle, readiness and installation locks in that order.
+func (r *Registry) matchHTTPRouteLocked(projectID, method, relativePath string) (HTTPRouteMatch, bool) {
 	var result HTTPRouteMatch
 	count := 0
 	for _, installation := range r.installations {
@@ -94,7 +103,7 @@ func (r *Registry) MatchHTTPRoute(projectID, method, relativePath string) (HTTPR
 			result = HTTPRouteMatch{PluginID: installation.PluginID, Version: installation.Version,
 				Method: route.Method, Path: mountedHTTPPath(manifest.Manifest.Mount, route.Path),
 				Function: route.Function, Capability: route.Capability,
-				Operation: route.Operation, Auth: route.Auth, Params: params}
+				Operation: route.Operation, Auth: route.Auth, Params: params, projectID: projectID, relativePath: relativePath}
 		}
 	}
 	// Multiple enabled versions without an active promotion fail closed.
@@ -154,4 +163,40 @@ func (r *Registry) HTTPRoutes(projectID string) []HTTPRouteMatch {
 func (r *Registry) InvokeAsPublic(request WorkerRequest) (WorkerResponse, error) {
 	request.accessPrincipal = "public"
 	return r.Invoke(request)
+}
+
+// InvokeHTTPRoute accepts only a route selected by the host for this project.
+func (r *Registry) InvokeHTTPRoute(projectID string, match HTTPRouteMatch, payload []byte, credential string) (WorkerResponse, error) {
+	if match.projectID != projectID || match.relativePath == "" {
+		return WorkerResponse{}, ErrNotRegistered
+	}
+	request := WorkerRequest{Protocol: r.HostAPI, ProjectID: projectID, PluginID: match.PluginID, Version: match.Version, Operation: match.Operation, Payload: payload, httpRoute: &match}
+	switch match.Auth {
+	case "public":
+		if credential == "" {
+			return r.InvokeAsPublic(request)
+		}
+	case "user":
+		if credential != "" {
+			return r.InvokeWithUserSession(request, credential)
+		}
+	case "operator":
+		if credential != "" {
+			return r.InvokeAsOperator(request, credential)
+		}
+	}
+	return WorkerResponse{}, ErrActorDenied
+}
+
+// Recheck the matched route at admission and under the final commit locks.
+func (r *Registry) checkHTTPRouteLocked(request WorkerRequest) error {
+	expected := request.httpRoute
+	current, ok := r.matchHTTPRouteLocked(request.ProjectID, expected.Method, expected.relativePath)
+	if !ok || current.PluginID != request.PluginID || current.Version != request.Version ||
+		current.Operation != request.Operation || current.Auth != expected.Auth ||
+		current.Capability != expected.Capability || current.Path != expected.Path ||
+		current.Function != expected.Function || !maps.Equal(current.Params, expected.Params) {
+		return ErrNotRegistered
+	}
+	return nil
 }

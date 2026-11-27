@@ -9,6 +9,26 @@ Automatically generated from commits on main.
 - Project names, URL slugs and settings are mutable without changing immutable IDs.
 - Clients, operator UI and deployment integrations must use the new URLs.
 
+- `c6f51829` — 2026-11-27 18:48:32 +0330 — Merge pull request #39 from arashrasoulzadeh/refactor/manifest-driven-runtime
+  Files: 
+- `07f5ee22` — 2026-11-27 18:44:19 +0330 — Use atomic CLI coverage mode consistently
+  Files: cmd/manifest-sdk/main_test.go
+- `8dea3425` — 2026-11-27 18:43:57 +0330 — Exercise manifest generator command success and failure with CLI coverage
+  Files: cmd/manifest-sdk/main_test.go
+- `7cce76cd` — 2026-11-27 18:41:17 +0330 — Test manifest generator failure paths and emit type-only declaration file
+  Files: cmd/manifest-sdk/main.go,cmd/manifest-sdk/main_test.go plugins/sdk-typescript/src/manifest-operations.generated.d.ts,tests/plugin/manifest_sdk_test.go
+- `c9633148` — 2026-11-27 18:38:20 +0330 — Reconcile manifest runtime refactor with current secure host and SDK
+  Files: docs/sdk-reference.md,plugins/functions/scheduling.ts plugins/matchmaking/queue.ts,plugins/sdk-typescript/src/index.ts plugins/sdk-typescript/src/manifest-operations.generated.ts,plugins/sdk-typescript/src/request.ts tests/plugin/manifest-request.test.ts
+- `c1b6c8e8` — 2026-11-27 15:05:18 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
+- `8bf6cb5c` — 2026-11-27 18:34:14 +0330 — Merge pull request #40 from arashrasoulzadeh/fix/macos-homebrew-openssl
+  Files: 
+- `03f401b1` — 2026-11-27 18:33:23 +0330 — Correct Homebrew isolation CI step formatting
+  Files: .github/workflows/test.yml
+- `c80d4a0e` — 2026-11-27 18:33:02 +0330 — Fix native macOS worker startup with Homebrew OpenSSL
+  Files: .github/workflows/test.yml,internal/plugin/macos_profile_coverage_test.go internal/plugin/macos_worker.go
+- `abd9aacf` — 2026-11-27 14:02:28 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `5611abbb` — 2026-11-27 17:31:56 +0330 — Merge pull request #35 from arashrasoulzadeh/fix/macos-seatbelt-startup
   Files: 
 - `b6110f87` — 2026-11-27 17:13:55 +0330 — Emit actual newline between Seatbelt directory rules
@@ -89,23 +109,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `ae39ac29` — 2026-11-27 15:59:53 +0330 — Merge pull request #32 from arashrasoulzadeh/fix/native-macos-dev
   Files: .github/workflows/test.yml
-- `a7746253` — 2026-11-27 15:59:51 +0330 — Merge pull request #30 from arashrasoulzadeh/test/durable-storage-coverage
-  Files: 
-- `5fe94dac` — 2026-11-27 15:13:27 +0330 — Use a valid temporary directory for Seatbelt initialization and add native launch probes
-  Files: .github/workflows/test.yml,scripts/run-macos-typescript-worker.sh tests/plugin/macos_worker_test.go
-- `d71d6616` — 2026-11-27 15:11:45 +0330 — Diagnose native worker startup and permit scoped executable operations
-  Files: .github/workflows/test.yml,internal/plugin/macos_worker.go tests/plugin/macos_worker_test.go
-- `fe04fd13` — 2026-11-27 15:11:35 +0330 — test: cover sandbox factory manifest and descriptor failure paths
-  Files: cmd/brain/worker_factory_failure_test.go
-- `24e7f2ff` — 2026-11-27 15:11:12 +0330 — test: exercise production startup failures with isolated process fixtures
-  Files: cmd/brain/startup_runtime_failure_test.go
-- `7092f906` — 2026-11-27 15:10:44 +0330 — test: cover ambiguous policy routes and corrupt access rule inventories
-  Files: internal/plugin/access_inventory_failure_test.go
-- `9ef231e4` — 2026-11-27 15:10:06 +0330 — Permit only required executable mappings and child cleanup in macOS sandbox
-  Files: internal/plugin/macos_worker.go
-- `ae95bfe5` — 2026-11-27 15:10:00 +0330 — test: verify lifecycle failure paths do not retain authorization
-  Files: internal/plugin/lifecycle_failure_coverage_test.go
-- `83f015f7` — 2026-11-27 15:09:21 +0330 — test: cover admin missing dependency and invalid project failures
-  Files: internal/admin/lifecycle_failure_coverage_test.go
-- `f7a83dac` — 2026-11-27 15:09:08 +0330 — Support native macOS development using Seatbelt worker isolation
-  Files: .github/workflows/test.yml,README.md cmd/brain/main.go,docs/developers.md internal/plugin/macos_worker.go,scripts/run-macos-typescript-worker.sh scripts/start-local.sh,scripts/test-production-runtime.sh scripts/test-runtime-api.mjs,tests/plugin/macos_worker_test.go
