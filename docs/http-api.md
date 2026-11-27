@@ -19,14 +19,14 @@ This is the HTTP surface mounted by the current application in [app.go](../inter
 | `GET /{project}/admin/functions` | Operator bearer | Function drafts within resolved project. |
 | `POST /{project}/admin/functions` | Operator bearer | Function draft and publication commands. |
 | `GET /{project}/admin/function-logs` | Operator bearer | Function execution logs (optional `name`). |
-| `GET /{project}/admin/routes` | Operator bearer | Live manifest-declared route discovery. |
+| `GET /{project}/admin/routes` | Operator bearer | Live manifest-declared route discovery; each returned `path` includes the canonical project slug (or ID). |
 | `POST /{project}/admin/actions` | Operator bearer | Project plugin, grant, invocation and data commands. |
 | `ANY /{project}/functions/{function_name}` | Anonymous or authorized bearer | Published functions; only their declared GET, POST, PUT or PATCH method is accepted. |
 | `POST /{project}/ws` | Project user bearer | Request a one-time ticket for a declared socket route. |
 | `GET /{project}/ws` | Project connection ticket | Upgrade to a single project-scoped worker route. |
 | `ANY /{project}/{resource...}` | Manifest-declared | Dynamic plugin route (the HTTP method, path and authentication must be declared in `plugin.yaml`). |
 
-The first segment is **mandatory**. It is a project ID or its unique slug; `_system` is reserved and cannot be created as a project. Unknown projects and missing installations return 404; inactive projects return 403. The host resolves the immutable project ID before invoking workers and rejects contradictory project IDs from query arguments, headers, paths and command bodies. Public plugin invocations cannot inherit operator privileges.
+The first segment is **mandatory**. It is a project ID or its unique slug; `_system` is reserved and cannot be created as a project. Unknown projects and missing installations return 404; inactive projects return 403. The host resolves the immutable project ID before invoking workers and rejects contradictory project IDs from query arguments, headers, paths and command bodies. Public plugin invocations cannot inherit operator privileges. Display names are not URL identifiers. Discovery and published function URLs use the slug when configured, otherwise the immutable ID. Both identifiers resolve to the same project; clients must not prepend the namespace again to a discovered `path`.
 
 Operator sessions expire eight hours after issuance; use `Authorization: Bearer <session>`. They are distinct from project-user tokens. Never ship operator credentials or sessions in a product client.
 
