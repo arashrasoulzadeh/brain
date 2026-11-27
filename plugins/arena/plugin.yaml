@@ -52,6 +52,23 @@ routes:
     helper: sdk.context
     capability: arena.input
     resource_field: roomId
+  - operation: arena.connect
+    method: POST
+    path: /{roomId}/connect
+    auth: user
+    function: connect
+    helper: sdk.context
+    capability: arena.snapshot
+    resource_field: roomId
+  - operation: arena.player.input
+    method: POST
+    path: /{roomId}/input
+    auth: user
+    function: playerInput
+    helper: sdk.context
+    capability: arena.input
+    resource_field: roomId
+    websocket_admission: arena.connect
   - operation: arena.snapshot
     method: POST
     path: /snapshot

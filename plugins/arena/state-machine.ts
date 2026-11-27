@@ -143,7 +143,7 @@ export function interruptExpiredActionRoom(
   return "interrupted";
 }
 
-/** Operator-invoked worker routes; realtime actor/membership binding remains a host responsibility. */
+/** Operator-managed arena lifecycle; player routes below require a host-authenticated member. */
 export function start(context: PluginContext, input: unknown) {
   const payload = requireProjectInput(context, input);
   const roomId = routeRoomId(payload);
@@ -162,6 +162,30 @@ export function input(context: PluginContext, request: unknown) {
   const payload = requireProjectInput(context, request);
   const arena = routeArena(context, payload);
   const playerId = requiredString(payload.playerId, "player id is required");
+  if (typeof payload.sequence !== "number") throw new Error("invalid action sequence");
+  arena.action(playerId, payload.sequence, payload.payload);
+  return { projectId: arena.projectId, roomId: arena.roomId, accepted: true };
+}
+
+function admittedPlayer(context: PluginContext, arena: ReturnType<typeof createArena>): string {
+  const actor = context.auth?.caller;
+  if (!actor || actor.kind !== "user" || !actor.authenticated || !actor.id.startsWith(context.project.id + ":") ||
+      arena.getState() !== "active" || !arena.players.includes(actor.id)) throw new Error("arena membership required");
+  return actor.id;
+}
+
+export function connect(context: PluginContext, input: unknown) {
+  const payload = requireProjectInput(context, input);
+  const arena = routeArena(context, payload);
+  admittedPlayer(context, arena);
+  return { admitted: true };
+}
+
+export function playerInput(context: PluginContext, input: unknown) {
+  const payload = requireProjectInput(context, input);
+  const arena = routeArena(context, payload);
+  const playerId = admittedPlayer(context, arena);
+  if (payload.playerId !== undefined && payload.playerId !== playerId) throw new Error("player identity mismatch");
   if (typeof payload.sequence !== "number") throw new Error("invalid action sequence");
   arena.action(playerId, payload.sequence, payload.payload);
   return { projectId: arena.projectId, roomId: arena.roomId, accepted: true };

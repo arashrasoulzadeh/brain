@@ -1,6 +1,6 @@
 import { deepEqual, equal, throws } from "node:assert/strict";
 import { test } from "node:test";
-import { input, result, snapshot, start } from "../../plugins/arena/index.js";
+import { input, result, snapshot, start, connect, playerInput } from "../../plugins/arena/index.js";
 import type { ObservationIntent, PluginContext } from "../../plugins/sdk-typescript/src/index.js";
 
 function context(id: string, observations: ObservationIntent[]): PluginContext {
@@ -60,4 +60,30 @@ test("host-owned arena snapshots rehydrate a fresh runtime without replaying pri
   deepEqual(snapshot(ctx, { roomId, _brainArena: { ...stored, state: "finished", result: { winnerIds: ["one"], completedAt } } }), { projectId: "durable-arena", roomId, players, state: "finished", result: match });
   throws(() => snapshot(ctx, { roomId }), /arena not found/);
   throws(() => snapshot(ctx, { roomId, _brainArena: { ...stored, sequences: { outsider: 3 } } }), /invalid stored sequence/);
+});
+
+test("realtime admission and player input derive identity from the trusted user session", () => {
+  const ctx = context("socket-arena", []);
+  const roomId = "room";
+  const players = ["socket-arena:alice", "socket-arena:bob"];
+  start(ctx, { roomId, players });
+  function user(id: string): PluginContext {
+    const actor = { kind: "user" as const, id, authenticated: true, level: "authenticated" as const };
+    return { ...ctx, auth: { actor, caller: actor, permissions: [], can: () => true } };
+  }
+  const alice = user(players[0]);
+  const bob = user(players[1]);
+  throws(() => connect(ctx, { roomId }), /membership required/);
+  throws(() => connect(user("foreign:alice"), { roomId }), /membership required/);
+  throws(() => connect(user("socket-arena:outsider"), { roomId }), /membership required/);
+  deepEqual(connect(alice, { roomId }), { admitted: true });
+  deepEqual(connect(bob, { roomId }), { admitted: true });
+  throws(() => playerInput(alice, { roomId, playerId: players[1], sequence: 1 }), /identity mismatch/);
+  throws(() => playerInput(alice, { roomId, sequence: "1" }), /invalid action sequence/);
+  deepEqual(playerInput(alice, { roomId, sequence: 1 }), { projectId: "socket-arena", roomId, accepted: true });
+  throws(() => playerInput(alice, { roomId, sequence: 1 }), /sequence conflict/);
+  playerInput(bob, { roomId, sequence: 1 });
+  result(ctx, { roomId, winnerIds: [players[0]], completedAt: "2026-01-01T00:00:00Z" });
+  throws(() => connect(alice, { roomId }), /membership required/);
+  throws(() => playerInput(alice, { roomId, sequence: 2 }), /membership required/);
 });

@@ -60,6 +60,10 @@ func (g *webSocketGateway) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
+	if r.Method == http.MethodGet && socketTicket(r) == "" {
+		http.Error(w, "connection ticket required", http.StatusUnauthorized)
+		return
+	}
 	origin := r.Header.Get("Origin")
 	if !sameSocketOrigin(r, origin) {
 		http.Error(w, "origin denied", http.StatusForbidden)
