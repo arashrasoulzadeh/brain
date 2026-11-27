@@ -1,7 +1,8 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useMemo } from "react";
+import { useState } from "react";
+import type { OnValidate } from "@monaco-editor/react";
 
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
 
@@ -22,26 +23,8 @@ export function FunctionEditor({
   validationOK?: boolean;
   readOnly?: boolean;
 }) {
-  const localDiagnostic = useMemo(() => {
-    const stack: string[] = [];
-    const pairs: Record<string, string> = { "(": ")", "[": "]", "{": "}" };
-    for (const character of source) {
-      if (pairs[character]) stack.push(pairs[character]);
-      else if (Object.values(pairs).includes(character) && stack.pop() !== character)
-        return "Unbalanced brackets or braces";
-    }
-    if (stack.length) return "Unclosed bracket or brace";
-    if (!/\bexport\s+default\b/.test(source)) return "A default exported handler is required";
-    if (/\b(import|require|process|child_process|fs|net|fetch|Deno)\b/.test(source))
-      return "Host law: imports, network access, process, and filesystem access are not allowed";
-    if (
-      !/export\s+const\s+config\s*=\s*\{[\s\S]*\bmethod\s*:\s*["'](GET|POST|PUT|PATCH)["']/.test(
-        source,
-      )
-    )
-      return "Host law: export config with method GET, POST, PUT, or PATCH";
-    return "";
-  }, [source]);
+  const [diagnostics, setDiagnostics] = useState<{ line: number; column: number; message: string }[]>([]);
+  const showDiagnostics: OnValidate = markers => setDiagnostics(markers.filter(marker => marker.severity === 8).map(marker => ({ line: marker.startLineNumber, column: marker.startColumn, message: marker.message })));
 
   return (
     <section className="monaco-function-editor" aria-label="Function source code editor">
@@ -58,7 +41,8 @@ export function FunctionEditor({
         language="typescript"
         theme="vs"
         value={source}
-        onChange={(value) => onChange(value ?? "")}
+        onChange={(value) => { setDiagnostics([]); onChange(value ?? ""); }}
+        onValidate={showDiagnostics}
         options={{
           automaticLayout: true,
           readOnly,
@@ -75,13 +59,15 @@ export function FunctionEditor({
           quickSuggestions: true,
         }}
       />
-      {(localDiagnostic || validationMessage) && (
+      <p className="muted">Editor diagnostics are advisory. Host validation checks the supported function contract and sandbox restrictions.</p>
+      {!!diagnostics.length && <details className="editor-diagnostic"><summary>{diagnostics.length} editor diagnostics</summary><ul>{diagnostics.slice(0, 20).map((item, index) => <li key={index}>Line {item.line}:{item.column} · {item.message}</li>)}</ul></details>}
+      {validationMessage && (
         <div
           className={`editor-diagnostic ${validationMessage && validationOK ? "valid" : "invalid"}`}
           role="status"
         >
-          <strong>{validationMessage && validationOK ? "✓ Host validation passed" : validationMessage ? "Host validation failed" : "Local syntax hint"}</strong>
-          <span>{validationMessage || localDiagnostic}</span>
+          <strong>{validationOK ? "✓ Host validation passed" : "Host validation failed"}</strong>
+          <span>{validationMessage}</span>
         </div>
       )}
     </section>
