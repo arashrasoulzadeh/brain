@@ -1,7 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 image="${BRAIN_TEST_IMAGE:-brain:production-smoke}"
-docker build -t "$image" .
+coverage_dir="${BRAIN_PRODUCTION_COVERDIR:-}"
+coverage_env=()
+if [ -n "$coverage_dir" ]; then
+  mkdir -p "$coverage_dir"
+  docker build --build-arg BRAIN_COVERAGE=1 -t "$image" .
+  coverage_env=(-e GOCOVERDIR=/workspace/.local/coverage)
+else
+  docker build -t "$image" .
+fi
 if output=$(docker run --rm --network none -e HTTP_ADDRESS=:8080 "$image" 2>&1); then
   echo "host accepted missing operator credentials" >&2
   exit 1
@@ -15,7 +23,7 @@ printf '%s\n' "$output" | grep -F 'PROJECTS_FILE must name an explicit durable S
 
 # Privileged namespace access is used only in this isolated CI test, never in
 # production deployment. No host paths, credentials, or network are attached.
-container=$(docker run -d --privileged --network none -e HTTP_ADDRESS=:8080 -e OPERATOR_USERNAME=ci-operator -e OPERATOR_SECRET=ci-fixture-only -e PROJECTS_FILE=/workspace/.local/brain.sqlite "$image")
+container=$(docker run -d --privileged --network none "${coverage_env[@]}" -e HTTP_ADDRESS=:8080 -e OPERATOR_USERNAME=ci-operator -e OPERATOR_SECRET=ci-fixture-only -e PROJECTS_FILE=/workspace/.local/brain.sqlite "$image")
 cleanup() {
   docker logs "$container" 2>&1 || true
   docker rm -f "$container" >/dev/null 2>&1 || true
@@ -104,3 +112,11 @@ assert.ok(analyticsDelivered,"analytics did not receive rooms.connected");
 await invoke("subscriptions","subscriptions.close",{channel,ticket:subscription.ticket});
 assert.ok((await fetch(base + "/readyz")).ok);
 NODE
+
+# Graceful shutdown flushes the real instrumented host's execution counters.
+if [ -n "$coverage_dir" ]; then
+  docker stop --time 15 "$container" >/dev/null
+  test "$(docker inspect -f '{{.State.ExitCode}}' "$container")" = 0
+  docker cp "$container:/workspace/.local/coverage/." "$coverage_dir"
+  find "$coverage_dir" -name 'covcounters.*' -print -quit | grep -q .
+fi

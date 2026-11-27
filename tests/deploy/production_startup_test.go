@@ -80,7 +80,7 @@ func TestProductionCLICommandsAndDiscoveryErrors(t *testing.T) {
 		{[]string{"plugin-contract"}, nil, "usage: brain plugin-contract", false},
 		{[]string{"plugin-contract", "missing.yaml", "markdown"}, nil, "missing.yaml", false},
 		{[]string{"plugin-contract", manifest, "markdown"}, nil, "dashboard", true},
-		{[]string{"plugin-contract", manifest, "typescript"}, nil, "dashboard", true},
+		{[]string{"plugin-contract", manifest, "typescript"}, nil, "export interface Operations", true},
 		{[]string{"plugin-contract", manifest, "unknown"}, nil, "unknown contract format", false},
 		{[]string{"bootstrap-operator"}, nil, "bootstrap requires", false},
 		{[]string{"bootstrap-operator"}, []string{"OPERATOR_USERNAME=ci", "OPERATOR_SECRET=fixture"}, "bootstrapped", true},

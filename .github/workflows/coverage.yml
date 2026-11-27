@@ -27,6 +27,12 @@ jobs:
           test -s coverage/cli.out
           test "$(wc -l < coverage/cli.out)" -gt 1
           tail -n +2 coverage/cli.out >> coverage/go.out
+          # Exercise the packaged server and isolated workers, not just Go mocks.
+          BRAIN_PRODUCTION_COVERDIR="$PWD/coverage/production" timeout 300s bash scripts/test-production-runtime.sh || status=$?
+          go tool covdata textfmt -i=coverage/production -o=coverage/production.out
+          test -s coverage/production.out
+          test "$(wc -l < coverage/production.out)" -gt 1
+          tail -n +2 coverage/production.out >> coverage/go.out
           if test -s coverage/go.out; then
             go tool cover -func=coverage/go.out | tee coverage/go-summary.txt
             go tool cover -html=coverage/go.out -o coverage/go.html
