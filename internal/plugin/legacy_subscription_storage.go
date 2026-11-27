@@ -84,7 +84,11 @@ func prepareSubscriptionStorageEffect(storage *SQLiteStorage, request WorkerRequ
 	if err != nil {
 		return request, nil, err
 	}
-	snapshot := map[string]any{"stream": json.RawMessage(mustSubscriptionJSON(stream))}
+	encodedStream, err := json.Marshal(stream)
+	if err != nil {
+		return request, nil, err
+	}
+	snapshot := map[string]any{"stream": json.RawMessage(encodedStream)}
 	payload := map[string]any{"channel": subscriptionChannel, "_brainSubscriptions": snapshot}
 	now := time.Now().UnixMilli()
 	var effect func(sqliteExecutor) error
@@ -237,11 +241,4 @@ func prepareSubscriptionStorageEffect(storage *SQLiteStorage, request WorkerRequ
 	}
 	request.Payload = encoded
 	return request, effect, nil
-}
-
-// The typed stream contains only bounded JSON primitives, so it is safe to
-// encode independently before computing the proposed mutation.
-func mustSubscriptionJSON(state storedSubscriptionStream) []byte {
-	encoded, _ := json.Marshal(state)
-	return encoded
 }
