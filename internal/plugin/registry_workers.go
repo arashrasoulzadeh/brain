@@ -163,6 +163,9 @@ func (r *Registry) invokeUsingWorker(request WorkerRequest, observer bool, overr
 		// A failed response-aware operation must never expose private state.
 		if request.PluginID == "auth" && atomicCommit != nil {
 			response.Payload = nil
+			if response.ErrorCode != "" {
+				response.ErrorCode = "authentication failed"
+			}
 		}
 		return response, err
 	}
@@ -348,10 +351,11 @@ func validatePayloadProject(request WorkerRequest) error {
 	var payload map[string]json.RawMessage
 	if json.Unmarshal(request.Payload, &payload) == nil {
 		// Durable snapshots are reserved for the trusted host storage adapter.
-		for pluginID, reserved := range map[string]string{"arena": "_brainArena", "auth": "_brainAuth"} {
-			if _, supplied := payload[reserved]; request.PluginID == pluginID && supplied {
-				return ErrInvalidWorkerRequest
-			}
+		if _, supplied := payload["_brainArena"]; request.PluginID == "arena" && supplied {
+			return ErrInvalidWorkerRequest
+		}
+		if _, supplied := payload["_brainAuth"]; request.PluginID == "auth" && supplied {
+			return ErrInvalidWorkerRequest
 		}
 		for _, key := range []string{"projectId", "project_id"} {
 			if value, exists := payload[key]; exists {

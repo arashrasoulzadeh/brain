@@ -88,6 +88,7 @@ await invoke("arena","arena.start",{roomId:arenaRoom,players:["one","two"]});
 await invoke("arena","arena.input",{roomId:arenaRoom,playerId:"one",sequence:1});
 await action("plugin.stop",{plugin_id:"arena",confirmed:true});
 await action("plugin.recover",{plugin_id:"arena"});
+await action("plugin.worker.start",{plugin_id:"arena"});
 const arenaSnapshot = await invoke("arena","arena.snapshot",{roomId:arenaRoom});
 assert.deepEqual(arenaSnapshot.players,["one","two"]);
 assert.equal(arenaSnapshot.state,"active");
@@ -96,6 +97,7 @@ assert.ok(!replay.ok || !(await replay.json()).Success,"replayed arena sequence 
 const match = await invoke("arena","arena.result",{roomId:arenaRoom,winnerIds:["one"],completedAt:"2026-01-01T00:00:00Z"});
 await action("plugin.stop",{plugin_id:"arena",confirmed:true});
 await action("plugin.recover",{plugin_id:"arena"});
+await action("plugin.worker.start",{plugin_id:"arena"});
 const finished = await invoke("arena","arena.snapshot",{roomId:arenaRoom});
 assert.deepEqual(finished.result,match);
 const matches = await action("plugin.admin.inventory",{plugin_id:"arena",page_id:"matches",limit:20});
@@ -105,6 +107,7 @@ await invoke("auth","auth.signup",{username:"ci-user",password:"ci-fixture-passw
 const signedIn = await invoke("auth","auth.signin",{username:"ci-user",password:"ci-fixture-password"});
 await action("plugin.stop",{plugin_id:"auth",confirmed:true});
 await action("plugin.recover",{plugin_id:"auth"});
+await action("plugin.worker.start",{plugin_id:"auth"});
 assert.deepEqual(await invoke("auth","auth.identity",{token:signedIn.token}),{userId:"ci-project:ci-user"});
 const accounts = await invoke("auth","auth.admin.accounts",{});
 assert.deepEqual(accounts.rows,[{username:"ci-user",userId:"ci-project:ci-user",guest:false,activeSessions:1}]);

@@ -54,6 +54,7 @@ async function dispatchDurable(name: string, rpc: RpcRequest, context?: PluginCo
     const username = validateProjectId(String(payload.username ?? ""), "invalid username");
     requireOperator(context, "auth.admin.manage", username);
     // The host computes the actual affected-row count in its transaction.
+    context.plugins.observe.fire("sessions.revoked", {});
     return { username, revoked: 0 };
   }
   const state = createAuthState();
@@ -121,7 +122,9 @@ export function functions(
       if (typeof payload.username !== "string") throw new Error("invalid username");
       const username = validateProjectId(payload.username, "invalid username");
       requireOperator(context, "auth.admin.manage", username);
-      return service.revokeSessions(projectOf(rpc, context), username);
+      const result = service.revokeSessions(projectOf(rpc, context), username);
+      context.plugins.observe.fire("sessions.revoked", {});
+      return result;
     },
     guest: (rpc, context) => {
       const result = service.guest(projectOf(rpc, context));
