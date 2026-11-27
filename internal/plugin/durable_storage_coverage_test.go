@@ -182,7 +182,7 @@ func TestDurableCoverageSubscriptionRejections(t *testing.T) {
 			t.Fatalf("%s %s: %v", tc.op, tc.payload, err)
 		}
 	}
-	for _, state := range []storedSubscriptionStream {
+	for _, state := range []storedSubscriptionStream{
 		{Sequence: -1, Events: []storedSubscriptionEvent{}, Seen: []string{}},
 		{Sequence: 1, Events: []storedSubscriptionEvent{{Sequence: 1}}, Seen: []string{}},
 	} {
