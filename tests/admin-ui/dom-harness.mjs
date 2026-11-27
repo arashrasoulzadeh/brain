@@ -7,13 +7,20 @@ const require = createRequire(new URL("../../admin-nextjs/package.json", import.
 const tools = createRequire(resolve(process.env.BRAIN_TEST_TOOLS ?? "tests/admin-ui", "package.json"));
 const { JSDOM } = tools("jsdom");
 const dom = new JSDOM("<!doctype html><html><body></body></html>", { url: "http://localhost:3000/", pretendToBeVisual: true });
-for (const name of ["window", "document", "navigator", "HTMLElement", "HTMLInputElement", "HTMLSelectElement", "HTMLTextAreaElement", "CustomEvent", "Event", "MouseEvent"]) {
+for (const name of ["window", "self", "location", "document", "navigator", "HTMLElement", "HTMLInputElement", "HTMLSelectElement", "HTMLTextAreaElement", "CustomEvent", "Event", "MouseEvent"]) {
   Object.defineProperty(globalThis, name, { value: name === "window" ? dom.window : dom.window[name], configurable: true, writable: true });
 }
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 const React = require("react");
 globalThis.React = React;
-export const { act, createElement: h } = React;
+export const { createElement: h } = React;
+export async function act(callback) {
+  try { return await React.act(callback); }
+  catch (error) {
+    if (error instanceof AggregateError) throw new Error(error.errors.map(item => item.stack ?? String(item)).join("\n"));
+    throw error;
+  }
+}
 const { createRoot } = require("react-dom/client");
 const { AppRouterContext } = require("next/dist/shared/lib/app-router-context.shared-runtime");
 const { PathnameContext, PathParamsContext, SearchParamsContext } = require("next/dist/shared/lib/hooks-client-context.shared-runtime");
