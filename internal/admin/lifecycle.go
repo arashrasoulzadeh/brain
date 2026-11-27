@@ -398,3 +398,28 @@ func (s *LifecycleService) AdminInventory(actor operator.Actor, pageID string, i
 	})
 	return result, err
 }
+
+// ProjectStore exposes the existing trusted resolver to the host router.
+func (s *LifecycleService) ProjectStore() *project.Store {
+    if s == nil { return nil }
+    return s.projects
+}
+
+func (s *LifecycleService) MatchHTTPRoute(projectID, method, relativePath string) (plugin.HTTPRouteMatch, bool) {
+    if s == nil || s.registry == nil { return plugin.HTTPRouteMatch{}, false }
+    return s.registry.MatchHTTPRoute(projectID, method, relativePath)
+}
+
+func (s *LifecycleService) ProjectHTTPRoutes(projectID string) []plugin.HTTPRouteMatch {
+    if s == nil || s.registry == nil { return nil }
+    return s.registry.HTTPRoutes(projectID)
+}
+
+func (s *LifecycleService) InvokeHTTPRoute(projectID string, match plugin.HTTPRouteMatch, payload []byte, actorID string) (plugin.WorkerResponse, error) {
+    if s == nil || s.registry == nil { return plugin.WorkerResponse{}, plugin.ErrNotRegistered }
+    request := plugin.WorkerRequest{Protocol:s.registry.HostAPI, ProjectID:projectID,
+        PluginID:match.PluginID, Version:match.Version, Operation:match.Operation, Payload:payload}
+    if match.Auth == "public" && actorID == "" { return s.registry.InvokeAsPublic(request) }
+    if match.Auth != "operator" || actorID == "" { return plugin.WorkerResponse{}, plugin.ErrActorDenied }
+    return s.registry.InvokeAsOperator(request,actorID)
+}
