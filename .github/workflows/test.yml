@@ -102,6 +102,11 @@ jobs:
       - run: npm run typecheck
       - run: npm ci
         working-directory: .
+      - name: Install pinned DOM test runtime
+        working-directory: .
+        run: npm install --prefix "$RUNNER_TEMP/brain-test-tools" --no-save --ignore-scripts jsdom@26.1.0
       - name: Test admin runtime rendering and transport
+        env:
+          BRAIN_TEST_TOOLS: ${{ runner.temp }}/brain-test-tools
         working-directory: .
         run: node_modules/.bin/tsx --tsconfig tests/admin-ui/tsconfig.json --test tests/admin-ui/*.test.mjs
