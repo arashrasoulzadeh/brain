@@ -100,6 +100,18 @@ const finished = await invoke("arena","arena.snapshot",{roomId:arenaRoom});
 assert.deepEqual(finished.result,match);
 const matches = await action("plugin.admin.inventory",{plugin_id:"arena",page_id:"matches",limit:20});
 assert.deepEqual(matches.rows,[{key:arenaRoom}]);
+// Account hashes and token digests survive worker recovery, but never appear in admin results.
+await invoke("auth","auth.signup",{username:"ci-user",password:"ci-fixture-password"});
+const signedIn = await invoke("auth","auth.signin",{username:"ci-user",password:"ci-fixture-password"});
+await action("plugin.stop",{plugin_id:"auth",confirmed:true});
+await action("plugin.recover",{plugin_id:"auth"});
+assert.deepEqual(await invoke("auth","auth.identity",{token:signedIn.token}),{userId:"ci-project:ci-user"});
+const accounts = await invoke("auth","auth.admin.accounts",{});
+assert.deepEqual(accounts.rows,[{username:"ci-user",userId:"ci-project:ci-user",guest:false,activeSessions:1}]);
+assert.ok(!JSON.stringify(accounts).includes(signedIn.token));
+assert.deepEqual(await invoke("auth","auth.admin.sessions.revoke",{username:"ci-user"}),{username:"ci-user",revoked:1});
+const revoked = await fetch(base+"/admin/actions",{method:"POST",headers,body:JSON.stringify({operation:"plugin.invoke",project_id:"ci-project",plugin_id:"auth",version:"0.1.0",target_operation:"auth.session",payload:{token:signedIn.token}})});
+assert.ok(!revoked.ok || !(await revoked.json()).Success,"revoked session still admitted");
 const channel = "rooms.connected";
 const subscription = await invoke("subscriptions","subscriptions.open",{channel});
 await invoke("rooms","rooms.create",{id:"ci-room"});

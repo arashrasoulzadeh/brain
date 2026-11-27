@@ -1,12 +1,15 @@
 package plugin_test
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"brain/internal/admin"
 	"brain/internal/app"
@@ -22,12 +25,13 @@ func TestVerifiedUserSessionSuppliesCurrentActor(t *testing.T) {
 	identity, _ := auth.Route("auth.identity")
 	read := plugin.Route{Operation: "records.read", Function: "read", Capability: "records.read", ResourceField: "record"}
 	records := plugin.Manifest{ID: "records", Version: "1", HostAPI: 1, Capabilities: []string{read.Capability}, Routes: []plugin.Route{read}}
-	r, _ := accessRegistry(t, auth, records)
+	r, storage := accessRegistry(t, auth, records)
+	seedVerifiedSession(t, storage, "alpha")
 	userWorker := &countingWorker{}
 	authWorker := &storageCommitWorker{handle: func(req plugin.WorkerRequest) plugin.WorkerResponse {
-		var input map[string]string
+		var input struct{ Token string }
 		_ = json.Unmarshal(req.Payload, &input)
-		if input["token"] != "valid-session" || req.ProjectID != "alpha" {
+		if input.Token != "valid-session" || req.ProjectID != "alpha" {
 			return plugin.WorkerResponse{Protocol: req.Protocol, ErrorCode: "invalid session"}
 		}
 		return plugin.WorkerResponse{Protocol: req.Protocol, Success: true, Payload: []byte(`{"userId":"alpha:alice"}`)}
@@ -78,12 +82,13 @@ func TestPublishedFunctionReceivesVerifiedUserSession(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	r, _ := accessRegistry(t, auth, functions)
+	r, storage := accessRegistry(t, auth, functions)
 	project, name := "public-session-project", "session_context"
+	seedVerifiedSession(t, storage, project)
 	installAccessTestPlugin(t, r, project, auth, &storageCommitWorker{handle: func(req plugin.WorkerRequest) plugin.WorkerResponse {
-		var input map[string]string
+		var input struct{ Token string }
 		_ = json.Unmarshal(req.Payload, &input)
-		if input["token"] != "valid-session" {
+		if input.Token != "valid-session" {
 			return plugin.WorkerResponse{Protocol: req.Protocol, ErrorCode: "invalid session"}
 		}
 		return plugin.WorkerResponse{Protocol: req.Protocol, Success: true, Payload: []byte(`{"userId":"public-session-project:alice"}`)}
@@ -142,5 +147,16 @@ func TestPublishedFunctionReceivesVerifiedUserSession(t *testing.T) {
 	}
 	if err := json.Unmarshal(rec.Body.Bytes(), &output); err != nil || output.Result.ID != project+":alice" || output.Result.Kind != "user" || !output.Result.Allowed {
 		t.Fatalf("incorrect function identity: %s %v", rec.Body.String(), err)
+	}
+}
+
+func seedVerifiedSession(t *testing.T, storage *plugin.SQLiteStorage, project string) {
+	t.Helper()
+	digest := sha256.Sum256([]byte("valid-session"))
+	if err := storage.PutState(project, "auth.sessions", hex.EncodeToString(digest[:]), map[string]any{"projectId": project, "username": "alice", "expiresAt": time.Now().Add(time.Hour).UnixMilli()}); err != nil {
+		t.Fatal(err)
+	}
+	if err := storage.PutState(project, "auth.accounts", "alice", map[string]any{"username": "alice", "userId": project + ":alice", "passwordHash": "$argon2id$fixture"}); err != nil {
+		t.Fatal(err)
 	}
 }
