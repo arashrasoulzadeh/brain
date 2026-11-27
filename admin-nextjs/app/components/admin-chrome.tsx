@@ -1,5 +1,5 @@
 "use client";
-import { adminHeaders, readAdminSession, preferredAdminProject, projectAdminURL, systemAdminURL } from "../lib/admin-api";
+import { adminHeaders, readAdminSession, preferredAdminProject, projectAdminURL, systemAdminURL, systemUIURL, adminUIContext } from "../lib/admin-api";
 import { enabledPluginIDs, visibleAdminPages } from "../lib/admin-navigation";
 import { adminContributions } from "../lib/admin-registry";
 import type { AdminCatalog, AdminContribution } from "../lib/admin-registry";
@@ -8,7 +8,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { createContext, useContext, useEffect, useState } from "react";
 import { adminMenu, menuItemActive, type MenuIcon } from "../lib/admin-menu";
-import { useParams, usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { ADMIN_PROJECT_CHANGED } from "../lib/admin-api";
 
 type AdminSidebarProps = {
@@ -26,9 +26,8 @@ export function AdminSidebar({
   title = "Brain",
   visiblePages,
 }: AdminSidebarProps) {
-  const params = useParams<{ project?: string }>();
-  const requestedProject = projectID ?? params.project;
   const pathname = usePathname();
+  const requestedProject = adminUIContext(pathname).namespace ?? (projectID || undefined);
   const [projectEpoch, setProjectEpoch] = useState(0);
   const [activeProject, setActiveProject] = useState("");
   const [search, setSearch] = useState("");
@@ -54,10 +53,8 @@ export function AdminSidebar({
     void (async () => {
       const projectsResponse = await fetch(systemAdminURL("projects"), { headers, signal });
       if (!projectsResponse.ok) return;
-      const projects = (await projectsResponse.json()) as Array<{ ID: string; Active: boolean }>;
-      const active = requestedProject === undefined
-        ? preferredAdminProject(projects)?.ID
-        : projects.find(candidate => candidate.Active && candidate.ID === requestedProject)?.ID;
+      const projects = (await projectsResponse.json()) as Array<{ ID: string; Slug?: string; Active: boolean }>;
+      const active = preferredAdminProject(projects, requestedProject)?.ID;
       if (!active || signal.aborted) return;
       setActiveProject(active);
       const response = await fetch(projectAdminURL(active, "plugins"), { headers, signal });
@@ -69,15 +66,15 @@ export function AdminSidebar({
     })().catch(() => undefined);
     return () => controller.abort();
   }, [requestedProject, activePage, projectEpoch]);
-  const groups = adminMenu(visiblePages ?? discoveredPages, extensions, search);
+  const groups = adminMenu(visiblePages ?? discoveredPages, extensions, search, activeProject);
   return (
     <aside className="sidebar">
       <div className="sidebar-brand">
-        <Link href="/projects" className="brand-link"><span className="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><path d="M12 3 3 8l9 5 9-5-9-5ZM3 12l9 5 9-5M3 16l9 5 9-5" /></svg></span><span><strong>{title}</strong><small>Control plane</small></span></Link>
+        <Link href={systemUIURL("projects")} className="brand-link"><span className="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><path d="M12 3 3 8l9 5 9-5-9-5ZM3 12l9 5 9-5M3 16l9 5 9-5" /></svg></span><span><strong>{title}</strong><small>Control plane</small></span></Link>
         <button type="button" className="menu-toggle secondary" aria-label="Toggle navigation" aria-expanded={mobileOpen} aria-controls="admin-menu" onClick={() => setMobileOpen(value => !value)}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4 6h16M4 12h16M4 18h16" /></svg></button>
       </div>
       <div id="admin-menu" className={"sidebar-menu" + (mobileOpen ? " is-open" : "")}>
-        <Link href="/projects" className="workspace-picker" title="Change project"><MenuGlyph name="projects" /><span><small>Current project</small><strong>{activeProject || "Select project"}</strong></span><span aria-hidden="true">⌄</span></Link>
+        <Link href={systemUIURL("projects")} className="workspace-picker" title="Change project"><MenuGlyph name="projects" /><span><small>Current project</small><strong>{activeProject || "Select project"}</strong></span><span aria-hidden="true">⌄</span></Link>
         <label className="menu-search"><MenuGlyph name="search" /><input aria-label="Filter navigation" placeholder="Find a page…" value={search} onChange={event => setSearch(event.target.value)} /></label>
         <nav className="sidebar-nav" aria-label="Admin navigation">
           {groups.map(group => {
@@ -165,16 +162,17 @@ export function AdminPageFrame({
   const [access, setAccess] = useState(requiredPluginID ? "checking" : "allowed");
   useEffect(() => {
     if (!requiredPluginID) return;
+    setAccess("checking");
     const token = readAdminSession();
     if (!token) {
-      router.replace("/");
+      router.replace(systemUIURL());
       return;
     }
     void fetch(systemAdminURL("projects"), { headers: adminHeaders(token) })
       .then(async (projectsResponse) => {
         if (!projectsResponse.ok) throw new Error("session expired");
         const projects = (await projectsResponse.json()) as Array<{ ID: string; Active: boolean }>;
-        const activeProject = preferredAdminProject(projects)?.ID;
+        const activeProject = preferredAdminProject(projects, adminUIContext(pathname).namespace)?.ID;
         if (!activeProject) throw new Error("no active project");
         const pluginsResponse = await fetch(
           projectAdminURL(activeProject, "plugins"),
@@ -191,13 +189,13 @@ export function AdminPageFrame({
             installation.Ready,
         );
         if (!active) {
-          router.replace("/");
+          router.replace(systemUIURL());
           return;
         }
         setAccess("allowed");
       })
-      .catch(() => router.replace("/"));
-  }, [requiredPluginID, router]);
+      .catch(() => router.replace(systemUIURL()));
+  }, [requiredPluginID, router, pathname]);
   if (access !== "allowed") return <p className="muted" role="status">Checking page access…</p>;
   return <>{children}</>;
 }

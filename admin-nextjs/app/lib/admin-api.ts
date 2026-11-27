@@ -60,7 +60,26 @@ export function saveAdminProject(id: string): void {
   window.dispatchEvent(new Event(ADMIN_PROJECT_CHANGED));
 }
 
-export function preferredAdminProject<T extends { ID: string; Active: boolean }>(projects: readonly T[]): T | undefined {
+export function preferredAdminProject<T extends { ID: string; Slug?: string; Active: boolean }>(projects: readonly T[], namespace?: string): T | undefined {
+  if (namespace !== undefined) return projects.find(project => project.Active && (project.ID === namespace || project.Slug === namespace));
   const preferred = window.sessionStorage.getItem(PROJECT_KEY);
   return preferred ? projects.find(project => project.Active && project.ID === preferred) : projects.find(project => project.Active);
+}
+
+export function systemUIURL(page = ""): string {
+  return "/_system/ui" + (page ? "/" + page : "");
+}
+
+export function projectUIURL(project: string, ...segments: string[]): string {
+  if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(project) ||
+      segments.some(segment => !segment || segment === "." || segment === ".." || /[/\\]/.test(segment))) {
+    throw new Error("invalid project UI path");
+  }
+  return "/" + encodeURIComponent(project) + "/ui" + (segments.length ? "/" + segments.map(encodeURIComponent).join("/") : "");
+}
+
+export function adminUIContext(pathname: string): { namespace?: string; page: string } {
+  const [, namespace, ui, page] = pathname.split("/");
+  if (ui !== "ui") return { page: "projects" };
+  return namespace === "_system" ? { page: page || "projects" } : { namespace, page: page || "plugins" };
 }

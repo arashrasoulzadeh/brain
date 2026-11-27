@@ -1,12 +1,12 @@
 "use client";
-import { readAdminSession, signOutAdminSession } from "../lib/admin-api";
+import { readAdminSession, signOutAdminSession, systemUIURL, adminUIContext } from "../lib/admin-api";
 
 import { usePathname, useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { AdminFooter, AdminHeader, AdminSidebar, AdminHeadingContext, type PageHeading } from "./admin-chrome";
 
-const legacyShellRoutes = new Set(["/"]);
+const legacyShellRoutes = new Set([systemUIURL()]);
 const pageTitles: Record<string, string> = {
   functions: "Functions",
   workflows: "Workflows",
@@ -23,7 +23,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
     setAuthenticated(Boolean(readAdminSession()));
   }, [pathname]);
   if (legacyShellRoutes.has(pathname) || !authenticated) return <>{children}</>;
-  const pageName = pathname.split("/")[1] ?? "projects";
+  const { page: pageName, namespace } = adminUIContext(pathname);
   return (
     <AdminHeadingContext.Provider value={setHeading}>
     <main className="shell">
@@ -31,8 +31,9 @@ export function AdminShell({ children }: { children: ReactNode }) {
       <div className="workspace">
         <AdminSidebar
           activePage={pageName}
+          projectID={namespace}
           onSignOut={() => {
-            void signOutAdminSession().finally(() => router.replace("/"));
+            void signOutAdminSession().finally(() => router.replace(systemUIURL()));
           }}
         />
         <section className="card admin-content" id="admin-content">
