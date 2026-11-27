@@ -23,7 +23,7 @@ export function functionLogMetrics(logs: readonly FunctionLog[]) {
   return { successful, average: durations.length ? Math.round(durations.reduce((sum, value) => sum + value, 0) / durations.length) : null,
     p95: durations.length ? durations[Math.ceil(durations.length * 0.95) - 1] : null };
 }
-export function filterFunctionDrafts<T extends { name: string; public?: boolean; published_at?: string }>(drafts: readonly T[], query: string, visibility: string, publication: string): T[] {
+export function filterFunctionDrafts<T extends { name: string; public?: boolean; published_at?: string | null }>(drafts: readonly T[], query: string, visibility: string, publication: string): T[] {
   const needle = query.trim().toLowerCase();
   return drafts.filter(draft => draft.name.toLowerCase().includes(needle) &&
     (!visibility || Boolean(draft.public) === (visibility === "public")) &&

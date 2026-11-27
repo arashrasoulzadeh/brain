@@ -23,25 +23,27 @@ export function FunctionEditor({
   validationOK?: boolean;
   readOnly?: boolean;
 }) {
+  const [plainText, setPlainText] = useState(false);
   const [diagnostics, setDiagnostics] = useState<{ line: number; column: number; message: string }[]>([]);
   const showDiagnostics: OnValidate = markers => setDiagnostics(markers.filter(marker => marker.severity === 8).map(marker => ({ line: marker.startLineNumber, column: marker.startColumn, message: marker.message })));
 
   return (
     <section className="monaco-function-editor" aria-label="Function source code editor">
       <div className="monaco-editor-actions">
-        <span>Function source · Monaco</span>
+        <span>JavaScript · {plainText ? "Plain text" : "Monaco"}</span>
+        <button type="button" className="secondary" aria-pressed={plainText} onClick={() => { setPlainText(value => !value); setDiagnostics([]); }}>{plainText ? "Use Monaco" : "Use plain text"}</button>
         {onValidate && (
           <button type="button" disabled={validating || readOnly} onClick={onValidate}>
             {validating ? "Checking…" : "Check syntax"}
           </button>
         )}
       </div>
-      <MonacoEditor
-        height="520px"
-        language="typescript"
+      {plainText ? <textarea className="fn-plain-source" aria-label="Function source" spellCheck={false} readOnly={readOnly} value={source} onChange={event => onChange(event.target.value)} /> : <MonacoEditor
+        height="480px"
+        language="javascript"
         theme="vs"
         value={source}
-        onChange={(value) => { setDiagnostics([]); onChange(value ?? ""); }}
+        onChange={(value) => { if (!readOnly) { setDiagnostics([]); onChange(value ?? ""); } }}
         onValidate={showDiagnostics}
         options={{
           automaticLayout: true,
@@ -53,12 +55,12 @@ export function FunctionEditor({
           tabSize: 2,
           insertSpaces: true,
           scrollBeyondLastLine: false,
-          fontSize: 12,
-          lineHeight: 18,
+          fontSize: 13,
+          lineHeight: 21,
           suggestOnTriggerCharacters: true,
           quickSuggestions: true,
         }}
-      />
+      />}
       <p className="muted">Editor diagnostics are advisory. Host validation checks the supported function contract and sandbox restrictions.</p>
       {!!diagnostics.length && <details className="editor-diagnostic"><summary>{diagnostics.length} editor diagnostics</summary><ul>{diagnostics.slice(0, 20).map((item, index) => <li key={index}>Line {item.line}:{item.column} · {item.message}</li>)}</ul></details>}
       {validationMessage && (
@@ -66,7 +68,7 @@ export function FunctionEditor({
           className={`editor-diagnostic ${validationMessage && validationOK ? "valid" : "invalid"}`}
           role="status"
         >
-          <strong>{validationOK ? "✓ Host validation passed" : "Host validation failed"}</strong>
+          <strong>{validationOK ? "✓ Host preflight passed" : "Host preflight failed"}</strong>
           <span>{validationMessage}</span>
         </div>
       )}
