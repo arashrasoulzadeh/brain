@@ -82,6 +82,16 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Diagnose Seatbelt and Node startup on macOS
+        run: |
+          set +e
+          sw_vers
+          /usr/bin/sandbox-exec -p '(version 1)(allow default)' /usr/bin/true
+          echo "Seatbelt available: $?"
+          /usr/bin/sandbox-exec -p '(version 1)(deny default)(allow process-exec)(allow sysctl-read)(allow file-read*)' "$(command -v node)" --version
+          echo "Node version probe: $?"
+          /usr/bin/env -i PATH=/usr/bin:/bin HOME=/tmp TMPDIR=/tmp /usr/bin/sandbox-exec -p '(version 1)(deny default)(allow process-exec)(allow sysctl-read)(allow file-read*)' "$(command -v node)" --version
+          echo "Clean environment probe: $?"
       - name: Verify native macOS worker isolation
         run: BRAIN_TEST_MACOS_SANDBOX=1 go test -v ./tests/plugin -run '^TestMacOSWorkerIsolation$'
       - name: Report macOS sandbox diagnostics

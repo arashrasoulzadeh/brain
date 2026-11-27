@@ -48,6 +48,7 @@ export async function health(input: { secret: string }) {
 	launcher := filepath.Join(directory, "diagnostic-launcher.sh")
 	diagnostic := "#!/bin/bash\n" +
 		"printf '%s\\n' \"$BRAIN_MACOS_PROFILE\" >&2\n" +
+		"/usr/bin/sandbox-exec -p \"$BRAIN_MACOS_PROFILE\" \"$NODE_BIN\" --version >&2; echo \"strict version probe: $?\" >&2\n" +
 		"/bin/bash " + "'" + filepath.Join(root, "scripts/run-macos-typescript-worker.sh") + "'\n" +
 		"status=$?; echo \"macOS worker exit: $status\" >&2; exit \"$status\"\n"
 	if err := os.WriteFile(launcher, []byte(diagnostic), 0o700); err != nil {
