@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
 
@@ -203,7 +204,19 @@ func registerDiscoveredPlugins(registry *plugin.Registry) (map[string]plugin.Plu
 }
 
 func bindSandboxedTypeScriptWorkers(registry *plugin.Registry, locations map[string]plugin.PluginLocation) error {
-	launcher, err := filepath.Abs("scripts/run-sandboxed-typescript-worker.sh")
+	launcherPath := "scripts/run-sandboxed-typescript-worker.sh"
+	sandboxBinary := "bwrap"
+	workerFactory := plugin.NewManifestBubblewrapTypeScriptWorker
+	if runtime.GOOS == "darwin" {
+		if os.Getenv("BRAIN_LOCAL_MACOS") != "1" || !strings.HasPrefix(os.Getenv("HTTP_ADDRESS"), "127.0.0.1:") {
+			return fmt.Errorf("macOS worker runtime is for loopback-only local development; use make dev server")
+		}
+		launcherPath = "scripts/run-macos-typescript-worker.sh"
+		sandboxBinary = "/usr/bin/sandbox-exec"
+		workerFactory = plugin.NewManifestMacOSTypeScriptWorker
+		log.Print("macOS local development: Seatbelt worker isolation (not the Linux production sandbox)")
+	}
+	launcher, err := filepath.Abs(launcherPath)
 	if err != nil {
 		return err
 	}
@@ -211,7 +224,7 @@ func bindSandboxedTypeScriptWorkers(registry *plugin.Registry, locations map[str
 	if err != nil {
 		return err
 	}
-	for _, binary := range []string{"bwrap", "node"} {
+	for _, binary := range []string{sandboxBinary, "node"} {
 		if _, err := exec.LookPath(binary); err != nil {
 			return fmt.Errorf("sandbox runtime requires %s: %w", binary, err)
 		}
@@ -234,7 +247,7 @@ func bindSandboxedTypeScriptWorkers(registry *plugin.Registry, locations map[str
 		return err
 	}
 	probeManifest := plugin.Manifest{ID: "sandbox-probe", Version: "1.0.0", HostAPI: 1, Entry: "index.mts", SourceFiles: []string{"index.mts"}, Capabilities: []string{"health"}, Routes: []plugin.Route{{Operation: "health", Function: "health", Capability: "health"}}}
-	probe, err := plugin.NewManifestBubblewrapTypeScriptWorker(launcher, workerScript, filepath.Join(probeRoot, "execution.json"), probeRoot, "sandbox-probe", probeManifest, policy)
+	probe, err := workerFactory(launcher, workerScript, filepath.Join(probeRoot, "execution.json"), probeRoot, "sandbox-probe", probeManifest, policy)
 	if err != nil {
 		return fmt.Errorf("sandbox probe configuration failed: %w", err)
 	}
@@ -270,7 +283,7 @@ func bindSandboxedTypeScriptWorkers(registry *plugin.Registry, locations map[str
 			return nil, err
 		}
 		_ = descriptor.Close()
-		worker, err := plugin.NewManifestBubblewrapTypeScriptWorker(launcher, workerScript, descriptor.Name(), root, projectID, manifest, policy)
+		worker, err := workerFactory(launcher, workerScript, descriptor.Name(), root, projectID, manifest, policy)
 		if err != nil {
 			_ = os.Remove(descriptor.Name())
 			return nil, err

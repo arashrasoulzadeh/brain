@@ -19,7 +19,7 @@ See the [roadmap](roadmap.md), [developer guide](docs/developers.md), and [admin
 
 ## Local development
 
-With Go, Node.js 20+, npm, GNU Make and Linux bubblewrap available, install the locked Node dependencies once:
+With Go, Node.js 20+, npm and Make installed, install the locked Node dependencies once:
 
 ```bash
 make setup
@@ -39,7 +39,7 @@ make dev server HTTP_ADDRESS=127.0.0.1:18090
 make dev admin ADMIN_PORT=3100 BRAIN_API_ORIGIN=http://127.0.0.1:18090
 ```
 
-Development requires no Docker and keeps the production worker sandbox enabled. Use a Linux environment with permitted user namespaces (including an appropriately configured WSL2 environment). Do not use the local script's default credentials in production.
+Development requires no Docker on macOS or Linux. On macOS, `make dev server` selects the built-in Seatbelt (`/usr/bin/sandbox-exec`) worker adapter, with loopback-only HTTP, an allowlist of readable runtime/plugin paths, denied network access, and bounded heap/invocation time. This is a local-development adapter for trusted checkout code, not Linux-equivalent production isolation; Seatbelt's command-line interface is deprecated, and macOS does not enforce the same address-space or process limits. Startup fails closed if the adapter cannot run. On Linux (including WSL2), install bubblewrap and enable user namespaces; the Linux production sandbox is unchanged. Do not use the local script's default credentials in production.
 
 Run the unit tests with:
 
