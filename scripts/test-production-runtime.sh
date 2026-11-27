@@ -32,10 +32,6 @@ done
 docker exec -i "$container" node --input-type=module - <<'NODE'
 import assert from "node:assert/strict";
 import { setTimeout as delay } from "node:timers/promises";
-import { spawnSync } from "node:child_process";
-import { mkdtempSync, writeFileSync, rmSync, readdirSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
 const base = "http://127.0.0.1:8080";
 let ready = false;
 for (let attempt = 0; attempt < 30; attempt++) {
@@ -52,18 +48,6 @@ const { session } = await login.json();
 const headers = {authorization:"Bearer " + session, "content-type":"application/json"};
 async function action(operation, extra = {}) {
   const response = await fetch(base + "/admin/actions", {method:"POST", headers, body:JSON.stringify({operation,project_id:"ci-project",plugin_id:"tables",version:"0.1.0",...extra}), signal:AbortSignal.timeout(20000)});
-  if (!response.ok && operation === "plugin.enable" && extra.plugin_id === "arena") {
-    // CI-only diagnostics with repository-owned source and synthetic input; never forward production worker stderr.
-    const temp = mkdtempSync(join(tmpdir(), "brain-arena-startup-"));
-    try {
-      const descriptor = join(temp, "execution.json");
-      writeFileSync(descriptor, JSON.stringify({entrypoint:"/workspace/plugins/arena/index.ts",pluginId:"arena",version:"0.1.0",projectId:"ci-diagnostic",requireProject:true,routes:[{operation:"arena.start",function:"start",helper:"sdk.context"}]}));
-      const diagnostic = spawnSync("/workspace/scripts/run-sandboxed-typescript-worker.sh", [], {encoding:"utf8",input:"",timeout:15000,env:{PATH:process.env.PATH,WORKER_SCRIPT:"/workspace/scripts/typescript-worker.mjs",EXECUTION_DESCRIPTOR:descriptor,PLUGIN_ROOT:"/workspace/plugins/arena",CPU_MILLIS:"30000",MEMORY_BYTES:"2147483648",PROCESS_LIMIT:"64",WORKER_RUNTIME_ROOT:"/workspace",WORKER_SOURCE_FILES:"index.ts\ntypes.ts\nmatch-results.ts\nstate-machine.ts",REQUIRE_DECLARED_SOURCES:"1",BRAIN_WORKER_READY:"1"}});
-      console.error("Arena startup diagnostic", {status:diagnostic.status,signal:diagnostic.signal,error:diagnostic.error?.message,stdout:diagnostic.stdout,stderr:diagnostic.stderr});
-      const processes = spawnSync("bash",["-c","for p in /proc/[0-9]*/status; do grep -E '^(Name|Uid|Threads):' \"$p\" 2>/dev/null || true; done"],{encoding:"utf8",timeout:5000});
-      console.error("CI sandbox process inventory", processes.stdout);
-    } finally { rmSync(temp,{recursive:true,force:true}); }
-  }
   assert.ok(response.ok, operation + " (" + (extra.plugin_id ?? "tables") + "): " + await response.clone().text());
   return response.json();
 }
