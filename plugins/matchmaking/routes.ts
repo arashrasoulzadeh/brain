@@ -1,6 +1,6 @@
 import { createResourceRequest, createOperationRoutes, requiredString, type PluginContext } from "../sdk-typescript/src/index.js";
 
-export const matchmakingRequest = createResourceRequest<"matchmaking.queue" | "matchmaking.cancel" | "matchmaking.status" | "matchmaking.assign">("matchmaking", "config");
+export const matchmakingRequest = createResourceRequest<"matchmaking.queue" | "matchmaking.cancel" | "matchmaking.status" | "matchmaking.assign">("matchmaking", "id");
 
 type Ticket = { id: string; status: "queued" | "cancelled" | "assigned" };
 export class MatchmakingRouteStore {
@@ -32,8 +32,7 @@ function executeTicketRoute(operation: TicketOperation, input: unknown, context?
   const id = requiredString(value.id, "ticket id is required");
   const result = operation !== "queue" && value.ticket && typeof value.ticket === "object"
     ? value.ticket : matchmakingRouteStore.execute(operation, id);
-  if (operation === "queue") context?.plugins.observe.fire("queued", {});
-  if (operation === "cancel") context?.plugins.observe.fire("cancelled", {});
-  if (operation === "assign") context?.plugins.observe.fire("assigned", {});
+  const event = operation === "queue" ? "queued" : operation === "cancel" ? "cancelled" : operation === "assign" ? "assigned" : null;
+  if (event) context?.plugins.observe.fire(event, { status: event });
   return result;
 }

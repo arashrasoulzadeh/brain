@@ -1,6 +1,6 @@
 import { createResourceRequest, createOperationRoutes, requiredString, type PluginContext } from "../sdk-typescript/src/index.js";
 
-export const fileRequest = createResourceRequest<"files.upload" | "files.download" | "files.metadata" | "files.publish">("files", "objectId");
+export const fileRequest = createResourceRequest<"files.upload" | "files.download" | "files.metadata" | "files.publish">("files", "key");
 
 type FileRecord = { key: string; data: string; published: boolean };
 
@@ -44,11 +44,11 @@ function executeFileRoute(operation: FileOperation, input: unknown, context?: Pl
   const key = requiredString(payload.key, "file key is required");
   if (operation === "upload") {
     const result = fileRouteStore.execute(operation, key, typeof payload.data === "string" ? payload.data : undefined);
-    context?.plugins.observe.fire("uploaded", {});
+    context?.plugins.observe.fire("uploaded", { size: typeof payload.data === "string" ? Buffer.byteLength(payload.data, "utf8") : 0 });
     return result;
   }
   if (operation === "publish" && payload.published === true) {
-    context?.plugins.observe.fire("published", {});
+    context?.plugins.observe.fire("published", { published: true });
     return { key, published: true };
   }
   if (typeof payload.data === "string") {
@@ -58,6 +58,6 @@ function executeFileRoute(operation: FileOperation, input: unknown, context?: Pl
       return { key, published: Boolean(payload.published), size: payload.data.length };
   }
   const result = fileRouteStore.execute(operation, key);
-  if (operation === "publish") context?.plugins.observe.fire("published", {});
+  if (operation === "publish") context?.plugins.observe.fire("published", { published: true });
   return result;
 }

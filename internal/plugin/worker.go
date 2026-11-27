@@ -9,19 +9,17 @@ var ErrInvalidWorkerRequest = errors.New("invalid worker request")
 var ErrWorkerNotReady = errors.New("worker not ready")
 var ErrInvocationCredentialMismatch = errors.New("invocation credential does not match worker request")
 
-type ProjectSnapshot struct {
-	ID     string `json:"id"`
-	Active bool   `json:"active"`
-}
-
 type WorkerRequest struct {
-	Protocol  int              `json:"protocol"`
-	ProjectID string           `json:"projectId"`
-	PluginID  string           `json:"pluginId"`
-	Version   string           `json:"version"`
-	Operation string           `json:"operation"`
-	Payload   []byte           `json:"payload"`
-	Project   *ProjectSnapshot `json:"project,omitempty"`
+	Protocol    int                `json:"protocol"`
+	ProjectID   string             `json:"projectId"`
+	PluginID    string             `json:"pluginId"`
+	Version     string             `json:"version"`
+	Operation   string             `json:"operation"`
+	Payload     []byte             `json:"payload"`
+	HostContext *InvocationContext `json:"-"`
+
+	// Set only by trusted host entry points; never serialized to a worker.
+	accessPrincipal string
 }
 
 type WorkerResponse struct {
@@ -47,11 +45,6 @@ func InvokeForProject(worker ContractWorker, request WorkerRequest, protocol int
 	if !worker.Ready() {
 		return WorkerResponse{}, ErrWorkerNotReady
 	}
-	if request.Project == nil {
-		// Low-level host-bound invocations (including the startup probe) have
-		// already supplied the trusted project identity as a separate argument.
-		request.Project = &ProjectSnapshot{ID: projectID, Active: true}
-	}
 	return worker.Handle(request), nil
 }
 
@@ -64,17 +57,18 @@ func InvokeWithCredential(broker *Broker, credential InvocationCredential, worke
 	if err := ValidateWorkerRequest(request, protocol); err != nil {
 		return WorkerResponse{}, err
 	}
+	// Enrolled projects must use the registry's admission, resource binding,
+	// and effect-commit path, not a directly supplied worker.
+	if broker.Registry != nil && broker.Registry.accessInstalled(request.ProjectID) {
+		return broker.Registry.InvokeWithCredential(broker, credential, request, now)
+	}
 	if err := broker.CommitCredential(credential, now); err != nil {
 		return WorkerResponse{}, err
 	}
-	if worker == nil || broker.Registry == nil {
-		return WorkerResponse{}, ErrWorkerNotReady
+	if broker.Registry != nil && broker.Registry.accessInstalled(request.ProjectID) {
+		return WorkerResponse{}, ErrActorDenied
 	}
-	started := time.Now()
-	response, err := broker.Registry.invokeUsingWorker(request, false, worker, func() error {
-		return broker.Authorize(credential.Call, now.Add(time.Since(started)))
-	})
-	return broker.Registry.finishWorkerInvocation(request, response, err)
+	return InvokeForProject(worker, request, protocol, credential.Call.ProjectID)
 }
 
 func ValidateWorkerRequest(request WorkerRequest, hostProtocol int) error {
@@ -88,7 +82,7 @@ func ValidateWorkerRequestForProject(request WorkerRequest, hostProtocol int, pr
 	if err := ValidateWorkerRequest(request, hostProtocol); err != nil {
 		return err
 	}
-	if !isValidProjectID(projectID) || request.ProjectID != projectID || (request.Project != nil && (request.Project.ID != projectID || !request.Project.Active)) {
+	if !isValidProjectID(projectID) || request.ProjectID != projectID {
 		return ErrInvalidWorkerRequest
 	}
 	return nil

@@ -8,7 +8,6 @@ source_files:
   - index.ts
 imports:
   - ../sdk-typescript/src/index.js
-  - node:crypto
 plugin_imports:
   - rooms@0.1.0
 dependencies:
@@ -20,23 +19,16 @@ capabilities:
 extension_points: []
 config_schema:
   ttlSeconds: int
-events:
-  - name: created
-    fields: {}
-  - name: accepted
-    fields: {}
-  - name: cancelled
-    fields: {}
 routes:
   - operation: invites.create
     function: create
-    helper: sdk.context
     capability: invites.create
+    resource_field: roomId
   - operation: invites.accept
     function: accept
-    helper: sdk.context
     capability: invites.accept
+    resource_field: roomId
   - operation: invites.cancel
     function: cancel
-    helper: sdk.context
     capability: invites.cancel
+    resource_field: roomId

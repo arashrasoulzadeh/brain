@@ -11,23 +11,26 @@ import (
 )
 
 type Manifest struct {
-	Title           string            `yaml:"title"`
-	Description     string            `yaml:"description"`
-	ID              string            `yaml:"id"`
-	Entry           string            `yaml:"entrypoint"`
-	Version         string            `yaml:"version"`
-	HostAPI         int               `yaml:"host_api"`
-	Dependencies    []string          `yaml:"dependencies"`
-	Capabilities    []string          `yaml:"capabilities"`
-	ExtensionPoints []string          `yaml:"extension_points"`
-	ConfigSchema    map[string]string `yaml:"config_schema"`
-	Routes          []Route           `yaml:"routes"`
-	SourceFiles     []string          `yaml:"source_files"`
-	Imports         []string          `yaml:"imports"`
-	PluginImports   []string          `yaml:"plugin_imports"`
-	Events          []EventSpec       `yaml:"events"`
-	Observers       []ObserverSpec    `yaml:"observe"`
-	Admin           *AdminSpec        `yaml:"admin,omitempty" json:",omitempty"`
+	Title                string               `yaml:"title"`
+	Description          string               `yaml:"description"`
+	ID                   string               `yaml:"id"`
+	Entry                string               `yaml:"entrypoint"`
+	Declarative          bool                 `yaml:"declarative,omitempty"`
+	Version              string               `yaml:"version"`
+	HostAPI              int                  `yaml:"host_api"`
+	Dependencies         []string             `yaml:"dependencies"`
+	OptionalDependencies []string             `yaml:"optional_dependencies,omitempty"`
+	Capabilities         []string             `yaml:"capabilities"`
+	ExtensionPoints      []string             `yaml:"extension_points"`
+	ConfigSchema         map[string]string    `yaml:"config_schema"`
+	Routes               []Route              `yaml:"routes"`
+	SourceFiles          []string             `yaml:"source_files"`
+	Imports              []string             `yaml:"imports"`
+	PluginImports        []string             `yaml:"plugin_imports"`
+	Events               []EventSpec          `yaml:"events"`
+	Observers            []ObserverSpec       `yaml:"observe"`
+	Models               map[string]ModelSpec `yaml:"models,omitempty"`
+	Admin                *AdminSpec           `yaml:"admin,omitempty" json:",omitempty"`
 }
 
 type Route struct {
@@ -36,6 +39,12 @@ type Route struct {
 	Capability string        `yaml:"capability"`
 	Helper     string        `yaml:"helper,omitempty"`
 	Response   *ResponseSpec `yaml:"response,omitempty"`
+	Pipeline   *PipelineSpec `yaml:"pipeline,omitempty"`
+	Model      *ModelRoute   `yaml:"model,omitempty"`
+	Call       *PluginCall   `yaml:"call,omitempty"`
+
+	// ResourceField binds resource-scoped policy to a manifest-declared payload field.
+	ResourceField string `yaml:"resource_field,omitempty" json:",omitempty"`
 }
 
 func LoadManifest(path string) (Manifest, error) {
@@ -54,7 +63,7 @@ func LoadManifest(path string) (Manifest, error) {
 }
 
 func ValidateManifestContract(manifest Manifest) error {
-	if manifest.EntryPoint() == "" {
+	if manifest.Declarative && (manifest.Entry != "" || len(manifest.SourceFiles) != 0 || len(manifest.Imports) != 0 || len(manifest.PluginImports) != 0 || len(manifest.Observers) != 0) {
 		return ErrInvalidManifest
 	}
 	seenFiles := map[string]bool{}
@@ -67,7 +76,7 @@ func ValidateManifestContract(manifest Manifest) error {
 		}
 		seenFiles[file] = true
 	}
-	if !seenFiles[manifest.EntryPoint()] {
+	if !manifest.Declarative && !seenFiles[manifest.EntryPoint()] {
 		return ErrInvalidManifest
 	}
 	seenImports := map[string]bool{}
@@ -95,15 +104,30 @@ func ValidateManifestContract(manifest Manifest) error {
 		}
 		declaredCapabilities[capability] = true
 	}
+	if !validOptionalDependencies(manifest) || !validModels(manifest.Models) {
+		return ErrInvalidManifest
+	}
 	seenRoutes := map[string]bool{}
 	for _, route := range manifest.Routes {
-		if strings.HasPrefix(route.Operation, observationPrefix) || route.Operation == "" || route.Function == "" || route.Capability == "" || seenRoutes[route.Operation] || !declaredCapabilities[route.Capability] || (route.Helper != "" && route.Helper != "sdk.dispatch" && route.Helper != "sdk.request" && route.Helper != "sdk.response" && route.Helper != "sdk.context" && route.Helper != "host.admin") {
+		if manifest.Declarative && route.Helper != "sdk.response" && route.Helper != "sdk.pipeline" && route.Helper != "host.model" && route.Helper != "host.call" {
 			return ErrInvalidManifest
 		}
-		if route.Helper == "host.admin" && manifest.ID != "dashboard" {
+		if strings.HasPrefix(route.Operation, observationPrefix) || route.Operation == "" || route.Function == "" || route.Capability == "" || seenRoutes[route.Operation] || !declaredCapabilities[route.Capability] || (route.Helper != "" && route.Helper != "sdk.dispatch" && route.Helper != "sdk.request" && route.Helper != "sdk.response" && route.Helper != "sdk.context" && route.Helper != "sdk.pipeline" && route.Helper != "host.model" && route.Helper != "host.call") {
 			return ErrInvalidManifest
 		}
 		if (route.Helper == "sdk.response" && !route.Response.valid()) || (route.Helper != "sdk.response" && route.Response != nil) {
+			return ErrInvalidManifest
+		}
+		if (route.Helper == "sdk.pipeline" && !route.Pipeline.valid()) || (route.Helper != "sdk.pipeline" && route.Pipeline != nil) {
+			return ErrInvalidManifest
+		}
+		if (route.Helper == "host.model" && !route.Model.valid(manifest.Models)) || (route.Helper != "host.model" && route.Model != nil) {
+			return ErrInvalidManifest
+		}
+		if (route.Helper == "host.call" && !route.Call.valid(manifest, route.Capability)) || (route.Helper != "host.call" && route.Call != nil) {
+			return ErrInvalidManifest
+		}
+		if route.ResourceField != "" && (!validResponseKey(route.ResourceField) || route.Model != nil) {
 			return ErrInvalidManifest
 		}
 		seenRoutes[route.Operation] = true
@@ -115,6 +139,9 @@ func ValidateManifestContract(manifest Manifest) error {
 }
 
 func (m Manifest) EntryPoint() string {
+	if m.Declarative {
+		return ""
+	}
 	if m.Entry == "" {
 		return "index.ts"
 	}
@@ -145,28 +172,36 @@ func Documentation(m Manifest) string {
 	for _, route := range m.Routes {
 		fmt.Fprintf(&b, "- `%s` → `%s` (capability: `%s`)\n", route.Operation, route.Function, route.Capability)
 	}
-	if len(m.Events) > 0 {
-		fmt.Fprint(&b, "\n## Published events\n\n")
-		for _, event := range m.Events {
-			source := event.Source
-			if source == "" {
-				source = "worker"
+	if len(m.Models) > 0 {
+		b.WriteString("\n## Models\n\n")
+		for _, name := range sortedContractKeys(m.Models) {
+			model := m.Models[name]
+			fmt.Fprintf(&b, "### %s (schema %d)\n\n", name, model.Version)
+			for _, field := range sortedContractKeys(model.Fields) {
+				fmt.Fprintf(&b, "- `%s`: %s\n", field, model.Fields[field])
 			}
-			fields := make([]string, 0, len(event.Fields))
-			for field, kind := range event.Fields {
-				fields = append(fields, field+": "+kind)
+			for _, action := range sortedContractKeys(model.Transitions) {
+				transition := model.Transitions[action]
+				fmt.Fprintf(&b, "- Transition `%s`: %s → %s\n", action, transition.From, transition.To)
 			}
-			sort.Strings(fields)
-			fmt.Fprintf(&b, "- `%s.%s` (%s): %s\n", m.ID, event.Name, source, strings.Join(fields, ", "))
 		}
 	}
-	if len(m.Observers) > 0 {
-		fmt.Fprint(&b, "\n## Observations\n\n")
-		for _, observer := range m.Observers {
-			fmt.Fprintf(&b, "- `%s.%s` → `%s` (capability: `%s`, persist: %t)\n", observer.Plugin, observer.Event, observer.Function, observer.Capability, observer.Persist)
+	if len(m.Events) > 0 {
+		b.WriteString("\n## Events\n\n")
+		for _, event := range m.Events {
+			fmt.Fprintf(&b, "- `%s`\n", event.Name)
 		}
 	}
 	return b.String()
+}
+
+func sortedContractKeys[V any](values map[string]V) []string {
+	keys := make([]string, 0, len(values))
+	for key := range values {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	return keys
 }
 
 type CapabilityRequest struct {

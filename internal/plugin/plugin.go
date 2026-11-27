@@ -76,16 +76,13 @@ type Registry struct {
 	workerMu            sync.RWMutex
 	workers             map[string]ContractWorker
 	workerFactory       func(projectID, pluginID, version string) (ContractWorker, error)
-	projectResolver     func(string) (ProjectSnapshot, error)
 	storage             RegistryStateStore
 	storagePlanner      InvocationStoragePlanner
 	storagePlannerMu    sync.RWMutex
 	storageInvocations  [64]sync.Mutex
 	storageFailed       atomic.Bool
+	projectResolver     func(string) error
 	webSockets          *WebSocketRegistry
-	observationStore    *SQLiteStorage
-	observationMu       sync.RWMutex
-	observationDrainMu  sync.Mutex
 	adminObservationMu  sync.RWMutex
 	adminObservationSeq uint64
 	adminObservations   [256]adminObservation

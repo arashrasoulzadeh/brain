@@ -41,12 +41,10 @@ extension_points:
 config_schema:
   registration: string
 events:
-  - name: accountCreated
-    fields: {}
-  - name: signedIn
-    fields: {}
-  - name: guestSessionCreated
-    fields: {}
+  - name: account.created
+    fields: {created: boolean}
+  - name: session.established
+    fields: {guest: boolean}
 routes:
   - operation: auth.signup
     function: signup

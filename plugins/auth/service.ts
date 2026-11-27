@@ -1,4 +1,4 @@
-import { createRequestDispatcher, type PluginFunction } from "../sdk-typescript/src/index.js";
+import { createRequestDispatcher, type PluginFunction, type PluginContext, type RpcRequest } from "../sdk-typescript/src/index.js";
 import { createAuthState, type AuthState } from "./state.js";
 import { AccountSignup, AccountSignin } from "./accounts.js";
 import { AccountSessionReader, GuestSessionIssuer } from "./sessions.js";
@@ -27,28 +27,33 @@ export function functions(
   return {
     signup: async (rpc, context) => {
       const payload = rpc.params.payload as Record<string, string> | undefined;
-      const result = await service.signup(context?.project.id ?? rpc.params.projectId, payload?.username ?? "", payload?.password ?? "");
-      context?.plugins.observe.fire("accountCreated", {});
+      const result = await service.signup(projectOf(rpc, context), payload?.username ?? "", payload?.password ?? "");
+      context?.plugins.observe.fire("account.created", { created: true });
       return result;
     },
     signin: async (rpc, context) => {
       const payload = rpc.params.payload as Record<string, string> | undefined;
       const result = await service.signin(
-        context?.project.id ?? rpc.params.projectId,
+        projectOf(rpc, context),
         payload?.username ?? payload?.provider ?? "",
         payload?.password ?? String(payload?.credential ?? ""),
       );
-      context?.plugins.observe.fire("signedIn", {});
+      context?.plugins.observe.fire("session.established", { guest: false });
       return result;
     },
     session: (rpc, context) => {
       const payload = rpc.params.payload as Record<string, string> | undefined;
-      return service.session(context?.project.id ?? rpc.params.projectId, payload?.token ?? "");
+      return service.session(projectOf(rpc, context), payload?.token ?? "");
     },
     guest: (rpc, context) => {
-      const result = service.guest(context?.project.id ?? rpc.params.projectId);
-      context?.plugins.observe.fire("guestSessionCreated", {});
+      const result = service.guest(projectOf(rpc, context));
+      context?.plugins.observe.fire("session.established", { guest: true });
       return result;
     },
   };
+}
+
+function projectOf(rpc: RpcRequest, context?: PluginContext): string {
+  if (context && context.project.id !== rpc.params.projectId) throw new Error("project context mismatch");
+  return context?.project.id ?? rpc.params.projectId;
 }

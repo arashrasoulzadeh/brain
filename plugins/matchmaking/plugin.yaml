@@ -19,6 +19,7 @@ imports:
 plugin_imports:
   - rooms@0.1.0
 dependencies:
+optional_dependencies: [rooms@0.1.0]
 capabilities:
   - matchmaking.queue
   - matchmaking.cancel
@@ -31,29 +32,32 @@ config_schema:
   matchSize: int
 events:
   - name: queued
-    fields: {}
-  - name: cancelled
-    fields: {}
+    fields: {status: string}
   - name: assigned
-    fields: {}
+    fields: {status: string}
+  - name: cancelled
+    fields: {status: string}
 routes:
   - operation: matchmaking.queue
     function: queue
     helper: sdk.dispatch
     capability: matchmaking.queue
+    resource_field: id
   - operation: matchmaking.cancel
     function: cancel
     helper: sdk.dispatch
     capability: matchmaking.cancel
+    resource_field: id
   - operation: matchmaking.status
     function: status
     helper: sdk.dispatch
     capability: matchmaking.status
+    resource_field: id
   - operation: matchmaking.assign
     function: assign
     helper: sdk.dispatch
     capability: matchmaking.assign
-
+    resource_field: id
 admin:
   version: 1
   pages:

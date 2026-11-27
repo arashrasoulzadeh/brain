@@ -10,22 +10,59 @@ description: Minimal host-discovered TypeScript plugin template.
 version: 0.1.0
 host_api: 1
 dependencies: []
-capabilities:
-  - example.plugin.example
-  - observe.rooms.connected
+capabilities: [example.normalize, example.items.read, example.items.write]
+models:
+  item:
+    version: 1
+    fields: {name: string, count: integer}
+    initial: draft
+    transitions:
+      publish: {from: draft, to: published}
 extension_points: []
 config_schema: {}
-events:
-  - name: exampleCompleted
-    fields: {}
-observe:
-  - plugin: rooms
-    event: connected
-    function: observeRoomConnected
-    capability: observe.rooms.connected
-    persist: true
+
 routes:
-  - operation: example.plugin.example
-    function: example
-    helper: sdk.context
-    capability: example.plugin.example
+  - operation: example.normalize
+    function: normalize
+    capability: example.normalize
+    helper: sdk.pipeline
+    pipeline:
+      steps:
+        - helper: string.trim
+          input: $input.name
+          save: trimmed
+        - helper: string.nonempty
+          input: $steps.trimmed
+          save: name
+      return: $steps.name
+
+  - operation: example.items.create
+    function: createItem
+    capability: example.items.write
+    helper: host.model
+    model: {name: item, action: create}
+  - operation: example.items.read
+    function: readItem
+    capability: example.items.read
+    helper: host.model
+    model: {name: item, action: read}
+  - operation: example.items.list
+    function: listItems
+    capability: example.items.read
+    helper: host.model
+    model: {name: item, action: list}
+  - operation: example.items.update
+    function: updateItem
+    capability: example.items.write
+    helper: host.model
+    model: {name: item, action: update}
+  - operation: example.items.delete
+    function: deleteItem
+    capability: example.items.write
+    helper: host.model
+    model: {name: item, action: delete}
+  - operation: example.items.publish
+    function: publishItem
+    capability: example.items.write
+    helper: host.model
+    model: {name: item, action: transition, transition: publish}

@@ -32,32 +32,37 @@ extension_points:
 config_schema:
   maxPlayers: int
 events:
-  - name: created
-    fields: {}
-  - name: resultCommitted
-    fields: {}
   - name: connected
     fields:
       roomId: string
       reconnected: boolean
+  - name: created
+    fields: {roomId: string}
+  - name: reconnected
+    fields: {roomId: string}
+  - name: result.committed
+    fields: {roomId: string}
 routes:
   - operation: rooms.create
     function: create
     helper: sdk.dispatch
     capability: rooms.create
+    resource_field: id
   - operation: rooms.join
     function: join
     helper: sdk.dispatch
     capability: rooms.join
+    resource_field: id
   - operation: rooms.reconnect
     function: reconnect
     helper: sdk.dispatch
     capability: rooms.reconnect
+    resource_field: id
   - operation: rooms.result
     function: result
     helper: sdk.dispatch
     capability: rooms.result
-
+    resource_field: id
 admin:
   version: 1
   pages:

@@ -30,22 +30,24 @@ extension_points:
 config_schema:
   exposure: string
 events:
-  - name: recordWritten
-    fields: {}
+  - name: record.written
+    fields: {written: boolean}
 routes:
   - operation: tables.read
     function: read
     helper: sdk.dispatch
     capability: tables.read
+    resource_field: table
   - operation: tables.write
     function: write
     helper: sdk.dispatch
     capability: tables.write
+    resource_field: table
   - operation: tables.schema
     function: schema
     helper: sdk.dispatch
     capability: tables.schema
-
+    resource_field: table
 admin:
   version: 1
   pages:

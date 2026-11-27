@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"brain/internal/operator"
+	pluginsdk "brain/plugins/sdk-typescript"
 )
 
 var ErrFunctionDraftInvalid = errors.New("function draft requires a name and source")
@@ -81,6 +82,13 @@ func appendFunctionLog(logEntry FunctionLog) {
 	_ = os.MkdirAll(filepath.Dir(functionLogsPath), 0o750)
 	_ = os.WriteFile(functionLogsPath, data, 0o640)
 }
+func (s *LifecycleService) authorizeFunction(actor operator.Actor, projectID, operation, name string) error {
+	if s.registry == nil {
+		return nil
+	}
+	return s.registry.AuthorizeHostOperation(projectID, "operator:"+actor.ID, "functions", operation, strings.TrimSpace(name))
+}
+
 func (s *LifecycleService) ListFunctionLogs(actor operator.Actor, projectID, name string) ([]FunctionLog, error) {
 	if actor.Kind != operator.ActorOperator || strings.TrimSpace(projectID) == "" {
 		return nil, ErrFunctionDraftInvalid
@@ -91,7 +99,7 @@ func (s *LifecycleService) ListFunctionLogs(actor operator.Actor, projectID, nam
 	_ = json.Unmarshal(data, &functionLogs.items)
 	result := make([]FunctionLog, 0)
 	for _, item := range functionLogs.items {
-		if item.ProjectID == projectID && (name == "" || item.Name == name) {
+		if item.ProjectID == projectID && (name == "" || item.Name == name) && s.authorizeFunction(actor, projectID, "functions.logs", item.Name) == nil {
 			result = append(result, item)
 		}
 	}
@@ -169,6 +177,9 @@ func (s *LifecycleService) CreateFunctionDraftWithSettings(actor operator.Actor,
 			return FunctionDraft{}, err
 		}
 	}
+	if err := s.authorizeFunction(actor, projectID, "functions.publish", name); err != nil {
+		return FunctionDraft{}, err
+	}
 	draft := FunctionDraft{ProjectID: projectID, Name: strings.TrimSpace(name), Source: source, Version: version, Public: public, Permissions: append([]string(nil), permissions...), Method: method, CreatedAt: time.Now().UTC()}
 	functionDrafts.Lock()
 	loadFunctionDraftsLocked()
@@ -187,6 +198,9 @@ func (s *LifecycleService) UpdateFunctionDraft(actor operator.Actor, projectID, 
 	}
 	if strings.TrimSpace(source) == "" {
 		return FunctionDraft{}, errors.New("function source is required")
+	}
+	if err := s.authorizeFunction(actor, projectID, "functions.publish", name); err != nil {
+		return FunctionDraft{}, err
 	}
 	functionDrafts.Lock()
 	defer functionDrafts.Unlock()
@@ -224,7 +238,7 @@ func (s *LifecycleService) ListFunctionDrafts(actor operator.Actor, projectID st
 	loadFunctionDraftsLocked()
 	drafts := make([]FunctionDraft, 0)
 	for _, draft := range functionDrafts.items {
-		if draft.ProjectID == projectID {
+		if draft.ProjectID == projectID && s.authorizeFunction(actor, projectID, "functions.inspect", draft.Name) == nil {
 			drafts = append(drafts, draft)
 		}
 	}
@@ -234,6 +248,9 @@ func (s *LifecycleService) ListFunctionDrafts(actor operator.Actor, projectID st
 func (s *LifecycleService) UpdateFunctionPermissions(actor operator.Actor, projectID, name string, permissions []string, public bool) error {
 	if actor.Kind != operator.ActorOperator || strings.TrimSpace(projectID) == "" || !functionNamePattern.MatchString(strings.TrimSpace(name)) {
 		return ErrFunctionDraftInvalid
+	}
+	if err := s.authorizeFunction(actor, projectID, "functions.publish", name); err != nil {
+		return err
 	}
 	functionDrafts.Lock()
 	defer functionDrafts.Unlock()
@@ -252,22 +269,9 @@ func (s *LifecycleService) PublishFunction(actor operator.Actor, projectID, name
 	if actor.Kind != operator.ActorOperator || strings.TrimSpace(projectID) == "" || !functionNamePattern.MatchString(strings.TrimSpace(name)) {
 		return FunctionDraft{}, ErrFunctionDraftInvalid
 	}
-	if s.projects != nil {
-		if _, err := s.projects.Resolve(projectID); err != nil {
-			return FunctionDraft{}, err
-		}
-	}
-	draft, err := persistPublishedFunction(projectID, name)
-	if err != nil {
+	if err := s.authorizeFunction(actor, projectID, "functions.publish", name); err != nil {
 		return FunctionDraft{}, err
 	}
-	if s.registry != nil {
-		s.registry.PublishHostObservation(projectID, "functions", "published", map[string]any{"name": draft.Name, "version": draft.Version})
-	}
-	return draft, nil
-}
-
-func persistPublishedFunction(projectID, name string) (FunctionDraft, error) {
 	functionDrafts.Lock()
 	defer functionDrafts.Unlock()
 	loadFunctionDraftsLocked()
@@ -299,6 +303,11 @@ func (s *LifecycleService) PublicInvokeFunction(projectID, name, method string, 
 	if !ok || !draft.Public {
 		return nil, ErrFunctionDraftInvalid
 	}
+	if s.registry != nil {
+		if err := s.registry.AuthorizeHostOperation(projectID, "public", "functions", "functions.call", draft.Name); err != nil {
+			return nil, err
+		}
+	}
 	if draft.Method == "" {
 		var err error
 		draft.Method, err = functionMethodFromSource(draft.Source)
@@ -309,13 +318,26 @@ func (s *LifecycleService) PublicInvokeFunction(projectID, name, method string, 
 	if strings.ToUpper(strings.TrimSpace(method)) != draft.Method {
 		return nil, ErrFunctionMethodNotAllowed
 	}
-	return s.runFunctionDraft(operator.Actor{Kind: operator.ActorOperator}, projectID, draft.Name, draft.Source, input, []FunctionLogStep{
+	result, err := s.runFunctionDraft(operator.Actor{Kind: operator.ActorOperator}, projectID, draft.Name, draft.Source, input, []FunctionLogStep{
 		{Name: "edge router", Status: "success", Reason: "public route resolved and function version selected", DurationMs: time.Since(edgeStarted).Milliseconds()},
 		{Name: "method authorization", Status: "success", Reason: "request method matched function source config", DurationMs: 0},
 	})
+	if err == nil && s.registry != nil {
+		if err := s.registry.AuthorizeHostOperation(projectID, "public", "functions", "functions.call", draft.Name); err != nil {
+			return nil, err
+		}
+	}
+	return result, err
 }
 
 func (s *LifecycleService) TestFunctionDraft(actor operator.Actor, projectID, name, source string) (map[string]any, error) {
+	if err := s.authorizeFunction(actor, projectID, "functions.invoke", name); err != nil {
+		return nil, err
+	}
+	return s.validateFunctionDraft(actor, projectID, name, source)
+}
+
+func (s *LifecycleService) validateFunctionDraft(actor operator.Actor, projectID, name, source string) (map[string]any, error) {
 	if actor.Kind != operator.ActorOperator || strings.TrimSpace(projectID) == "" || !functionNamePattern.MatchString(strings.TrimSpace(name)) || strings.TrimSpace(source) == "" || len(source) > maxFunctionSourceBytes {
 		return nil, ErrFunctionDraftInvalid
 	}
@@ -334,7 +356,16 @@ func (s *LifecycleService) TestFunctionDraft(actor operator.Actor, projectID, na
 }
 
 func (s *LifecycleService) RunFunctionDraft(actor operator.Actor, projectID, name, source string, input json.RawMessage) (map[string]any, error) {
-	return s.runFunctionDraft(actor, projectID, name, source, input, nil)
+	if err := s.authorizeFunction(actor, projectID, "functions.invoke", name); err != nil {
+		return nil, err
+	}
+	result, err := s.runFunctionDraft(actor, projectID, name, source, input, nil)
+	if err == nil {
+		if err := s.authorizeFunction(actor, projectID, "functions.invoke", name); err != nil {
+			return nil, err
+		}
+	}
+	return result, err
 }
 
 func (s *LifecycleService) runFunctionDraft(actor operator.Actor, projectID, name, source string, input json.RawMessage, initialSteps []FunctionLogStep) (map[string]any, error) {
@@ -356,7 +387,7 @@ func (s *LifecycleService) runFunctionDraft(actor operator.Actor, projectID, nam
 		appendFunctionLog(entry)
 	}
 	validationStarted := time.Now()
-	if _, err := s.TestFunctionDraft(actor, projectID, name, source); err != nil {
+	if _, err := s.validateFunctionDraft(actor, projectID, name, source); err != nil {
 		addStep("host validation", "failed", "source rejected before execution", validationStarted, err)
 		writeLog("failed", err.Error())
 		return nil, err
@@ -373,32 +404,40 @@ func (s *LifecycleService) runFunctionDraft(actor operator.Actor, projectID, nam
 		return nil, err
 	}
 	addStep("input validation", "success", "request input is valid JSON", inputStarted, nil)
-	model := map[string]any{"id": projectID, "active": true}
-	if s.projects != nil {
-		resolved, err := s.projects.Resolve(projectID)
-		if err != nil {
-			writeLog("failed", err.Error())
-			return nil, err
-		}
-		model = map[string]any{"id": resolved.ID, "active": resolved.Active}
-	}
-	projectJSON, err := json.Marshal(model)
-	if err != nil {
-		return nil, err
-	}
-	const runner = `const vm=await import("node:vm");const clock=()=>Number(process.hrtime.bigint())/1e6;const source=process.env.BRAIN_FUNCTION_SOURCE;const context=vm.createContext(Object.create(null));const input=vm.runInContext("JSON.parse("+JSON.stringify(process.env.BRAIN_FUNCTION_INPUT)+")",context);const executionContext=vm.runInContext("Object.freeze({project:Object.freeze(JSON.parse("+JSON.stringify(process.env.BRAIN_FUNCTION_PROJECT)+")),plugin:Object.freeze({id:'functions'}),execution:Object.freeze({operation:'functions.invoke',id:"+JSON.stringify(process.env.BRAIN_FUNCTION_EXECUTION_ID)+"})})",context);const compileStart=clock();const module=new vm.SourceTextModule(source,{context});await module.link(()=>{throw new Error("imports are not permitted")});const compileMs=clock()-compileStart;const evaluateStart=clock();await module.evaluate({timeout:450});const evaluateMs=clock()-evaluateStart;const handler=module.namespace.default;if(typeof handler!=="function")throw new Error("default export must be a function");const invokeStart=clock();let timer;let result;try{result=await Promise.race([Promise.resolve(handler(input,executionContext)),new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error("function execution timed out")),400)})]);}finally{clearTimeout(timer);}const invokeMs=clock()-invokeStart;process.stdout.write(JSON.stringify({result:result??null,timings:{compile_ms:compileMs,evaluate_ms:evaluateMs,invoke_ms:invokeMs}}));`
+	const runner = `const vm=await import("node:vm");
+const clock=()=>Number(process.hrtime.bigint())/1e6;
+const sandbox=vm.createContext(Object.create(null),{codeGeneration:{strings:false,wasm:false}});
+const helpers=new vm.SourceTextModule(process.env.BRAIN_PURE_HELPERS,{context:sandbox});
+await helpers.link(()=>{throw new Error("helper imports are not permitted")});
+await helpers.evaluate({timeout:450});
+sandbox.__brainHelper=helpers.namespace.callHelper;
+sandbox.__brainInput=vm.runInContext("JSON.parse("+JSON.stringify(process.env.BRAIN_FUNCTION_INPUT)+")",sandbox);
+sandbox.__brainContext=vm.runInContext("Object.freeze({project:Object.freeze({id:"+JSON.stringify(process.env.BRAIN_PROJECT_ID)+"}),execution:Object.freeze({invocationId:"+JSON.stringify(process.env.BRAIN_INVOCATION_ID)+"}),helpers:Object.freeze({call:__brainHelper})})",sandbox);
+const compileStart=clock();
+const module=new vm.SourceTextModule(process.env.BRAIN_FUNCTION_SOURCE,{context:sandbox});
+await module.link(()=>{throw new Error("imports are not permitted")});
+const compileMs=clock()-compileStart;
+const evaluateStart=clock();
+await module.evaluate({timeout:450});
+const evaluateMs=clock()-evaluateStart;
+const handler=module.namespace.default;
+if(typeof handler!=="function")throw new Error("default export must be a function");
+sandbox.__brainHandler=handler;
+const invokeStart=clock();
+let timer;
+try {
+const result=await Promise.race([Promise.resolve(vm.runInContext("__brainHandler(__brainInput,__brainContext)",sandbox,{timeout:450})),new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error("function execution timed out")),400)})]);
+const invokeMs=clock()-invokeStart;
+process.stdout.write(JSON.stringify({result:result??null,timings:{compile_ms:compileMs,evaluate_ms:evaluateMs,invoke_ms:invokeMs}}));
+} finally {clearTimeout(timer);}`
 	commandContext, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
-	command := exec.CommandContext(commandContext, "node", "--experimental-vm-modules", "--input-type=module", "-e", runner)
-	command.Env = append(os.Environ(), "BRAIN_FUNCTION_SOURCE="+source, "BRAIN_FUNCTION_INPUT="+string(input), "BRAIN_FUNCTION_PROJECT="+string(projectJSON), "BRAIN_FUNCTION_EXECUTION_ID="+requestID)
+	command := exec.CommandContext(commandContext, "node", "--no-warnings", "--experimental-vm-modules", "--input-type=module", "-e", runner)
+	command.Env = []string{"PATH=" + os.Getenv("PATH"), "BRAIN_FUNCTION_SOURCE=" + source, "BRAIN_FUNCTION_INPUT=" + string(input), "BRAIN_PROJECT_ID=" + projectID, "BRAIN_INVOCATION_ID=" + requestID, "BRAIN_PURE_HELPERS=" + pluginsdk.PureHelperSource}
 	executionStarted := time.Now()
-	output, err := command.Output()
+	output, err := command.CombinedOutput()
 	if err != nil {
-		var exitError *exec.ExitError
-		detail := ""
-		if errors.As(err, &exitError) {
-			detail = strings.TrimSpace(string(exitError.Stderr))
-		}
+		detail := strings.TrimSpace(string(output))
 		if len(detail) > 4096 {
 			detail = detail[:4096]
 		}
@@ -454,9 +493,6 @@ func (s *LifecycleService) runFunctionDraft(actor operator.Actor, projectID, nam
 	}
 	addStep("response serialization", "success", "JSON response encoded for the caller", responseStarted, nil)
 	writeLog("success", "function completed successfully")
-	if s.registry != nil {
-		s.registry.PublishHostObservation(projectID, "functions", "invoked", map[string]any{"name": name, "executionId": requestID})
-	}
 	return map[string]any{"valid": true, "project_id": projectID, "name": name, "result": result}, nil
 }
 

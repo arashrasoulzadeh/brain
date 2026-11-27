@@ -10,13 +10,11 @@ source_files:
   - subscription-request.ts
   - authorization.ts
   - stream.ts
-  - routes.ts
 imports:
   - ../sdk-typescript/src/index.js
   - node:crypto
   - ./authorization.js
   - ./stream.js
-  - ./routes.js
   - ./subscription-request.js
   - ./types.js
 plugin_imports:
@@ -25,36 +23,20 @@ capabilities:
   - subscriptions.open
   - subscriptions.receive
   - subscriptions.resync
-  - subscriptions.close
-  - observe.rooms.connected
 extension_points:
   - realtime.transport
 config_schema:
   maxSubscriptions: int
-events:
-  - name: opened
-    fields: {}
-  - name: closed
-    fields: {}
-observe:
-  - plugin: rooms
-    event: connected
-    function: observeRoomConnected
-    capability: observe.rooms.connected
 routes:
   - operation: subscriptions.open
     function: open
-    helper: sdk.context
     capability: subscriptions.open
+    resource_field: channel
   - operation: subscriptions.receive
     function: receive
-    helper: sdk.context
     capability: subscriptions.receive
+    resource_field: channel
   - operation: subscriptions.resync
     function: resync
-    helper: sdk.context
     capability: subscriptions.resync
-  - operation: subscriptions.close
-    function: close
-    helper: sdk.context
-    capability: subscriptions.close
+    resource_field: channel

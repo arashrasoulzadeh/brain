@@ -46,7 +46,7 @@ export function write(input: unknown, context?: PluginContext): TableWrite {
   if (payload.row === undefined || payload.row === null || typeof payload.row !== "object")
     throw new Error("row is required");
   const result = tableStore.execute("write", table, payload.row as Record<string, unknown>) as TableWrite;
-  context?.plugins.observe.fire("recordWritten", {});
+  context?.plugins.observe.fire("record.written", { written: true });
   return result;
 }
 

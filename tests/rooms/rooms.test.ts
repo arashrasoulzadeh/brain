@@ -30,6 +30,9 @@ import {
 import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 
 const request = roomRequest("dev", "rooms", "0.1.0", "rooms.create", "room-1", { maxPlayers: 2 });
+if ((request.params.payload as Record<string, unknown>).id !== "room-1" ||
+    (roomRequest("dev", "rooms", "0.1.0", "rooms.join", "room-1", { id: "other" }).params.payload as Record<string, unknown>).id !== "room-1")
+  throw new Error("request resource identity was not bound to the worker field");
 if (request.params.pluginId !== "rooms" || request.params.operation !== "rooms.create")
   throw new Error("rooms plugin contract failed");
 if (
