@@ -3,6 +3,18 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `557658d8` — 2026-11-27 21:15:03 +0330 — Merge pull request #46 from arashrasoulzadeh/feat/confirmed-plugin-install
+  Files: 
+- `03ac9885` — 2026-11-27 21:13:19 +0330 — Document confirmed install command and Dashboard route in inventory
+  Files: docs/admin-pages/README.md
+- `73531656` — 2026-11-27 21:13:16 +0330 — Document confirmed install command and Dashboard route in inventory
+  Files: docs/http-api.md
+- `ad138e98` — 2026-11-27 21:07:34 +0330 — Test actual sidebar links and safeguard active version and project scope
+  Files: admin-nextjs/app/components/plugin-install-dialog.tsx,admin-nextjs/app/dashboard/view.tsx admin-nextjs/app/view.tsx,internal/plugin/registry_install_activate.go scripts/test-admin-browser.mjs,tests/admin/admin-menu.test.ts
+- `10226493` — 2026-11-27 21:07:15 +0330 — Confirm plugin capabilities and install active workers with live sidebar refresh
+  Files: admin-nextjs/app/[project]/ui/dashboard/page.tsx,admin-nextjs/app/components/admin-chrome.tsx admin-nextjs/app/components/admin-config-form.tsx,admin-nextjs/app/components/admin-shell.tsx admin-nextjs/app/components/legacy-admin-page.tsx,admin-nextjs/app/components/plugin-catalog-panel.tsx admin-nextjs/app/components/plugin-install-dialog.tsx,admin-nextjs/app/dashboard/view.tsx admin-nextjs/app/lib/admin-api.ts,admin-nextjs/app/lib/admin-menu.ts admin-nextjs/app/lib/admin-navigation.ts,admin-nextjs/app/lib/admin-registry.ts admin-nextjs/app/lib/admin-types.ts,admin-nextjs/app/lib/plugin-install.ts admin-nextjs/app/plugins/[plugin]/view.tsx,admin-nextjs/app/view.tsx admin-nextjs/app/workers/view.tsx,docs/admin-pages/README.md docs/admin-pages/dashboard.md,docs/admin-pages/plugins.md internal/admin/lifecycle.go,internal/app/admin.go internal/plugin/registry_install_activate.go,internal/plugin/registry_install_activate_test.go scripts/test-admin-browser.mjs,scripts/test-admin-live.mjs
+- `c26b3f3d` — 2026-11-27 17:21:01 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `048b932a` — 2026-11-27 20:50:06 +0330 — Merge pull request #44 from arashrasoulzadeh/feat/plugin-action-dialogs
   Files: 
 - `35136672` — 2026-11-27 20:49:32 +0330 — Merge main and preserve session-expiry and plugin dialog regression tests; align plugin admin documentation
@@ -91,15 +103,3 @@ Automatically generated from commits on main.
   Files: 
 - `07f5ee22` — 2026-11-27 18:44:19 +0330 — Use atomic CLI coverage mode consistently
   Files: cmd/manifest-sdk/main_test.go
-- `8dea3425` — 2026-11-27 18:43:57 +0330 — Exercise manifest generator command success and failure with CLI coverage
-  Files: cmd/manifest-sdk/main_test.go
-- `7cce76cd` — 2026-11-27 18:41:17 +0330 — Test manifest generator failure paths and emit type-only declaration file
-  Files: cmd/manifest-sdk/main.go,cmd/manifest-sdk/main_test.go plugins/sdk-typescript/src/manifest-operations.generated.d.ts,tests/plugin/manifest_sdk_test.go
-- `5a1e26f6` — 2026-11-27 18:40:19 +0330 — Migrate remaining admin views to project routes and retain macOS startup fix
-  Files: .github/workflows/test.yml,admin-nextjs/app/components/legacy-admin-page.tsx admin-nextjs/app/functions/page.tsx
-- `c9633148` — 2026-11-27 18:38:20 +0330 — Reconcile manifest runtime refactor with current secure host and SDK
-  Files: docs/sdk-reference.md,plugins/functions/scheduling.ts plugins/matchmaking/queue.ts,plugins/sdk-typescript/src/index.ts plugins/sdk-typescript/src/manifest-operations.generated.ts,plugins/sdk-typescript/src/request.ts tests/plugin/manifest-request.test.ts
-- `c1b6c8e8` — 2026-11-27 15:05:18 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `8bf6cb5c` — 2026-11-27 18:34:14 +0330 — Merge pull request #40 from arashrasoulzadeh/fix/macos-homebrew-openssl
-  Files: 
