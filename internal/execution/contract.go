@@ -26,7 +26,7 @@ type Executor interface {
 }
 
 type Artifact struct {
-	ID, Version, Digest, Entrypoint string
+	ProjectID, ID, Version, Digest, Entrypoint string
 }
 
 // Verify checks the bytes of a complete immutable artifact, not its individual
@@ -79,6 +79,10 @@ type Request struct {
 var exactVersion = regexp.MustCompile(`^[0-9]+(\.[0-9]+){0,2}(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$`)
 var digest = regexp.MustCompile(`^sha256:[0-9a-f]{64}$`)
 
+func validVersion(version string) bool {
+	return len(version) <= 128 && exactVersion.MatchString(version)
+}
+
 func present(value string) bool {
 	return strings.TrimSpace(value) != "" && len(value) <= 1024
 }
@@ -86,7 +90,7 @@ func present(value string) bool {
 func (r Request) Validate(now time.Time) error {
 	if !present(r.ID) || !present(r.TraceID) || !present(r.ProjectID) || r.ParentID == r.ID || (r.ParentID != "" && !present(r.ParentID)) ||
 		r.Auth.ProjectID != r.ProjectID || !present(r.Auth.OriginalCaller) || !present(r.Auth.Caller) || !present(r.Auth.Capability) ||
-		!present(r.Artifact.ID) || len(r.Artifact.Version) > 128 || !exactVersion.MatchString(r.Artifact.Version) || !digest.MatchString(r.Artifact.Digest) || !present(r.Artifact.Entrypoint) ||
+		(r.Artifact.ProjectID != "" && r.Artifact.ProjectID != r.ProjectID) || !present(r.Artifact.ID) || !validVersion(r.Artifact.Version) || !digest.MatchString(r.Artifact.Digest) || !present(r.Artifact.Entrypoint) ||
 		!present(r.Runtime.Kind) || !present(r.Runtime.Profile) || r.Deadline.IsZero() || r.Limits.CPUTime <= 0 || r.Limits.MemoryBytes <= 0 || r.Limits.InputBytes <= 0 || r.Limits.OutputBytes <= 0 ||
 		!json.Valid(r.Input) || int64(len(r.Input)) > r.Limits.InputBytes || (len(r.Context) != 0 && !json.Valid(r.Context)) || int64(len(r.Context)) > r.Limits.InputBytes-int64(len(r.Input)) ||
 		(r.Idempotent && !present(r.IdempotencyKey)) || (r.IdempotencyKey != "" && !present(r.IdempotencyKey)) {
