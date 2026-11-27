@@ -86,6 +86,9 @@ func prepareLegacyStorageRequest(storage *SQLiteStorage, request WorkerRequest) 
 // Prepare only host-owned storage snapshots. Never let a caller provide the
 // stored state consumed by the worker, even when the record does not exist.
 func prepareLegacyStorageEffect(storage *SQLiteStorage, request WorkerRequest) (WorkerRequest, func(sqliteExecutor) error, error) {
+	if request.PluginID == "analytics" && (request.Operation == "analytics.history" || request.Operation == "analytics.summary") {
+		return prepareAnalyticsRead(storage, request)
+	}
 	if storage == nil {
 		return request, nil, nil
 	}
@@ -267,6 +270,7 @@ func prepareLegacyStorageEffect(storage *SQLiteStorage, request WorkerRequest) (
 				}
 			}
 		}
+		event["occurred_at"] = time.Now().UTC().Format(time.RFC3339Nano)
 		state["events"] = append(events, event)
 		commit = func(db sqliteExecutor) error {
 			return putSQLiteState(db, request.ProjectID, "analytics", "events", state)

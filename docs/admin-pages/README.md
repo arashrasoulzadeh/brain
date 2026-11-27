@@ -52,7 +52,7 @@ The sidebar is populated from the selected project's eligible manifests. These d
 | Arena | `arena` | Inspect, start, record operator input and finish matches. |
 | Invites | `invitations` | Create invitations, redacted invitation list and cancellation. |
 | Subscriptions | `subscriptions` | Channel metadata and ticket revocation. |
-| Analytics | `analytics` | Validated event capture; no event-list or aggregate API exists yet. |
+| Analytics | `analytics` | Validated capture, exact-name event history and project event-count aggregates. |
 | Games | `games` | Read-only supported game modes. |
 | PvP | `pvp` | Read-only runtime capability discovery. |
 | Functions | `functions`, `workflows` | Function editor, publication, logs and declared runtime operations. |

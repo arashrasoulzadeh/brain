@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { AnalyticsRouteSink, analyticsRouteSink, capture, captureForProject, observeRoomConnected, validateEvent } from "../../plugins/analytics/index.js";
+import { AnalyticsRouteSink, analyticsRouteSink, capture, captureForProject, observeRoomConnected, readForProject, validateEvent } from "../../plugins/analytics/index.js";
 import type { AnalyticsEvent } from "../../plugins/analytics/index.js";
 import type { PluginContext } from "../../plugins/sdk-typescript/src/index.js";
 
@@ -42,4 +42,13 @@ test("analytics validates field limits, types and project-bound observations", (
   assert.deepEqual(observeRoomConnected(context, observation), { captured: true, name: "rooms.connected" });
   assert.equal(analyticsRouteSink.events.at(-1)?.projectId, "alpha");
   assert.deepEqual(observed, ["captured", "captured"]);
+});
+
+test("analytics reads the host-provided project snapshot", () => {
+  const context: PluginContext = { project: { id: "alpha" }, plugin: { id: "analytics", version: "1" }, execution: { operation: "analytics.history" }, plugins: { observe: { fire() {} } } };
+  const result = { total_events: 2, rows: [] };
+  assert.deepEqual(readForProject(context, { projectId: "alpha", result }), result);
+  assert.throws(() => readForProject(context, { projectId: "beta", result }), /project context mismatch/);
+  assert.throws(() => readForProject(context, { projectId: "alpha" }), /snapshot unavailable/);
+  assert.throws(() => readForProject(context, { projectId: "alpha", result: [] }), /snapshot unavailable/);
 });

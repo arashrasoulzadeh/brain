@@ -93,3 +93,12 @@ export function captureRequest(
     event.name,
   );
 }
+
+/** The trusted storage adapter supplies the bounded, project-specific snapshot. */
+export function readForProject(context: PluginContext, input: unknown) {
+  requireProjectInput(context, input);
+  const snapshot = input as { projectId?: string; result?: unknown } | null;
+  if (!snapshot || snapshot.projectId !== context.project.id || !snapshot.result || typeof snapshot.result !== "object" || Array.isArray(snapshot.result))
+    throw new Error("analytics snapshot unavailable");
+  return snapshot.result;
+}
