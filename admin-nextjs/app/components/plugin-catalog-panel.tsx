@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { PluginInstallDialog } from "./plugin-install-dialog";
+import { pluginCatalogState, pluginVersionReview } from "../lib/plugin-version-review";
 import { projectUIURL } from "../lib/admin-api";
 import type { AdminCopy } from "../lib/admin-copy";
 import type { PluginManifest, PluginStatus } from "../lib/admin-types";
@@ -16,41 +17,46 @@ export function PluginCatalogPanel({ activePage, projectID, text, manifests, ins
   installPlugin: (manifest: PluginManifest, projectID: string) => Promise<void>;
   runPluginAction: (operation: string, installation: PluginStatus) => void;
 }) {
+  const [stateFilter, setStateFilter] = useState("");
   const [pending, setPending] = useState<{ manifest: PluginManifest; projectID: string }>();
   if (activePage !== "plugins" || !projectID) return null;
   const query = pluginFilter.trim().toLowerCase();
-  const installed = new Map(installations.filter(item => item.ProjectID === projectID).map(item => [item.PluginID + "@" + item.Version, item]));
+  const scoped = installations.filter(item => item.ProjectID === projectID);
+  const installed = new Map(scoped.map(item => [item.PluginID + "@" + item.Version, item]));
   const rows = manifests.filter(manifest =>
-    [manifest.ID, manifest.Title, manifest.Description, manifest.Version, ...(manifest.Capabilities ?? [])].join(" ").toLowerCase().includes(query));
+    [manifest.ID, manifest.Title, manifest.Description, manifest.Version, ...(manifest.Capabilities ?? []), ...(manifest.Dependencies ?? []), ...(manifest.OptionalDependencies ?? [])].join(" ").toLowerCase().includes(query) && (!stateFilter || pluginCatalogState(installed.get(manifest.ID + "@" + manifest.Version)) === stateFilter));
   return <section className="section">
     {pending && pending.projectID === projectID && <PluginInstallDialog key={pending.projectID + ":" + pending.manifest.ID + "@" + pending.manifest.Version} manifest={pending.manifest} projectID={pending.projectID} onInstall={() => installPlugin(pending.manifest, pending.projectID)} onClose={() => setPending(undefined)} />}
     <div className="section-heading">
-      <div><h2>{text.registered}</h2><p className="muted">{manifests.length} registered · {installations.length} installed · {installations.filter(item => item.Enabled && item.Ready && !item.Draining).length} enabled</p></div>
+      <div><h2>{text.registered}</h2><p className="muted">{manifests.length} registered · {scoped.length} installed · {scoped.filter(item => item.Enabled && item.Ready && !item.Draining).length} enabled</p></div>
       <input className="plugin-search" aria-label={text.search} placeholder={text.search} value={pluginFilter} onChange={event => setPluginFilter(event.target.value)} />
     </div>
+    <div className="lifecycle-actions"><label>Installation status<select value={stateFilter} onChange={event => setStateFilter(event.target.value)}><option value="">All states</option><option value="enabled">Enabled</option><option value="worker-unavailable">Worker unavailable</option><option value="draining">Draining</option><option value="disabled">Disabled</option><option value="not-ready">Not ready</option><option value="uninstalled">Not installed</option></select></label><span>{rows.length} / {manifests.length} registered versions</span></div>
     <div className="table-wrap plugin-catalog-table">
       <table aria-label={text.registered}>
         <thead><tr><th>Plugin</th><th>Version</th><th>Status</th><th>Capabilities</th><th>Actions</th></tr></thead>
         <tbody>{rows.map(manifest => {
           const key = manifest.ID + "@" + manifest.Version;
           const installation = installed.get(key);
+          const review = pluginVersionReview(projectID, manifest, manifests, scoped);
+          const stagedOnly = !!review.otherEnabled.length || !!review.promoted || !!review.requiredUnavailable.length;
           const enabled = installation?.Enabled && installation.Ready && !installation.Draining;
           const status = !installation ? "Not installed" : installation.Draining ? "Draining" : enabled && installation.WorkerReady === false ? "Worker unavailable" : enabled ? text.ready : installation.Ready ? text.disabled : text.notReady;
           return <tr key={key}>
             <td><Link className="table-title" href={projectUIURL(projectID, "plugins", key)}>{manifest.Title || manifest.ID}</Link><small className="muted table-subtitle">{manifest.ID}</small><small className="table-description">{manifest.Description}</small></td>
-            <td><code>{manifest.Version}</code></td>
+            <td><code>{manifest.Version}</code>{installation?.Promoted && <small className="muted table-subtitle">Promoted</small>}</td>
             <td><span className={"status-pill " + (enabled && installation?.WorkerReady !== false ? "is-success" : installation?.Draining ? "is-warning" : "is-inactive")}>{status}</span></td>
             <td>{manifest.Capabilities?.length ?? 0}</td>
             <td><div className="table-actions">
-              {!installation ? <button type="button" onClick={() => setPending({ manifest, projectID })}>{text.install}</button> :
+              {!installation ? stagedOnly ? <small className="muted">Stage in Manage</small> : <button type="button" onClick={() => setPending({ manifest, projectID })}>{text.install}</button> :
                 !installation.Ready ? <button type="button" onClick={() => runPluginAction("plugin.readiness", installation)}>{text.markReady}</button> :
-                !installation.Enabled && !installation.Draining ? <button type="button" onClick={() => runPluginAction("plugin.enable", installation)}>{text.enable}</button> : null}
+                !installation.Enabled && !installation.Draining && !review.missingGrants.length && !review.requiredUnavailable.length && (!review.otherEnabled.length || !!review.promoted) ? <button type="button" onClick={() => runPluginAction("plugin.enable", installation)}>{text.enable}</button> : null}
               <Link className="table-action-link" href={projectUIURL(projectID, "plugins", key)} aria-label={"View " + manifest.ID}>Manage</Link>
             </div></td>
           </tr>;
         })}</tbody>
       </table>
-      {!rows.length && <p className="muted" role="status">{query ? "No matching plugins." : text.empty}</p>}
+      {!rows.length && <p className="muted" role="status">{query || stateFilter ? "No matching plugins." : text.empty}</p>}
     </div>
   </section>;
 }

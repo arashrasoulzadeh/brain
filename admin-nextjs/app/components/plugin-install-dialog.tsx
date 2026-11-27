@@ -23,6 +23,7 @@ export function PluginInstallDialog({ projectID, manifest, onInstall, onClose }:
     <h3>Requested capabilities ({manifest.Capabilities?.length ?? 0})</h3>
     {manifest.Capabilities?.length ? <ul>{manifest.Capabilities.map(capability => <li key={capability}><code>{capability}</code></li>)}</ul> : <p>No capabilities requested.</p>}
     {!!manifest.Dependencies?.length && <><h3>Required dependencies</h3><ul>{manifest.Dependencies.map(dep => <li key={dep}><code>{dep}</code></li>)}</ul><p>These must already be enabled in this project.</p></>}
+    {!!manifest.OptionalDependencies?.length && <><h3>Optional dependencies</h3><ul>{manifest.OptionalDependencies.map(dep => <li key={dep}><code>{dep}</code></li>)}</ul><p className="muted">Optional dependencies do not block installation and are not automatically enabled.</p></>}
     {manifest.ID === "access-management" && <p role="note">Access management enforces explicit resource policies. Existing plugin requests may be denied until rules are configured.</p>}
     {Object.keys(manifest.ConfigSchema ?? {}).length > 0 && <p>After installation, use Manage to configure this project's settings.</p>}
     {busy && <AdminProgress label="Installing, granting capabilities and starting worker…" />}
