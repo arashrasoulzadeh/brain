@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
+	"io"
 	"math"
 	"regexp"
 	"sort"
@@ -200,7 +201,7 @@ func (r *Registry) planObservations(publisher WorkerRequest, manifest Manifest, 
 			continue
 		}
 		var randomID [16]byte
-		if _, err := rand.Read(randomID[:]); err != nil {
+		if _, err := io.ReadFull(rand.Reader, randomID[:]); err != nil {
 			r.recordObservation("observation_rejected", publisher, "identity unavailable")
 			continue
 		}
