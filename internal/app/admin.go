@@ -122,6 +122,7 @@ type adminCommand struct {
 	Revision        uint64          `json:"revision"`
 	Dependents      []string        `json:"dependents"`
 	Name            string          `json:"name"`
+	Slug            string          `json:"slug"`
 	Source          string          `json:"source"`
 	Input           json.RawMessage `json:"input"`
 	Payload         json.RawMessage `json:"payload"`
@@ -160,7 +161,13 @@ func AdminHandler(service *admin.LifecycleService) http.Handler {
 		var err error
 		switch command.Operation {
 		case "project.create":
-			err = service.CreateProject(actor, command.ProjectID)
+            if command.Name!="" || command.Slug!="" || command.Values!=nil {
+                err=service.CreateProjectWithDetails(actor,command.ProjectID,command.Name,command.Slug,command.Values)
+            }else{
+                err=service.CreateProject(actor,command.ProjectID)
+            }
+        case "project.configure":
+            err=service.ConfigureProject(actor,command.ProjectID,command.Name,command.Slug,command.Values)
 		case "project.activate":
 			err = service.SetProjectActive(actor, command.ProjectID, true)
 		case "project.deactivate":
