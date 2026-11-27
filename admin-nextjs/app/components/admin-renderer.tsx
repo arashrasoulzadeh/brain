@@ -31,7 +31,7 @@ export function ActionForm({ contribution }: { contribution: AdminContribution }
   function selectOperation(next: string) {
     if (controlsDisabled || next === operation) return;
     setOperation(next); setResult(undefined); setError(""); setLastQuery(undefined); setPayload("{}");
-    setValues(previous => filesPage && next !== "files.upload" && previous.key ? { key: previous.key } : {});
+    setValues((previous): Record<string, string> => filesPage && next !== "files.upload" && previous.key ? { key: previous.key } : {});
   }
   const pending = useRef<AbortController | null>(null);
   useEffect(() => () => pending.current?.abort(), []);
