@@ -2,7 +2,6 @@ package app
 
 import (
 	"encoding/json"
-	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -251,7 +250,7 @@ func TestProjectPluginHTTPAdmissionAndResponseBoundaries(t *testing.T) {
 		}
 	}
 	registry.BindProjectResolver(func(string) (plugin.ProjectSnapshot, error) {
-		return plugin.ProjectSnapshot{}, errors.New("project removed")
+		return plugin.ProjectSnapshot{ID: "immutable", Active: false}, nil
 	})
 	rec = httptest.NewRecorder()
 	handler.ServeHTTP(rec, httpBoundaryRequest("POST", "/alias/boundary/write/r", "{}", &identity, token))
