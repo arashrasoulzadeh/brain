@@ -4,6 +4,13 @@ import type { AdminPage, PluginStatus, SystemManifest } from "./admin-types.js";
 export type AdminContribution = { projectID: string; pluginID: string; version: string; page: AdminPage; href: string; maxUploadBytes?: number };
 export type AdminCatalog = { manifests: SystemManifest[] | null; installations: PluginStatus[] | null };
 
+export function readyAdminInstallations(projectID: string, catalog: AdminCatalog, pluginID: string): PluginStatus[] {
+  return (catalog.installations ?? []).filter(item => item.ProjectID === projectID && item.PluginID === pluginID &&
+    item.Enabled && item.Ready && !item.Draining && (catalog.manifests ?? []).some(manifest =>
+      manifest.ID === item.PluginID && manifest.Version === item.Version &&
+      (manifest.Capabilities ?? []).every(capability => item.Grants?.includes(capability))));
+}
+
 export function adminContributions(projectID: string, catalog: AdminCatalog): AdminContribution[] {
   if (!projectID) return [];
   const result: AdminContribution[] = [];

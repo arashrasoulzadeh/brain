@@ -85,6 +85,9 @@ test("function list renders public and private versions only after plugin access
   await mount(Functions, {}, { pathname: "/dev/ui/functions" });
   assert.match(text(), /Public/);
   assert.match(text(), /Private/);
+  assert.match(text(), /Published records/);
+  assert.match(text(), /Last published/);
+  assert.doesNotMatch(text(), /Updated/);
   assert.equal(find('a[href="/dev/ui/functions/public%20echo"]').textContent, "public echo");
   assert.doesNotMatch(text(), /No functions yet/);
   await change(find('input[type="search"]'), "private");

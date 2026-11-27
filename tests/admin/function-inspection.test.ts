@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { filterFunctionDrafts, filterFunctionLogs, functionLogMetrics } from "../../admin-nextjs/app/lib/function-inspection.js";
+import { filterFunctionDrafts, filterFunctionLogs, functionLogMetrics, projectFunctionRecords, functionCatalogSummary, functionCatalogRows, functionCatalogPage } from "../../admin-nextjs/app/lib/function-inspection.js";
 test("function list filters name, publication and visibility without changing input", () => {
   const drafts = [{ name: "Zulu" }, { name: "Alpha", public: true, published_at: "2026-01-01" }, { name: "Beta", public: true }];
   assert.deepEqual(filterFunctionDrafts(drafts, "", "", "").map(x => x.name), ["Alpha", "Beta", "Zulu"]);
@@ -21,4 +21,21 @@ test("log filtering and metrics use the loaded execution records", () => {
   assert.deepEqual(filterFunctionLogs(logs, "GET", "success"), [logs[2]]);
   assert.deepEqual(functionLogMetrics(logs), { successful: 2, average: 40, p95: 90 });
   assert.deepEqual(functionLogMetrics([]), { successful: 0, average: null, p95: null });
+});
+
+test("function catalog counts only authorized project records and keeps publication independent of visibility", () => {
+  const records = [
+    { project_id: "dev", name: "alpha", source: "secret source", created_at: "2026-01-01", public: true, method: "GET", version: 1 },
+    { project_id: "dev", name: "beta", created_at: "2026-01-02", published_at: "2026-01-03", public: false, method: "POST", version: 3 },
+    { project_id: "other", name: "outside", created_at: "2026-01-04", public: true },
+  ];
+  const scoped = projectFunctionRecords(records, "dev");
+  assert.equal(scoped.length, 2);
+  assert.equal("source" in scoped[0], false);
+  assert.deepEqual(functionCatalogSummary(scoped), { total: 2, published: 1, unpublished: 1, public: 1 });
+  assert.deepEqual(functionCatalogRows(scoped, { query: "", visibility: "private", publication: "published", method: "POST", sort: "newest" }).map(row => row.name), ["beta"]);
+  assert.deepEqual(functionCatalogRows(scoped, { query: "", visibility: "", publication: "", method: "", sort: "version" }).map(row => row.name), ["beta", "alpha"]);
+  assert.deepEqual(functionCatalogPage(scoped, 9, 1), { page: 1, pages: 2, start: 2, end: 2, rows: [scoped[1]] });
+  assert.deepEqual(functionCatalogPage([], 9, 10), { page: 0, pages: 1, start: 0, end: 0, rows: [] });
+  assert.equal(records[0].name, "alpha");
 });
