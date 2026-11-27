@@ -31,7 +31,7 @@ export function FunctionEditor({
       <div className="monaco-editor-actions">
         <span>Function source · Monaco</span>
         {onValidate && (
-          <button type="button" disabled={validating} onClick={onValidate}>
+          <button type="button" disabled={validating || readOnly} onClick={onValidate}>
             {validating ? "Checking…" : "Check syntax"}
           </button>
         )}

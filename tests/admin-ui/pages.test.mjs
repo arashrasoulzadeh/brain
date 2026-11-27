@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { app, mount, find, button, click, text, session, stubFetch, json, navigations } from "./dom-harness.mjs";
+import { app, mount, find, button, click, change, text, session, stubFetch, json, navigations } from "./dom-harness.mjs";
 
 const Functions = app("functions/view.tsx").default;
 const Workers = app("workers/view.tsx").default;
@@ -83,6 +83,14 @@ test("function list renders public and private versions only after plugin access
   assert.match(text(), /Private/);
   assert.equal(find('a[href="/dev/ui/functions/public%20echo"]').textContent, "public echo");
   assert.doesNotMatch(text(), /No functions yet/);
+  await change(find('input[type="search"]'), "private");
+  assert.equal(document.querySelector('a[href="/dev/ui/functions/public%20echo"]'), null);
+  assert.ok(find('a[href="/dev/ui/functions/private"]'));
+  await change(find('input[type="search"]'), "missing");
+  assert.match(text(), /No functions match the filters/);
+  await change(find('input[type="search"]'), "");
+  await click(button("Refresh functions"));
+  assert.ok(find('a[href="/dev/ui/functions/private"]'));
 });
 
 test("workers page sends a scoped restart request and reloads readiness", async () => {

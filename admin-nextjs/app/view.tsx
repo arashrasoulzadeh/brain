@@ -84,6 +84,7 @@ export default function AdminPage() {
       } as Record<string, string>
     )[activePage] ?? text.projects;
   const activePluginIDs = enabledPluginIDs(installations);
+  useEffect(() => () => { playgroundRequest.current?.abort(); playgroundRequest.current = null; }, []);
   function selectProject(id: string) {
     if (!projectRequests.select(id)) return;
     setSelectedProjectID(id);
