@@ -36,6 +36,7 @@ async function fixture(viewport, project = "alpha") {
     }
   }, { project });
   const page = await context.newPage();
+  let allowed = true;
   page.on("pageerror", error => runtimeErrors.push(error.message));
   await page.route("**/api/admin/**", async route => {
     const request = route.request();
@@ -66,7 +67,12 @@ async function fixture(viewport, project = "alpha") {
         assert.equal(body.version, manifest.Version);
         assert.equal(body.page_id, "operations");
         if (body.operation === "plugin.admin.inventory") {
-          return json({ rows: [{ key: "sample.txt", size_bytes: 12, published: false }] });
+          return json({ rows: allowed ? [{ key: "sample.txt", size_bytes: 12, published: false }] : [] });
+        }
+        if (body.operation === "plugin.admin.revision") {
+          assert.equal(body.target_operation, "files.metadata");
+          assert.deepEqual(body.payload, { key: "sample.txt" });
+          return allowed ? json({ revision: 0 }) : route.fulfill({ status: 403, body: "Resource permission revoked" });
         }
         if (body.operation === "plugin.admin.query") {
           assert.equal(body.target_operation, "files.metadata");
@@ -84,7 +90,7 @@ async function fixture(viewport, project = "alpha") {
       default: return route.fulfill({ status: 404, body: "Unknown fixture endpoint" });
     }
   });
-  return { page, context };
+  return { page, context, setAllowed(value) { allowed = value; } };
 }
 
 async function visible(locator) {
@@ -119,6 +125,14 @@ try {
   await page.getByRole("button", { name: "Query", exact: true }).click();
   await visible(page.getByText("fixture-result", { exact: true }));
   await screenshot(page, "desktop-plugin-inventory");
+  // Revocation has no observation event. Both the inventory and the visible
+  // query result must still disappear on their next authorization check.
+  desktop.setAllowed(false);
+  await visible(page.getByText("No resources on this page.", { exact: true }));
+  await visible(page.getByRole("alert").filter({ hasText: "Resource permission revoked" }));
+  assert.equal(await page.getByText("fixture-result", { exact: true }).count(), 0);
+  desktop.setAllowed(true);
+  await visible(page.getByText("sample.txt", { exact: true }));
 
   // A mutation must not run when the operator cancels confirmation.
   await page.getByLabel("Operation").selectOption("files.publish");

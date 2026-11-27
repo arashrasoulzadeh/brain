@@ -23,7 +23,7 @@ export function ActionForm({ contribution }: { contribution: AdminContribution }
   const pending = useRef<AbortController | null>(null);
   useEffect(() => () => pending.current?.abort(), []);
   useEffect(() => {
-    if (!lastQuery || !contribution.page.refresh_on?.length) return;
+    if (!lastQuery) return;
     const controller = new AbortController();
     let timer: ReturnType<typeof setTimeout>;
     async function check() {
@@ -31,8 +31,8 @@ export function ActionForm({ contribution }: { contribution: AdminContribution }
       try {
         if (!pending.current && !document.hidden) {
           const token = readAdminSession();
-          const revision = await adminPageRevision(token, contribution, controller.signal);
-          if (!controller.signal.aborted && !pending.current && revision !== lastQuery!.revision) {
+          const revision = await adminPageRevision(token, contribution, controller.signal, lastQuery);
+          if (!controller.signal.aborted && !pending.current && contribution.page.refresh_on?.length && revision !== lastQuery!.revision) {
             pending.current = controller;
             setBusy(true);
             try {
@@ -74,12 +74,12 @@ export function ActionForm({ contribution }: { contribution: AdminContribution }
       controller = new AbortController();
       pending.current = controller;
       const token = readAdminSession();
-      const revision = query && contribution.page.refresh_on?.length ? await adminPageRevision(token, contribution, controller.signal) : 0;
+      const revision = query && contribution.page.refresh_on?.length ? await adminPageRevision(token, contribution, controller.signal, { operation, payload: parsed }) : 0;
       const next = await invokeAdminAction(token, contribution, operation, parsed, controller.signal, query);
       if (!controller.signal.aborted) {
         setResult(next);
         if (!query) setInventoryRefresh(value => value + 1);
-        if (query && contribution.page.refresh_on?.length) setLastQuery({ operation, payload: parsed, revision });
+        if (query) setLastQuery({ operation, payload: parsed, revision });
       }
     } catch (reason) { if (!controller?.signal.aborted) setError(reason instanceof Error ? reason.message : String(reason)); }
     finally { if (pending.current === controller) pending.current = null; if (!controller?.signal.aborted) setBusy(false); }
@@ -96,12 +96,12 @@ export function ActionForm({ contribution }: { contribution: AdminContribution }
         {contribution.page.actions.map(action => <option key={action.operation} value={action.operation}>{action.title}</option>)}
       </select></label>
       {fields.length ? fields.map(field => <label className={field.type === "json" ? "wide-field" : undefined} key={field.name}>{field.name}{field.required ? " *" : ""}
-        {field.type === "boolean" ? <select disabled={busy} required={field.required} value={values[field.name] ?? ""} onChange={event => { setLastQuery(undefined); setValues(previous => ({ ...previous, [field.name]: event.target.value })); }}>
+        {field.type === "boolean" ? <select disabled={busy} required={field.required} value={values[field.name] ?? ""} onChange={event => { setLastQuery(undefined); setResult(undefined); setError(""); setValues(previous => ({ ...previous, [field.name]: event.target.value })); }}>
           <option value="">Select</option><option value="true">True</option><option value="false">False</option>
-        </select> : field.type === "json" ? <textarea disabled={busy} required={field.required} rows={5} value={values[field.name] ?? ""} onChange={event => { setLastQuery(undefined); setValues(previous => ({ ...previous, [field.name]: event.target.value })); }} />
-        : <input disabled={busy} required={field.required} type={field.type === "number" ? "number" : "text"} step={field.type === "number" ? "any" : undefined} value={values[field.name] ?? ""} onChange={event => { setLastQuery(undefined); setValues(previous => ({ ...previous, [field.name]: event.target.value })); }} />}
-      </label>) : action?.read_only ? null : <label className="wide-field">JSON payload<textarea disabled={busy} rows={10} value={payload} onChange={event => { setLastQuery(undefined); setPayload(event.target.value); }} /></label>}
-      <div className="operation-submit"><button disabled={busy} type="submit">{busy ? "Running…" : action?.read_only ? "Query" : "Run action"}</button>{lastQuery && <span className="muted live-indicator">Auto-refresh active</span>}</div>
+        </select> : field.type === "json" ? <textarea disabled={busy} required={field.required} rows={5} value={values[field.name] ?? ""} onChange={event => { setLastQuery(undefined); setResult(undefined); setError(""); setValues(previous => ({ ...previous, [field.name]: event.target.value })); }} />
+        : <input disabled={busy} required={field.required} type={field.type === "number" ? "number" : "text"} step={field.type === "number" ? "any" : undefined} value={values[field.name] ?? ""} onChange={event => { setLastQuery(undefined); setResult(undefined); setError(""); setValues(previous => ({ ...previous, [field.name]: event.target.value })); }} />}
+      </label>) : action?.read_only ? null : <label className="wide-field">JSON payload<textarea disabled={busy} rows={10} value={payload} onChange={event => { setLastQuery(undefined); setResult(undefined); setError(""); setPayload(event.target.value); }} /></label>}
+      <div className="operation-submit"><button disabled={busy} type="submit">{busy ? "Running…" : action?.read_only ? "Query" : "Run action"}</button>{lastQuery && <span className="muted live-indicator">{contribution.page.refresh_on?.length ? "Auto-refresh active" : "Access monitored"}</span>}</div>
     </form>
     {error && <p role="alert">{error}</p>}
     {result !== undefined && <div className="admin-result-panel"><AdminResultRenderer key={operation} value={result} spec={action?.result} /></div>}

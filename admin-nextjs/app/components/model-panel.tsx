@@ -35,6 +35,7 @@ export function ModelPanel({ contribution }: { contribution: AdminContribution }
     setFields(Object.fromEntries(Object.entries(record.fields).map(([key, value]) => [key, String(value)])));
   }
 
+  useEffect(() => () => { pending.current?.abort(); pending.current = null; }, []);
   useEffect(() => {
     if (!listRoute) return;
     const controller = new AbortController();
@@ -43,7 +44,7 @@ export function ModelPanel({ contribution }: { contribution: AdminContribution }
     void invokeAdminAction(readAdminSession(), contribution, listRoute.operation, {}, controller.signal, true).then(data => {
       if (!Array.isArray(data) || !data.every(isRecord)) throw new Error("Invalid model list");
       if (!controller.signal.aborted) setRecords(data);
-    }).catch(error => { if (!controller.signal.aborted) setMessage(String(error)); }).finally(() => {
+    }).catch(error => { if (!controller.signal.aborted) { setRecords([]); setMessage(String(error)); } }).finally(() => {
       if (pending.current === controller) { pending.current = null; if (!controller.signal.aborted) setBusy(false); }
     });
     return () => { controller.abort(); pending.current?.abort(); pending.current = null; };

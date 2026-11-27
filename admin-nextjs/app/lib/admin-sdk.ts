@@ -21,13 +21,14 @@ export async function invokeAdminAction(token: string, contribution: AdminContri
   return JSON.parse(new TextDecoder().decode(bytes));
 }
 
-export async function adminPageRevision(token: string, contribution: AdminContribution, signal: AbortSignal): Promise<number> {
+export async function adminPageRevision(token: string, contribution: AdminContribution, signal: AbortSignal, scope?: { operation: string; payload: unknown }): Promise<number> {
   const response = await fetch("/api/admin/actions", {
     method: "POST",
     headers: adminHeaders(token, { "content-type": "application/json" }),
     signal,
     body: JSON.stringify({ operation: "plugin.admin.revision", project_id: contribution.projectID,
-      plugin_id: contribution.pluginID, version: contribution.version, page_id: contribution.page.id }),
+      plugin_id: contribution.pluginID, version: contribution.version, page_id: contribution.page.id,
+      target_operation: scope?.operation, payload: scope?.payload }),
   });
   if (!response.ok) throw new Error(await response.text());
   const result = await response.json() as { revision: number };
@@ -35,10 +36,10 @@ export async function adminPageRevision(token: string, contribution: AdminContri
   return result.revision;
 }
 
-export async function fetchAdminInventory(token: string, contribution: AdminContribution, after: string, signal: AbortSignal): Promise<AdminInventoryPage> {
+export async function fetchAdminInventory(token: string, contribution: AdminContribution, after: string, signal: AbortSignal, quiet = false): Promise<AdminInventoryPage> {
   const response = await fetch("/api/admin/actions", {
     method: "POST",
-    headers: adminHeaders(token, { "content-type": "application/json" }),
+    headers: adminHeaders(token, { "content-type": "application/json", ...(quiet ? { "x-brain-quiet": "1" } : {}) }),
     signal,
     body: JSON.stringify({ operation: "plugin.admin.inventory", project_id: contribution.projectID,
       plugin_id: contribution.pluginID, version: contribution.version, page_id: contribution.page.id, after, limit: 50 }),
