@@ -41,7 +41,7 @@ export function AdminSidebar({
     return () => { window.removeEventListener(ADMIN_PROJECT_CHANGED, changed); window.removeEventListener(ADMIN_PLUGIN_CATALOG_CHANGED, changed); };
   }, []);
   useEffect(() => { setMobileOpen(false); setSearch(""); }, [pathname]);
-  const [discoveredPages, setDiscoveredPages] = useState<string[]>(["projects"]);
+  const [discoveredPages, setDiscoveredPages] = useState<string[]>(["projects", "workers"]);
   const [extensions, setExtensions] = useState<AdminContribution[]>([]);
   const [fallback, setFallback] = useState<MenuItem[]>([]);
   useEffect(() => {
@@ -49,7 +49,7 @@ export function AdminSidebar({
     setExtensions([]);
     setFallback([]);
     setActiveProject("");
-    setDiscoveredPages(["projects"]);
+    setDiscoveredPages(["projects", "workers"]);
     const token = readAdminSession();
     if (!token) return () => controller.abort();
     const headers = adminHeaders(token);

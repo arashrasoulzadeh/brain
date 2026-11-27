@@ -46,3 +46,9 @@ test("enabled plugins without manifest action pages have a project-scoped worksp
   installations[0].Enabled = false;
   assert.deepEqual(adminWorkspaceFallbacks("one", catalog, []).map(item => item.href), ["/one/ui/plugins/custom%401"]);
 });
+
+test("Neuron recovery is system-scoped even without an active project", () => {
+  const menu = adminMenu(["projects", "workers", "audit"], [], "", "");
+  assert.equal(menu.flatMap(group => group.items).find(item => item.icon === "workers")?.href, "/_system/ui/workers");
+  assert.equal(menu.flatMap(group => group.items).find(item => item.icon === "workers")?.label, "Neurons");
+});

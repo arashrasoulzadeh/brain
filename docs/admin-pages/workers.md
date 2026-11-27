@@ -1,11 +1,9 @@
-# Workers
+# Neurons
 
-Route: `/{project}/ui/workers`
+Routes: `/_system/ui/workers` (cluster console) and `/{project}/ui/workers` (compatibility link).
 
-Shows plugin worker state and allows worker startup for enabled plugins. Requires at least one active plugin. Uses the shared admin sidebar.
+The system-level console is available to operators without an active project or plugin. It reads `GET /_system/admin/neurons`, displays connected identities, runtime profiles, occupied/free slots, last heartbeat, running assignments and queue depth from the bound Cortex scheduler. An unconfigured scheduler or failed poll displays unavailable metrics, not invented zeroes. The list refreshes every five seconds when visible and can be refreshed manually.
 
-Start only the intended project/version worker after lifecycle prerequisites are met. Readiness and worker readiness are distinct. If startup fails, inspect sandbox prerequisites and manifest sources; do not disable isolation or grant broad permissions as a workaround.
+The existing project-specific dedicated plugin worker status and explicit startup recovery remain under Legacy plugin workers. Generic Neurons and legacy workers are not combined. Until live Synapse transport is wired, the server reports that the scheduler is not configured. CPU/memory, execution history, completed/failed counters, latency, drain and managed restart actions are not yet provided by the host.
 
-See the [admin route index](README.md) and [HTTP API](../http-api.md).
-
-The worker view refreshes periodically and has a manual Refresh workers control. A failed refresh clears stale worker rows instead of presenting them as current.
+Do not disable sandbox isolation or broaden permissions as a workaround for a failed worker. See [HTTP API](../http-api.md).

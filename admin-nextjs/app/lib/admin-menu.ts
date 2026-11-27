@@ -11,7 +11,7 @@ const platform: MenuItem[] = [
   { href: "/system", label: "Capabilities", icon: "system" },
   { href: "/routes", label: "API routes", icon: "routes" },
   { href: "/monitoring", label: "Monitoring", icon: "monitoring" },
-  { href: "/workers", label: "Workers", icon: "workers" },
+  { href: "/workers", label: "Neurons", icon: "workers" },
   { href: "/audit", label: "Audit log", icon: "audit" },
 ];
 
@@ -22,7 +22,7 @@ export function adminMenu(allowed: readonly string[], extensions: readonly Admin
     ...(projectID ? aliases : []).map(alias => ({ href: projectUIURL(projectID, alias), label: adminAliasTitle(alias), icon: "resource" as const })),
     ...(projectID ? fallback : []),
   ];
-  const scopedPlatform = platform.filter(item => projectID || ["projects", "audit"].includes(item.icon)).map(item => ({ ...item, href: ["projects", "audit"].includes(item.icon) ? systemUIURL(item.href.slice(1)) : projectUIURL(projectID, item.href.slice(1)) }));
+  const scopedPlatform = platform.filter(item => projectID || ["projects", "audit", "workers"].includes(item.icon)).map(item => ({ ...item, href: ["projects", "audit", "workers"].includes(item.icon) ? systemUIURL(item.href.slice(1)) : projectUIURL(projectID, item.href.slice(1)) }));
   const groups: MenuGroup[] = [
     { label: "Workspace", items: scopedPlatform.filter(item => allowed.includes(item.icon) && ["projects", "plugins"].includes(item.icon)) },
     { label: "Plugin workspaces", items: project },

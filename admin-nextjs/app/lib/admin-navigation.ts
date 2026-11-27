@@ -9,8 +9,8 @@ export function canViewAdminPage(page: string, enabled: ReadonlySet<string>): bo
     case "system": return enabled.has("dashboard");
     case "functions": return enabled.has("functions");
     case "routes":
-    case "monitoring":
-    case "workers": return enabled.size > 0;
+    case "monitoring": return enabled.size > 0;
+    case "workers": return true;
     default: return true;
   }
 }
