@@ -49,19 +49,7 @@ func RecordObjectVersionManifest(path string, manifest ObjectVersionManifest) er
 	if err := ValidateObjectVersionManifest(manifest); err != nil {
 		return err
 	}
-	contents, err := json.Marshal(manifest)
-	if err != nil {
-		return err
-	}
-	temporaryPath := path + ".tmp"
-	if err := os.WriteFile(temporaryPath, append(contents, '\n'), 0o600); err != nil {
-		return err
-	}
-	if err := os.Rename(temporaryPath, path); err != nil {
-		_ = os.Remove(temporaryPath)
-		return err
-	}
-	return nil
+	return recordJSON(path, manifest)
 }
 
 func ReadObjectVersionManifest(path string) (ObjectVersionManifest, error) {

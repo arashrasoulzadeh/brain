@@ -2,6 +2,30 @@
 
 ## Quickstart
 
+With Go, Node.js 20+, npm, GNU Make and Linux bubblewrap available, install the locked Node dependencies once:
+
+```bash
+make setup
+```
+
+Start the server and admin in separate terminals:
+
+```bash
+make dev server
+make dev admin
+```
+
+The Go server listens on `http://127.0.0.1:18082` and uses local SQLite storage at `.local/brain.sqlite`. The Next.js admin listens on `http://127.0.0.1:3000` and proxies to the server. Stop either process with Ctrl+C. The local startup script supports `HTTP_ADDRESS`, `PROJECTS_FILE`, `OPERATOR_USERNAME` and `OPERATOR_SECRET` overrides. The admin supports `ADMIN_HOST`, `ADMIN_PORT` and `BRAIN_API_ORIGIN`, for example:
+
+```bash
+make dev server HTTP_ADDRESS=127.0.0.1:18090
+make dev admin ADMIN_PORT=3100 BRAIN_API_ORIGIN=http://127.0.0.1:18090
+```
+
+Development requires no Docker and keeps the production worker sandbox enabled. Use a Linux environment with permitted user namespaces (including an appropriately configured WSL2 environment). Do not use the local script's default credentials in production.
+
+Run the development checks:
+
 ```bash
 GOCACHE=/tmp/brain-go-cache go test ./...
 go vet ./...
@@ -189,3 +213,11 @@ writes still enqueue after their commit, without an atomic outbox guarantee.
 For scheduling and workflow libraries use the `bindProjectSchedule`,
 `bindProjectTriggers`, `bindProjectJobLeases` and `runProjectWorkflow` helpers.
 These bindings do not themselves implement a production job runner.
+
+## Rooms, games and PvP boundaries
+
+- `rooms` owns room lifecycle, membership, connection tickets, generic room results and room observations. It has no game-mode exports.
+- `games` owns mode-specific state, rules, commands, outcome detection and adapters. Import Tic-Tac-Toe from `plugins/games/index.ts`; the project-bound `games.modes` route lists available modes.
+- `pvp` exposes reusable turn rotation, deadlines, pause/resume, revision-checked commands, replay, deduplication, membership checks and private views. Its `pvp.describe` route reports the supported primitives. The pure implementations are in the trusted SDK (`src/pvp.ts`) so isolated game workers do not import sibling plugin files. These helpers are not a substitute for host-authenticated context, actor grants or durable state.
+
+Existing room HTTP operations and events are unchanged. The two new discovery routes require their own capabilities. Game mechanics are local TypeScript APIs, not a new network-accessible match service. Add new game modes in `games` without modifying `rooms` or copying PvP primitives.

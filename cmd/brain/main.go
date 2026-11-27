@@ -6,7 +6,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -59,13 +58,18 @@ func main() {
 	}
 	if len(os.Args) > 1 && os.Args[1] == "health-only" {
 		log.Print("health-only mode: no application routes; readiness is unavailable")
-		log.Fatal(http.ListenAndServe(cfg.HTTPAddress, app.NewServer().Handler()))
+		if err := serveHTTP(cfg.HTTPAddress, app.NewServer().Handler()); err != nil {
+			log.Fatal(err)
+		}
+		return
 	}
 	server, err := productionServer()
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Fatal(http.ListenAndServe(cfg.HTTPAddress, server.Handler()))
+	if err := serveHTTP(cfg.HTTPAddress, server.Handler()); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func productionServer() (*app.Server, error) {
