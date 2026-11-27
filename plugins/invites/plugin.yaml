@@ -22,6 +22,7 @@ capabilities:
 extension_points: []
 config_schema:
   ttlSeconds: int
+public_config: [ttlSeconds]
 events:
   - name: created
     fields: {}
@@ -80,6 +81,13 @@ admin:
           fields:
             - {name: roomId, type: string, required: true}
             - {name: after, label: After invitation ID, type: string}
+        - title: Create invitation
+          operation: invites.create
+          fields:
+            - {name: roomId, type: string, required: true}
+            - {name: targetPlayerId, type: string, required: true}
+            - {name: ttlSeconds, type: number}
+          result: {type: detail}
         - title: Cancel invitation
           operation: invites.cancel
           fields:

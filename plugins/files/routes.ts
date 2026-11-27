@@ -33,7 +33,11 @@ export class FileRouteStore {
 export const fileRouteStore = new FileRouteStore();
 
 type FileOperation = "upload" | "download" | "metadata" | "publish";
-type FileInput = { key?: unknown; data?: unknown; published?: unknown };
+type FileInput = { key?: unknown; data?: unknown; published?: unknown; metadata?: { size_bytes?: number; filename?: string } };
+
+function fileDetails(payload: FileInput) {
+  return payload.metadata && typeof payload.metadata === "object" ? { metadata: payload.metadata } : {};
+}
 
 const routes = createOperationRoutes(["upload", "download", "metadata", "publish"], executeFileRoute);
 export const { upload, download, metadata, publish } = routes.handlers;
@@ -44,18 +48,18 @@ function executeFileRoute(operation: FileOperation, input: unknown, context?: Pl
   const key = requiredString(payload.key, "file key is required");
   if (operation === "upload") {
     const result = fileRouteStore.execute(operation, key, typeof payload.data === "string" ? payload.data : undefined);
-    context?.plugins.observe.fire("uploaded", { size: typeof payload.data === "string" ? Buffer.byteLength(payload.data, "utf8") : 0 });
-    return result;
+    context?.plugins.observe.fire("uploaded", { size: payload.metadata?.size_bytes ?? (typeof payload.data === "string" ? Buffer.byteLength(payload.data, "utf8") : 0) });
+    return { ...(result as object), ...fileDetails(payload) };
   }
   if (operation === "publish" && payload.published === true) {
     context?.plugins.observe.fire("published", { published: true });
-    return { key, published: true };
+    return { key, published: true, ...fileDetails(payload) };
   }
   if (typeof payload.data === "string") {
     if (operation === "download")
-      return { key, data: payload.data, published: Boolean(payload.published) };
+      return { key, data: payload.data, published: Boolean(payload.published), ...fileDetails(payload) };
     if (operation === "metadata")
-      return { key, published: Boolean(payload.published), size: payload.data.length };
+      return { key, published: Boolean(payload.published), size: payload.metadata?.size_bytes ?? Buffer.byteLength(payload.data, "utf8"), ...fileDetails(payload) };
   }
   const result = fileRouteStore.execute(operation, key);
   if (operation === "publish") context?.plugins.observe.fire("published", { published: true });

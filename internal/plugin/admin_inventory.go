@@ -43,9 +43,14 @@ func (s AdminInventorySpec) valid(m Manifest, page AdminPage) bool {
 }
 
 type AdminInventoryRow struct {
-	Key       string `json:"key"`
-	SizeBytes *int64 `json:"size_bytes,omitempty"`
-	Published *bool  `json:"published,omitempty"`
+	Key         string `json:"key"`
+	SizeBytes   *int64 `json:"size_bytes,omitempty"`
+	Published   *bool  `json:"published,omitempty"`
+	Filename    string `json:"filename,omitempty"`
+	Extension   string `json:"extension,omitempty"`
+	ContentType string `json:"content_type,omitempty"`
+	StoredBytes *int64 `json:"stored_bytes,omitempty"`
+	UpdatedAt   string `json:"updated_at,omitempty"`
 }
 
 type AdminInventoryPage struct {

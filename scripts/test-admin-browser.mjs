@@ -146,7 +146,10 @@ try {
   await visible(page.getByRole("heading", { name: "File metadata", level: 1 }));
   assert.ok(new URL(page.url()).pathname.startsWith("/alpha/ui/"));
   await visible(page.getByText("sample.txt", { exact: true }));
+  assert.equal(await page.getByRole("link", { name: "Manage files in alpha" }).getAttribute("href"), "/alpha/ui/plugins/files%400.1.0");
+  assert.equal(await page.getByRole("dialog").count(), 0);
   await page.getByRole("button", { name: "Select", exact: true }).click();
+  await visible(page.getByRole("dialog", { name: "Inspect file" }));
   assert.equal(await page.getByRole("textbox", { name: /key/ }).inputValue(), "sample.txt");
   await page.getByRole("button", { name: "Query", exact: true }).click();
   await visible(page.getByText("fixture-result", { exact: true }));
@@ -165,14 +168,16 @@ try {
   // A mutation must not run when the operator cancels confirmation.
   await page.getByLabel("Operation").selectOption("files.publish");
   await page.getByRole("textbox", { name: /key/ }).fill("sample.txt");
-  page.once("dialog", dialog => dialog.dismiss());
   await page.getByRole("button", { name: "Run action" }).click();
+  await page.getByRole("button", { name: "Cancel confirmation" }).click();
   assert.equal(commands.filter(command => command.operation === "plugin.admin.invoke").length, 0);
-  page.once("dialog", dialog => dialog.accept());
   await page.getByRole("button", { name: "Run action" }).click();
+  await page.getByRole("button", { name: "Confirm action" }).click();
   await visible(page.getByText("fixture-result", { exact: false }).last());
   assert.equal(commands.filter(command => command.operation === "plugin.admin.invoke").length, 1);
 
+  await page.getByRole("button", { name: "Close dialog" }).click();
+  assert.equal(await page.getByRole("dialog").count(), 0);
   await menuSearch(page, "Model records");
   await page.getByRole("navigation", { name: "Admin navigation" }).getByRole("link", { name: /Model records/ }).click();
   await visible(page.getByText("record-one", { exact: true }));
@@ -184,6 +189,7 @@ try {
   assert.equal(await page.getByText("record-one", { exact: true }).count(), 0);
   assert.equal(await page.getByLabel("Record ID").inputValue(), "");
   assert.equal(await page.getByLabel("name", { exact: true }).inputValue(), "");
+  await page.getByRole("button", { name: "Close dialog" }).click();
 
   await page.getByRole("navigation", { name: "Admin navigation" }).getByRole("link", { name: "Projects", exact: true }).click();
   await visible(page.getByRole("heading", { name: "Projects", level: 1 }));
@@ -214,6 +220,12 @@ try {
   assert.equal(await toggle.getAttribute("aria-expanded"), "false");
   assert.ok(await mobile.page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1), "mobile page must not overflow horizontally");
   await screenshot(mobile.page, "mobile-plugin");
+  await mobile.page.getByRole("button", { name: "Inspect file", exact: true }).click();
+  await visible(mobile.page.getByRole("dialog", { name: "Inspect file" }));
+  assert.ok(await mobile.page.getByRole("dialog").evaluate(dialog => dialog.getBoundingClientRect().width <= window.innerWidth));
+  await screenshot(mobile.page, "mobile-action-dialog");
+  await mobile.page.keyboard.press("Escape");
+  assert.equal(await mobile.page.getByRole("dialog").count(), 0);
   await mobile.context.close();
 
   // A 401 from quiet polling must clear the session and remove the entire

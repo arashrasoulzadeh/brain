@@ -78,7 +78,28 @@ func (r *Registry) Status(projectID, pluginID, version string) (InstallationStat
 		}
 	}
 	sort.Strings(grants)
-	return InstallationStatus{ProjectID: projectID, PluginID: pluginID, Version: version, Enabled: installation.Enabled, Ready: ready, WorkerReady: workerReady, Grants: grants, Draining: installation.Draining, DrainUntil: installation.DrainUntil}, nil
+	var configured []string
+	for name := range installation.Config {
+		configured = append(configured, name)
+	}
+	sort.Strings(configured)
+	var publicConfig map[string]any
+	for _, name := range r.registered[pluginID+"@"+version].Manifest.PublicConfig {
+		if value, ok := installation.Config[name]; ok {
+			if publicConfig == nil {
+				publicConfig = map[string]any{}
+			}
+			publicConfig[name] = value
+		}
+	}
+	maxUploadBytes := 0
+	if pluginID == "files" {
+		maxUploadBytes = adminFileUploadLimit
+		if limit, ok := configuredFileUploadLimit(installation.Config); ok {
+			maxUploadBytes = limit
+		}
+	}
+	return InstallationStatus{ProjectID: projectID, PluginID: pluginID, Version: version, Enabled: installation.Enabled, Ready: ready, WorkerReady: workerReady, Grants: grants, Draining: installation.Draining, DrainUntil: installation.DrainUntil, ConfiguredFields: configured, PublicConfig: publicConfig, MaxUploadBytes: maxUploadBytes}, nil
 }
 
 func (r *Registry) ApproveArtifact(id, version, endpoint string) error {

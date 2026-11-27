@@ -104,3 +104,17 @@ routes:
     capability: example.items.write
     helper: host.model
     model: {name: item, action: transition, transition: publish}
+
+admin:
+  version: 1
+  pages:
+    - id: utilities
+      title: Example utilities
+      legacy_route: example
+      actions:
+        - title: Normalize name
+          operation: example.normalize
+          read_only: true
+          fields:
+            - {name: name, type: string, required: true}
+          result: {type: detail}

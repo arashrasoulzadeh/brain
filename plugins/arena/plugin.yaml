@@ -30,6 +30,7 @@ extension_points: []
 config_schema:
   tickRate: int
   maxPlayers: int
+public_config: [tickRate, maxPlayers]
 events:
   - name: started
     fields: {roomId: string, playerCount: number}
@@ -112,6 +113,13 @@ admin:
           fields:
             - {name: roomId, type: string, required: true}
             - {name: players, type: json, required: true}
+        - title: Record operator input
+          operation: arena.input
+          fields:
+            - {name: roomId, type: string, required: true}
+            - {name: playerId, type: string, required: true}
+            - {name: sequence, type: number, required: true}
+            - {name: payload, type: json}
         - title: Finish match
           operation: arena.result
           fields:

@@ -5,6 +5,8 @@ import { readAdminSession } from "../lib/admin-api";
 import type { AdminContribution } from "../lib/admin-registry";
 import type { AdminAction } from "../lib/admin-types";
 import { adminPageRevision, invokeAdminAction } from "../lib/admin-sdk";
+import { AdminDialog, AdminProgress } from "./admin-dialog";
+import { PluginManageLink } from "./plugin-manage-link";
 
 type ModelRecord = { id: string; revision: string; state?: string; fields: Record<string, unknown> };
 
@@ -24,6 +26,8 @@ export function ModelPanel({ contribution }: { contribution: AdminContribution }
   const [cursors, setCursors] = useState([""]);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [confirmation, setConfirmation] = useState<AdminAction>();
   const [selectedRead, setSelectedRead] = useState<{ operation: string; payload: unknown }>();
   const accessEpoch = useRef(0);
   const pending = useRef<AbortController | null>(null);
@@ -32,7 +36,7 @@ export function ModelPanel({ contribution }: { contribution: AdminContribution }
   const readRoute = modelRoutes.find(route => route.model_action === "read");
 
   function clearSelection() {
-    setId(""); setRevision(""); setState(""); setFields({}); setSelectedRead(undefined);
+    setId(""); setRevision(""); setState(""); setFields({}); setSelectedRead(undefined); setConfirmation(undefined);
   }
 
   function choose(record: ModelRecord, scope?: { operation: string; payload: unknown }) {
@@ -98,10 +102,11 @@ export function ModelPanel({ contribution }: { contribution: AdminContribution }
     return () => { controller.abort(); clearTimeout(timer); };
   }, [contribution, listRoute, cursors, selectedRead]);
 
-  async function invoke(route: AdminAction, nextCursors = cursors) {
+  async function invoke(route: AdminAction, nextCursors = cursors, confirmed = false) {
     if (pending.current || !route.model_action) return;
     const action = route.model_action;
-    if (!route.read_only && !window.confirm("Run " + route.title + " for " + contribution.projectID + " / " + name + " / " + id + "?")) return;
+    if (!route.read_only && !confirmed) { setConfirmation(route); return; }
+    setConfirmation(undefined);
     accessEpoch.current++;
     const controller = new AbortController();
     pending.current = controller;
@@ -141,27 +146,34 @@ export function ModelPanel({ contribution }: { contribution: AdminContribution }
   }
 
   return <section className="section admin-action-panel">
-    <div className="panel-heading"><h2>{name}</h2><p className="muted">{contribution.projectID} · {contribution.pluginID}@{contribution.version}</p></div>
+    <div className="section-heading"><div className="panel-heading"><h2>{name}</h2><p className="muted">{contribution.projectID} · {contribution.pluginID}@{contribution.version}</p></div><PluginManageLink projectID={contribution.projectID} pluginID={contribution.pluginID} version={contribution.version} /></div>
     <p className="muted">Schema v{model.version} · {state || model.initial || "No state machine"}</p>
+    <div className="lifecycle-actions">{modelRoutes.some(route => route.model_action !== "list") && <button type="button" disabled={busy} onClick={() => { accessEpoch.current++; clearSelection(); setMessage(""); setDialogOpen(true); }}>Open record</button>}</div>
+    {dialogOpen && <AdminDialog title={name + " record"} scope={contribution.projectID + " · " + contribution.pluginID + "@" + contribution.version} busy={busy} onClose={() => { if (!busy) { accessEpoch.current++; clearSelection(); setMessage(""); setDialogOpen(false); } }}>
     <div className="playground model-form">
-      <label>Record ID<input disabled={busy} value={id} onChange={event => { accessEpoch.current++; setSelectedRead(undefined); setId(event.target.value); setRevision(""); setState(""); setFields({}); }} /></label>
+      <label>Record ID<input disabled={busy || !!confirmation} value={id} onChange={event => { accessEpoch.current++; setSelectedRead(undefined); setId(event.target.value); setRevision(""); setState(""); setFields({}); }} /></label>
       {Object.entries(model.fields).map(([key, kind]) => <label key={key}>{key}
-        {kind === "boolean" ? <select disabled={busy} value={fields[key] ?? "false"} onChange={event => setFields(values => ({ ...values, [key]: event.target.value }))}><option>false</option><option>true</option></select> :
-          <input disabled={busy} type={kind === "integer" ? "number" : "text"} step={kind === "integer" ? 1 : undefined} value={fields[key] ?? ""} onChange={event => setFields(values => ({ ...values, [key]: event.target.value }))} />}
+        {kind === "boolean" ? <select disabled={busy || !!confirmation} value={fields[key] ?? "false"} onChange={event => setFields(values => ({ ...values, [key]: event.target.value }))}><option>false</option><option>true</option></select> :
+          <input disabled={busy || !!confirmation} type={kind === "integer" ? "number" : "text"} step={kind === "integer" ? 1 : undefined} value={fields[key] ?? ""} onChange={event => setFields(values => ({ ...values, [key]: event.target.value }))} />}
       </label>)}
       <div className="playground-actions">{modelRoutes.filter(route => route.model_action !== "list").map(route => {
         const transition = route.model_transition ? model.transitions?.[route.model_transition] : undefined;
         const needsRevision = ["update", "delete", "transition"].includes(route.model_action!);
-        return <button className={route.model_action === "delete" ? "danger" : route.read_only ? "secondary" : undefined} key={route.operation} type="button" disabled={busy || !id || (needsRevision && !revision) || (!!transition && state !== transition.from)} onClick={() => void invoke(route)}>{route.title}</button>;
+        return <button className={route.model_action === "delete" ? "danger" : route.read_only ? "secondary" : undefined} key={route.operation} type="button" disabled={busy || !!confirmation || !id || (needsRevision && !revision) || (!!transition && state !== transition.from)} onClick={() => void invoke(route)}>{route.title}</button>;
       })}</div>
+      </div>
+      {confirmation && <section className="admin-confirmation"><p>Run {confirmation.title} for {contribution.projectID} / {name} / {id}?</p><div className="lifecycle-actions"><button type="button" onClick={() => void invoke(confirmation, cursors, true)}>Confirm action</button><button type="button" className="secondary" onClick={() => setConfirmation(undefined)}>Cancel confirmation</button></div></section>}
+      {busy && <AdminProgress label="Working on record…" />}
       {message && <p role="status">{message}</p>}
+    </AdminDialog>}
+    {!dialogOpen && message && <p role="status">{message}</p>}
+    {!dialogOpen && busy && <AdminProgress label="Loading records…" />}
       {listRoute && <section className="admin-inventory-panel"><div className="section-heading"><h3>Records</h3><button className="secondary" type="button" disabled={busy} onClick={() => void invoke(listRoute, [""])}>Refresh</button></div>
         <div className="table-wrap"><table><thead><tr><th>ID</th><th>State</th>{Object.keys(model.fields).map(key => <th key={key}>{key}</th>)}<th>Action</th></tr></thead>
-          <tbody>{records.map(record => <tr key={record.id}><td>{record.id}</td><td>{record.state ?? "—"}</td>{Object.keys(model.fields).map(key => <td key={key}>{String(record.fields[key] ?? "")}</td>)}<td><button className="secondary" type="button" disabled={busy} onClick={() => choose(record, { operation: listRoute.operation, payload: { after: cursors[cursors.length - 1] } })}>Select</button></td></tr>)}</tbody></table></div>
+          <tbody>{records.map(record => <tr key={record.id}><td>{record.id}</td><td>{record.state ?? "—"}</td>{Object.keys(model.fields).map(key => <td key={key}>{String(record.fields[key] ?? "")}</td>)}<td><button className="secondary" type="button" disabled={busy} onClick={() => { choose(record, { operation: listRoute.operation, payload: { after: cursors[cursors.length - 1] } }); setConfirmation(undefined); setMessage(""); setDialogOpen(true); }}>Select</button></td></tr>)}</tbody></table></div>
         {!records.length && <p>{busy ? "Loading…" : "No records on this page."}</p>}
         <div className="lifecycle-actions"><button type="button" disabled={busy || cursors.length < 2} onClick={() => void invoke(listRoute, cursors.slice(0, -1))}>Previous</button><span>Page {cursors.length}</span>
           <button type="button" disabled={busy || records.length !== 20} onClick={() => void invoke(listRoute, [...cursors, records[records.length - 1].id])}>Next</button></div>
       </section>}
-    </div>
   </section>;
 }

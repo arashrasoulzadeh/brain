@@ -34,6 +34,7 @@ extension_points:
   - realtime.transport
 config_schema:
   maxSubscriptions: int
+public_config: [maxSubscriptions]
 events:
   - name: opened
     fields: {}

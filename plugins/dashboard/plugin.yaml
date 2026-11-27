@@ -39,6 +39,7 @@ extension_points:
   - admin.page
 config_schema:
   title: string
+public_config: [title]
 events:
   - name: lifecycleChanged
     source: host
