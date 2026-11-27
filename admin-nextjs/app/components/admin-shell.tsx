@@ -8,6 +8,7 @@ import { AdminFooter, AdminHeader, AdminSidebar, AdminHeadingContext, type PageH
 
 const legacyShellRoutes = new Set([systemUIURL()]);
 const pageTitles: Record<string, string> = {
+  dashboard: "Dashboard",
   functions: "Functions",
   workflows: "Workflows",
   workers: "Workers",

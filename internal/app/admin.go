@@ -116,6 +116,7 @@ type adminCommand struct {
 	Version         string          `json:"version"`
 	Ready           bool            `json:"ready"`
 	Capability      string          `json:"capability"`
+	Capabilities    []string        `json:"capabilities"`
 	Resource        string          `json:"resource"`
 	Key             string          `json:"key"`
 	Values          map[string]any  `json:"values"`
@@ -199,6 +200,8 @@ func AdminHandler(service *admin.LifecycleService) http.Handler {
 			err = service.SetProjectActive(actor, command.ProjectID, false)
 		case "plugin.install":
 			err = service.InstallPlugin(actor, command.ProjectID, command.PluginID, command.Version)
+		case "plugin.install.activate":
+			err = service.InstallAndActivatePlugin(actor, command.ProjectID, command.PluginID, command.Version, command.Capabilities)
 		case "plugin.readiness":
 			err = service.SetPluginReadiness(actor, command.PluginID, command.Version, command.Ready)
 		case "plugin.enable":
@@ -315,7 +318,7 @@ func AdminHandler(service *admin.LifecycleService) http.Handler {
 
 func requiresAdminConfirmation(operation string) bool {
 	switch operation {
-	case "plugin.remove", "plugin.revoke", "plugin.stop-immediate", "plugin.stop", "plugin.rollback", "plugin.disable.apply", "project.deactivate", "project.uninstall", "durable-data.delete":
+	case "plugin.install.activate", "plugin.remove", "plugin.revoke", "plugin.stop-immediate", "plugin.stop", "plugin.rollback", "plugin.disable.apply", "project.deactivate", "project.uninstall", "durable-data.delete":
 		return true
 	default:
 		return false

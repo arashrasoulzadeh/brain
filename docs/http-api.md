@@ -43,7 +43,8 @@ Send project creation, configuration, activation, deactivation, uninstall and re
 | `project.activate` | project_id | Activate project. |
 | `project.deactivate` | project_id, confirmed | Deactivate project and restrict work. |
 | `project.uninstall` | project_id, confirmed | Uninstall project; review data retention separately. |
-| `plugin.install` | identity | Install registered version for project. |
+| `plugin.install` | identity | Stage a registered version without grants or activation. |
+| `plugin.install.activate` | identity, capabilities, confirmed | Verify exact capability consent and atomically install, grant, and start an enabled worker. |
 | `plugin.readiness` | plugin_id, version, ready | Set registered version readiness. |
 | `plugin.enable` | identity | Enable after readiness, dependencies and grants. |
 | `plugin.worker.start` | identity | Start bound worker. |

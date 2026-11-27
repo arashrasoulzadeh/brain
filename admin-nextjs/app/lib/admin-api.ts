@@ -2,6 +2,10 @@ const SESSION_KEY = "brain-admin-session";
 const PROJECT_KEY = "brain-admin-project";
 export const ADMIN_PROJECT_CHANGED = "brain:project-changed";
 export const ADMIN_SESSION_CHANGED = "brain:session-changed";
+export const ADMIN_PLUGIN_CATALOG_CHANGED = "brain:plugin-catalog-changed";
+export function notifyPluginCatalogChanged(projectID: string): void {
+  window.dispatchEvent(new CustomEvent(ADMIN_PLUGIN_CATALOG_CHANGED, { detail: { projectID } }));
+}
 
 // The sole URL contract for the Next.js control plane and project APIs.
 export function systemAdminURL(resource: string): string {

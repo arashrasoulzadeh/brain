@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { adminHeaders, projectAdminURL } from "../lib/admin-api";
+import { adminHeaders, projectAdminURL, notifyPluginCatalogChanged } from "../lib/admin-api";
 import { configurationPatch } from "../lib/admin-config";
 import { AdminDialog, AdminProgress } from "./admin-dialog";
 import { ADMIN_FILE_LIMIT } from "../lib/admin-file-data";
@@ -37,6 +37,7 @@ export function AdminConfigForm({ token, projectID, pluginID, version, schema, c
         body: JSON.stringify({ operation: "plugin.configure", project_id: projectID, plugin_id: pluginID, version, values: patch, confirmed: true }) });
       if (!response.ok) throw new Error(await response.text());
       setValues({}); setMessage("Configuration updated");
+      notifyPluginCatalogChanged(projectID);
       await onSaved?.();
     } catch (reason) { setMessage(String(reason)); }
     finally { setBusy(false); }

@@ -1,15 +1,15 @@
 "use client";
 import { adminHeaders, readAdminSession, preferredAdminProject, projectAdminURL, systemAdminURL, systemUIURL, adminUIContext } from "../lib/admin-api";
 import { enabledPluginIDs, visibleAdminPages } from "../lib/admin-navigation";
-import { adminContributions } from "../lib/admin-registry";
+import { adminContributions, adminWorkspaceFallbacks } from "../lib/admin-registry";
 import type { AdminCatalog, AdminContribution } from "../lib/admin-registry";
 
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { createContext, useContext, useEffect, useState } from "react";
-import { adminMenu, menuItemActive, type MenuIcon } from "../lib/admin-menu";
+import { adminMenu, menuItemActive, type MenuIcon, type MenuItem } from "../lib/admin-menu";
 import { usePathname, useRouter } from "next/navigation";
-import { ADMIN_PROJECT_CHANGED } from "../lib/admin-api";
+import { ADMIN_PROJECT_CHANGED, ADMIN_PLUGIN_CATALOG_CHANGED } from "../lib/admin-api";
 
 type AdminSidebarProps = {
   activePage: string;
@@ -37,14 +37,17 @@ export function AdminSidebar({
   useEffect(() => {
     const changed = () => setProjectEpoch(value => value + 1);
     window.addEventListener(ADMIN_PROJECT_CHANGED, changed);
-    return () => window.removeEventListener(ADMIN_PROJECT_CHANGED, changed);
+    window.addEventListener(ADMIN_PLUGIN_CATALOG_CHANGED, changed);
+    return () => { window.removeEventListener(ADMIN_PROJECT_CHANGED, changed); window.removeEventListener(ADMIN_PLUGIN_CATALOG_CHANGED, changed); };
   }, []);
   useEffect(() => { setMobileOpen(false); setSearch(""); }, [pathname]);
   const [discoveredPages, setDiscoveredPages] = useState<string[]>(["projects"]);
   const [extensions, setExtensions] = useState<AdminContribution[]>([]);
+  const [fallback, setFallback] = useState<MenuItem[]>([]);
   useEffect(() => {
     const controller = new AbortController();
     setExtensions([]);
+    setFallback([]);
     setActiveProject("");
     setDiscoveredPages(["projects"]);
     const token = readAdminSession();
@@ -64,12 +67,14 @@ export function AdminSidebar({
       const payload = (await response.json()) as AdminCatalog;
       if (signal.aborted) return;
       setDiscoveredPages(visibleAdminPages(payload.manifests?.length ?? 0, enabledPluginIDs(payload.installations ?? [])));
-      setExtensions(adminContributions(active, payload));
+      const contributions = adminContributions(active, payload);
+      setExtensions(contributions);
+      setFallback(adminWorkspaceFallbacks(active, payload, contributions));
     })().catch(() => undefined);
     return () => controller.abort();
   }, [requestedProject, activePage, projectEpoch]);
   const menuProject = loadedScope === requestedProject ? activeProject : "";
-  const groups = adminMenu(visiblePages ?? discoveredPages, menuProject ? extensions : [], search, menuProject);
+  const groups = adminMenu(visiblePages ?? discoveredPages, menuProject ? extensions : [], search, menuProject, menuProject ? fallback : []);
   const menuPath = requestedProject && menuProject ? pathname.replace("/" + requestedProject + "/ui", "/" + menuProject + "/ui") : pathname;
   return (
     <aside className="sidebar">
@@ -164,6 +169,12 @@ export function AdminPageFrame({
   const setHeading = useContext(AdminHeadingContext);
   useEffect(() => { setHeading?.({ path: pathname, title, eyebrow }); }, [setHeading, pathname, title, eyebrow]);
   const [access, setAccess] = useState(requiredPluginID ? "checking" : "allowed");
+  const [catalogEpoch, setCatalogEpoch] = useState(0);
+  useEffect(() => {
+    const changed = () => setCatalogEpoch(value => value + 1);
+    window.addEventListener(ADMIN_PLUGIN_CATALOG_CHANGED, changed);
+    return () => window.removeEventListener(ADMIN_PLUGIN_CATALOG_CHANGED, changed);
+  }, []);
   useEffect(() => {
     if (!requiredPluginID) return;
     setAccess("checking");
@@ -199,7 +210,7 @@ export function AdminPageFrame({
         setAccess("allowed");
       })
       .catch(() => router.replace(systemUIURL()));
-  }, [requiredPluginID, router, pathname]);
+  }, [requiredPluginID, router, pathname, catalogEpoch]);
   if (access !== "allowed") return <p className="muted" role="status">Checking page access…</p>;
   return <>{children}</>;
 }

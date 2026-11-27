@@ -1,11 +1,13 @@
 "use client";
-import { adminHeaders, readAdminSession, preferredAdminProject, signOutAdminSession, projectAdminURL, systemAdminURL, projectUIURL, systemUIURL, adminUIContext } from "../../lib/admin-api";
+import { adminHeaders, readAdminSession, preferredAdminProject, signOutAdminSession, projectAdminURL, systemAdminURL, projectUIURL, systemUIURL, adminUIContext, notifyPluginCatalogChanged } from "../../lib/admin-api";
 import { useEffect, useRef, useState } from "react";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { AdminPageFrame } from "../../components/admin-chrome";
 import { AdminConfigForm } from "../../components/admin-config-form";
 import { AdminDialog, AdminProgress } from "../../components/admin-dialog";
+import { PluginInstallDialog } from "../../components/plugin-install-dialog";
+import { installAndActivatePlugin } from "../../lib/plugin-install";
 import { adminContributions } from "../../lib/admin-registry";
 import type { SystemManifest, PluginStatus } from "../../lib/admin-types";
 
@@ -27,6 +29,7 @@ function ProjectPluginSettings({ namespace, pluginKey }: { namespace?: string; p
   const [installation, setInstallation] = useState<PluginStatus | null>(null);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
+  const [installOpen, setInstallOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState<PendingAction>();
   const [busy, setBusy] = useState(false);
   const [actionError, setActionError] = useState("");
@@ -97,8 +100,9 @@ function ProjectPluginSettings({ namespace, pluginKey }: { namespace?: string; p
     try {
       await command(operation, { capability, ready: operation === "plugin.readiness", confirmed: true, ...(preview ? { revision: preview.Revision, dependents: preview.Dependents } : {}) });
       setActionDone(true);
+      notifyPluginCatalogChanged(project.ID);
       await load(session);
-    } catch (reason) { setActionError(String(reason)); }
+    } catch (reason) { setActionError(String(reason)); notifyPluginCatalogChanged(project.ID); }
     finally { setBusy(false); }
   }
 
@@ -110,6 +114,7 @@ function ProjectPluginSettings({ namespace, pluginKey }: { namespace?: string; p
     <p className="muted">Project: {project?.ID ?? "—"}</p>
     {loading && <AdminProgress label="Loading project installation…" />}
     {message && <p role="alert">{message}</p>}
+    {installOpen && project && manifest && <PluginInstallDialog projectID={project.ID} manifest={manifest} onClose={() => setInstallOpen(false)} onInstall={async () => { await installAndActivatePlugin(session, project.ID, manifest); await load(session).catch(reason => setMessage("Plugin installed; refresh failed: " + String(reason))); }} />}
     {pendingAction && project && manifest && <AdminDialog title={pendingAction.label} scope={scope} busy={busy} onClose={() => setPendingAction(undefined)}>
       <p>{pendingAction.capability || (pendingAction.operation === "plugin.readiness" ? "Artifact readiness is shared across projects." : "This action applies only to the selected installation.")}</p>
       {pendingAction.preview && <p>{pendingAction.preview.Dependents.length ? "Affected dependencies: " + pendingAction.preview.Dependents.join(", ") : "No affected dependencies."}</p>}
@@ -119,7 +124,7 @@ function ProjectPluginSettings({ namespace, pluginKey }: { namespace?: string; p
     {manifest && project && <>
       <section className="section admin-action-panel"><h2>Installation</h2><p>{manifest.Description}</p><p><code>{manifest.ID}@{manifest.Version}</code> · {!installation ? "Not installed" : installation.Draining ? "Draining" : installation.Enabled ? "Enabled" : "Disabled"} · {installation?.Ready ? "Artifact ready" : "Artifact not ready"} · {installation?.WorkerReady ? "Worker ready" : "Worker not ready"}</p>
         <div className="lifecycle-actions">
-          {!installation ? actionButton("plugin.install", "Install") : <>
+          {!installation ? <button type="button" onClick={() => setInstallOpen(true)}>Install</button> : <>
             {!installation.Ready && actionButton("plugin.readiness", "Mark artifact ready")}
             {installation.Ready && !installation.Enabled && !installation.Draining && actionButton("plugin.enable", "Enable")}
             {installation.Enabled && installation.Ready && !installation.WorkerReady && actionButton("plugin.worker.start", "Start worker")}

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { adminMenu, menuItemActive } from "../../admin-nextjs/app/lib/admin-menu.js";
-import type { AdminContribution } from "../../admin-nextjs/app/lib/admin-registry.js";
+import { adminWorkspaceFallbacks, type AdminContribution } from "../../admin-nextjs/app/lib/admin-registry.js";
 
 const page: AdminContribution = { projectID: "one", pluginID: "custom", version: "1", href: "/one/ui/extensions/custom/1/list", page: { id: "list", title: "Records", actions: [] } };
 test("compact menu preserves gated routes and discovers extensions and aliases", () => {
@@ -34,4 +34,15 @@ test("each enabled operational plugin has its own project sidebar destination", 
   assert.equal(items.find(item => item.href === "/one/ui/auth")?.label, "Authentication");
   assert.equal(items.some(item => item.href === "/two/ui/files"), false);
   assert.equal(items.some(item => item.href === "/one/ui/live-sessions"), false);
+});
+
+test("enabled plugins without manifest action pages have a project-scoped workspace and disappear when disabled", () => {
+  const manifests = ["dashboard", "custom", "functions"].map(ID => ({ ID, Title: ID, Description: "", Version: "1", Capabilities: ["read"], Routes: [], Dependencies: [], ExtensionPoints: [], SourceFiles: [], Imports: [], PluginImports: [] }));
+  const installations = manifests.map(m => ({ ProjectID: "one", PluginID: m.ID, Version: "1", Enabled: true, Ready: true, Draining: false, Grants: ["read"] }));
+  const catalog = { manifests, installations };
+  const links = adminWorkspaceFallbacks("one", catalog, []);
+  assert.deepEqual(links.map(item => item.href), ["/one/ui/dashboard", "/one/ui/plugins/custom%401"]);
+  assert.deepEqual(adminWorkspaceFallbacks("two", catalog, []), []);
+  installations[0].Enabled = false;
+  assert.deepEqual(adminWorkspaceFallbacks("one", catalog, []).map(item => item.href), ["/one/ui/plugins/custom%401"]);
 });
