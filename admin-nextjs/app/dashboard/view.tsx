@@ -8,6 +8,7 @@ import { PluginManageLink } from "../components/plugin-manage-link";
 import { adminHeaders, readAdminSession, preferredAdminProject, projectAdminURL, projectUIURL, systemAdminURL, systemUIURL, adminUIContext, ADMIN_PLUGIN_CATALOG_CHANGED } from "../lib/admin-api";
 import type { AdminCatalog } from "../lib/admin-registry";
 import type { Project } from "../lib/admin-types";
+import { installationHealth } from "../lib/admin-observability";
 
 export default function DashboardWorkspace() {
   const { namespace } = adminUIContext(usePathname());
@@ -33,19 +34,23 @@ export default function DashboardWorkspace() {
       const plugins = await fetch(projectAdminURL(project.ID, "plugins"), options);
       if (!plugins.ok) throw new Error("Plugin catalog unavailable");
       const catalog = await plugins.json() as AdminCatalog;
-      if (!controller.signal.aborted) setData({ project, catalog });
+      if (!controller.signal.aborted && readAdminSession() === token) setData({ project, catalog });
     })().catch(reason => { if (!controller.signal.aborted) setError(String(reason)); });
     return () => controller.abort();
   }, [namespace, epoch]);
   const installations = data ? (data.catalog.installations ?? []).filter(item => item.ProjectID === data.project.ID) : [];
+  const health = installations.map(item => ({ item, state: installationHealth(data?.catalog.manifests?.find(manifest => manifest.ID === item.PluginID && manifest.Version === item.Version) ?? { ID: item.PluginID, Title: item.PluginID, Description: "", Version: item.Version, Capabilities: [] }, item) }));
+  const warnings = health.filter(({ state }) => state === "grants" || state === "worker" || state === "pending" || state === "draining");
   const dashboard = installations.filter(item => item.PluginID === "dashboard" && item.Enabled && item.Ready && !item.Draining);
   return <AdminPageFrame activePage="dashboard" title="Dashboard" requiredPluginID="dashboard">
+    <button type="button" className="secondary" onClick={() => setEpoch(value => value + 1)}>Refresh dashboard</button>
     {error ? <p role="alert">{error}</p> : !data ? <AdminProgress label="Loading project dashboard…" /> : <>
       <section className="section"><div className="section-heading"><h2>{data.project.Name || data.project.ID}</h2><div className="lifecycle-actions">{dashboard.map(item => <PluginManageLink key={item.Version} projectID={data.project.ID} pluginID={item.PluginID} version={item.Version} />)}</div></div>
-        <p>{installations.length} installed · {installations.filter(item => item.Enabled && item.Ready && !item.Draining).length} enabled · {installations.filter(item => item.WorkerReady).length} running</p>
+        <p>{installations.length} installed · {installations.filter(item => item.Enabled && item.Ready && !item.Draining).length} enabled · {health.filter(({ state }) => state === "ready").length} healthy</p>
+        <p role="status">{warnings.length ? warnings.length + " installations need attention." : "No readiness, grant or worker warnings in the current catalog."}</p>
         <div className="lifecycle-actions"><Link href={projectUIURL(data.project.ID, "plugins")}>Plugin catalog</Link><Link href={projectUIURL(data.project.ID, "workers")}>Workers</Link><Link href={projectUIURL(data.project.ID, "routes")}>API routes</Link><Link href={systemUIURL("audit")}>Audit log</Link></div>
       </section>
-      <section className="section"><h2>Project installations</h2><div className="table-wrap"><table><thead><tr><th>Plugin</th><th>Version</th><th>Status</th><th>Settings</th></tr></thead><tbody>{installations.map(item => <tr key={item.PluginID + "@" + item.Version}><td>{item.PluginID}</td><td>{item.Version}</td><td>{item.Draining ? "Draining" : item.Enabled && item.Ready ? "Enabled" : "Disabled"}</td><td><PluginManageLink projectID={data.project.ID} pluginID={item.PluginID} version={item.Version} /></td></tr>)}</tbody></table></div></section>
+      <section className="section"><h2>Project installations</h2><div className="table-wrap"><table><thead><tr><th>Plugin</th><th>Version</th><th>Status</th><th>Settings</th></tr></thead><tbody>{health.map(({ item, state }) => <tr key={item.PluginID + "@" + item.Version}><td>{item.PluginID}</td><td>{item.Version}</td><td>{{ absent: "Not installed", draining: "Draining", pending: "Artifact not ready", disabled: "Disabled", grants: "Missing grants", worker: "Worker unavailable", ready: "Healthy" }[state]}</td><td><PluginManageLink projectID={data.project.ID} pluginID={item.PluginID} version={item.Version} /></td></tr>)}</tbody></table></div></section>
     </>}
   </AdminPageFrame>;
 }

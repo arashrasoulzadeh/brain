@@ -38,7 +38,13 @@ func TestLifecycleInventoryAndGrantAudit(t *testing.T) {
 	if err := service.GrantCapability(actor, "dev", "sample", "1.0.0", "sample.read"); err != nil {
 		t.Fatal(err)
 	}
-	if manifests, installations, err := service.ListPlugins(actor, "dev"); err != nil || len(manifests) != 1 || len(installations) != 1 {
+	if err := service.GrantResource(actor, "dev", "sample", "1.0.0", "z"); err != nil {
+		t.Fatal(err)
+	}
+	if err := service.GrantResource(actor, "dev", "sample", "1.0.0", "a"); err != nil {
+		t.Fatal(err)
+	}
+	if manifests, installations, err := service.ListPlugins(actor, "dev"); err != nil || len(manifests) != 1 || len(installations) != 1 || len(installations[0].ResourceGrants["sample.read"]) != 2 || installations[0].ResourceGrants["sample.read"][0] != "a" {
 		t.Fatalf("plugins = %+v, %+v, %v", manifests, installations, err)
 	}
 	if capabilities, err := service.SystemCapabilities(actor); err != nil || len(capabilities) != 1 || capabilities[0].ID != "sample" {

@@ -28,6 +28,7 @@ export type PluginStatus = {
   WorkerReady?: boolean;
   Draining: boolean;
   Grants?: string[];
+  ResourceGrants?: Record<string, string[]>;
   ConfiguredFields?: string[];
   PublicConfig?: Record<string, string | number | boolean>;
   MaxUploadBytes?: number;
@@ -45,7 +46,7 @@ export type AuditRecord = {
 };
 export type FunctionDraft = { project_id: string; name: string; source: string; created_at: string };
 export type SystemManifest = PluginManifest & {
-  Routes: { Operation: string; Capability: string }[];
+  Routes: { Operation: string; Capability: string; ResourceField?: string }[];
   ExtensionPoints: string[];
   SourceFiles: string[];
   Imports: string[];
