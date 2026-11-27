@@ -20,7 +20,7 @@ export function FileUploadField({ value, disabled, limit = DEFAULT_FILE_LIMIT, o
     const current = ++generation.current;
     setError(""); setSelected(undefined); onData("");
     if (!file) return;
-    if (file.size > maximum) { setError("Choose a file of " + maximum + " bytes or less (" + maximum / 1024 + " KiB)."); return; }
+    if (file.size > maximum) { setError("Choose a file of " + maximum / FILE_MB + " MB or less."); return; }
     if (file.size > ADMIN_FILE_LIMIT) { onBinary(file); setSelected({ name: file.name, size: file.size }); return; }
     onProgress(0); onReading(true);
     try {
@@ -56,7 +56,7 @@ export function FileUploadField({ value, disabled, limit = DEFAULT_FILE_LIMIT, o
         void pick(file);
       }} /></label>
       <p className="muted">Maximum {maximum / FILE_MB} MB for this project. Large files use binary transfer; small files retain the legacy JSON format.</p>
-      {selected && value && <p role="status">{selected.name} · {selected.size} bytes · ready to upload</p>}
+      {selected && value && <p role="status">{selected.name} · {selected.size / FILE_MB} MB · ready to upload</p>}
     </> : <label>data *<textarea rows={5} value={value} required disabled={disabled} onChange={event => onData(event.target.value)} /></label>}
     {error && <p role="alert">{error}</p>}
   </fieldset>;

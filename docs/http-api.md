@@ -20,6 +20,8 @@ This is the HTTP surface mounted by the current application in [app.go](../inter
 | `POST /{project}/admin/functions` | Operator bearer | Function draft and publication commands. |
 | `GET /{project}/admin/function-logs` | Operator bearer | Function execution logs (optional `name`). |
 | `GET /{project}/admin/routes` | Operator bearer | Live manifest-declared route discovery; each returned `path` includes the canonical project slug (or ID). |
+| `POST /{project}/admin/files/blob` | Operator bearer | Confirmed raw file upload; project limit up to 1 GB. |
+| `GET /{project}/admin/files/blob` | Operator bearer | Download an authorized file as a binary attachment. |
 | `POST /{project}/admin/actions` | Operator bearer | Project plugin, grant, invocation and data commands. |
 | `ANY /{project}/functions/{function_name}` | Anonymous or authorized bearer | Published functions; only their declared GET, POST, PUT or PATCH method is accepted. |
 | `POST /{project}/ws` | Project user bearer | Request a one-time ticket for a declared socket route. |

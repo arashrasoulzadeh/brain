@@ -7,6 +7,7 @@ import (
 	"mime"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"brain/internal/admin"
 	"brain/internal/operator"
@@ -67,6 +68,11 @@ func AuthenticatedFileTransferHandler(service *admin.LifecycleService, sessions 
 		if r.Method == http.MethodPost {
 			if query.Get("confirmed") != "true" || len(query.Get("filename")) > 1024 || len(query.Get("contentType")) > 255 {
 				fileTransferError(w, plugin.ErrInvalidWorkerRequest)
+				return
+			}
+			kind, _, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
+			if err != nil || !strings.EqualFold(kind, "application/octet-stream") {
+				http.Error(w, "raw binary upload requires application/octet-stream", http.StatusUnsupportedMediaType)
 				return
 			}
 			meta, err := service.UploadFile(actor, r.Context(), p.ID, version, key, query.Get("filename"), query.Get("contentType"), r.Body, r.ContentLength)

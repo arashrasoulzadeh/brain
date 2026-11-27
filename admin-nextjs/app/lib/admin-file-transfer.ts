@@ -25,7 +25,7 @@ export function uploadBinaryFile(token: string, contribution: AdminContribution,
         clearAdminSession();
         window.location.replace(systemUIURL());
       }
-      if (xhr.status < 200 || xhr.status >= 300) { reject(new Error(xhr.responseText || "Upload failed (" + xhr.status + ")")); return; }
+      if (xhr.status < 200 || xhr.status >= 300) { let message = xhr.responseText || "Upload failed (" + xhr.status + ")"; try { message = JSON.parse(message).message || message; } catch {} reject(new Error(message)); return; }
       try { resolve(JSON.parse(xhr.responseText)); } catch (reason) { reject(reason); }
     };
     xhr.onerror = () => { cleanup(); reject(new Error("File transfer failed")); };
