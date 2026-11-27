@@ -489,11 +489,12 @@ export default function AdminPage() {
         ].includes(operation),
       }),
     });
+    notifyPluginCatalogChanged(project.ID);
     if (!response.ok) {
       setError(await response.text());
+      await loadPlugins(session, project.ID).catch(() => undefined);
       return;
     }
-    notifyPluginCatalogChanged(project.ID);
     await loadPlugins(session, project.ID);
     await loadAudit(session);
   }

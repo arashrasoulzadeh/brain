@@ -19,7 +19,7 @@ export function PluginInstallDialog({ projectID, manifest, onInstall, onClose }:
   }
   return <AdminDialog title={"Install " + (manifest.Title || manifest.ID)} scope={projectID + " · " + manifest.ID + "@" + manifest.Version} busy={busy} onClose={onClose}>
     <p>Installing will grant all capabilities listed below within this project, enable the plugin and start its worker.</p>
-    <p className="muted">These are project-wide plugin grants; resource access policies still apply. Other projects and existing active versions are not switched.</p>
+    <p className="muted">These are project-wide plugin grants; resource access policies still apply. Other projects do not receive grants. Successful worker startup marks the shared artifact ready; existing active versions are not switched.</p>
     <h3>Requested capabilities ({manifest.Capabilities?.length ?? 0})</h3>
     {manifest.Capabilities?.length ? <ul>{manifest.Capabilities.map(capability => <li key={capability}><code>{capability}</code></li>)}</ul> : <p>No capabilities requested.</p>}
     {!!manifest.Dependencies?.length && <><h3>Required dependencies</h3><ul>{manifest.Dependencies.map(dep => <li key={dep}><code>{dep}</code></li>)}</ul><p>These must already be enabled in this project.</p></>}

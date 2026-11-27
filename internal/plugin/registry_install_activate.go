@@ -59,6 +59,9 @@ func (r *Registry) InstallAndActivate(projectID, id, version string, approved []
 	}
 	// Installing another version must not silently switch live HTTP routing or
 	// bypass the explicit version-promotion/schema-approval flow.
+	if active := r.active[projectID+":"+id]; active != "" && active != version {
+		return ErrVersionReferenced
+	}
 	for _, existing := range r.installations {
 		if existing.ProjectID == projectID && existing.PluginID == id && existing.Enabled {
 			return fmt.Errorf("%w: disable the current version or use the staged upgrade flow", ErrVersionReferenced)

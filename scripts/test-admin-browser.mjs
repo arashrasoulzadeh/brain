@@ -226,7 +226,8 @@ try {
   await target.goto(origin + "/beta/ui/plugins");
   const nav = target.getByRole("navigation", { name: "Admin navigation" });
   await visible(target.getByRole("button", { name: "Install", exact: true }));
-  assert.equal(await nav.getByRole("link", { name: "Files", exact: true }).count(), 0);
+  await menuSearch(target, "File metadata");
+  assert.equal(await nav.getByRole("link", { name: /File metadata/ }).count(), 0);
   const beforeInstall = commands.length;
   await target.getByRole("button", { name: "Install", exact: true }).click();
   const consent = target.getByRole("dialog", { name: "Install Files" });
@@ -238,20 +239,22 @@ try {
   await consent.getByRole("button", { name: "Install and enable" }).click();
   await visible(consent.getByRole("status").filter({ hasText: "Plugin installed and enabled" }));
   await consent.getByRole("button", { name: "Done" }).click();
-  await visible(nav.getByRole("link", { name: "Files", exact: true }));
+  await visible(nav.getByRole("link", { name: /File metadata/ }));
   assert.equal(new URL(target.url()).pathname, "/beta/ui/plugins");
   await target.getByRole("link", { name: "View files" }).click();
   await visible(target.getByRole("heading", { name: "Project settings" }));
+  await menuSearch(target, "File metadata");
+  await visible(nav.getByRole("link", { name: /File metadata/ }));
   await target.getByRole("button", { name: "Disable", exact: true }).click();
   await target.getByRole("button", { name: "Confirm action" }).click();
   await visible(target.getByRole("status").filter({ hasText: "Action completed" }));
   await target.getByRole("button", { name: "Close dialog" }).click();
-  await nav.getByRole("link", { name: "Files", exact: true }).waitFor({ state: "detached" });
+  await nav.getByRole("link", { name: /File metadata/ }).waitFor({ state: "detached" });
   await target.getByRole("button", { name: "Enable", exact: true }).click();
   await target.getByRole("button", { name: "Confirm action" }).click();
   await visible(target.getByRole("status").filter({ hasText: "Action completed" }));
   await target.getByRole("button", { name: "Close dialog" }).click();
-  await visible(nav.getByRole("link", { name: "Files", exact: true }));
+  await visible(nav.getByRole("link", { name: /File metadata/ }));
   await installation.context.close();
 
   // The URL must win over the saved selection in a fresh browser context.
