@@ -117,3 +117,6 @@ export type { ModelSchema, StateMachine } from "./declarative.js";
 
 export { callHelper, hasHelper, helperNames } from "./helpers.mjs";
 export type { PureHelperName } from "./helpers.mjs";
+
+export { projectRoomID, CommandDeduplicator, assertMatchMember, nextTurn, createRevisionRuntime, commitRevision, replayHistory, expireTurn, pauseTurn, resumeTurn, privatePlayerView, parseMatchState } from "./pvp.js";
+export type { TurnMatchState, RevisionRuntime, CommittedCommand } from "./pvp.js";

@@ -1,0 +1,27 @@
+id: games
+title: Games
+description: Game-specific rules and modes, including Tic-Tac-Toe.
+version: 0.1.0
+host_api: 1
+entrypoint: index.ts
+source_files:
+  - index.ts
+  - tic-tac-toe.ts
+  - recovery.ts
+imports:
+  - ../sdk-typescript/src/index.js
+  - ./index.js
+  - ./tic-tac-toe.js
+  - ./recovery.js
+plugin_imports:
+dependencies: []
+capabilities:
+  - games.modes
+extension_points:
+  - games.rules
+config_schema: {}
+routes:
+  - operation: games.modes
+    function: modes
+    helper: sdk.context
+    capability: games.modes

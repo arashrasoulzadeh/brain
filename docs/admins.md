@@ -70,3 +70,7 @@ exactly-once delivery are not supported by this adapter.
 The current Subscriptions polling adapter is operator-only and carries the
 `rooms.connected` observation channel. It is not a substitute for end-user
 WebSocket membership authorization.
+
+## Game plugin separation
+
+Rooms continues to own room creation, joining, reconnecting and generic results. Install and grant `games.modes` to enumerate supported game modes, or `pvp.describe` to discover reusable PvP features. These read-only project-bound routes do not create matches or grant access to player state. Existing room routes, capabilities, storage and observation names are unchanged; there is no room data migration. TypeScript callers must update game-specific imports from Rooms to Games and generic command deduplication imports to PvP.

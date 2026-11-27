@@ -1,11 +1,7 @@
-import { validateProjectId } from "../sdk-typescript/src/index.js";
+import { projectRoomID } from "../sdk-typescript/src/index.js";
 import { type MembershipStore, type Room, type RoomEvent, type RoomState, type PlayerSlot } from "./index.js";
 
-export function projectRoomID(projectId: string, roomId: string): string {
-  validateProjectId(projectId);
-  if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(roomId)) throw new Error("invalid project room id");
-  return `${projectId}:${roomId}`;
-}
+export { projectRoomID } from "../sdk-typescript/src/index.js";
 
 export type RoomRuntime = {
   rooms: Map<string, Room>;
