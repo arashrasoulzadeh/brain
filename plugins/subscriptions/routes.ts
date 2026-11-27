@@ -1,4 +1,4 @@
-import { requireProjectInput, requiredString, type Observation, type PluginContext } from "../sdk-typescript/src/index.js";
+import { requireProjectInput, requireOperator, requiredString, type Observation, type PluginContext } from "../sdk-typescript/src/index.js";
 import { SubscriptionTicketIssuer, SubscriptionTicketValidator } from "./authorization.js";
 import { SubscriptionEventAppender, SubscriptionEventReader } from "./stream.js";
 import type { SubscriptionEvent, SubscriptionTicket } from "./types.js";
@@ -48,6 +48,30 @@ export function close(context: PluginContext, input: unknown) {
   tickets.delete(ticket.ticket);
   context.plugins.observe.fire("closed", {});
   return { closed: true };
+}
+
+/** Redacted operator inspection and revocation without exporting ticket credentials. */
+export function inspect(context: PluginContext, input: unknown) {
+  const channel = requireChannel(requireProjectInput(context, input));
+  requireOperator(context, "subscriptions.inspect", channel);
+  const now = Date.now();
+  const stream = streams.get(context.project.id);
+  const activeTickets = [...tickets.values()].filter(ticket => ticket.projectId === context.project.id && ticket.channel === channel && ticket.expiresAt > now).length;
+  return { channel, activeTickets, cursor: stream?.sequence ?? 0, retainedEvents: stream?.events.length ?? 0 };
+}
+
+export function revokeChannel(context: PluginContext, input: unknown) {
+  const channel = requireChannel(requireProjectInput(context, input));
+  requireOperator(context, "subscriptions.revoke", channel);
+  let revoked = 0;
+  for (const [key, ticket] of tickets) {
+    if (ticket.projectId === context.project.id && ticket.channel === channel) {
+      tickets.delete(key);
+      revoked++;
+    }
+  }
+  if (revoked) context.plugins.observe.fire("closed", {});
+  return { channel, revoked };
 }
 
 export function observeRoomConnected(context: PluginContext, input: unknown) {

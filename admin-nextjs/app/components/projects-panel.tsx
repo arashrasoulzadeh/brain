@@ -40,6 +40,7 @@ export function ProjectsPanel({ activePage, text, selectedProjectID, projects, p
         onSubmit={createProject}
       >
         <input
+          aria-label={text.newProject}
           placeholder={text.newProject}
           value={projectID}
           onChange={(event) => setProjectID(event.target.value)}
@@ -59,7 +60,7 @@ export function ProjectsPanel({ activePage, text, selectedProjectID, projects, p
             {projects.map((project) => (
               <div className="project-table-row" key={project.ID}>
                 <strong>{project.ID}</strong>
-                <span className={project.Active ? "success" : "failure"}>
+                <span className={"status-pill " + (project.Active ? "is-success" : "is-inactive")}>
                   {project.Active ? text.active : text.inactive}
                 </span>
                 <span className="project-actions">

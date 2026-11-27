@@ -46,3 +46,10 @@ export function validateBoundedInteger(value: number, maximum: number, error: st
 export function requireAllowedValues(values: readonly string[], allowed: readonly string[], error: string): void {
   if (values.some((value) => !allowed.includes(value))) throw new Error(error);
 }
+
+/** Require the effective host-verified operator and the admitted operation scope. */
+export function requireOperator(context: PluginContext | undefined, capability: string, resource = ""): PluginContext {
+  if (!context?.auth || context.auth.caller.kind !== "operator" || !context.auth.caller.authenticated ||
+      !context.auth.can(capability, resource)) throw new Error("operator authorization required");
+  return context;
+}

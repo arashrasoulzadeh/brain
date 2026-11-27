@@ -26,6 +26,8 @@ capabilities:
   - subscriptions.receive
   - subscriptions.resync
   - subscriptions.close
+  - subscriptions.inspect
+  - subscriptions.revoke
   - observe.rooms.connected
 extension_points:
   - realtime.transport
@@ -62,3 +64,31 @@ routes:
     helper: sdk.context
     capability: subscriptions.close
     resource_field: channel
+
+  - operation: subscriptions.inspect
+    function: inspect
+    helper: sdk.context
+    capability: subscriptions.inspect
+    resource_field: channel
+  - operation: subscriptions.revoke
+    function: revokeChannel
+    helper: sdk.context
+    capability: subscriptions.revoke
+    resource_field: channel
+admin:
+  version: 1
+  pages:
+    - id: channels
+      title: Realtime subscriptions
+      refresh_on: [subscriptions.opened, subscriptions.closed, rooms.connected]
+      actions:
+        - title: Inspect channel
+          operation: subscriptions.inspect
+          read_only: true
+          result: {type: detail}
+          fields:
+            - {name: channel, type: string, required: true}
+        - title: Revoke channel tickets
+          operation: subscriptions.revoke
+          fields:
+            - {name: channel, type: string, required: true}

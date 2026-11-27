@@ -582,7 +582,7 @@ export default function AdminPage() {
   if (!canViewAdminPage(activePage, activePluginIDs))
     return (
       <main className="shell" dir={language === "fa" ? "rtl" : "ltr"}>
-        <section className="card">
+        <section className="card admin-content" id="admin-content">
           <AdminHeader title={pageTitle} eyebrow={text.eyebrow} />
           <p className="error">This page is unavailable until its plugin is ready and enabled.</p>
           <Link href="/plugins">Open Plugins to enable it</Link>
@@ -668,6 +668,7 @@ export default function AdminPage() {
   if (pathname !== "/") return pageContent;
   return (
     <main className="shell" dir={language === "fa" ? "rtl" : "ltr"}>
+      <a className="skip-link" href="#admin-content">Skip to content</a>
       <div className="workspace">
         <AdminSidebar
           activePage={activePage}

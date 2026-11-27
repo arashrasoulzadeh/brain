@@ -380,7 +380,7 @@ func (s *LifecycleService) AdminInventory(actor operator.Actor, pageID string, i
 			return err
 		}
 		var err error
-		result, err = s.registry.AdminInventory(invocation.ProjectID, invocation.PluginID, invocation.Version, pageID, after, limit)
+		result, err = s.registry.AdminInventoryAsOperator(actor.ID, invocation.ProjectID, invocation.PluginID, invocation.Version, pageID, after, limit)
 		return err
 	})
 	return result, err

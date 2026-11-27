@@ -13,9 +13,9 @@ function TableResult({ value, spec }: { value: unknown; spec?: AdminResultSpec }
   const size = spec?.page_size || 25;
   const pages = Math.max(1, Math.ceil(filtered.length / size));
   const current = Math.min(page, pages - 1);
-  return <section><label>Filter rows<input value={filter} onChange={event => { setFilter(event.target.value); setPage(0); }} /></label>
+  return <section><label className="table-filter">Filter rows<input value={filter} onChange={event => { setFilter(event.target.value); setPage(0); }} /></label>
     {filtered.length ? <div className="table-wrap"><table><thead><tr>{columns.map(column => <th key={column}>{column}</th>)}</tr></thead>
-      <tbody>{filtered.slice(current * size, (current + 1) * size).map((row, index) => <tr key={index}>{columns.map(column => <td key={column}>{displayAdminValue(readAdminResultPath(row, column))}</td>)}</tr>)}</tbody></table></div> : <p>No rows</p>}
+      <tbody>{filtered.slice(current * size, (current + 1) * size).map((row, index) => <tr key={index}>{columns.map(column => <td key={column}>{displayAdminValue(readAdminResultPath(row, column))}</td>)}</tr>)}</tbody></table></div> : <p className="muted empty-state">No rows</p>}
     <div className="lifecycle-actions"><button type="button" disabled={current === 0} onClick={() => setPage(current - 1)}>Previous</button>
       <span>{current + 1} / {pages} · {filtered.length} rows</span><button type="button" disabled={current + 1 >= pages} onClick={() => setPage(current + 1)}>Next</button></div>
   </section>;
