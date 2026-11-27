@@ -66,7 +66,7 @@ export class TicketReader {
   peek(projectId: string, scope: string) {
     validateProjectId(projectId);
     validateIdentifier(scope, "invalid matchmaking scope");
-    return [...(this.runtime.queues.get(`${projectId}:${scope}`) ?? [])];
+    return (this.runtime.queues.get(`${projectId}:${scope}`) ?? []).map(ticket => ({ ...ticket }));
   }
 }
 
@@ -77,7 +77,7 @@ export class TicketMatcher {
     validateIdentifier(scope, "invalid matchmaking scope");
     const key = `${projectId}:${scope}`;
     const queue = this.runtime.queues.get(key) ?? [];
-    if (matchSize < 1 || queue.length < matchSize) return [];
+    if (!Number.isSafeInteger(matchSize) || matchSize < 1 || queue.length < matchSize) return [];
     const matched = queue.slice(0, matchSize);
     this.runtime.queues.set(key, queue.slice(matchSize));
     return matched.map((ticket) => ({ ...ticket }));
@@ -137,6 +137,7 @@ export class AssignmentCreator {
       throw new Error("matchmaking assignments paused");
     if (expectedRevision !== this.runtime.lifecycleRevision)
       throw new Error("stale matchmaking lifecycle revision");
+    if (!Number.isSafeInteger(matchSize) || matchSize < 1) return null;
     const tickets = this.matcher.match(projectId, scope, matchSize);
     if (tickets.length !== matchSize) return null;
     if (expectedRevision !== this.runtime.lifecycleRevision)
