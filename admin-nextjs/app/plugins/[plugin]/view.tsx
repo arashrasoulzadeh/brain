@@ -6,6 +6,7 @@ import { useParams, usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { AdminPageFrame } from "../../components/admin-chrome";
 import { AdminConfigForm } from "../../components/admin-config-form";
+import { AdminDialog, AdminProgress } from "../../components/admin-dialog";
 import { adminContributions } from "../../lib/admin-registry";
 import type { SystemManifest, PluginStatus } from "../../lib/admin-types";
 
@@ -23,6 +24,11 @@ export default function PluginSettingsPage() {
   const [manifest, setManifest] = useState<Manifest | null>(null);
   const [installation, setInstallation] = useState<Installation | null>(null);
   const [message, setMessage] = useState("");
+  const [pendingAction, setPendingAction] = useState<{ operation: string; capability: string }>();
+  const [busy, setBusy] = useState(false);
+  const [actionError, setActionError] = useState("");
+  const [actionDone, setActionDone] = useState(false);
+  function openAction(operation: string, capability = "") { setPendingAction({ operation, capability }); setActionDone(false); setActionError(""); }
 
   async function load(token: string) {
     const projectsResponse = await fetch(systemAdminURL("projects"), { headers: adminHeaders(token) });
@@ -46,17 +52,22 @@ export default function PluginSettingsPage() {
     void load(token).catch(() => { clearAdminSession(); router.replace(systemUIURL()); });
   }, [pluginKey, router, namespace]);
 
-  async function lifecycle(operation: string, capability = "") {
-    if (!session || !project || !installation) return;
-    if (operation === "plugin.revoke" && !window.confirm(`Revoke ${capability}?`)) return;
-    const response = await fetch(operation === "plugin.readiness" ? systemAdminURL("actions") : projectAdminURL(project.ID, "actions"), { method: "POST", headers: adminHeaders(session, { "content-type": "application/json" }), body: JSON.stringify({ operation, project_id: project.ID, plugin_id: installation.PluginID, version: installation.Version, capability, ready: operation === "plugin.readiness", confirmed: operation === "plugin.revoke" }) });
-    setMessage(response.ok ? `${operation} completed` : await response.text());
-    if (response.ok) await load(session);
+  async function lifecycle() {
+    if (busy || actionDone || !pendingAction || !session || !project || !installation) return;
+    const { operation, capability } = pendingAction;
+    setBusy(true); setActionError("");
+    try {
+      const response = await fetch(operation === "plugin.readiness" ? systemAdminURL("actions") : projectAdminURL(project.ID, "actions"), { method: "POST", headers: adminHeaders(session, { "content-type": "application/json" }), body: JSON.stringify({ operation, project_id: project.ID, plugin_id: installation.PluginID, version: installation.Version, capability, ready: operation === "plugin.readiness", confirmed: operation === "plugin.revoke" }) });
+      if (!response.ok) throw new Error(await response.text());
+      setActionDone(true);
+      await load(session);
+    } catch (reason) { setActionError(String(reason)); }
+    finally { setBusy(false); }
   }
 
   function signOut() {
     void signOutAdminSession().finally(() => router.replace(systemUIURL()));
   }
 
-  return <AdminPageFrame activePage="plugins" title={manifest?.Title ?? pluginKey} eyebrow="Project plugin management" projectID={project?.ID} onSignOut={signOut}><div className="section-heading"><Link href={project ? projectUIURL(project.ID, "plugins") : systemUIURL("projects")}>Back to plugins</Link></div><p className="muted">Project: {project?.ID ?? "—"}</p>{manifest && <><p>{manifest.Description}</p><p><code>{manifest.ID}@{manifest.Version}</code> · {installation?.Ready ? "Ready" : "Not ready"} · {installation?.Enabled ? "Enabled" : "Disabled"}</p><div className="lifecycle-actions">{installation && !installation.Ready && <button onClick={() => lifecycle("plugin.readiness")}>Mark ready</button>}{installation?.Ready && !installation.Enabled && <button onClick={() => lifecycle("plugin.enable")}>Enable</button>}</div>{message && <p className="notice">{message}</p>}<h2>Capabilities</h2><div className="capabilities">{manifest.Capabilities.map((capability) => <span key={capability}><code>{capability}</code>{installation?.Grants?.includes(capability) ? <><small>Granted</small><button className="danger" onClick={() => lifecycle("plugin.revoke", capability)}>Revoke</button></> : <button onClick={() => lifecycle("plugin.grant", capability)}>Grant</button>}</span>)}</div>{project && installation && <AdminConfigForm key={project.ID + ":" + manifest.ID + "@" + manifest.Version} token={session} projectID={project.ID} pluginID={manifest.ID} version={manifest.Version} schema={manifest.ConfigSchema ?? {}} configuredFields={installation.ConfiguredFields} maxUploadBytes={installation.MaxUploadBytes} onSaved={() => load(session)} />}{project && installation && <section className="section"><h2>Admin pages</h2>{adminContributions(project.ID, { manifests: [manifest], installations: [installation] }).map(item => <p key={item.href}><Link href={item.href}>{item.page.title}</Link></p>)}</section>}</>}</AdminPageFrame>;
+  return <AdminPageFrame activePage="plugins" title={manifest?.Title ?? pluginKey} eyebrow="Project plugin management" projectID={project?.ID} onSignOut={signOut}><div className="section-heading"><Link href={project ? projectUIURL(project.ID, "plugins") : systemUIURL("projects")}>Back to plugins</Link></div><p className="muted">Project: {project?.ID ?? "—"}</p>{pendingAction && project && installation && <AdminDialog title={pendingAction.operation} scope={project.ID + " · " + installation.PluginID + "@" + installation.Version} busy={busy} onClose={() => setPendingAction(undefined)}><p>{pendingAction.capability || (pendingAction.operation === "plugin.readiness" ? "Artifact readiness is shared across projects." : "This action applies only to the selected installation.")}</p>{!actionDone && <button type="button" disabled={busy} onClick={() => void lifecycle()}>Confirm action</button>}{busy && <AdminProgress label="Applying change…" />}{actionDone && <p role="status">Action completed</p>}{actionError && <p role="alert">{actionError}</p>}</AdminDialog>}{manifest && <><p>{manifest.Description}</p><p><code>{manifest.ID}@{manifest.Version}</code> · {installation?.Ready ? "Ready" : "Not ready"} · {installation?.Enabled ? "Enabled" : "Disabled"}</p><div className="lifecycle-actions">{installation && !installation.Ready && <button onClick={() => openAction("plugin.readiness")}>Mark ready</button>}{installation?.Ready && !installation.Enabled && <button onClick={() => openAction("plugin.enable")}>Enable</button>}</div>{message && <p className="notice">{message}</p>}<h2>Capabilities</h2><div className="capabilities">{manifest.Capabilities.map((capability) => <span key={capability}><code>{capability}</code>{installation?.Grants?.includes(capability) ? <><small>Granted</small><button className="danger" onClick={() => openAction("plugin.revoke", capability)}>Revoke</button></> : <button onClick={() => openAction("plugin.grant", capability)}>Grant</button>}</span>)}</div>{project && installation && <AdminConfigForm key={project.ID + ":" + manifest.ID + "@" + manifest.Version} token={session} projectID={project.ID} pluginID={manifest.ID} version={manifest.Version} schema={manifest.ConfigSchema ?? {}} configuredFields={installation.ConfiguredFields} maxUploadBytes={installation.MaxUploadBytes} onSaved={() => load(session)} />}{project && installation && <section className="section"><h2>Admin pages</h2>{adminContributions(project.ID, { manifests: [manifest], installations: [installation] }).map(item => <p key={item.href}><Link href={item.href}>{item.page.title}</Link></p>)}</section>}</>}</AdminPageFrame>;
 }

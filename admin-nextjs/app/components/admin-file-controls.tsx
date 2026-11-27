@@ -10,7 +10,7 @@ export function FileUploadField({ value, disabled, limit = ADMIN_FILE_LIMIT, onD
   const [selected, setSelected] = useState<{ name: string; size: number }>();
   const [error, setError] = useState("");
   const generation = useRef(0);
-  const readerRef = useRef<FileReader>();
+  const readerRef = useRef<FileReader | undefined>(undefined);
   const maximum = Math.min(ADMIN_FILE_LIMIT, limit);
   useEffect(() => () => { generation.current++; readerRef.current?.abort(); }, []);
 

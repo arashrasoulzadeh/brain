@@ -78,7 +78,7 @@ func (r *Registry) Status(projectID, pluginID, version string) (InstallationStat
 		}
 	}
 	sort.Strings(grants)
-	configured := make([]string, 0, len(installation.Config))
+	var configured []string
 	for name := range installation.Config {
 		configured = append(configured, name)
 	}
