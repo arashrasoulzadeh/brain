@@ -32,8 +32,9 @@ test("documentation homepage, navigation, search and responsive dark/light layou
     assert.ok(counts && Number(counts[1]) > 0 && counts[1] === counts[2]);
     await page.locator(".md-content__inner").getByRole("link", { name: "arena", exact: true }).click();
     await page.getByRole("link", { name: "Developer and administrator guide", exact: true }).click();
-    await visible(page.getByRole("heading", { name: "Developer", exact: true }));
-    await visible(page.getByRole("heading", { name: "Administrator", exact: true }));
+    await page.waitForURL("**/plugin-guides/arena.html");
+    await visible(page.locator(".md-content__inner h2#developer"));
+    await visible(page.locator(".md-content__inner h2#administrator"));
     const search = page.locator(".md-search__input");
     await search.fill("arena");
     await waitFor(async () => await page.locator(".md-search-result__link").count() > 0, "search index did not return Arena results");
