@@ -7,6 +7,7 @@ import (
 
 	"brain/internal/admin"
 	"brain/internal/operator"
+	"brain/internal/plugin"
 	"brain/internal/project"
 )
 

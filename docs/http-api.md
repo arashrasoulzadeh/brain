@@ -6,7 +6,7 @@ This is the HTTP surface mounted by the current application in [app.go](../inter
 
 | Route | Authentication | Input and successful result |
 | --- | --- | --- |
-| `GET /_system/livez` | None | Liveness; body `ok\\n`. |
+| `GET /_system/livez` | None | Liveness; body `ok` followed by a newline. |
 | `GET /_system/readyz` | None | Dependency, worker, and storage readiness. |
 | `POST /_system/admin/session` | Operator credentials | JSON `username`, `secret`; returns `session`. |
 | `DELETE /_system/admin/session` | Operator bearer | Revoke the operator session. |
@@ -22,6 +22,7 @@ This is the HTTP surface mounted by the current application in [app.go](../inter
 | `GET /{project}/admin/routes` | Operator bearer | Live manifest-declared route discovery. |
 | `POST /{project}/admin/actions` | Operator bearer | Plugin, grants and project lifecycle commands. |
 | `ANY /{project}/functions/{function_name}` | Anonymous or authorized bearer | Published functions; only their declared GET, POST, PUT or PATCH method is accepted. |
+| `GET /{project}/ws` | Project connection ticket | Transport boundary; non-upgrade requests receive 426 and upgrades are rejected until ticket validation is implemented. |
 | `ANY /{project}/{resource...}` | Manifest-declared | Dynamic plugin route (the HTTP method, path and authentication must be declared in `plugin.yaml`). |
 
 The first segment is **mandatory**. It is a project ID or its unique slug; `_system` is reserved and cannot be created as a project. Unknown projects and missing installations return 404; inactive projects return 403. The host resolves the immutable project ID before invoking workers and rejects contradictory project IDs from query arguments, headers, paths and command bodies. Public plugin invocations cannot inherit operator privileges.
@@ -103,6 +104,14 @@ Send to `POST /{project}/admin/functions` (up to 1 MiB of JSON). All commands in
 
 See [function development and publication](functions-runtime.md) for valid source, execution limits, authentication and examples. See [admin page contracts](admin-pages/README.md) for screens and [plugin communication](plugin-communication.md) for the internal RPC contract.
 
-## Breaking migration\n\n- Rename all health probes to `/_system/livez` or `/_system/readyz`.\n- Rewrite old control-plane clients to `/_system/admin/...` and project commands to `/{project}/admin/...`.\n- Rewrite published functions from `/public/{project_id}/{function_name}` to `/{project}/functions/{function_name}`; existing URLs return 404.\n- Install and enable each plugin for each project and grant the declared capability before its HTTP route becomes available. Disable and promotion are reflected without restarting the host.\n- Existing durable project IDs remain immutable; database startup adds name, slug and settings columns and backfills `name=slug=id`. Check for slug conflicts before migrating data.\n\n## Not mounted as public HTTP
+## Breaking migration
+
+- Rename all health probes to `/_system/livez` or `/_system/readyz`.
+- Rewrite old control-plane clients to `/_system/admin/...` and project commands to `/{project}/admin/...`.
+- Rewrite published functions from `/public/{project_id}/{function_name}` to `/{project}/functions/{function_name}`; existing URLs return 404.
+- Install and enable each plugin for each project and grant the declared capability before its HTTP route becomes available. Disable and promotion are reflected without restarting the host.
+- Existing durable project IDs remain immutable; database startup adds name, slug and settings columns and backfills `name=slug=id`. Check for slug conflicts before migrating data.
+
+## Not mounted as public HTTP
 
 The generic worker RPC and SDK transport interfaces do not expose a network endpoint; only explicitly declared HTTP routes are published. In particular `/api/auth.signin` and `/api/rooms.join` are **not** routes mounted by this host. Use a trusted, project-authenticating adapter when implementing a product gateway. Never substitute an operator bearer for end-user authorization.
