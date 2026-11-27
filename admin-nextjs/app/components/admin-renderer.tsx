@@ -31,7 +31,7 @@ export function ActionForm({ contribution }: { contribution: AdminContribution }
   function selectOperation(next: string) {
     if (controlsDisabled || next === operation) return;
     setOperation(next); setResult(undefined); setError(""); setLastQuery(undefined); setPayload("{}");
-    setValues(previous => filesPage && previous.key ? { key: previous.key } : {});
+    setValues(previous => filesPage && next !== "files.upload" && previous.key ? { key: previous.key } : {});
   }
   const pending = useRef<AbortController | null>(null);
   useEffect(() => () => pending.current?.abort(), []);
@@ -82,7 +82,7 @@ export function ActionForm({ contribution }: { contribution: AdminContribution }
         return [[field.name, field.type === "json" ? JSON.parse(value) : field.type === "number" ? Number(value) : field.type === "boolean" ? value === "true" : value]];
       })) : JSON.parse(payload);
       const query = Boolean(action?.read_only);
-      const confirmation = uploadField ? "Upload file to project " + contribution.projectID + "? An existing file with the same key will be replaced and unpublished." : "Run " + operation + " in project " + contribution.projectID + "?";
+      const confirmation = uploadField ? "Upload file " + (values.key ?? "") + " to project " + contribution.projectID + "? An existing file with the same key will be replaced and unpublished." : "Run " + operation + " in project " + contribution.projectID + "?";
       if (!query && !window.confirm(confirmation)) return;
       setBusy(true);
       controller = new AbortController();
