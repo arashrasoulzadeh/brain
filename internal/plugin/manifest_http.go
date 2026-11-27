@@ -52,6 +52,7 @@ func validHTTPRoutes(m Manifest) bool {
 		return false
 	}
 	seen := make(map[string]bool)
+	patterns := make(map[string][]string)
 	for _, route := range m.Routes {
 		if route.Method == "" && route.Path == "" && route.Auth == "" {
 			continue
@@ -70,10 +71,43 @@ func validHTTPRoutes(m Manifest) bool {
 			return false
 		}
 		key := httpRouteKey(route.Method, route.Path)
-		if seen[key] {
+		if seen[key] || !uniqueHTTPParameters(route.Path) {
 			return false
 		}
+		for _, existing := range patterns[route.Method] {
+			if overlappingHTTPPaths(existing, route.Path) {
+				return false
+			}
+		}
 		seen[key] = true
+		patterns[route.Method] = append(patterns[route.Method], route.Path)
+	}
+	return true
+}
+
+func uniqueHTTPParameters(path string) bool {
+	seen := make(map[string]bool)
+	for _, segment := range strings.Split(path, "/") {
+		if strings.HasPrefix(segment, "{") && strings.HasSuffix(segment, "}") {
+			name := segment[1 : len(segment)-1]
+			if seen[name] {
+				return false
+			}
+			seen[name] = true
+		}
+	}
+	return true
+}
+
+func overlappingHTTPPaths(left, right string) bool {
+	first, second := strings.Split(strings.Trim(left, "/"), "/"), strings.Split(strings.Trim(right, "/"), "/")
+	if len(first) != len(second) {
+		return false
+	}
+	for i, segment := range first {
+		if segment != second[i] && !strings.HasPrefix(segment, "{") && !strings.HasPrefix(second[i], "{") {
+			return false
+		}
 	}
 	return true
 }

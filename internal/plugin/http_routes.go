@@ -2,6 +2,7 @@ package plugin
 
 import (
 	"strings"
+	"sort"
 )
 
 // HTTPRouteMatch is selected by the host from an installed manifest, never from
@@ -11,9 +12,18 @@ type HTTPRouteMatch struct {
 	Version   string            `json:"version"`
 	Method    string            `json:"method"`
 	Path      string            `json:"path"`
+	Function  string            `json:"function"`
+	Capability string           `json:"capability"`
 	Operation string            `json:"operation"`
 	Auth      string            `json:"auth"`
 	Params    map[string]string `json:"-"`
+}
+
+func mountedHTTPPath(mount, relative string) string {
+	if relative == "/" {
+		return mount
+	}
+	return mount + relative
 }
 
 func matchHTTPPath(pattern, actual string) (map[string]string, bool) {
@@ -82,7 +92,8 @@ func (r *Registry) MatchHTTPRoute(projectID, method, relativePath string) (HTTPR
 			}
 			count++
 			result = HTTPRouteMatch{PluginID: installation.PluginID, Version: installation.Version,
-				Method: route.Method, Path: manifest.Manifest.Mount + route.Path,
+				Method: route.Method, Path: mountedHTTPPath(manifest.Manifest.Mount, route.Path),
+				Function: route.Function, Capability: route.Capability,
 				Operation: route.Operation, Auth: route.Auth, Params: params}
 		}
 	}
@@ -115,11 +126,28 @@ func (r *Registry) HTTPRoutes(projectID string) []HTTPRouteMatch {
 				continue
 			}
 			routes = append(routes, HTTPRouteMatch{PluginID: installation.PluginID, Version: installation.Version,
-				Method: route.Method, Path: registered.Manifest.Mount + route.Path,
+				Method: route.Method, Path: mountedHTTPPath(registered.Manifest.Mount, route.Path),
+				Function: route.Function, Capability: route.Capability,
 				Operation: route.Operation, Auth: route.Auth})
 		}
 	}
-	return routes
+	counts := make(map[string]int)
+	for _, route := range routes {
+		counts[route.Method+" "+route.Path]++
+	}
+	unique := make([]HTTPRouteMatch, 0, len(routes))
+	for _, route := range routes {
+		if counts[route.Method+" "+route.Path] == 1 {
+			unique = append(unique, route)
+		}
+	}
+	sort.Slice(unique, func(i, j int) bool {
+		if unique[i].Path == unique[j].Path {
+			return unique[i].Method < unique[j].Method
+		}
+		return unique[i].Path < unique[j].Path
+	})
+	return unique
 }
 
 // InvokeAsPublic cannot inherit the privileged implicit "host" principal.
