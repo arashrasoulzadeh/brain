@@ -1,6 +1,6 @@
 import { createResourceRequest, createOperationRoutes, requiredString, type PluginContext } from "../sdk-typescript/src/index.js";
 
-export const fileRequest = createResourceRequest<"files.upload" | "files.download" | "files.metadata" | "files.publish">("files", "objectId");
+export const fileRequest = createResourceRequest<"files.upload" | "files.download" | "files.metadata" | "files.publish">("files", "key");
 
 type FileRecord = { key: string; data: string; published: boolean };
 

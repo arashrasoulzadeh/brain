@@ -80,3 +80,23 @@ func TestLegacyInventoryRejectsNamespaceConfusion(t *testing.T) {
 		t.Fatalf("incorrect capability accepted: %v", err)
 	}
 }
+
+// Enumeration must not bypass an installed policy provider.
+func TestInventoryFailsClosedWithAccessManagement(t *testing.T) {
+	storage, err := OpenSQLiteStorage(filepath.Join(t.TempDir(), "inventory.sqlite"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer storage.Close()
+	r := NewRegistry(1)
+	r.BindInvocationStorage(legacyStoragePlanner{storage: storage})
+	if err := r.Register(Manifest{ID: accessPluginID, Version: "1", HostAPI: 1}); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.Install("one", accessPluginID, "1"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := r.AdminInventory("one", "files", "1", "files", "", 10); !errors.Is(err, ErrActorDenied) {
+		t.Fatalf("inventory bypassed policy: %v", err)
+	}
+}

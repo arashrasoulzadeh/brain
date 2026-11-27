@@ -76,6 +76,11 @@ func (r *Registry) AdminInventory(projectID, pluginID, version, pageID, after st
 	if r.projectResolver != nil && r.projectResolver(projectID) != nil {
 		return AdminInventoryPage{}, ErrProjectInvalid
 	}
+	// Inventory enumeration has no declared per-resource policy operation yet.
+	// Never bypass the policy plugin, even if it is installed but unavailable.
+	if r.accessInstalledLocked(projectID) {
+		return AdminInventoryPage{}, ErrActorDenied
+	}
 	key := pluginID + "@" + version
 	registered, exists := r.registered[key]
 	if !exists {

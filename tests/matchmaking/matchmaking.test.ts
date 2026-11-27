@@ -10,6 +10,9 @@ import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 const request = matchmakingRequest("dev", "matchmaking", "0.1.0", "matchmaking.queue", "casual", {
   playerId: "user-1",
 });
+if ((request.params.payload as Record<string, unknown>).id !== "casual" ||
+    (matchmakingRequest("dev", "matchmaking", "0.1.0", "matchmaking.status", "casual", { id: "other" }).params.payload as Record<string, unknown>).id !== "casual")
+  throw new Error("request resource identity was not bound to the worker field");
 if (request.params.pluginId !== "matchmaking" || request.params.operation !== "matchmaking.queue")
   throw new Error("matchmaking plugin contract failed");
 if (

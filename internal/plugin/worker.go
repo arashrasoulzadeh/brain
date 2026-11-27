@@ -17,6 +17,9 @@ type WorkerRequest struct {
 	Operation   string             `json:"operation"`
 	Payload     []byte             `json:"payload"`
 	HostContext *InvocationContext `json:"-"`
+
+	// Set only by trusted host entry points; never serialized to a worker.
+	accessPrincipal string
 }
 
 type WorkerResponse struct {
@@ -54,8 +57,16 @@ func InvokeWithCredential(broker *Broker, credential InvocationCredential, worke
 	if err := ValidateWorkerRequest(request, protocol); err != nil {
 		return WorkerResponse{}, err
 	}
+	// Enrolled projects must use the registry's admission, resource binding,
+	// and effect-commit path, not a directly supplied worker.
+	if broker.Registry != nil && broker.Registry.accessInstalled(request.ProjectID) {
+		return broker.Registry.InvokeWithCredential(broker, credential, request, now)
+	}
 	if err := broker.CommitCredential(credential, now); err != nil {
 		return WorkerResponse{}, err
+	}
+	if broker.Registry != nil && broker.Registry.accessInstalled(request.ProjectID) {
+		return WorkerResponse{}, ErrActorDenied
 	}
 	return InvokeForProject(worker, request, protocol, credential.Call.ProjectID)
 }

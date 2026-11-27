@@ -23,3 +23,5 @@ Room inventories also listen to declared observation revisions. Inventory lists 
 ## Generated model administration
 
 Declared `host.model` routes automatically produce admin pages without additional YAML or React code. The host derives only declared actions, exposes their typed model schema, and distinguishes read/list queries from confirmed create/update/delete/transition operations. Model records load through the same authenticated admin SDK and retain optimistic revision checks. Plugin settings link to the generated pages instead of maintaining a duplicate form implementation.
+
+Projects with access-management installed deliberately reject broad legacy inventory enumeration until a resource-filtered policy-aware listing contract is available. Model and individual declared actions continue through the authenticated operator invocation policy.

@@ -47,18 +47,22 @@ routes:
     function: create
     helper: sdk.dispatch
     capability: rooms.create
+    resource_field: id
   - operation: rooms.join
     function: join
     helper: sdk.dispatch
     capability: rooms.join
+    resource_field: id
   - operation: rooms.reconnect
     function: reconnect
     helper: sdk.dispatch
     capability: rooms.reconnect
+    resource_field: id
   - operation: rooms.result
     function: result
     helper: sdk.dispatch
     capability: rooms.result
+    resource_field: id
 admin:
   version: 1
   pages:

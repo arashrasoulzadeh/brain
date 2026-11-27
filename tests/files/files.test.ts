@@ -28,6 +28,9 @@ import { createRouteHandler } from "../../plugins/sdk-typescript/src/index.js";
 const request = fileRequest("dev", "files", "0.1.0", "files.upload", "avatar", {
   contentType: "image/png",
 });
+if ((request.params.payload as Record<string, unknown>).key !== "avatar" ||
+    (fileRequest("dev", "files", "0.1.0", "files.download", "avatar", { key: "other" }).params.payload as Record<string, unknown>).key !== "avatar")
+  throw new Error("request resource identity was not bound to the worker field");
 if (request.params.pluginId !== "files" || request.params.operation !== "files.upload")
   throw new Error("files plugin contract failed");
 if (

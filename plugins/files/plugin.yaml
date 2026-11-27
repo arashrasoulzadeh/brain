@@ -39,18 +39,22 @@ routes:
     function: upload
     helper: sdk.dispatch
     capability: files.upload
+    resource_field: key
   - operation: files.download
     function: download
     helper: sdk.dispatch
     capability: files.download
+    resource_field: key
   - operation: files.metadata
     function: metadata
     helper: sdk.dispatch
     capability: files.metadata
+    resource_field: key
   - operation: files.publish
     function: publish
     helper: sdk.dispatch
     capability: files.publish
+    resource_field: key
 admin:
   version: 1
   pages:
