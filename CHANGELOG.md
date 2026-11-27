@@ -3,26 +3,54 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `174113c7` — 2026-11-27 03:57:22 +0330 — Merge pull request #12 from arashrasoulzadeh/feature/plugin-auth-context
+  Files: 
+- `26ef6069` — 2026-11-27 03:56:57 +0330 — Merge current main and preserve coverage and actor assertions
+  Files: tests/plugin/access_management_test.go,tests/plugin/observation_queue_test.go
+- `e5b4bfc9` — 2026-11-27 00:26:00 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `dfd53636` — 2026-11-27 03:55:46 +0330 — Merge pull request #13 from arashrasoulzadeh/docs/coverage-and-pages
   Files: 
+- `668700d3` — 2026-11-27 03:54:43 +0330 — Fix published function authorization test fixture
+  Files: tests/plugin/user_session_test.go
+- `a933e973` — 2026-11-27 03:53:53 +0330 — Verify published functions reject forged and unauthorized user sessions
+  Files: tests/plugin/user_session_test.go
+- `17f072e4` — 2026-11-27 03:53:37 +0330 — Authenticate project sessions on published function invocations
+  Files: docs/plugin-auth-context.md,internal/admin/functions.go internal/app/admin_functions.go,internal/plugin/access_management.go internal/plugin/user_session.go
 - `982787e5` — 2026-11-27 03:53:17 +0330 — test: cover plugin observation, worker and admin client boundaries
   Files: .github/workflows/coverage.yml,tests/coverage/plugin-boundaries.test.ts
+- `c62e17c7` — 2026-11-27 03:52:36 +0330 — Budget shared UID threads for the complete packaged plugin inventory
+  Files: cmd/brain/main.go,docs/plugin-auth-context.md scripts/test-production-runtime.sh
 - `8aadd2b9` — 2026-11-27 03:51:20 +0330 — test: align policy and queue regressions with host contracts
   Files: .github/workflows/coverage.yml,tests/android/BrainClientTest.kt tests/plugin/access_management_test.go,tests/plugin/observation_queue_test.go
+- `aafec670` — 2026-11-27 03:51:15 +0330 — Diagnose packaged arena startup failure with synthetic CI probe
+  Files: scripts/test-production-runtime.sh
 - `2ba1c2c8` — 2026-11-27 03:50:13 +0330 — test: cover Flutter authentication and cookie rejection paths
   Files: tests/flutter/auth_client_test.dart,tests/flutter/web_cookie_test.dart
 - `e15491d8` — 2026-11-27 03:49:44 +0330 — fix: validate admin inventory project and normalize V8 coverage inputs
   Files: .github/workflows/coverage.yml,internal/plugin/admin_inventory.go scripts/prepare-v8-coverage.py,tests/documentation/test_prepare_v8_coverage.py tests/plugin/admin_inventory_project_test.go
+- `95cbdeb3` — 2026-11-27 03:48:52 +0330 — Isolate durable outbox fixture and accommodate cold sandbox startup
+  Files: internal/admin/functions.go,tests/plugin/observation_queue_test.go
 - `13780f2c` — 2026-11-27 03:48:48 +0330 — test: add mobile client coverage gates and Kotlin contract tests
   Files: .github/workflows/coverage.yml,.gitignore clients/android/build.gradle.kts,clients/android/settings.gradle.kts docs/quality.md,scripts/check-lcov.py tests/android/BrainClientTest.kt,tests/documentation/test_check_lcov.py
+- `318962ba` — 2026-11-27 03:48:21 +0330 — Test verified user session identity, project isolation and revocation
+  Files: tests/auth/sdk-dispatch.test.ts,tests/plugin/user_session_test.go
+- `43160fbb` — 2026-11-27 03:48:00 +0330 — Resolve user context from authenticated project sessions and reconcile inventory resolver
+  Files: docs/plugin-auth-context.md,internal/plugin/admin_inventory.go internal/plugin/observation_queue.go,internal/plugin/observations.go internal/plugin/plugin_call.go,internal/plugin/registry_workers.go internal/plugin/user_session.go,internal/plugin/worker.go plugins/auth/accounts.ts,plugins/auth/plugin.yaml plugins/auth/service.ts,plugins/auth/sessions.ts
 - `2549b7f4` — 2026-11-27 03:47:55 +0330 — docs: build searchable Pages reference and enforce measured coverage
   Files: .github/workflows/coverage.yml,.github/workflows/pages.yml .gitignore,docs/assets/brain.css docs/index.md,docs/quality.md docs/requirements.txt,mkdocs.yml scripts/build-docs.py,tests/README.md tests/documentation/test_build_docs.py
+- `93e8e47f` — 2026-11-27 03:46:07 +0330 — Pass verified actor to function VM and host observations
+  Files: docs/plugin-auth-context.md,internal/admin/functions.go internal/admin/lifecycle.go,tests/admin/functions_test.go
+- `8990792a` — 2026-11-27 03:45:40 +0330 — Reconcile authentication context with durable observation runtime
+  Files: internal/plugin/broker.go,internal/plugin/observation_queue.go internal/plugin/observations.go,internal/plugin/worker.go plugins/sdk-typescript/src/index.ts,scripts/typescript-worker.mjs tests/plugin/access_management_test.go,tests/plugin/observation_queue_test.go tests/plugin/project-context.test.ts,tests/plugin/worker_test.go
 - `f65be743` — 2026-11-27 00:14:03 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
 - `42af18e9` — 2026-11-27 03:43:49 +0330 — Merge pull request #6 from arashrasoulzadeh/plugin-project-context-observations
   Files: 
 - `4f00c7ba` — 2026-11-27 03:43:35 +0330 — Reconcile host-owned storage snapshots, admin inventory and resource-scoped execution
   Files: internal/admin/lifecycle.go,internal/plugin/legacy_storage_adapter.go internal/plugin/manifest.go,internal/plugin/registry_workers.go plugins/sdk-typescript/src/index.ts,scripts/test-production-runtime.sh tests/plugin/project-context.test.ts
+- `ba191356` — 2026-11-27 03:43:26 +0330 — Expose host-verified actor and scoped permissions in plugin context
+  Files: docs/plugin-auth-context.md,internal/plugin/broker.go internal/plugin/invocation_context.go,internal/plugin/manifest_pipeline.go internal/plugin/manifest_response.go,internal/plugin/observations.go internal/plugin/plugin_call.go,internal/plugin/worker.go plugins/sdk-typescript/src/index.ts,scripts/typescript-worker.mjs tests/plugin/project-context.test.ts,tests/plugin/worker_test.go
 - `5a70d688` — 2026-11-27 03:43:04 +0330 — Stage concurrent admin inventory and resource-scoped authorization additions
   Files: CHANGELOG.md,admin-nextjs/app/components/admin-inventory.tsx admin-nextjs/app/components/admin-renderer.tsx,admin-nextjs/app/components/legacy-admin-page.tsx admin-nextjs/app/components/model-panel.tsx,admin-nextjs/app/lib/admin-registry.ts admin-nextjs/app/lib/admin-sdk.ts,admin-nextjs/app/lib/admin-types.ts admin-nextjs/app/plugins/[plugin]/page.tsx,docs/admin-pages/extensions.md docs/declarative-runtime.md,internal/app/admin.go internal/plugin/admin_inventory.go,internal/plugin/admin_inventory_test.go internal/plugin/admin_manifest.go,internal/plugin/admin_model_pages.go internal/plugin/admin_model_pages_test.go,internal/plugin/legacy_admin_inventory.go internal/plugin/legacy_storage_adapter_test.go,internal/plugin/route_resources_test.go plugins/files/plugin.yaml,plugins/matchmaking/plugin.yaml plugins/rooms/plugin.yaml,plugins/tables/plugin.yaml plugins/tables/routes.ts,roadmap_admin.md tests/admin/admin-registry.test.ts,tests/plugin/resource_scope_invoke_test.go
 - `4fd3711c` — 2026-11-27 03:42:23 +0330 — Unify project snapshot, declarative runtime, credential and access-policy authorization paths
@@ -75,31 +103,3 @@ Automatically generated from commits on main.
   Files: plugins/analytics/plugin.yaml,plugins/files/plugin.yaml plugins/functions/plugin.yaml,plugins/matchmaking/plugin.yaml plugins/rooms/plugin.yaml,plugins/tables/plugin.yaml
 - `c993ddd5` — 2026-11-27 03:21:46 +0330 — Merge pull request #7 from arashrasoulzadeh/dynamic-runtime-foundation
   Files: 
-- `a32f4af7` — 2026-11-27 03:21:42 +0330 — Reconcile admin observation core with durable delivery and normalize storage formatting
-  Files: internal/admin/lifecycle.go,internal/plugin/legacy_storage_adapter.go internal/plugin/manifest.go,internal/plugin/observations.go internal/plugin/plugin.go,internal/plugin/registry_workers.go scripts/test-production-runtime.sh
-- `8919b29f` — 2026-11-27 03:21:32 +0330 — Render resource inventories and independently authorized plugin extension tabs
-  Files: admin-nextjs/app/components/admin-inventory.tsx,admin-nextjs/app/components/admin-renderer.tsx admin-nextjs/app/components/legacy-admin-page.tsx,admin-nextjs/app/lib/admin-registry.ts admin-nextjs/app/lib/admin-sdk.ts,admin-nextjs/app/lib/admin-types.ts docs/admin-pages/extensions.md,internal/plugin/admin_manifest.go plugins/rooms/plugin.yaml,roadmap_admin.md tests/admin/admin-registry.test.ts
-- `60022c41` — 2026-11-27 03:21:28 +0330 — Merge main and integrate declarative runtime with manifest-driven admin
-  Files: admin-nextjs/app/plugins/[plugin]/page.tsx,internal/plugin/manifest.go internal/plugin/plugin.go,plugins/files/plugin.yaml plugins/matchmaking/plugin.yaml,plugins/rooms/plugin.yaml plugins/tables/plugin.yaml
-- `cc2620c6` — 2026-11-27 03:20:51 +0330 — Add scoped paginated operator inventories backed by trusted storage adapters
-  Files: internal/admin/lifecycle.go,internal/app/admin.go internal/plugin/admin_inventory.go,internal/plugin/admin_inventory_test.go internal/plugin/admin_manifest.go,internal/plugin/legacy_admin_inventory.go plugins/files/plugin.yaml,plugins/matchmaking/plugin.yaml plugins/rooms/plugin.yaml,plugins/tables/plugin.yaml
-- `8bd03b28` — 2026-11-26 23:50:47 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `783461fe` — 2026-11-27 03:20:15 +0330 — Prevent forged storage snapshots in legacy plugin routes
-  Files: internal/plugin/legacy_storage_adapter.go,internal/plugin/legacy_storage_adapter_test.go
-- `7f9181da` — 2026-11-27 03:19:43 +0330 — Merge pull request #8 from arashrasoulzadeh/admin/manifest-driven-ui
-  Files: 
-- `52a7b86e` — 2026-11-27 03:13:05 +0330 — Document project observation contracts and exercise packaged cross-plugin delivery
-  Files: docs/admins.md,docs/developers.md docs/plugin-communication.md,implementation/plugin-context-observations.md internal/plugin/manifest.go,scripts/test-production-runtime.sh tests/plugin/all_manifests_test.go
-- `ddea07e3` — 2026-11-27 03:13:04 +0330 — Restore executable mode of sandbox launcher
-  Files: scripts/run-sandboxed-typescript-worker.sh
-- `4ae66bc6` — 2026-11-27 03:12:31 +0330 — Generate project configuration UI and document declarative runtime
-  Files: admin-nextjs/app/plugins/[plugin]/page.tsx,docs/declarative-runtime.md
-- `d57b5fd7` — 2026-11-27 03:12:21 +0330 — Add declarative result component registry and update admin migration roadmap
-  Files: admin-nextjs/app/components/admin-renderer.tsx,admin-nextjs/app/components/admin-results.tsx admin-nextjs/app/lib/admin-result-data.ts,admin-nextjs/app/lib/admin-types.ts docs/admin-pages/extensions.md,internal/plugin/admin_manifest.go internal/plugin/admin_results.go,internal/plugin/admin_results_test.go plugins/files/plugin.yaml,plugins/rooms/plugin.yaml plugins/tables/plugin.yaml,roadmap_admin.md tests/admin/admin-result-data.test.ts
-- `47ba08be` — 2026-11-27 03:11:57 +0330 — Bind workflow and scheduling helpers to project context; complete observer template
-  Files: plugins/analytics/index.ts,plugins/analytics/plugin.yaml plugins/functions/index.ts,plugins/functions/scheduling.ts plugins/functions/workflow.ts,plugins/template/index.ts plugins/template/plugin.yaml,tests/plugin/project-bound-functions.test.ts
-- `9fd583bc` — 2026-11-27 03:11:47 +0330 — Add capability-checked declarative cross-plugin calls
-  Files: internal/plugin/manifest.go,internal/plugin/plugin_call.go internal/plugin/registry_workers.go,scripts/typescript-worker.mjs tests/plugin/plugin_call_test.go
-- `cf607adf` — 2026-11-27 03:11:35 +0330 — Reject forged host-owned state before observation-producing invocations
-  Files: internal/plugin/legacy_storage_adapter.go,internal/plugin/registry_workers.go tests/plugin/host_state_observation_test.go
