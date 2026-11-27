@@ -43,6 +43,7 @@ extension_points:
   - auth.provider
 config_schema:
   registration: string
+public_config: [registration]
 events:
   - name: account.created
     fields: {created: boolean}

@@ -129,8 +129,8 @@ export function ActionForm({ contribution }: { contribution: AdminContribution }
         {contribution.page.actions.map(action => <option key={action.operation} value={action.operation}>{action.title}</option>)}
       </select></label>
       {fields.length ? fields.map(field => uploadField && field.name === "data" && field.type === "string" ? <FileUploadField key={field.name} value={values.data ?? ""} disabled={controlsDisabled || !!confirmation} limit={contribution.maxUploadBytes} onProgress={setFilePercent} onReading={setFileReading}
-        onData={data => updateValues(previous => ({ ...previous, data }))}
-        onFile={(name, data) => updateValues(previous => ({ ...previous, key: previous.key || name, data }))} /> : <label className={field.type === "json" ? "wide-field" : undefined} key={field.name}>{field.name}{field.required ? " *" : ""}
+        onData={data => updateValues(previous => ({ ...previous, data, ...(!data ? { filename: "", contentType: "" } : {}) }))}
+        onFile={(name, data, contentType) => updateValues(previous => ({ ...previous, key: previous.key || name, data, filename: name, contentType }))} /> : <label className={field.type === "json" ? "wide-field" : undefined} key={field.name}>{field.name}{field.required ? " *" : ""}
         {field.type === "boolean" ? <select disabled={controlsDisabled || !!confirmation} required={field.required} value={values[field.name] ?? ""} onChange={event => { setLastQuery(undefined); setResult(undefined); setError(""); setCompleted(false); setValues(previous => ({ ...previous, [field.name]: event.target.value })); }}>
           <option value="">Select</option><option value="true">True</option><option value="false">False</option>
         </select> : field.type === "json" ? <textarea disabled={controlsDisabled || !!confirmation} required={field.required} rows={5} value={values[field.name] ?? ""} onChange={event => { setLastQuery(undefined); setResult(undefined); setError(""); setValues(previous => ({ ...previous, [field.name]: event.target.value })); }} />

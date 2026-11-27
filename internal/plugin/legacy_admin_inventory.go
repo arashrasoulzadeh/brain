@@ -25,7 +25,7 @@ func (p legacyStoragePlanner) adminInventory(projectID, pluginID, kind, capabili
 		query, key = `SELECT state_key FROM plugin_state WHERE project_id=? AND namespace=? AND state_key>?`, "state_key"
 		args = []any{projectID, pluginID, after}
 	case pluginID == "files" && kind == "file_keys" && capability == "files.metadata":
-		query, key = `SELECT file_key,length(CAST(data AS BLOB)),published FROM plugin_file_rows WHERE project_id=? AND file_key>?`, "file_key"
+		query, key = `SELECT file_key,length(CAST(data AS BLOB)),published,metadata_json FROM plugin_file_rows WHERE project_id=? AND file_key>?`, "file_key"
 		args = []any{projectID, after}
 	case pluginID == "tables" && kind == "table_names" && capability == "tables.read":
 		query, key = `SELECT table_name FROM plugin_table_rows WHERE project_id=? AND table_name>?`, "table_name"
@@ -63,8 +63,15 @@ func (p legacyStoragePlanner) adminInventory(projectID, pluginID, kind, capabili
 		if kind == "file_keys" {
 			var size int64
 			var published bool
-			err = rows.Scan(&row.Key, &size, &published)
+			var encoded string
+			err = rows.Scan(&row.Key, &size, &published, &encoded)
 			row.SizeBytes, row.Published = &size, &published
+			if err == nil && encoded != "" {
+				var meta FileMetadata
+				err = json.Unmarshal([]byte(encoded), &meta)
+				row.Filename, row.Extension, row.ContentType, row.UpdatedAt = meta.Filename, meta.Extension, meta.ContentType, meta.UpdatedAt
+				row.SizeBytes, row.StoredBytes = &meta.SizeBytes, &meta.StoredBytes
+			}
 		} else {
 			err = rows.Scan(&row.Key)
 		}

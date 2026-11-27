@@ -28,6 +28,7 @@ extension_points:
   - rooms.runtime
 config_schema:
   maxPlayers: int
+public_config: [maxPlayers]
 events:
   - name: connected
     fields:

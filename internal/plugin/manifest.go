@@ -24,6 +24,7 @@ type Manifest struct {
 	Capabilities         []string             `yaml:"capabilities"`
 	ExtensionPoints      []string             `yaml:"extension_points"`
 	ConfigSchema         map[string]string    `yaml:"config_schema"`
+	PublicConfig         []string             `yaml:"public_config,omitempty" json:",omitempty"`
 	Routes               []Route              `yaml:"routes"`
 	SourceFiles          []string             `yaml:"source_files"`
 	Imports              []string             `yaml:"imports"`
@@ -68,6 +69,14 @@ func LoadManifest(path string) (Manifest, error) {
 }
 
 func ValidateManifestContract(manifest Manifest) error {
+	public := map[string]bool{}
+	for _, name := range manifest.PublicConfig {
+		kind := manifest.ConfigSchema[name]
+		if public[name] || (kind != "int" && kind != "bool" && kind != "string") {
+			return ErrInvalidManifest
+		}
+		public[name] = true
+	}
 	if manifest.Declarative && (manifest.Entry != "" || len(manifest.SourceFiles) != 0 || len(manifest.Imports) != 0 || len(manifest.PluginImports) != 0 || len(manifest.Observers) != 0) {
 		return ErrInvalidManifest
 	}

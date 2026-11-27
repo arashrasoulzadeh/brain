@@ -14,7 +14,7 @@ export type DeclaredModel = { version: number; fields: Record<string, "string" |
 export type AdminModelAction = "create" | "read" | "list" | "update" | "delete" | "transition";
 export type AdminAction = { title: string; operation: string; fields?: AdminField[]; read_only?: boolean; result?: AdminResultSpec; model_action?: AdminModelAction; model_transition?: string };
 export type AdminInventorySpec = { kind: "state_keys" | "file_keys" | "table_names"; capability: string; title: string; select_field?: string };
-export type AdminInventoryRow = { key: string; size_bytes?: number; published?: boolean };
+export type AdminInventoryRow = { key: string; size_bytes?: number; stored_bytes?: number; published?: boolean; filename?: string; extension?: string; content_type?: string; updated_at?: string };
 export type AdminInventoryPage = { rows: AdminInventoryRow[]; next?: string };
 export type AdminPage = { id: string; title: string; actions: AdminAction[]; extends?: string; refresh_on?: string[]; legacy_route?: string; inventory?: AdminInventorySpec; extends_slot?: "link" | "tab"; extension_slots?: "tab"[]; model?: { name: string; schema: DeclaredModel } };
 export type AdminSpec = { version: number; pages: AdminPage[] };
@@ -28,6 +28,7 @@ export type PluginStatus = {
   Draining: boolean;
   Grants?: string[];
   ConfiguredFields?: string[];
+  PublicConfig?: Record<string, string | number | boolean>;
   MaxUploadBytes?: number;
 };
 export type AuditRecord = {

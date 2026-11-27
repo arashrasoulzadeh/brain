@@ -17,6 +17,7 @@ capabilities:
 extension_points: []
 config_schema:
   maxFields: int
+public_config: [maxFields]
 event_fields:
   - roomId
   - players

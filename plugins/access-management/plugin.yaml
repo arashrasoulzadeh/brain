@@ -77,6 +77,10 @@ admin:
       title: Access rules
       legacy_route: access-management
       actions:
+        - title: Describe access policy
+          operation: access.describe
+          read_only: true
+          result: {type: detail}
         - title: List rules
           operation: access.rules.list
           read_only: true

@@ -37,6 +37,7 @@ capabilities:
 extension_points: []
 config_schema:
   maxSourceBytes: int
+public_config: [maxSourceBytes]
 events:
   - name: published
     source: host
@@ -143,7 +144,7 @@ admin:
       title: Function operations
       legacy_route: workflows
       actions:
-        - title: Invoke function
+        - title: Validate invocation payload
           operation: functions.invoke
           fields:
             - name: name
@@ -151,7 +152,7 @@ admin:
               required: true
             - name: input
               type: json
-        - title: Publish function
+        - title: Validate publication payload
           operation: functions.publish
           fields:
             - name: name

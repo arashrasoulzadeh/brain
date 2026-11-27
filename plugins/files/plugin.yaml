@@ -31,6 +31,7 @@ extension_points:
 config_schema:
   bucket: string
   maxUploadBytes: int
+public_config: [maxUploadBytes]
 events:
   - name: uploaded
     fields: {size: number}
@@ -94,7 +95,10 @@ admin:
                 title: Size (bytes)
                 path: size
               - type: detail
-                title: File metadata
+                title: Object details
+              - type: detail
+                title: Original file metadata
+                path: metadata
           fields:
             - name: key
               type: string
@@ -115,6 +119,10 @@ admin:
             - name: data
               type: string
               required: true
+            - name: filename
+              type: string
+            - name: contentType
+              type: string
         - title: Publish file
           operation: files.publish
           fields:

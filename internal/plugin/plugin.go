@@ -51,8 +51,9 @@ type InstallationStatus struct {
 	Draining    bool
 	DrainUntil  time.Time
 
-	ConfiguredFields []string `json:",omitempty"`
-	MaxUploadBytes   int      `json:",omitempty"`
+	ConfiguredFields []string       `json:",omitempty"`
+	PublicConfig     map[string]any `json:",omitempty"`
+	MaxUploadBytes   int            `json:",omitempty"`
 }
 
 type Registry struct {

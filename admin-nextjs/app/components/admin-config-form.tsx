@@ -5,8 +5,8 @@ import { configurationPatch } from "../lib/admin-config";
 import { AdminDialog, AdminProgress } from "./admin-dialog";
 import { ADMIN_FILE_LIMIT } from "../lib/admin-file-data";
 
-export function AdminConfigForm({ token, projectID, pluginID, version, schema, configuredFields = [], maxUploadBytes, onSaved }: {
-  token: string; projectID: string; pluginID: string; version: string; schema: Record<string, string>; configuredFields?: string[]; maxUploadBytes?: number; onSaved?: () => Promise<void>;
+export function AdminConfigForm({ token, projectID, pluginID, version, schema, configuredFields = [], publicConfig = {}, maxUploadBytes, onSaved }: {
+  token: string; projectID: string; pluginID: string; version: string; schema: Record<string, string>; configuredFields?: string[]; publicConfig?: Record<string, string | number | boolean>; maxUploadBytes?: number; onSaved?: () => Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
   const [confirming, setConfirming] = useState(false);
@@ -41,14 +41,14 @@ export function AdminConfigForm({ token, projectID, pluginID, version, schema, c
     } catch (reason) { setMessage(String(reason)); }
     finally { setBusy(false); }
   }
-  return <section className="section admin-action-panel"><div className="section-heading"><h2>Project settings</h2><button type="button" onClick={() => { setOpen(true); setMessage(""); setValues({}); }}>Edit settings</button></div><p className="muted">Settings apply only to {projectID} / {pluginID}@{version}. String and credential values are not exposed.</p><dl>{fields.map(([name, type]) => <div key={name}><dt>{name} ({type})</dt><dd>{pluginID === "files" && name === "maxUploadBytes" ? (maxUploadBytes ?? ADMIN_FILE_LIMIT).toLocaleString() + " bytes" + (configuredFields.includes(name) ? "" : " (default)") : configuredFields.includes(name) ? "Configured" : "Not configured"}</dd></div>)}</dl>
+  return <section className="section admin-action-panel"><div className="section-heading"><h2>Project settings</h2><button type="button" onClick={() => { setOpen(true); setMessage(""); setValues({}); }}>Edit settings</button></div><p className="muted">Settings apply only to {projectID} / {pluginID}@{version}. Only explicitly declared non-secret settings are readable. Other configured values can be replaced without revealing them.</p><dl>{fields.map(([name, type]) => <div key={name}><dt>{name} ({type})</dt><dd>{pluginID === "files" && name === "maxUploadBytes" ? (maxUploadBytes ?? ADMIN_FILE_LIMIT).toLocaleString() + " bytes" + (configuredFields.includes(name) ? "" : " (default)") : Object.hasOwn(publicConfig, name) ? String(publicConfig[name]) : configuredFields.includes(name) ? "Configured (hidden)" : "Not configured"}</dd></div>)}</dl>
     {open && <AdminDialog title="Edit project settings" scope={projectID + " · " + pluginID + "@" + version} busy={busy} onClose={() => { if (!busy) { setOpen(false); setConfirming(false); setValues({}); setMessage(""); } }}>
     <form className="admin-operation-form" onSubmit={event => { event.preventDefault(); if (!busy && !confirming) void submit(); }}>
       {fields.map(([name, type]) => <div key={name}><label>{name} ({type})
         {type === "bool" ? <select disabled={busy || confirming} value={Object.hasOwn(values, name) ? values[name] : ""} onChange={event => change(name, event.target.value || undefined)}>
           <option value="">Unchanged</option><option value="true">True</option><option value="false">False</option>
         </select> : <input disabled={busy || confirming || (type !== "int" && type !== "string")} type={type === "int" ? "number" : "text"} step={type === "int" ? 1 : undefined}
-          min={pluginID === "files" && name === "maxUploadBytes" ? 1 : undefined} max={pluginID === "files" && name === "maxUploadBytes" ? ADMIN_FILE_LIMIT : undefined} placeholder={pluginID === "files" && name === "maxUploadBytes" ? String(maxUploadBytes ?? ADMIN_FILE_LIMIT) : "Unchanged"} value={Object.hasOwn(values, name) ? values[name] : ""} onChange={event => change(name, event.target.value)} />}
+          min={pluginID === "files" && name === "maxUploadBytes" ? 1 : undefined} max={pluginID === "files" && name === "maxUploadBytes" ? ADMIN_FILE_LIMIT : undefined} placeholder={pluginID === "files" && name === "maxUploadBytes" ? String(maxUploadBytes ?? ADMIN_FILE_LIMIT) : Object.hasOwn(publicConfig, name) ? String(publicConfig[name]) : "Unchanged"} value={Object.hasOwn(values, name) ? values[name] : ""} onChange={event => change(name, event.target.value)} />}
         </label>{Object.hasOwn(values, name) && <button type="button" className="secondary" disabled={busy || confirming} onClick={() => change(name, undefined)}>Keep unchanged</button>}</div>)}
       <div className="operation-submit"><button type="submit" disabled={busy || confirming || !Object.keys(values).length}>{busy ? "Saving…" : "Save configuration"}</button></div>
     </form>{confirming && <section className="admin-confirmation"><p>Save changes to this project installation only?</p><div className="lifecycle-actions"><button type="button" onClick={() => void submit(true)}>Confirm settings</button><button type="button" className="secondary" onClick={() => setConfirming(false)}>Cancel confirmation</button></div></section>}{busy && <AdminProgress label="Saving project settings…" />}{message && <p role="status">{message}</p>}

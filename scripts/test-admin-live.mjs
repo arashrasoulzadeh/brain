@@ -86,9 +86,9 @@ try {
   ]);
   assert.equal(new URL(page.url()).pathname, "/" + project + "/ui/files");
   const inventory = page.locator(".admin-inventory-panel");
-  await visible(inventory.getByText("visible.txt",{exact:true}));
-  assert.equal(await inventory.getByText("hidden.txt",{exact:true}).count(),0);
-  assert.equal(await inventory.getByText("foreign.txt",{exact:true}).count(),0);
+  await visible(inventory.locator("td:first-child").getByText("visible.txt",{exact:true}));
+  assert.equal(await inventory.locator("td:first-child").getByText("hidden.txt",{exact:true}).count(),0);
+  assert.equal(await inventory.locator("td:first-child").getByText("foreign.txt",{exact:true}).count(),0);
   await inventory.getByRole("button",{name:"Select",exact:true}).click();
   await visible(page.getByRole("dialog",{name:"File metadata"}));
   assert.equal(await page.getByRole("textbox",{name:/key/}).inputValue(),"visible.txt");
@@ -116,7 +116,7 @@ try {
     target_operation:"access.rules.revoke",payload:{id:"read-visible",revision:readRule.revision}}));
   await inventory.getByRole("button",{name:"Refresh",exact:true}).click();
   await visible(inventory.getByText("No resources on this page.",{exact:true}));
-  assert.equal(await inventory.getByText("visible.txt",{exact:true}).count(),0);
+  assert.equal(await inventory.locator("td:first-child").getByText("visible.txt",{exact:true}).count(),0);
   const denied = await fetch(backend+"/"+encodeURIComponent(project)+"/admin/actions",{method:"POST",headers,body:JSON.stringify({operation:"plugin.admin.query",
     project_id:project,plugin_id:"files",version,page_id:"operations",target_operation:"files.metadata",payload:{key:"visible.txt"}})});
   assert.equal(denied.status,403);
@@ -129,9 +129,9 @@ try {
     page.waitForURL(origin + "/" + other + "/ui/files", {timeout:20000}),
     filesLink.click(),
   ]);
-  await visible(inventory.getByText("foreign.txt",{exact:true}));
+  await visible(inventory.locator("td:first-child").getByText("foreign.txt",{exact:true}));
   assert.equal(new URL(page.url()).pathname, "/" + other + "/ui/files");
-  assert.equal(await inventory.getByText("visible.txt",{exact:true}).count(),0);
+  assert.equal(await inventory.locator("td:first-child").getByText("visible.txt",{exact:true}).count(),0);
   await screenshot("live-project-isolation");
 
   // Change the Files limit through the exact project installation settings UI.
@@ -157,27 +157,41 @@ try {
   const rejected = await fetch(backend+"/"+other+"/admin/actions",{method:"POST",headers,body:JSON.stringify({operation:"plugin.admin.invoke",project_id:other,plugin_id:"files",version,page_id:"operations",target_operation:"files.upload",confirmed:true,payload:{key:"too-big",data:"x".repeat(1025)}})});
   assert.equal(rejected.ok,false);
   await filesLink.click();
-  await visible(inventory.getByText("foreign.txt",{exact:true}));
+  await visible(inventory.locator("td:first-child").getByText("foreign.txt",{exact:true}));
 
   // File picker sends the existing authorized string contract, without losing binary bytes.
   const bytes = Buffer.from([0, 255, 128, 13, 10, 65, 0]);
-  const key = "browser-upload.bin";
+  const filename = "browser-upload.bin";
+  const key = "custom-key-without-extension";
   await page.getByRole("button",{name:"Upload file",exact:true}).click();
   await page.getByLabel("Local file").setInputFiles({name:"too-large.bin",mimeType:"application/octet-stream",buffer:Buffer.alloc(1025)});
   await visible(page.getByRole("alert").filter({hasText:"1024 bytes or less"}));
-  await page.getByLabel("Local file").setInputFiles({name:key,mimeType:"application/octet-stream",buffer:bytes});
+  await page.getByLabel("Local file").setInputFiles({name:filename,mimeType:"application/octet-stream",buffer:bytes});
   await visible(page.getByRole("status").filter({hasText:"ready to upload"}));
-  assert.equal(await page.getByRole("textbox",{name:/key/}).inputValue(),key);
+  assert.equal(await page.getByRole("textbox",{name:/key/}).inputValue(),filename);
+  await page.getByRole("textbox",{name:/key/}).fill(key);
+  assert.equal(await page.getByRole("textbox",{name:"filename"}).inputValue(),filename);
   await page.getByRole("button",{name:"Run action"}).click();
   await page.getByRole("button",{name:"Cancel confirmation"}).click();
-  assert.equal(await inventory.getByText(key,{exact:true}).count(),0);
+  assert.equal(await inventory.locator("td:first-child").getByText(key,{exact:true}).count(),0);
   await page.getByRole("button",{name:"Run action"}).click();
   await page.getByRole("button",{name:"Confirm action"}).click();
   await visible(page.getByRole("status").filter({hasText:"File uploaded successfully"}));
   await page.getByRole("button",{name:"Close dialog"}).click();
-  await visible(inventory.getByText(key,{exact:true}));
+  await visible(inventory.locator("td:first-child").getByText(key,{exact:true}));
   const uploaded = decode(await action("plugin.admin.query",{project_id:other,page_id:"operations",target_operation:"files.download",payload:{key}}));
   assert.equal(uploaded.data,"data:application/octet-stream;base64," + bytes.toString("base64"));
+  assert.equal(uploaded.metadata.filename,filename);
+  assert.equal(uploaded.metadata.extension,"bin");
+  assert.equal(uploaded.metadata.size_bytes,bytes.length);
+  assert.equal(uploaded.metadata.declared_content_type,"application/octet-stream");
+  assert.match(uploaded.metadata.sha256,/^[a-f0-9]{64}$/);
+  assert.ok(uploaded.metadata.created_at && uploaded.metadata.updated_at);
+  const meta = decode(await action("plugin.admin.query",{project_id:other,page_id:"operations",target_operation:"files.metadata",payload:{key}}));
+  assert.deepEqual(meta.metadata,uploaded.metadata);
+  assert.equal(meta.size,bytes.length);
+  assert.equal("data" in meta,false);
+  await visible(inventory.getByText(filename,{exact:true}));
   await page.getByRole("button",{name:"Download file",exact:true}).click();
   await page.getByRole("textbox",{name:/key/}).fill(key);
   await page.getByRole("button",{name:"Query",exact:true}).click();
@@ -185,7 +199,7 @@ try {
   const downloadPromise = page.waitForEvent("download");
   await page.getByRole("button",{name:"Save original file",exact:true}).click();
   const download = await downloadPromise;
-  assert.equal(download.suggestedFilename(),key);
+  assert.equal(download.suggestedFilename(),filename);
   assert.deepEqual(await readFile(await download.path()),bytes);
   await screenshot("live-file-upload-download");
   await page.getByRole("button",{name:"Close dialog"}).click();
