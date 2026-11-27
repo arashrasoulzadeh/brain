@@ -10,7 +10,7 @@ description: Minimal host-discovered TypeScript plugin template.
 version: 0.1.0
 host_api: 1
 dependencies: []
-capabilities: [example.normalize, example.items.read, example.items.write]
+capabilities: [example.normalize, example.items.read, example.items.write, example.plugin.example, observe.rooms.connected]
 models:
   item:
     version: 1
@@ -21,7 +21,20 @@ models:
 extension_points: []
 config_schema: {}
 
+events:
+  - name: exampleCompleted
+    fields: {}
+observe:
+  - plugin: rooms
+    event: connected
+    function: observeRoomConnected
+    capability: observe.rooms.connected
+    persist: true
 routes:
+  - operation: example.plugin.example
+    function: example
+    helper: sdk.context
+    capability: example.plugin.example
   - operation: example.normalize
     function: normalize
     capability: example.normalize

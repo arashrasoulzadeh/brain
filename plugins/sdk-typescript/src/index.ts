@@ -3,6 +3,7 @@ import type { PureHelperName } from "./helpers.mjs";
 export type WorkerParams = {
   protocol: number;
   projectId: string;
+  project?: ProjectContext;
   pluginId: string;
   version: string;
   operation: string;
@@ -18,7 +19,7 @@ export type RpcRequest = {
   context?: PluginContext;
 };
 
-export type ProjectContext = Readonly<{ id: string; active?: true }>;
+export type ProjectContext = Readonly<{ id: string; active?: boolean }>;
 
 export type PluginContext = Readonly<{
   project: ProjectContext;
@@ -29,14 +30,16 @@ export type PluginContext = Readonly<{
   plugins: Readonly<{ has?: (id: string) => boolean; observe: Readonly<{ fire(event: string, payload: Readonly<Record<string, string | number | boolean>>): void }> }>;
 }>;
 
-export type Observation<T = unknown> = Readonly<{ projectId: string; pluginId: string; version: string; event: string; payload: T }>;
+export type Observation<T = unknown> = Readonly<{ id: string; projectId: string; pluginId: string; version: string; event: string; payload: T }>;
+
+export type ObservationIntent = Readonly<{ event: string; payload: Readonly<Record<string, string | number | boolean>> }>;
 
 export type ContextualPluginFunction = (context: PluginContext, input: unknown) => unknown;
 
 export type RpcResponse = {
   jsonrpc: "2.0";
   id: string;
-  result?: { protocol: number; success: boolean; payload?: unknown };
+  result?: { protocol: number; success: boolean; payload?: unknown; observations?: readonly ObservationIntent[] };
   errorCode?: string;
 };
 
@@ -47,7 +50,7 @@ export type PluginRoute = {
   function: string;
   capability: string;
   resourceField?: string;
-  helper?: "sdk.dispatch" | "sdk.request" | "sdk.response" | "sdk.context" | "sdk.pipeline" | "host.model";
+  helper?: "sdk.dispatch" | "sdk.request" | "sdk.response" | "sdk.context" | "sdk.pipeline" | "host.model" | "host.call" | "host.admin";
   response?: DeclarativeResponse;
   pipeline?: DeclarativePipeline;
   model?: Readonly<{ name: string; action: "create" | "read" | "list" | "update" | "delete" | "transition"; transition?: string }>;
@@ -77,7 +80,7 @@ export type HostExecutionContext = {
 export type PluginFunction = (request: RpcRequest, context?: PluginContext) => unknown;
 export { createRouteHandler, createHostHandler, createFunctionHandler, createOperationRoutes, createRequestDispatcher, createRouteDispatcher } from "./routes.js";
 export { request, pluginRequest, createResourceRequest } from "./request.js";
-export { validateProjectId, validateIdentifier, requiredString, trimmedString, validateBoundedInteger, requireAllowedValues } from "./validation.js";
+export { validateProjectId, requireProjectInput, validateIdentifier, requiredString, trimmedString, validateBoundedInteger, requireAllowedValues } from "./validation.js";
 export type { PayloadHandler } from "./routes.js";
 export { createProjectMap } from "./project-store.js";
 export { commitWithGrant, createCommitRollback, createTransactionGate, runCappedRetries, runWithTimeout } from "./execution.js";
