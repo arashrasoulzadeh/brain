@@ -1,0 +1,13 @@
+# Control-plane theme
+
+The admin interface uses a neutral light surface, compact 224px sidebar, consistent eight-pixel surfaces, dense tables and 32px controls. Theme tokens are defined in `admin-nextjs/app/theme.css`; the specialized code editor retains its dark editing surface. Navigation is grouped into workspace, project tools, extensions and platform, filtered by the existing discovery rules. The menu search matches page names and plugin identifiers. Mobile uses an expandable navigation panel. Current-page links expose `aria-current`, and forms retain keyboard focus indicators.
+
+Project selection stays in the existing Projects screen, and changes refresh the navigation without widening access. Plugin extensions retain their independently authorized pages. The persistent shell displays the active page's title, including dynamic model and plugin pages.
+
+The plugin catalog uses one filterable table instead of duplicated card lists. Generated actions, configuration, models and resource inventories share compact form and panel styling; result tables and detail rows use the same surface and status patterns.
+
+The `admin-browser` GitHub Actions workflow builds the production Next.js app and exercises it in Chromium at desktop and mobile viewports. It uses deterministic, synthetic API fixtures to verify project switching, manifest page discovery, selected rows, denied pages, and destructive-action confirmation. Screenshots and the server log are uploaded as artifacts. The test validates frontend behavior, not the live backend; backend integration remains covered separately.
+
+A second Chromium scenario exercises the packaged backend through the Next.js proxy, including real operator login, installed files and access-management plugins, policy-filtered inventories, cancellation and confirmed file publication, rule revocation, project isolation, and sign-out. The ephemeral test container uses synthetic data and Docker's disabled network, matching the packaged runtime smoke test. A CI-only loopback relay forwards HTTP through a fixed container process; it never exposes a Docker socket, shell command, or arbitrary target to the browser. No production credentials or host mounts are used. CI captures screenshots and backend logs.
+
+The browser job uses the sandbox-capable production CI runner and its preinstalled Chrome executable through Playwright, avoiding browser dependency installation on unsupported runner distributions. Local runs may use the Playwright-managed browser by leaving `BRAIN_BROWSER_EXECUTABLE` unset.

@@ -123,13 +123,13 @@ func (r *Registry) invokeUsingWorker(request WorkerRequest, observer bool, overr
 	// the worker has succeeded and lifecycle and grants have been rechecked.
 	prepared := request
 	var commit func() error
-	var atomicCommit func([]observationDelivery) error
+	var atomicCommit func(*WorkerResponse, []observationDelivery) error
 	if planner != nil {
 		var err error
-		if atomic, ok := planner.(interface {
-			prepareWithObservations(WorkerRequest) (WorkerRequest, func([]observationDelivery) error, error)
+		if responsePlanner, ok := planner.(interface {
+			prepareResponseWithObservations(WorkerRequest) (WorkerRequest, func(*WorkerResponse, []observationDelivery) error, error)
 		}); ok {
-			prepared, atomicCommit, err = atomic.prepareWithObservations(request)
+			prepared, atomicCommit, err = responsePlanner.prepareResponseWithObservations(request)
 		} else {
 			prepared, commit, err = planner.Prepare(request)
 		}
@@ -160,6 +160,13 @@ func (r *Registry) invokeUsingWorker(request WorkerRequest, observer bool, overr
 	prepared.Project = &model
 	response, err := InvokeForProject(worker, prepared, r.HostAPI, request.ProjectID)
 	if err != nil || !response.Success || response.ErrorCode != "" {
+		// A failed response-aware operation must never expose private state.
+		if request.PluginID == "auth" && atomicCommit != nil {
+			response.Payload = nil
+			if response.ErrorCode != "" {
+				response.ErrorCode = "authentication failed"
+			}
+		}
 		return response, err
 	}
 	if response.Protocol != request.Protocol {
@@ -185,7 +192,7 @@ func (r *Registry) invokeUsingWorker(request WorkerRequest, observer bool, overr
 		return WorkerResponse{}, err
 	}
 	if atomicCommit != nil {
-		if err := atomicCommit(deliveries); err != nil {
+		if err := atomicCommit(&response, deliveries); err != nil {
 			return WorkerResponse{}, err
 		}
 		for _, delivery := range deliveries {
@@ -317,6 +324,9 @@ func (r *Registry) StartWorker(projectID, id, version string) error {
 	if err != nil {
 		return err
 	}
+	if worker == nil {
+		return ErrWorkerUnavailable
+	}
 	if err := worker.Start(); err != nil {
 		return err
 	}
@@ -343,6 +353,19 @@ func (r *Registry) stopBoundWorker(key string) error {
 func validatePayloadProject(request WorkerRequest) error {
 	var payload map[string]json.RawMessage
 	if json.Unmarshal(request.Payload, &payload) == nil {
+		// Durable snapshots are reserved for the trusted host storage adapter.
+		if _, supplied := payload["_brainArena"]; request.PluginID == "arena" && supplied {
+			return ErrInvalidWorkerRequest
+		}
+		if _, supplied := payload["_brainAuth"]; request.PluginID == "auth" && supplied {
+			return ErrInvalidWorkerRequest
+		}
+		if _, supplied := payload["_brainInvites"]; request.PluginID == "invites" && supplied {
+			return ErrInvalidWorkerRequest
+		}
+		if _, supplied := payload["_brainSubscriptions"]; request.PluginID == "subscriptions" && supplied {
+			return ErrInvalidWorkerRequest
+		}
 		for _, key := range []string{"projectId", "project_id"} {
 			if value, exists := payload[key]; exists {
 				var id string

@@ -30,7 +30,22 @@ Admin-panel and operator documentation work after backend release gates pass.
 - [x] Paginated metadata inventories for rooms, tickets, tables and files; opt-in embedded extension tabs.
 - [x] Generate admin pages from declared models and route operations.
 - [ ] Broader inventory support for alternative storage adapters and remaining plugins.
-- [ ] Dedicated admin operations for plugins without implemented runtime handlers.
+- [x] Arena, invitation, subscription and authentication administration with redacted operator inspection.
 - [ ] End-to-end and deployment validation of the new paths.
 
-- [ ] Policy-aware legacy inventory enumeration for access-managed projects (currently fails closed).
+- [x] Policy-aware legacy inventory enumeration with exact operator rules, deny precedence and filtered cursors.
+
+## Control-plane UI
+
+- [x] Compact responsive theme, searchable grouped menus, consistent tables and controls, dynamic headings and keyboard navigation.
+- [ ] Browser screenshot and deployed visual verification.
+
+- [x] Recheck displayed query permissions and filtered inventories on background refresh, including revocation without observation events.
+
+- [x] Persist arena match snapshots, input sequence counters and results through worker recovery; expose a scoped match inventory.
+
+- [x] Persist auth accounts and token digests, redact admin projections, and verify recovery and durable revocation.
+
+- [x] Persist invitations with digest-only code storage and single-use conditional writes.
+
+- [x] Persist subscription ticket digests, retained event cursors and bounded observation deduplication through worker recovery.

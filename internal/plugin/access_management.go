@@ -53,6 +53,33 @@ func (r *Registry) InvokeAsOperator(request WorkerRequest, actorID string) (Work
 	return r.Invoke(request)
 }
 
+// CheckAdminReadAsOperator checks the exact admitted read scope without running
+// a worker or producing observations. The admin service validates page metadata
+// before calling this method. Delegated calls also check the target policy.
+func (r *Registry) CheckAdminReadAsOperator(request WorkerRequest, actorID string) error {
+	if !validAccessIdentity(actorID) {
+		return ErrActorDenied
+	}
+	if err := ValidateWorkerRequest(request, r.HostAPI); err != nil {
+		return err
+	}
+	if err := validatePayloadProject(request); err != nil {
+		return err
+	}
+	request.accessPrincipal = "operator:" + actorID
+	r.readinessMu.RLock()
+	route, exists := r.registered[request.PluginID+"@"+request.Version].Manifest.Route(request.Operation)
+	r.readinessMu.RUnlock()
+	if !exists {
+		return ErrGrantDenied
+	}
+	if route.Helper == "host.call" && route.Call != nil {
+		target := WorkerRequest{Protocol: request.Protocol, ProjectID: request.ProjectID, PluginID: route.Call.Plugin, Version: route.Call.Version, Operation: route.Call.Operation, Payload: request.Payload, accessPrincipal: pluginAccessPrincipal(request.PluginID, request.Version), originPrincipal: request.originalPrincipal()}
+		return r.checkPluginCall(request, target)
+	}
+	return r.authorizeInvocation(request, false)
+}
+
 // InvokeWithCredential is the registry-backed user invocation boundary. It
 // consumes the credential and rechecks the access policy on the registry's
 // normal admission and commit paths, including model and delegated operations.
@@ -204,6 +231,33 @@ func (r *Registry) authorizeAccessLocked(projectID, principal, id, version, oper
 		return ErrActorDenied
 	}
 
+	installed, available := r.accessProviderLocked(projectID)
+	if !installed {
+		return nil
+	}
+	if scopeErr != nil || !available || r.LifecycleStorageHealth() != nil {
+		return ErrActorDenied
+	}
+	if principal == "" {
+		principal = "host"
+	}
+	if !validAccessPrincipal(principal) || operation == "" || capability == "" {
+		return ErrActorDenied
+	}
+	storage, ok := r.storage.(*SQLiteStorage)
+	if !ok || storage == nil {
+		return ErrActorDenied
+	}
+	allowed, err := storage.accessRuleAllows(projectID, principal, id, version, operation, capability, resource)
+	if err != nil || !allowed {
+		return ErrActorDenied
+	}
+	return nil
+}
+
+// accessProviderLocked shares the exact policy readiness check with host inventory reads.
+// Callers hold readiness and installation locks.
+func (r *Registry) accessProviderLocked(projectID string) (bool, bool) {
 	installed, available := false, 0
 	for _, installation := range r.installations {
 		if installation.ProjectID != projectID || installation.PluginID != accessPluginID {
@@ -224,27 +278,7 @@ func (r *Registry) authorizeAccessLocked(projectID, principal, id, version, oper
 		}
 		available++
 	}
-	if !installed {
-		return nil
-	}
-	if scopeErr != nil || available != 1 || r.LifecycleStorageHealth() != nil {
-		return ErrActorDenied
-	}
-	if principal == "" {
-		principal = "host"
-	}
-	if !validAccessPrincipal(principal) || operation == "" || capability == "" {
-		return ErrActorDenied
-	}
-	storage, ok := r.storage.(*SQLiteStorage)
-	if !ok || storage == nil {
-		return ErrActorDenied
-	}
-	allowed, err := storage.accessRuleAllows(projectID, principal, id, version, operation, capability, resource)
-	if err != nil || !allowed {
-		return ErrActorDenied
-	}
-	return nil
+	return installed, available == 1
 }
 
 // Rules are immutable except for the revision-checked revoke transition.
@@ -278,16 +312,17 @@ func (r *Registry) validateAccessRuleLocked(req WorkerRequest) error {
 	return ErrInvalidWorkerRequest
 }
 
-func (s *SQLiteStorage) accessRuleAllows(projectID, principal, id, version, operation, capability, resource string) (bool, error) {
-	const query = `SELECT record_id,schema_version,revision,state,fields_json
+const accessRuleScopeQuery = `SELECT record_id,schema_version,revision,state,fields_json
 FROM plugin_model_records
 WHERE project_id=? AND plugin_id=? AND model_name=? AND state='active'
 AND json_extract(fields_json,'$.principal')=?
 AND json_extract(fields_json,'$.plugin')=?
 AND json_extract(fields_json,'$.version')=?
 AND json_extract(fields_json,'$.operation')=?
-AND json_extract(fields_json,'$.capability')=?
-AND (json_extract(fields_json,'$.resource')=? OR json_extract(fields_json,'$.resource')=?)`
+AND json_extract(fields_json,'$.capability')=?`
+
+func (s *SQLiteStorage) accessRuleAllows(projectID, principal, id, version, operation, capability, resource string) (bool, error) {
+	const query = accessRuleScopeQuery + ` AND (json_extract(fields_json,'$.resource')=? OR json_extract(fields_json,'$.resource')=?)`
 	wildcard := ""
 	if resource != "" {
 		wildcard = "*"

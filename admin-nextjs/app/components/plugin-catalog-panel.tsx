@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { AdminCopy } from "../lib/admin-copy";
 import type { PluginManifest, PluginStatus } from "../lib/admin-types";
 
@@ -11,187 +12,39 @@ export function PluginCatalogPanel({ activePage, text, manifests, installations,
   installPlugin: (manifest: PluginManifest) => void;
   runPluginAction: (operation: string, installation: PluginStatus) => void;
 }) {
-  return (
-    <>
-      <section className="section page-hidden" id="projects">
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">{text.plugins}</p>
-            <h2>{text.registered}</h2>
-          </div>
-          <span className="count">{manifests.length}</span>
-        </div>
-        <input
-          className="plugin-search"
-          placeholder={text.search}
-          value={pluginFilter}
-          onChange={(event) => setPluginFilter(event.target.value)}
-        />
-        <div className="plugin-grid">
-          {manifests.filter((manifest) =>
-            `${manifest.ID} ${manifest.Title} ${manifest.Description}`
-              .toLowerCase()
-              .includes(pluginFilter.toLowerCase()),
-          ).length ? (
-            manifests
-              .filter((manifest) =>
-                `${manifest.ID} ${manifest.Title} ${manifest.Description}`
-                  .toLowerCase()
-                  .includes(pluginFilter.toLowerCase()),
-              )
-              .map((manifest) => {
-                const installation = installations.find(
-                  (item) => item.PluginID === manifest.ID && item.Version === manifest.Version,
-                );
-                const installed = Boolean(installation);
-                return (
-                  <article className="plugin" key={`${manifest.ID}@${manifest.Version}`}>
-                    <div>
-                      <h3>
-                        <a
-                          href={`/plugins/${encodeURIComponent(`${manifest.ID}@${manifest.Version}`)}`}
-                        >
-                          {manifest.Title || manifest.ID}
-                        </a>
-                      </h3>
-                      <p className="muted">{manifest.Description}</p>
-                    </div>
-                    <small>
-                      {manifest.ID}@{manifest.Version}
-                    </small>
-                    <div className="capabilities">
-                      {manifest.Capabilities?.map((capability) => (
-                        <span key={capability}>{capability}</span>
-                      ))}
-                    </div>
-                    {!installed && (
-                      <button className="plugin-action" onClick={() => installPlugin(manifest)}>
-                        {text.install}
-                      </button>
-                    )}
-                    {installation && (
-                      <div className="lifecycle-actions">
-                        {!installation.Ready && (
-                          <button onClick={() => runPluginAction("plugin.readiness", installation)}>
-                            {text.markReady}
-                          </button>
-                        )}
-                        {!installation.Enabled && installation.Ready && (
-                          <button onClick={() => runPluginAction("plugin.enable", installation)}>
-                            {text.enable}
-                          </button>
-                        )}
-                        {installation.Ready && <small>{text.ready}</small>}
-                      </div>
-                    )}
-                  </article>
-                );
-              })
-          ) : (
-            <p className="muted">{text.empty}</p>
-          )}
-        </div>
-      </section>
-      <section
-        className={`section ${activePage !== "plugins" ? "page-hidden" : ""}`}
-        id="installed-plugin-table"
-      >
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">{text.plugins}</p>
-            <h2>{text.installed}</h2>
-          </div>
-          <span className="count">{installations.length}</span>
-        </div>
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Plugin</th>
-                <th>Version</th>
-                <th>Status</th>
-                <th>View</th>
-              </tr>
-            </thead>
-            <tbody>
-              {installations.map((installation) => (
-                <tr key={`${installation.PluginID}@${installation.Version}`}>
-                  <td>{installation.PluginID}</td>
-                  <td>{installation.Version}</td>
-                  <td>
-                    {installation.Enabled && installation.Ready
-                      ? text.ready
-                      : installation.Ready
-                        ? text.disabled
-                        : text.notReady}
-                  </td>
-                  <td>
-                    <a
-                      className="view-icon"
-                      aria-label={`View ${installation.PluginID}`}
-                      title="View plugin"
-                      href={`/plugins/${encodeURIComponent(`${installation.PluginID}@${installation.Version}`)}`}
-                    >
-                      ↗
-                    </a>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-      <section className={`section ${activePage !== "plugins" ? "page-hidden" : ""}`}>
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">{text.plugins}</p>
-            <h2>{text.registered}</h2>
-          </div>
-          <span className="count">{manifests.length}</span>
-        </div>
-        <input
-          className="plugin-search"
-          placeholder={text.search}
-          value={pluginFilter}
-          onChange={(event) => setPluginFilter(event.target.value)}
-        />
-        <div className="plugin-grid">
-          {manifests
-            .filter((manifest) =>
-              `${manifest.ID} ${manifest.Title} ${manifest.Description}`
-                .toLowerCase()
-                .includes(pluginFilter.toLowerCase()),
-            )
-            .map((manifest) => {
-              const installed = installations.some(
-                (item) => item.PluginID === manifest.ID && item.Version === manifest.Version,
-              );
-              return (
-                <article className="plugin" key={`catalog-${manifest.ID}@${manifest.Version}`}>
-                  <div>
-                    <h3>{manifest.Title || manifest.ID}</h3>
-                    <p className="muted">{manifest.Description}</p>
-                  </div>
-                  <small>
-                    {manifest.ID}@{manifest.Version}
-                  </small>
-                  <div className="capabilities">
-                    {manifest.Capabilities?.map((capability) => (
-                      <span key={capability}>{capability}</span>
-                    ))}
-                  </div>
-                  <button
-                    className="plugin-action"
-                    disabled={installed}
-                    onClick={() => installPlugin(manifest)}
-                  >
-                    {installed ? text.installedLabel : text.install}
-                  </button>
-                </article>
-              );
-            })}
-        </div>
-      </section>
-    </>
-  );
+  if (activePage !== "plugins") return null;
+  const query = pluginFilter.trim().toLowerCase();
+  const installed = new Map(installations.map(item => [item.PluginID + "@" + item.Version, item]));
+  const rows = manifests.filter(manifest =>
+    [manifest.ID, manifest.Title, manifest.Description, manifest.Version, ...(manifest.Capabilities ?? [])].join(" ").toLowerCase().includes(query));
+  return <section className="section">
+    <div className="section-heading">
+      <div><h2>{text.registered}</h2><p className="muted">{manifests.length} registered · {installations.length} installed · {installations.filter(item => item.Enabled && item.Ready && !item.Draining).length} enabled</p></div>
+      <input className="plugin-search" aria-label={text.search} placeholder={text.search} value={pluginFilter} onChange={event => setPluginFilter(event.target.value)} />
+    </div>
+    <div className="table-wrap plugin-catalog-table">
+      <table aria-label={text.registered}>
+        <thead><tr><th>Plugin</th><th>Version</th><th>Status</th><th>Capabilities</th><th>Actions</th></tr></thead>
+        <tbody>{rows.map(manifest => {
+          const key = manifest.ID + "@" + manifest.Version;
+          const installation = installed.get(key);
+          const enabled = installation?.Enabled && installation.Ready && !installation.Draining;
+          const status = !installation ? "Not installed" : installation.Draining ? "Draining" : enabled ? text.ready : installation.Ready ? text.disabled : text.notReady;
+          return <tr key={key}>
+            <td><Link className="table-title" href={"/plugins/" + encodeURIComponent(key)}>{manifest.Title || manifest.ID}</Link><small className="muted table-subtitle">{manifest.ID}</small><small className="table-description">{manifest.Description}</small></td>
+            <td><code>{manifest.Version}</code></td>
+            <td><span className={"status-pill " + (enabled ? "is-success" : installation?.Draining ? "is-warning" : "is-inactive")}>{status}</span></td>
+            <td>{manifest.Capabilities?.length ?? 0}</td>
+            <td><div className="table-actions">
+              {!installation ? <button type="button" onClick={() => installPlugin(manifest)}>{text.install}</button> :
+                !installation.Ready ? <button type="button" onClick={() => runPluginAction("plugin.readiness", installation)}>{text.markReady}</button> :
+                !installation.Enabled && !installation.Draining ? <button type="button" onClick={() => runPluginAction("plugin.enable", installation)}>{text.enable}</button> : null}
+              <Link className="table-action-link" href={"/plugins/" + encodeURIComponent(key)} aria-label={"View " + manifest.ID}>Manage</Link>
+            </div></td>
+          </tr>;
+        })}</tbody>
+      </table>
+      {!rows.length && <p className="muted" role="status">{query ? "No matching plugins." : text.empty}</p>}
+    </div>
+  </section>;
 }

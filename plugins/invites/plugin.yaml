@@ -17,6 +17,7 @@ capabilities:
   - invites.create
   - invites.accept
   - invites.cancel
+  - invites.inspect
 extension_points: []
 config_schema:
   ttlSeconds: int
@@ -43,3 +44,30 @@ routes:
     helper: sdk.context
     capability: invites.cancel
     resource_field: roomId
+
+  - operation: invites.inspect
+    function: inspect
+    helper: sdk.context
+    capability: invites.inspect
+    resource_field: roomId
+admin:
+  version: 1
+  pages:
+    - id: invitations
+      title: Invitations
+      extends: rooms/operations
+      extends_slot: tab
+      refresh_on: [invites.created, invites.accepted, invites.cancelled]
+      actions:
+        - title: List room invitations
+          operation: invites.inspect
+          read_only: true
+          result: {type: table, page_size: 25}
+          fields:
+            - {name: roomId, type: string, required: true}
+            - {name: after, label: After invitation ID, type: string}
+        - title: Cancel invitation
+          operation: invites.cancel
+          fields:
+            - {name: roomId, type: string, required: true}
+            - {name: inviteId, type: string, required: true}

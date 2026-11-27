@@ -4,16 +4,13 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
-	"errors"
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 	"os/exec"
-	"os/signal"
 	"path/filepath"
+	"runtime"
 	"strings"
-	"syscall"
 	"time"
 
 	"brain/internal/admin"
@@ -76,30 +73,6 @@ func main() {
 	}
 }
 
-// serveHTTP lets in-flight requests finish on an ordinary process shutdown.
-func serveHTTP(address string, handler http.Handler) error {
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	defer stop()
-	server := &http.Server{Addr: address, Handler: handler}
-	result := make(chan error, 1)
-	go func() { result <- server.ListenAndServe() }()
-	select {
-	case err := <-result:
-		return err
-	case <-ctx.Done():
-		shutdown, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-		if err := server.Shutdown(shutdown); err != nil {
-			_ = server.Close()
-			return err
-		}
-		if err := <-result; !errors.Is(err, http.ErrServerClosed) {
-			return err
-		}
-		return nil
-	}
-}
-
 func productionServer() (*app.Server, error) {
 	username, secret := os.Getenv("OPERATOR_USERNAME"), os.Getenv("OPERATOR_SECRET")
 	if username == "" || secret == "" {
@@ -134,6 +107,12 @@ func productionServer() (*app.Server, error) {
 	projects, err := project.NewSQLiteStore(projectsPath)
 	if err != nil {
 		return nil, fmt.Errorf("project storage unavailable: %w", err)
+	}
+	// This database now includes credential hashes. Restrict its file mode
+	// before opening the plugin storage connection.
+	if err := os.Chmod(projectsPath, 0o600); err != nil {
+		_ = projects.Close()
+		return nil, fmt.Errorf("project storage permissions unavailable: %w", err)
 	}
 	storage, err := plugin.OpenSQLiteStorage(projectsPath)
 	if err != nil {
@@ -224,8 +203,25 @@ func registerDiscoveredPlugins(registry *plugin.Registry) (map[string]plugin.Plu
 	return registered, nil
 }
 
+type sandboxWorkerFactory func(launcher, workerScript, descriptor, pluginRoot, projectID string, manifest plugin.Manifest, policy plugin.IsolationPolicy) (*plugin.TypeScriptWorker, error)
+
+func sandboxRuntime(platform, local, address string) (string, string, sandboxWorkerFactory, error) {
+	if platform == "darwin" {
+		if local != "1" || !strings.HasPrefix(address, "127.0.0.1:") {
+			return "", "", nil, fmt.Errorf("macOS worker runtime is for loopback-only local development; use make dev server")
+		}
+		log.Print("macOS local development: Seatbelt worker isolation (not the Linux production sandbox)")
+		return "scripts/run-macos-typescript-worker.sh", "/usr/bin/sandbox-exec", plugin.NewManifestMacOSTypeScriptWorker, nil
+	}
+	return "scripts/run-sandboxed-typescript-worker.sh", "bwrap", plugin.NewManifestBubblewrapTypeScriptWorker, nil
+}
+
 func bindSandboxedTypeScriptWorkers(registry *plugin.Registry, locations map[string]plugin.PluginLocation) error {
-	launcher, err := filepath.Abs("scripts/run-sandboxed-typescript-worker.sh")
+	launcherPath, sandboxBinary, workerFactory, err := sandboxRuntime(runtime.GOOS, os.Getenv("BRAIN_LOCAL_MACOS"), os.Getenv("HTTP_ADDRESS"))
+	if err != nil {
+		return err
+	}
+	launcher, err := filepath.Abs(launcherPath)
 	if err != nil {
 		return err
 	}
@@ -233,7 +229,7 @@ func bindSandboxedTypeScriptWorkers(registry *plugin.Registry, locations map[str
 	if err != nil {
 		return err
 	}
-	for _, binary := range []string{"bwrap", "node"} {
+	for _, binary := range []string{sandboxBinary, "node"} {
 		if _, err := exec.LookPath(binary); err != nil {
 			return fmt.Errorf("sandbox runtime requires %s: %w", binary, err)
 		}
@@ -256,7 +252,7 @@ func bindSandboxedTypeScriptWorkers(registry *plugin.Registry, locations map[str
 		return err
 	}
 	probeManifest := plugin.Manifest{ID: "sandbox-probe", Version: "1.0.0", HostAPI: 1, Entry: "index.mts", SourceFiles: []string{"index.mts"}, Capabilities: []string{"health"}, Routes: []plugin.Route{{Operation: "health", Function: "health", Capability: "health"}}}
-	probe, err := plugin.NewManifestBubblewrapTypeScriptWorker(launcher, workerScript, filepath.Join(probeRoot, "execution.json"), probeRoot, "sandbox-probe", probeManifest, policy)
+	probe, err := workerFactory(launcher, workerScript, filepath.Join(probeRoot, "execution.json"), probeRoot, "sandbox-probe", probeManifest, policy)
 	if err != nil {
 		return fmt.Errorf("sandbox probe configuration failed: %w", err)
 	}
@@ -292,7 +288,7 @@ func bindSandboxedTypeScriptWorkers(registry *plugin.Registry, locations map[str
 			return nil, err
 		}
 		_ = descriptor.Close()
-		worker, err := plugin.NewManifestBubblewrapTypeScriptWorker(launcher, workerScript, descriptor.Name(), root, projectID, manifest, policy)
+		worker, err := workerFactory(launcher, workerScript, descriptor.Name(), root, projectID, manifest, policy)
 		if err != nil {
 			_ = os.Remove(descriptor.Name())
 			return nil, err

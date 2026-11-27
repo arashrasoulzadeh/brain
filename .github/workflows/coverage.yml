@@ -16,19 +16,22 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
-      - name: Test coverage profile merger
-        run: python -m unittest discover -s tests/documentation
       - name: Measure host statement coverage
         run: |
-          mkdir -p coverage
+          mkdir -p coverage/cli
+          export BRAIN_CLI_COVERDIR="$PWD/coverage/cli"
           status=0
-          go test -covermode=atomic -coverpkg=./internal/...,./cmd/...,./plugins/sdk-typescript -coverprofile=coverage/go-unit.out ./... || status=$?
-          mkdir -p coverage/cli-raw
-          CGO_ENABLED=0 go build -cover -covermode=atomic -coverpkg=./internal/...,./cmd/...,./plugins/sdk-typescript -o "$RUNNER_TEMP/brain-covered" ./cmd/brain
-          BRAIN_TEST_CLI="$RUNNER_TEMP/brain-covered" GOCOVERDIR="$PWD/coverage/cli-raw" python -m unittest discover -s tests/cli || status=$?
-          BRAIN_TEST_CLI="$RUNNER_TEMP/brain-covered" BRAIN_COVERAGE_OUTPUT="$PWD/coverage/cli-raw" timeout 300s bash scripts/test-production-runtime.sh || status=$?
-          go tool covdata textfmt -i=coverage/cli-raw -o=coverage/go-cli.out
-          python scripts/merge-go-coverage.py --output coverage/go.out coverage/go-unit.out coverage/go-cli.out
+          go test -count=1 -covermode=atomic -coverpkg=./internal/...,./cmd/... -coverprofile=coverage/go-unit.out ./... || status=$?
+          # Include actual coverage from instrumented subprocess CLI integration tests.
+          go tool covdata textfmt -i="$BRAIN_CLI_COVERDIR" -o=coverage/cli.out
+          test -s coverage/cli.out
+          test "$(wc -l < coverage/cli.out)" -gt 1
+          # Exercise the packaged server and isolated workers, not just Go mocks.
+          BRAIN_PRODUCTION_COVERDIR="$PWD/coverage/production" timeout 300s bash scripts/test-production-runtime.sh || status=$?
+          go tool covdata textfmt -i=coverage/production -o=coverage/production.out
+          test -s coverage/production.out
+          test "$(wc -l < coverage/production.out)" -gt 1
+          python scripts/merge-go-coverage.py --output coverage/go.out coverage/go-unit.out coverage/cli.out coverage/production.out
           if test -s coverage/go.out; then
             go tool cover -func=coverage/go.out | tee coverage/go-summary.txt
             go tool cover -html=coverage/go.out -o coverage/go.html
@@ -39,10 +42,10 @@ jobs:
         with:
           name: go-coverage
           path: coverage/
+      - name: Test Go coverage accounting
+        run: python -m unittest discover -s tests/coverage -p 'test_*.py'
       - name: Require every measured statement to execute
-        run: |
-          test -s coverage/go.out
-          python scripts/merge-go-coverage.py --require-complete --output coverage/go-checked.out coverage/go.out
+        run: python scripts/check-go-coverage.py coverage/go.out
   typescript-coverage:
     runs-on: ubuntu-24.04
     steps:

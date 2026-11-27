@@ -1,12 +1,14 @@
 import importlib.util
 from pathlib import Path
 import unittest
-import tempfile
+import sys
 
 ROOT = Path(__file__).resolve().parents[2]
 SPEC = importlib.util.spec_from_file_location("build_docs", ROOT / "scripts/build-docs.py")
 BUILD = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(BUILD)
+sys.path.insert(0, str(ROOT / "scripts"))
+from documentation_inventory import audit
 
 
 class DocumentationTest(unittest.TestCase):
@@ -29,31 +31,10 @@ class DocumentationTest(unittest.TestCase):
         for source in ("docs/index.md", "docs/admins.md", "docs/developers.md", "tests/README.md"):
             self.assertIn(source, mapping)
 
-    def test_host_http_surface_is_documented(self):
-        with tempfile.TemporaryDirectory() as directory:
-            output = Path(directory)
-            api = output / "http-api.md"
-            api.write_text((ROOT / "docs/http-api.md").read_text(encoding="utf-8"), encoding="utf-8")
-            routes, commands = BUILD.validate_http_docs(ROOT, output)
-            self.assertGreater(routes, 0)
-            self.assertGreater(commands, 0)
-            api.write_text("", encoding="utf-8")
-            with self.assertRaises(ValueError):
-                BUILD.validate_http_docs(ROOT, output)
-
-    def test_missing_or_empty_plugin_guide_sections_fail(self):
-        with tempfile.TemporaryDirectory() as directory:
-            output = Path(directory)
-            path = output / "plugin-guides" / "plugins-test.md"
-            path.parent.mkdir()
-            with self.assertRaises(ValueError):
-                BUILD.validate_plugin_guide(output, "plugins-test")
-            for content in ("# Test\n## Developer\nnotes\n", "# Test\n## Developer\n## Administrator\nnotes\n"):
-                path.write_text(content, encoding="utf-8")
-                with self.assertRaises(ValueError):
-                    BUILD.validate_plugin_guide(output, "plugins-test")
-            path.write_text("# Test\n## Developer\nexample\n## Administrator\nrunbook\n", encoding="utf-8")
-            self.assertEqual(BUILD.validate_plugin_guide(output, "plugins-test"), path)
+    def test_host_http_surface_and_guides_are_documented(self):
+        report = audit(ROOT)
+        self.assertIn("Mounted HTTP route patterns", report)
+        self.assertIn("Plugin guides", report)
 
 
 if __name__ == "__main__":

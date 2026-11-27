@@ -1,6 +1,9 @@
 package plugin
 
-import "errors"
+import (
+	"errors"
+	"sort"
+)
 
 var ErrAdminInventoryUnavailable = errors.New("admin inventory unavailable")
 
@@ -56,7 +59,35 @@ type AdminInventoryProvider interface {
 	AdminInventory(projectID, pluginID, kind, capability, after string, limit int) (AdminInventoryPage, error)
 }
 
+// AdminInventoryFilter is a trusted snapshot of the admitted resource scope.
+// Providers must filter before returning rows or pagination cursors.
+type AdminInventoryFilter struct {
+	AllowAll   bool
+	DenyAll    bool
+	Allowed    []string
+	Denied     []string
+	Restricted bool
+	GrantKeys  []string
+}
+
+type AdminScopedInventoryProvider interface {
+	AdminInventoryScoped(projectID, pluginID, kind, capability, after string, limit int, filter AdminInventoryFilter) (AdminInventoryPage, error)
+}
+
+// AdminInventory is the compatibility entry point for unmanaged projects.
 func (r *Registry) AdminInventory(projectID, pluginID, version, pageID, after string, limit int) (AdminInventoryPage, error) {
+	return r.adminInventory("", projectID, pluginID, version, pageID, after, limit)
+}
+
+// AdminInventoryAsOperator receives the authenticated identity from the host.
+func (r *Registry) AdminInventoryAsOperator(actorID, projectID, pluginID, version, pageID, after string, limit int) (AdminInventoryPage, error) {
+	if !validAccessIdentity(actorID) {
+		return AdminInventoryPage{}, ErrActorDenied
+	}
+	return r.adminInventory("operator:"+actorID, projectID, pluginID, version, pageID, after, limit)
+}
+
+func (r *Registry) adminInventory(principal, projectID, pluginID, version, pageID, after string, limit int) (AdminInventoryPage, error) {
 	if !isValidProjectID(projectID) || len(after) > 65536 || limit < 1 || limit > 100 {
 		return AdminInventoryPage{}, ErrInvalidWorkerRequest
 	}
@@ -79,9 +110,8 @@ func (r *Registry) AdminInventory(projectID, pluginID, version, pageID, after st
 			return AdminInventoryPage{}, ErrProjectInvalid
 		}
 	}
-	// Inventory enumeration has no declared per-resource policy operation yet.
-	// Never bypass the policy plugin, even if it is installed but unavailable.
-	if r.accessInstalledLocked(projectID) {
+	managed, available := r.accessProviderLocked(projectID)
+	if managed && (!available || principal == "") {
 		return AdminInventoryPage{}, ErrActorDenied
 	}
 	key := pluginID + "@" + version
@@ -102,9 +132,92 @@ func (r *Registry) AdminInventory(projectID, pluginID, version, pageID, after st
 			return AdminInventoryPage{}, ErrGrantDenied
 		}
 	}
-	// A broad enumeration is not authorized by a resource-specific grant.
-	if !installation.Grants[page.Inventory.Capability] || len(installation.Resources[page.Inventory.Capability]) > 0 {
+	if !installation.Grants[page.Inventory.Capability] {
 		return AdminInventoryPage{}, ErrGrantDenied
 	}
-	return provider.AdminInventory(projectID, pluginID, page.Inventory.Kind, page.Inventory.Capability, after, limit)
+	resources := installation.Resources[page.Inventory.Capability]
+	if !managed {
+		// Preserve the existing fail-closed behavior for unscoped providers.
+		if len(resources) > 0 {
+			return AdminInventoryPage{}, ErrGrantDenied
+		}
+		return provider.AdminInventory(projectID, pluginID, page.Inventory.Kind, page.Inventory.Capability, after, limit)
+	}
+	scoped, ok := provider.(AdminScopedInventoryProvider)
+	storage, stored := r.storage.(*SQLiteStorage)
+	route, declared := inventoryReadRoute(registered.Manifest, page)
+	if !ok || !stored || storage == nil || !declared || pluginID == accessPluginID {
+		return AdminInventoryPage{}, ErrActorDenied
+	}
+	// The installation read lock also excludes access-rule mutations. Resolve
+	// the same exact principal/version/operation/capability rules as invocation.
+	filter, err := storage.accessInventoryFilter(projectID, principal, pluginID, version, route)
+	if err != nil {
+		return AdminInventoryPage{}, ErrActorDenied
+	}
+	filter.Restricted = len(resources) > 0
+	for key, granted := range resources {
+		if granted {
+			filter.GrantKeys = append(filter.GrantKeys, key)
+		}
+	}
+	sort.Strings(filter.GrantKeys)
+	return scoped.AdminInventoryScoped(projectID, pluginID, page.Inventory.Kind, page.Inventory.Capability, after, limit, filter)
+}
+
+// Inventory access follows exactly one declared, read-only resource action.
+func inventoryReadRoute(m Manifest, page AdminPage) (Route, bool) {
+	var selected Route
+	if page.Inventory == nil || page.Inventory.SelectField == "" {
+		return selected, false
+	}
+	for _, action := range page.Actions {
+		route, ok := m.Route(action.Operation)
+		if !ok || !action.ReadOnly || route.Capability != page.Inventory.Capability || route.ResourceField != page.Inventory.SelectField || route.Model != nil || route.Call != nil || route.Helper == "host.admin" {
+			continue
+		}
+		if selected.Operation != "" {
+			return Route{}, false
+		}
+		selected = route
+	}
+	return selected, selected.Operation != ""
+}
+
+// Access-rule changes are serialized by the caller's installation lock.
+func (s *SQLiteStorage) accessInventoryFilter(projectID, principal, id, version string, route Route) (AdminInventoryFilter, error) {
+	filter := AdminInventoryFilter{Allowed: []string{}, Denied: []string{}, GrantKeys: []string{}}
+	rows, err := s.db.Query(accessRuleScopeQuery+" ORDER BY record_id LIMIT 4097", projectID, accessPluginID, accessRuleModel, principal, id, version, route.Operation, route.Capability)
+	if err != nil {
+		return filter, err
+	}
+	defer rows.Close()
+	count := 0
+	for rows.Next() {
+		count++
+		if count > 4096 {
+			return AdminInventoryFilter{}, ErrActorDenied
+		}
+		record, err := scanModel(rows, accessRuleSpec)
+		if err != nil {
+			return AdminInventoryFilter{}, err
+		}
+		resource := record.Fields["resource"].(string)
+		if !validRuleResource(route, resource, true) {
+			return AdminInventoryFilter{}, ErrActorDenied
+		}
+		allowed := record.Fields["allowed"].(bool)
+		if resource == "*" {
+			if allowed {
+				filter.AllowAll = true
+			} else {
+				filter.DenyAll = true
+			}
+		} else if allowed {
+			filter.Allowed = append(filter.Allowed, resource)
+		} else {
+			filter.Denied = append(filter.Denied, resource)
+		}
+	}
+	return filter, rows.Err()
 }

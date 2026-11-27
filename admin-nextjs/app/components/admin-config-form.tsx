@@ -33,15 +33,15 @@ export function AdminConfigForm({ token, projectID, pluginID, version, schema }:
     } catch (reason) { setMessage(String(reason)); }
     finally { setBusy(false); }
   }
-  return <section className="section"><h2>Configuration</h2><p className="muted">Only changed fields are submitted. Existing values are not exposed.</p>
-    <form onSubmit={event => { event.preventDefault(); if (!busy) void submit(); }}>
+  return <section className="section admin-action-panel"><h2>Configuration</h2><p className="muted">Only changed fields are submitted. Existing values are not exposed.</p>
+    <form className="admin-operation-form" onSubmit={event => { event.preventDefault(); if (!busy) void submit(); }}>
       {fields.map(([name, type]) => <div key={name}><label>{name} ({type})
         {type === "bool" ? <select disabled={busy} value={Object.hasOwn(values, name) ? values[name] : ""} onChange={event => change(name, event.target.value || undefined)}>
           <option value="">Unchanged</option><option value="true">True</option><option value="false">False</option>
         </select> : <input disabled={busy || (type !== "int" && type !== "string")} type={type === "int" ? "number" : "text"} step={type === "int" ? 1 : undefined}
           placeholder="Unchanged" value={Object.hasOwn(values, name) ? values[name] : ""} onChange={event => change(name, event.target.value)} />}
         </label>{Object.hasOwn(values, name) && <button type="button" className="secondary" disabled={busy} onClick={() => change(name, undefined)}>Keep unchanged</button>}</div>)}
-      <button type="submit" disabled={busy || !Object.keys(values).length}>{busy ? "Saving…" : "Save configuration"}</button>
+      <div className="operation-submit"><button type="submit" disabled={busy || !Object.keys(values).length}>{busy ? "Saving…" : "Save configuration"}</button></div>
     </form>{message && <p role="status">{message}</p>}
   </section>;
 }

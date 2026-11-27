@@ -2,6 +2,30 @@
 
 ## Quickstart
 
+With Go, Node.js 20.15+, npm and Make installed, install the locked Node dependencies once:
+
+```bash
+make setup
+```
+
+Start the server and admin in separate terminals:
+
+```bash
+make dev server
+make dev admin
+```
+
+The Go server listens on `http://127.0.0.1:18082` and uses local SQLite storage at `.local/brain.sqlite`. The Next.js admin listens on `http://127.0.0.1:3000` and proxies to the server. Stop either process with Ctrl+C. The local startup script supports `HTTP_ADDRESS`, `PROJECTS_FILE`, `OPERATOR_USERNAME` and `OPERATOR_SECRET` overrides. The admin supports `ADMIN_HOST`, `ADMIN_PORT` and `BRAIN_API_ORIGIN`, for example:
+
+```bash
+make dev server HTTP_ADDRESS=127.0.0.1:18090
+make dev admin ADMIN_PORT=3100 BRAIN_API_ORIGIN=http://127.0.0.1:18090
+```
+
+Development requires no Docker on macOS or Linux. On macOS, `make dev server` selects the built-in Seatbelt (`/usr/bin/sandbox-exec`) worker adapter, with loopback-only HTTP, an allowlist of readable runtime/plugin paths, denied network access, and bounded heap/invocation time. This is a local-development adapter for trusted checkout code, not Linux-equivalent production isolation; Seatbelt's command-line interface is deprecated, and macOS does not enforce the same address-space or process limits. Startup fails closed if the adapter cannot run. On Linux (including WSL2), install bubblewrap and enable user namespaces; the Linux production sandbox is unchanged. Do not use the local script's default credentials in production.
+
+Run the development checks:
+
 ```bash
 GOCACHE=/tmp/brain-go-cache go test ./...
 go vet ./...
@@ -15,6 +39,10 @@ npm run test:ts
 
 These commands do not start Docker. Use Docker/Compose only for an explicit PostgreSQL or release integration check.
 
+## Current reference
+
+Use the [HTTP API](http-api.md), [SDK reference](sdk-reference.md), [runtime configuration](runtime-operations.md), and [function authoring guide](functions-runtime.md). The client SDKs require an application-supplied transport; a generic user RPC HTTP endpoint is not mounted. SQLite is the current storage adapter, not PostgreSQL.
+
 ## Plugin contract
 
 Every product capability is a TypeScript plugin:
@@ -27,7 +55,7 @@ plugins/<plugin-id>/
 
 `plugin.yaml` is authoritative for title, description, version, routes, functions, capabilities, source files, imports, and plugin dependencies. Every source and runtime import must be declared. `index.ts` is the public boundary; cohesive modules own related responsibilities and reuse shared SDK helpers.
 
-The Go host does not implement product capabilities. Keep product behavior in `plugins/<plugin-id>/`; keep Go host changes limited to shared infrastructure, lifecycle, permissions, storage primitives, worker supervision, and versioned contracts.
+The Go host is intended to provide infrastructure only; existing product-specific SQLite compatibility adapters remain transitional. Keep product behavior in `plugins/<plugin-id>/`; keep Go host changes limited to shared infrastructure, lifecycle, permissions, storage primitives, worker supervision, and versioned contracts.
 
 Example:
 
@@ -189,3 +217,11 @@ writes still enqueue after their commit, without an atomic outbox guarantee.
 For scheduling and workflow libraries use the `bindProjectSchedule`,
 `bindProjectTriggers`, `bindProjectJobLeases` and `runProjectWorkflow` helpers.
 These bindings do not themselves implement a production job runner.
+
+## Rooms, games and PvP boundaries
+
+- `rooms` owns room lifecycle, membership, connection tickets, generic room results and room observations. It has no game-mode exports.
+- `games` owns mode-specific state, rules, commands, outcome detection and adapters. Import Tic-Tac-Toe from `plugins/games/index.ts`; the project-bound `games.modes` route lists available modes.
+- `pvp` exposes reusable turn rotation, deadlines, pause/resume, revision-checked commands, replay, deduplication, membership checks and private views. Its `pvp.describe` route reports the supported primitives. The pure implementations are in the trusted SDK (`src/pvp.ts`) so isolated game workers do not import sibling plugin files. These helpers are not a substitute for host-authenticated context, actor grants or durable state.
+
+Existing room HTTP operations and events are unchanged. The two new discovery routes require their own capabilities. Game mechanics are local TypeScript APIs, not a new network-accessible match service. Add new game modes in `games` without modifying `rooms` or copying PvP primitives.

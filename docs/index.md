@@ -2,67 +2,55 @@
 
 <div class="brain-hero" markdown="1">
 
-<span class="brain-kicker">PROJECT-ISOLATED BACKEND · PLUGIN PLATFORM</span>
+**PROJECT-ISOLATED BACKEND · PLUGIN PLATFORM**
 
-## Build apps, websites, and games on a composable backend.
+## Build apps, websites and games on a composable backend.
 
-Brain combines a Go host with versioned TypeScript plugins, scoped storage, and a single operator control plane. Build a feature as a plugin; let the host enforce project identity, lifecycle, and access.
+Brain combines a Go host, versioned TypeScript plugins, scoped durable storage and one operator control plane.
 
-[Get started](developers.md){ .md-button .brain-primary } [Operate Brain](admins.md){ .md-button .brain-secondary }
+[Start developing](developers.md){ .md-button .md-button--primary } [Operate Brain](admins.md){ .md-button }
 
 </div>
 
-## Architecture at a glance
+## Start here
 
 <div class="grid cards" markdown="1">
 
-- **Trusted host**
+- **Developer quickstart**
 
-    Go owns transport, identity, authorization, project storage, and lifecycle.
+    [Set up locally](developers.md), [write plugins](sdk-reference.md), and [build functions](functions-runtime.md).
 
-    [HTTP API and host routes](http-api.md)
+- **HTTP and security**
 
-- **Versioned plugins**
+    [API reference](http-api.md), [auth context](plugin-auth-context.md), and [plugin communication](plugin-communication.md).
 
-    TypeScript and declarative plugins expose explicit, manifest-defined operations and observation hooks.
+- **Operate the host**
 
-    [Plugin communication](plugin-communication.md)
+    [Runtime settings](runtime-operations.md), [admin pages](admin-pages/README.md), and [deployment](deployment-runbook.md).
 
-- **One control plane**
+- **Integrate clients**
 
-    The admin UI exposes only the installed, ready, and authorized capabilities of each project.
-
-    [Administration guide](admins.md)
-
-- **Portable clients**
-
-    Browser, Flutter and Kotlin clients use the same project-scoped protocol.
-
-    [Browser quickstart](browser-quickstart.md)
+    [JavaScript](browser-quickstart.md), [Flutter](flutter-quickstart.md), and [Kotlin](../clients/android/README.md).
 
 </div>
 
-## System flow
+## Architecture
 
 ```mermaid
 flowchart LR
-  C[Client] --> T[Go transport]
-  T --> P[Host-authenticated project context]
+  C[Client or operator] --> H[Go transport]
+  H --> P[Project and authenticated actor]
   P --> B[Permission broker]
-  B --> W[TypeScript plugin worker]
-  W --> S[Scoped storage / service]
-  B --> A[Audit and lifecycle state]
-  W --> R[Scoped response]
+  B --> W[Declared plugin worker]
+  W --> S[Scoped storage commit]
+  S --> O[Observation outbox]
+  O --> A[Authorized subscriber]
 ```
 
-The plugin never supplies the authoritative project identity. The host binds it before authorization and rechecks lifecycle, grants, versions, and single-use invocation credentials at commit time.
+The host binds project identity before authorization and rechecks grants, lifecycle, versions and invocation credentials at commit. A plugin cannot authorize itself.
 
-## Start with a clear boundary
+## Current scope
 
-!!! tip "Local development"
-    Do not run Docker during ordinary local development. Use in-process tests and SQLite-compatible local checks. PostgreSQL and Compose checks are explicit integration or release work.
+The running application uses SQLite and sandboxed TypeScript workers, with a separate restricted user-function VM. Generic end-user HTTP RPC, distributed observation delivery, PostgreSQL application storage and full production Go/WASM function deployment remain separate integration/release work. The [roadmap](../roadmap.md) tracks these items; API and plugin references describe what is implemented now.
 
-- [Deployment runbook](deployment-runbook.md): release checks and rollback evidence.
-- [Restore runbook](restore-runbook.md): recovery procedures.
-- [Phase options](phase-options.md): decisions and alternatives.
-- [Quality and coverage](quality.md): reproducible checks and coverage targets.
+See [quality and coverage](quality.md) for verification and [restore procedures](restore-runbook.md) for recovery.

@@ -14,7 +14,7 @@ import (
 func (s *Store) EnableMFA(secret string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if s.account == nil || s.authenticatedOperator == "" || strings.TrimSpace(secret) == "" {
+	if s.account == nil || s.authenticatedOperator == "" || strings.TrimSpace(secret) == "" || totp(secret, 0) == "" {
 		return ErrInvalidCredentials
 	}
 	s.account.MFASecret = secret
@@ -24,7 +24,7 @@ func (s *Store) EnableMFA(secret string) error {
 func (s *Store) VerifyMFA(code string, now time.Time) bool {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	if s.account == nil || s.account.MFASecret == "" {
+	if s.account == nil || s.account.MFASecret == "" || len(code) != 6 {
 		return false
 	}
 	for offset := int64(-1); offset <= 1; offset++ {
@@ -37,7 +37,7 @@ func (s *Store) VerifyMFA(code string, now time.Time) bool {
 
 func totp(secret string, counter int64) string {
 	decoded, err := base32.StdEncoding.WithPadding(base32.NoPadding).DecodeString(strings.ToUpper(strings.ReplaceAll(secret, " ", "")))
-	if err != nil {
+	if err != nil || len(decoded) == 0 {
 		return ""
 	}
 	var input [8]byte

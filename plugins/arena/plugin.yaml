@@ -55,3 +55,35 @@ routes:
     helper: sdk.context
     capability: arena.result
     resource_field: roomId
+
+admin:
+  version: 1
+  pages:
+    - id: matches
+      title: Arena matches
+      extends: rooms/operations
+      extends_slot: tab
+      inventory:
+        kind: state_keys
+        capability: arena.snapshot
+        title: Matches
+        select_field: roomId
+      refresh_on: [arena.started, arena.finished]
+      actions:
+        - title: Inspect match
+          operation: arena.snapshot
+          read_only: true
+          result: {type: detail}
+          fields:
+            - {name: roomId, type: string, required: true}
+        - title: Start match
+          operation: arena.start
+          fields:
+            - {name: roomId, type: string, required: true}
+            - {name: players, type: json, required: true}
+        - title: Finish match
+          operation: arena.result
+          fields:
+            - {name: roomId, type: string, required: true}
+            - {name: winnerIds, type: json, required: true}
+            - {name: completedAt, type: string, required: true}

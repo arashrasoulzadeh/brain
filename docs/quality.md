@@ -11,12 +11,13 @@ Passing tests and coverage are different measures. A coverage gate does not prov
 | Flutter client | Executed source lines per file | 100% |
 | Kotlin client | Lines, branches, instructions and methods per class | 100% |
 | Plugin manifests | Generated reference for each manifest | 100% |
-| Plugin guides | Developer and administrator notes for every manifest | 100% |
+| Plugin developer and administrator guides | One guide per discovered manifest and example | 100% |
+| HTTP/admin/function commands, admin pages and SDK exports | Exact source inventory audit | 100% |
 | Narrative docs | Review all public interfaces, examples and operating procedures | 100% audit target |
 
-The CI coverage workflow publishes raw profiles and HTML reports even when the target is missed. Do not exclude code merely to reach the target. For TypeScript, the coverage inventory compiles sources to distinguish erased type-only modules from executable code, records both categories, and fails if any executable source is missing from the report. Type-only modules are not counted as either covered or uncovered statements. Go's standard profile measures statements, not branches.
+The CI coverage workflow publishes raw profiles and HTML reports even when the target is missed. Do not exclude code merely to reach the target. Go's standard profile measures statements, not branches. Unit, CLI subprocess and packaged-runtime profiles are merged by source block before the existing strict statement gate. TypeScript coverage records compiler-erased modules separately and verifies that every executable source appears in the report. Admin DOM tests run alongside the plugin and client suites.
 
-Go CLI integration and packaged runtime smoke tests use an instrumented executable and merge source blocks with unit-test coverage. The host shuts down gracefully on SIGTERM, allowing Go coverage counters to flush. Admin component rendering, transport and DOM interaction tests are included in the TypeScript profile. The separate browser verification workflow runs Chromium against the generated documentation and the real Next.js admin UI with a controlled API fixture; it publishes screenshots and logs. Browser bundle coverage and shell script coverage remain separate unfinished measurement areas. Mobile coverage gates must pass on each revision before their targets are considered achieved. The existing Compose, sandbox, race, lint and type checks remain required. Do not claim repository-wide 100% coverage from partial coverage reports.
+Shell scripts, browser end-to-end flows and production integration coverage are separate unfinished measurement areas. Flutter and Kotlin coverage gates are configured but must pass before their targets are considered achieved. The existing Compose, sandbox, race, lint and type checks remain required. Do not claim repository-wide 100% coverage from partial coverage reports.
 
 ## Reproduce the site
 
@@ -34,4 +35,4 @@ mkdocs build --strict
 mkdocs serve
 ```
 
-The generated site uses existing Markdown guides and the host's own manifest documentation command. Do not edit the generated directories. Update the original Markdown or manifest and rebuild. The Pages workflow builds PR previews and deploys only from main.
+The generated site uses existing Markdown guides and the host's own manifest documentation command in Markdown and TypeScript formats. The documentation inventory test fails for missing or stale HTTP routes, admin commands, function commands, plugin guides or undocumented public SDK exports. The build also requires developer, administrator, examples and limitations sections in every plugin guide. Inventory coverage is not proof that every narrative claim is correct; review examples and operational procedures independently. Do not edit the generated directories. Update the original Markdown or manifest and rebuild. The Pages workflow builds PR previews and deploys only from main.

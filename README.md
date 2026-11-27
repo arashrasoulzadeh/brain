@@ -19,7 +19,29 @@ See the [roadmap](roadmap.md), [developer guide](docs/developers.md), and [admin
 
 ## Local development
 
-Docker is not required for ordinary local development. Run:
+With Go, Node.js 20+, npm and Make installed, install the locked Node dependencies once:
+
+```bash
+make setup
+```
+
+Start the server and admin in separate terminals:
+
+```bash
+make dev server
+make dev admin
+```
+
+The Go server listens on `http://127.0.0.1:18082` and uses local SQLite storage at `.local/brain.sqlite`. The Next.js admin listens on `http://127.0.0.1:3000` and proxies to the server. Stop either process with Ctrl+C. The local startup script supports `HTTP_ADDRESS`, `PROJECTS_FILE`, `OPERATOR_USERNAME` and `OPERATOR_SECRET` overrides. The admin supports `ADMIN_HOST`, `ADMIN_PORT` and `BRAIN_API_ORIGIN`, for example:
+
+```bash
+make dev server HTTP_ADDRESS=127.0.0.1:18090
+make dev admin ADMIN_PORT=3100 BRAIN_API_ORIGIN=http://127.0.0.1:18090
+```
+
+Development requires no Docker on macOS or Linux. On macOS, `make dev server` selects the built-in Seatbelt (`/usr/bin/sandbox-exec`) worker adapter, with loopback-only HTTP, an allowlist of readable runtime/plugin paths, denied network access, and bounded heap/invocation time. This is a local-development adapter for trusted checkout code, not Linux-equivalent production isolation; Seatbelt's command-line interface is deprecated, and macOS does not enforce the same address-space or process limits. Startup fails closed if the adapter cannot run. On Linux (including WSL2), install bubblewrap and enable user namespaces; the Linux production sandbox is unchanged. Do not use the local script's default credentials in production.
+
+Run the unit tests with:
 
 ```bash
 GOCACHE=/tmp/brain-go-cache go test ./...

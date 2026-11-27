@@ -133,7 +133,35 @@ func persistFunctionDraftsLocked() error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(functionDraftsPath, data, 0o640)
+	temporary, err := os.CreateTemp(filepath.Dir(functionDraftsPath), ".function-drafts-*")
+	if err != nil {
+		return err
+	}
+	defer os.Remove(temporary.Name())
+	if _, err := temporary.Write(data); err != nil {
+		_ = temporary.Close()
+		return err
+	}
+	if err := temporary.Close(); err != nil {
+		return err
+	}
+	return os.Rename(temporary.Name(), functionDraftsPath)
+}
+
+// Save under the draft lock and restore the last admitted state on a failed write.
+func saveFunctionDraftLocked(draft FunctionDraft) error {
+	key := draft.ProjectID + ":" + draft.Name
+	previous, exists := functionDrafts.items[key]
+	functionDrafts.items[key] = draft
+	if err := persistFunctionDraftsLocked(); err != nil {
+		if exists {
+			functionDrafts.items[key] = previous
+		} else {
+			delete(functionDrafts.items, key)
+		}
+		return err
+	}
+	return nil
 }
 
 func (s *LifecycleService) CreateFunctionDraft(actor operator.Actor, projectID, name, source string) (FunctionDraft, error) {
@@ -184,8 +212,7 @@ func (s *LifecycleService) CreateFunctionDraftWithSettings(actor operator.Actor,
 	draft := FunctionDraft{ProjectID: projectID, Name: strings.TrimSpace(name), Source: source, Version: version, Public: public, Permissions: append([]string(nil), permissions...), Method: method, CreatedAt: time.Now().UTC()}
 	functionDrafts.Lock()
 	loadFunctionDraftsLocked()
-	functionDrafts.items[projectID+":"+draft.Name] = draft
-	if err := persistFunctionDraftsLocked(); err != nil {
+	if err := saveFunctionDraftLocked(draft); err != nil {
 		functionDrafts.Unlock()
 		return FunctionDraft{}, err
 	}
@@ -218,8 +245,7 @@ func (s *LifecycleService) UpdateFunctionDraft(actor operator.Actor, projectID, 
 	}
 	draft.Method = method
 	draft.Version = version
-	functionDrafts.items[key] = draft
-	if err := persistFunctionDraftsLocked(); err != nil {
+	if err := saveFunctionDraftLocked(draft); err != nil {
 		return FunctionDraft{}, err
 	}
 	return draft, nil
@@ -262,8 +288,7 @@ func (s *LifecycleService) UpdateFunctionPermissions(actor operator.Actor, proje
 	}
 	draft.Permissions = append([]string(nil), permissions...)
 	draft.Public = public
-	functionDrafts.items[projectID+":"+draft.Name] = draft
-	return persistFunctionDraftsLocked()
+	return saveFunctionDraftLocked(draft)
 }
 
 func (s *LifecycleService) PublishFunction(actor operator.Actor, projectID, name, method string) (FunctionDraft, error) {
@@ -304,8 +329,7 @@ func persistPublishedFunction(projectID, name string) (FunctionDraft, error) {
 	draft.Public = true
 	draft.Method = method
 	draft.PublishedAt = &now
-	functionDrafts.items[projectID+":"+draft.Name] = draft
-	if err := persistFunctionDraftsLocked(); err != nil {
+	if err := saveFunctionDraftLocked(draft); err != nil {
 		return FunctionDraft{}, err
 	}
 	return draft, nil
