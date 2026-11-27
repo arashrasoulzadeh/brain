@@ -2,11 +2,13 @@ package plugin_test
 
 import (
 	"context"
+	"crypto/rand"
 	"database/sql"
 	"errors"
 	"math"
 	"path/filepath"
 	"testing"
+	"testing/iotest"
 	"time"
 
 	"brain/internal/plugin"
@@ -76,6 +78,60 @@ func TestObservationQueueRetryExhaustionAndCorruptStorage(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer db.Close()
+	func() {
+		original := rand.Reader
+		defer func() { rand.Reader = original }()
+		rand.Reader = iotest.ErrReader(errors.New("entropy unavailable"))
+		r.PublishHostObservation("alpha", "publisher", "changed", map[string]any{"count": 1, "ready": true})
+	}()
+	if n, err := r.DrainObservations(now.Add(time.Minute), 10); err != nil || n != 0 {
+		t.Fatalf("event without identity enqueued: %d %v", n, err)
+	}
+	if err := r.BindWorker("alpha", subscriber.ID, subscriber.Version, &storageCommitWorker{handle: func(request plugin.WorkerRequest) plugin.WorkerResponse {
+		return plugin.WorkerResponse{Protocol: request.Protocol, Success: true}
+	}}); err != nil {
+		t.Fatal(err)
+	}
+	for _, trigger := range []string{
+		"CREATE TRIGGER broken BEFORE INSERT ON plugin_observation_receipts BEGIN SELECT RAISE(FAIL,'receipt failed'); END",
+		"CREATE TRIGGER broken BEFORE DELETE ON plugin_observation_queue BEGIN SELECT RAISE(FAIL,'delete failed'); END",
+	} {
+		r.PublishHostObservation("alpha", "publisher", "changed", map[string]any{"count": 1, "ready": true})
+		if _, err := db.Exec(trigger); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := r.DrainObservations(now.Add(time.Minute), 10); err == nil {
+			t.Fatal("failed outbox transaction reported successful delivery")
+		}
+		if _, err := db.Exec(`DROP TRIGGER broken`); err != nil {
+			t.Fatal(err)
+		}
+		if n, err := r.DrainObservations(now.Add(time.Minute), 10); err != nil || n != 1 {
+			t.Fatalf("failed delivery not retained for retry: %d %v", n, err)
+		}
+	}
+	if receipts, err := storage.ObservationReceipts("alpha", subscriber.ID, 10); err != nil || len(receipts) != 2 {
+		t.Fatalf("transaction receipt count: %v %v", receipts, err)
+	}
+	if _, err := db.Exec(`DELETE FROM plugin_observation_receipts`); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.BindWorker("alpha", subscriber.ID, subscriber.Version, &storageCommitWorker{handle: func(request plugin.WorkerRequest) plugin.WorkerResponse {
+		return plugin.WorkerResponse{Protocol: request.Protocol, ErrorCode: "unavailable"}
+	}}); err != nil {
+		t.Fatal(err)
+	}
+	r.PublishHostObservation("alpha", "publisher", "changed", map[string]any{"count": 1, "ready": true})
+	if _, err := db.Exec(`CREATE TRIGGER broken BEFORE UPDATE ON plugin_observation_queue BEGIN SELECT RAISE(FAIL,'retry failed'); END`); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := r.DrainObservations(now.Add(time.Minute), 10); err == nil {
+		t.Fatal("failed retry reported success")
+	}
+	if _, err := db.Exec(`DROP TRIGGER broken; DELETE FROM plugin_observation_queue`); err != nil {
+		t.Fatal(err)
+	}
+
 	if _, err := db.Exec(`INSERT INTO plugin_observation_receipts VALUES ('alpha','receiver','bad',0,'invalid')`); err != nil {
 		t.Fatal(err)
 	}
