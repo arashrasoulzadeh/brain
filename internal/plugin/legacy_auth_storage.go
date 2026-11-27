@@ -275,9 +275,19 @@ func (p legacyStoragePlanner) prepareAuthStorage(request WorkerRequest) (WorkerR
 			if current == nil || *current != *session || current.ExpiresAt <= time.Now().UnixMilli() {
 				return errAuthSession
 			}
+			var identity map[string]string
+			if json.Unmarshal(response.Payload, &identity) != nil || len(identity) != 1 {
+				return ErrInvalidWorkerRequest
+			}
 			if request.Operation == "auth.identity" {
+				if identity["userId"] != project+":"+username {
+					return ErrInvalidWorkerRequest
+				}
 				public = map[string]string{"userId": project + ":" + username}
 			} else {
+				if identity["username"] != username {
+					return ErrInvalidWorkerRequest
+				}
 				public = map[string]string{"username": username}
 			}
 		case "auth.admin.accounts":

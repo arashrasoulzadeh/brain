@@ -31,19 +31,7 @@ func RecordRecovery(path string, record RecoveryRecord) error {
 	if err := record.Validate(); err != nil {
 		return err
 	}
-	contents, err := json.Marshal(record)
-	if err != nil {
-		return err
-	}
-	temporaryPath := path + ".tmp"
-	if err := os.WriteFile(temporaryPath, append(contents, '\n'), 0o600); err != nil {
-		return err
-	}
-	if err := os.Rename(temporaryPath, path); err != nil {
-		_ = os.Remove(temporaryPath)
-		return err
-	}
-	return nil
+	return recordJSON(path, record)
 }
 
 func ReadRecovery(path string) (RecoveryRecord, error) {
