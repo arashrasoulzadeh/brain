@@ -5,11 +5,31 @@ on:
     paths:
       - 'admin-nextjs/**'
       - 'scripts/test-admin-browser.mjs'
+      - 'scripts/test-admin-live.mjs'
+      - 'scripts/admin-ci-backend-relay.mjs'
+      - 'internal/**'
+      - 'cmd/**'
+      - 'plugins/**'
+      - 'Dockerfile'
+      - 'go.mod'
+      - 'go.sum'
+      - 'scripts/typescript-worker.mjs'
+      - 'scripts/run-sandboxed-typescript-worker.sh'
       - '.github/workflows/admin-browser.yml'
   pull_request:
     paths:
       - 'admin-nextjs/**'
       - 'scripts/test-admin-browser.mjs'
+      - 'scripts/test-admin-live.mjs'
+      - 'scripts/admin-ci-backend-relay.mjs'
+      - 'internal/**'
+      - 'cmd/**'
+      - 'plugins/**'
+      - 'Dockerfile'
+      - 'go.mod'
+      - 'go.sum'
+      - 'scripts/typescript-worker.mjs'
+      - 'scripts/run-sandboxed-typescript-worker.sh'
       - '.github/workflows/admin-browser.yml'
 
 permissions:
@@ -17,10 +37,12 @@ permissions:
 
 jobs:
   browser:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    # Match the packaged production-runtime job's sandbox-capable runner.
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
     env:
       BRAIN_ADMIN_ORIGIN: http://127.0.0.1:3100
+      BRAIN_API_ORIGIN: http://127.0.0.1:18082
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -51,6 +73,34 @@ jobs:
           done
           curl --fail --silent --show-error "$BRAIN_ADMIN_ORIGIN" > /dev/null
           node scripts/test-admin-browser.mjs
+      - name: Verify admin against the packaged backend
+        run: |
+          docker build -t brain:admin-browser .
+          container=$(docker run -d --privileged --network none -e HTTP_ADDRESS=:8080 -e OPERATOR_USERNAME=ci-operator -e OPERATOR_SECRET=ci-fixture-only -e PROJECTS_FILE=/workspace/.local/brain.sqlite brain:admin-browser)
+          for attempt in $(seq 1 5); do
+            if [ "$(docker inspect -f '{{.State.Running}}' "$container")" != true ]; then
+              docker logs "$container" 2>&1 || true
+              docker rm -f "$container" >/dev/null 2>&1 || true
+              exit 1
+            fi
+            sleep 1
+          done
+          node scripts/admin-ci-backend-relay.mjs "$container" > "$RUNNER_TEMP/brain-relay.log" 2>&1 &
+          relay=$!
+          (cd admin-nextjs && exec npm run start -- --hostname 127.0.0.1 --port 3100) > "$RUNNER_TEMP/brain-admin-live.log" 2>&1 &
+          server=$!
+          cleanup() {
+            kill "$server" "$relay" 2>/dev/null || true
+            docker logs "$container" 2>&1 | tee "$RUNNER_TEMP/brain-backend.log" || true
+            docker rm -f "$container" >/dev/null 2>&1 || true
+          }
+          trap cleanup EXIT
+          for i in $(seq 1 60); do
+            if curl --fail --silent "$BRAIN_ADMIN_ORIGIN" > /dev/null; then break; fi
+            sleep 1
+          done
+          curl --fail --silent --show-error "$BRAIN_ADMIN_ORIGIN" > /dev/null
+          node scripts/test-admin-live.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -58,3 +108,6 @@ jobs:
           path: |
             ${{ runner.temp }}/brain-admin-screenshots
             ${{ runner.temp }}/brain-admin.log
+            ${{ runner.temp }}/brain-admin-live.log
+            ${{ runner.temp }}/brain-backend.log
+            ${{ runner.temp }}/brain-relay.log
