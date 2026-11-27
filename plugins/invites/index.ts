@@ -13,6 +13,14 @@ export type Invite = {
 
 const routeInvites = new Map<string, Invite>();
 
+type InviteSnapshot = { records?: Invite[]; idPart?: string; codePart?: string; now?: number };
+function storedInvites(payload: Record<string, unknown>): Map<string, Invite> {
+  if (!Object.hasOwn(payload, "_brainInvites")) return routeInvites;
+  const snapshot = payload._brainInvites as InviteSnapshot;
+  if (!snapshot || !Array.isArray(snapshot.records)) throw new Error("invalid stored invitations");
+  return new Map(snapshot.records.map(record => [record.id, record]));
+}
+
 export class InviteCreator {
   constructor(
     private readonly invites: Map<string, Invite>,
@@ -90,10 +98,18 @@ export function create(context: PluginContext, input: unknown): Invite {
   const ttl = payload.ttlSeconds ?? 60;
   if (typeof ttl !== "number" || !Number.isSafeInteger(ttl) || ttl < 1 || ttl > 86400)
     throw new Error("invalid invite ttl");
-  const now = Date.now();
-  for (const [id, invite] of routeInvites) if (invite.expiresAt <= now) routeInvites.delete(id);
-  if (routeInvites.size >= 4096) throw new Error("invite capacity reached");
-  const invite = new InviteCreator(routeInvites, randomUUID).create(context.project.id, roomId, playerId, ttl, now);
+  const stored = payload._brainInvites as InviteSnapshot | undefined;
+  const now = stored?.now ?? Date.now();
+  const invites = stored ? new Map<string, Invite>() : routeInvites;
+  for (const [id, invite] of invites) if (invite.expiresAt <= now) invites.delete(id);
+  if (invites.size >= 4096) throw new Error("invite capacity reached");
+  let nextId = randomUUID as () => string;
+  if (stored) {
+    if (!stored.idPart || !stored.codePart || !Number.isSafeInteger(stored.now)) throw new Error("invalid stored invitation allocation");
+    const parts = [stored.idPart, stored.codePart];
+    nextId = () => parts.shift()!;
+  }
+  const invite = new InviteCreator(invites, nextId).create(context.project.id, roomId, playerId, ttl, now);
   context.plugins.observe.fire("created", {});
   return invite;
 }
@@ -106,10 +122,11 @@ export function accept(context: PluginContext, input: unknown): Invite {
   const code = typeof payload.code === "string" ? payload.code : "";
   if (Boolean(inviteId) === Boolean(code) || inviteId.length > 256 || code.length > 256)
     throw new Error("invite unavailable");
-  const candidate = inviteId ? routeInvites.get(inviteId) : [...routeInvites.values()].find(item => item.code === code);
+  const invites = storedInvites(payload);
+  const candidate = inviteId ? invites.get(inviteId) : [...invites.values()].find(item => item.code === code);
   if (!candidate || candidate.projectId !== context.project.id || candidate.roomId !== roomId)
     throw new Error("invite unavailable");
-  const invite = new InviteAccepter(routeInvites).accept(candidate.id, context.project.id, playerId);
+  const invite = new InviteAccepter(invites).accept(candidate.id, context.project.id, playerId);
   context.plugins.observe.fire("accepted", {});
   return { ...invite, code: "" };
 }
@@ -118,10 +135,11 @@ export function cancel(context: PluginContext, input: unknown) {
   const payload = requireProjectInput(context, input);
   const roomId = boundedId(payload.roomId, "room id");
   const id = requiredString(payload.inviteId, "invite id is required");
-  const invite = routeInvites.get(id);
+  const invites = storedInvites(payload);
+  const invite = invites.get(id);
   if (!invite || invite.projectId !== context.project.id || invite.roomId !== roomId || invite.used || invite.expiresAt <= Date.now())
     throw new Error("invite unavailable");
-  routeInvites.delete(id);
+  invites.delete(id);
   context.plugins.observe.fire("cancelled", {});
   return { id, cancelled: true };
 }
@@ -132,7 +150,7 @@ export function inspect(context: PluginContext, input: unknown) {
   const roomId = boundedId(payload.roomId, "room id");
   requireOperator(context, "invites.inspect", roomId);
   const now = Date.now();
-  return [...routeInvites.values()].filter(invite => invite.projectId === context.project.id && invite.roomId === roomId)
+  return [...storedInvites(payload).values()].filter(invite => invite.projectId === context.project.id && invite.roomId === roomId)
     .map(invite => ({ id: invite.id, roomId: invite.roomId, targetPlayerId: invite.targetPlayerId,
       expiresAt: new Date(invite.expiresAt).toISOString(), status: invite.used ? "accepted" : invite.expiresAt <= now ? "expired" : "pending" }));
 }

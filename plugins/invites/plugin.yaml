@@ -65,6 +65,7 @@ admin:
           result: {type: table, page_size: 25}
           fields:
             - {name: roomId, type: string, required: true}
+            - {name: after, label: After invitation ID, type: string}
         - title: Cancel invitation
           operation: invites.cancel
           fields:

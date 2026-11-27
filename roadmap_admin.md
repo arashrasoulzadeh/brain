@@ -45,3 +45,5 @@ Admin-panel and operator documentation work after backend release gates pass.
 - [x] Persist arena match snapshots, input sequence counters and results through worker recovery; expose a scoped match inventory.
 
 - [x] Persist auth accounts and token digests, redact admin projections, and verify recovery and durable revocation.
+
+- [x] Persist invitations with digest-only code storage and single-use conditional writes.
