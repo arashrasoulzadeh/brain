@@ -187,3 +187,11 @@ test("reconnect rejects malformed persisted games and cross-project access", () 
   assert.throws(() => reconnectTicTacToe(JSON.stringify({ ...state, roomId: "bad/room" }), "dev", "a"), /invalid project room id/);
   assert.deepEqual(reconnectTicTacToe(encoded, "dev", "a"), state);
 });
+
+test("second player wins and completed games are not draws", () => {
+  let state = initializeTicTacToe("dev", "r2", "a", "b");
+  for (const cell of [0, 3, 1, 4, 8, 5])
+    state = validateTicTacToeMove(state, state.turn, cell);
+  assert.equal(ticTacToeWinner(state), "b");
+  assert.equal(ticTacToeDraw(state), false);
+});
