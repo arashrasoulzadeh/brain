@@ -84,6 +84,9 @@ func (r *Registry) AuthorizeHostOperation(projectID, principal, id, operation, r
 	r.installationMu.RLock()
 	defer r.installationMu.RUnlock()
 	if !r.accessInstalledLocked(projectID) {
+		if strings.HasPrefix(principal, "user:") {
+			return ErrActorDenied
+		}
 		return nil
 	}
 	if !validAccessPrincipal(principal) || id == accessPluginID {
