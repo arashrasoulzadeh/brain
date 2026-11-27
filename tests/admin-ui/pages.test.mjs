@@ -3,6 +3,7 @@ import { test } from "node:test";
 import { app, mount, find, button, click, change, text, session, stubFetch, json, navigations } from "./dom-harness.mjs";
 
 const Functions = app("functions/view.tsx").default;
+const FunctionRunner = app("functions/function-runner.tsx").FunctionRunner;
 const Workers = app("workers/view.tsx").default;
 const Files = app("components/legacy-admin-page.tsx").default;
 
@@ -204,4 +205,26 @@ test("plugin details stage a new version without changing routing, and confirm n
   await click(button("Close"));
   assert.match(text(), /Promoted version: 2/);
   assert.ok(calls.every(call => call.body.project_id === "dev" && call.body.version === "2"));
+});
+
+test("sandbox runner rejects invalid JSON and sends the current source in a scoped operator request", async () => {
+  session();
+  const calls = [];
+  stubFetch((url, init) => { calls.push({ url, body: JSON.parse(init.body), headers: init.headers }); return json({ valid: true, result: { ok: true } }); });
+  const source = "export default async function handler(input) { return input; }";
+  await mount(FunctionRunner, { project: "dev", name: "echo", source });
+  await change(find("textarea"), "{");
+  await click(button("Run test"));
+  assert.match(text(), /Input must be valid JSON/);
+  assert.equal(calls.length, 0);
+  await change(find("textarea"), '{"value":42}');
+  await click(button("Run test"));
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].url, "/dev/admin/functions");
+  assert.equal(calls[0].headers.authorization, "Bearer fixture-token");
+  assert.deepEqual(calls[0].body, { operation: "functions.run", project_id: "dev", name: "echo", source, input: { value: 42 } });
+  assert.match(text(), /Execution succeeded/);
+  assert.match(text(), /"ok": true/);
+  await change(find("textarea"), "null");
+  assert.match(text(), /previous source or input/);
 });

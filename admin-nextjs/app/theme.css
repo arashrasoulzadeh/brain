@@ -243,3 +243,10 @@ form > button[type=submit], form > button:not([type]) { margin-top: 14px; }
 .function-catalog-table time, .function-catalog-table .status-pill { white-space: nowrap; }
 .function-catalog-pagination { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 @media (max-width: 600px) { .function-catalog-filters label:first-child { grid-column: 1 / -1; } }
+
+/* Studio controls share the existing control-plane palette. */
+.function-runner-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 12px; }
+.function-runner-grid textarea { width: 100%; font-family: ui-monospace, monospace; }
+.function-runner-result { min-width: 0; border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; }
+.function-runner-result h3 { margin-top: 0; }
+.function-catalog .function-settings { grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr)); }

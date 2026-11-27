@@ -1,11 +1,13 @@
 "use client";
-import { adminHeaders, readAdminSession, preferredAdminProject, projectAdminURL, systemAdminURL, projectUIURL, systemUIURL, adminUIContext } from "../../lib/admin-api";
+import { adminHeaders, readAdminSession, preferredAdminProject, projectAdminURL, systemAdminURL, projectUIURL, systemUIURL, adminUIContext, ADMIN_SESSION_CHANGED, ADMIN_PROJECT_CHANGED } from "../../lib/admin-api";
 import { useEffect, useRef, useState } from "react";
 import { useParams, usePathname } from "next/navigation";
 import Link from "next/link";
 import { AdminDialog, AdminProgress } from "../../components/admin-dialog";
 import { AdminPageFrame } from "../../components/admin-chrome";
 import { FunctionEditor } from "../function-editor";
+import { FunctionRunner } from "../function-runner";
+import { functionPermissions, functionVersion } from "../../lib/function-studio";
 import { filterFunctionLogs, functionLogMetrics, type FunctionLog as Log, type LogOutcome } from "../../lib/function-inspection";
 type Draft = {
   project_id: string;
@@ -17,12 +19,19 @@ type Draft = {
   method?: string;
   published_at?: string;
 };
-type Deployment = { version: number; method: string; route: string; published_at: string };
 export default function FunctionDetailPage() {
   const params = useParams<{ name: string }>();
   const { namespace: requestedProject } = adminUIContext(usePathname());
   const name = decodeURIComponent(params.name ?? "");
-  return <AdminPageFrame activePage="functions" title={name} requiredPluginID="functions"><FunctionDetail key={(requestedProject ?? "") + ":" + name} name={name} requestedProject={requestedProject} /></AdminPageFrame>;
+  const [epoch, setEpoch] = useState(0);
+  useEffect(() => {
+    const changed = () => setEpoch(value => value + 1);
+    window.addEventListener(ADMIN_SESSION_CHANGED, changed);
+    window.addEventListener(ADMIN_PROJECT_CHANGED, changed);
+    return () => { window.removeEventListener(ADMIN_SESSION_CHANGED, changed); window.removeEventListener(ADMIN_PROJECT_CHANGED, changed); };
+  }, []);
+  const scope = (requestedProject ?? "") + ":" + name + ":" + epoch;
+  return <AdminPageFrame key={scope} activePage="functions" title={name} requiredPluginID="functions"><FunctionDetail key={scope} name={name} requestedProject={requestedProject} /></AdminPageFrame>;
 }
 function FunctionDetail({ name, requestedProject }: { name: string; requestedProject?: string }) {
   const [loading, setLoading] = useState(true);
@@ -35,8 +44,12 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
   const [project, setProject] = useState("");
   const [draft, setDraft] = useState<Draft | null>(null);
   const [savedSource, setSavedSource] = useState("");
+  const [savedVersion, setSavedVersion] = useState(1);
+  const [versionInput, setVersionInput] = useState("1");
+  const [permissionInput, setPermissionInput] = useState("");
+  const [reload, setReload] = useState(0);
   const [discardPending, setDiscardPending] = useState(false);
-  const dirty = draft !== null && draft.source !== savedSource;
+  const dirty = draft !== null && (draft.source !== savedSource || versionInput !== String(savedVersion));
   useEffect(() => {
     if (!dirty) return;
     function warn(event: BeforeUnloadEvent) { event.preventDefault(); event.returnValue = ""; }
@@ -44,7 +57,6 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
     return () => window.removeEventListener("beforeunload", warn);
   }, [dirty]);
   const [logs, setLogs] = useState<Log[]>([]);
-  const [deployments, setDeployments] = useState<Deployment[]>([]);
   const [tab, setTab] = useState("editor");
   const [message, setMessage] = useState("");
   const [route, setRoute] = useState("");
@@ -74,10 +86,11 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
     if (signal.aborted || readAdminSession() !== token) return;
     setProject(active);
     setSavedSource(current?.source ?? "");
+    setSavedVersion(current?.version ?? 1);
+    setVersionInput(String(current?.version ?? 1));
     setDraft(current && preserveSource !== undefined ? { ...current, source: preserveSource } : current);
     const currentRoute = current?.published_at ? window.location.origin + "/" + encodeURIComponent(selected?.Slug || active) + "/functions/" + encodeURIComponent(name) : "";
     setRoute(currentRoute);
-    setDeployments(current?.published_at ? [{ version: current.version ?? 1, method: current.method ?? "POST", route: currentRoute, published_at: current.published_at }] : []);
   }
   useEffect(() => {
     const controller = new AbortController();
@@ -87,9 +100,9 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
     if (!token) { setLoadError("Sign in to continue"); setLoading(false); return () => controller.abort(); }
     void refresh(token).catch(reason => { if (!controller.signal.aborted) setLoadError(String(reason)); }).finally(() => { if (!controller.signal.aborted) setLoading(false); });
     return () => { controller.abort(); if (lifetime.current === controller) lifetime.current = null; };
-  }, [name, requestedProject]);
+  }, [name, requestedProject, reload]);
   useEffect(() => {
-    if (!session || !project) return;
+    if (!session || !project || !draft) return;
     const controller = new AbortController();
     let timer: ReturnType<typeof setTimeout>;
     async function poll() {
@@ -103,9 +116,9 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
     }
     void poll();
     return () => { controller.abort(); clearTimeout(timer); };
-  }, [project, session, name, logRefresh]);
+  }, [project, session, name, logRefresh, Boolean(draft)]);
   async function savePermissions(permissions: string[], publicRoute: boolean) {
-    if (!draft || publishing) return;
+    if (!draft || publishing || validating || readAdminSession() !== session || lifetime.current?.signal.aborted !== false) return;
     setPublishing(true); setMessage("");
     try {
       const response = await fetch(projectAdminURL(project, "functions"), {
@@ -113,16 +126,20 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
         body: JSON.stringify({ operation: "functions.permissions", project_id: project, name: draft.name, permissions, public: publicRoute }),
       });
       if (!response.ok) throw new Error(await response.text());
+      if (lifetime.current?.signal.aborted !== false || readAdminSession() !== session) return;
       setDraft(previous => previous ? { ...previous, permissions, public: publicRoute } : previous);
+      setPermissionInput("");
       setMessage("Settings saved."); setSettingsPending(undefined);
     } catch (reason) { setMessage(String(reason)); }
     finally { setPublishing(false); }
   }
   async function publish() {
-    if (publishing || !draft || !project || !session) {
+    if (publishing || validating || !draft || !project || !session || readAdminSession() !== session || lifetime.current?.signal.aborted !== false) {
       setMessage("Select an active project and sign in before publishing.");
       return;
     }
+    const version = functionVersion(versionInput);
+    if (version === undefined) { setMessage("Version must be a positive integer."); return; }
     if (!draft.name.trim() || !draft.source.trim()) {
       setMessage("Cannot publish: function name and source are required.");
       return;
@@ -139,14 +156,15 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
           project_id: project,
           name: draft.name,
           source: draft.source,
-          function_version: draft.version ?? 1,
+          function_version: version,
         }),
       });
       if (!update.ok) {
         setMessage((await update.text()) || `Source save failed (${update.status}).`);
         return;
       }
-      setSavedSource(draft.source);
+      if (lifetime.current?.signal.aborted !== false || readAdminSession() !== session) return;
+      setSavedSource(draft.source); setSavedVersion(version);
       const response = await fetch(projectAdminURL(project, "functions"), {
         method: "POST",
         headers, signal: lifetime.current?.signal,
@@ -154,39 +172,18 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
           operation: "functions.publish",
           project_id: project,
           name: draft.name,
-          function_version: draft.version ?? 1,
+          function_version: version,
           permissions: draft.permissions ?? ["functions.invoke"],
         }),
       });
       const body = await response.text();
-      let result: {
-        route?: string;
-        version?: number;
-        method?: string;
-        published_at?: string;
-      } | null = null;
-      try {
-        result = JSON.parse(body);
-      } catch {}
+      if (lifetime.current?.signal.aborted !== false || readAdminSession() !== session) return;
       if (!response.ok) {
         setMessage("Source saved; publication failed: " + (body || String(response.status)));
         return;
       }
       setMessage("Published current version.");
       setPublishPending(false);
-      if (result?.route) {
-        const publicRoute = `${window.location.origin}${new URL(result.route, window.location.origin).pathname}`;
-        setRoute(publicRoute);
-        setDeployments((items) => [
-          {
-            version: result.version ?? draft.version ?? 1,
-            method: result.method ?? draft.method ?? "POST",
-            route: publicRoute,
-            published_at: result.published_at ?? new Date().toISOString(),
-          },
-          ...items,
-        ]);
-      }
       await refresh(session).catch(reason => setMessage("Published; refresh failed: " + String(reason)));
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Publish request failed.");
@@ -196,7 +193,7 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
   }
   async function validateSource() {
     if (validating || publishing) return;
-    if (!draft || !project || !session) {
+    if (!draft || !project || !session || readAdminSession() !== session || lifetime.current?.signal.aborted !== false) {
       setValidationMessage("Select an active project and sign in before validating.");
       return;
     }
@@ -214,6 +211,7 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
         }),
       });
       const body = await response.text();
+      if (lifetime.current?.signal.aborted !== false || readAdminSession() !== session) return;
       if (!response.ok) {
         setValidationMessage(body || `Validation failed (${response.status}).`);
         return;
@@ -228,7 +226,7 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
   }
   async function saveDraft() {
     if (publishing || validating) return;
-    if (!draft || !project || !session) {
+    if (!draft || !project || !session || readAdminSession() !== session || lifetime.current?.signal.aborted !== false) {
       setMessage("Select an active project and sign in before saving.");
       return;
     }
@@ -246,19 +244,20 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
           project_id: project,
           name: draft.name,
           source: draft.source,
-          function_version: draft.version ?? 1,
+          function_version: version,
         }),
       });
+      if (lifetime.current?.signal.aborted !== false || readAdminSession() !== session) return;
       setMessage(response.ok ? "Changes saved." : await response.text());
-      if (response.ok) { setSavedSource(draft.source); await refresh(session).catch(reason => setMessage("Source saved; refresh failed: " + String(reason))); }
+      if (response.ok) { setSavedSource(draft.source); setSavedVersion(version); await refresh(session).catch(reason => setMessage("Source saved; refresh failed: " + String(reason))); }
     } catch (reason) { setMessage(String(reason)); } finally {
       setPublishing(false);
     }
   }
   if (loading) return <AdminProgress label="Loading function…" />;
-  if (loadError) return <p role="alert">{loadError}</p>;
+  if (loadError) return <section className="section"><p role="alert">{loadError}</p><button type="button" className="secondary" onClick={() => setReload(value => value + 1)}>Retry</button></section>;
   if (!draft) return <><p role="status">Function not found.</p>{project && <Link href={projectUIURL(project, "functions")}>Back to functions</Link>}</>;
-  const permissions = draft.permissions ?? ["functions.invoke"];
+  const permissions = draft.permissions ?? [];
   const { successful, average, p95 } = functionLogMetrics(logs);
   const orderedLogs = filterFunctionLogs(logs, logQuery, logOutcome);
   const logPageCount = Math.max(1, Math.ceil(orderedLogs.length / 10));
@@ -267,18 +266,21 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
   return (
     <>
       <div className="section-heading">
-        <Link href={project ? projectUIURL(project, "functions") : systemUIURL("projects")}>Back to functions</Link>
+        <Link href={project ? projectUIURL(project, "functions") : systemUIURL("projects")} onClick={event => { if (dirty && !window.confirm("Discard unsaved function changes?")) event.preventDefault(); }}>Back to functions</Link>
+        <span className="muted">{project} · {draft.published_at ? "Publication recorded" : "Unpublished"} · {dirty ? "Unsaved changes" : "Saved draft"}</span>
       </div>
       <div className="function-tabs">
         {[
           ["editor", "Editor"],
-          ["deployments", "Deployments"],
+          ["test", "Test"],
+          ["deployments", "Publication"],
           ["analytics", "Analytics"],
           ["logs", "Logs"],
         ].map(([value, label]) => (
           <button
             type="button"
             className={`${tab === value ? "active" : ""} rounded-lg px-4 py-2 text-sm font-semibold transition-colors`}
+            aria-pressed={tab === value}
             onClick={() => setTab(value)}
             key={value}
           >
@@ -286,18 +288,18 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
           </button>
         ))}
       </div>
-      {discardPending && <AdminDialog title="Discard unsaved source" scope={project + " · " + name} onClose={() => setDiscardPending(false)}><p>Restore the last saved source? Local edits will be lost.</p><button type="button" onClick={() => { setDraft(previous => previous ? { ...previous, source: savedSource } : previous); setValidationMessage(""); setValidationOK(false); setDiscardPending(false); }}>Discard edits</button></AdminDialog>}
-      {publishPending && <AdminDialog title="Publish current version" scope={project + " · " + name} busy={publishing} onClose={() => setPublishPending(false)}><p>Save the current source and publish version {draft.version ?? 1}?</p><p>{draft.public ? "This route is configured for public access." : "This route requires authorization."}</p><button type="button" disabled={publishing} onClick={() => void publish()}>Confirm publish</button>{publishing && <AdminProgress label="Saving and publishing…" />}{message && <p role="status">{message}</p>}</AdminDialog>}
+      {discardPending && <AdminDialog title="Discard unsaved changes" scope={project + " · " + name} onClose={() => setDiscardPending(false)}><p>Restore the last saved source and version? Local edits will be lost.</p><button type="button" onClick={() => { setDraft(previous => previous ? { ...previous, source: savedSource } : previous); setVersionInput(String(savedVersion)); setValidationMessage(""); setValidationOK(false); setDiscardPending(false); }}>Discard edits</button></AdminDialog>}
+      {publishPending && <AdminDialog title="Publish current version" scope={project + " · " + name} busy={publishing} onClose={() => setPublishPending(false)}><p>Save the current source and publish version {versionInput}?</p><p>Publishing enables public route visibility on the current host record. Caller authorization is still enforced by host policy.</p><button type="button" disabled={publishing} onClick={() => void publish()}>Confirm publish</button>{publishing && <AdminProgress label="Saving and publishing…" />}{message && <p role="status">{message}</p>}</AdminDialog>}
       {settingsPending && <AdminDialog title="Update function settings" scope={project + " · " + name} busy={publishing} onClose={() => setSettingsPending(undefined)}><p>{settingsPending.publicRoute ? "Public route enabled" : "Private route"} · Permissions: {settingsPending.permissions.join(", ") || "None"}</p><button type="button" disabled={publishing} onClick={() => void savePermissions(settingsPending.permissions, settingsPending.publicRoute)}>Confirm settings</button>{publishing && <AdminProgress label="Saving function settings…" />}{message && <p role="status">{message}</p>}</AdminDialog>}
       {tab !== "editor" && message && <p role="status">{message}</p>}
-      {logError && (tab === "logs" || tab === "analytics") && <p role="alert">{logError}</p>}
+      {logError && (tab === "logs" || tab === "analytics") && <section><p role="alert">{logError}</p><button type="button" className="secondary" onClick={() => setLogRefresh(value => value + 1)}>Refresh logs</button></section>}
       {tab === "editor" && (
         <>
           <div className="setting-toolbar flex flex-wrap items-end gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
             <div className="rounded-lg bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700">
-              Version {draft.version ?? 1}
+              <label>Source version<input type="number" min="1" step="1" value={versionInput} disabled={publishing || validating} onChange={event => setVersionInput(event.target.value)} /></label>
             </div>
-            <span role="status">{dirty ? "Unsaved source changes" : "Source saved"}</span>
+            <span role="status">{dirty ? "Unsaved draft changes" : "Source saved"}</span>
             <button type="button" className="secondary" disabled={!dirty || publishing || validating} onClick={() => setDiscardPending(true)}>Restore saved source</button>
             <div
               className={`rounded-lg px-3 py-2 text-sm font-semibold ${draft.public ? "bg-emerald-100 text-emerald-800" : "bg-slate-100 text-slate-700"}`}
@@ -309,7 +311,7 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
             </div>
             <button
               type="button"
-              disabled={publishing || validating}
+              disabled={publishing || validating || functionVersion(versionInput) === undefined}
               className="h-10 rounded-lg bg-slate-700 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
               onClick={() => void saveDraft()}
             >
@@ -350,7 +352,7 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
                 <code>{permission}</code>
                 <button
                   className="danger"
-                  disabled={publishing}
+                  disabled={publishing || validating}
                   onClick={() =>
                     setSettingsPending({ permissions: permissions.filter(candidate => candidate !== permission), publicRoute: Boolean(draft.public) })
                   }
@@ -359,7 +361,8 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
                 </button>
               </div>
             ))}
-            <button disabled={publishing || permissions.includes("functions.invoke")}
+            <div className="function-catalog-actions"><label>Additional permissions<input value={permissionInput} disabled={publishing || validating} onChange={event => setPermissionInput(event.target.value)} placeholder="Capability names, comma-separated" /></label><button type="button" disabled={publishing || validating || !functionPermissions(permissionInput).some(permission => !permissions.includes(permission))} onClick={() => setSettingsPending({ permissions: [...new Set([...permissions, ...functionPermissions(permissionInput)])], publicRoute: Boolean(draft.public) })}>Add permissions</button></div>
+            <button disabled={publishing || validating || permissions.includes("functions.invoke")}
               onClick={() =>
                 setSettingsPending({ permissions: [...permissions, "functions.invoke"], publicRoute: Boolean(draft.public) })
               }
@@ -370,7 +373,7 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
               <input
                 type="checkbox"
                 checked={Boolean(draft.public)}
-                disabled={publishing}
+                disabled={publishing || validating}
                 onChange={(event) => setSettingsPending({ permissions, publicRoute: event.target.checked })}
               />{" "}
               Public route enabled
@@ -379,48 +382,21 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
           </div>
         </>
       )}
+      {tab === "test" && <FunctionRunner project={project} name={name} source={draft.source} disabled={publishing || validating} onComplete={() => setLogRefresh(value => value + 1)} />}
       {tab === "deployments" && (
-        <div className="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Version</th>
-                <th>Method</th>
-                <th>Published URL</th>
-                <th>Published</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              {deployments.map((deployment, index) => (
-                <tr key={`${deployment.version}-${index}`}>
-                  <td>{deployment.version}</td>
-                  <td>{deployment.method}</td>
-                  <td>
-                    <code>{deployment.route}</code>
-                  </td>
-                  <td>{new Date(deployment.published_at).toLocaleString()}</td>
-                  <td>
-                    <button
-                      onClick={() =>
-                        void navigator.clipboard.writeText(
-                          new URL(deployment.route, window.location.origin).href,
-                        ).catch(() => setMessage("Could not copy URL"))
-                      }
-                    >
-                      Copy URL
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {!deployments.length && (
-            <p className="muted">No deployments yet. Publish the current version to create one.</p>
-          )}
-        </div>
+        <section className="section">
+          <h2>Current publication</h2>
+          <p className="muted">The host stores a publication timestamp on the current mutable record. It does not expose an immutable release history or a separately deployed source version.</p>
+          {draft.published_at ? <div className="table-wrap"><table><tbody>
+            <tr><th scope="row">Last published</th><td><time dateTime={draft.published_at}>{new Date(draft.published_at).toLocaleString()}</time></td></tr>
+            <tr><th scope="row">Current saved source version</th><td>{savedVersion}</td></tr>
+            <tr><th scope="row">Current stored method</th><td>{draft.method ?? "—"}</td></tr>
+            <tr><th scope="row">Configured visibility</th><td>{draft.public ? "Public" : "Private"}</td></tr>
+            <tr><th scope="row">Route</th><td><code>{route}</code> <button type="button" className="secondary" onClick={() => { if (!navigator.clipboard) { setMessage("Clipboard unavailable"); return; } void navigator.clipboard.writeText(route).then(() => setMessage("URL copied"), () => setMessage("Could not copy URL")); }}>Copy URL</button></td></tr>
+          </tbody></table></div> : <div className="empty-panel">No publication recorded. Publish from the editor when ready.</div>}
+        </section>
       )}
-      {tab === "analytics" && (
+      {tab === "analytics" && !logError && (
         <div className="metric-grid">
           <article>
             <strong>{logs.length}</strong>
@@ -439,7 +415,7 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
           <article><strong>{p95 === null ? "—" : `${p95} ms`}</strong><span>p95 latency (loaded logs)</span></article>
         </div>
       )}
-      {tab === "logs" && (
+      {tab === "logs" && !logError && (
         <section className="function-log-page">
           <div className="log-summary-grid">
             <article>
@@ -498,7 +474,7 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
                         {log.reason ?? (failed ? "Execution failed" : "Completed successfully")}
                       </td>
                       <td>{log.duration_ms} ms</td>
-                      <td>{log.method ?? draft.method ?? "—"}</td>
+                      <td>{log.method ?? "—"}</td>
                       <td>
                         <code>{log.request_id ?? "—"}</code>
                       </td>
@@ -563,7 +539,7 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
                             </div>
                             <div>
                               <small>Method</small>
-                              <strong>{log.method ?? draft.method ?? "—"}</strong>
+                              <strong>{log.method ?? "—"}</strong>
                             </div>
                             <div>
                               <small>Request ID</small>
