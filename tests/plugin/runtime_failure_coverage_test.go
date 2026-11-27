@@ -1,12 +1,14 @@
 package plugin_test
 
 import (
+	"crypto/rand"
 	"database/sql"
 	"encoding/json"
 	"errors"
 	"path/filepath"
 	"strings"
 	"testing"
+	"testing/iotest"
 
 	"brain/internal/plugin"
 )
@@ -114,6 +116,54 @@ func TestModelCRUDValidationAndCorruptStorage(t *testing.T) {
 			}
 		}
 	}
+	if _, err := db.Exec(`UPDATE plugin_model_records SET schema_version=1, fields_json='{"name":"first","count":1,"active":true}'`); err != nil {
+		t.Fatal(err)
+	}
+	read, err := invoke("read", `{"id":"one"}`)
+	if err != nil || json.Unmarshal(read.Payload, &record) != nil {
+		t.Fatalf("read restored record: %v", err)
+	}
+	update := `{"id":"one","revision":"` + record.Revision + `","fields":` + fields + `}`
+	failure := errors.New("entropy unavailable")
+	func() {
+		original := rand.Reader
+		defer func() { rand.Reader = original }()
+		rand.Reader = iotest.ErrReader(failure)
+		if _, err := invoke("create", `{"id":"two","fields":`+fields+`}`); !errors.Is(err, failure) {
+			t.Fatalf("entropy failure create: %v", err)
+		}
+		if _, err := invoke("update", update); !errors.Is(err, failure) {
+			t.Fatalf("entropy failure update: %v", err)
+		}
+	}()
+	for _, tc := range []struct{ trigger, action, payload string }{
+		{"CREATE TRIGGER broken BEFORE INSERT ON plugin_model_records BEGIN SELECT RAISE(FAIL,'insert failure'); END", "create", `{"id":"two","fields":` + fields + `}`},
+		{"CREATE TRIGGER broken BEFORE UPDATE ON plugin_model_records BEGIN SELECT RAISE(FAIL,'update failure'); END", "update", update},
+		{"CREATE TRIGGER broken BEFORE UPDATE ON plugin_model_records BEGIN SELECT RAISE(IGNORE); END", "update", update},
+	} {
+		if _, err := db.Exec(tc.trigger); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := invoke(tc.action, tc.payload); err == nil {
+			t.Fatalf("failed database operation accepted: %s", tc.action)
+		}
+		if _, err := db.Exec(`DROP TRIGGER broken`); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := storage.Close(); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := invoke("list", `{}`); err == nil {
+		t.Fatal("closed model storage accepted list")
+	}
+	if err := registry.BindSQLiteStorage(nil); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := invoke("read", `{"id":"one"}`); !errors.Is(err, plugin.ErrLifecycleStorage) {
+		t.Fatalf("missing model storage: %v", err)
+	}
+
 }
 
 type coverageWorker struct {
