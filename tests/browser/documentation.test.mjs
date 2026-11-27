@@ -22,13 +22,16 @@ test("documentation homepage, navigation, search and responsive dark/light layou
     await page.getByRole("link", { name: "Start developing", exact: true }).click();
     await page.waitForURL("**/developers.html");
     await visible(page.locator("#developer-guide"));
-    await page.goto(base + "/reference/plugins/index.html");
-    await visible(page.getByRole("heading", { name: "Plugin reference", exact: true }));
+    await page.goto(base + "/index.html", { waitUntil: "networkidle" });
+    // Follow the generated documentation links instead of assuming MkDocs URL layout.
+    await page.getByRole("link", { name: "Explore plugins", exact: true }).click();
+    await visible(page.locator(".md-content__inner").getByText("Generated from the host", { exact: false }));
     const reference = page.getByText(/^Manifest reference coverage: (\d+)\/\d+\.$/);
     await visible(reference);
     const counts = (await reference.innerText()).match(/(\d+)\/(\d+)/);
     assert.ok(counts && Number(counts[1]) > 0 && counts[1] === counts[2]);
-    await page.goto(base + "/plugin-guides/arena.html");
+    await page.locator(".md-content__inner").getByRole("link", { name: "arena", exact: true }).click();
+    await page.getByRole("link", { name: "Developer and administrator guide", exact: true }).click();
     await visible(page.getByRole("heading", { name: "Developer", exact: true }));
     await visible(page.getByRole("heading", { name: "Administrator", exact: true }));
     const search = page.locator(".md-search__input");

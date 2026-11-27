@@ -72,6 +72,10 @@ func newManifestMacOSTypeScriptWorker(platform, launcher, workerScript, descript
 	for directory := pluginRoot; directory != string(filepath.Separator); directory = filepath.Dir(directory) {
 		fmt.Fprintf(&profile, "(allow file-read-data (literal %s))\n", strconv.Quote(directory))
 	}
+	// Homebrew Node links against OpenSSL, which reads its configuration at
+	// startup. Permit only the standard configuration files, not etc trees.
+	profile.WriteString(`(allow file-read* (literal "/opt/homebrew/etc/openssl@3/openssl.cnf") (literal "/usr/local/etc/openssl@3/openssl.cnf"))
+`)
 	// The package manager's installed libraries are read-only, not the
 	// user's home or arbitrary project directories.
 	for _, directory := range []string{"/opt/homebrew/Cellar", "/opt/homebrew/opt", "/usr/local/Cellar", "/usr/local/opt", "/usr/local/lib"} {
