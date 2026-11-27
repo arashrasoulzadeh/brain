@@ -18,4 +18,4 @@ Payload snippets are arguments to the declared operation, not standalone HTTP ro
 
 ## Limitations
 
-Operator-invoked routes do not constitute an end-user realtime game server. Network membership binding must be implemented by the trusted host gateway.
+The host gateway supports authenticated player input, not a broadcast simulation protocol. Start an arena with the exact project-qualified user IDs (for example `alpha:alice` and `alpha:bob`). Grant each user `arena.connect` (`arena.snapshot` capability) and `arena.player.input` (`arena.input` capability) for that room. Obtain a ticket by POSTing `{"path":"/arena/r1/input"}` to `/alpha/ws`, then connect with the `brain.v1` and `ticket.<token>` subprotocols. Send `{"sequence":1,"payload":{}}`. The worker checks active membership and sequence on every input; the host derives the player from the verified session and persists the sequence. Reconnect requires a fresh ticket. Broadcasts, automatic matchmaking and high-frequency simulation are separate features.

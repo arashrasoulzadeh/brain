@@ -15,19 +15,21 @@ const version = "0.1.0";
 let ready = false;
 for (let attempt = 0; attempt < 30; attempt++) {
   try {
-    ready = (await fetch(backend + "/readyz", { signal: AbortSignal.timeout(1000) })).ok;
+    ready = (await fetch(backend + "/_system/readyz", { signal: AbortSignal.timeout(1000) })).ok;
     if (ready) break;
   } catch {}
   await delay(1000);
 }
 assert.ok(ready, "packaged backend never became ready");
-const login = await fetch(backend + "/admin/session", {method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify({username,secret})});
+const login = await fetch(backend + "/_system/admin/session", {method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify({username,secret})});
 assert.ok(login.ok, "fixture operator login failed");
 const {session} = await login.json();
 const headers = {authorization:"Bearer " + session, "content-type":"application/json"};
 async function action(operation, extra = {}) {
-  const response = await fetch(backend + "/admin/actions", {method:"POST", headers,
-    body:JSON.stringify({operation,project_id:project,plugin_id:"files",version,...extra}), signal:AbortSignal.timeout(20000)});
+  const body = {operation,project_id:project,plugin_id:"files",version,...extra};
+  const namespace = operation === "project.create" || operation === "plugin.readiness" ? "_system" : encodeURIComponent(body.project_id);
+  const response = await fetch(backend + "/" + namespace + "/admin/actions", {method:"POST", headers,
+    body:JSON.stringify(body), signal:AbortSignal.timeout(20000)});
   assert.ok(response.ok, operation + ": " + await response.clone().text());
   return response.json();
 }
@@ -68,7 +70,7 @@ page.on("pageerror",error=>runtimeErrors.push(error.message));
 async function visible(locator) { await locator.waitFor({state:"visible",timeout:20000}); }
 async function screenshot(name) { await page.screenshot({path:resolve(output,name+".png"),fullPage:true,animations:"disabled"}); }
 try {
-  await page.goto(origin);
+  await page.goto(origin + "/_system/ui");
   await visible(page.getByRole("heading",{name:"Welcome back"}));
   await page.getByLabel("Operator username").fill(username);
   await page.getByLabel("Secret",{exact:true}).fill(secret);
@@ -106,7 +108,7 @@ try {
   await inventory.getByRole("button",{name:"Refresh",exact:true}).click();
   await visible(inventory.getByText("No resources on this page.",{exact:true}));
   assert.equal(await inventory.getByText("visible.txt",{exact:true}).count(),0);
-  const denied = await fetch(backend+"/admin/actions",{method:"POST",headers,body:JSON.stringify({operation:"plugin.admin.query",
+  const denied = await fetch(backend+"/"+encodeURIComponent(project)+"/admin/actions",{method:"POST",headers,body:JSON.stringify({operation:"plugin.admin.query",
     project_id:project,plugin_id:"files",version,page_id:"operations",target_operation:"files.metadata",payload:{key:"visible.txt"}})});
   assert.equal(denied.status,403);
 

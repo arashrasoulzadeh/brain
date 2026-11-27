@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 set -eu
 
-readiness_url="${READINESS_URL:-http://127.0.0.1:8080/readyz}"
+readiness_url="${READINESS_URL:-http://127.0.0.1:8080/_system/readyz}"
 readiness_attempts="${READINESS_ATTEMPTS:-30}"
 readiness_delay_seconds="${READINESS_DELAY_SECONDS:-2}"
 

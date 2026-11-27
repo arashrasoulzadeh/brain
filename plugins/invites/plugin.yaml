@@ -3,6 +3,7 @@ title: Invites
 description: Project-scoped invitation functions.
 version: 0.1.0
 host_api: 1
+mount: /invites
 entrypoint: index.ts
 source_files:
   - index.ts
@@ -30,22 +31,34 @@ events:
     fields: {}
 routes:
   - operation: invites.create
+    method: POST
+    path: /create
+    auth: operator
     function: create
     helper: sdk.context
     capability: invites.create
     resource_field: roomId
   - operation: invites.accept
+    method: POST
+    path: /accept
+    auth: operator
     function: accept
     helper: sdk.context
     capability: invites.accept
     resource_field: roomId
   - operation: invites.cancel
+    method: POST
+    path: /cancel
+    auth: operator
     function: cancel
     helper: sdk.context
     capability: invites.cancel
     resource_field: roomId
 
   - operation: invites.inspect
+    method: POST
+    path: /inspect
+    auth: operator
     function: inspect
     helper: sdk.context
     capability: invites.inspect

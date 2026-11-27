@@ -5,6 +5,7 @@ go 1.23
 toolchain go1.23.0
 
 require (
+	github.com/coder/websocket v1.8.14
 	github.com/tetratelabs/wazero v1.9.0
 	gopkg.in/yaml.v3 v3.0.1
 )

@@ -1,5 +1,5 @@
 "use client";
-import { adminHeaders, readAdminSession, preferredAdminProject } from "../../lib/admin-api";
+import { adminHeaders, readAdminSession, preferredAdminProject, projectAdminURL, systemAdminURL } from "../../lib/admin-api";
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -18,9 +18,9 @@ export default function NewFunctionPage() {
   async function save(event: FormEvent) {
     event.preventDefault();
     const token = readAdminSession();
-    const projects = await (await fetch("/api/admin/projects", { headers: adminHeaders(token) })).json() as { ID: string; Active: boolean }[];
+    const projects = await (await fetch(systemAdminURL("projects"), { headers: adminHeaders(token) })).json() as { ID: string; Active: boolean }[];
     const project = preferredAdminProject(projects)?.ID ?? "";
-    const response = await fetch("/api/admin/functions", { method: "POST", headers: adminHeaders(token, { "content-type": "application/json" }), body: JSON.stringify({ operation: "functions.create", project_id: project, name, source, function_version: Number(version) || 1, public: publicRoute, permissions: permissions.split(",").map((value) => value.trim()).filter(Boolean) }) });
+    const response = await fetch(projectAdminURL(project, "functions"), { method: "POST", headers: adminHeaders(token, { "content-type": "application/json" }), body: JSON.stringify({ operation: "functions.create", project_id: project, name, source, function_version: Number(version) || 1, public: publicRoute, permissions: permissions.split(",").map((value) => value.trim()).filter(Boolean) }) });
     if (!response.ok) { setMessage(await response.text()); return; }
     router.push(`/functions/${encodeURIComponent(name)}`);
   }

@@ -16,3 +16,4 @@ Every checkbox is a small delivery step. For each checkbox:
 - Push the commit and confirm the remote contains it.
 
 Backend work is the current priority. Do not begin admin or client implementation until the backend roadmap is complete and its release gates pass.
+\n- [ ] Complete and verify the project-scoped routing migration, including CI, cross-platform clients, security tests, documentation, and a green merge to main (PR #38).\n

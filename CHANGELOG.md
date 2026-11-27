@@ -3,6 +3,12 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+
+- Breaking: all application HTTP routes require a project slug or immutable ID; server infrastructure uses `/_system`.
+- Active project plugin manifests declare host-mounted HTTP routes and authentication; public functions use `/{project}/functions/{name}`.
+- Project names, URL slugs and settings are mutable without changing immutable IDs.
+- Clients, operator UI and deployment integrations must use the new URLs.
+
 - `c6f51829` — 2026-11-27 18:48:32 +0330 — Merge pull request #39 from arashrasoulzadeh/refactor/manifest-driven-runtime
   Files: 
 - `07f5ee22` — 2026-11-27 18:44:19 +0330 — Use atomic CLI coverage mode consistently

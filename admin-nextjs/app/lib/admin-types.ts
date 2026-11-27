@@ -1,4 +1,4 @@
-export type Project = { ID: string; Active: boolean };
+export type Project = { ID: string; Active: boolean; Name?: string; Slug?: string; Settings?: Record<string, unknown> };
 export type PluginManifest = {
   ID: string;
   Title: string;
@@ -48,3 +48,5 @@ export type SystemManifest = PluginManifest & {
   Dependencies: string[];
 };
 export type Language = "en" | "fa";
+
+export type ProjectHTTPRoute = { plugin_id: string; version: string; method: string; path: string; function: string; capability: string; operation: string; auth: "public" | "user" | "operator" };

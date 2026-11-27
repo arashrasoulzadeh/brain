@@ -2,7 +2,7 @@
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AdminPageFrame } from "../../../../../components/admin-chrome";
-import { adminHeaders, readAdminSession } from "../../../../../lib/admin-api";
+import { adminHeaders, readAdminSession, projectAdminURL, systemAdminURL } from "../../../../../lib/admin-api";
 import { adminContributions, adminPageExtensions } from "../../../../../lib/admin-registry";
 import type { AdminCatalog, AdminContribution } from "../../../../../lib/admin-registry";
 import { AdminPageRenderer } from "../../../../../components/admin-renderer";
@@ -19,9 +19,9 @@ export default function ExtensionPage() {
       const token = readAdminSession();
       if (!token) throw new Error("Sign in to continue");
       const headers = adminHeaders(token), signal = controller.signal;
-      const projects = await fetch("/api/admin/projects", { headers, signal });
+      const projects = await fetch(systemAdminURL("projects"), { headers, signal });
       if (!projects.ok || !(await projects.json() as Array<{ ID: string; Active: boolean }>).some(item => item.ID === project && item.Active)) throw new Error("Project unavailable");
-      const response = await fetch("/api/admin/plugins?project_id=" + encodeURIComponent(project), { headers, signal });
+      const response = await fetch(projectAdminURL(project, "plugins"), { headers, signal });
       if (!response.ok) throw new Error("Plugin catalog unavailable");
       const catalog = await response.json() as AdminCatalog;
       const contributions = adminContributions(project, catalog);

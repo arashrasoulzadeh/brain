@@ -1,5 +1,5 @@
 "use client";
-import { adminHeaders, readAdminSession, preferredAdminProject } from "../../lib/admin-api";
+import { adminHeaders, readAdminSession, preferredAdminProject, projectAdminURL, systemAdminURL } from "../../lib/admin-api";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -47,7 +47,7 @@ export default function FunctionDetailPage() {
   const [selectedLog, setSelectedLog] = useState<Log | null>(null);
   async function refresh(token: string) {
     const headers = adminHeaders(token);
-    const projectsResponse = await fetch("/api/admin/projects", { headers });
+    const projectsResponse = await fetch(systemAdminURL("projects"), { headers });
     if (!projectsResponse.ok)
       throw new Error((await projectsResponse.text()) || "Could not load projects.");
     const projects = (await projectsResponse.json()) as { ID: string; Active: boolean }[];
@@ -55,7 +55,7 @@ export default function FunctionDetailPage() {
     setProject(active);
     if (!active) throw new Error("No active project selected.");
     const draftsResponse = await fetch(
-      `/api/admin/functions?project_id=${encodeURIComponent(active)}`,
+      projectAdminURL(active, "functions"),
       { headers },
     );
     if (!draftsResponse.ok)
@@ -64,7 +64,7 @@ export default function FunctionDetailPage() {
     const current = drafts.find((candidate) => candidate.name === name) ?? null;
     setDraft(current);
     const logsResponse = await fetch(
-      `/api/admin/function-logs?project_id=${encodeURIComponent(active)}&name=${encodeURIComponent(name)}`,
+      projectAdminURL(active, "function-logs") + "?name=" + encodeURIComponent(name),
       { headers },
     );
     if (logsResponse.ok) setLogs((await logsResponse.json()) as Log[]);
@@ -73,14 +73,14 @@ export default function FunctionDetailPage() {
         {
           version: current.version ?? 1,
           method: current.method ?? "POST",
-          route: `${window.location.origin}/public/${active}/${name}`,
+          route: `${window.location.origin}/${encodeURIComponent(active)}/functions/${encodeURIComponent(name)}`,
           published_at: current.published_at,
         },
       ]);
   }
   async function refreshLogs(token: string, projectID: string) {
     const response = await fetch(
-      `/api/admin/function-logs?project_id=${encodeURIComponent(projectID)}&name=${encodeURIComponent(name)}`,
+      projectAdminURL(projectID, "function-logs") + "?name=" + encodeURIComponent(name),
       { headers: adminHeaders(token) },
     );
     if (response.ok) setLogs((await response.json()) as Log[]);
@@ -92,14 +92,14 @@ export default function FunctionDetailPage() {
       router.replace("/");
       return;
     }
-    void fetch("/api/admin/projects", { headers: adminHeaders(token) })
+    void fetch(systemAdminURL("projects"), { headers: adminHeaders(token) })
       .then(async (response) => {
         if (!response.ok) throw new Error("session expired");
         const projects = (await response.json()) as { ID: string; Active: boolean }[];
         const active = preferredAdminProject(projects)?.ID ?? "";
         if (!active) throw new Error("no active project");
         const pluginsResponse = await fetch(
-          `/api/admin/plugins?project_id=${encodeURIComponent(active)}`,
+          projectAdminURL(active, "plugins"),
           { headers: adminHeaders(token) },
         );
         if (!pluginsResponse.ok) throw new Error("plugin access unavailable");
@@ -127,7 +127,7 @@ export default function FunctionDetailPage() {
   }, [pluginAccess, project, session, name]);
   async function savePermissions(permissions: string[], publicRoute: boolean) {
     if (!draft) return;
-    const response = await fetch("/api/admin/functions", {
+    const response = await fetch(projectAdminURL(project, "functions"), {
       method: "POST",
       headers: adminHeaders(session, { "content-type": "application/json" }),
       body: JSON.stringify({
@@ -154,7 +154,7 @@ export default function FunctionDetailPage() {
     setMessage("Saving source and publishing…");
     try {
       const headers = adminHeaders(session, { "content-type": "application/json" });
-      const update = await fetch("/api/admin/functions", {
+      const update = await fetch(projectAdminURL(project, "functions"), {
         method: "POST",
         headers,
         body: JSON.stringify({
@@ -169,7 +169,7 @@ export default function FunctionDetailPage() {
         setMessage((await update.text()) || `Source save failed (${update.status}).`);
         return;
       }
-      const response = await fetch("/api/admin/functions", {
+      const response = await fetch(projectAdminURL(project, "functions"), {
         method: "POST",
         headers,
         body: JSON.stringify({
@@ -223,7 +223,7 @@ export default function FunctionDetailPage() {
     setValidating(true);
     setValidationMessage("");
     try {
-      const response = await fetch("/api/admin/functions", {
+      const response = await fetch(projectAdminURL(project, "functions"), {
         method: "POST",
         headers: adminHeaders(session, { "content-type": "application/json" }),
         body: JSON.stringify({
@@ -256,7 +256,7 @@ export default function FunctionDetailPage() {
     }
     setPublishing(true);
     try {
-      const response = await fetch("/api/admin/functions", {
+      const response = await fetch(projectAdminURL(project, "functions"), {
         method: "POST",
         headers: adminHeaders(session, { "content-type": "application/json" }),
         body: JSON.stringify({

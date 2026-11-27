@@ -56,7 +56,7 @@ CPU_MILLIS, MEMORY_BYTES, PROCESS_LIMIT, and WORKER_SOURCE_FILES (newline-separa
 manifest source paths). The runtime root defaults to /workspace. The Go host
 sets these inputs directly; no host environment secrets are inherited.
 
-Use `/livez` for liveness and `/readyz` for traffic readiness. Readiness checks
+Use `/_system/livez` for liveness and `/_system/readyz` for traffic readiness. Readiness checks
 both SQLite connections and enabled non-draining workers. The explicit
 `health-only` command used by the legacy Compose fixture exposes liveness but
 never readiness or admin routes; it is not an application deployment. CI has a
@@ -77,3 +77,4 @@ The sandboxed TypeScript runtime requires Node 20.15 or a newer supported
 release with `--disable-wasm-trap-handler`. This uses explicit WebAssembly
 bounds checks instead of reserving a large virtual guard region; the 2 GiB
 address-space limit and 128 MiB JavaScript heap cap remain in force.
+\n## Project URL cutover\n\nConfigure reverse proxies and health probes for `/_system/livez` and `/_system/readyz`. Do not forward `/livez`, `/readyz`, `/admin` or `/public` as compatibility aliases. Migrate callers atomically to `/{project}/...` and `/_system/admin/...`; verify existing project IDs acquire unique slugs from the automatic SQLite migration before starting workers.\n

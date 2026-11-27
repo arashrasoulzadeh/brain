@@ -7,6 +7,7 @@ import (
 	"brain/internal/project"
 	"encoding/json"
 	"errors"
+	"net/http"
 	"strings"
 )
 
@@ -397,4 +398,67 @@ func (s *LifecycleService) AdminInventory(actor operator.Actor, pageID string, i
 		return err
 	})
 	return result, err
+}
+
+// ProjectStore exposes the existing trusted resolver to the host router.
+func (s *LifecycleService) ProjectStore() *project.Store {
+	if s == nil {
+		return nil
+	}
+	return s.projects
+}
+
+func (s *LifecycleService) MatchHTTPRoute(projectID, method, relativePath string) (plugin.HTTPRouteMatch, bool) {
+	if s == nil || s.registry == nil {
+		return plugin.HTTPRouteMatch{}, false
+	}
+	return s.registry.MatchHTTPRoute(projectID, method, relativePath)
+}
+
+func (s *LifecycleService) ProjectHTTPRoutes(projectID string) []plugin.HTTPRouteMatch {
+	if s == nil || s.registry == nil {
+		return nil
+	}
+	return s.registry.HTTPRoutes(projectID)
+}
+
+func (s *LifecycleService) InvokeHTTPRoute(projectID string, match plugin.HTTPRouteMatch, payload []byte, actorID string) (plugin.WorkerResponse, error) {
+	if s == nil || s.registry == nil {
+		return plugin.WorkerResponse{}, plugin.ErrNotRegistered
+	}
+	return s.registry.InvokeHTTPRoute(projectID, match, payload, actorID)
+}
+
+func (s *LifecycleService) ProjectURLNamespace(id string) string {
+	if s == nil || s.projects == nil {
+		return id
+	}
+	p, err := s.projects.Resolve(id)
+	if err != nil || p.Slug == "" {
+		return id
+	}
+	return p.Slug
+}
+
+func (s *LifecycleService) CreateProjectWithDetails(actor operator.Actor, id, name, slug string, settings map[string]any) error {
+	return s.executeProjectLifecycle(actor, id, "", "", "project.create", func() error {
+		if s.projects == nil {
+			return operator.ErrInvalidOperatorAction
+		}
+		return s.projects.CreateWithDetails(id, name, slug, settings)
+	})
+}
+
+func (s *LifecycleService) ConfigureProject(actor operator.Actor, id, name, slug string, settings map[string]any) error {
+	return s.executeProjectLifecycle(actor, id, "", "", "project.configure", func() error {
+		if s.projects == nil {
+			return operator.ErrInvalidOperatorAction
+		}
+		return s.projects.Configure(id, name, slug, settings)
+	})
+}
+
+// WebSocketHandler constructs the trusted transport before serving requests.
+func (s *LifecycleService) WebSocketHandler() http.Handler {
+	return plugin.NewWebSocketGateway(s.registry)
 }

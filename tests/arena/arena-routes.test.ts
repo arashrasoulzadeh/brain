@@ -1,6 +1,6 @@
 import { deepEqual, equal, throws } from "node:assert/strict";
 import { test } from "node:test";
-import { input, result, snapshot, start } from "../../plugins/arena/index.js";
+import { input, result, snapshot, start, connect, playerInput } from "../../plugins/arena/index.js";
 import type { ObservationIntent, PluginContext } from "../../plugins/sdk-typescript/src/index.js";
 
 function context(id: string, observations: ObservationIntent[]): PluginContext {
@@ -60,4 +60,70 @@ test("host-owned arena snapshots rehydrate a fresh runtime without replaying pri
   deepEqual(snapshot(ctx, { roomId, _brainArena: { ...stored, state: "finished", result: { winnerIds: ["one"], completedAt } } }), { projectId: "durable-arena", roomId, players, state: "finished", result: match });
   throws(() => snapshot(ctx, { roomId }), /arena not found/);
   throws(() => snapshot(ctx, { roomId, _brainArena: { ...stored, sequences: { outsider: 3 } } }), /invalid stored sequence/);
+});
+
+test("realtime admission and player input derive identity from the trusted user session", () => {
+  const ctx = context("socket-arena", []);
+  const roomId = "room";
+  const players = ["socket-arena:alice", "socket-arena:bob"];
+  start(ctx, { roomId, players });
+  function user(id: string): PluginContext {
+    const actor = { kind: "user" as const, id, authenticated: true, level: "authenticated" as const };
+    return { ...ctx, auth: { actor, caller: actor, permissions: [], can: () => true } };
+  }
+  const alice = user(players[0]);
+  const bob = user(players[1]);
+  throws(() => connect(ctx, { roomId }), /membership required/);
+  throws(() => connect(user("foreign:alice"), { roomId }), /membership required/);
+  throws(() => connect(user("socket-arena:outsider"), { roomId }), /membership required/);
+  deepEqual(connect(alice, { roomId }), { admitted: true });
+  deepEqual(connect(bob, { roomId }), { admitted: true });
+  throws(() => playerInput(alice, { roomId, playerId: players[1], sequence: 1 }), /identity mismatch/);
+  throws(() => playerInput(alice, { roomId, sequence: "1" }), /invalid action sequence/);
+  deepEqual(playerInput(alice, { roomId, sequence: 1 }), { projectId: "socket-arena", roomId, accepted: true });
+  throws(() => playerInput(alice, { roomId, sequence: 1 }), /sequence conflict/);
+  playerInput(bob, { roomId, sequence: 1 });
+  result(ctx, { roomId, winnerIds: [players[0]], completedAt: "2026-01-01T00:00:00Z" });
+  throws(() => connect(alice, { roomId }), /membership required/);
+  throws(() => playerInput(alice, { roomId, sequence: 2 }), /membership required/);
+});
+
+test("arena rejects malformed durable state and unauthorized realtime callers", () => {
+  const ctx = context("socket-boundary", []);
+  const roomId = "room";
+  const players = ["socket-boundary:alice", "socket-boundary:bob"];
+  const stored = { state: "active", players, sequences: {} };
+  const request = { roomId, _brainArena: stored };
+  const actor = { kind: "user" as const, id: players[0], authenticated: true, level: "authenticated" as const };
+  const authorized = { ...ctx, auth: { actor, caller: actor, permissions: [], can: () => true } };
+  for (const caller of [
+    { ...actor, authenticated: false },
+    { ...actor, id: "socket-boundary:outsider" },
+    { ...actor, id: "foreign:alice" },
+  ]) {
+    throws(() => connect({ ...authorized, auth: { ...authorized.auth, caller } }, request), /membership required/);
+  }
+  deepEqual(connect(authorized, request), { admitted: true });
+  deepEqual(playerInput(authorized, { ...request, playerId: actor.id, sequence: 1 }), { projectId: ctx.project.id, roomId, accepted: true });
+  for (const sequence of [0, -1, 1.5, Number.MAX_SAFE_INTEGER + 1]) {
+    throws(() => playerInput(authorized, { ...request, sequence }), /action sequence conflict/);
+  }
+  for (const malformed of [
+    null, {}, { ...stored, state: "waiting" }, { ...stored, sequences: null },
+    { ...stored, sequences: 1 }, { ...stored, sequences: [] },
+  ]) {
+    throws(() => snapshot(ctx, { roomId, _brainArena: malformed }), /invalid stored arena/);
+  }
+  for (const invalidPlayers of [[players[0]], [players[0], players[0]]]) {
+    throws(() => snapshot(ctx, { roomId, _brainArena: { ...stored, players: invalidPlayers } }), /invalid stored players/);
+  }
+  for (const invalidPlayers of [null, [1, 2], [" ", players[1]], ["x".repeat(129), players[1]], Array(65).fill("a")]) {
+    throws(() => snapshot(ctx, { roomId, _brainArena: { ...stored, players: invalidPlayers } }), /invalid arena players/);
+  }
+  for (const sequence of ["1", 0, 1.5, Number.MAX_SAFE_INTEGER + 1]) {
+    throws(() => snapshot(ctx, { roomId, _brainArena: { ...stored, sequences: { [players[0]]: sequence } } }), /invalid stored sequence/);
+  }
+  throws(() => snapshot(ctx, { roomId: "x".repeat(129), _brainArena: stored }), /invalid arena room/);
+  throws(() => start(ctx, { roomId, players, _brainArena: stored }), /already started/);
+  throws(() => input(ctx, { ...request, playerId: actor.id, sequence: "1" }), /invalid action sequence/);
 });

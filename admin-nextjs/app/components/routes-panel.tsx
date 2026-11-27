@@ -1,18 +1,18 @@
+import type { ProjectHTTPRoute } from "../lib/admin-types";
 import type { AdminCopy } from "../lib/admin-copy";
-import type { SystemManifest } from "../lib/admin-types";
 
-export function RoutesPanel({ activePage, text, playgroundRoute, setPlaygroundRoute, system, playgroundPayload, setPlaygroundPayload, testPlayground, sendPlayground, playgroundMessage, selectedProjectID }: {
+export function RoutesPanel({ activePage, text, playgroundRoute, setPlaygroundRoute, playgroundPayload, setPlaygroundPayload, testPlayground, sendPlayground, playgroundMessage, selectedProjectID, projectRoutes }: {
   activePage: string;
   text: AdminCopy;
   playgroundRoute: string;
   setPlaygroundRoute: (value: string) => void;
-  system: SystemManifest[];
   playgroundPayload: string;
   setPlaygroundPayload: (value: string) => void;
   testPlayground: () => void;
   sendPlayground: () => void;
   playgroundMessage: string;
   selectedProjectID: string;
+  projectRoutes: ProjectHTTPRoute[];
 }) {
   return (
     <>
@@ -31,17 +31,11 @@ export function RoutesPanel({ activePage, text, playgroundRoute, setPlaygroundRo
               onChange={(event) => setPlaygroundRoute(event.target.value)}
             >
               <option value="">—</option>
-              {system.flatMap(
-                (manifest) =>
-                  manifest.Routes?.map((route) => (
-                    <option
-                      key={`${manifest.ID}:${route.Operation}`}
-                      value={`${manifest.ID}:${route.Operation}`}
-                    >
-                      {manifest.ID} · {route.Operation}
-                    </option>
-                  )) ?? [],
-              )}
+              {projectRoutes.map((route) => (
+                <option key={`${route.plugin_id}:${route.operation}:${route.method}:${route.path}`} value={`${route.plugin_id}:${route.operation}`}>
+                  {route.method} /{selectedProjectID}{route.path} · {route.operation}
+                </option>
+              ))}
             </select>
           </label>
           <label>
@@ -81,23 +75,20 @@ export function RoutesPanel({ activePage, text, playgroundRoute, setPlaygroundRo
             <h2>{text.routesPage}</h2>
           </div>
           <span className="count">
-            {system.reduce((total, manifest) => total + (manifest.Routes?.length ?? 0), 0)}
+            {projectRoutes.length}
           </span>
         </div>
         <div className="plugin-grid">
-          {system.map((manifest) => (
-            <article className="plugin" key={`routes-${manifest.ID}`}>
-              <h3>{manifest.Title}</h3>
+          {projectRoutes.map((route) => (
+            <article className="plugin" key={`${route.plugin_id}@${route.version}:${route.method}:${route.path}`}>
+              <h3>{route.method} /{selectedProjectID}{route.path}</h3>
               <div className="route-list">
-                {manifest.Routes?.map((route) => (
-                  <div key={route.Operation}>
-                    <code>{route.Operation}</code>
-                    <small>{route.Capability}</small>
-                  </div>
-                ))}
+                <code>{route.plugin_id}@{route.version} · {route.operation}</code>
+                <small>{route.capability} · {route.auth} · {route.function}</small>
               </div>
             </article>
           ))}
+          {selectedProjectID && projectRoutes.length === 0 && <p className="muted">No enabled plugin HTTP routes for this project.</p>}
         </div>
       </section>
     </>

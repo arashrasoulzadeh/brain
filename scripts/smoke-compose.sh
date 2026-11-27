@@ -10,7 +10,7 @@ cleanup() {
 trap cleanup EXIT
 
 docker compose -p "$project" -f "$compose_file" up -d --build
-curl --fail --silent --show-error http://127.0.0.1:18080/livez
+curl --fail --silent --show-error http://127.0.0.1:18080/_system/livez
 
 if [ "${RUN_PLUGIN_ISOLATION_TESTS:-0}" = "1" ]; then
   docker compose -p "$project" -f "$compose_file" --profile plugin-isolation run --rm plugin-isolation-tests

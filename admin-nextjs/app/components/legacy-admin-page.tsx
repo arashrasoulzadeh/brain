@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AdminPageFrame } from "./admin-chrome";
 import { AdminPageRenderer } from "./admin-renderer";
-import { adminHeaders, readAdminSession, preferredAdminProject } from "../lib/admin-api";
+import { adminHeaders, readAdminSession, preferredAdminProject, projectAdminURL, systemAdminURL, ADMIN_PROJECT_CHANGED } from "../lib/admin-api";
 import { adminContributions, adminPageExtensions, adminLegacyRootPages } from "../lib/admin-registry";
 import type { AdminCatalog, AdminContribution } from "../lib/admin-registry";
 
@@ -12,6 +12,12 @@ export default function LegacyAdminPage() {
   const route = usePathname().split("/")[1];
   const [catalog, setCatalog] = useState<{ route: string; project: string; contributions: AdminContribution[] }>();
   const [error, setError] = useState("");
+  const [epoch, setEpoch] = useState(0);
+  useEffect(() => {
+    const changed = () => { setCatalog(undefined); setEpoch(value => value + 1); };
+    window.addEventListener(ADMIN_PROJECT_CHANGED, changed);
+    return () => window.removeEventListener(ADMIN_PROJECT_CHANGED, changed);
+  }, []);
   useEffect(() => {
     const controller = new AbortController();
     setCatalog(undefined); setError("");
@@ -19,18 +25,18 @@ export default function LegacyAdminPage() {
       const token = readAdminSession();
       if (!token) throw new Error("Sign in to continue");
       const headers = adminHeaders(token), signal = controller.signal;
-      const response = await fetch("/api/admin/projects", { headers, signal });
+      const response = await fetch(systemAdminURL("projects"), { headers, signal });
       if (!response.ok) throw new Error("Projects unavailable");
       const projects = await response.json() as { ID: string; Active: boolean }[];
       const project = preferredAdminProject(projects)?.ID;
       if (!project) throw new Error("Select an active project");
-      const plugins = await fetch("/api/admin/plugins?project_id=" + encodeURIComponent(project), { headers, signal });
+      const plugins = await fetch(projectAdminURL(project, "plugins"), { headers, signal });
       if (!plugins.ok) throw new Error("Plugin catalog unavailable");
       const data = await plugins.json() as AdminCatalog;
       if (!signal.aborted) setCatalog({ route, project, contributions: adminContributions(project, data) });
     })().catch(reason => { if (!controller.signal.aborted) setError(String(reason)); });
     return () => controller.abort();
-  }, [route]);
+  }, [route, epoch]);
   const current = catalog?.route === route ? catalog : undefined;
   const pages = adminLegacyRootPages(current?.contributions.filter(item => item.page.legacy_route === route) ?? []);
   const title = route ? route[0].toUpperCase() + route.slice(1).replaceAll("-", " ") : "Plugin administration";

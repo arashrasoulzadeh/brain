@@ -1,5 +1,5 @@
 "use client";
-import { adminHeaders, readAdminSession, preferredAdminProject, clearAdminSession, signOutAdminSession } from "../../lib/admin-api";
+import { adminHeaders, readAdminSession, preferredAdminProject, clearAdminSession, signOutAdminSession, projectAdminURL, systemAdminURL } from "../../lib/admin-api";
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -24,13 +24,13 @@ export default function PluginSettingsPage() {
   const [message, setMessage] = useState("");
 
   async function load(token: string) {
-    const projectsResponse = await fetch("/api/admin/projects", { headers: adminHeaders(token) });
+    const projectsResponse = await fetch(systemAdminURL("projects"), { headers: adminHeaders(token) });
     if (!projectsResponse.ok) throw new Error("session expired");
     const projects = await projectsResponse.json() as Project[];
     const activeProject = preferredAdminProject(projects) ?? null;
     setProject(activeProject);
     if (!activeProject) { setManifest(null); setInstallation(null); return; }
-    const response = await fetch(`/api/admin/plugins?project_id=${encodeURIComponent(activeProject.ID)}`, { headers: adminHeaders(token) });
+    const response = await fetch(projectAdminURL(activeProject.ID, "plugins"), { headers: adminHeaders(token) });
     if (!response.ok) throw new Error("plugin data unavailable");
     const payload = await response.json() as { manifests: Manifest[]; installations: Installation[] };
     const [pluginID, version] = pluginKey.split("@");
@@ -48,7 +48,7 @@ export default function PluginSettingsPage() {
   async function lifecycle(operation: string, capability = "") {
     if (!session || !project || !installation) return;
     if (operation === "plugin.revoke" && !window.confirm(`Revoke ${capability}?`)) return;
-    const response = await fetch("/api/admin/actions", { method: "POST", headers: adminHeaders(session, { "content-type": "application/json" }), body: JSON.stringify({ operation, project_id: project.ID, plugin_id: installation.PluginID, version: installation.Version, capability, ready: operation === "plugin.readiness", confirmed: operation === "plugin.revoke" }) });
+    const response = await fetch(operation === "plugin.readiness" ? systemAdminURL("actions") : projectAdminURL(project.ID, "actions"), { method: "POST", headers: adminHeaders(session, { "content-type": "application/json" }), body: JSON.stringify({ operation, project_id: project.ID, plugin_id: installation.PluginID, version: installation.Version, capability, ready: operation === "plugin.readiness", confirmed: operation === "plugin.revoke" }) });
     setMessage(response.ok ? `${operation} completed` : await response.text());
     if (response.ok) await load(session);
   }

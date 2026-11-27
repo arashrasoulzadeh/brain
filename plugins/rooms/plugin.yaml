@@ -3,6 +3,7 @@ title: Rooms
 description: Project-scoped room and membership functions.
 version: 0.1.0
 host_api: 1
+mount: /rooms
 entrypoint: index.ts
 source_files:
   - routes.ts
@@ -40,21 +41,33 @@ events:
     fields: {roomId: string}
 routes:
   - operation: rooms.create
+    method: POST
+    path: /
+    auth: operator
     function: create
     helper: sdk.dispatch
     capability: rooms.create
     resource_field: id
   - operation: rooms.join
+    method: POST
+    path: /{id}/join
+    auth: operator
     function: join
     helper: sdk.dispatch
     capability: rooms.join
     resource_field: id
   - operation: rooms.reconnect
+    method: POST
+    path: /{id}/reconnect
+    auth: operator
     function: reconnect
     helper: sdk.dispatch
     capability: rooms.reconnect
     resource_field: id
   - operation: rooms.result
+    method: GET
+    path: /{id}
+    auth: operator
     function: result
     helper: sdk.dispatch
     capability: rooms.result

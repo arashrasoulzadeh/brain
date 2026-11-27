@@ -1,5 +1,5 @@
 "use client";
-import { adminHeaders, readAdminSession, preferredAdminProject } from "../lib/admin-api";
+import { adminHeaders, readAdminSession, preferredAdminProject, projectAdminURL, systemAdminURL } from "../lib/admin-api";
 import { enabledPluginIDs, visibleAdminPages } from "../lib/admin-navigation";
 import { adminContributions } from "../lib/admin-registry";
 import type { AdminCatalog, AdminContribution } from "../lib/admin-registry";
@@ -52,7 +52,7 @@ export function AdminSidebar({
     const headers = adminHeaders(token);
     const signal = controller.signal;
     void (async () => {
-      const projectsResponse = await fetch("/api/admin/projects", { headers, signal });
+      const projectsResponse = await fetch(systemAdminURL("projects"), { headers, signal });
       if (!projectsResponse.ok) return;
       const projects = (await projectsResponse.json()) as Array<{ ID: string; Active: boolean }>;
       const active = requestedProject === undefined
@@ -60,7 +60,7 @@ export function AdminSidebar({
         : projects.find(candidate => candidate.Active && candidate.ID === requestedProject)?.ID;
       if (!active || signal.aborted) return;
       setActiveProject(active);
-      const response = await fetch("/api/admin/plugins?project_id=" + encodeURIComponent(active), { headers, signal });
+      const response = await fetch(projectAdminURL(active, "plugins"), { headers, signal });
       if (!response.ok) return;
       const payload = (await response.json()) as AdminCatalog;
       if (signal.aborted) return;
@@ -170,14 +170,14 @@ export function AdminPageFrame({
       router.replace("/");
       return;
     }
-    void fetch("/api/admin/projects", { headers: adminHeaders(token) })
+    void fetch(systemAdminURL("projects"), { headers: adminHeaders(token) })
       .then(async (projectsResponse) => {
         if (!projectsResponse.ok) throw new Error("session expired");
         const projects = (await projectsResponse.json()) as Array<{ ID: string; Active: boolean }>;
         const activeProject = preferredAdminProject(projects)?.ID;
         if (!activeProject) throw new Error("no active project");
         const pluginsResponse = await fetch(
-          `/api/admin/plugins?project_id=${encodeURIComponent(activeProject)}`,
+          projectAdminURL(activeProject, "plugins"),
           { headers: adminHeaders(token) },
         );
         if (!pluginsResponse.ok) throw new Error("plugin access unavailable");

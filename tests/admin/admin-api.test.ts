@@ -18,7 +18,7 @@ test("shared sign-out transport revokes the server session", async () => {
   await revokeAdminSession("", request);
   await revokeAdminSession("operator", request);
   assert.equal(calls.length, 1);
-  assert.equal(calls[0].url, "/api/admin/session");
+  assert.equal(calls[0].url, "/_system/admin/session");
   assert.equal(calls[0].init?.method, "DELETE");
   assert.equal(new Headers(calls[0].init?.headers).get("authorization"), "Bearer operator");
 });

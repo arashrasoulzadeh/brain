@@ -64,6 +64,10 @@ func newModelRevision() (string, error) {
 // Model operations are host-only. Lifecycle and grants remain locked through
 // the database operation; revisions prevent stale writes across host processes.
 func (r *Registry) invokeModel(req WorkerRequest) (WorkerResponse, bool, error) {
+	if req.httpRoute != nil {
+		r.lifecycleMu.RLock()
+		defer r.lifecycleMu.RUnlock()
+	}
 	r.readinessMu.RLock()
 	defer r.readinessMu.RUnlock()
 	// Policy changes must not race a permitted invocation's final storage commit.

@@ -72,10 +72,10 @@ jobs:
           server=$!
           trap 'kill "$server" 2>/dev/null || true' EXIT
           for i in $(seq 1 60); do
-            if curl --fail --silent "$BRAIN_ADMIN_ORIGIN" > /dev/null; then break; fi
+            if curl --fail --silent "$BRAIN_ADMIN_ORIGIN/_system/ui" > /dev/null; then break; fi
             sleep 1
           done
-          curl --fail --silent --show-error "$BRAIN_ADMIN_ORIGIN" > /dev/null
+          curl --fail --silent --show-error "$BRAIN_ADMIN_ORIGIN/_system/ui" > /dev/null
           node scripts/test-admin-browser.mjs
       - name: Verify admin against the packaged backend
         run: |
@@ -100,10 +100,10 @@ jobs:
           }
           trap cleanup EXIT
           for i in $(seq 1 60); do
-            if curl --fail --silent "$BRAIN_ADMIN_ORIGIN" > /dev/null; then break; fi
+            if curl --fail --silent "$BRAIN_ADMIN_ORIGIN/_system/ui" > /dev/null; then break; fi
             sleep 1
           done
-          curl --fail --silent --show-error "$BRAIN_ADMIN_ORIGIN" > /dev/null
+          curl --fail --silent --show-error "$BRAIN_ADMIN_ORIGIN/_system/ui" > /dev/null
           node scripts/test-admin-live.mjs
       - uses: actions/upload-artifact@v4
         if: always()

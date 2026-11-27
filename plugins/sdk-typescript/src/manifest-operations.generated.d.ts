@@ -2,7 +2,7 @@
 export interface ManifestOperations {
   "access-management": "access.describe" | "access.rules.create" | "access.rules.list" | "access.rules.read" | "access.rules.revoke";
   "analytics": "analytics.capture";
-  "arena": "arena.input" | "arena.result" | "arena.snapshot" | "arena.start";
+  "arena": "arena.connect" | "arena.input" | "arena.player.input" | "arena.result" | "arena.snapshot" | "arena.start";
   "auth": "auth.admin.accounts" | "auth.admin.sessions.revoke" | "auth.guest" | "auth.identity" | "auth.session" | "auth.signin" | "auth.signup";
   "dashboard": "plugin.disable.apply" | "plugin.disable.preview" | "plugin.drain" | "plugin.enable" | "plugin.grant" | "plugin.install" | "plugin.promote" | "plugin.readiness" | "plugin.resume" | "plugin.rollback" | "plugin.stop" | "plugin.uninstall" | "project.create";
   "files": "files.download" | "files.metadata" | "files.publish" | "files.upload";
