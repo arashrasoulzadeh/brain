@@ -5,3 +5,5 @@ The admin interface uses a neutral light surface, compact 224px sidebar, consist
 Project selection stays in the existing Projects screen, and changes refresh the navigation without widening access. Plugin extensions retain their independently authorized pages. The persistent shell displays the active page's title, including dynamic model and plugin pages.
 
 The plugin catalog uses one filterable table instead of duplicated card lists. Generated actions, configuration, models and resource inventories share compact form and panel styling; result tables and detail rows use the same surface and status patterns.
+
+The `admin-browser` GitHub Actions workflow builds the production Next.js app and exercises it in Chromium at desktop and mobile viewports. It uses deterministic, synthetic API fixtures to verify project switching, manifest page discovery, selected rows, denied pages, and destructive-action confirmation. Screenshots and the server log are uploaded as artifacts. The test validates frontend behavior, not the live backend; backend integration remains covered separately.
