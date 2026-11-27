@@ -23,7 +23,7 @@ export function adminMenu(allowed: readonly string[], extensions: readonly Admin
   const groups: MenuGroup[] = [
     { label: "Workspace", items: platform.filter(item => allowed.includes(item.href.slice(1)) && ["projects", "plugins"].includes(item.icon)) },
     { label: "Project tools", items: project },
-    { label: "Extensions", items: extensions.filter(item => !item.page.legacy_route).map(item => ({ href: item.href, label: item.page.title, detail: item.pluginID + "@" + item.version, icon: "extension" })) },
+    { label: "Extensions", items: extensions.filter(item => !item.page.legacy_route).map(item => ({ href: item.href, label: item.page.title, detail: item.pluginID + "@" + item.version, icon: "extension" as const })) },
     { label: "Platform", items: platform.filter(item => allowed.includes(item.href.slice(1)) && !["projects", "plugins"].includes(item.icon)) },
   ];
   const query = search.trim().toLowerCase();

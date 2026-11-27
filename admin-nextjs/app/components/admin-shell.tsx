@@ -27,6 +27,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
   return (
     <AdminHeadingContext.Provider value={setHeading}>
     <main className="shell">
+      <a className="skip-link" href="#admin-content">Skip to content</a>
       <div className="workspace">
         <AdminSidebar
           activePage={pageName}

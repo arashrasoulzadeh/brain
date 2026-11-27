@@ -34,3 +34,8 @@ Admin-panel and operator documentation work after backend release gates pass.
 - [ ] End-to-end and deployment validation of the new paths.
 
 - [ ] Policy-aware legacy inventory enumeration for access-managed projects (currently fails closed).
+
+## Control-plane UI
+
+- [x] Compact responsive theme, searchable grouped menus, consistent tables and controls, dynamic headings and keyboard navigation.
+- [ ] Browser screenshot and deployed visual verification.

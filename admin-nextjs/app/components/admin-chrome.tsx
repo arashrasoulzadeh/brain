@@ -82,9 +82,10 @@ export function AdminSidebar({
         <nav className="sidebar-nav" aria-label="Admin navigation">
           {groups.map(group => {
             const active = group.items.some(item => menuItemActive(pathname, item.href));
-            const expanded = !!search.trim() || active || !collapsed[group.label];
+            const filtering = !!search.trim();
+            const expanded = filtering || !(collapsed[group.label] ?? (group.label === "Extensions" && !active));
             return <div key={group.label} className="menu-group">
-              <button type="button" className="menu-group-title" aria-expanded={expanded} onClick={() => setCollapsed(previous => ({ ...previous, [group.label]: !previous[group.label] }))}>{group.label}<span aria-hidden="true">{expanded ? "−" : "+"}</span></button>
+              <button type="button" className="menu-group-title" aria-expanded={expanded} disabled={filtering} onClick={() => setCollapsed(previous => ({ ...previous, [group.label]: expanded }))}>{group.label}<span aria-hidden="true">{expanded ? "−" : "+"}</span></button>
               {expanded && group.items.map(item => {
                 const current = menuItemActive(pathname, item.href);
                 return <Link className={current ? "active" : ""} aria-current={current ? "page" : undefined} href={item.href} title={item.detail ? item.label + " · " + item.detail : item.label} key={item.href}><MenuGlyph name={item.icon} /><span className="menu-label">{item.label}{item.detail && <small>{item.detail}</small>}</span></Link>;
