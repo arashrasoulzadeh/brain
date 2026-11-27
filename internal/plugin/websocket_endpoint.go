@@ -11,17 +11,17 @@ import (
 // room worker and ticket validation are deliberately separate concerns.
 func WebSocketEndpoint() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		projectID, roomID, ok := websocketPath(r.URL.Path)
+		namespace, ok := websocketPath(r.URL.Path)
 		if !ok || r.Method != http.MethodGet {
 			http.NotFound(w, r)
 			return
 		}
-		if projectID == "" || r.Header.Get("X-Project-ID") != projectID {
+		hostProject, ok := project.FromContext(r.Context())
+		if !ok || !hostProject.Active || (hostProject.ID != namespace && hostProject.Slug != namespace) {
 			http.Error(w, "project boundary denied", http.StatusForbidden)
 			return
 		}
-		hostProject, ok := project.FromContext(r.Context())
-		if !ok || !hostProject.Active || hostProject.ID != projectID {
+		if identity := r.Header.Get("X-Project-ID"); identity != "" && identity != hostProject.ID && identity != hostProject.Slug {
 			http.Error(w, "project boundary denied", http.StatusForbidden)
 			return
 		}
@@ -29,19 +29,18 @@ func WebSocketEndpoint() http.Handler {
 			http.Error(w, "websocket upgrade required", http.StatusUpgradeRequired)
 			return
 		}
-		// Ticket authentication and the protocol upgrade are handled by the
-		// connection-ticket and room-worker layers added in later steps.
-		_ = roomID
+		// The host must never accept a WebSocket connection before its project
+		// authentication and worker-issued connection ticket are verified.
 		http.Error(w, "connection ticket required", http.StatusUnauthorized)
 	})
 }
 
-func websocketPath(path string) (string, string, bool) {
-	parts := strings.Split(strings.Trim(path, "/"), "/")
-	if len(parts) != 6 || parts[0] != "v1" || parts[1] != "projects" || parts[3] != "rooms" || parts[5] != "ws" {
-		return "", "", false
+func websocketPath(path string) (string, bool) {
+	parts := strings.Split(strings.TrimPrefix(path, "/"), "/")
+	if len(parts) != 2 || parts[1] != "ws" || path != "/"+parts[0]+"/ws" || !isValidProjectID(parts[0]) {
+		return "", false
 	}
-	return parts[2], parts[4], isValidProjectID(parts[2]) && validWebSocketPathSegment(parts[4])
+	return parts[0], true
 }
 
 func validWebSocketPathSegment(value string) bool {

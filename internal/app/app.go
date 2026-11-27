@@ -78,6 +78,7 @@ func NewServerWithOperatorAdmin(adminService *admin.LifecycleService, sessions *
 	mux.Handle("GET /{project}/admin/function-logs", ProjectQueryHandler(AuthenticatedFunctionLogsHandler(adminService, sessions)))
 	mux.Handle("GET /{project}/admin/routes", AuthenticatedProjectRoutesHandler(adminService, sessions))
 	mux.Handle("/{project}/functions/{function_name}", PublicFunctionHandler(adminService))
+	mux.Handle("GET /{project}/ws", plugin.WebSocketEndpoint())
 	mux.Handle("/{project}/{resource...}", PluginHTTPHandler(adminService, sessions))
 	return server
 }

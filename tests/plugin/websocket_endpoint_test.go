@@ -11,7 +11,7 @@ import (
 
 func TestWebSocketEndpointRequiresProjectScopedUpgrade(t *testing.T) {
 	h := plugin.WebSocketEndpoint()
-	req := httptest.NewRequest(http.MethodGet, "/v1/projects/dev/rooms/room-1/ws", nil)
+	req := httptest.NewRequest(http.MethodGet, "/dev/ws", nil)
 	req.Header.Set("Connection", "Upgrade")
 	req.Header.Set("Upgrade", "websocket")
 	req.Header.Set("X-Project-ID", "other")
@@ -24,7 +24,7 @@ func TestWebSocketEndpointRequiresProjectScopedUpgrade(t *testing.T) {
 
 func TestWebSocketEndpointRejectsNonUpgrade(t *testing.T) {
 	h := plugin.WebSocketEndpoint()
-	req := httptest.NewRequest(http.MethodGet, "/v1/projects/dev/rooms/room-1/ws", nil)
+	req := httptest.NewRequest(http.MethodGet, "/dev/ws", nil)
 	req.Header.Set("X-Project-ID", "dev")
 	req = req.WithContext(project.WithProject(req.Context(), project.Project{ID: "dev", Active: true}))
 	rec := httptest.NewRecorder()
@@ -36,7 +36,7 @@ func TestWebSocketEndpointRejectsNonUpgrade(t *testing.T) {
 
 func TestWebSocketEndpointRejectsMissingHostProjectContext(t *testing.T) {
 	h := plugin.WebSocketEndpoint()
-	req := httptest.NewRequest(http.MethodGet, "/v1/projects/dev/rooms/room-1/ws", nil)
+	req := httptest.NewRequest(http.MethodGet, "/dev/ws", nil)
 	req.Header.Set("Connection", "Upgrade")
 	req.Header.Set("Upgrade", "websocket")
 	req.Header.Set("X-Project-ID", "dev")
@@ -49,7 +49,7 @@ func TestWebSocketEndpointRejectsMissingHostProjectContext(t *testing.T) {
 
 func TestWebSocketEndpointRejectsTraversalProjectPath(t *testing.T) {
 	h := plugin.WebSocketEndpoint()
-	req := httptest.NewRequest(http.MethodGet, "/v1/projects/%2e%2e/rooms/room-1/ws", nil)
+	req := httptest.NewRequest(http.MethodGet, "/%2e%2e/ws", nil)
 	req.Header.Set("Connection", "Upgrade")
 	req.Header.Set("Upgrade", "websocket")
 	req.Header.Set("X-Project-ID", "..")
@@ -62,11 +62,24 @@ func TestWebSocketEndpointRejectsTraversalProjectPath(t *testing.T) {
 
 func TestWebSocketEndpointRejectsAmbiguousProjectPath(t *testing.T) {
 	h := plugin.WebSocketEndpoint()
-	req := httptest.NewRequest(http.MethodGet, "/v1/projects/dev:other/rooms/room-1/ws", nil)
+	req := httptest.NewRequest(http.MethodGet, "/dev:other/ws", nil)
 	req.Header.Set("X-Project-ID", "dev:other")
 	rec := httptest.NewRecorder()
 	h.ServeHTTP(rec, req)
 	if rec.Code != http.StatusNotFound {
 		t.Fatalf("status = %d, want %d", rec.Code, http.StatusNotFound)
+	}
+}
+
+func TestWebSocketEndpointUsesResolvedSlugInsteadOfClientHeader(t *testing.T) {
+	h := plugin.WebSocketEndpoint()
+	req := httptest.NewRequest(http.MethodGet, "/alpha/ws", nil)
+	req = req.WithContext(project.WithProject(req.Context(), project.Project{ID: "internal-alpha", Slug: "alpha", Active: true}))
+	req.Header.Set("Connection", "Upgrade")
+	req.Header.Set("Upgrade", "websocket")
+	rec := httptest.NewRecorder()
+	h.ServeHTTP(rec, req)
+	if rec.Code != http.StatusUnauthorized {
+		t.Fatalf("status = %d, want ticket-required 401", rec.Code)
 	}
 }
