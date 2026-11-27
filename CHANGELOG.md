@@ -3,6 +3,26 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `c415bea9` — 2026-11-27 19:49:31 +0330 — Merge pull request #41 from arashrasoulzadeh/fix/canonical-project-http-paths
+  Files: 
+- `ddc4fd1e` — 2026-11-27 19:48:07 +0330 — Synchronize live admin navigation assertions with Next.js client routing
+  Files: scripts/test-admin-live.mjs
+- `bd2b5a66` — 2026-11-27 19:43:34 +0330 — Check mobile project identity after opening the collapsed navigation
+  Files: scripts/test-admin-browser.mjs
+- `14991857` — 2026-11-27 19:41:14 +0330 — Resolve NodeNext TypeScript imports in the Next.js production build
+  Files: admin-nextjs/next.config.ts
+- `e97b772a` — 2026-11-27 19:39:55 +0330 — Reject ambiguous project UI mounts and verify direct URL project authority in Chromium
+  Files: admin-nextjs/app/components/admin-shell.tsx,docs/admin-pages/login.md docs/admins.md,scripts/test-admin-browser.mjs scripts/test-admin-live.mjs,tests/plugin/http_manifest_test.go
+- `b1079469` — 2026-11-27 19:39:42 +0330 — Add URL authority and project navigation regressions and update admin route documentation
+  Files: admin-nextjs/app/[project]/ui/layout.tsx,admin-nextjs/app/[project]/ui/template.tsx admin-nextjs/app/components/admin-chrome.tsx,admin-nextjs/app/functions/view.tsx admin-nextjs/app/lib/admin-api.ts,admin-nextjs/app/lib/admin-menu.ts admin-nextjs/next.config.ts,docs/admin-pages/README.md docs/admin-pages/audit.md,docs/admin-pages/database.md docs/admin-pages/files.md,docs/admin-pages/function-detail.md docs/admin-pages/function-new.md,docs/admin-pages/functions.md docs/admin-pages/live-sessions.md,docs/admin-pages/login.md docs/admin-pages/monitoring.md,docs/admin-pages/plugin-detail.md docs/admin-pages/plugins.md,docs/admin-pages/projects.md docs/admin-pages/routes.md,docs/admin-pages/system.md docs/admin-pages/workers.md,docs/admin-pages/workflows.md docs/http-api.md,docs/plugin-manifest.md scripts/documentation_inventory.py,scripts/test-admin-browser.mjs tests/admin/admin-api.test.ts,tests/admin/admin-menu.test.ts tests/admin/admin-registry.test.ts,tests/admin/admin-shell.test.ts
+- `9e476612` — 2026-11-27 19:37:03 +0330 — Move admin browser routes into explicit project and system UI namespaces
+  Files: admin-nextjs/app/%5Fsystem/ui/audit/page.tsx,admin-nextjs/app/%5Fsystem/ui/page.tsx admin-nextjs/app/%5Fsystem/ui/projects/page.tsx,admin-nextjs/app/[legacy]/page.tsx admin-nextjs/app/[project]/ui/[legacy]/page.tsx,admin-nextjs/app/[project]/ui/extensions/[plugin]/[version]/[page]/page.tsx admin-nextjs/app/[project]/ui/functions/[name]/page.tsx,admin-nextjs/app/[project]/ui/functions/new/page.tsx admin-nextjs/app/[project]/ui/functions/page.tsx,admin-nextjs/app/[project]/ui/monitoring/page.tsx admin-nextjs/app/[project]/ui/page.tsx,admin-nextjs/app/[project]/ui/plugins/[plugin]/page.tsx admin-nextjs/app/[project]/ui/plugins/page.tsx,admin-nextjs/app/[project]/ui/routes/page.tsx admin-nextjs/app/[project]/ui/system/page.tsx,admin-nextjs/app/[project]/ui/workers/page.tsx admin-nextjs/app/audit/page.tsx,admin-nextjs/app/components/admin-chrome.tsx admin-nextjs/app/components/admin-shell.tsx,admin-nextjs/app/components/legacy-admin-page.tsx admin-nextjs/app/components/plugin-catalog-panel.tsx,admin-nextjs/app/database/page.tsx admin-nextjs/app/extensions/[project]/[plugin]/[version]/[page]/view.tsx,admin-nextjs/app/files/page.tsx admin-nextjs/app/functions/[name]/view.tsx,admin-nextjs/app/functions/new/view.tsx admin-nextjs/app/functions/page.tsx,admin-nextjs/app/functions/view.tsx admin-nextjs/app/lib/admin-api.ts,admin-nextjs/app/lib/admin-menu.ts admin-nextjs/app/lib/admin-registry.ts,admin-nextjs/app/live-sessions/page.tsx admin-nextjs/app/monitoring/page.tsx,admin-nextjs/app/plugins/[plugin]/view.tsx admin-nextjs/app/plugins/page.tsx,admin-nextjs/app/projects/page.tsx admin-nextjs/app/routes/page.tsx,admin-nextjs/app/system/page.tsx admin-nextjs/app/view.tsx,admin-nextjs/app/workers/view.tsx admin-nextjs/app/workflows/page.tsx,admin-nextjs/next.config.ts internal/plugin/manifest_http.go
+- `ef4f2644` — 2026-11-27 19:32:37 +0330 — Verify project slug function URLs and document canonical route discovery
+  Files: docs/admin-pages/routes.md,docs/http-api.md tests/admin/admin-api.test.ts,tests/app/function_http_coverage_test.go
+- `3c68702e` — 2026-11-27 19:32:02 +0330 — Expose canonical project-scoped routes and migrate remaining admin HTTP callers
+  Files: admin-nextjs/app/components/admin-config-form.tsx,admin-nextjs/app/components/routes-panel.tsx admin-nextjs/app/functions/[name]/page.tsx,admin-nextjs/app/workers/page.tsx internal/app/project_http.go,tests/app/project_plugin_http_test.go
+- `ceef22f3` — 2026-11-27 15:57:58 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `05ba5ce0` — 2026-11-27 19:26:14 +0330 — Merge pull request #38 from arashrasoulzadeh/feat/project-scoped-http-and-plugin-routes
   Files: 
 - `173da987` — 2026-11-27 19:25:20 +0330 — Exercise authenticated Arena admission and invalid durable snapshots
@@ -83,23 +103,3 @@ Automatically generated from commits on main.
   Files: internal/project/project.go
 - `3439d92c` — 2026-11-27 17:57:17 +0330 — test: project HTTP dispatch authorization, concurrent disable and version rollback
   Files: tests/app/project_plugin_http_test.go,tests/plugin/http_version_routing_test.go
-- `5849613a` — 2026-11-27 17:56:37 +0330 — feat: project metadata editor, live route discovery and scoped operator actions
-  Files: admin-nextjs/app/components/projects-panel.tsx,admin-nextjs/app/components/routes-panel.tsx admin-nextjs/app/lib/admin-types.ts,admin-nextjs/app/page.tsx
-- `c9f21f50` — 2026-11-27 17:55:32 +0330 — style: apply CI gofmt to strict project HTTP dispatcher
-  Files: internal/app/project_http.go
-- `6bdb06ef` — 2026-11-27 17:55:14 +0330 — test: open namespaced operator panel in live browser smoke
-  Files: scripts/test-admin-live.mjs
-- `61441a06` — 2026-11-27 17:54:56 +0330 — docs: correct project.configure inventory row separator
-  Files: docs/http-api.md
-- `ec4717ea` — 2026-11-27 17:53:01 +0330 — feat: expose route bindings and capabilities, and reject ambiguous manifest paths
-  Files: internal/plugin/http_routes.go,internal/plugin/manifest_http.go
-- `188b7013` — 2026-11-27 17:51:46 +0330 — security: reject duplicated project identities and published function body conflicts
-  Files: internal/app/admin_functions.go,internal/project/url_middleware.go
-- `ad9c7833` — 2026-11-27 17:51:24 +0330 — fix: bind raw JSON project identities without precision loss and reject duplicate fields
-  Files: internal/app/project_http.go,internal/plugin/manifest_http.go tests/app/operator_auth_test.go
-- `51edf1a5` — 2026-11-27 17:49:56 +0330 — feat: support project user authentication via existing host session validator
-  Files: internal/admin/lifecycle.go,internal/app/project_http.go internal/plugin/manifest_http.go
-- `bfd8fd9f` — 2026-11-27 17:48:27 +0330 — fix: exclude reserved system UI and static assets from dynamic plugin proxy rewrite
-  Files: admin-nextjs/next.config.ts
-- `e97266e1` — 2026-11-27 17:48:00 +0330 — fix: preserve JSON response envelope and migrate CI health URLs
-  Files: .github/workflows/test.yml,docs/http-api.md internal/app/api_response.go
