@@ -36,7 +36,8 @@ Send JSON to `POST /_system/admin/actions`. Maximum request body: 64 KiB. In the
 
 | Operation | Fields besides operation | Behavior |
 | --- | --- | --- |
-| `project.create` | project_id, optional name, slug, values | Create immutable project and URL namespace. |\n| `project.configure` | project_id, optional name, slug, values | Update display metadata, unique slug or project settings; immutable ID never changes. |
+| `project.create` | project_id, optional name, slug, values | Create immutable project and URL namespace. |
+| `project.configure` | project_id, optional name, slug, values | Update display metadata, unique slug or project settings; immutable ID never changes. |
 | `project.activate` | project_id | Activate project. |
 | `project.deactivate` | project_id, confirmed | Deactivate project and restrict work. |
 | `project.uninstall` | project_id, confirmed | Uninstall project; review data retention separately. |
