@@ -1,0 +1,198 @@
+syntax = "proto3";
+
+package brain.synapse.v1;
+
+option go_package = "brain/proto/synapse/v1;synapsev1";
+
+// The first client message is Register on a mutually authenticated transport.
+// Brain binds the negotiated session to the authenticated Neuron identity.
+service Synapse {
+  rpc Connect(stream NeuronMessage) returns (stream BrainMessage);
+}
+
+message Runtime {
+  string kind = 1;
+  string isolation_profile = 2;
+}
+
+message Register {
+  string neuron_id = 1;
+  repeated uint32 supported_versions = 2;
+  repeated Runtime runtimes = 3;
+  uint32 slots = 4;
+}
+
+message Registered {
+  uint32 version = 1;
+  string session_id = 2;
+  uint32 heartbeat_interval_ms = 3;
+  uint32 max_message_bytes = 4;
+}
+
+message Pulse {
+  uint32 slots = 1;
+  uint64 cpu_millis_available = 2;
+  uint64 memory_bytes_available = 3;
+}
+
+// Brain issues attempts; the worker must echo all three fields. Never reuse an
+// attempt on reconnect or use worker-supplied project identity for admission.
+message Lease {
+  string session_id = 1;
+  uint64 attempt = 2;
+  string execution_id = 3;
+}
+
+message Artifact {
+  string project_scope = 1;
+  string id = 2;
+  string version = 3;
+  string sha256_digest = 4;
+  string entrypoint = 5;
+}
+
+message Limits {
+  uint64 cpu_nanos = 1;
+  uint64 memory_bytes = 2;
+  uint64 input_bytes = 3;
+  uint64 output_bytes = 4;
+}
+
+message Authorization {
+  string original_caller = 1;
+  string caller = 2;
+  string capability = 3;
+  string resource = 4;
+}
+
+message Assignment {
+  Lease lease = 1;
+  string trace_id = 2;
+  string parent_execution_id = 3;
+  string project_id = 4;
+  Artifact artifact = 5;
+  Runtime runtime = 6;
+  bytes input_json = 7;
+  bytes context_json = 8;
+  int64 deadline_unix_nanos = 9;
+  Limits limits = 10;
+  Authorization authorization = 11;
+  bool idempotent = 12;
+  string idempotency_key = 13;
+}
+
+message Accepted {
+  Lease lease = 1;
+}
+
+message Failure {
+  string code = 1;
+  string message = 2;
+}
+
+message Result {
+  enum Status {
+    STATUS_UNSPECIFIED = 0;
+    SUCCEEDED = 1;
+    FAILED = 2;
+    CANCELLED = 3;
+  }
+  Lease lease = 1;
+  Status status = 2;
+  bytes output_json = 3;
+  Failure error = 4;
+  uint64 duration_nanos = 5;
+  uint64 cpu_nanos = 6;
+  uint64 peak_memory_bytes = 7;
+  repeated bytes effect_intents_json = 8;
+}
+
+message Cancel {
+  Lease lease = 1;
+}
+
+// Calls carry the parent lease only. Brain derives project/caller, resolves the
+// exact target and narrows privileges from its authoritative execution record.
+message HostRequest {
+  Lease parent = 1;
+  uint64 call_id = 2;
+  oneof operation {
+    NestedInvocation execute = 3;
+    HostService service = 4;
+  }
+}
+
+message NestedInvocation {
+  string operation = 1;
+  bytes input_json = 2;
+}
+
+message HostService {
+  string operation = 1;
+  bytes input_json = 2;
+}
+
+message HostResponse {
+  Lease parent = 1;
+  uint64 call_id = 2;
+  oneof outcome {
+    bytes output_json = 3;
+    Failure error = 4;
+  }
+}
+
+// Fetch only the artifact bound to an active assigned lease. Stream contiguous
+// bounded chunks; validate total size and complete digest before extraction.
+message ArtifactRequest {
+  Lease lease = 1;
+}
+
+message ArtifactChunk {
+  Lease lease = 1;
+  uint64 offset = 2;
+  bytes data = 3;
+  uint64 total_bytes = 4;
+  bool final_chunk = 5;
+}
+
+message Drain {}
+message Drained {}
+
+message ProtocolError {
+  string code = 1;
+  string message = 2;
+}
+
+// Sequence numbers are strictly increasing in each direction per session.
+// Register/Registered are the only messages before negotiation; subsequent
+// messages must match the negotiated version and session.
+message NeuronMessage {
+  uint32 version = 1;
+  string session_id = 2;
+  uint64 sequence = 3;
+  oneof body {
+    Register register = 10;
+    Pulse pulse = 11;
+    Accepted accepted = 12;
+    Result result = 13;
+    HostRequest host_request = 14;
+    ArtifactRequest artifact_request = 15;
+    Drained drained = 16;
+    ProtocolError error = 17;
+  }
+}
+
+message BrainMessage {
+  uint32 version = 1;
+  string session_id = 2;
+  uint64 sequence = 3;
+  oneof body {
+    Registered registered = 10;
+    Assignment assignment = 11;
+    Cancel cancel = 12;
+    HostResponse host_response = 13;
+    ArtifactChunk artifact_chunk = 14;
+    Drain drain = 15;
+    ProtocolError error = 16;
+  }
+}
