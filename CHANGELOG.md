@@ -3,6 +3,16 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `eee64e74` — 2026-11-27 20:07:36 +0330 — Merge pull request #42 from arashrasoulzadeh/feat/plugin-admin-workspaces
+  Files: 
+- `bf909810` — 2026-11-27 19:57:25 +0330 — Type the shared file action state transition as a string record
+  Files: admin-nextjs/app/components/admin-renderer.tsx
+- `056d1fe7` — 2026-11-27 19:56:24 +0330 — Clear prior object key when starting an upload and identify stored representation size
+  Files: admin-nextjs/app/components/admin-inventory.tsx,admin-nextjs/app/components/admin-renderer.tsx
+- `ccda373c` — 2026-11-27 19:55:54 +0330 — Add individual plugin workspaces and trusted file upload/download controls
+  Files: admin-nextjs/app/components/admin-file-controls.tsx,admin-nextjs/app/components/admin-renderer.tsx admin-nextjs/app/components/legacy-admin-page.tsx,admin-nextjs/app/lib/admin-file-data.ts admin-nextjs/app/lib/admin-menu.ts,admin-nextjs/app/lib/admin-registry.ts admin-nextjs/app/lib/admin-sdk.ts,admin-nextjs/app/theme.css docs/admin-pages/README.md,docs/admin-pages/extensions.md docs/admin-pages/files.md,docs/admin-pages/live-sessions.md docs/plugin-guides/files.md,plugins/access-management/plugin.yaml plugins/analytics/plugin.yaml,plugins/arena/plugin.yaml plugins/auth/plugin.yaml,plugins/games/plugin.yaml plugins/invites/plugin.yaml,plugins/matchmaking/plugin.yaml plugins/pvp/plugin.yaml,plugins/rooms/plugin.yaml plugins/subscriptions/plugin.yaml,scripts/test-admin-live.mjs tests/admin/admin-file-data.test.ts,tests/admin/admin-menu.test.ts tests/admin/admin-registry.test.ts,tests/plugin/all_manifests_test.go
+- `e69aa54f` — 2026-11-27 16:19:42 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `c415bea9` — 2026-11-27 19:49:31 +0330 — Merge pull request #41 from arashrasoulzadeh/fix/canonical-project-http-paths
   Files: 
 - `ddc4fd1e` — 2026-11-27 19:48:07 +0330 — Synchronize live admin navigation assertions with Next.js client routing
@@ -93,13 +103,3 @@ Automatically generated from commits on main.
   Files: internal/plugin/macos_worker.go
 - `40c32407` — 2026-11-27 18:02:24 +0330 — style: run gofmt on manifest route registry and HTTP lifecycle tests
   Files: internal/plugin/http_routes.go,tests/app/project_plugin_http_test.go tests/plugin/http_version_routing_test.go
-- `413f8617` — 2026-11-27 18:01:07 +0330 — feat: centralized project URL validation for JavaScript SDK and operator actions
-  Files: clients/javascript/src/admin.ts,clients/javascript/src/client.ts clients/javascript/src/index.ts,tests/client/admin-client.test.ts
-- `73382bc9` — 2026-11-27 18:00:33 +0330 — docs: plugin manifest HTTP schema, admin route discovery and Go vet CI gate
-  Files: .github/workflows/test.yml,docs/admin-pages/projects.md docs/admin-pages/routes.md,docs/developers.md docs/plugin-manifest.md,docs/sdk-reference.md roadmap_backend.md
-- `09a74b1f` — 2026-11-27 17:59:42 +0330 — fix: export project HTTP route model as valid TypeScript
-  Files: admin-nextjs/app/lib/admin-types.ts
-- `ef4572e3` — 2026-11-27 17:58:50 +0330 — fix: retain existing project API casing for new metadata
-  Files: internal/project/project.go
-- `3439d92c` — 2026-11-27 17:57:17 +0330 — test: project HTTP dispatch authorization, concurrent disable and version rollback
-  Files: tests/app/project_plugin_http_test.go,tests/plugin/http_version_routing_test.go
