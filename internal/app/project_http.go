@@ -145,7 +145,15 @@ func AuthenticatedProjectRoutesHandler(service *admin.LifecycleService, sessions
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(service.ProjectHTTPRoutes(p.ID))
+		routes := service.ProjectHTTPRoutes(p.ID)
+		namespace := p.Slug
+		if namespace == "" {
+			namespace = p.ID
+		}
+		for i := range routes {
+			routes[i].Path = "/" + namespace + routes[i].Path
+		}
+		_ = json.NewEncoder(w).Encode(routes)
 	})
 }
 

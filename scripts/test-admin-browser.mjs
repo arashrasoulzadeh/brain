@@ -123,7 +123,7 @@ async function screenshot(page, name) {
 try {
   const desktop = await fixture({ width: 1440, height: 900 });
   const page = desktop.page;
-  await page.goto(origin + "/_system/ui/plugins");
+  await page.goto(origin + "/alpha/ui/plugins");
   await visible(page.getByRole("heading", { name: "Plugins", level: 1 }));
   await visible(page.getByRole("link", { name: "Files", exact: true }));
   assert.equal(await page.locator("aside.sidebar").count(), 1);
@@ -134,8 +134,10 @@ try {
   await menuSearch(page, "file metadata");
   const dynamicLink = page.getByRole("navigation", { name: "Admin navigation" }).getByRole("link", { name: /File metadata/ });
   await visible(dynamicLink);
+  assert.equal(await dynamicLink.getAttribute("href"), "/alpha/ui/extensions/files/0.1.0/operations");
   await dynamicLink.click();
   await visible(page.getByRole("heading", { name: "File metadata", level: 1 }));
+  assert.ok(new URL(page.url()).pathname.startsWith("/alpha/ui/"));
   await visible(page.getByText("sample.txt", { exact: true }));
   await page.getByRole("button", { name: "Select", exact: true }).click();
   assert.equal(await page.getByRole("textbox", { name: /key/ }).inputValue(), "sample.txt");
@@ -180,17 +182,21 @@ try {
   await visible(page.locator(".workspace-picker").getByText("beta", { exact: true }));
   await menuSearch(page, "File metadata");
   await visible(page.getByText("No matching pages.", { exact: true }));
-  await page.goto(origin + "/_system/ui/extensions/beta/files/0.1.0/operations");
+  await page.evaluate(() => sessionStorage.setItem("brain-admin-project", "alpha"));
+  await page.goto(origin + "/beta/ui/extensions/files/0.1.0/operations");
+  assert.equal(new URL(page.url()).pathname, "/beta/ui/extensions/files/0.1.0/operations");
   await visible(page.getByRole("alert").filter({ hasText: "Page unavailable or permission revoked" }));
   await desktop.context.close();
 
-  const mobile = await fixture({ width: 390, height: 844 });
-  await mobile.page.goto(origin + "/_system/ui/plugins");
+  // The URL must win over the saved selection in a fresh browser context.
+  const mobile = await fixture({ width: 390, height: 844 }, "beta");
+  await mobile.page.goto(origin + "/alpha/ui/plugins");
   await visible(mobile.page.getByRole("heading", { name: "Plugins", level: 1 }));
   const toggle = mobile.page.getByRole("button", { name: "Toggle navigation" });
   await visible(toggle);
   assert.equal(await toggle.getAttribute("aria-expanded"), "false");
   await toggle.click();
+  await visible(mobile.page.locator(".workspace-picker").getByText("alpha", { exact: true }));
   await menuSearch(mobile.page, "file metadata");
   await visible(mobile.page.getByRole("navigation", { name: "Admin navigation" }).getByRole("link", { name: /File metadata/ }));
   await screenshot(mobile.page, "mobile-navigation");

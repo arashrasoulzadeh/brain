@@ -33,7 +33,7 @@ export function RoutesPanel({ activePage, text, playgroundRoute, setPlaygroundRo
               <option value="">—</option>
               {projectRoutes.map((route) => (
                 <option key={`${route.plugin_id}:${route.operation}:${route.method}:${route.path}`} value={`${route.plugin_id}:${route.operation}`}>
-                  {route.method} /{selectedProjectID}{route.path} · {route.operation}
+                  {route.method} {route.path} · {route.operation}
                 </option>
               ))}
             </select>
@@ -81,7 +81,7 @@ export function RoutesPanel({ activePage, text, playgroundRoute, setPlaygroundRo
         <div className="plugin-grid">
           {projectRoutes.map((route) => (
             <article className="plugin" key={`${route.plugin_id}@${route.version}:${route.method}:${route.path}`}>
-              <h3>{route.method} /{selectedProjectID}{route.path}</h3>
+              <h3>{route.method} {route.path}</h3>
               <div className="route-list">
                 <code>{route.plugin_id}@{route.version} · {route.operation}</code>
                 <small>{route.capability} · {route.auth} · {route.function}</small>

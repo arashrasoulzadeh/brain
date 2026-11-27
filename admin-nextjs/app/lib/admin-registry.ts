@@ -1,3 +1,4 @@
+import { projectUIURL } from "./admin-api.js";
 import type { AdminPage, PluginStatus, SystemManifest } from "./admin-types.js";
 
 export type AdminContribution = { projectID: string; pluginID: string; version: string; page: AdminPage; href: string };
@@ -16,7 +17,7 @@ export function adminContributions(projectID: string, catalog: AdminCatalog): Ad
         return route && installation.Grants?.includes(route.Capability);
       });
       if (!actions.length) continue;
-      const href = "/extensions/" + [projectID, manifest.ID, manifest.Version, page.id].map(encodeURIComponent).join("/");
+      const href = projectUIURL(projectID, "extensions", manifest.ID, manifest.Version, page.id);
       result.push({ projectID, pluginID: manifest.ID, version: manifest.Version, page: { ...page, actions }, href });
     }
   }

@@ -17,7 +17,7 @@ func validHTTPPath(value string, mount bool) bool {
 	}
 	if mount {
 		return httpSegment.MatchString(strings.TrimPrefix(value, "/")) &&
-			value != "/_system" && value != "/admin" && value != "/functions" && value != "/ws"
+			value != "/_system" && value != "/admin" && value != "/functions" && value != "/ws" && value != "/ui"
 	}
 	if value == "/" {
 		return true

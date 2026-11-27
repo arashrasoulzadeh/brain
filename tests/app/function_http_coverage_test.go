@@ -64,7 +64,8 @@ func TestFunctionHTTPDraftLifecycleAndValidation(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	projects := project.NewStore(project.Project{ID: projectID, Active: true})
+	const projectSlug = "function-demo"
+	projects := project.NewStore(project.Project{ID: projectID, Slug: projectSlug, Active: true}, project.Project{ID: "other-project", Active: true})
 	service := admin.NewLifecycleServiceWithProjects(operators, registry, projects)
 	handler := app.AuthenticatedFunctionsHandler(service, operators)
 	path := "https://admin.example.test/admin/functions"
@@ -107,7 +108,7 @@ func TestFunctionHTTPDraftLifecycleAndValidation(t *testing.T) {
 	command("functions.update", name, source, 2, http.StatusOK)
 	command("functions.publish", "missing", source, 2, http.StatusBadRequest)
 	published := command("functions.publish", name, source, 2, http.StatusOK)
-	if !strings.Contains(published.Body.String(), "https://admin.example.test/"+projectID+"/functions/"+name) {
+	if !strings.Contains(published.Body.String(), "https://admin.example.test/"+projectSlug+"/functions/"+name) {
 		t.Fatalf("published URL missing: %s", published.Body.String())
 	}
 	command("unsupported", name, source, 1, http.StatusBadRequest)
@@ -120,7 +121,7 @@ func TestFunctionHTTPDraftLifecycleAndValidation(t *testing.T) {
 	}
 
 	server := app.NewServerWithOperatorAdmin(service, operators, func(value string) string { return "digest:" + value }).Handler()
-	publicPath := "/" + projectID + "/functions/" + name
+	publicPath := "/" + projectSlug + "/functions/" + name
 	coverageHTTPRequest(t, server, http.MethodPost, publicPath, "", "{", http.StatusBadRequest)
 	wrongMethod := coverageHTTPRequest(t, server, http.MethodGet, publicPath, "", "", http.StatusMethodNotAllowed)
 	if wrongMethod.Header().Get("Allow") == "" {
@@ -136,6 +137,11 @@ func TestFunctionHTTPDraftLifecycleAndValidation(t *testing.T) {
 	}
 	coverageHTTPRequest(t, server, http.MethodPost, "/"+projectID+"/missing", "", "{}", http.StatusNotFound)
 	coverageHTTPRequest(t, server, http.MethodPost, publicPath, "", "{}", http.StatusOK)
+	coverageHTTPRequest(t, server, http.MethodPost, "/"+projectID+"/functions/"+name, "", "{}", http.StatusOK)
+	coverageHTTPRequest(t, server, http.MethodPost, "/other-project/functions/"+name, "", "{}", http.StatusNotFound)
+	coverageHTTPRequest(t, server, http.MethodPost, "/functions/"+name, "", "{}", http.StatusNotFound)
+	coverageHTTPRequest(t, server, http.MethodPost, "/public/"+projectID+"/"+name, "", "{}", http.StatusNotFound)
+	coverageHTTPRequest(t, server, http.MethodPost, publicPath, "", `{"project_id":"other-project"}`, http.StatusBadRequest)
 }
 
 func TestAdminHTTPRejectsUnavailableServicesAndInvalidCommands(t *testing.T) {

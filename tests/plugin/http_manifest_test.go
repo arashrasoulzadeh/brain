@@ -13,6 +13,7 @@ func TestManifestHTTPRouteAdmission(t *testing.T) {
 	}
 	for name, mutate := range map[string]func(*plugin.Manifest){
 		"system mount":          func(m *plugin.Manifest) { m.Mount = "/_system" },
+		"project UI mount":      func(m *plugin.Manifest) { m.Mount = "/ui" },
 		"path traversal":        func(m *plugin.Manifest) { m.Routes[0].Path = "/../secret" },
 		"encoded slash":         func(m *plugin.Manifest) { m.Routes[0].Path = "/%2fsecret" },
 		"unsupported method":    func(m *plugin.Manifest) { m.Routes[0].Method = "TRACE" },
