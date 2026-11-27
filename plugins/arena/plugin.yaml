@@ -33,12 +33,16 @@ routes:
   - operation: arena.start
     function: start
     capability: arena.start
+    resource_field: roomId
   - operation: arena.input
     function: input
     capability: arena.input
+    resource_field: roomId
   - operation: arena.snapshot
     function: snapshot
     capability: arena.snapshot
+    resource_field: roomId
   - operation: arena.result
     function: result
     capability: arena.result
+    resource_field: roomId

@@ -96,14 +96,14 @@ func (b *Broker) Authorize(call HostCall, now time.Time) error {
 	if b.ActorAllows == nil || !b.ActorAllows(call.ActorID, call.Capability, call.Resource) {
 		return ErrActorDenied
 	}
-	if call.Resource != "" {
-		if b.Registry == nil {
-			return ErrRegistryUnavailable
-		}
-		return b.Registry.AuthorizeResource(call.ProjectID, call.PluginID, call.Version, call.Capability, call.Resource)
-	}
 	if b.Registry == nil {
 		return ErrRegistryUnavailable
+	}
+	if err := b.Registry.authorizeActorAccess(call); err != nil {
+		return err
+	}
+	if call.Resource != "" {
+		return b.Registry.AuthorizeResource(call.ProjectID, call.PluginID, call.Version, call.Capability, call.Resource)
 	}
 	return b.Registry.Authorize(call.ProjectID, call.PluginID, call.Version, call.Capability)
 }

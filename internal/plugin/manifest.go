@@ -34,15 +34,17 @@ type Manifest struct {
 }
 
 type Route struct {
-	Operation     string        `yaml:"operation"`
-	Function      string        `yaml:"function"`
-	Capability    string        `yaml:"capability"`
-	Helper        string        `yaml:"helper,omitempty"`
-	Response      *ResponseSpec `yaml:"response,omitempty"`
-	Pipeline      *PipelineSpec `yaml:"pipeline,omitempty"`
-	Model         *ModelRoute   `yaml:"model,omitempty"`
-	Call          *PluginCall   `yaml:"call,omitempty"`
-	ResourceField string        `yaml:"resource_field,omitempty"`
+	Operation  string        `yaml:"operation"`
+	Function   string        `yaml:"function"`
+	Capability string        `yaml:"capability"`
+	Helper     string        `yaml:"helper,omitempty"`
+	Response   *ResponseSpec `yaml:"response,omitempty"`
+	Pipeline   *PipelineSpec `yaml:"pipeline,omitempty"`
+	Model      *ModelRoute   `yaml:"model,omitempty"`
+	Call       *PluginCall   `yaml:"call,omitempty"`
+
+	// ResourceField binds resource-scoped policy to a manifest-declared payload field.
+	ResourceField string `yaml:"resource_field,omitempty" json:",omitempty"`
 }
 
 func LoadManifest(path string) (Manifest, error) {
@@ -125,7 +127,7 @@ func ValidateManifestContract(manifest Manifest) error {
 		if (route.Helper == "host.call" && !route.Call.valid(manifest, route.Capability)) || (route.Helper != "host.call" && route.Call != nil) {
 			return ErrInvalidManifest
 		}
-		if route.ResourceField != "" && (!validResponseKey(route.ResourceField) || route.Helper == "host.model" || route.Helper == "host.call") {
+		if route.ResourceField != "" && (!validResponseKey(route.ResourceField) || route.Model != nil || route.Call != nil) {
 			return ErrInvalidManifest
 		}
 		seenRoutes[route.Operation] = true

@@ -166,7 +166,7 @@ func (s *LifecycleService) InvokePlugin(actor operator.Actor, invocation PluginI
 	var response plugin.WorkerResponse
 	err := s.execute(actor, "plugin.invoke", func() error {
 		var invokeErr error
-		response, invokeErr = s.registry.Invoke(plugin.WorkerRequest{Protocol: s.registry.HostAPI, ProjectID: invocation.ProjectID, PluginID: invocation.PluginID, Version: invocation.Version, Operation: invocation.Operation, Payload: invocation.Payload})
+		response, invokeErr = s.registry.InvokeAsOperator(plugin.WorkerRequest{Protocol: s.registry.HostAPI, ProjectID: invocation.ProjectID, PluginID: invocation.PluginID, Version: invocation.Version, Operation: invocation.Operation, Payload: invocation.Payload}, actor.ID)
 		return invokeErr
 	})
 	return response, err
@@ -230,7 +230,7 @@ func (s *LifecycleService) invokeAdminPage(actor operator.Actor, pageID string, 
 		if err := manifest.ValidateAdminPayload(pageID, invocation.Operation, invocation.Payload); err != nil {
 			return err
 		}
-		response, err = s.registry.Invoke(plugin.WorkerRequest{Protocol: s.registry.HostAPI, ProjectID: invocation.ProjectID, PluginID: invocation.PluginID, Version: invocation.Version, Operation: invocation.Operation, Payload: invocation.Payload})
+		response, err = s.registry.InvokeAsOperator(plugin.WorkerRequest{Protocol: s.registry.HostAPI, ProjectID: invocation.ProjectID, PluginID: invocation.PluginID, Version: invocation.Version, Operation: invocation.Operation, Payload: invocation.Payload}, actor.ID)
 		if err == nil && (!response.Success || response.ErrorCode != "") {
 			return errors.New("plugin admin action failed")
 		}

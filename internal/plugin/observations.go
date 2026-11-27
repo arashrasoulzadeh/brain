@@ -170,7 +170,7 @@ func (r *Registry) observationTargets(publisher WorkerRequest, event string) []W
 		}
 		for _, observer := range manifest.Manifest.Observers {
 			if observer.Plugin == publisher.PluginID && observer.Event == event {
-				target := WorkerRequest{Protocol: publisher.Protocol, ProjectID: publisher.ProjectID, PluginID: installation.PluginID, Version: installation.Version, Operation: observer.operation()}
+				target := WorkerRequest{Protocol: publisher.Protocol, ProjectID: publisher.ProjectID, PluginID: installation.PluginID, Version: installation.Version, Operation: observer.operation(), accessPrincipal: pluginAccessPrincipal(publisher.PluginID, publisher.Version)}
 				if r.authorizeInvocationLocked(target, true) == nil {
 					candidates[installation.PluginID] = append(candidates[installation.PluginID], target)
 				}

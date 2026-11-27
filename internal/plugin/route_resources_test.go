@@ -2,31 +2,26 @@ package plugin
 
 import "testing"
 
-func TestRouteResourceGrantsFailClosed(t *testing.T) {
-	resources := map[string]bool{"allowed": true}
+func TestInvocationResourceRejectsAmbiguousIdentity(t *testing.T) {
 	route := Route{ResourceField: "id"}
 	for _, tc := range []struct {
 		payload string
-		want    bool
+		want    string
 	}{
-		{`{"id":"allowed"}`, true},
-		{`{"id":" allowed "}`, true},
-		{`{"id":"other"}`, false},
-		{`{"id":7}`, false},
-		{`{"resource":"allowed"}`, false},
-		{`null`, false},
+		{`{"id":"allowed"}`, "allowed"},
+		{`{"id":" allowed "}`, ""},
+		{`{"id":7}`, ""},
+		{`{"resource":"allowed"}`, ""},
+		{`{"id":"*"}`, ""},
+		{`null`, ""},
 	} {
-		if got := routeResourceAllowed(route, []byte(tc.payload), resources); got != tc.want {
-			t.Errorf("%s: got %t, want %t", tc.payload, got, tc.want)
+		resource, err := invocationResource(WorkerRequest{Payload: []byte(tc.payload)}, route)
+		if resource != tc.want || (err != nil) != (tc.want == "") {
+			t.Errorf("%s: got %q, %v; want %q", tc.payload, resource, err, tc.want)
 		}
 	}
-	if routeResourceAllowed(Route{}, []byte(`{"id":"allowed"}`), resources) {
-		t.Fatal("undeclared resource binding accepted")
-	}
-	if !routeResourceAllowed(Route{Model: &ModelRoute{Name: "allowed"}}, nil, resources) {
-		t.Fatal("declared model resource rejected")
-	}
-	if !routeResourceAllowed(Route{}, nil, nil) {
-		t.Fatal("unrestricted grant rejected")
+	resource, err := invocationResource(WorkerRequest{}, Route{Model: &ModelRoute{Name: "allowed"}})
+	if err != nil || resource != "allowed" {
+		t.Fatalf("model resource = %q, %v", resource, err)
 	}
 }

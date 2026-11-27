@@ -46,8 +46,8 @@ export type PluginRoute = {
   operation: string;
   function: string;
   capability: string;
+  resourceField?: string;
   helper?: "sdk.dispatch" | "sdk.request" | "sdk.response" | "sdk.context" | "sdk.pipeline" | "host.model" | "host.call";
-  resource_field?: string;
   call?: Readonly<{ plugin: string; version: string; operation: string }>;
   response?: DeclarativeResponse;
   pipeline?: DeclarativePipeline;
