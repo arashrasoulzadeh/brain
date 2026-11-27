@@ -158,10 +158,18 @@ func (w *TypeScriptWorker) SetTrustedStartupDiagnostics(writer io.Writer) {
 }
 
 func (w *TypeScriptWorker) Start() error {
+	return w.StartContext(context.Background())
+}
+
+// StartContext bounds startup by the host assignment deadline.
+func (w *TypeScriptWorker) StartContext(ctx context.Context) error {
 	w.mutex.Lock()
 	defer w.mutex.Unlock()
 	if w.ready {
 		return ErrTypeScriptWorkerStarted
+	}
+	if err := ctx.Err(); err != nil {
+		return err
 	}
 	if w.env != nil {
 		w.command.Env = w.env
@@ -200,6 +208,11 @@ func (w *TypeScriptWorker) Start() error {
 				w.reapProcess()
 				return fmt.Errorf("sandbox worker did not acknowledge startup")
 			}
+		case <-ctx.Done():
+			_ = w.command.Process.Kill()
+			_ = w.stdin.Close()
+			w.reapProcess()
+			return ctx.Err()
 		case <-timer.C:
 			_ = w.command.Process.Kill()
 			w.reapProcess()
@@ -253,6 +266,12 @@ func (w *TypeScriptWorker) Ready() bool {
 }
 
 func (w *TypeScriptWorker) Handle(request WorkerRequest) WorkerResponse {
+	return w.HandleContext(context.Background(), request)
+}
+
+// HandleContext kills and reaps the isolated worker before returning a cancelled
+// assignment. The existing invocation timeout remains an upper bound.
+func (w *TypeScriptWorker) HandleContext(ctx context.Context, request WorkerRequest) WorkerResponse {
 	w.mutex.Lock()
 	defer w.mutex.Unlock()
 	if w.options.ProjectID != "" && request.ProjectID != w.options.ProjectID {
@@ -310,19 +329,18 @@ func (w *TypeScriptWorker) Handle(request WorkerRequest) WorkerResponse {
 	}()
 	var exchange exchangeResult
 	if w.options.InvocationTimeout > 0 {
-		ctx, cancel := context.WithTimeout(context.Background(), w.options.InvocationTimeout)
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, w.options.InvocationTimeout)
 		defer cancel()
-		select {
-		case exchange = <-result:
-		case <-ctx.Done():
-			w.ready = false
-			_ = w.command.Process.Kill()
-			_ = w.stdin.Close()
-			w.reapProcess()
-			return WorkerResponse{Protocol: request.Protocol, ErrorCode: ErrTypeScriptWorkerTimedOut.Error()}
-		}
-	} else {
-		exchange = <-result
+	}
+	select {
+	case exchange = <-result:
+	case <-ctx.Done():
+		w.ready = false
+		_ = w.command.Process.Kill()
+		_ = w.stdin.Close()
+		w.reapProcess()
+		return WorkerResponse{Protocol: request.Protocol, ErrorCode: ErrTypeScriptWorkerTimedOut.Error()}
 	}
 	if exchange.err != nil {
 		w.ready = false
