@@ -360,6 +360,9 @@ func validatePayloadProject(request WorkerRequest) error {
 		if _, supplied := payload["_brainInvites"]; request.PluginID == "invites" && supplied {
 			return ErrInvalidWorkerRequest
 		}
+		if _, supplied := payload["_brainSubscriptions"]; request.PluginID == "subscriptions" && supplied {
+			return ErrInvalidWorkerRequest
+		}
 		for _, key := range []string{"projectId", "project_id"} {
 			if value, exists := payload[key]; exists {
 				var id string

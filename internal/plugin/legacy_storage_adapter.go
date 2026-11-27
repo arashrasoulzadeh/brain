@@ -15,7 +15,7 @@ type legacyStoragePlanner struct {
 
 func (p legacyStoragePlanner) Supports(pluginID string) bool {
 	switch pluginID {
-	case "files", "matchmaking", "rooms", "analytics", "tables", "arena", "auth", "invites":
+	case "files", "matchmaking", "rooms", "analytics", "tables", "arena", "auth", "invites", "subscriptions":
 		return true
 	default:
 		return false
@@ -94,6 +94,9 @@ func prepareLegacyStorageEffect(storage *SQLiteStorage, request WorkerRequest) (
 	}
 	if request.PluginID == "invites" {
 		return prepareInviteStorageEffect(storage, request)
+	}
+	if request.PluginID == "subscriptions" {
+		return prepareSubscriptionStorageEffect(storage, request)
 	}
 	var keyField string
 	switch request.PluginID + "/" + request.Operation {

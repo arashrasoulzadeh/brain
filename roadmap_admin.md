@@ -47,3 +47,5 @@ Admin-panel and operator documentation work after backend release gates pass.
 - [x] Persist auth accounts and token digests, redact admin projections, and verify recovery and durable revocation.
 
 - [x] Persist invitations with digest-only code storage and single-use conditional writes.
+
+- [x] Persist subscription ticket digests, retained event cursors and bounded observation deduplication through worker recovery.

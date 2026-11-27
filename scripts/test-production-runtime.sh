@@ -155,7 +155,20 @@ for (let attempt = 0; attempt < 30; attempt++) {
 }
 assert.ok(observed,"subscriptions did not receive rooms.connected");
 assert.ok(analyticsDelivered,"analytics did not receive rooms.connected");
-await invoke("subscriptions","subscriptions.close",{channel,ticket:subscription.ticket});
+// The ticket and event cursor survive replacement of the subscription worker.
+await action("plugin.stop",{plugin_id:"subscriptions",confirmed:true});
+await action("plugin.recover",{plugin_id:"subscriptions"});
+await action("plugin.worker.start",{plugin_id:"subscriptions"});
+const resumed = await invoke("subscriptions","subscriptions.receive",{channel,ticket:subscription.ticket,cursor:subscription.cursor});
+assert.ok(resumed.events.some(event=>event.value.roomId==="ci-room"));
+const inspected = await invoke("subscriptions","subscriptions.inspect",{channel});
+assert.equal(inspected.activeTickets,1);
+assert.ok(!JSON.stringify(inspected).includes(subscription.ticket));
+assert.deepEqual(await invoke("subscriptions","subscriptions.revoke",{channel}),{channel,revoked:1});
+const revokedTicket = await fetch(base+"/admin/actions",{method:"POST",headers,body:JSON.stringify({operation:"plugin.invoke",project_id:"ci-project",plugin_id:"subscriptions",version:"0.1.0",target_operation:"subscriptions.receive",payload:{channel,ticket:subscription.ticket,cursor:0}})});
+assert.ok(!revokedTicket.ok || !(await revokedTicket.json()).Success,"revoked subscription ticket admitted");
+const fresh = await invoke("subscriptions","subscriptions.open",{channel});
+await invoke("subscriptions","subscriptions.close",{channel,ticket:fresh.ticket});
 assert.ok((await fetch(base + "/readyz")).ok);
 NODE
 
