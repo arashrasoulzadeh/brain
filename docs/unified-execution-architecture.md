@@ -102,3 +102,27 @@ Verification: in an isolated Go 1.23 module with module name brain, the new test
 The full repository checkout remains unavailable in this environment (GitHub DNS resolution fails). GitHub Actions was triggered for each commit. The first implementation commit's repository-wide coverage gate reported 7248/7594 covered statements and 346 missing; the latest CI-tested baseline main commit d781058 reported 7219/7565 and the same 346 missing. The only change between d781058 and the pinned main baseline is CHANGELOG.md. Both the baseline and the first implementation commit also failed the TypeScript 100% coverage gate. Do not lower thresholds or treat these pre-existing failures as a passing phase. The latest implementation CI is not yet verified.
 
 No existing production invocation path has been switched. The next increment is a genuine legacy worker adapter with immutable source/runtime binding, preserving the existing broker, storage planner, manifest authorization, commit rechecks, and legacy HTTP behavior. It requires a working full-repository build and sandbox regression environment. No phase checkbox or final acceptance criterion has been marked complete.
+
+
+## Cortex, Synapse and Neuron implementation progress (not phase exit)
+
+| Commit | Verified increment |
+| --- | --- |
+| 74a5d05 | Cortex scheduler with compatible runtime selection, project and global queue bounds, capacity accounting, session fencing, expiration, draining and zero-Neuron rejection. |
+| e0cf889 | Synapse v1 protobuf schema and transport-independent session engine: version negotiation, ordered envelopes, assignment leases, acceptance, correlated completion and bounded cancellation acknowledgements. |
+| 4f89cc6 | Mutual TLS 1.3 helpers, canonical certificate-bound Neuron identity, loopback TLS verification and deterministic Cortex queue priority. |
+| 31da1f0 | Lease-authorized artifact chunks and bounded contiguous assembly with complete digest verification. |
+| 10f5fee | Neuron worker-local engine: exact runtime selection, verified bundles, independent input copies, execution slots, draining, cancellation and validated result envelopes. |
+| 4127042 | In-process integration of the actual Cortex scheduler, Synapse session, artifact transfer and Neuron engine, including zero-capacity and duplicate-completion rejection. |
+
+The combined new packages were formatted and tested in an isolated Go 1.23 module. Ten race-enabled repetitions of all five test packages passed with 100% combined statement coverage across the four new implementation packages; go vet passed. The Cortex concurrency test uses four in-process adapters, not four separate operating-system processes. The TLS tests use actual loopback TCP connections; the pipeline test uses the internal session API and a test runtime adapter, not gRPC or a production sandbox. Remote Git blob hashes were checked against the locally tested files.
+
+### Transport dependency bootstrap
+
+The protobuf schema compiles. The repository vendors Go dependencies, so gRPC generation and dependency synchronization are being tested separately on architecture/synapse-codegen. The first generation attempt with an older gRPC version failed the vendor consistency check. A patched gRPC v1.85.0 and Go 1.26.11 were selected rather than introducing an outdated network-facing dependency. The second bootstrap run generated bindings, synchronized vendor dependencies, built the generated package and passed the focused race/coverage tests. The full Go suite failed because crypto/rand.Read now terminates the process on injected entropy-reader failure. The separate bootstrap commit 68b12b2 replaces five existing error-handling calls with io.ReadFull(rand.Reader, ...) so the existing error paths can remain testable; its verification run is pending. The temporary workflow only publishes generated files to the bootstrap branch after all its checks pass. Neither the new dependency versions nor these compatibility edits have been merged into the architecture branch or main. The Docker and toolchain configurations still require coordinated upgrade and verification.
+
+CI evidence: https://github.com/arashrasoulzadeh/brain/actions/runs/46073085872 (failed full suite); https://github.com/arashrasoulzadeh/brain/actions/runs/46073473685 (compatibility recheck). The pre-existing repository-wide coverage failures documented above remain unresolved.
+
+### Outstanding production integration
+
+The generated bindings, authenticated gRPC client/server stream adapters, actual Neuron process, concrete isolated runtime adapters, durable artifact catalog and host authorization/commit integration remain incomplete. The existing production routes and worker lifecycle remain unchanged. Core, plugin and user invocation migration, nested calls, remote process tests, CLI/admin, operational readiness and final cleanup still require implementation and full regression verification. No phase or final acceptance checklist is marked complete, and no existing security control or coverage threshold is relaxed.
