@@ -15,18 +15,18 @@ const version = "0.1.0";
 let ready = false;
 for (let attempt = 0; attempt < 30; attempt++) {
   try {
-    ready = (await fetch(backend + "/readyz", { signal: AbortSignal.timeout(1000) })).ok;
+    ready = (await fetch(backend + "/_system/readyz", { signal: AbortSignal.timeout(1000) })).ok;
     if (ready) break;
   } catch {}
   await delay(1000);
 }
 assert.ok(ready, "packaged backend never became ready");
-const login = await fetch(backend + "/admin/session", {method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify({username,secret})});
+const login = await fetch(backend + "/_system/admin/session", {method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify({username,secret})});
 assert.ok(login.ok, "fixture operator login failed");
 const {session} = await login.json();
 const headers = {authorization:"Bearer " + session, "content-type":"application/json"};
 async function action(operation, extra = {}) {
-  const response = await fetch(backend + "/admin/actions", {method:"POST", headers,
+  const response = await fetch(backend + "/_system/admin/actions", {method:"POST", headers,
     body:JSON.stringify({operation,project_id:project,plugin_id:"files",version,...extra}), signal:AbortSignal.timeout(20000)});
   assert.ok(response.ok, operation + ": " + await response.clone().text());
   return response.json();
@@ -106,7 +106,7 @@ try {
   await inventory.getByRole("button",{name:"Refresh",exact:true}).click();
   await visible(inventory.getByText("No resources on this page.",{exact:true}));
   assert.equal(await inventory.getByText("visible.txt",{exact:true}).count(),0);
-  const denied = await fetch(backend+"/admin/actions",{method:"POST",headers,body:JSON.stringify({operation:"plugin.admin.query",
+  const denied = await fetch(backend+"/_system/admin/actions",{method:"POST",headers,body:JSON.stringify({operation:"plugin.admin.query",
     project_id:project,plugin_id:"files",version,page_id:"operations",target_operation:"files.metadata",payload:{key:"visible.txt"}})});
   assert.equal(denied.status,403);
 

@@ -16,7 +16,7 @@ export async function adminLogin(
   secret: string,
   request: typeof fetch = fetch,
 ): Promise<AdminSessionResponse> {
-  const response = await request(`${apiOrigin}/admin/session`, {
+  const response = await request(`${apiOrigin}/_system/admin/session`, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ username, secret }),
@@ -31,7 +31,7 @@ export async function adminAction(
   action: AdminAction,
   request: typeof fetch = fetch,
 ): Promise<void> {
-  const response = await request(`${apiOrigin}/admin/actions`, {
+  const response = await request(`${apiOrigin}/${action.project_id ? encodeURIComponent(action.project_id) : "_system"}/admin/actions`, {
     method: "POST",
     headers: { authorization: `Bearer ${session}`, "content-type": "application/json" },
     body: JSON.stringify(action),

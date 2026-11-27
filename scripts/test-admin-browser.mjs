@@ -45,28 +45,30 @@ async function fixture(viewport, project = "alpha") {
   let allowed = true;
   let modelAllowed = true;
   page.on("pageerror", error => runtimeErrors.push(error.message));
-  await page.route("**/api/admin/**", async route => {
+  await page.route("**/*/admin/**", async route => {
     const request = route.request();
     const url = new URL(request.url());
     if (request.headers().authorization !== "Bearer browser-fixture") {
       return route.fulfill({ status: 403, body: "Forbidden" });
     }
     const json = body => route.fulfill({ json: body });
-    switch (url.pathname) {
-      case "/api/admin/projects": return json(projects);
-      case "/api/admin/plugins": {
-        const id = url.searchParams.get("project_id");
+    const namespace = url.pathname.split("/")[1];
+    const endpoint = url.pathname.replace(/^\/[A-Za-z0-9_-]+\/admin\//, "/admin/");
+    switch (endpoint) {
+      case "/admin/projects": return json(projects);
+      case "/admin/plugins": {
+        const id = url.searchParams.get("project_id") ?? (namespace === "_system" ? "" : namespace);
         return json({
           manifests: [manifest],
           installations: id === "alpha" ? [{ ProjectID: id, PluginID: "files", Version: manifest.Version,
             Enabled: true, Ready: true, Draining: false, Grants: manifest.Capabilities }] : [],
         });
       }
-      case "/api/admin/audit":
-      case "/api/admin/system":
-      case "/api/admin/functions": return json([]);
-      case "/api/admin/session": return route.fulfill({ status: 204 });
-      case "/api/admin/actions": {
+      case "/admin/audit":
+      case "/admin/system":
+      case "/admin/functions": return json([]);
+      case "/admin/session": return route.fulfill({ status: 204 });
+      case "/admin/actions": {
         const body = request.postDataJSON();
         commands.push(body);
         assert.equal(body.project_id, "alpha");
@@ -120,7 +122,7 @@ async function screenshot(page, name) {
 try {
   const desktop = await fixture({ width: 1440, height: 900 });
   const page = desktop.page;
-  await page.goto(origin + "/plugins");
+  await page.goto(origin + "/_system/ui/plugins");
   await visible(page.getByRole("heading", { name: "Plugins", level: 1 }));
   await visible(page.getByRole("link", { name: "Files", exact: true }));
   assert.equal(await page.locator("aside.sidebar").count(), 1);
@@ -177,12 +179,12 @@ try {
   await visible(page.locator(".workspace-picker").getByText("beta", { exact: true }));
   await menuSearch(page, "File metadata");
   await visible(page.getByText("No matching pages.", { exact: true }));
-  await page.goto(origin + "/extensions/beta/files/0.1.0/operations");
+  await page.goto(origin + "/_system/ui/extensions/beta/files/0.1.0/operations");
   await visible(page.getByRole("alert").filter({ hasText: "Page unavailable or permission revoked" }));
   await desktop.context.close();
 
   const mobile = await fixture({ width: 390, height: 844 });
-  await mobile.page.goto(origin + "/plugins");
+  await mobile.page.goto(origin + "/_system/ui/plugins");
   await visible(mobile.page.getByRole("heading", { name: "Plugins", level: 1 }));
   const toggle = mobile.page.getByRole("button", { name: "Toggle navigation" });
   await visible(toggle);
