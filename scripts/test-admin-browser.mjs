@@ -192,11 +192,11 @@ try {
   const mobile = await fixture({ width: 390, height: 844 }, "beta");
   await mobile.page.goto(origin + "/alpha/ui/plugins");
   await visible(mobile.page.getByRole("heading", { name: "Plugins", level: 1 }));
-  await visible(mobile.page.locator(".workspace-picker").getByText("alpha", { exact: true }));
   const toggle = mobile.page.getByRole("button", { name: "Toggle navigation" });
   await visible(toggle);
   assert.equal(await toggle.getAttribute("aria-expanded"), "false");
   await toggle.click();
+  await visible(mobile.page.locator(".workspace-picker").getByText("alpha", { exact: true }));
   await menuSearch(mobile.page, "file metadata");
   await visible(mobile.page.getByRole("navigation", { name: "Admin navigation" }).getByRole("link", { name: /File metadata/ }));
   await screenshot(mobile.page, "mobile-navigation");
