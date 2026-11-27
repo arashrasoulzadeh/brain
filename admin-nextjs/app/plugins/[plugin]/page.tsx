@@ -48,7 +48,7 @@ export default function PluginSettingsPage() {
   async function lifecycle(operation: string, capability = "") {
     if (!session || !project || !installation) return;
     if (operation === "plugin.revoke" && !window.confirm(`Revoke ${capability}?`)) return;
-    const response = await fetch(projectAdminURL(project.ID, "actions"), { method: "POST", headers: adminHeaders(session, { "content-type": "application/json" }), body: JSON.stringify({ operation, project_id: project.ID, plugin_id: installation.PluginID, version: installation.Version, capability, ready: operation === "plugin.readiness", confirmed: operation === "plugin.revoke" }) });
+    const response = await fetch(operation === "plugin.readiness" ? systemAdminURL("actions") : projectAdminURL(project.ID, "actions"), { method: "POST", headers: adminHeaders(session, { "content-type": "application/json" }), body: JSON.stringify({ operation, project_id: project.ID, plugin_id: installation.PluginID, version: installation.Version, capability, ready: operation === "plugin.readiness", confirmed: operation === "plugin.revoke" }) });
     setMessage(response.ok ? `${operation} completed` : await response.text());
     if (response.ok) await load(session);
   }

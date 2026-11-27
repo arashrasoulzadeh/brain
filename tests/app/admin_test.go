@@ -12,6 +12,7 @@ import (
 	"brain/internal/app"
 	"brain/internal/operator"
 	"brain/internal/plugin"
+	"brain/internal/project"
 )
 
 func TestAdminHandlerFailsClosedWithoutTrustedOperatorContext(t *testing.T) {
@@ -63,9 +64,9 @@ func TestServerWiresAuthenticatedAdminCommand(t *testing.T) {
 	if err := operators.Authenticate("admin", "secret", digest); err != nil {
 		t.Fatal(err)
 	}
-	service := admin.NewLifecycleService(operators, plugin.NewRegistry(1))
+	service := admin.NewLifecycleServiceWithProjects(operators, plugin.NewRegistry(1), project.NewStore(project.Project{ID: "dev", Active: true}))
 	actor := operator.Actor{ID: "admin", Kind: operator.ActorOperator}
-	request := httptest.NewRequest(http.MethodPost, "/_system/admin/actions", strings.NewReader(`{"operation":"plugin.enable","project_id":"dev","plugin_id":"rooms","version":"1.0.0"}`))
+	request := httptest.NewRequest(http.MethodPost, "/dev/admin/actions", strings.NewReader(`{"operation":"plugin.enable","project_id":"dev","plugin_id":"rooms","version":"1.0.0"}`))
 	request = request.WithContext(operator.WithActor(context.Background(), actor))
 	recorder := httptest.NewRecorder()
 	app.NewServerWithAdmin(service).Handler().ServeHTTP(recorder, request)

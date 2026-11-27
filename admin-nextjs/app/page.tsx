@@ -271,7 +271,7 @@ export default function AdminPage() {
     try {
       const values: unknown = JSON.parse(rawSettings);
       if (!values || typeof values !== "object" || Array.isArray(values)) throw new Error("Settings must be a JSON object");
-      const response = await fetch(projectAdminURL(project.ID, "actions"), {
+      const response = await fetch(systemAdminURL("actions"), {
         method: "POST",
         headers: adminHeaders(session, { "content-type": "application/json" }),
         body: JSON.stringify({ operation: "project.configure", project_id: project.ID, name, slug, values }),
@@ -284,7 +284,7 @@ export default function AdminPage() {
   }
   async function setProjectActive(project: Project, active: boolean) {
     if (!active && !window.confirm(`${text.deactivate} ${project.ID}?`)) return;
-    const response = await fetch(projectAdminURL(project.ID, "actions"), {
+    const response = await fetch(systemAdminURL("actions"), {
       method: "POST",
       headers: adminHeaders(session, { "content-type": "application/json" }),
       body: JSON.stringify({
@@ -440,7 +440,7 @@ export default function AdminPage() {
   async function uninstallProject(project: Project) {
     if (!window.confirm(`${text.uninstall} ${project.ID}?`)) return;
     setError("");
-    const response = await fetch(projectAdminURL(project.ID, "actions"), {
+    const response = await fetch(systemAdminURL("actions"), {
       method: "POST",
       headers: adminHeaders(session, { "content-type": "application/json" }),
       body: JSON.stringify({
@@ -488,7 +488,7 @@ export default function AdminPage() {
       !window.confirm(`${operation} ${installation.PluginID}@${installation.Version}?`)
     )
       return;
-    const response = await fetch(projectAdminURL(project.ID, "actions"), {
+    const response = await fetch(operation === "plugin.readiness" ? systemAdminURL("actions") : projectAdminURL(project.ID, "actions"), {
       method: "POST",
       headers: adminHeaders(session, { "content-type": "application/json" }),
       body: JSON.stringify({

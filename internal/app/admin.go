@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 
@@ -136,6 +137,26 @@ type adminCommand struct {
 	Method          string          `json:"method"`
 }
 
+type adminNamespaceKey struct{}
+
+func adminNamespaceHandler(next http.Handler, system bool) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), adminNamespaceKey{}, system)))
+	})
+}
+
+// Project lifecycle and artifact readiness are server control-plane operations.
+// All plugin invocation, installation, grants and data commands must be scoped
+// by an active project URL, not a caller-selected project in the command body.
+func isSystemAdminOperation(operation string) bool {
+	switch operation {
+	case "project.create", "project.configure", "project.activate", "project.deactivate", "project.uninstall", "plugin.readiness":
+		return true
+	default:
+		return false
+	}
+}
+
 func AdminHandler(service *admin.LifecycleService) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if service == nil || r.Method != http.MethodPost {
@@ -152,6 +173,10 @@ func AdminHandler(service *admin.LifecycleService) http.Handler {
 		decoder.UseNumber()
 		if err := decoder.Decode(&command); err != nil {
 			http.Error(w, "invalid admin command", http.StatusBadRequest)
+			return
+		}
+		if system, scoped := r.Context().Value(adminNamespaceKey{}).(bool); scoped && system != isSystemAdminOperation(command.Operation) {
+			http.Error(w, "admin operation belongs to a different namespace", http.StatusForbidden)
 			return
 		}
 		if requiresAdminConfirmation(command.Operation) && !command.Confirmed {

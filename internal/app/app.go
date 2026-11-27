@@ -51,8 +51,8 @@ func NewServerWithAdmin(adminService *admin.LifecycleService) *Server {
 	server := newServer()
 	if adminService != nil {
 		server.projects = adminService.ProjectStore()
-		server.mux.Handle("POST /_system/admin/actions", AdminHandler(adminService))
-		server.mux.Handle("POST /{project}/admin/actions", ProjectCommandHandler(AdminHandler(adminService)))
+		server.mux.Handle("POST /_system/admin/actions", adminNamespaceHandler(AdminHandler(adminService), true))
+		server.mux.Handle("POST /{project}/admin/actions", ProjectCommandHandler(adminNamespaceHandler(AdminHandler(adminService), false)))
 	}
 	return server
 }
@@ -70,9 +70,9 @@ func NewServerWithOperatorAdmin(adminService *admin.LifecycleService, sessions *
 	mux.Handle("GET /_system/admin/plugins", AuthenticatedPluginsHandler(adminService, sessions))
 	mux.Handle("GET /_system/admin/audit", AuthenticatedAuditHandler(adminService, sessions))
 	mux.Handle("GET /_system/admin/system", AuthenticatedSystemHandler(adminService, sessions))
-	mux.Handle("POST /_system/admin/actions", AuthenticatedAdminHandler(adminService, sessions))
+	mux.Handle("POST /_system/admin/actions", adminNamespaceHandler(AuthenticatedAdminHandler(adminService, sessions), true))
 
-	mux.Handle("POST /{project}/admin/actions", AuthenticatedProjectCommandHandler(AuthenticatedAdminHandler(adminService, sessions), sessions))
+	mux.Handle("POST /{project}/admin/actions", AuthenticatedProjectCommandHandler(adminNamespaceHandler(AuthenticatedAdminHandler(adminService, sessions), false), sessions))
 	mux.Handle("GET /{project}/admin/plugins", ProjectQueryHandler(AuthenticatedPluginsHandler(adminService, sessions)))
 	mux.Handle("GET /{project}/admin/functions", ProjectQueryHandler(AuthenticatedFunctionsHandler(adminService, sessions)))
 	mux.Handle("POST /{project}/admin/functions", AuthenticatedProjectCommandHandler(AuthenticatedFunctionsHandler(adminService, sessions), sessions))

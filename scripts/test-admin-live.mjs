@@ -26,8 +26,10 @@ assert.ok(login.ok, "fixture operator login failed");
 const {session} = await login.json();
 const headers = {authorization:"Bearer " + session, "content-type":"application/json"};
 async function action(operation, extra = {}) {
-  const response = await fetch(backend + "/_system/admin/actions", {method:"POST", headers,
-    body:JSON.stringify({operation,project_id:project,plugin_id:"files",version,...extra}), signal:AbortSignal.timeout(20000)});
+  const body = {operation,project_id:project,plugin_id:"files",version,...extra};
+  const namespace = operation === "project.create" || operation === "plugin.readiness" ? "_system" : encodeURIComponent(body.project_id);
+  const response = await fetch(backend + "/" + namespace + "/admin/actions", {method:"POST", headers,
+    body:JSON.stringify(body), signal:AbortSignal.timeout(20000)});
   assert.ok(response.ok, operation + ": " + await response.clone().text());
   return response.json();
 }
@@ -106,7 +108,7 @@ try {
   await inventory.getByRole("button",{name:"Refresh",exact:true}).click();
   await visible(inventory.getByText("No resources on this page.",{exact:true}));
   assert.equal(await inventory.getByText("visible.txt",{exact:true}).count(),0);
-  const denied = await fetch(backend+"/_system/admin/actions",{method:"POST",headers,body:JSON.stringify({operation:"plugin.admin.query",
+  const denied = await fetch(backend+"/"+encodeURIComponent(project)+"/admin/actions",{method:"POST",headers,body:JSON.stringify({operation:"plugin.admin.query",
     project_id:project,plugin_id:"files",version,page_id:"operations",target_operation:"files.metadata",payload:{key:"visible.txt"}})});
   assert.equal(denied.status,403);
 

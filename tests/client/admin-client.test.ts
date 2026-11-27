@@ -25,3 +25,14 @@ if (urls[0] !== "http://localhost:18081/_system/admin/session" ||
     urls[1] !== "http://localhost:18081/dev/admin/actions") {
   throw new Error("operator URL must be project or system scoped");
 }
+
+await adminAction("http://localhost:18081", login.session, { operation: "project.create", project_id: "new-project" }, request);
+await adminAction("http://localhost:18081", login.session, { operation: "project.activate", project_id: "dev" }, request);
+await adminAction("http://localhost:18081", login.session, { operation: "plugin.readiness", plugin_id: "rooms" }, request);
+if (urls.slice(2).some(url => url !== "http://localhost:18081/_system/admin/actions"))
+  throw new Error("control-plane operation must use system namespace");
+let missingProject = false;
+try {
+  await adminAction("http://localhost:18081", login.session, { operation: "plugin.enable" }, request);
+} catch { missingProject = true; }
+if (!missingProject || urls.length !== 5) throw new Error("projectless plugin command was sent");

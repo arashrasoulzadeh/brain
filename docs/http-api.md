@@ -20,7 +20,7 @@ This is the HTTP surface mounted by the current application in [app.go](../inter
 | `POST /{project}/admin/functions` | Operator bearer | Function draft and publication commands. |
 | `GET /{project}/admin/function-logs` | Operator bearer | Function execution logs (optional `name`). |
 | `GET /{project}/admin/routes` | Operator bearer | Live manifest-declared route discovery. |
-| `POST /{project}/admin/actions` | Operator bearer | Plugin, grants and project lifecycle commands. |
+| `POST /{project}/admin/actions` | Operator bearer | Project plugin, grant, invocation and data commands. |
 | `ANY /{project}/functions/{function_name}` | Anonymous or authorized bearer | Published functions; only their declared GET, POST, PUT or PATCH method is accepted. |
 | `GET /{project}/ws` | Project connection ticket | Transport boundary; non-upgrade requests receive 426 and upgrades are rejected until ticket validation is implemented. |
 | `ANY /{project}/{resource...}` | Manifest-declared | Dynamic plugin route (the HTTP method, path and authentication must be declared in `plugin.yaml`). |
@@ -33,7 +33,7 @@ The shared HTTP envelope retains nonempty successful JSON responses. An empty su
 
 ## Admin actions
 
-Send JSON to `POST /_system/admin/actions`. Maximum request body: 64 KiB. In the table, **identity** means `project_id`, `plugin_id`, and `version`. The operator identity comes from the verified session, never from JSON. All destructive confirmations are explicit booleans. A confirmation is not authorization.
+Send project creation, configuration, activation, deactivation, uninstall and registered plugin readiness commands to `POST /_system/admin/actions`. Send all other actions to `POST /{project}/admin/actions`, where the host resolves the project identity. This allows an operator to reactivate an inactive project without enabling project workloads. Maximum request body: 64 KiB. In the table, **identity** means `project_id`, `plugin_id`, and `version`. The operator identity comes from the verified session, never from JSON. All destructive confirmations are explicit booleans. A confirmation is not authorization.
 
 | Operation | Fields besides operation | Behavior |
 | --- | --- | --- |

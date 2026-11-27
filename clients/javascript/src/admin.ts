@@ -32,7 +32,10 @@ export async function adminAction(
   action: AdminAction,
   request: typeof fetch = fetch,
 ): Promise<void> {
-  const response = await request(action.project_id ? projectHTTPURL(apiOrigin, action.project_id, "/admin/actions") : `${apiOrigin}/_system/admin/actions`, {
+  const system = ["project.create", "project.configure", "project.activate", "project.deactivate", "project.uninstall", "plugin.readiness"].includes(action.operation);
+  if (!system && !action.project_id) throw new Error("project ID is required for project admin commands");
+  const url = system ? `${apiOrigin}/_system/admin/actions` : projectHTTPURL(apiOrigin, action.project_id!, "/admin/actions");
+  const response = await request(url, {
     method: "POST",
     headers: { authorization: `Bearer ${session}`, "content-type": "application/json" },
     body: JSON.stringify(action),

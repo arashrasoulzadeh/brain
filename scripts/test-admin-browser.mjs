@@ -71,6 +71,7 @@ async function fixture(viewport, project = "alpha") {
       case "/admin/actions": {
         const body = request.postDataJSON();
         commands.push(body);
+        assert.equal(namespace, "alpha");
         assert.equal(body.project_id, "alpha");
         assert.equal(body.plugin_id, "files");
         assert.equal(body.version, manifest.Version);
