@@ -60,7 +60,7 @@ const readRule = await rule("read-visible","files.metadata","visible.txt");
 await rule("publish-visible","files.publish","visible.txt");
 await rule("deny-hidden","files.metadata","hidden.txt",false);
 await mkdir(output,{recursive:true});
-const browser = await chromium.launch({headless:true});
+const browser = await chromium.launch({ headless: true, executablePath: process.env.BRAIN_BROWSER_EXECUTABLE || undefined });
 const context = await browser.newContext({viewport:{width:1440,height:900}});
 const page = await context.newPage();
 const runtimeErrors = [];
