@@ -13,9 +13,10 @@ test("navigation only presents ready enabled plugin-backed screens", () => {
   const enabled = enabledPluginIDs([installation("dashboard"), installation("functions"), installation("missing", { Ready: false }), installation("disabled", { Enabled: false })]);
   assert.deepEqual([...enabled], ["dashboard", "functions"]);
   assert.deepEqual(visibleAdminPages(1, enabled), ["projects", "plugins", "audit", "system", "functions", "routes", "monitoring", "workers"]);
-  assert.deepEqual(visibleAdminPages(0, new Set()), ["projects", "audit"]);
-  for (const page of ["system", "functions", "routes", "monitoring", "workers"]) assert.equal(canViewAdminPage(page, new Set()), false);
+  assert.deepEqual(visibleAdminPages(0, new Set()), ["projects", "audit", "workers"]);
+  for (const page of ["system", "functions", "routes", "monitoring"]) assert.equal(canViewAdminPage(page, new Set()), false);
   assert.equal(canViewAdminPage("projects", new Set()), true);
+  assert.equal(canViewAdminPage("workers", new Set()), true);
 });
 
 test("contribution discovery checks exact project/version, lifecycle, all grants and route declarations", () => {

@@ -36,10 +36,10 @@ func assignmentWire(a Assignment) *pb.Assignment {
 	return &pb.Assignment{
 		Lease: leaseWire(a.Lease), TraceId: r.TraceID, ParentExecutionId: r.ParentID, ProjectId: r.ProjectID,
 		Artifact: &pb.Artifact{ProjectScope: r.Artifact.ProjectID, Id: r.Artifact.ID, Version: r.Artifact.Version, Sha256Digest: r.Artifact.Digest, Entrypoint: r.Artifact.Entrypoint},
-		Runtime: runtimeWire(r.Runtime), InputJson: r.Input, ContextJson: r.Context, DeadlineUnixNanos: r.Deadline.UnixNano(),
-		Limits: &pb.Limits{CpuNanos: uint64(r.Limits.CPUTime), MemoryBytes: uint64(r.Limits.MemoryBytes), InputBytes: uint64(r.Limits.InputBytes), OutputBytes: uint64(r.Limits.OutputBytes)},
+		Runtime:  runtimeWire(r.Runtime), InputJson: r.Input, ContextJson: r.Context, DeadlineUnixNanos: r.Deadline.UnixNano(),
+		Limits:        &pb.Limits{CpuNanos: uint64(r.Limits.CPUTime), MemoryBytes: uint64(r.Limits.MemoryBytes), InputBytes: uint64(r.Limits.InputBytes), OutputBytes: uint64(r.Limits.OutputBytes)},
 		Authorization: &pb.Authorization{OriginalCaller: r.Auth.OriginalCaller, Caller: r.Auth.Caller, Capability: r.Auth.Capability, Resource: r.Auth.Resource},
-		Idempotent: r.Idempotent, IdempotencyKey: r.IdempotencyKey,
+		Idempotent:    r.Idempotent, IdempotencyKey: r.IdempotencyKey,
 	}
 }
 
@@ -59,9 +59,9 @@ func readAssignment(a *pb.Assignment) (Assignment, error) {
 	r := execution.Request{
 		ID: lease.ExecutionID, TraceID: a.TraceId, ParentID: a.ParentExecutionId, ProjectID: a.ProjectId,
 		Artifact: execution.Artifact{ProjectID: a.Artifact.ProjectScope, ID: a.Artifact.Id, Version: a.Artifact.Version, Digest: a.Artifact.Sha256Digest, Entrypoint: a.Artifact.Entrypoint},
-		Runtime: runtime, Input: a.InputJson, Context: a.ContextJson, Deadline: time.Unix(0, a.DeadlineUnixNanos),
-		Limits: execution.Limits{CPUTime: time.Duration(a.Limits.CpuNanos), MemoryBytes: int64(a.Limits.MemoryBytes), InputBytes: int64(a.Limits.InputBytes), OutputBytes: int64(a.Limits.OutputBytes)},
-		Auth: execution.Authorization{ProjectID: a.ProjectId, OriginalCaller: a.Authorization.OriginalCaller, Caller: a.Authorization.Caller, Capability: a.Authorization.Capability, Resource: a.Authorization.Resource},
+		Runtime:  runtime, Input: a.InputJson, Context: a.ContextJson, Deadline: time.Unix(0, a.DeadlineUnixNanos),
+		Limits:     execution.Limits{CPUTime: time.Duration(a.Limits.CpuNanos), MemoryBytes: int64(a.Limits.MemoryBytes), InputBytes: int64(a.Limits.InputBytes), OutputBytes: int64(a.Limits.OutputBytes)},
+		Auth:       execution.Authorization{ProjectID: a.ProjectId, OriginalCaller: a.Authorization.OriginalCaller, Caller: a.Authorization.Caller, Capability: a.Authorization.Capability, Resource: a.Authorization.Resource},
 		Idempotent: a.Idempotent, IdempotencyKey: a.IdempotencyKey,
 	}
 	return Assignment{Lease: lease, Request: r}, nil

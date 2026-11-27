@@ -15,6 +15,7 @@ test("control-plane route modules use the shared page implementation", () => {
   for (const route of ["audit", "projects"]) assert.equal(app("%5Fsystem/ui/" + route + "/page.tsx").default, main, route);
   for (const route of ["system", "routes", "plugins", "monitoring"]) assert.equal(app("[project]/ui/" + route + "/page.tsx").default, main, route);
   assert.equal(app("[project]/ui/[legacy]/page.tsx").default, Files);
+  assert.equal(app("%5Fsystem/ui/workers/page.tsx").default, Workers);
   for (const [route, view] of [["dashboard", "dashboard"], ["workers", "workers"], ["functions", "functions"], ["functions/new", "functions/new"], ["functions/[name]", "functions/[name]"], ["plugins/[plugin]", "plugins/[plugin]"]]) assert.equal(app("[project]/ui/" + route + "/page.tsx").default, app(view + "/view.tsx").default);
   assert.equal(app("[project]/ui/extensions/[plugin]/[version]/[page]/page.tsx").default, app("extensions/[project]/[plugin]/[version]/[page]/view.tsx").default);
 });
@@ -102,7 +103,7 @@ test("function list renders public and private versions only after plugin access
   assert.ok(find('a[href="/dev/ui/functions/private"]'));
 });
 
-test("workers page sends a scoped restart request and reloads readiness", async () => {
+test("Neuron console preserves scoped legacy startup recovery", async () => {
   await mount(Workers, {}, { pathname: "/dev/ui/workers" });
   assert.deepEqual(navigations.at(-1), ["replace", "/_system/ui"]);
   session();
@@ -111,6 +112,7 @@ test("workers page sends a scoped restart request and reloads readiness", async 
   let denied = true;
   const calls = [];
   stubFetch((url, init) => {
+    if (url === "/_system/admin/neurons") return json({ configured: true, snapshot: { Neurons: [{ ID: "local-neuron-01", Slots: 2, Running: 1, Draining: false, LastPulse: "2026-01-01T00:00:00Z", Runtimes: [{ Kind: "standalone-typescript", Profile: "isolated" }] }], Running: 1, Queued: 0 } });
     if (url === "/_system/admin/projects") return json([{ ID: "dev", Active: active }]);
     if (url === "/dev/admin/plugins") return json({ installations: [
       { ProjectID: "dev", PluginID: "rooms", Version: "1", Enabled: true, Ready: true, WorkerReady: ready },
@@ -127,12 +129,14 @@ test("workers page sends a scoped restart request and reloads readiness", async 
   });
   active = false;
   await mount(Workers, {}, { pathname: "/dev/ui/workers" });
-  assert.match(text(), /Project: —/);
+  assert.match(text(), /Select an active project/);
+  assert.match(text(), /local-neuron-01/);
+  assert.match(text(), /1 occupied \/ 2 total/);
   active = true;
   await mount(Workers, {}, { pathname: "/dev/ui/workers" });
   await click(button("Start worker"));
   await click(button("Confirm start"));
-  assert.match(text(), /worker denied/);
+  assert.match(text(), /Worker start failed/);
   denied = false;
   await click(button("Confirm start"));
   assert.match(text(), /Worker started/);

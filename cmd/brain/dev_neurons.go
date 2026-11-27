@@ -196,6 +196,7 @@ func startDevCluster(server *app.Server, httpAddress string) (*devCluster, error
 			args = append(args, "--local-macos")
 		}
 		cmd := exec.Command(binary, args...)
+		cmd.Env = []string{}
 		// Do not pass operator credentials, application storage configuration,
 		// or other Brain process environment to a Neuron.
 		for _, name := range []string{"PATH", "HOME", "TMPDIR"} {
