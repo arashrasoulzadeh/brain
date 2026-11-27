@@ -242,7 +242,13 @@ try {
   await page.getByRole("textbox",{name:/key/}).fill(bigKey);
   await page.getByRole("button",{name:"Run action"}).click();
   await page.getByRole("button",{name:"Confirm action"}).click();
-  await visible(page.getByRole("status").filter({hasText:"File uploaded successfully"}));
+  try {
+    await visible(page.getByRole("status").filter({hasText:"File uploaded successfully"}));
+  } catch (reason) {
+    console.error("Binary upload dialog:", await page.getByRole("dialog").innerText().catch(()=>"not open"));
+    await screenshot("binary-upload-failure");
+    throw reason;
+  }
   await page.getByRole("button",{name:"Close dialog"}).click();
   await visible(inventory.locator("td:first-child").getByText(bigKey,{exact:true}));
   const binary = decode(await action("plugin.admin.query",{project_id:other,page_id:"operations",target_operation:"files.download",payload:{key:bigKey}}));
