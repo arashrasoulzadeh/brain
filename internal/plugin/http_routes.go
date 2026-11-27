@@ -1,22 +1,22 @@
 package plugin
 
 import (
-	"strings"
 	"sort"
+	"strings"
 )
 
 // HTTPRouteMatch is selected by the host from an installed manifest, never from
 // client-provided operation, plugin ID, version or capabilities.
 type HTTPRouteMatch struct {
-	PluginID  string            `json:"plugin_id"`
-	Version   string            `json:"version"`
-	Method    string            `json:"method"`
-	Path      string            `json:"path"`
-	Function  string            `json:"function"`
-	Capability string           `json:"capability"`
-	Operation string            `json:"operation"`
-	Auth      string            `json:"auth"`
-	Params    map[string]string `json:"-"`
+	PluginID   string            `json:"plugin_id"`
+	Version    string            `json:"version"`
+	Method     string            `json:"method"`
+	Path       string            `json:"path"`
+	Function   string            `json:"function"`
+	Capability string            `json:"capability"`
+	Operation  string            `json:"operation"`
+	Auth       string            `json:"auth"`
+	Params     map[string]string `json:"-"`
 }
 
 func mountedHTTPPath(mount, relative string) string {
