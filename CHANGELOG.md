@@ -3,6 +3,12 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `c70d1bda` — 2026-11-28 00:36:14 +0330 — Merge pull request #50 from arashrasoulzadeh/admin/functions-catalog-rework
+  Files: 
+- `a81a7997` — 2026-11-28 00:20:16 +0330 — Rebuild project Functions catalog and preserve access boundaries
+  Files: admin-nextjs/app/components/admin-chrome.tsx,admin-nextjs/app/functions/view.tsx admin-nextjs/app/lib/admin-registry.ts,admin-nextjs/app/lib/function-inspection.ts admin-nextjs/app/theme.css,docs/admin-pages/functions.md tests/admin-ui/pages.test.mjs,tests/admin/function-inspection.test.ts
+- `2d02d97e` — 2026-11-27 20:36:02 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `43e57815` — 2026-11-28 00:05:48 +0330 — Merge PR #48: Expand admin operations
   Files: 
 - `bda81846` — 2026-11-27 22:55:27 +0330 — Test admin storage page ceilings, malformed snapshots and actor boundaries
@@ -97,9 +103,3 @@ Automatically generated from commits on main.
   Files: 
 - `644bfc1e` — 2026-11-27 21:13:51 +0330 — Document binary routes and verify streaming through the admin host above proxy buffer limits
   Files: admin-nextjs/app/[project]/admin/files/blob/route.ts,admin-nextjs/app/components/admin-file-controls.tsx admin-nextjs/app/lib/admin-file-transfer.ts,docs/http-api.md internal/app/admin_files.go,scripts/test-admin-live.mjs
-- `03ac9885` — 2026-11-27 21:13:19 +0330 — Document confirmed install command and Dashboard route in inventory
-  Files: docs/admin-pages/README.md
-- `73531656` — 2026-11-27 21:13:16 +0330 — Document confirmed install command and Dashboard route in inventory
-  Files: docs/http-api.md
-- `ad138e98` — 2026-11-27 21:07:34 +0330 — Test actual sidebar links and safeguard active version and project scope
-  Files: admin-nextjs/app/components/plugin-install-dialog.tsx,admin-nextjs/app/dashboard/view.tsx admin-nextjs/app/view.tsx,internal/plugin/registry_install_activate.go scripts/test-admin-browser.mjs,tests/admin/admin-menu.test.ts
