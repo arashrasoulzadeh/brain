@@ -1,10 +1,26 @@
-## Unreleased — breaking project namespace migration\n\n- Routes now require a project slug or immutable ID prefix, with server-wide operator and health endpoints under `/_system`.\n- TypeScript plugin manifests declare host-mounted HTTP methods, paths and authentication and are exposed only for active project installations; public function routes move to `/{project}/functions/{name}`.\n- Project names, URL slugs and project settings are durable and mutable without changing immutable project IDs.\n- Client SDKs, operator UI, deployment probes and existing integrations must be migrated; unprefixed URLs are removed.\n\n# Changelog
+# Changelog
 
 Automatically generated from commits on main.
 
 ## Unreleased
+
+- Breaking: all application HTTP routes require a project slug or immutable ID; server infrastructure uses `/_system`.
+- Active project plugin manifests declare host-mounted HTTP routes and authentication; public functions use `/{project}/functions/{name}`.
+- Project names, URL slugs and settings are mutable without changing immutable IDs.
+- Clients, operator UI and deployment integrations must use the new URLs.
+
+- `5611abbb` — 2026-11-27 17:31:56 +0330 — Merge pull request #35 from arashrasoulzadeh/fix/macos-seatbelt-startup
+  Files: 
+- `b6110f87` — 2026-11-27 17:13:55 +0330 — Emit actual newline between Seatbelt directory rules
+  Files: internal/plugin/macos_worker.go
+- `1ac264e9` — 2026-11-27 17:13:50 +0330 — Fix macOS worker getcwd with literal ancestor directory permissions
+  Files: internal/plugin/macos_worker.go
+- `a3cfcb65` — 2026-11-27 13:07:55 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `2432526a` — 2026-11-27 16:28:23 +0330 — Merge pull request #37 from arashrasoulzadeh/docs/current-complete-reference
   Files: 
+- `fd4ed616` — 2026-11-27 16:27:17 +0330 — Merge main into macOS startup fix preserving platform coverage helper
+  Files: internal/plugin/macos_worker.go
 - `e30d893f` — 2026-11-27 16:17:38 +0330 — Merge pull request #36 from arashrasoulzadeh/test/host-coverage-edge-cases
   Files: 
 - `0c1edeb0` — 2026-11-27 16:16:55 +0330 — docs: recognize generic SDK types and direct exports in coverage audit
@@ -29,10 +45,16 @@ Automatically generated from commits on main.
   Files: internal/plugin/model_admission_edge_test.go
 - `4a65e87b` — 2026-11-27 16:09:47 +0330 — test: cover manifest discovery, stale credentials, and registry admission failures
   Files: internal/plugin/host_edge_coverage_test.go
+- `b3c2af8c` — 2026-11-27 16:09:35 +0330 — Run the actual native launcher with the confirmed dyld root lookup fix
+  Files: .github/workflows/test.yml,tests/plugin/macos_worker_test.go
 - `334bcded` — 2026-11-27 16:09:20 +0330 — Merge pull request #34 from arashrasoulzadeh/test/remaining-host-coverage
   Files: 
 - `a0ad040c` — 2026-11-27 16:09:16 +0330 — Merge pull request #33 from arashrasoulzadeh/fix/sqlite-coverage-stability
   Files: 
+- `d6eaa8fe` — 2026-11-27 16:06:29 +0330 — Permit literal root directory lookup and narrowly scoped dyld runtime files
+  Files: internal/plugin/macos_worker.go
+- `008a8f49` — 2026-11-27 16:04:37 +0330 — Allow macOS system runtime paths and diagnose Seatbelt startup
+  Files: .github/workflows/test.yml,internal/plugin/macos_worker.go tests/plugin/macos_worker_test.go
 - `e45fa348` — 2026-11-27 16:03:49 +0330 — test: cover draft persistence failures and request identity fallback
   Files: internal/admin/function_persistence_failure_test.go
 - `988aedb5` — 2026-11-27 16:03:06 +0330 — test: cover empty API error and login entropy failure
@@ -87,19 +109,3 @@ Automatically generated from commits on main.
   Files: internal/admin/lifecycle_failure_coverage_test.go
 - `f7a83dac` — 2026-11-27 15:09:08 +0330 — Support native macOS development using Seatbelt worker isolation
   Files: .github/workflows/test.yml,README.md cmd/brain/main.go,docs/developers.md internal/plugin/macos_worker.go,scripts/run-macos-typescript-worker.sh scripts/start-local.sh,scripts/test-production-runtime.sh scripts/test-runtime-api.mjs,tests/plugin/macos_worker_test.go
-- `15f2d1c7` — 2026-11-27 15:09:04 +0330 — style: fix CI-reported Go composite literal formatting
-  Files: internal/plugin/durable_storage_coverage_test.go
-- `11d8a88d` — 2026-11-27 15:08:48 +0330 — test: cover access policy fail-closed and worker admission paths
-  Files: internal/plugin/access_failure_coverage_test.go
-- `5efe9759` — 2026-11-27 15:08:31 +0330 — style: align guest response fields
-  Files: internal/plugin/storage_failure_matrix_test.go
-- `21f1e055` — 2026-11-27 15:08:14 +0330 — test: cover durable storage commit and entropy failures
-  Files: internal/plugin/storage_failure_matrix_test.go
-- `09b21be0` — 2026-11-27 15:07:56 +0330 — ci: print formatting diffs without relaxing the gate
-  Files: .github/workflows/test.yml
-- `de941b67` — 2026-11-27 14:58:55 +0330 — test: cover startup manifest rejection and sandbox prerequisites
-  Files: cmd/brain/startup_coverage_test.go
-- `4bb4c8ee` — 2026-11-27 14:58:18 +0330 — test: encode valid guest expiration before injected SQL failure
-  Files: internal/plugin/durable_commit_coverage_test.go
-- `84476972` — 2026-11-27 14:58:12 +0330 — test: cover durable capacity limits and database failure boundaries
-  Files: internal/plugin/durable_commit_coverage_test.go
