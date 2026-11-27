@@ -423,3 +423,24 @@ func (s *LifecycleService) InvokeHTTPRoute(projectID string, match plugin.HTTPRo
     if match.Auth != "operator" || actorID == "" { return plugin.WorkerResponse{}, plugin.ErrActorDenied }
     return s.registry.InvokeAsOperator(request,actorID)
 }
+
+func (s *LifecycleService) ProjectURLNamespace(id string) string {
+    if s == nil || s.projects == nil { return id }
+    p,err:=s.projects.Resolve(id)
+    if err!=nil || p.Slug=="" { return id }
+    return p.Slug
+}
+
+func (s *LifecycleService) CreateProjectWithDetails(actor operator.Actor,id,name,slug string,settings map[string]any) error {
+    return s.executeProjectLifecycle(actor,id,"","","project.create",func() error {
+        if s.projects==nil{return operator.ErrInvalidOperatorAction}
+        return s.projects.CreateWithDetails(id,name,slug,settings)
+    })
+}
+
+func (s *LifecycleService) ConfigureProject(actor operator.Actor,id,name,slug string,settings map[string]any) error {
+    return s.executeProjectLifecycle(actor,id,"","","project.configure",func() error {
+        if s.projects==nil{return operator.ErrInvalidOperatorAction}
+        return s.projects.Configure(id,name,slug,settings)
+    })
+}
