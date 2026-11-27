@@ -8,6 +8,7 @@ import (
 )
 
 var ErrStoredResourceMissing = errors.New("stored resource not found")
+var ErrRoomClosed = errors.New("room is closed")
 
 type legacyStoragePlanner struct {
 	storage *SQLiteStorage
@@ -110,7 +111,7 @@ func prepareLegacyStorageEffect(storage *SQLiteStorage, request WorkerRequest) (
 		keyField = "key"
 	case "matchmaking/matchmaking.queue", "matchmaking/matchmaking.cancel", "matchmaking/matchmaking.assign", "matchmaking/matchmaking.status":
 		keyField = "id"
-	case "rooms/rooms.create", "rooms/rooms.join", "rooms/rooms.reconnect", "rooms/rooms.result":
+	case "rooms/rooms.create", "rooms/rooms.join", "rooms/rooms.reconnect", "rooms/rooms.result", "rooms/rooms.admin.remove-member", "rooms/rooms.admin.close":
 		keyField = "id"
 	case "tables/tables.write", "tables/tables.read", "tables/tables.schema":
 		keyField = "table"
@@ -203,6 +204,9 @@ func prepareLegacyStorageEffect(storage *SQLiteStorage, request WorkerRequest) (
 			return request, nil, err
 		}
 		if request.Operation == "rooms.create" {
+			if state != nil && state["closed"] == true {
+				return request, nil, ErrRoomClosed
+			}
 			state = map[string]any{"id": key, "members": []any{}}
 			commit = func(db sqliteExecutor) error {
 				return putSQLiteState(db, request.ProjectID, "rooms", key, state)
@@ -210,6 +214,40 @@ func prepareLegacyStorageEffect(storage *SQLiteStorage, request WorkerRequest) (
 		}
 		if state == nil {
 			return request, nil, ErrStoredResourceMissing
+		}
+		if state["closed"] == true && request.Operation != "rooms.admin.close" {
+			_, writesResult := input["result"]
+			if request.Operation != "rooms.result" || writesResult {
+				return request, nil, ErrRoomClosed
+			}
+		}
+		if request.Operation == "rooms.admin.close" || request.Operation == "rooms.admin.remove-member" {
+			if request.Operation == "rooms.admin.close" {
+				state["closed"] = true
+			} else {
+				member, _ := input["member"].(string)
+				if member == "" || strings.TrimSpace(member) != member {
+					return request, nil, ErrInvalidWorkerRequest
+				}
+				members, _ := state["members"].([]any)
+				remaining := make([]any, 0, len(members))
+				found := false
+				for _, existing := range members {
+					if existing == member {
+						found = true
+					} else {
+						remaining = append(remaining, existing)
+					}
+				}
+				if !found {
+					return request, nil, ErrStoredResourceMissing
+				}
+				state["members"] = remaining
+				payload["member"] = member
+			}
+			commit = func(db sqliteExecutor) error {
+				return putSQLiteState(db, request.ProjectID, "rooms", key, state)
+			}
 		}
 		if request.Operation == "rooms.join" || request.Operation == "rooms.reconnect" {
 			member, _ := input["member"].(string)

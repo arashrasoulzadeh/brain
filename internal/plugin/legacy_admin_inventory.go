@@ -23,9 +23,13 @@ func (p legacyStoragePlanner) adminInventory(projectID, pluginID, kind, capabili
 	var query, key string
 	var args []any
 	switch {
-	case pluginID == "rooms" && kind == "state_keys" && capability == "rooms.result",
-		pluginID == "matchmaking" && kind == "state_keys" && capability == "matchmaking.status",
-		pluginID == "arena" && kind == "state_keys" && capability == "arena.snapshot":
+	case pluginID == "rooms" && kind == "state_keys" && capability == "rooms.result":
+		query, key = `SELECT state_key, CASE WHEN json_extract(value_json,'$.closed')=1 THEN 'closed' ELSE 'open' END, COALESCE(json_array_length(value_json,'$.members'),0) FROM plugin_state WHERE project_id=? AND namespace=? AND state_key>?`, "state_key"
+		args = []any{projectID, pluginID, after}
+	case pluginID == "matchmaking" && kind == "state_keys" && capability == "matchmaking.status":
+		query, key = `SELECT state_key, COALESCE(json_extract(value_json,'$.status'),'unknown') FROM plugin_state WHERE project_id=? AND namespace=? AND state_key>?`, "state_key"
+		args = []any{projectID, pluginID, after}
+	case pluginID == "arena" && kind == "state_keys" && capability == "arena.snapshot":
 		query, key = `SELECT state_key FROM plugin_state WHERE project_id=? AND namespace=? AND state_key>?`, "state_key"
 		args = []any{projectID, pluginID, after}
 	case pluginID == "files" && kind == "file_keys" && capability == "files.metadata":
@@ -89,6 +93,12 @@ func (p legacyStoragePlanner) adminInventory(projectID, pluginID, kind, capabili
 				row.Filename, row.Extension, row.ContentType, row.UpdatedAt = meta.Filename, meta.Extension, meta.ContentType, meta.UpdatedAt
 				row.SizeBytes, row.StoredBytes = &meta.SizeBytes, &meta.StoredBytes
 			}
+		} else if pluginID == "rooms" && kind == "state_keys" {
+			var count int
+			err = rows.Scan(&row.Key, &row.Status, &count)
+			row.MemberCount = &count
+		} else if pluginID == "matchmaking" && kind == "state_keys" {
+			err = rows.Scan(&row.Key, &row.Status)
 		} else {
 			err = rows.Scan(&row.Key)
 		}

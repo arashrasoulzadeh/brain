@@ -52,6 +52,8 @@ type AdminInventoryRow struct {
 	ContentType string `json:"content_type,omitempty"`
 	StoredBytes *int64 `json:"stored_bytes,omitempty"`
 	UpdatedAt   string `json:"updated_at,omitempty"`
+	Status      string `json:"status,omitempty"`
+	MemberCount *int   `json:"member_count,omitempty"`
 }
 
 type AdminInventoryPage struct {

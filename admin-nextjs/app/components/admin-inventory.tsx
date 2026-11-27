@@ -49,14 +49,16 @@ export function AdminInventory({ contribution, refresh, disabled, onSelect }: {
   if (!spec) return null;
   const fileColumns = spec.kind === "file_keys";
   const rows = page?.rows ?? [];
+  const statusColumn = rows.some(row => row.status !== undefined);
+  const memberColumn = rows.some(row => row.member_count !== undefined);
   return <section className="admin-inventory-panel">
     <div className="section-heading"><h3>{spec.title}</h3>
       <button type="button" className="secondary" disabled={loading || disabled} onClick={() => setReload(value => value + 1)}>Refresh</button></div>
     <form className="lifecycle-actions" onSubmit={event => { event.preventDefault(); setHistory([""]); setAppliedSearch(search.trim()); setReload(value => value + 1); }}><label>Search authorized resources <input type="search" maxLength={256} value={search} disabled={disabled} onChange={event => setSearch(event.target.value)} placeholder="Resource, filename or type" /></label><button type="submit" disabled={disabled || loading}>Search</button><button type="button" className="secondary" disabled={disabled || loading || (!search && !appliedSearch)} onClick={() => { setSearch(""); setAppliedSearch(""); setHistory([""]); setReload(value => value + 1); }}>Clear search</button></form>
     {error && <p role="alert">{error}</p>}
     {loading && <p role="status">Loading resources…</p>}
-    {page && <><p className="muted" role="status">{rows.length} {appliedSearch ? "matching" : "authorized"} resources on this page.</p><div className="table-wrap"><table><thead><tr><th>Resource</th>{fileColumns && <><th>Filename</th><th>Extension</th><th>Content type</th><th>Bytes</th><th>Updated (UTC)</th><th>Published</th></>}{onSelect && <th>Action</th>}</tr></thead>
-      <tbody>{rows.map(row => <tr key={row.key}><td>{row.key}</td>{fileColumns && <><td>{row.filename ?? "—"}</td><td>{row.extension || "—"}</td><td>{row.content_type ?? "—"}</td><td>{row.size_bytes ?? "—"}{row.stored_bytes === undefined && <small className="muted"> stored</small>}</td><td>{row.updated_at ?? "—"}</td><td>{row.published === undefined ? "—" : row.published ? "Yes" : "No"}</td></>}{onSelect && <td><button className="secondary" type="button" disabled={disabled} onClick={() => onSelect(row.key)}>Select</button></td>}</tr>)}</tbody>
+    {page && <><p className="muted" role="status">{rows.length} {appliedSearch ? "matching" : "authorized"} resources on this page.</p><div className="table-wrap"><table><thead><tr><th>Resource</th>{statusColumn && <th>Status</th>}{memberColumn && <th>Members</th>}{fileColumns && <><th>Filename</th><th>Extension</th><th>Content type</th><th>Bytes</th><th>Updated (UTC)</th><th>Published</th></>}{onSelect && <th>Action</th>}</tr></thead>
+      <tbody>{rows.map(row => <tr key={row.key}><td>{row.key}</td>{statusColumn && <td>{row.status ?? "—"}</td>}{memberColumn && <td>{row.member_count ?? "—"}</td>}{fileColumns && <><td>{row.filename ?? "—"}</td><td>{row.extension || "—"}</td><td>{row.content_type ?? "—"}</td><td>{row.size_bytes ?? "—"}{row.stored_bytes === undefined && <small className="muted"> stored</small>}</td><td>{row.updated_at ?? "—"}</td><td>{row.published === undefined ? "—" : row.published ? "Yes" : "No"}</td></>}{onSelect && <td><button className="secondary" type="button" disabled={disabled} onClick={() => onSelect(row.key)}>Select</button></td>}</tr>)}</tbody>
     </table></div>
     {rows.length === 0 && <p className="muted empty-state">{appliedSearch ? "No authorized resources match this search." : "No resources on this page."}</p>}</>}
     {(page || history.length > 1) && <div className="lifecycle-actions">

@@ -24,6 +24,7 @@ capabilities:
   - rooms.join
   - rooms.reconnect
   - rooms.result
+  - rooms.admin.manage
 extension_points:
   - rooms.runtime
 config_schema:
@@ -39,6 +40,10 @@ events:
   - name: reconnected
     fields: {roomId: string}
   - name: result.committed
+    fields: {roomId: string}
+  - name: closed
+    fields: {roomId: string}
+  - name: membership.changed
     fields: {roomId: string}
 routes:
   - operation: rooms.create
@@ -73,6 +78,22 @@ routes:
     helper: sdk.dispatch
     capability: rooms.result
     resource_field: id
+  - operation: rooms.admin.remove-member
+    method: POST
+    path: /{id}/remove-member
+    auth: operator
+    function: manageRoom
+    helper: sdk.context
+    capability: rooms.admin.manage
+    resource_field: id
+  - operation: rooms.admin.close
+    method: POST
+    path: /{id}/close
+    auth: operator
+    function: manageRoom
+    helper: sdk.context
+    capability: rooms.admin.manage
+    resource_field: id
 admin:
   version: 1
   pages:
@@ -91,6 +112,8 @@ admin:
         - rooms.created
         - rooms.reconnected
         - rooms.result.committed
+        - rooms.closed
+        - rooms.membership.changed
       actions:
         - title: Get room result
           operation: rooms.result
@@ -138,3 +161,12 @@ admin:
             - name: result
               type: json
               required: true
+        - title: Remove room member
+          operation: rooms.admin.remove-member
+          fields:
+            - {name: id, type: string, required: true}
+            - {name: member, type: string, required: true}
+        - title: Close room (blocks joins and result writes)
+          operation: rooms.admin.close
+          fields:
+            - {name: id, type: string, required: true}
