@@ -211,7 +211,9 @@ func bindSandboxedTypeScriptWorkers(registry *plugin.Registry, locations map[str
 	}
 	// The address-space limit includes V8's reservations. The launcher also
 	// caps the JavaScript heap; CPU limits apply over a worker's lifetime.
-	policy := plugin.IsolationPolicy{FilesystemReadOnly: true, NetworkEnabled: false, CPUMillis: 30000, MemoryBytes: 2 << 30, ProcessLimit: 64, WallTime: 2 * time.Second}
+	// RLIMIT_NPROC counts threads across the shared host UID, not per worker.
+	// Reserve a bounded aggregate budget for the complete plugin inventory.
+	policy := plugin.IsolationPolicy{FilesystemReadOnly: true, NetworkEnabled: false, CPUMillis: 30000, MemoryBytes: 2 << 30, ProcessLimit: 512, WallTime: 2 * time.Second}
 	probeRoot, err := os.MkdirTemp("", "brain-sandbox-probe-")
 	if err != nil {
 		return err

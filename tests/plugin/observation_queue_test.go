@@ -56,7 +56,7 @@ func TestDurableObservationDeliverySurvivesRestartAndRetries(t *testing.T) {
 		t.Fatal(err)
 	}
 	request := plugin.WorkerRequest{Protocol: 1, ProjectID: "project", PluginID: "rooms", Version: "1", Operation: "rooms.join", Payload: []byte(`{"id":"room","member":"alice"}`)}
-	if response, err := r.Invoke(request); err != nil || !response.Success {
+	if response, err := r.InvokeAsOperator(request, "root"); err != nil || !response.Success {
 		t.Fatalf("publisher blocked by missing observer worker: %+v %v", response, err)
 	}
 	if err := storage.Close(); err != nil {
@@ -75,6 +75,10 @@ func TestDurableObservationDeliverySurvivesRestartAndRetries(t *testing.T) {
 	calls := 0
 	if err := r.BindWorker("project", "analytics", "1", &storageCommitWorker{handle: func(request plugin.WorkerRequest) plugin.WorkerResponse {
 		calls++
+		auth := request.HostContext.Auth
+		if auth.Actor.Kind != "operator" || auth.Actor.ID != "root" || auth.Caller.Kind != "plugin" || auth.Caller.ID != "rooms@1" || len(auth.Permissions) != 1 || auth.Permissions[0].Resource != "rooms.connected" {
+			t.Fatalf("lost actor across durable observation restart: %+v", auth)
+		}
 		var event plugin.Observation
 		if err := json.Unmarshal(request.Payload, &event); err != nil || event.ID == "" || event.ProjectID != "project" {
 			t.Fatalf("invalid persisted event: %+v %v", event, err)

@@ -11,7 +11,7 @@ export function projectUserID(projectId: string, userId: string): string {
 
 export function validateAccount(projectId: string, username: string, password: string): void {
   validateProjectId(projectId);
-  if (!username || password.length < 8) throw new Error("invalid signup");
+  if (!username || username.startsWith("guest-") || password.length < 8) throw new Error("invalid signup");
 }
 
 export function passwordHash(password: string): Promise<string> {
@@ -66,7 +66,7 @@ export class GuestAccountUpgrader {
   async upgradeGuest(projectId: string, token: string, username: string, password: string) {
     validateProjectId(projectId);
     const session = this.state.sessions.get(sessionTokenDigest(token));
-    if (!session || session.projectId !== projectId || !session.username.startsWith("guest-"))
+    if (!session || session.projectId !== projectId || session.expiresAt <= Date.now() || !session.username.startsWith("guest-"))
       throw new Error("guest session required");
     const userId = projectUserID(projectId, session.username);
     validateAccount(projectId, username, password);

@@ -12,6 +12,7 @@ export function createAuthOperations(state: AuthState = createAuthState()) {
     signup: signup.signup.bind(signup),
     signin: signin.signin.bind(signin),
     session: session.session.bind(session),
+    identity: session.identity.bind(session),
     guest: guest.guest.bind(guest),
   };
 }
@@ -44,6 +45,10 @@ export function functions(
     session: (rpc, context) => {
       const payload = rpc.params.payload as Record<string, string> | undefined;
       return service.session(projectOf(rpc, context), payload?.token ?? "");
+    },
+    identity: (rpc, context) => {
+      const payload = rpc.params.payload as Record<string, string> | undefined;
+      return service.identity(projectOf(rpc, context), payload?.token ?? "");
     },
     guest: (rpc, context) => {
       const result = service.guest(projectOf(rpc, context));

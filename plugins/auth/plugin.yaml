@@ -58,6 +58,10 @@ routes:
     function: session
     helper: sdk.request
     capability: auth.session
+  - operation: auth.identity
+    function: identity
+    helper: sdk.request
+    capability: auth.session
   - operation: auth.guest
     function: guest
     helper: sdk.request

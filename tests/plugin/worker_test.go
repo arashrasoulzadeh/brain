@@ -37,6 +37,10 @@ func TestInvokeWithCredentialBindsProductionWorkerRequest(t *testing.T) {
 		if request.Project == nil || request.Project.ID != "project-a" || !request.Project.Active {
 			t.Fatalf("credential did not rebind project model: %+v", request.Project)
 		}
+		ctx := request.HostContext
+		if ctx == nil || ctx.Auth.Actor.ID != "actor" || ctx.Auth.Actor.Kind != "user" || !ctx.Auth.Actor.Authenticated || ctx.Auth.Caller != ctx.Auth.Actor || len(ctx.Auth.Permissions) != 1 || ctx.Auth.Permissions[0].Capability != "read" {
+			t.Fatalf("missing trusted credential context: %+v", ctx)
+		}
 		return plugin.WorkerResponse{Protocol: 1, Success: true}
 	}}
 	request := plugin.WorkerRequest{Protocol: 1, ProjectID: "project-b", PluginID: m.ID, Version: m.Version, Operation: "read"}
@@ -50,12 +54,16 @@ func TestInvokeWithCredentialBindsProductionWorkerRequest(t *testing.T) {
 	}
 }
 
-type countingWorker struct{ calls int }
+type countingWorker struct {
+	calls int
+	last  plugin.WorkerRequest
+}
 
 func (w *countingWorker) Start() error { return nil }
 func (w *countingWorker) Stop() error  { return nil }
 func (w *countingWorker) Ready() bool  { return true }
-func (w *countingWorker) Handle(plugin.WorkerRequest) plugin.WorkerResponse {
+func (w *countingWorker) Handle(request plugin.WorkerRequest) plugin.WorkerResponse {
+	w.last = request
 	w.calls++
 	return plugin.WorkerResponse{Protocol: 1, Success: true}
 }
@@ -145,6 +153,10 @@ func TestCredentialInvocationSharesObservationAndCommitBoundary(t *testing.T) {
 		var event plugin.Observation
 		if err := json.Unmarshal(request.Payload, &event); err != nil || event.ProjectID != "project" || event.PluginID != "external" {
 			t.Fatalf("unexpected observation: %+v %v", event, err)
+		}
+		auth := request.HostContext.Auth
+		if auth.Actor.ID != "actor" || auth.Actor.Kind != "user" || auth.Caller.Kind != "plugin" || auth.Caller.ID != "external@1" || len(auth.Permissions) != 1 || auth.Permissions[0].Resource != "external.written" {
+			t.Fatalf("incorrect observer authentication: %+v", auth)
 		}
 		delivered++
 		return plugin.WorkerResponse{Protocol: 1, Success: true}

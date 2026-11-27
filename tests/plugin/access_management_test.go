@@ -407,6 +407,10 @@ func TestAccessManagementObserverUsesPublisherIdentity(t *testing.T) {
 	if _, err := r.DrainObservations(time.Now().Add(time.Second), 10); err != nil || worker.calls != 1 {
 		t.Fatalf("authorized observation delivery: %v calls=%d", err, worker.calls)
 	}
+	auth := worker.last.HostContext.Auth
+	if auth.Actor.ID != "root" || auth.Actor.Kind != "operator" || auth.Caller.Kind != "plugin" || auth.Caller.ID != "publisher@1" {
+		t.Fatalf("observer principal mismatch: %+v", auth)
+	}
 }
 
 func TestAccessManagementHostAdapterUsesExactPublicPrincipal(t *testing.T) {

@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"brain/internal/operator"
+	"brain/internal/plugin"
 	pluginsdk "brain/plugins/sdk-typescript"
 )
 
@@ -282,7 +283,7 @@ func (s *LifecycleService) PublishFunction(actor operator.Actor, projectID, name
 		return FunctionDraft{}, err
 	}
 	if s.registry != nil {
-		s.registry.PublishHostObservation(projectID, "functions", "published", map[string]any{"name": draft.Name, "version": draft.Version})
+		s.registry.PublishHostObservationAs(projectID, "functions", "published", "operator:"+actor.ID, map[string]any{"name": draft.Name, "version": draft.Version})
 	}
 	return draft, nil
 }
@@ -311,6 +312,23 @@ func persistPublishedFunction(projectID, name string) (FunctionDraft, error) {
 }
 
 func (s *LifecycleService) PublicInvokeFunction(projectID, name, method string, input json.RawMessage) (map[string]any, error) {
+	return s.publicInvokeFunction(projectID, name, method, input, plugin.InvocationActor{Kind: "public", Level: "anonymous"}, "public")
+}
+
+// PublicInvokeFunctionWithSession authenticates the existing published function
+// endpoint without permitting a bearer token to fall back to anonymous access.
+func (s *LifecycleService) PublicInvokeFunctionWithSession(projectID, name, method string, input json.RawMessage, token string) (map[string]any, error) {
+	if s.registry == nil {
+		return nil, plugin.ErrActorDenied
+	}
+	actor, err := s.registry.ResolveUserSession(projectID, token)
+	if err != nil {
+		return nil, err
+	}
+	return s.publicInvokeFunction(projectID, name, method, input, actor, "user:"+actor.ID)
+}
+
+func (s *LifecycleService) publicInvokeFunction(projectID, name, method string, input json.RawMessage, authActor plugin.InvocationActor, principal string) (map[string]any, error) {
 	edgeStarted := time.Now()
 	functionDrafts.Lock()
 	loadFunctionDraftsLocked()
@@ -320,7 +338,7 @@ func (s *LifecycleService) PublicInvokeFunction(projectID, name, method string, 
 		return nil, ErrFunctionDraftInvalid
 	}
 	if s.registry != nil {
-		if err := s.registry.AuthorizeHostOperation(projectID, "public", "functions", "functions.call", draft.Name); err != nil {
+		if err := s.registry.AuthorizeHostOperation(projectID, principal, "functions", "functions.call", draft.Name); err != nil {
 			return nil, err
 		}
 	}
@@ -334,12 +352,12 @@ func (s *LifecycleService) PublicInvokeFunction(projectID, name, method string, 
 	if strings.ToUpper(strings.TrimSpace(method)) != draft.Method {
 		return nil, ErrFunctionMethodNotAllowed
 	}
-	result, err := s.runFunctionDraft(operator.Actor{Kind: operator.ActorOperator}, projectID, draft.Name, draft.Source, input, []FunctionLogStep{
+	result, err := s.runFunctionDraft(operator.Actor{Kind: operator.ActorOperator}, projectID, draft.Name, draft.Source, input, authActor, principal, "functions.call", []FunctionLogStep{
 		{Name: "edge router", Status: "success", Reason: "public route resolved and function version selected", DurationMs: time.Since(edgeStarted).Milliseconds()},
 		{Name: "method authorization", Status: "success", Reason: "request method matched function source config", DurationMs: 0},
 	})
 	if err == nil && s.registry != nil {
-		if err := s.registry.AuthorizeHostOperation(projectID, "public", "functions", "functions.call", draft.Name); err != nil {
+		if err := s.registry.AuthorizeHostOperation(projectID, principal, "functions", "functions.call", draft.Name); err != nil {
 			return nil, err
 		}
 	}
@@ -375,7 +393,7 @@ func (s *LifecycleService) RunFunctionDraft(actor operator.Actor, projectID, nam
 	if err := s.authorizeFunction(actor, projectID, "functions.invoke", name); err != nil {
 		return nil, err
 	}
-	result, err := s.runFunctionDraft(actor, projectID, name, source, input, nil)
+	result, err := s.runFunctionDraft(actor, projectID, name, source, input, plugin.InvocationActor{Kind: "operator", ID: actor.ID, Authenticated: true, Level: "authenticated"}, "operator:"+actor.ID, "functions.invoke", nil)
 	if err == nil {
 		if err := s.authorizeFunction(actor, projectID, "functions.invoke", name); err != nil {
 			return nil, err
@@ -384,7 +402,7 @@ func (s *LifecycleService) RunFunctionDraft(actor operator.Actor, projectID, nam
 	return result, err
 }
 
-func (s *LifecycleService) runFunctionDraft(actor operator.Actor, projectID, name, source string, input json.RawMessage, initialSteps []FunctionLogStep) (map[string]any, error) {
+func (s *LifecycleService) runFunctionDraft(actor operator.Actor, projectID, name, source string, input json.RawMessage, authActor plugin.InvocationActor, principal, operation string, initialSteps []FunctionLogStep) (map[string]any, error) {
 	started := time.Now()
 	requestID := createFunctionRequestID()
 	steps := append([]FunctionLogStep{}, initialSteps...)
@@ -433,6 +451,10 @@ func (s *LifecycleService) runFunctionDraft(actor operator.Actor, projectID, nam
 	if err != nil {
 		return nil, err
 	}
+	authJSON, err := json.Marshal(plugin.InvocationAuth{Actor: authActor, Caller: authActor, Permissions: []plugin.InvocationPermission{{Capability: operation, Operation: operation, Resource: name}}})
+	if err != nil {
+		return nil, err
+	}
 	const runner = `const vm=await import("node:vm");
 const clock=()=>Number(process.hrtime.bigint())/1e6;
 const sandbox=vm.createContext(Object.create(null),{codeGeneration:{strings:false,wasm:false}});
@@ -441,7 +463,8 @@ await helpers.link(()=>{throw new Error("helper imports are not permitted")});
 await helpers.evaluate({timeout:450});
 sandbox.__brainHelper=helpers.namespace.callHelper;
 sandbox.__brainInput=vm.runInContext("JSON.parse("+JSON.stringify(process.env.BRAIN_FUNCTION_INPUT)+")",sandbox);
-sandbox.__brainContext=vm.runInContext("Object.freeze({project:Object.freeze(JSON.parse("+JSON.stringify(process.env.BRAIN_FUNCTION_PROJECT)+")),plugin:Object.freeze({id:'functions'}),execution:Object.freeze({operation:'functions.invoke',id:"+JSON.stringify(process.env.BRAIN_INVOCATION_ID)+",invocationId:"+JSON.stringify(process.env.BRAIN_INVOCATION_ID)+"}),helpers:Object.freeze({call:__brainHelper})})",sandbox);
+sandbox.__brainAuth=vm.runInContext("(()=>{const a=JSON.parse("+JSON.stringify(process.env.BRAIN_FUNCTION_AUTH)+");const permissions=Object.freeze(a.permissions.map(p=>Object.freeze(p)));return Object.freeze({actor:Object.freeze(a.actor),caller:Object.freeze(a.caller),permissions,can:(capability,resource='')=>permissions.some(p=>p.capability===capability&&p.resource===resource)})})()",sandbox);
+sandbox.__brainContext=vm.runInContext("Object.freeze({auth:__brainAuth,project:Object.freeze(JSON.parse("+JSON.stringify(process.env.BRAIN_FUNCTION_PROJECT)+")),plugin:Object.freeze({id:'functions'}),execution:Object.freeze({operation:"+JSON.stringify(process.env.BRAIN_FUNCTION_OPERATION)+",id:"+JSON.stringify(process.env.BRAIN_INVOCATION_ID)+",invocationId:"+JSON.stringify(process.env.BRAIN_INVOCATION_ID)+"}),helpers:Object.freeze({call:__brainHelper})})",sandbox);
 const compileStart=clock();
 const module=new vm.SourceTextModule(process.env.BRAIN_FUNCTION_SOURCE,{context:sandbox});
 await module.link(()=>{throw new Error("imports are not permitted")});
@@ -459,16 +482,20 @@ const result=await Promise.race([Promise.resolve(vm.runInContext("__brainHandler
 const invokeMs=clock()-invokeStart;
 process.stdout.write(JSON.stringify({result:result??null,timings:{compile_ms:compileMs,evaluate_ms:evaluateMs,invoke_ms:invokeMs}}));
 } finally {clearTimeout(timer);}`
-	commandContext, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	// Allow cold Node startup under load without relaxing the VM execution deadlines.
+	commandContext, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	command := exec.CommandContext(commandContext, "node", "--no-warnings", "--experimental-vm-modules", "--input-type=module", "-e", runner)
-	command.Env = []string{"PATH=" + os.Getenv("PATH"), "BRAIN_FUNCTION_SOURCE=" + source, "BRAIN_FUNCTION_INPUT=" + string(input), "BRAIN_FUNCTION_PROJECT=" + string(projectJSON), "BRAIN_INVOCATION_ID=" + requestID, "BRAIN_PURE_HELPERS=" + pluginsdk.PureHelperSource}
+	command.Env = []string{"PATH=" + os.Getenv("PATH"), "BRAIN_FUNCTION_SOURCE=" + source, "BRAIN_FUNCTION_INPUT=" + string(input), "BRAIN_FUNCTION_PROJECT=" + string(projectJSON), "BRAIN_FUNCTION_AUTH=" + string(authJSON), "BRAIN_FUNCTION_OPERATION=" + operation, "BRAIN_INVOCATION_ID=" + requestID, "BRAIN_PURE_HELPERS=" + pluginsdk.PureHelperSource}
 	executionStarted := time.Now()
 	output, err := command.Output()
 	if err != nil {
 		var exitError *exec.ExitError
 		detail := ""
-		if errors.As(err, &exitError) {
+		if commandContext.Err() != nil {
+			detail = commandContext.Err().Error()
+		}
+		if errors.As(err, &exitError) && detail == "" {
 			detail = strings.TrimSpace(string(exitError.Stderr))
 		}
 		if len(detail) > 4096 {
@@ -527,7 +554,7 @@ process.stdout.write(JSON.stringify({result:result??null,timings:{compile_ms:com
 	addStep("response serialization", "success", "JSON response encoded for the caller", responseStarted, nil)
 	writeLog("success", "function completed successfully")
 	if s.registry != nil {
-		s.registry.PublishHostObservation(projectID, "functions", "invoked", map[string]any{"name": name, "executionId": requestID})
+		s.registry.PublishHostObservationAs(projectID, "functions", "invoked", principal, map[string]any{"name": name, "executionId": requestID})
 	}
 	return map[string]any{"valid": true, "project_id": projectID, "name": name, "result": result}, nil
 }

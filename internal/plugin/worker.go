@@ -25,7 +25,9 @@ type WorkerRequest struct {
 	HostContext *InvocationContext `json:"-"`
 
 	// Set only by trusted host entry points; never serialized to a worker.
-	accessPrincipal string
+	accessPrincipal     string
+	originPrincipal     string
+	requireAccessPolicy bool
 }
 
 type WorkerResponse struct {

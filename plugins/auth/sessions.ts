@@ -31,6 +31,11 @@ export class AccountSessionReader {
       throw new Error("invalid session");
     return { username: session.username };
   }
+  identity(projectId: string, token: string, now = Date.now()) {
+    const { username } = this.session(projectId, token, now);
+    const account = this.state.accounts.get(projectId)?.get(username);
+    return { userId: account?.userId ?? projectUserID(projectId, username) };
+  }
 }
 
 export class AccountSessionRotator {
