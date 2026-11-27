@@ -1,8 +1,11 @@
 package project_test
 
 import (
+	"errors"
 	"net/http"
 	"net/http/httptest"
+	"path/filepath"
+	"strings"
 	"testing"
 
 	"brain/internal/project"
@@ -58,5 +61,91 @@ func TestProjectSlugUniqueness(t *testing.T) {
 	}
 	if _, err := store.ResolveNamespace("_system"); err == nil {
 		t.Fatal("reserved namespace accepted")
+	}
+}
+
+func TestProjectNamespaceConfigureAndResolveAcrossStores(t *testing.T) {
+	for _, kind := range []string{"memory", "sqlite"} {
+		t.Run(kind, func(t *testing.T) {
+			store := project.NewStore()
+			path := filepath.Join(t.TempDir(), "projects.db")
+			if kind == "sqlite" {
+				var err error
+				store, err = project.NewSQLiteStore(path)
+				if err != nil {
+					t.Fatal(err)
+				}
+				defer store.Close()
+			}
+			if err := store.CreateWithDetails("id-one", "One", "one", map[string]any{"region": "eu"}); err != nil {
+				t.Fatal(err)
+			}
+			if err := store.CreateWithDetails("id-two", "Two", "two", nil); err != nil {
+				t.Fatal(err)
+			}
+			for _, collision := range []struct{ id, slug string }{{"one", "three"}, {"id-three", "id-one"}, {"id-three", "two"}} {
+				if err := store.CreateWithDetails(collision.id, "", collision.slug, nil); !errors.Is(err, project.ErrDuplicate) {
+					t.Fatalf("create collision %#v: %v", collision, err)
+				}
+			}
+			for _, slug := range []string{"two", "id-two"} {
+				if err := store.Configure("id-one", "", slug, nil); !errors.Is(err, project.ErrDuplicate) {
+					t.Fatalf("configure collision %q: %v", slug, err)
+				}
+			}
+			for _, slug := range []string{"_system", "a/b", strings.Repeat("x", 64)} {
+				if err := store.Configure("id-one", "", slug, nil); !errors.Is(err, project.ErrInvalidID) {
+					t.Fatalf("invalid slug %q: %v", slug, err)
+				}
+			}
+			if err := store.Configure("bad/id", "", "", nil); !errors.Is(err, project.ErrInvalidID) {
+				t.Fatalf("invalid id: %v", err)
+			}
+			if err := store.Configure("missing", "", "", nil); !errors.Is(err, project.ErrNotFound) {
+				t.Fatalf("missing project: %v", err)
+			}
+			if err := store.Configure("id-one", " invalid ", "", nil); !errors.Is(err, project.ErrInvalidID) {
+				t.Fatalf("invalid name: %v", err)
+			}
+			if err := store.Configure("id-one", "", "", map[string]any{"bad": make(chan int)}); err == nil {
+				t.Fatal("non-JSON settings accepted")
+			}
+			if err := store.Configure("id-one", "Renamed", "renamed", nil); err != nil {
+				t.Fatal(err)
+			}
+			if _, err := store.ResolveNamespace("one"); !errors.Is(err, project.ErrNotFound) {
+				t.Fatalf("old namespace: %v", err)
+			}
+			for _, namespace := range []string{"id-one", "renamed"} {
+				got, err := store.ResolveNamespace(namespace)
+				if err != nil || got.ID != "id-one" || got.Name != "Renamed" || got.Slug != "renamed" || got.Settings["region"] != "eu" {
+					t.Fatalf("resolved %q: %#v, %v", namespace, got, err)
+				}
+			}
+			if err := store.SetActive("id-one", false); err != nil {
+				t.Fatal(err)
+			}
+			if err := store.Configure("id-one", "", "", map[string]any{"region": "us"}); err != nil {
+				t.Fatal(err)
+			}
+			if _, err := store.ResolveNamespace("renamed"); !errors.Is(err, project.ErrInactive) {
+				t.Fatalf("configure reactivated project: %v", err)
+			}
+			if kind == "sqlite" {
+				reopened, err := project.NewSQLiteStore(path)
+				if err != nil {
+					t.Fatal(err)
+				}
+				defer reopened.Close()
+				store = reopened
+			}
+			if err := store.SetActive("id-one", true); err != nil {
+				t.Fatal(err)
+			}
+			got, err := store.ResolveNamespace("renamed")
+			if err != nil || got.Name != "Renamed" || got.Settings["region"] != "us" {
+				t.Fatalf("persisted configuration: %#v, %v", got, err)
+			}
+		})
 	}
 }
