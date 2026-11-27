@@ -16,7 +16,7 @@ Passing tests and coverage are different measures. A coverage gate does not prov
 
 The CI coverage workflow publishes raw profiles and HTML reports even when the target is missed. Do not exclude code merely to reach the target. Go's standard profile measures statements, not branches.
 
-Go CLI integration tests use an instrumented executable and merge source blocks with unit-test coverage. Admin component rendering and transport tests are included in the TypeScript profile; interactive browser flows still require separate verification. Shell scripts, browser end-to-end flows and production integration coverage are separate unfinished measurement areas. Mobile coverage gates must pass on each revision before their targets are considered achieved. The existing Compose, sandbox, race, lint and type checks remain required. Do not claim repository-wide 100% coverage from partial coverage reports.
+Go CLI integration and packaged runtime smoke tests use an instrumented executable and merge source blocks with unit-test coverage. The host shuts down gracefully on SIGTERM, allowing Go coverage counters to flush. Admin component rendering, transport and DOM interaction tests are included in the TypeScript profile. The separate browser verification workflow runs Chromium against the generated documentation and the real Next.js admin UI with a controlled API fixture; it publishes screenshots and logs. Browser bundle coverage and shell script coverage remain separate unfinished measurement areas. Mobile coverage gates must pass on each revision before their targets are considered achieved. The existing Compose, sandbox, race, lint and type checks remain required. Do not claim repository-wide 100% coverage from partial coverage reports.
 
 ## Reproduce the site
 
