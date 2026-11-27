@@ -61,7 +61,11 @@ jobs:
       - name: Install isolated browser test dependencies
         run: |
           npm install --prefix "$BRAIN_BROWSER_DEPS" --no-audit --no-fund --save-exact playwright@1.56.1
-          "$BRAIN_BROWSER_DEPS/node_modules/.bin/playwright" install --with-deps chromium
+          # Use the runner-provided Chrome rather than installing an older
+          # Playwright browser build on a newer, unsupported Linux release.
+          chrome=$(command -v google-chrome || command -v google-chrome-stable || command -v chromium)
+          "$chrome" --version
+          echo "BRAIN_BROWSER_EXECUTABLE=$chrome" >> "$GITHUB_ENV"
       - name: Verify the production admin in Chromium
         run: |
           (cd admin-nextjs && exec npm run start -- --hostname 127.0.0.1 --port 3100) > "$RUNNER_TEMP/brain-admin.log" 2>&1 &

@@ -3,12 +3,20 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `0d513e57` — 2026-11-27 13:46:35 +0330 — Merge pull request #19 from arashrasoulzadeh/test/admin-live-backend
+  Files: 
+- `ec2d74da` — 2026-11-27 13:46:17 +0330 — Merge current main and align live Chromium runner with packaged runtime CI
+  Files: .github/workflows/admin-browser.yml
+- `c263bc03` — 2026-11-27 10:15:40 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `c350a896` — 2026-11-27 13:45:21 +0330 — Merge pull request #21 from arashrasoulzadeh/fix/admin-project-scope
   Files: 
 - `f149ff75` — 2026-11-27 13:45:15 +0330 — Merge pull request #20 from arashrasoulzadeh/fix/admin-revocation-refresh
   Files: 
 - `a42e093b` — 2026-11-27 13:15:05 +0330 — Prevent stale project catalog and function responses after switching projects
   Files: admin-nextjs/app/components/projects-panel.tsx,admin-nextjs/app/lib/project-requests.ts admin-nextjs/app/page.tsx,docs/admin-pages/projects.md tests/admin/project-requests.test.ts
+- `be4d97d5` — 2026-11-27 13:13:39 +0330 — Keep live browser backend network-disabled and relay CI HTTP over docker exec
+  Files: .github/workflows/admin-browser.yml,docs/admin-pages/theme.md scripts/admin-ci-backend-relay.mjs
 - `02c6c423` — 2026-11-27 13:12:24 +0330 — Cover delegated admin read checks and revoked target grants
   Files: tests/plugin/plugin_call_test.go
 - `999e95b0` — 2026-11-27 09:41:41 +0000 — docs: update changelog [skip ci]
@@ -17,6 +25,8 @@ Automatically generated from commits on main.
   Files: 
 - `aa7506d1` — 2026-11-27 13:10:38 +0330 — Revalidate displayed admin results and inventories after silent policy revocation
   Files: admin-nextjs/app/components/admin-inventory.tsx,admin-nextjs/app/components/admin-renderer.tsx admin-nextjs/app/components/model-panel.tsx,admin-nextjs/app/lib/admin-sdk.ts docs/admin-pages/extensions.md,internal/admin/lifecycle.go internal/app/admin.go,internal/plugin/access_management.go roadmap_admin.md,scripts/test-admin-browser.mjs tests/admin/manifest_admin_test.go,tests/plugin/access_management_test.go
+- `96a2a32b` — 2026-11-27 13:08:54 +0330 — Exercise real packaged admin backend with Chromium policy and persistence tests
+  Files: .github/workflows/admin-browser.yml,docs/admin-pages/theme.md scripts/test-admin-live.mjs
 - `45b52cd2` — 2026-11-27 09:38:17 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
 - `029e8746` — 2026-11-27 13:07:42 +0330 — Merge pull request #18 from arashrasoulzadeh/test/admin-browser-smoke
@@ -93,13 +103,3 @@ Automatically generated from commits on main.
   Files: internal/admin/lifecycle.go,internal/plugin/legacy_storage_adapter.go internal/plugin/manifest.go,internal/plugin/registry_workers.go plugins/sdk-typescript/src/index.ts,scripts/test-production-runtime.sh tests/plugin/project-context.test.ts
 - `ba191356` — 2026-11-27 03:43:26 +0330 — Expose host-verified actor and scoped permissions in plugin context
   Files: docs/plugin-auth-context.md,internal/plugin/broker.go internal/plugin/invocation_context.go,internal/plugin/manifest_pipeline.go internal/plugin/manifest_response.go,internal/plugin/observations.go internal/plugin/plugin_call.go,internal/plugin/worker.go plugins/sdk-typescript/src/index.ts,scripts/typescript-worker.mjs tests/plugin/project-context.test.ts,tests/plugin/worker_test.go
-- `5a70d688` — 2026-11-27 03:43:04 +0330 — Stage concurrent admin inventory and resource-scoped authorization additions
-  Files: CHANGELOG.md,admin-nextjs/app/components/admin-inventory.tsx admin-nextjs/app/components/admin-renderer.tsx,admin-nextjs/app/components/legacy-admin-page.tsx admin-nextjs/app/components/model-panel.tsx,admin-nextjs/app/lib/admin-registry.ts admin-nextjs/app/lib/admin-sdk.ts,admin-nextjs/app/lib/admin-types.ts admin-nextjs/app/plugins/[plugin]/page.tsx,docs/admin-pages/extensions.md docs/declarative-runtime.md,internal/app/admin.go internal/plugin/admin_inventory.go,internal/plugin/admin_inventory_test.go internal/plugin/admin_manifest.go,internal/plugin/admin_model_pages.go internal/plugin/admin_model_pages_test.go,internal/plugin/legacy_admin_inventory.go internal/plugin/legacy_storage_adapter_test.go,internal/plugin/route_resources_test.go plugins/files/plugin.yaml,plugins/matchmaking/plugin.yaml plugins/rooms/plugin.yaml,plugins/tables/plugin.yaml plugins/tables/routes.ts,roadmap_admin.md tests/admin/admin-registry.test.ts,tests/plugin/resource_scope_invoke_test.go
-- `4fd3711c` — 2026-11-27 03:42:23 +0330 — Unify project snapshot, declarative runtime, credential and access-policy authorization paths
-  Files: internal/plugin/registry_workers.go,internal/plugin/worker.go
-- `453fb721` — 2026-11-27 03:42:00 +0330 — Reconcile declarative worker, function VM helpers, resource-aware queue and manifest contracts
-  Files: internal/admin/functions.go,internal/plugin/legacy_storage_adapter.go internal/plugin/manifest.go,internal/plugin/observation_queue.go internal/plugin/typescript_worker.go
-- `3c3edd6a` — 2026-11-27 03:41:28 +0330 — Preserve operator admission, project resolver, storage models and post-commit observation routing
-  Files: cmd/brain/main.go,internal/admin/lifecycle.go internal/plugin/broker.go,internal/plugin/observations.go internal/plugin/plugin.go,internal/plugin/registry_catalog.go internal/plugin/sqlite_storage.go
-- `c4406cdf` — 2026-11-27 00:11:12 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
