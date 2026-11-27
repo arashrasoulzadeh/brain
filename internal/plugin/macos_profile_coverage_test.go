@@ -70,6 +70,16 @@ func TestMacOSProfileConstructionCoverage(t *testing.T) {
 			t.Fatalf("missing sandbox rule %q", required)
 		}
 	}
+	for _, required := range []string{
+		`(allow file-read* (literal "/opt/homebrew/etc/openssl@3/openssl.cnf") (literal "/usr/local/etc/openssl@3/openssl.cnf"))`,
+	} {
+		if !strings.Contains(profile, required) {
+			t.Fatalf("missing Homebrew OpenSSL read-only rule %q", required)
+		}
+	}
+	if strings.Contains(profile, `(subpath "/opt/homebrew/etc`) || strings.Contains(profile, `(subpath "/usr/local/etc`) {
+		t.Fatal("profile grants broad Homebrew configuration access")
+	}
 	if strings.Contains(profile, "(allow network") || strings.Contains(profile, "(allow default)") {
 		t.Fatal("profile grants network or default access")
 	}

@@ -96,6 +96,48 @@ jobs:
           pid=$!
           trap 'kill "$pid" 2>/dev/null || true; cat /tmp/brain-macos.log' EXIT
           BRAIN_TEST_ORIGIN=http://127.0.0.1:18092 node scripts/test-runtime-api.mjs
+      - name: Verify native macOS worker with Homebrew Node
+        run: |
+          brew install node@22
+          export PATH="$(brew --prefix node@22)/bin:$PATH"
+          node --version
+          BRAIN_TEST_MACOS_SANDBOX=1 go test -count=1 -v ./tests/plugin -run '^TestMacOSWorkerIsolation        if: failure()
+        run: |
+          /usr/bin/log show --last 3m --style compact --predicate 'eventMessage CONTAINS "deny" AND (eventMessage CONTAINS "node" OR eventMessage CONTAINS "sandbox-exec" OR eventMessage CONTAINS "esbuild")' || true
+  typescript:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run lint:ts
+      - run: npm run typecheck
+      - run: npm run test:ts
+      - name: Run TypeScript sandbox
+        run: >-
+          docker run --rm --privileged
+          -v "${GITHUB_WORKSPACE}:/workspace"
+          -w /workspace
+          node:20-bookworm
+          bash -lc 'apt-get update && apt-get install --yes bubblewrap && NODE_BIN=/usr/local/bin/node TEST_TYPESCRIPT_RUNTIME=1 timeout 60s bash scripts/test-sandboxed-typescript-worker.sh'
+  admin:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: admin-nextjs
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: admin-nextjs/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+
       - name: Report macOS sandbox diagnostics
         if: failure()
         run: |
