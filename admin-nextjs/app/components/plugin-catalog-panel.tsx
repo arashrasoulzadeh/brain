@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { PluginInstallDialog } from "./plugin-install-dialog";
-import { pluginCatalogState, pluginVersionReview } from "../lib/plugin-version-review";
+import { dependencyEnablePlan, pluginCatalogState, pluginVersionReview } from "../lib/plugin-version-review";
 import { projectUIURL } from "../lib/admin-api";
 import type { AdminCopy } from "../lib/admin-copy";
 import type { PluginManifest, PluginStatus } from "../lib/admin-types";
@@ -50,7 +50,7 @@ export function PluginCatalogPanel({ activePage, projectID, text, manifests, ins
             <td><div className="table-actions">
               {!installation ? stagedOnly ? <small className="muted">Stage in Manage</small> : <button type="button" onClick={() => setPending({ manifest, projectID })}>{text.install}</button> :
                 !installation.Ready ? <button type="button" onClick={() => runPluginAction("plugin.readiness", installation)}>{text.markReady}</button> :
-                !installation.Enabled && !installation.Draining && !review.missingGrants.length && !review.requiredUnavailable.length && (!review.otherEnabled.length || !!review.promoted) ? <button type="button" onClick={() => runPluginAction("plugin.enable", installation)}>{text.enable}</button> : null}
+                !installation.Enabled && !installation.Draining && !review.missingGrants.length && !dependencyEnablePlan(projectID, manifest, manifests, scoped).blockers.length && (!review.otherEnabled.length || !!review.promoted) ? <button type="button" onClick={() => runPluginAction("plugin.enable", installation)}>{text.enable}</button> : null}
               <Link className="table-action-link" href={projectUIURL(projectID, "plugins", key)} aria-label={"View " + manifest.ID}>Manage</Link>
             </div></td>
           </tr>;

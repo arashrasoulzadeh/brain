@@ -205,3 +205,33 @@ test("plugin details stage a new version without changing routing, and confirm n
   assert.match(text(), /Promoted version: 2/);
   assert.ok(calls.every(call => call.body.project_id === "dev" && call.body.version === "2"));
 });
+
+test("enable confirmation lists exact transitive dependencies and sends only confirmed changes", async () => {
+  const Plugin = app("plugins/[plugin]/view.tsx").default;
+  session();
+  const manifests = [
+    { ID: "parent", Title: "Parent", Version: "1", Capabilities: ["read"], Dependencies: ["child@2"], OptionalDependencies: ["optional@1"] },
+    { ID: "child", Title: "Child", Version: "2", Capabilities: ["read"], Dependencies: ["leaf@3"] },
+    { ID: "leaf", Title: "Leaf", Version: "3", Capabilities: ["read"] },
+  ];
+  const installations = manifests.map(m => ({ ProjectID: "dev", PluginID: m.ID, Version: m.Version, Ready: true, Enabled: m.ID === "leaf", Grants: ["read"] }));
+  const calls = [];
+  stubFetch((url, init) => {
+    if (url === "/_system/admin/projects") return json([{ ID: "dev", Active: true }]);
+    if (url === "/dev/admin/plugins") return json({ manifests, installations });
+    if (url === "/dev/admin/actions") {
+      const body = JSON.parse(init.body); calls.push(body);
+      return new Response(null, { status: 204 });
+    }
+    throw new Error("unexpected request " + url);
+  });
+  await mount(Plugin, {}, { pathname: "/dev/ui/plugins/parent%401", params: { plugin: "parent%401" } });
+  await click(button("Enable"));
+  const dialog = find("dialog");
+  assert.match(dialog.textContent, /child@2.*will enable/);
+  assert.match(dialog.textContent, /Already enabled; unchanged:.*leaf@3/);
+  assert.equal(calls.length, 0);
+  await click(button("Confirm action"));
+  assert.deepEqual(calls[0].dependencies, ["child@2"]);
+  assert.equal(calls[0].confirmed, true);
+});

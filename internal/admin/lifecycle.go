@@ -170,6 +170,12 @@ func (s *LifecycleService) EnablePlugin(actor operator.Actor, projectID, pluginI
 	})
 }
 
+func (s *LifecycleService) EnablePluginWithDependencies(actor operator.Actor, projectID, pluginID, version string, dependencies []string) error {
+	return s.executeProjectLifecycle(actor, projectID, pluginID, version, "plugin.enable", func() error {
+		return s.registry.EnableWithDependencies(projectID, pluginID, version, dependencies)
+	})
+}
+
 func (s *LifecycleService) StartPluginWorker(actor operator.Actor, projectID, pluginID, version string) error {
 	return s.executeProjectLifecycle(actor, projectID, pluginID, version, "plugin.worker.start", func() error {
 		return s.registry.StartWorker(projectID, pluginID, version)

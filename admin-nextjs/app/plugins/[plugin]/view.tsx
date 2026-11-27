@@ -7,13 +7,14 @@ import { AdminPageFrame } from "../../components/admin-chrome";
 import { AdminConfigForm } from "../../components/admin-config-form";
 import { AdminDialog, AdminProgress } from "../../components/admin-dialog";
 import { PluginInstallDialog } from "../../components/plugin-install-dialog";
+import { PluginEnableDependencies } from "../../components/plugin-enable-dependencies";
 import { installAndActivatePlugin } from "../../lib/plugin-install";
-import { pluginVersionReview, pluginCatalogState } from "../../lib/plugin-version-review";
+import { dependencyEnablePlan, type DependencyEnablePlan, pluginVersionReview, pluginCatalogState } from "../../lib/plugin-version-review";
 import { adminContributions } from "../../lib/admin-registry";
 import type { SystemManifest, PluginStatus } from "../../lib/admin-types";
 
 type Project = { ID: string; Slug?: string; Active: boolean };
-type PendingAction = { operation: string; label: string; capability?: string; resource?: string; preview?: { Revision: number; Dependents: string[] } };
+type PendingAction = { operation: string; label: string; capability?: string; resource?: string; dependencyPlan?: DependencyEnablePlan; preview?: { Revision: number; Dependents: string[] } };
 
 export default function PluginSettingsPage() {
   const params = useParams<{ plugin: string }>();
@@ -81,7 +82,7 @@ function ProjectPluginSettings({ namespace, pluginKey }: { namespace?: string; p
 
   async function openAction(operation: string, label: string, capability?: string) {
     if (busy) return;
-    setPendingAction({ operation, label, capability }); setActionDone(false); setActionError("");
+    setPendingAction({ operation, label, capability, ...(operation === "plugin.enable" && project && manifest ? { dependencyPlan: dependencyEnablePlan(project.ID, manifest, catalog.manifests, catalog.installations) } : {}) }); setActionDone(false); setActionError("");
     if (operation === "plugin.disable.apply") {
       setBusy(true);
       try {
@@ -96,13 +97,14 @@ function ProjectPluginSettings({ namespace, pluginKey }: { namespace?: string; p
 
   async function lifecycle() {
     if (busy || actionDone || !pendingAction || !project || !manifest) return;
-    const { operation, capability, resource, preview } = pendingAction;
+    const { operation, capability, resource, preview, dependencyPlan } = pendingAction;
+    if (operation === "plugin.enable" && (!dependencyPlan || dependencyPlan.blockers.length)) return;
     if (operation === "plugin.grant-resource" && !resource?.trim()) return;
     if (operation !== "plugin.install" && !installation) return;
     if (operation === "plugin.disable.apply" && !preview) return;
     setBusy(true); setActionError("");
     try {
-      await command(operation, { capability, resource, ready: operation === "plugin.readiness", confirmed: true, ...(preview ? { revision: preview.Revision, dependents: preview.Dependents } : {}) });
+      await command(operation, { capability, resource, ready: operation === "plugin.readiness", confirmed: true, ...(dependencyPlan ? { dependencies: dependencyPlan.enable } : {}), ...(preview ? { revision: preview.Revision, dependents: preview.Dependents } : {}) });
       setActionDone(true);
       notifyPluginCatalogChanged(project.ID);
       await load(session).catch(reason => setActionError("Action completed; refresh failed: " + String(reason)));
@@ -113,6 +115,7 @@ function ProjectPluginSettings({ namespace, pluginKey }: { namespace?: string; p
   const scope = (project?.ID ?? "") + " · " + pluginKey;
   const review = manifest && project ? pluginVersionReview(project.ID, manifest, catalog.manifests, catalog.installations) : undefined;
   const canPromote = !!installation?.Enabled && installation.Ready && !installation.Draining && !!review && !review.missingGrants.length && !review.missingApprovals.length && !review.missingConfig.length && !review.incompatibleConfig.length && !review.requiredUnavailable.length;
+  const enablePlan = manifest && project ? dependencyEnablePlan(project.ID, manifest, catalog.manifests, catalog.installations) : undefined;
   const canActivateFresh = !!review && !review.otherEnabled.length && !review.promoted && !review.requiredUnavailable.length;
   function signOut() { void signOutAdminSession().finally(() => router.replace(systemUIURL())); }
   const actionButton = (operation: string, label: string, danger = false) => <button type="button" className={danger ? "danger" : "secondary"} disabled={busy} onClick={() => void openAction(operation, label)}>{label}</button>;
@@ -123,7 +126,8 @@ function ProjectPluginSettings({ namespace, pluginKey }: { namespace?: string; p
     {message && <p role="alert">{message}</p>}
     {installOpen && project && manifest && <PluginInstallDialog projectID={project.ID} manifest={manifest} onClose={() => setInstallOpen(false)} onInstall={async () => { await installAndActivatePlugin(session, project.ID, manifest); await load(session).catch(reason => setMessage("Plugin installed; refresh failed: " + String(reason))); }} />}
     {pendingAction && project && manifest && <AdminDialog title={pendingAction.label} scope={scope} busy={busy} onClose={() => setPendingAction(undefined)}>
-      <p>{pendingAction.capability || (pendingAction.operation === "plugin.readiness" ? "Artifact readiness is shared across projects." : "This action applies only to the selected installation.")}</p>
+      <p>{pendingAction.capability || (pendingAction.operation === "plugin.readiness" ? "Artifact readiness is shared across projects." : pendingAction.operation === "plugin.enable" ? "Enable the selected plugin and the confirmed required dependencies in this project." : "This action applies only to the selected installation.")}</p>
+      {pendingAction.dependencyPlan && <PluginEnableDependencies plan={pendingAction.dependencyPlan} />}
       {pendingAction.operation === "plugin.grant-resource" && <><p className="muted">The first exact resource grant restricts resource-bound operations for this capability to the listed resources. Further grants add exact keys. Other access policies still apply.</p><label>Exact resource key<input disabled={busy || actionDone} value={pendingAction.resource ?? ""} onChange={event => setPendingAction({ ...pendingAction, resource: event.target.value })} /></label></>}
       {pendingAction.operation === "plugin.stop-immediate" && <p role="alert">Stop accepting work immediately; active work may be interrupted.</p>}
       {pendingAction.operation === "plugin.install" && <p>Stage only: no capabilities are granted and no worker is started. Existing routing is unchanged.</p>}
@@ -132,7 +136,7 @@ function ProjectPluginSettings({ namespace, pluginKey }: { namespace?: string; p
       {pendingAction.operation === "plugin.rollback" && <p>Make this exact version the active version. The host checks compatibility, grants and configuration before accepting it.</p>}
       {pendingAction.operation === "plugin.recover" && <p>Clear the draining or stopped state. Start the worker separately if required.</p>}
       {pendingAction.preview && <p>{pendingAction.preview.Dependents.length ? "Affected dependencies: " + pendingAction.preview.Dependents.join(", ") : "No affected dependencies."}</p>}
-      {!actionDone && <button type="button" disabled={busy || (pendingAction.operation === "plugin.disable.apply" && !pendingAction.preview) || (pendingAction.operation === "plugin.grant-resource" && !pendingAction.resource?.trim())} onClick={() => void lifecycle()}>Confirm action</button>}
+      {!actionDone && <button type="button" disabled={busy || (pendingAction.operation === "plugin.enable" && (!pendingAction.dependencyPlan || !!pendingAction.dependencyPlan.blockers.length)) || (pendingAction.operation === "plugin.disable.apply" && !pendingAction.preview) || (pendingAction.operation === "plugin.grant-resource" && !pendingAction.resource?.trim())} onClick={() => void lifecycle()}>Confirm action</button>}
       {busy && <AdminProgress label="Applying change…" />}{actionDone && <p role="status">Action completed</p>}{actionError && <p role="alert">{actionError}</p>}
     </AdminDialog>}
     {manifest && project && review && <>
@@ -140,7 +144,7 @@ function ProjectPluginSettings({ namespace, pluginKey }: { namespace?: string; p
         <div className="lifecycle-actions">
           {!installation ? <>{canActivateFresh && <button type="button" onClick={() => setInstallOpen(true)}>Install</button>}{actionButton("plugin.install", "Stage installation")}{!canActivateFresh && <p className="muted">Stage this version and review dependencies and grants before enabling. Existing live versions are not switched automatically.</p>}</> : <>
             {!installation.Ready && actionButton("plugin.readiness", "Mark artifact ready")}
-            {installation.Ready && !installation.Enabled && !installation.Draining && <button type="button" disabled={busy || !!review.missingGrants.length || !!review.requiredUnavailable.length || (!!review.otherEnabled.length && !review.promoted)} onClick={() => void openAction("plugin.enable", "Enable")}>Enable</button>}
+            {installation.Ready && !installation.Enabled && !installation.Draining && <button type="button" disabled={busy || !!review.missingGrants.length || !!enablePlan?.blockers.length || (!!review.otherEnabled.length && !review.promoted)} onClick={() => void openAction("plugin.enable", "Enable")}>Enable</button>}
             {installation.Enabled && installation.Ready && !installation.WorkerReady && actionButton("plugin.worker.start", "Start worker")}
             {installation.Enabled && !installation.Draining && actionButton("plugin.drain", "Drain")}
             {installation.Draining && actionButton("plugin.resume", "Resume")}
@@ -153,7 +157,7 @@ function ProjectPluginSettings({ namespace, pluginKey }: { namespace?: string; p
           </>}
         </div>
       </section>
-      <section className="section admin-action-panel"><h2>Version routing and dependencies</h2><p>{review.promoted ? "Promoted version: " + review.promoted.manifest.Version : "No explicit version promotion. Multiple enabled versions can make HTTP routing ambiguous."}</p>{!!review.otherEnabled.length && !review.promoted && <p role="alert">Promote the currently live version before enabling another version.</p>}<div className="table-wrap"><table><thead><tr><th>Registered version</th><th>Installation state</th><th>Routing</th></tr></thead><tbody>{review.versions.map(item => <tr key={item.manifest.Version}><td><Link href={projectUIURL(project.ID, "plugins", item.manifest.ID + "@" + item.manifest.Version)}>{item.manifest.Version}</Link></td><td>{pluginCatalogState(item.installation)}</td><td>{item.installation?.Promoted ? "Promoted" : "Not promoted"}</td></tr>)}</tbody></table></div>{review.dependencies.length ? <div className="table-wrap"><table><thead><tr><th>Exact dependency</th><th>Kind</th><th>Availability</th></tr></thead><tbody>{review.dependencies.map(dep => <tr key={dep.key}><td>{dep.registered ? <Link href={projectUIURL(project.ID, "plugins", dep.key)}>{dep.key}</Link> : <code>{dep.key}</code>}</td><td>{dep.required ? "Required" : "Optional"}</td><td>{dep.available ? "Admitted by catalog" : dep.selectedOtherVersion ? "Different version promoted" : dep.state}</td></tr>)}</tbody></table></div> : <p className="muted">No declared dependencies.</p>}<p className="muted">Dependency status is a catalog check, not a guarantee of runtime policy authorization.</p>{installation && <><h3>Promotion prerequisites</h3>{!!review.missingGrants.length && <p>Missing grants: {review.missingGrants.join(", ")}</p>}{!!review.missingConfig.length && <p>Missing configuration: {review.missingConfig.join(", ")}</p>}{!!review.incompatibleConfig.length && <p role="alert">Incompatible configuration schema: {review.incompatibleConfig.join(", ")}</p>}{!!review.missingApprovals.length && <p>New capability approvals required: {review.missingApprovals.join(", ")}</p>}{!!review.requiredUnavailable.length && <p role="alert">Required dependencies unavailable: {review.requiredUnavailable.map(dep => dep.key).join(", ")}</p>}{canPromote && <p>Catalog prerequisites satisfied; host checks again at promotion.</p>}</>}</section>
+      <section className="section admin-action-panel"><h2>Version routing and dependencies</h2><p>{review.promoted ? "Promoted version: " + review.promoted.manifest.Version : "No explicit version promotion. Multiple enabled versions can make HTTP routing ambiguous."}</p>{!!review.otherEnabled.length && !review.promoted && <p role="alert">Promote the currently live version before enabling another version.</p>}<div className="table-wrap"><table><thead><tr><th>Registered version</th><th>Installation state</th><th>Routing</th></tr></thead><tbody>{review.versions.map(item => <tr key={item.manifest.Version}><td><Link href={projectUIURL(project.ID, "plugins", item.manifest.ID + "@" + item.manifest.Version)}>{item.manifest.Version}</Link></td><td>{pluginCatalogState(item.installation)}</td><td>{item.installation?.Promoted ? "Promoted" : "Not promoted"}</td></tr>)}</tbody></table></div>{review.dependencies.length ? <div className="table-wrap"><table><thead><tr><th>Exact dependency</th><th>Kind</th><th>Availability</th></tr></thead><tbody>{review.dependencies.map(dep => <tr key={dep.key}><td>{dep.registered ? <Link href={projectUIURL(project.ID, "plugins", dep.key)}>{dep.key}</Link> : <code>{dep.key}</code>}</td><td>{dep.required ? "Required" : "Optional"}</td><td>{dep.available ? "Admitted by catalog" : dep.selectedOtherVersion ? "Different version promoted" : dep.state}</td></tr>)}</tbody></table></div> : <p className="muted">No declared dependencies.</p>}<p className="muted">Dependency status is a catalog check, not a guarantee of runtime policy authorization.</p>{installation && <><h3>Promotion prerequisites</h3>{!!review.missingGrants.length && <p>Missing grants: {review.missingGrants.join(", ")}</p>}{!!review.missingConfig.length && <p>Missing configuration: {review.missingConfig.join(", ")}</p>}{!!review.incompatibleConfig.length && <p role="alert">Incompatible configuration schema: {review.incompatibleConfig.join(", ")}</p>}{!!review.missingApprovals.length && <p>New capability approvals required: {review.missingApprovals.join(", ")}</p>}{!!review.requiredUnavailable.length && <p role="alert">Required dependencies unavailable for promotion: {review.requiredUnavailable.map(dep => dep.key).join(", ")}</p>}{!!enablePlan?.blockers.length && <p role="alert">Enable blocked: {enablePlan.blockers.join("; ")}</p>}{canPromote && <p>Catalog prerequisites satisfied; host checks again at promotion.</p>}</>}</section>
       {installation ? <>
         <AdminConfigForm key={scope} token={session} projectID={project.ID} pluginID={manifest.ID} version={manifest.Version} schema={manifest.ConfigSchema ?? {}} configuredFields={installation.ConfiguredFields} publicConfig={installation.PublicConfig} maxUploadBytes={installation.MaxUploadBytes} onSaved={() => load(session)} />
         <section className="section admin-action-panel"><h2>Capabilities</h2><p className="muted">Capability grants do not override explicit project access policies. Resource keys are exact, not wildcard patterns.</p><div className="table-wrap"><table><thead><tr><th>Capability</th><th>Scope</th><th>Actions</th></tr></thead><tbody>{manifest.Capabilities.map(capability => {
