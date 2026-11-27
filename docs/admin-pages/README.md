@@ -48,14 +48,14 @@ The sidebar is populated from the selected project's eligible manifests. These d
 | Access management | `access-management` | Read, create and revoke resource rules. |
 | Rooms | `rooms` | Room inventory, details, membership and result operations. |
 | Matchmaking | `matchmaking` | Ticket inventory, status, queue, assign, cancel. |
-| Arena | `arena` | Inspect, start and finish matches. |
-| Invites | `invitations` | Redacted invitation list and cancellation. |
+| Arena | `arena` | Inspect, start, record operator input and finish matches. |
+| Invites | `invitations` | Create invitations, redacted invitation list and cancellation. |
 | Subscriptions | `subscriptions` | Channel metadata and ticket revocation. |
 | Analytics | `analytics` | Validated event capture; no event-list or aggregate API exists yet. |
 | Games | `games` | Read-only supported game modes. |
 | PvP | `pvp` | Read-only runtime capability discovery. |
 | Functions | `functions`, `workflows` | Function editor, publication, logs and declared runtime operations. |
 | Dashboard | Global project controls and project plugin catalog | Trusted host lifecycle screens; no duplicate manifest-driven editor. |
-| Example template | Generated model contribution | Declared item records and state transitions. |
+| Example template | Generated model contribution | Declared item records, state transitions and name normalization. |
 
 The old `live-sessions` URL remains a compatibility alias, not a separate sidebar entry. Individual plugin pages remain independently accessible even when they also appear in extension tabs. New bundled plugins must explicitly declare an operator workspace or be covered by an existing trusted/generated UI; the manifest inventory test detects omissions.

@@ -1,6 +1,7 @@
 const SESSION_KEY = "brain-admin-session";
 const PROJECT_KEY = "brain-admin-project";
 export const ADMIN_PROJECT_CHANGED = "brain:project-changed";
+export const ADMIN_SESSION_CHANGED = "brain:session-changed";
 
 // The sole URL contract for the Next.js control plane and project APIs.
 export function systemAdminURL(resource: string): string {
@@ -30,11 +31,13 @@ export function readAdminSession(): string {
 
 export function saveAdminSession(token: string): void {
   window.sessionStorage.setItem(SESSION_KEY, token);
+  window.dispatchEvent(new Event(ADMIN_SESSION_CHANGED));
 }
 
 export function clearAdminSession(): void {
   window.sessionStorage.removeItem(SESSION_KEY);
   window.sessionStorage.removeItem(PROJECT_KEY);
+  window.dispatchEvent(new Event(ADMIN_SESSION_CHANGED));
 }
 
 export function adminHeaders(token: string, extra: Record<string, string> = {}): Record<string, string> {

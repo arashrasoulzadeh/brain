@@ -1,5 +1,5 @@
 "use client";
-import { readAdminSession, signOutAdminSession, systemUIURL, adminUIContext } from "../lib/admin-api";
+import { readAdminSession, signOutAdminSession, systemUIURL, adminUIContext, ADMIN_SESSION_CHANGED } from "../lib/admin-api";
 
 import { usePathname, useRouter } from "next/navigation";
 import type { ReactNode } from "react";
@@ -20,11 +20,17 @@ export function AdminShell({ children }: { children: ReactNode }) {
   const [authenticated, setAuthenticated] = useState(false);
   const [heading, setHeading] = useState<PageHeading>();
   useEffect(() => {
-    const token = readAdminSession();
-    setAuthenticated(Boolean(token));
-    if (!token && pathname !== systemUIURL()) router.replace(systemUIURL());
+    const sync = () => {
+      const token = readAdminSession();
+      setAuthenticated(Boolean(token));
+      if (!token && pathname !== systemUIURL()) router.replace(systemUIURL());
+    };
+    window.addEventListener(ADMIN_SESSION_CHANGED, sync);
+    sync();
+    return () => window.removeEventListener(ADMIN_SESSION_CHANGED, sync);
   }, [pathname, router]);
-  if (legacyShellRoutes.has(pathname) || !authenticated) return <>{children}</>;
+  if (legacyShellRoutes.has(pathname)) return <>{children}</>;
+  if (!authenticated) return <main className="shell"><p role="status">Checking operator session…</p></main>;
   const { page: pageName, namespace } = adminUIContext(pathname);
   return (
     <AdminHeadingContext.Provider value={setHeading}>

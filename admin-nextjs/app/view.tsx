@@ -1,5 +1,5 @@
 "use client";
-import { adminHeaders, readAdminSession, saveAdminSession, clearAdminSession, signOutAdminSession, saveAdminProject, preferredAdminProject, projectAdminURL, systemAdminURL, projectUIURL, systemUIURL, adminUIContext } from "./lib/admin-api";
+import { adminHeaders, readAdminSession, saveAdminSession, signOutAdminSession, saveAdminProject, preferredAdminProject, projectAdminURL, systemAdminURL, projectUIURL, systemUIURL, adminUIContext } from "./lib/admin-api";
 import { FormEvent, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
@@ -22,6 +22,7 @@ export default function AdminPage() {
   const [language, setLanguage] = useState<Language>("en");
   const [session, setSession] = useState("");
   const [hydratingSession, setHydratingSession] = useState(true);
+  const [hydrationError, setHydrationError] = useState("");
   const [projects, setProjects] = useState<Project[]>([]);
   const [manifests, setManifests] = useState<PluginManifest[]>([]);
   const [installations, setInstallations] = useState<PluginStatus[]>([]);
@@ -95,20 +96,22 @@ export default function AdminPage() {
     return () => window.clearInterval(timer);
   }, [session, selectedProjectID]);
   useEffect(() => {
+    let active = true;
+    setHydrationError("");
     const savedSession = readAdminSession();
     if (!savedSession) {
       setHydratingSession(false);
       return;
     }
     const hydrationTimeout = window.setTimeout(() => {
-      clearAdminSession();
-      setSession("");
-      setError("The operator session could not be restored. Please sign in again.");
+      if (!active || readAdminSession() !== savedSession) return;
+      setHydrationError("The operator session could not be restored. Retry loading the control plane.");
       setHydratingSession(false);
     }, 5000);
     setSession(savedSession);
     loadProjects(savedSession)
       .then((loadedProjects) => {
+        if (!active || readAdminSession() !== savedSession) return;
         const activeProjectID = preferredAdminProject(loadedProjects, namespace)?.ID ?? "";
         selectProject(activeProjectID);
         return Promise.all([
@@ -119,15 +122,13 @@ export default function AdminPage() {
         ]);
       })
       .catch(() => {
-        clearAdminSession();
-        setSession("");
-        setError("Your operator session expired. Please sign in again.");
+        if (active && readAdminSession() === savedSession) setHydrationError("Could not load the control plane. Retry or sign out.");
       })
       .finally(() => {
         window.clearTimeout(hydrationTimeout);
-        setHydratingSession(false);
+        if (active) setHydratingSession(false);
       });
-    return () => window.clearTimeout(hydrationTimeout);
+    return () => { active = false; window.clearTimeout(hydrationTimeout); };
   }, [namespace]);
   async function loadProjects(token: string): Promise<Project[]> {
     const response = await fetch(systemAdminURL("projects"), {
@@ -606,6 +607,7 @@ export default function AdminPage() {
       {language === "en" ? "فارسی" : "English"}
     </button>
   );
+  if (hydratingSession && pathname !== systemUIURL()) return <p role="status">Loading operator session…</p>;
   if (hydratingSession)
     return (
       <main className="shell" dir={language === "fa" ? "rtl" : "ltr"}>
@@ -615,6 +617,8 @@ export default function AdminPage() {
         </section>
       </main>
     );
+  if (!session && pathname !== systemUIURL()) return <p role="status">Returning to sign in…</p>;
+  if (hydrationError && session) return <section className="card"><p role="alert">{hydrationError}</p><button type="button" onClick={() => window.location.reload()}>Retry</button><button type="button" className="secondary" onClick={() => void signOut()}>Sign out</button></section>;
   if (!session)
     return (
       <main className="shell" dir={language === "fa" ? "rtl" : "ltr"}>
