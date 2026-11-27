@@ -133,6 +133,13 @@ func (r *Registry) Register(m Manifest) error {
 		}
 	}
 	key := m.ID + "@" + m.Version
+	if m.Mount != "" {
+		for _, existing := range r.registered {
+			if existing.Manifest.ID != m.ID && existing.Manifest.Mount == m.Mount {
+				return ErrInvalidManifest
+			}
+		}
+	}
 	if _, ok := r.registered[key]; ok {
 		return ErrDuplicate
 	}

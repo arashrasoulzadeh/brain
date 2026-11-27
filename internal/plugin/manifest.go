@@ -14,6 +14,7 @@ type Manifest struct {
 	Title                string               `yaml:"title"`
 	Description          string               `yaml:"description"`
 	ID                   string               `yaml:"id"`
+	Mount                string               `yaml:"mount,omitempty"`
 	Entry                string               `yaml:"entrypoint"`
 	Declarative          bool                 `yaml:"declarative,omitempty"`
 	Version              string               `yaml:"version"`
@@ -34,6 +35,9 @@ type Manifest struct {
 }
 
 type Route struct {
+	Method     string        `yaml:"method,omitempty"`
+	Path       string        `yaml:"path,omitempty"`
+	Auth       string        `yaml:"auth,omitempty"`
 	Operation  string        `yaml:"operation"`
 	Function   string        `yaml:"function"`
 	Capability string        `yaml:"capability"`
@@ -104,7 +108,7 @@ func ValidateManifestContract(manifest Manifest) error {
 		}
 		declaredCapabilities[capability] = true
 	}
-	if !validOptionalDependencies(manifest) || !validModels(manifest.Models) {
+	if !validOptionalDependencies(manifest) || !validModels(manifest.Models) || !validHTTPRoutes(manifest) {
 		return ErrInvalidManifest
 	}
 	seenRoutes := map[string]bool{}
@@ -174,6 +178,9 @@ func Documentation(m Manifest) string {
 	fmt.Fprintf(&b, "# %s\n\n%s\n\n## Routes\n\n", m.Title, m.Description)
 	for _, route := range m.Routes {
 		fmt.Fprintf(&b, "- `%s` → `%s` (capability: `%s`)\n", route.Operation, route.Function, route.Capability)
+		if route.Method != "" {
+			fmt.Fprintf(&b, "  - HTTP: `%s %s%s` (auth: `%s`)\n", route.Method, m.Mount, route.Path, route.Auth)
+		}
 	}
 	if len(m.Models) > 0 {
 		b.WriteString("\n## Models\n\n")
