@@ -66,7 +66,7 @@ func validHTTPRoutes(m Manifest) bool {
 		}
 		// Public exposure is never implicit. A user-level route needs an
 		// authenticated host invocation credential and is not supported yet.
-		if route.Auth != "public" && route.Auth != "operator" {
+		if route.Auth != "public" && route.Auth != "operator" && route.Auth != "user" {
 			return false
 		}
 		key := httpRouteKey(route.Method, route.Path)

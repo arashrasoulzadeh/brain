@@ -122,6 +122,13 @@ func PluginHTTPHandler(service *admin.LifecycleService, sessions *operator.Store
 				return
 			}
 			actorID = actor.ID
+		} else if route.Auth == "user" {
+			token, valid := operatorBearerToken(r)
+			if !valid {
+				http.Error(w, "forbidden", http.StatusForbidden)
+				return
+			}
+			actorID = token
 		} else if route.Auth != "public" {
 			http.Error(w, "forbidden", http.StatusForbidden)
 			return
