@@ -70,7 +70,7 @@ func newManifestMacOSTypeScriptWorker(platform, launcher, workerScript, descript
 	// Darwin getcwd reads directory entries along the canonical working path.
 	// Literal directory rules permit traversal without reading descendant files.
 	for directory := pluginRoot; directory != string(filepath.Separator); directory = filepath.Dir(directory) {
-		fmt.Fprintf(&profile, "(allow file-read-data (literal %s))\\n", strconv.Quote(directory))
+		fmt.Fprintf(&profile, "(allow file-read-data (literal %s))\n", strconv.Quote(directory))
 	}
 	// The package manager's installed libraries are read-only, not the
 	// user's home or arbitrary project directories.
