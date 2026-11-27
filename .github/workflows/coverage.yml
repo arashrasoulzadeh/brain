@@ -16,20 +16,6 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
-      - name: Prepare reproducible Go test workspace
-        if: github.event_name == 'push' && github.ref_name == 'refactor/rooms-games-pvp'
-        run: |
-          workspace="$RUNNER_TEMP/brain-go-workspace"
-          mkdir -p "$workspace"
-          git archive HEAD | tar -x -C "$workspace"
-          (cd "$workspace" && go mod vendor)
-          tar -czf "$RUNNER_TEMP/brain-go-workspace.tar.gz" -C "$workspace" .
-      - uses: actions/upload-artifact@v4
-        if: github.event_name == 'push' && github.ref_name == 'refactor/rooms-games-pvp'
-        with:
-          name: go-test-workspace
-          path: ${{ runner.temp }}/brain-go-workspace.tar.gz
-          retention-days: 1
       - name: Measure host statement coverage
         run: |
           mkdir -p coverage/cli

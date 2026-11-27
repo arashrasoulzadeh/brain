@@ -17,30 +17,30 @@ func coverageManifest() plugin.Manifest {
 		ID: "coverage", Title: "Coverage fixture", Version: "1.0.0", HostAPI: 1,
 		Entry: "index.ts", SourceFiles: []string{"index.ts"},
 		Capabilities: []string{"read"},
-		Routes: []plugin.Route{{Operation: "coverage.read", Function: "read", Capability: "read"}},
+		Routes:       []plugin.Route{{Operation: "coverage.read", Function: "read", Capability: "read"}},
 	}
 }
 
 func TestManifestRejectsInvalidContractsAtEveryDeclarationBoundary(t *testing.T) {
 	for name, mutate := range map[string]func(*plugin.Manifest){
-		"declarative source": func(m *plugin.Manifest) { m.Declarative = true },
-		"duplicate source": func(m *plugin.Manifest) { m.SourceFiles = append(m.SourceFiles, m.SourceFiles[0]) },
-		"traversal source": func(m *plugin.Manifest) { m.SourceFiles = append(m.SourceFiles, "../other.ts") },
-		"missing entry": func(m *plugin.Manifest) { m.Entry = "missing.ts" },
-		"duplicate import": func(m *plugin.Manifest) { m.Imports = []string{"node:crypto", "node:crypto"} },
-		"invalid import": func(m *plugin.Manifest) { m.Imports = []string{"../../other.ts"} },
-		"duplicate plugin": func(m *plugin.Manifest) { m.PluginImports = []string{"other", "other"} },
-		"duplicate capability": func(m *plugin.Manifest) { m.Capabilities = append(m.Capabilities, "read") },
-		"duplicate operation": func(m *plugin.Manifest) { m.Routes = append(m.Routes, m.Routes[0]) },
-		"unknown capability": func(m *plugin.Manifest) { m.Routes[0].Capability = "other" },
-		"unknown helper": func(m *plugin.Manifest) { m.Routes[0].Helper = "arbitrary" },
+		"declarative source":         func(m *plugin.Manifest) { m.Declarative = true },
+		"duplicate source":           func(m *plugin.Manifest) { m.SourceFiles = append(m.SourceFiles, m.SourceFiles[0]) },
+		"traversal source":           func(m *plugin.Manifest) { m.SourceFiles = append(m.SourceFiles, "../other.ts") },
+		"missing entry":              func(m *plugin.Manifest) { m.Entry = "missing.ts" },
+		"duplicate import":           func(m *plugin.Manifest) { m.Imports = []string{"node:crypto", "node:crypto"} },
+		"invalid import":             func(m *plugin.Manifest) { m.Imports = []string{"../../other.ts"} },
+		"duplicate plugin":           func(m *plugin.Manifest) { m.PluginImports = []string{"other", "other"} },
+		"duplicate capability":       func(m *plugin.Manifest) { m.Capabilities = append(m.Capabilities, "read") },
+		"duplicate operation":        func(m *plugin.Manifest) { m.Routes = append(m.Routes, m.Routes[0]) },
+		"unknown capability":         func(m *plugin.Manifest) { m.Routes[0].Capability = "other" },
+		"unknown helper":             func(m *plugin.Manifest) { m.Routes[0].Helper = "arbitrary" },
 		"non-dashboard admin helper": func(m *plugin.Manifest) { m.Routes[0].Helper = "host.admin" },
-		"response without helper": func(m *plugin.Manifest) { m.Routes[0].Response = &plugin.ResponseSpec{} },
-		"pipeline without helper": func(m *plugin.Manifest) { m.Routes[0].Pipeline = &plugin.PipelineSpec{} },
-		"model without helper": func(m *plugin.Manifest) { m.Routes[0].Model = &plugin.ModelRoute{} },
-		"call without helper": func(m *plugin.Manifest) { m.Routes[0].Call = &plugin.PluginCall{} },
-		"resource field": func(m *plugin.Manifest) { m.Routes[0].ResourceField = "__proto__" },
-		"invalid admin version": func(m *plugin.Manifest) { m.Admin = &plugin.AdminSpec{Version: 2} },
+		"response without helper":    func(m *plugin.Manifest) { m.Routes[0].Response = &plugin.ResponseSpec{} },
+		"pipeline without helper":    func(m *plugin.Manifest) { m.Routes[0].Pipeline = &plugin.PipelineSpec{} },
+		"model without helper":       func(m *plugin.Manifest) { m.Routes[0].Model = &plugin.ModelRoute{} },
+		"call without helper":        func(m *plugin.Manifest) { m.Routes[0].Call = &plugin.PluginCall{} },
+		"resource field":             func(m *plugin.Manifest) { m.Routes[0].ResourceField = "__proto__" },
+		"invalid admin version":      func(m *plugin.Manifest) { m.Admin = &plugin.AdminSpec{Version: 2} },
 	} {
 		t.Run(name, func(t *testing.T) {
 			m := coverageManifest()
@@ -122,11 +122,11 @@ func TestModelDeclarationsAndGeneratedContracts(t *testing.T) {
 		t.Fatal("unknown admin action accepted")
 	}
 	for name, invalid := range map[string]plugin.ModelSpec{
-		"bad version": {Version: 0, Fields: model.Fields},
-		"bad fields": {Version: 1, Fields: map[string]string{"bad": "float"}},
-		"bad initial": {Version: 1, Fields: model.Fields, Initial: "bad-state"},
+		"bad version":     {Version: 0, Fields: model.Fields},
+		"bad fields":      {Version: 1, Fields: map[string]string{"bad": "float"}},
+		"bad initial":     {Version: 1, Fields: model.Fields, Initial: "bad-state"},
 		"missing initial": {Version: 1, Fields: model.Fields, Transitions: model.Transitions},
-		"bad transition": {Version: 1, Fields: model.Fields, Initial: "waiting", Transitions: map[string]plugin.ModelTransition{"bad": {From: "", To: "running"}}},
+		"bad transition":  {Version: 1, Fields: model.Fields, Initial: "waiting", Transitions: map[string]plugin.ModelTransition{"bad": {From: "", To: "running"}}},
 	} {
 		t.Run(name, func(t *testing.T) {
 			candidate := coverageManifest()
