@@ -135,7 +135,7 @@ func prepareAnalyticsRead(storage *SQLiteStorage, request WorkerRequest) (Worker
 	if offset+len(rows) < total {
 		result["next_offset"] = offset + len(rows)
 	}
-	encoded, err := json.Marshal(map[string]any{"projectId": request.ProjectID, "result": result})
+	encoded, err := json.Marshal(map[string]any{"projectId": request.ProjectID, "name": name, "result": result})
 	request.Payload = encoded
 	return request, nil, err
 }

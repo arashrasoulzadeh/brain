@@ -45,7 +45,7 @@ test("analytics validates field limits, types and project-bound observations", (
 });
 
 test("analytics reads the host-provided project snapshot", () => {
-  const context: PluginContext = { project: { id: "alpha" }, plugin: { id: "analytics", version: "1" }, execution: { operation: "analytics.history" }, plugins: { observe: { fire() {} } } };
+  const context: PluginContext = { project: { id: "alpha", active: true }, plugin: { id: "analytics", version: "1" }, execution: { operation: "analytics.history" }, plugins: { observe: { fire() {} } } };
   const result = { total_events: 2, rows: [] };
   assert.deepEqual(readForProject(context, { projectId: "alpha", result }), result);
   assert.throws(() => readForProject(context, { projectId: "beta", result }), /project context mismatch/);

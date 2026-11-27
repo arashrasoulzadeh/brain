@@ -51,7 +51,7 @@ type InstallationStatus struct {
 	Draining    bool
 	DrainUntil  time.Time
 
-	ResourceGrants   map[string][]string `json:",omitempty"`
+	ResourceGrants map[string][]string `json:",omitempty"`
 
 	ConfiguredFields []string       `json:",omitempty"`
 	PublicConfig     map[string]any `json:",omitempty"`

@@ -35,12 +35,12 @@ func TestAnalyticsHistoryAndSummaryUseOnlyHostProjectState(t *testing.T) {
 	}
 	var snapshot struct {
 		ProjectID string `json:"projectId"`
-		Result struct {
+		Result    struct {
 			Total int `json:"total_events"`
 			Next  int `json:"next_offset"`
 			Rows  []struct {
 				Fields     map[string]string `json:"fields"`
-				OccurredAt string `json:"occurred_at"`
+				OccurredAt string            `json:"occurred_at"`
 			} `json:"rows"`
 		} `json:"result"`
 	}
@@ -57,9 +57,9 @@ func TestAnalyticsHistoryAndSummaryUseOnlyHostProjectState(t *testing.T) {
 		Result struct {
 			Total int `json:"total_events"`
 			Names int `json:"total_names"`
-			Rows []struct {
+			Rows  []struct {
 				Name  string `json:"name"`
-				Count int `json:"count"`
+				Count int    `json:"count"`
 			} `json:"rows"`
 		} `json:"result"`
 	}
