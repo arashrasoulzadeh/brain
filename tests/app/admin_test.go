@@ -16,7 +16,7 @@ import (
 
 func TestAdminHandlerFailsClosedWithoutTrustedOperatorContext(t *testing.T) {
 	service := admin.NewLifecycleService(&operator.Store{}, plugin.NewRegistry(1))
-	req := httptest.NewRequest(http.MethodPost, "/admin/actions", strings.NewReader(`{"operation":"plugin.enable"}`))
+	req := httptest.NewRequest(http.MethodPost, "/_system/admin/actions", strings.NewReader(`{"operation":"plugin.enable"}`))
 	rec := httptest.NewRecorder()
 	app.AdminHandler(service).ServeHTTP(rec, req)
 	if rec.Code != http.StatusForbidden {
@@ -26,7 +26,7 @@ func TestAdminHandlerFailsClosedWithoutTrustedOperatorContext(t *testing.T) {
 
 func TestServerUsesConsistentAPIErrorEnvelope(t *testing.T) {
 	server := app.NewServerWithOperatorAdmin(&admin.LifecycleService{}, &operator.Store{}, func(string) string { return "digest" })
-	request := httptest.NewRequest(http.MethodGet, "/admin/projects", nil)
+	request := httptest.NewRequest(http.MethodGet, "/_system/admin/projects", nil)
 	recorder := httptest.NewRecorder()
 	server.Handler().ServeHTTP(recorder, request)
 	if recorder.Code != http.StatusForbidden {
@@ -47,7 +47,7 @@ func TestServerUsesConsistentAPIErrorEnvelope(t *testing.T) {
 
 func TestAdminHandlerDoesNotTrustActorFromBody(t *testing.T) {
 	service := admin.NewLifecycleService(&operator.Store{}, plugin.NewRegistry(1))
-	req := httptest.NewRequest(http.MethodPost, "/admin/actions", strings.NewReader(`{"operation":"plugin.enable","actor":{"id":"admin","kind":"operator"}}`))
+	req := httptest.NewRequest(http.MethodPost, "/_system/admin/actions", strings.NewReader(`{"operation":"plugin.enable","actor":{"id":"admin","kind":"operator"}}`))
 	req = req.WithContext(context.Background())
 	rec := httptest.NewRecorder()
 	app.AdminHandler(service).ServeHTTP(rec, req)
@@ -65,7 +65,7 @@ func TestServerWiresAuthenticatedAdminCommand(t *testing.T) {
 	}
 	service := admin.NewLifecycleService(operators, plugin.NewRegistry(1))
 	actor := operator.Actor{ID: "admin", Kind: operator.ActorOperator}
-	request := httptest.NewRequest(http.MethodPost, "/admin/actions", strings.NewReader(`{"operation":"plugin.enable","project_id":"dev","plugin_id":"rooms","version":"1.0.0"}`))
+	request := httptest.NewRequest(http.MethodPost, "/_system/admin/actions", strings.NewReader(`{"operation":"plugin.enable","project_id":"dev","plugin_id":"rooms","version":"1.0.0"}`))
 	request = request.WithContext(operator.WithActor(context.Background(), actor))
 	recorder := httptest.NewRecorder()
 	app.NewServerWithAdmin(service).Handler().ServeHTTP(recorder, request)
@@ -92,7 +92,7 @@ func TestAdminHandlerRecognizesLifecycleOperations(t *testing.T) {
 		"plugin.revoke", "plugin.promote", "plugin.drain", "plugin.stop-immediate",
 		"project.activate", "project.deactivate", "plugin.recover", "plugin.resume", "plugin.stop", "plugin.rollback", "plugin.disable.preview", "plugin.disable.apply", "project.uninstall", "durable-data.delete",
 	} {
-		request := httptest.NewRequest(http.MethodPost, "/admin/actions", strings.NewReader(`{"operation":"`+operation+`","project_id":"dev","plugin_id":"rooms","version":"1.0.0","key":"state","confirmed":true}`))
+		request := httptest.NewRequest(http.MethodPost, "/_system/admin/actions", strings.NewReader(`{"operation":"`+operation+`","project_id":"dev","plugin_id":"rooms","version":"1.0.0","key":"state","confirmed":true}`))
 		request = request.WithContext(operator.WithActor(context.Background(), actor))
 		recorder := httptest.NewRecorder()
 		app.AdminHandler(service).ServeHTTP(recorder, request)
@@ -112,7 +112,7 @@ func TestAdminHandlerRequiresConfirmationForDestructiveOperations(t *testing.T) 
 		t.Fatal(err)
 	}
 	service := admin.NewLifecycleService(operators, plugin.NewRegistry(1))
-	request := httptest.NewRequest(http.MethodPost, "/admin/actions", strings.NewReader(`{"operation":"plugin.remove","project_id":"dev","plugin_id":"rooms","version":"1.0.0"}`))
+	request := httptest.NewRequest(http.MethodPost, "/_system/admin/actions", strings.NewReader(`{"operation":"plugin.remove","project_id":"dev","plugin_id":"rooms","version":"1.0.0"}`))
 	request = request.WithContext(operator.WithActor(context.Background(), operator.Actor{ID: "admin", Kind: operator.ActorOperator}))
 	recorder := httptest.NewRecorder()
 	app.AdminHandler(service).ServeHTTP(recorder, request)
@@ -135,7 +135,7 @@ func TestAuthenticatedAdminHandlerUsesOperatorBearerSession(t *testing.T) {
 		t.Fatal(err)
 	}
 	service := admin.NewLifecycleService(operators, plugin.NewRegistry(1))
-	request := httptest.NewRequest(http.MethodPost, "/admin/actions", strings.NewReader(`{"operation":"plugin.enable","project_id":"dev","plugin_id":"rooms","version":"1.0.0"}`))
+	request := httptest.NewRequest(http.MethodPost, "/_system/admin/actions", strings.NewReader(`{"operation":"plugin.enable","project_id":"dev","plugin_id":"rooms","version":"1.0.0"}`))
 	request.Header.Set("Authorization", "Bearer "+token)
 	recorder := httptest.NewRecorder()
 	app.AuthenticatedAdminHandler(service, operators).ServeHTTP(recorder, request)
@@ -153,7 +153,7 @@ func TestOperatorSessionHandlerIssuesBearerSession(t *testing.T) {
 	if _, err := operators.Bootstrap("admin", "secret", digest); err != nil {
 		t.Fatal(err)
 	}
-	request := httptest.NewRequest(http.MethodPost, "/admin/session", strings.NewReader(`{"username":"admin","secret":"secret"}`))
+	request := httptest.NewRequest(http.MethodPost, "/_system/admin/session", strings.NewReader(`{"username":"admin","secret":"secret"}`))
 	recorder := httptest.NewRecorder()
 	app.OperatorSessionHandler(operators, digest).ServeHTTP(recorder, request)
 	if recorder.Code != http.StatusOK {
@@ -183,7 +183,7 @@ func TestOperatorLogoutRevokesBearerSession(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	request := httptest.NewRequest(http.MethodDelete, "/admin/session", nil)
+	request := httptest.NewRequest(http.MethodDelete, "/_system/admin/session", nil)
 	request.Header.Set("Authorization", "Bearer "+token)
 	recorder := httptest.NewRecorder()
 	app.OperatorLogoutHandler(operators).ServeHTTP(recorder, request)
@@ -233,7 +233,7 @@ func TestAuthenticatedSystemHandlerRequiresOperatorSession(t *testing.T) {
 
 func TestManifestAdminActionRequiresExplicitConfirmation(t *testing.T) {
 	service := admin.NewLifecycleService(&operator.Store{}, plugin.NewRegistry(1))
-	request := httptest.NewRequest(http.MethodPost, "/admin/actions", strings.NewReader(`{"operation":"plugin.admin.invoke","project_id":"dev"}`))
+	request := httptest.NewRequest(http.MethodPost, "/_system/admin/actions", strings.NewReader(`{"operation":"plugin.admin.invoke","project_id":"dev"}`))
 	request = request.WithContext(operator.WithActor(context.Background(), operator.Actor{ID: "admin", Kind: operator.ActorOperator}))
 	recorder := httptest.NewRecorder()
 	app.AdminHandler(service).ServeHTTP(recorder, request)
