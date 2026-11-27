@@ -367,7 +367,7 @@ func (s *LifecycleService) executeProjectLifecycle(actor operator.Actor, project
 	if s.registry == nil {
 		return nil
 	}
-	s.registry.PublishHostObservation(projectID, "dashboard", "lifecycleChanged", map[string]any{
+	s.registry.PublishHostObservationAs(projectID, "dashboard", "lifecycleChanged", "operator:"+actor.ID, map[string]any{
 		"action": action, "targetPlugin": pluginID, "targetVersion": version,
 	})
 	return nil
