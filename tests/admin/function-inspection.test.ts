@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { functionTemplate, functionMethods, functionNameError, functionVersion, functionPermissions, functionInput } from "../../admin-nextjs/app/lib/function-studio.js";
 import { filterFunctionDrafts, filterFunctionLogs, functionLogMetrics, projectFunctionRecords, functionCatalogSummary, functionCatalogRows, functionCatalogPage } from "../../admin-nextjs/app/lib/function-inspection.js";
 test("function list filters name, publication and visibility without changing input", () => {
   const drafts = [{ name: "Zulu" }, { name: "Alpha", public: true, published_at: "2026-01-01" }, { name: "Beta", public: true }];
@@ -38,4 +39,24 @@ test("function catalog counts only authorized project records and keeps publicat
   assert.deepEqual(functionCatalogPage(scoped, 9, 1), { page: 1, pages: 2, start: 2, end: 2, rows: [scoped[1]] });
   assert.deepEqual(functionCatalogPage([], 9, 10), { page: 0, pages: 1, start: 0, end: 0, rows: [] });
   assert.equal(records[0].name, "alpha");
+});
+
+test("studio templates and input checks follow the host function contract", () => {
+  for (const method of functionMethods) {
+    for (const template of ["echo", "health", "transform"] as const) {
+      const source = functionTemplate(template, method);
+      assert.match(source, new RegExp("method: '" + method + "'"));
+      assert.match(source, /export default async function handler/);
+    }
+  }
+  assert.equal(functionNameError("hello-world"), "");
+  assert.notEqual(functionNameError("2bad"), "");
+  assert.notEqual(functionNameError("bad/name"), "");
+  assert.equal(functionVersion("3"), 3);
+  assert.equal(functionVersion("1.5"), undefined);
+  assert.equal(functionVersion("0"), undefined);
+  assert.deepEqual(functionPermissions("functions.invoke, , functions.invoke, tables.read"), ["functions.invoke", "tables.read"]);
+  assert.deepEqual(functionInput('{"x":1}'), { x: 1 });
+  assert.equal(functionInput("null"), null);
+  assert.throws(() => functionInput("{"), /valid JSON/);
 });

@@ -3,6 +3,8 @@ import { test } from "node:test";
 import { app, mount, find, button, click, change, text, session, stubFetch, json, navigations } from "./dom-harness.mjs";
 
 const Functions = app("functions/view.tsx").default;
+const FunctionRunner = app("functions/function-runner.tsx").FunctionRunner;
+const FunctionWorkspace = app("functions/function-workspace.tsx").FunctionWorkspace;
 const Workers = app("workers/view.tsx").default;
 const Files = app("components/legacy-admin-page.tsx").default;
 
@@ -204,6 +206,83 @@ test("plugin details stage a new version without changing routing, and confirm n
   await click(button("Close"));
   assert.match(text(), /Promoted version: 2/);
   assert.ok(calls.every(call => call.body.project_id === "dev" && call.body.version === "2"));
+});
+
+test("sandbox runner rejects invalid JSON and sends the current source in a scoped operator request", async () => {
+  session();
+  const calls = [];
+  stubFetch((url, init) => { calls.push({ url, body: JSON.parse(init.body), headers: init.headers }); return json({ valid: true, result: { ok: true } }); });
+  const source = "export default async function handler(input) { return input; }";
+  await mount(FunctionRunner, { project: "dev", name: "echo", source });
+  await change(find("textarea"), "{");
+  await click(button("Run test"));
+  assert.match(text(), /Input must be valid JSON/);
+  assert.equal(calls.length, 0);
+  await change(find("textarea"), '{"value":42}');
+  await click(button("Run test"));
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].url, "/dev/admin/functions");
+  assert.equal(calls[0].headers.authorization, "Bearer fixture-token");
+  assert.deepEqual(calls[0].body, { operation: "functions.run", project_id: "dev", name: "echo", source, input: { value: 42 } });
+  assert.match(text(), /Execution succeeded/);
+  assert.match(text(), /"ok": true/);
+  await change(find("textarea"), "null");
+  assert.match(text(), /previous source or input/);
+});
+
+test("sandbox runner reports host rejection without exposing a success result", async () => {
+  session();
+  stubFetch(() => new Response("Permission denied", { status: 403 }));
+  await mount(FunctionRunner, { project: "dev", name: "echo", source: "source" });
+  await click(button("Run test"));
+  assert.match(text(), /Execution failed/);
+  assert.match(text(), /Permission denied/);
+  assert.doesNotMatch(text(), /Execution succeeded/);
+});
+
+test("function editor workspace keeps source first and reveals settings and test console on demand", async () => {
+  const calls = [];
+  await mount(FunctionWorkspace, {
+    tab: "editor", name: "echo", version: "2", dirty: true, busy: false, validating: false,
+    validVersion: true, canPublish: true, message: "", messageError: false,
+    onValidate: () => calls.push("validate"), onSave: () => calls.push("save"),
+    onPublish: () => calls.push("publish"), onRestore: () => calls.push("restore"),
+    editor: expanded => expanded ? "Expanded source fixture" : "Source fixture",
+    settings: "Permission settings fixture", runner: "Test runner fixture",
+  });
+  assert.match(text(), /echo\.js/);
+  assert.match(text(), /Unsaved changes/);
+  assert.equal(find('aside[aria-label="Function settings"]').hidden, true);
+  assert.equal(find(".function-workspace-console").hidden, true);
+  await click(button("Validate"));
+  await click(button("Save changes"));
+  await click(button("Publish"));
+  await click(button("Restore saved changes"));
+  assert.deepEqual(calls, ["validate", "save", "publish", "restore"]);
+  await click(button("Settings"));
+  assert.equal(find('aside[aria-label="Function settings"]').hidden, false);
+  await click(button("Focus mode"));
+  assert.match(text(), /Expanded source fixture/);
+  assert.equal(find('aside[aria-label="Function settings"]').hidden, true);
+  await click(button("Exit focus mode"));
+  assert.equal(find('aside[aria-label="Function settings"]').hidden, false);
+  await click(button("Test console"));
+  assert.equal(find(".function-workspace-console").hidden, false);
+  await click(button("Hide test console"));
+  assert.equal(find(".function-workspace-console").hidden, true);
+});
+
+test("function editor workspace disables unsafe or redundant source actions", async () => {
+  const noop = () => {};
+  await mount(FunctionWorkspace, {
+    tab: "editor", name: "echo", version: "1", dirty: false, busy: false, validating: false,
+    validVersion: true, canPublish: true, message: "Host rejected request", messageError: true,
+    onValidate: noop, onSave: noop, onPublish: noop, onRestore: noop, editor: () => "source", settings: "settings", runner: "runner",
+  });
+  assert.equal(button("Save changes").disabled, true);
+  assert.equal(button("Restore saved changes").disabled, true);
+  assert.equal(button("Publish").disabled, false);
+  assert.match(find('[role="alert"]').textContent, /Host rejected request/);
 });
 
 test("enable confirmation lists exact transitive dependencies and sends only confirmed changes", async () => {
