@@ -3,28 +3,44 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `9ac473ff` — 2026-11-27 14:51:55 +0330 — Merge pull request #28 from arashrasoulzadeh/test/complete-go-coverage
+  Files: internal/plugin/registry_workers.go
+- `ccd23f08` — 2026-11-27 11:20:51 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `b3369bec` — 2026-11-27 14:50:40 +0330 — Merge pull request #27 from arashrasoulzadeh/fix/durable-subscriptions
   Files: 
 - `c249e66a` — 2026-11-27 10:53:10 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
 - `3743518e` — 2026-11-27 14:14:16 +0330 — Integrate all durable runtime fixes with current main and document migration limitations
   Files: docs/admin-pages/extensions.md
+- `ff186c39` — 2026-11-27 14:14:14 +0330 — Verify registry catalog ordering and revoked version approvals
+  Files: tests/plugin/catalog_failure_test.go
 - `61c35258` — 2026-11-27 14:13:00 +0330 — Test subscription restart, deduplication and in-flight credential revocation
   Files: internal/plugin/legacy_subscription_storage.go,internal/plugin/legacy_subscription_storage_test.go
+- `e2b61cf8` — 2026-11-27 14:12:42 +0330 — Reject nil worker factory results and test startup rollback
+  Files: internal/plugin/registry_lifecycle.go,internal/plugin/registry_workers.go tests/plugin/worker_factory_failure_test.go
 - `6733ca7f` — 2026-11-27 14:12:19 +0330 — Merge pull request #25 from arashrasoulzadeh/fix/admin-model-revocation
   Files: 
 - `4217b7ef` — 2026-11-27 14:12:11 +0330 — Reconcile verified model permission refresh with latest main
   Files: 
+- `13112d96` — 2026-11-27 14:11:32 +0330 — Validate baseline observation manifests before checking rejected mutations
+  Files: tests/plugin/observation_limits_test.go
 - `4ee9b2f8` — 2026-11-27 14:11:23 +0330 — Persist subscription tickets and bounded observation streams across worker recovery
   Files: docs/admin-pages/extensions.md,internal/plugin/legacy_storage_adapter.go internal/plugin/legacy_subscription_storage.go,internal/plugin/registry_workers.go plugins/subscriptions/routes.ts,roadmap_admin.md scripts/test-production-runtime.sh
+- `a477829d` — 2026-11-27 14:11:12 +0330 — Verify observation fanout limits and reject stale durable deliveries
+  Files: tests/plugin/observation_limits_test.go
 - `7a76ca89` — 2026-11-27 10:40:46 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
 - `5de27cb8` — 2026-11-27 14:10:38 +0330 — Reconcile invitations with current main and test durable single-use semantics
   Files: internal/plugin/legacy_invite_storage_test.go,scripts/test-production-runtime.sh
 - `365c4cd8` — 2026-11-27 14:10:17 +0330 — Reconcile auth persistence with current main and validate exact worker identity results
   Files: cmd/brain/main.go,internal/plugin/legacy_auth_storage.go scripts/test-production-runtime.sh,tests/plugin/session_failure_test.go
+- `0ad77473` — 2026-11-27 14:09:55 +0330 — Verify worker admission and commit reject resource substitution and context loss
+  Files: tests/plugin/invocation_failure_matrix_test.go
 - `ee4ad3a8` — 2026-11-27 14:09:41 +0330 — Reconcile arena recovery with game separation and instrumented runtime smoke
   Files: scripts/test-production-runtime.sh
+- `065c73fe` — 2026-11-27 14:08:31 +0330 — Keep failed function draft writes from exposing uncommitted publications
+  Files: internal/admin/functions.go,tests/admin/function_persistence_failure_test.go
 - `a46c5c38` — 2026-11-27 14:08:29 +0330 — Persist project-scoped invitations with digest-only codes and conditional consumption
   Files: docs/admin-pages/extensions.md,internal/plugin/legacy_invite_storage.go internal/plugin/legacy_storage_adapter.go,internal/plugin/registry_workers.go plugins/invites/index.ts,plugins/invites/plugin.yaml roadmap_admin.md,scripts/test-production-runtime.sh
 - `7c532baa` — 2026-11-27 14:06:38 +0330 — Merge pull request #15 from arashrasoulzadeh/refactor/rooms-games-pvp
@@ -87,19 +103,3 @@ Automatically generated from commits on main.
   Files: .github/workflows/admin-browser.yml,docs/admin-pages/theme.md scripts/admin-ci-backend-relay.mjs
 - `e8846874` — 2026-11-27 13:12:32 +0330 — Test function result validation and unavailable runtime behavior
   Files: tests/admin/function_result_coverage_test.go
-- `02c6c423` — 2026-11-27 13:12:24 +0330 — Cover delegated admin read checks and revoked target grants
-  Files: tests/plugin/plugin_call_test.go
-- `f034f0ec` — 2026-11-27 13:11:43 +0330 — Verify dependency context and delegation commit-time permission checks
-  Files: tests/plugin/dependency_coverage_test.go
-- `999e95b0` — 2026-11-27 09:41:41 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `9824af94` — 2026-11-27 13:11:02 +0330 — Merge pull request #17 from arashrasoulzadeh/fix/compose-node-runtime
-  Files: 
-- `aa7506d1` — 2026-11-27 13:10:38 +0330 — Revalidate displayed admin results and inventories after silent policy revocation
-  Files: admin-nextjs/app/components/admin-inventory.tsx,admin-nextjs/app/components/admin-renderer.tsx admin-nextjs/app/components/model-panel.tsx,admin-nextjs/app/lib/admin-sdk.ts docs/admin-pages/extensions.md,internal/admin/lifecycle.go internal/app/admin.go,internal/plugin/access_management.go roadmap_admin.md,scripts/test-admin-browser.mjs tests/admin/manifest_admin_test.go,tests/plugin/access_management_test.go
-- `33878463` — 2026-11-27 13:10:05 +0330 — Test observation retry exhaustion and corrupt queue failure handling
-  Files: tests/plugin/observation_failure_coverage_test.go
-- `96a2a32b` — 2026-11-27 13:08:54 +0330 — Exercise real packaged admin backend with Chromium policy and persistence tests
-  Files: .github/workflows/admin-browser.yml,docs/admin-pages/theme.md scripts/test-admin-live.mjs
-- `a0ccbdd6` — 2026-11-27 13:08:48 +0330 — Keep failed legacy project writes from granting in-memory access
-  Files: internal/project/project.go,tests/project/persistence_failure_test.go
