@@ -9,6 +9,7 @@ import { AdminResultRenderer } from "./admin-results";
 import { AdminInventory } from "./admin-inventory";
 import { ModelPanel } from "./model-panel";
 import { FileUploadField, FileDownloadResult } from "./admin-file-controls";
+import { uploadBinaryFile } from "../lib/admin-file-transfer";
 import { AdminDialog, AdminProgress } from "./admin-dialog";
 import { PluginManageLink } from "./plugin-manage-link";
 
@@ -29,6 +30,7 @@ export function ActionForm({ contribution }: { contribution: AdminContribution }
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [fileReading, setFileReading] = useState(false);
+  const [binaryFile, setBinaryFile] = useState<File>();
   const filesPage = contribution.pluginID === "files" && contribution.page.id === "operations";
   const uploadField = filesPage && operation === "files.upload";
   const controlsDisabled = busy || fileReading;
@@ -37,7 +39,7 @@ export function ActionForm({ contribution }: { contribution: AdminContribution }
   }
   function selectOperation(next: string, key?: string) {
     if (controlsDisabled) return;
-    setOperation(next); setResult(undefined); setError(""); setLastQuery(undefined); setPayload("{}");
+    setBinaryFile(undefined); setOperation(next); setResult(undefined); setError(""); setLastQuery(undefined); setPayload("{}");
     setConfirmation(""); setCompleted(false); setProgress(""); setFilePercent(undefined);
     const field = contribution.page.inventory?.select_field;
     setValues((previous): Record<string, string> => key !== undefined && field ? { [field]: key } :
@@ -46,7 +48,7 @@ export function ActionForm({ contribution }: { contribution: AdminContribution }
   }
   function closeDialog() {
     if (controlsDisabled) return;
-    setDialogOpen(false); setLastQuery(undefined); setResult(undefined); setError("");
+    setBinaryFile(undefined); setDialogOpen(false); setLastQuery(undefined); setResult(undefined); setError("");
     setConfirmation(""); setCompleted(false); setValues({}); setPayload("{}"); setProgress("");
   }
   const pending = useRef<AbortController | null>(null);
@@ -103,9 +105,10 @@ export function ActionForm({ contribution }: { contribution: AdminContribution }
       setConfirmation(""); setBusy(true); setProgress(query ? "Requesting data…" : uploadField ? "Uploading and saving file…" : "Applying action…");
       controller = new AbortController();
       pending.current = controller;
+      setFilePercent(undefined);
       const token = readAdminSession();
       const revision = query && contribution.page.refresh_on?.length ? await adminPageRevision(token, contribution, controller.signal, { operation, payload: parsed }) : 0;
-      const next = await invokeAdminAction(token, contribution, operation, parsed, controller.signal, query);
+      const next = uploadField && binaryFile ? await uploadBinaryFile(token, contribution, values.key, values.filename || binaryFile.name, values.contentType || binaryFile.type, binaryFile, controller.signal, setFilePercent) : await invokeAdminAction(token, contribution, operation, parsed, controller.signal, query);
       if (!controller.signal.aborted) {
         setResult(next); setCompleted(true);
         if (!query) setInventoryRefresh(value => value + 1);
@@ -129,8 +132,9 @@ export function ActionForm({ contribution }: { contribution: AdminContribution }
         {contribution.page.actions.map(action => <option key={action.operation} value={action.operation}>{action.title}</option>)}
       </select></label>
       {fields.length ? fields.map(field => uploadField && field.name === "data" && field.type === "string" ? <FileUploadField key={field.name} value={values.data ?? ""} disabled={controlsDisabled || !!confirmation} limit={contribution.maxUploadBytes} onProgress={setFilePercent} onReading={setFileReading}
-        onData={data => updateValues(previous => ({ ...previous, data, ...(!data ? { filename: "", contentType: "" } : {}) }))}
-        onFile={(name, data, contentType) => updateValues(previous => ({ ...previous, key: previous.key || name, data, filename: name, contentType }))} /> : <label className={field.type === "json" ? "wide-field" : undefined} key={field.name}>{field.name}{field.required ? " *" : ""}
+        onData={data => { setBinaryFile(undefined); updateValues(previous => ({ ...previous, data, ...(!data ? { filename: "", contentType: "" } : {}) })); }}
+        onFile={(name, data, contentType) => { setBinaryFile(undefined); updateValues(previous => ({ ...previous, key: previous.key || name, data, filename: name, contentType })); }}
+        onBinary={file => { setBinaryFile(file); updateValues(previous => ({ ...previous, key: previous.key || file.name, data: "binary", filename: file.name, contentType: file.type })); }} /> : <label className={field.type === "json" ? "wide-field" : undefined} key={field.name}>{field.name}{field.required ? " *" : ""}
         {field.type === "boolean" ? <select disabled={controlsDisabled || !!confirmation} required={field.required} value={values[field.name] ?? ""} onChange={event => { setLastQuery(undefined); setResult(undefined); setError(""); setCompleted(false); setValues(previous => ({ ...previous, [field.name]: event.target.value })); }}>
           <option value="">Select</option><option value="true">True</option><option value="false">False</option>
         </select> : field.type === "json" ? <textarea disabled={controlsDisabled || !!confirmation} required={field.required} rows={5} value={values[field.name] ?? ""} onChange={event => { setLastQuery(undefined); setResult(undefined); setError(""); setValues(previous => ({ ...previous, [field.name]: event.target.value })); }} />
@@ -140,10 +144,10 @@ export function ActionForm({ contribution }: { contribution: AdminContribution }
     </form>
     {confirmation && <section className="admin-confirmation" role="group" aria-label="Confirm action"><p>{confirmation}</p><div className="lifecycle-actions"><button type="button" onClick={() => void run(true)}>Confirm action</button><button type="button" className="secondary" onClick={() => setConfirmation("")}>Cancel confirmation</button></div></section>}
     {fileReading && <AdminProgress label="Reading local file" percent={filePercent} />}
-    {busy && <AdminProgress label={progress || "Refreshing result…"} />}
+    {busy && <AdminProgress label={progress || "Refreshing result…"} percent={uploadField && binaryFile ? filePercent : undefined} />}
     {completed && !busy && <p className="success" role="status">{uploadField ? "File uploaded successfully" : "Action completed"}</p>}
     {error && <p role="alert">{error}</p>}
-    {result !== undefined && <div className="admin-result-panel">{filesPage && operation === "files.download" ? <FileDownloadResult result={result} /> : <AdminResultRenderer key={operation} value={result} spec={action?.result} />}</div>}
+    {result !== undefined && <div className="admin-result-panel">{filesPage && operation === "files.download" ? <FileDownloadResult result={result} contribution={contribution} /> : <AdminResultRenderer key={operation} value={result} spec={action?.result} />}</div>}
     </AdminDialog>}
   </section>;
 }

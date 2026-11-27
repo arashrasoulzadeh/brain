@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { ADMIN_FILE_LIMIT, adminDownloadName, decodeAdminFile, encodeAdminFile } from "../../admin-nextjs/app/lib/admin-file-data.js";
+import { ADMIN_FILE_LIMIT, fileLimitBytes, fileLimitMB, adminDownloadName, decodeAdminFile, encodeAdminFile } from "../../admin-nextjs/app/lib/admin-file-data.js";
 
 test("selected binary and text files round-trip without replacement or loss", () => {
   for (const bytes of [new Uint8Array(), Uint8Array.from([0, 255, 128, 10, 13, 1]), new TextEncoder().encode("سلام 🌍\n"), new Uint8Array(ADMIN_FILE_LIMIT).fill(255)]) {
@@ -20,4 +20,12 @@ test("file decoding is bounded and rejects malformed or unrelated data", () => {
   assert.equal(adminDownloadName("folder\\report.txt"), "report.txt");
   assert.equal(adminDownloadName(".."), "download.bin");
   assert.equal(adminDownloadName("x\x00.txt"), "x.txt");
+});
+
+test("megabyte settings are exact, preserve legacy bytes, and reject values above 1 GB", () => {
+  for (const [mb, bytes] of [["0.000001",1],["0.001024",1024],["100",100000000],["1000",1000000000]] as const) {
+    assert.equal(fileLimitBytes(mb),bytes);
+    assert.equal(fileLimitBytes(fileLimitMB(bytes)),bytes);
+  }
+  for (const value of ["0","-1","1000.000001","1001","0.0000001","1e3","NaN",""]) assert.throws(() => fileLimitBytes(value));
 });

@@ -155,7 +155,7 @@ func prepareLegacyStorageEffect(storage *SQLiteStorage, request WorkerRequest) (
 			if err != nil {
 				return request, nil, err
 			}
-			if data == "" {
+			if data == "" && meta.Encoding != "binary" {
 				return request, nil, ErrStoredResourceMissing
 			}
 			if request.Operation == "files.publish" {
