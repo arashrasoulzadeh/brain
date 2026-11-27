@@ -50,7 +50,7 @@ test("account mutations reject invalid identity and isolate password reset and g
   assert.equal(reader.identity("alpha", guest.token).userId, guest.userId);
   const links = new IdentityLinker();
   for (const args of [["", "provider", "subject"], ["id", " ", "subject"], ["id", "provider", " "]] as const) {
-    assert.throws(() => links.link(...args), /invalid identity link/);
+    assert.throws(() => links.link(args[0], args[1], args[2]), /invalid identity link/);
   }
   links.link("id", "provider", "subject");
   links.link("id", "provider", "subject");
@@ -139,7 +139,7 @@ test("OIDC exchanges bind each credential to the expected project, client and re
   }
   const code = issuer.issue("alpha", "client", config.redirectUri, "u", 0, 1);
   for (const args of [["missing", "alpha", "client", config.redirectUri, 1], [code, "beta", "client", config.redirectUri, 1], [code, "alpha", "other", config.redirectUri, 1], [code, "alpha", "client", "other", 1], [code, "alpha", "client", config.redirectUri, 1000]] as const) {
-    assert.throws(() => consumer.consume(...args), /authorization code unavailable/);
+    assert.throws(() => consumer.consume(args[0], args[1], args[2], args[3], args[4]), /authorization code unavailable/);
   }
   assert.equal(consumer.consume(code, "alpha", "client", config.redirectUri, 1).userId, "u");
   assert.equal(verifyPKCE("v", "v", "plain"), false);
@@ -147,7 +147,7 @@ test("OIDC exchanges bind each credential to the expected project, client and re
   const state = new OIDCStateIssuer(states).issue("alpha", "client", config.redirectUri);
   const stateConsumer = new OIDCStateConsumer(states);
   for (const args of [[state, "beta", "client", config.redirectUri], [state, "alpha", "other", config.redirectUri], [state, "alpha", "client", "other"]] as const) {
-    assert.throws(() => stateConsumer.consume(...args), /callback state mismatch/);
+    assert.throws(() => stateConsumer.consume(args[0], args[1], args[2], args[3]), /callback state mismatch/);
   }
   stateConsumer.consume(state, "alpha", "client", config.redirectUri);
   const claims = { issuer: config.issuer, audience: config.audience, expiresAt: 100, nonce: "n", signature: "s" };
