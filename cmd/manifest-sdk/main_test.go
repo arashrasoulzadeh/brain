@@ -28,10 +28,10 @@ func TestGenerate(t *testing.T) {
 
 func TestManifestSDKCommand(t *testing.T) {
 	binary := filepath.Join(t.TempDir(), "manifest-sdk")
-	args := []string{"build", "-o", binary}
+	args := []string{"build", "-buildvcs=false", "-o", binary}
 	cover := os.Getenv("BRAIN_CLI_COVERDIR")
 	if cover != "" {
-		args = append(args, "-cover")
+		args = append(args, "-cover", "-covermode=atomic")
 	}
 	args = append(args, ".")
 	build := exec.Command("go", args...)
