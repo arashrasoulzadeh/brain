@@ -55,6 +55,7 @@ nav:
       - Auth context: plugin-auth-context.md
       - Declarative runtime: declarative-runtime.md
       - Protocol: protocol/README.md
+      - HTTP API: http-api.md
       - Browser: browser-quickstart.md
       - Flutter: flutter-quickstart.md
       - Android: clients/android/README.md
@@ -98,6 +99,8 @@ nav:
       - Administrator guide: admins.md
       - Admin screens:
           - admin-pages/README.md
+          - admin-pages/home.md
+          - admin-pages/legacy.md
           - admin-pages/projects.md
           - admin-pages/plugins.md
           - admin-pages/plugin-detail.md

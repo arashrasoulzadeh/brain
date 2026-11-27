@@ -89,6 +89,20 @@ def validate_plugin_guide(output, name):
     return guide
 
 
+def validate_http_docs(root, output):
+    app = (root / "internal/app/app.go").read_text(encoding="utf-8")
+    routes = set(re.findall(r'\.Handle(?:Func)?\("([^"]+)"', app))
+    admin = (root / "internal/app/admin.go").read_text(encoding="utf-8")
+    commands = set(re.findall(r'"((?:project|plugin|durable-data)\.[a-z.\-]+)"', admin))
+    functions = (root / "internal/app/admin_functions.go").read_text(encoding="utf-8")
+    commands.update(re.findall(r'command\.Operation [!=]= "(functions\.[a-z.\-]+)"', functions))
+    documented = (output / "http-api.md").read_text(encoding="utf-8")
+    missing = sorted(item for item in routes | commands if f"`{item}`" not in documented)
+    if not routes or not commands or missing:
+        raise ValueError(f"Undocumented host HTTP surface: {missing}")
+    return len(routes), len(commands)
+
+
 def generate(root, output, contract):
     mapping = source_map(root)
     if "docs/index.md" not in mapping:
@@ -99,6 +113,8 @@ def generate(root, output, contract):
         dest.parent.mkdir(parents=True, exist_ok=True)
         content = (root / source).read_text(encoding="utf-8")
         dest.write_text(rewrite_links(content, source, target, mapping), encoding="utf-8")
+    routes, commands = validate_http_docs(root, output)
+    print(f"Validated {routes}/{routes} host HTTP routes and {commands}/{commands} administrative operations.")
     reference = output / "reference" / "plugins"
     reference.mkdir(parents=True, exist_ok=True)
     manifests = sorted(root.glob("plugins/*/plugin.yaml")) + sorted(root.glob("examples/*/plugin.yaml"))

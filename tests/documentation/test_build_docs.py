@@ -29,6 +29,18 @@ class DocumentationTest(unittest.TestCase):
         for source in ("docs/index.md", "docs/admins.md", "docs/developers.md", "tests/README.md"):
             self.assertIn(source, mapping)
 
+    def test_host_http_surface_is_documented(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory)
+            api = output / "http-api.md"
+            api.write_text((ROOT / "docs/http-api.md").read_text(encoding="utf-8"), encoding="utf-8")
+            routes, commands = BUILD.validate_http_docs(ROOT, output)
+            self.assertGreater(routes, 0)
+            self.assertGreater(commands, 0)
+            api.write_text("", encoding="utf-8")
+            with self.assertRaises(ValueError):
+                BUILD.validate_http_docs(ROOT, output)
+
     def test_missing_or_empty_plugin_guide_sections_fail(self):
         with tempfile.TemporaryDirectory() as directory:
             output = Path(directory)
