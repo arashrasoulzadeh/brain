@@ -60,7 +60,7 @@ func newManifestMacOSTypeScriptWorker(platform, launcher, workerScript, descript
 (allow process-info* (target same-sandbox))
 (allow sysctl-read)
 (allow file-read-metadata)
-(allow mach-lookup (global-name "com.apple.system.logger") (global-name "com.apple.logd") (global-name "com.apple.system.notification_center") (global-name "com.apple.cfprefsd.agent") (global-name "com.apple.cfprefsd.daemon"))
+(allow mach-lookup (global-name "com.apple.system.logger") (global-name "com.apple.logd") (global-name "com.apple.system.notification_center") (global-name "com.apple.system.opendirectoryd.libinfo") (global-name "com.apple.cfprefsd.agent") (global-name "com.apple.cfprefsd.daemon"))
 (allow file-read* file-map-executable (subpath "/System/Library") (subpath "/usr/lib") (subpath "/usr/share") (literal "/dev/null") (literal "/dev/random") (literal "/dev/urandom") (literal "/private/etc/localtime") (literal "/private/etc/hosts") (literal "/private/etc/resolv.conf"))
 (allow file-write-data (literal "/dev/null"))
 `)
