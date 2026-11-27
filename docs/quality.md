@@ -11,11 +11,12 @@ Passing tests and coverage are different measures. A coverage gate does not prov
 | Flutter client | Executed source lines per file | 100% |
 | Kotlin client | Lines, branches, instructions and methods per class | 100% |
 | Plugin manifests | Generated reference for each manifest | 100% |
+| Plugin guides | Developer and administrator notes for every manifest | 100% |
 | Narrative docs | Review all public interfaces, examples and operating procedures | 100% audit target |
 
 The CI coverage workflow publishes raw profiles and HTML reports even when the target is missed. Do not exclude code merely to reach the target. Go's standard profile measures statements, not branches.
 
-Shell scripts, browser end-to-end flows and production integration coverage are separate unfinished measurement areas. Flutter and Kotlin coverage gates are configured but must pass before their targets are considered achieved. The existing Compose, sandbox, race, lint and type checks remain required. Do not claim repository-wide 100% coverage from partial coverage reports.
+Go CLI integration tests use an instrumented executable and merge source blocks with unit-test coverage. Admin component rendering and transport tests are included in the TypeScript profile; interactive browser flows still require separate verification. Shell scripts, browser end-to-end flows and production integration coverage are separate unfinished measurement areas. Mobile coverage gates must pass on each revision before their targets are considered achieved. The existing Compose, sandbox, race, lint and type checks remain required. Do not claim repository-wide 100% coverage from partial coverage reports.
 
 ## Reproduce the site
 

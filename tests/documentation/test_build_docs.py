@@ -1,6 +1,7 @@
 import importlib.util
 from pathlib import Path
 import unittest
+import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
 SPEC = importlib.util.spec_from_file_location("build_docs", ROOT / "scripts/build-docs.py")
@@ -27,6 +28,20 @@ class DocumentationTest(unittest.TestCase):
         self.assertEqual(len(mapping), len(set(mapping.values())))
         for source in ("docs/index.md", "docs/admins.md", "docs/developers.md", "tests/README.md"):
             self.assertIn(source, mapping)
+
+    def test_missing_or_empty_plugin_guide_sections_fail(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory)
+            path = output / "plugin-guides" / "plugins-test.md"
+            path.parent.mkdir()
+            with self.assertRaises(ValueError):
+                BUILD.validate_plugin_guide(output, "plugins-test")
+            for content in ("# Test\n## Developer\nnotes\n", "# Test\n## Developer\n## Administrator\nnotes\n"):
+                path.write_text(content, encoding="utf-8")
+                with self.assertRaises(ValueError):
+                    BUILD.validate_plugin_guide(output, "plugins-test")
+            path.write_text("# Test\n## Developer\nexample\n## Administrator\nrunbook\n", encoding="utf-8")
+            self.assertEqual(BUILD.validate_plugin_guide(output, "plugins-test"), path)
 
 
 if __name__ == "__main__":
