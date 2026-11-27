@@ -17,6 +17,13 @@ import (
 func TestObservationContractAndFanoutBounds(t *testing.T) {
 	publisher := plugin.Manifest{ID: "publisher", Version: "1", HostAPI: 1, Capabilities: []string{"write"}, Routes: []plugin.Route{{Operation: "write", Function: "write", Capability: "write", ResourceField: "key"}}, Events: []plugin.EventSpec{{Name: "changed", Fields: map[string]string{"name": "string"}}}}
 	subscriber := plugin.Manifest{ID: "subscriber", Version: "1", HostAPI: 1, Capabilities: []string{"observe.publisher.changed"}, Observers: []plugin.ObserverSpec{{Plugin: "publisher", Event: "changed", Function: "receive", Capability: "observe.publisher.changed"}}}
+	for _, manifest := range []*plugin.Manifest{&publisher, &subscriber} {
+		manifest.Entry = "index.ts"
+		manifest.SourceFiles = []string{"index.ts"}
+		if err := plugin.ValidateManifestContract(*manifest); err != nil {
+			t.Fatalf("invalid fixture: %v", err)
+		}
+	}
 	for _, event := range []plugin.EventSpec{{Name: "invalid/name"}, {Name: "changed", Source: "foreign"}, {Name: "changed", Fields: map[string]string{"bad-key": "unknown"}}} {
 		m := publisher
 		m.Events = []plugin.EventSpec{event}
