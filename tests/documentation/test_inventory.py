@@ -11,6 +11,7 @@ class InventoryTest(unittest.TestCase):
         result = audit(ROOT)
         self.assertIn("Documentation coverage inventory", result)
         self.assertIn("Public SDK entrypoint exports", result)
+        self.assertIn("Admin UI page patterns", result)
 
     def test_missing_and_stale_contracts_fail(self):
         self.assertEqual(exact("routes", {"a"}, {"a"}), 1)

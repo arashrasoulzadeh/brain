@@ -12,7 +12,7 @@ Passing tests and coverage are different measures. A coverage gate does not prov
 | Kotlin client | Lines, branches, instructions and methods per class | 100% |
 | Plugin manifests | Generated reference for each manifest | 100% |
 | Plugin developer and administrator guides | One guide per discovered manifest and example | 100% |
-| HTTP/admin/function commands and SDK exports | Exact source inventory audit | 100% |
+| HTTP/admin/function commands, admin pages and SDK exports | Exact source inventory audit | 100% |
 | Narrative docs | Review all public interfaces, examples and operating procedures | 100% audit target |
 
 The CI coverage workflow publishes raw profiles and HTML reports even when the target is missed. Do not exclude code merely to reach the target. Go's standard profile measures statements, not branches.

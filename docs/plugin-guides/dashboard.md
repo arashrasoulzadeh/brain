@@ -18,4 +18,4 @@ Payload snippets are arguments to the declared operation, not standalone HTTP ro
 
 ## Limitations
 
-Dashboard manifest routes are not the complete HTTP command inventory. Do not expose the operator bearer or assume a worker policy grant makes host-only routes callable.
+Dashboard manifest routes are not the complete HTTP command inventory; the manifest includes plugin.uninstall, while the actual HTTP action is plugin.remove. Use the mounted API contract. Do not expose the operator bearer or assume a worker policy grant makes host-only routes callable.

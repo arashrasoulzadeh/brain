@@ -32,6 +32,10 @@ def audit(root: Path) -> str:
     missing = exports - set(re.findall(r'`([A-Za-z_][A-Za-z0-9_]*)`', sdk_doc))
     if missing:
         raise ValueError(f"SDK exports missing documentation: {sorted(missing)}")
+    pages = root / "admin-nextjs/app"
+    page_routes = {"/" if path.parent == pages else "/" + path.relative_to(pages).parent.as_posix() for path in pages.rglob("page.tsx")}
+    page_doc = (root / "docs/admin-pages/README.md").read_text()
+    page_count = exact("Admin page documentation", page_routes, set(re.findall(r'^\| \`(/[^\`]*)\` \|', page_doc, re.M)))
     manifests = sorted(root.glob("plugins/*/plugin.yaml")) + sorted(root.glob("examples/*/plugin.yaml"))
     expected_guides = {m.parent.name for m in manifests}
     guides = {p.stem for p in (root / "docs/plugin-guides").glob("*.md")} - {"index"}
@@ -44,6 +48,7 @@ def audit(root: Path) -> str:
              f"| Admin action commands | {admin_count} | {admin_count} |",
              f"| Function authoring commands | {fn_count} | {fn_count} |",
              f"| Public SDK entrypoint exports | {len(exports)} | {len(exports)} |",
+             f"| Admin UI page patterns | {page_count} | {page_count} |",
              f"| Plugin guides | {guide_count} | {len(manifests)} |", "",
              "See [HTTP reference](../http-api.md), [SDK reference](../sdk-reference.md), [plugin guides](../plugin-guides/index.md) and [generated manifest reference](plugins/index.md).",
              "", "Client transport integration, deployment rehearsals, shell utilities, domain implementation details and narrative examples require human review beyond this inventory."]
