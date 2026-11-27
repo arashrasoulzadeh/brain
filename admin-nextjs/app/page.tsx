@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { AdminFooter, AdminHeader, AdminSidebar } from "./components/admin-chrome";
 import { QUIET_REQUEST_HEADER } from "./components/toast-provider";
-import type { Project, PluginManifest, PluginStatus, AuditRecord, FunctionDraft, SystemManifest, Language } from "./lib/admin-types";
+import type { Project, PluginManifest, PluginStatus, AuditRecord, FunctionDraft, SystemManifest, Language, ProjectHTTPRoute } from "./lib/admin-types";
 import { copy } from "./lib/admin-copy";
 import { createProjectRequestGate } from "./lib/project-requests";
 import { canViewAdminPage, enabledPluginIDs, visibleAdminPages } from "./lib/admin-navigation";
@@ -25,11 +25,14 @@ export default function AdminPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [manifests, setManifests] = useState<PluginManifest[]>([]);
   const [installations, setInstallations] = useState<PluginStatus[]>([]);
+  const [projectRoutes, setProjectRoutes] = useState<ProjectHTTPRoute[]>([]);
   const [audit, setAudit] = useState<AuditRecord[]>([]);
   const [system, setSystem] = useState<SystemManifest[]>([]);
   const [username, setUsername] = useState("");
   const [secret, setSecret] = useState("");
   const [projectID, setProjectID] = useState("");
+  const [projectName, setProjectName] = useState("");
+  const [projectSlug, setProjectSlug] = useState("");
   const [selectedProjectID, setSelectedProjectID] = useState("");
   const [projectRequests] = useState(createProjectRequestGate);
   const [error, setError] = useState("");
@@ -70,6 +73,7 @@ export default function AdminPage() {
     if (!projectRequests.select(id)) return;
     setSelectedProjectID(id);
     setInstallations([]);
+    setProjectRoutes([]);
     setFunctionDrafts([]);
     setPlaygroundRoute("");
     setPlaygroundPayload("{}");
@@ -134,7 +138,20 @@ export default function AdminPage() {
     setProjects(loadedProjects);
     return loadedProjects;
   }
+  async function loadProjectRoutes(token: string, project: string) {
+    if (!project) {
+      setProjectRoutes([]);
+      return;
+    }
+    const response = await fetch(projectAdminURL(project, "routes"), { headers: adminHeaders(token) });
+    if (!response.ok) throw new Error("Could not discover project routes");
+    const routes = (await response.json()) as ProjectHTTPRoute[] | null;
+    if (projectRequests.current() === project && readAdminSession() === token) {
+      setProjectRoutes(routes ?? []);
+    }
+  }
   async function loadPlugins(token: string, projectID = selectedProjectID) {
+    if (!projectID) { setManifests([]); setInstallations([]); setProjectRoutes([]); return; }
     const current = projectRequests.begin(projectID, "catalog");
     if (!current) return;
     const valid = () => current() && readAdminSession() === token;
@@ -146,6 +163,7 @@ export default function AdminPage() {
       if (!valid()) return;
       setManifests(result.manifests ?? []);
       setInstallations((result.installations ?? []).filter(item => item.ProjectID === projectID));
+      await loadProjectRoutes(token, projectID).catch(() => setProjectRoutes([]));
     } catch (reason) {
       if (!valid()) return;
       setInstallations([]);
@@ -227,10 +245,12 @@ export default function AdminPage() {
       const response = await fetch(systemAdminURL("actions"), {
         method: "POST",
         headers: adminHeaders(session, { "content-type": "application/json" }),
-        body: JSON.stringify({ operation: "project.create", project_id: projectID }),
+        body: JSON.stringify({ operation: "project.create", project_id: projectID, name: projectName, slug: projectSlug }),
       });
       if (!response.ok) throw new Error(await response.text());
       setProjectID("");
+      setProjectName("");
+      setProjectSlug("");
       const loaded = await loadProjects(session);
       if (!projectRequests.current()) {
         const next = loaded.find(candidate => candidate.ID === projectID && candidate.Active)?.ID ?? loaded.find(candidate => candidate.Active)?.ID ?? "";
@@ -241,9 +261,30 @@ export default function AdminPage() {
       setError(reason instanceof Error ? reason.message : "Could not create project");
     }
   }
+  async function configureProject(project: Project) {
+    const name = window.prompt("Display name", project.Name || project.ID);
+    if (name === null) return;
+    const slug = window.prompt("Unique URL slug", project.Slug || project.ID);
+    if (slug === null) return;
+    const rawSettings = window.prompt("Project settings (JSON object)", JSON.stringify(project.Settings ?? {}, null, 2));
+    if (rawSettings === null) return;
+    try {
+      const values: unknown = JSON.parse(rawSettings);
+      if (!values || typeof values !== "object" || Array.isArray(values)) throw new Error("Settings must be a JSON object");
+      const response = await fetch(projectAdminURL(project.ID, "actions"), {
+        method: "POST",
+        headers: adminHeaders(session, { "content-type": "application/json" }),
+        body: JSON.stringify({ operation: "project.configure", project_id: project.ID, name, slug, values }),
+      });
+      if (!response.ok) throw new Error(await response.text());
+      await loadProjects(session);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Could not update project");
+    }
+  }
   async function setProjectActive(project: Project, active: boolean) {
     if (!active && !window.confirm(`${text.deactivate} ${project.ID}?`)) return;
-    const response = await fetch(systemAdminURL("actions"), {
+    const response = await fetch(projectAdminURL(project.ID, "actions"), {
       method: "POST",
       headers: adminHeaders(session, { "content-type": "application/json" }),
       body: JSON.stringify({
@@ -297,7 +338,7 @@ export default function AdminPage() {
       return;
     }
     setPlaygroundMessage("Executing through the host...");
-    const response = await fetch(systemAdminURL("actions"), {
+    const response = await fetch(projectAdminURL(selectedProjectID, "actions"), {
       method: "POST",
       headers: adminHeaders(session, { "content-type": "application/json" }),
       body: JSON.stringify({
@@ -339,7 +380,7 @@ export default function AdminPage() {
       return;
     }
     try {
-      const response = await fetch(systemAdminURL("actions"), {
+      const response = await fetch(projectAdminURL(project.ID, "actions"), {
         method: "POST",
         headers: adminHeaders(session, { "content-type": "application/json" }),
         body: JSON.stringify({
@@ -399,7 +440,7 @@ export default function AdminPage() {
   async function uninstallProject(project: Project) {
     if (!window.confirm(`${text.uninstall} ${project.ID}?`)) return;
     setError("");
-    const response = await fetch(systemAdminURL("actions"), {
+    const response = await fetch(projectAdminURL(project.ID, "actions"), {
       method: "POST",
       headers: adminHeaders(session, { "content-type": "application/json" }),
       body: JSON.stringify({
@@ -447,7 +488,7 @@ export default function AdminPage() {
       !window.confirm(`${operation} ${installation.PluginID}@${installation.Version}?`)
     )
       return;
-    const response = await fetch(systemAdminURL("actions"), {
+    const response = await fetch(projectAdminURL(project.ID, "actions"), {
       method: "POST",
       headers: adminHeaders(session, { "content-type": "application/json" }),
       body: JSON.stringify({
@@ -490,7 +531,7 @@ export default function AdminPage() {
         manifest?.ConfigSchema?.[name] === "int" ? Number(value) : value,
       ]),
     );
-    const response = await fetch(systemAdminURL("actions"), {
+    const response = await fetch(projectAdminURL(selectedProjectID, "actions"), {
       method: "POST",
       headers: adminHeaders(session, { "content-type": "application/json" }),
       body: JSON.stringify({
@@ -512,7 +553,7 @@ export default function AdminPage() {
       setError("Select an active project first");
       return;
     }
-    const previewResponse = await fetch(systemAdminURL("actions"), {
+    const previewResponse = await fetch(projectAdminURL(selectedProjectID, "actions"), {
       method: "POST",
       headers: adminHeaders(session, { "content-type": "application/json" }),
       body: JSON.stringify({
@@ -536,7 +577,7 @@ export default function AdminPage() {
       )
     )
       return;
-    const applyResponse = await fetch(systemAdminURL("actions"), {
+    const applyResponse = await fetch(projectAdminURL(selectedProjectID, "actions"), {
       method: "POST",
       headers: adminHeaders(session, { "content-type": "application/json" }),
       body: JSON.stringify({
@@ -626,6 +667,11 @@ export default function AdminPage() {
         projects={projects}
         projectID={projectID}
         setProjectID={setProjectID}
+        projectName={projectName}
+        setProjectName={setProjectName}
+        projectSlug={projectSlug}
+        setProjectSlug={setProjectSlug}
+        configureProject={configureProject}
         createProject={createProject}
         setProjectActive={setProjectActive}
         uninstallProject={uninstallProject}
@@ -678,7 +724,7 @@ export default function AdminPage() {
         text={text}
         playgroundRoute={playgroundRoute}
         setPlaygroundRoute={setPlaygroundRoute}
-        system={system}
+        projectRoutes={projectRoutes}
         playgroundPayload={playgroundPayload}
         setPlaygroundPayload={setPlaygroundPayload}
         testPlayground={testPlayground}
