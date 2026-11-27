@@ -213,7 +213,7 @@ func TestDurableCoverageSubscriptionRejections(t *testing.T) {
 		t.Fatal(err)
 	}
 	got, _, _, err := subscriptionStream(s, "coverage")
-	if err != nil || got.Sequence != int64(subscriptionRetention + 1) || len(got.Events) != subscriptionRetention || len(got.Seen) != subscriptionRetention*2 || got.Seen[len(got.Seen)-1] != "new" {
+	if err != nil || got.Sequence != int64(subscriptionRetention+1) || len(got.Events) != subscriptionRetention || len(got.Seen) != subscriptionRetention*2 || got.Seen[len(got.Seen)-1] != "new" {
 		t.Fatalf("retention: %+v %v", got, err)
 	}
 	token := strings.Repeat("a", 32)
