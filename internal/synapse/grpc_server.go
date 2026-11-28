@@ -17,26 +17,44 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/peer"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
 )
 
+// RuntimeDigestHeader identifies the enrolled runtime source distribution.
+const RuntimeDigestHeader = "brain-runtime-digest"
+
 // NewGRPCServer exposes only authenticated, bounded Synapse v1 streams.
 func NewGRPCServer(tlsConfig *tls.Config, scheduler *cortex.Scheduler, catalog *execution.Catalog, heartbeat time.Duration) (*grpc.Server, error) {
+	return newGRPCServer(tlsConfig, scheduler, catalog, heartbeat, "")
+}
+
+// NewEnrolledGRPCServer additionally requires the runtime-source compatibility
+// digest on each authenticated stream. Use EnrolledServerTLS for leaf pinning.
+func NewEnrolledGRPCServer(tlsConfig *tls.Config, scheduler *cortex.Scheduler, catalog *execution.Catalog, heartbeat time.Duration, runtimeDigest string) (*grpc.Server, error) {
+	if !validDigest(runtimeDigest) {
+		return nil, ErrProtocol
+	}
+	return newGRPCServer(tlsConfig, scheduler, catalog, heartbeat, runtimeDigest)
+}
+
+func newGRPCServer(tlsConfig *tls.Config, scheduler *cortex.Scheduler, catalog *execution.Catalog, heartbeat time.Duration, runtimeDigest string) (*grpc.Server, error) {
 	if tlsConfig == nil || tlsConfig.ClientAuth != tls.RequireAndVerifyClientCert || tlsConfig.MinVersion < tls.VersionTLS13 || tlsConfig.ClientCAs == nil || scheduler == nil || catalog == nil || heartbeat < time.Second || heartbeat > 30*time.Second {
 		return nil, ErrProtocol
 	}
 	server := grpc.NewServer(grpc.Creds(credentials.NewTLS(tlsConfig)), grpc.MaxRecvMsgSize(MaxMessageBytes), grpc.MaxSendMsgSize(MaxMessageBytes), grpc.MaxConcurrentStreams(32))
-	pb.RegisterSynapseServer(server, &grpcHost{scheduler: scheduler, catalog: catalog, heartbeat: heartbeat})
+	pb.RegisterSynapseServer(server, &grpcHost{scheduler: scheduler, catalog: catalog, heartbeat: heartbeat, runtimeDigest: runtimeDigest})
 	return server, nil
 }
 
 type grpcHost struct {
 	pb.UnimplementedSynapseServer
-	scheduler *cortex.Scheduler
-	catalog   *execution.Catalog
-	heartbeat time.Duration
+	scheduler     *cortex.Scheduler
+	catalog       *execution.Catalog
+	heartbeat     time.Duration
+	runtimeDigest string
 }
 
 func (h *grpcHost) Connect(stream pb.Synapse_ConnectServer) error {
@@ -53,6 +71,15 @@ func (h *grpcHost) Connect(stream pb.Synapse_ConnectServer) error {
 	id, err := NeuronIdentity(info.State)
 	if err != nil {
 		return status.Error(codes.Unauthenticated, "invalid neuron certificate")
+	}
+	// A TLS connection must not keep an expired leaf enrolled indefinitely.
+	ctx, expire := context.WithDeadline(ctx, info.State.PeerCertificates[0].NotAfter)
+	defer expire()
+	if h.runtimeDigest != "" {
+		values := metadata.ValueFromIncomingContext(ctx, RuntimeDigestHeader)
+		if len(values) != 1 || values[0] != h.runtimeDigest {
+			return status.Error(codes.FailedPrecondition, "incompatible enrolled runtime")
+		}
 	}
 	// Bound unauthenticated application handshakes as well as message sizes.
 	type firstMessage struct {

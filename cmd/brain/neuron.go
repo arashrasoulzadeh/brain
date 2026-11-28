@@ -10,6 +10,7 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"runtime"
 	"syscall"
 	"time"
 
@@ -18,6 +19,7 @@ import (
 	"brain/internal/synapse"
 
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
 
@@ -33,11 +35,12 @@ func neuronConnect(args []string) error {
 	root := flags.String("runtime-root", ".", "trusted Brain runtime directory")
 	localMacOS := flags.Bool("local-macos", false, "allow local Seatbelt development only")
 	pluginRuntime := flags.Bool("plugin-runtime", false, "enable prepared-plugin runtime for managed loopback development")
+	enrolledRuntime := flags.Bool("enrolled-plugin-runtime", false, "enable Linux plugin runtime for explicitly enrolled production Neurons")
 	if err := flags.Parse(args); err != nil {
 		return err
 	}
 	host, _, err := net.SplitHostPort(*address)
-	if err != nil || *id == "" || *certificate == "" || *key == "" || *ca == "" || *serverName == "" || *slots < 1 || *slots > 8 || flags.NArg() != 0 || ((*localMacOS || *pluginRuntime) && host != "127.0.0.1") {
+	if err != nil || *id == "" || *certificate == "" || *key == "" || *ca == "" || *serverName == "" || *slots < 1 || *slots > 8 || flags.NArg() != 0 || ((*localMacOS || *pluginRuntime) && host != "127.0.0.1") || (*enrolledRuntime && (*localMacOS || *pluginRuntime || runtime.GOOS != "linux")) {
 		return errors.New("neuron connect requires brain, id, cert, key, ca, server-name and 1–8 slots; macOS must use loopback")
 	}
 	cert, err := tls.LoadX509KeyPair(*certificate, *key)
@@ -66,7 +69,14 @@ func neuronConnect(args []string) error {
 		return err
 	}
 	adapters := []neuron.Adapter{{Capability: runner.Capability(), Runtime: runner}}
-	if *pluginRuntime {
+	if *enrolledRuntime {
+		digest, err := execution.RuntimeSourceDigest(*root)
+		if err != nil {
+			return err
+		}
+		ctx = metadata.AppendToOutgoingContext(ctx, synapse.RuntimeDigestHeader, digest)
+	}
+	if *pluginRuntime || *enrolledRuntime {
 		plugins, err := neuron.NewPluginTypeScriptRuntime(*root, *localMacOS)
 		if err != nil {
 			return err
