@@ -20,11 +20,11 @@ type ExecutionTotals struct {
 // request/response payloads, effect intents and raw failure messages.
 type ExecutionTrace struct {
 	ExecutionID, TraceID, ParentID, NeuronID string
-	Runtime                                execution.Runtime
-	Outcome                                string
-	FinishedAt                             time.Time
-	WaitMillis, DurationMillis             int64
-	CPUTimeNanos, PeakMemoryBytes           int64
+	Runtime                                  execution.Runtime
+	Outcome                                  string
+	FinishedAt                               time.Time
+	WaitMillis, DurationMillis               int64
+	CPUTimeNanos, PeakMemoryBytes            int64
 }
 
 type executionTelemetry struct {
