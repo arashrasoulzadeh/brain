@@ -177,3 +177,7 @@ Cortex-mode Brain routes published public and authenticated-user functions throu
 ### Cortex execution telemetry (verification pending)
 
 Cortex records assigned outcomes after fencing, with process-lifetime counters and a newest-first bounded history of 128 executions. The operator-only Neurons endpoint and UI expose runtime, Neuron, trace/parent identity, host-measured wait/elapsed duration and reported process usage, not request payloads, caller/resource metadata, raw errors or results. Linux and macOS runtime adapters capture launcher CPU and peak RSS after process reaping; zero/unavailable usage is rendered as unavailable, not fabricated. These measurements do not prove resource enforcement or successful durable commits. History is not durable and managed drain/restart remains outstanding. Regression and UI tests are added; CI verification is pending.
+
+### Durable execution history
+
+The Brain-owned SQLite database retains the latest 128 assigned execution outcomes, with the same redacted operational metadata as the in-memory ring. Completed outcomes are recorded outside the scheduler placement lock; database failure sets a sticky degradation indicator instead of changing an execution result or retrying it. Counters remain process-local, and unfinished work is not reconstructed or replayed after a crash. This is diagnostic history, not a journal of committed effects.

@@ -2,7 +2,7 @@ export type NeuronRuntime = { Kind: string; Profile: string };
 export type Neuron = { ID: string; Slots: number; Running: number; Draining: boolean; LastPulse: string; Runtimes: NeuronRuntime[] | null };
 export type ExecutionTotals = { Assigned: number; Succeeded: number; Failed: number; Cancelled: number; Lost: number };
 export type ExecutionTrace = { ExecutionID: string; TraceID: string; ParentID: string; NeuronID: string; Runtime: NeuronRuntime; Outcome: string; FinishedAt: string; WaitMillis: number; DurationMillis: number; CPUTimeNanos: number; PeakMemoryBytes: number };
-export type ClusterStatus = { configured: boolean; snapshot: { Neurons: Neuron[] | null; Running: number; Queued: number; Executions?: ExecutionTotals; Recent?: ExecutionTrace[] | null } };
+export type ClusterStatus = { configured: boolean; snapshot: { Neurons: Neuron[] | null; Running: number; Queued: number; Executions?: ExecutionTotals; Recent?: ExecutionTrace[] | null; HistoryPersistent?: boolean; HistoryDegraded?: boolean } };
 export type Installation = { ProjectID: string; PluginID: string; Version: string; Enabled: boolean; Ready: boolean; WorkerReady?: boolean; Draining?: boolean };
 
 export function availableSlots(neuron: Neuron): number {
