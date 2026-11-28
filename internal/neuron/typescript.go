@@ -26,9 +26,9 @@ const (
 
 var ErrRuntimeArtifact = errors.New("unsupported standalone TypeScript artifact")
 
-// TypeScriptRuntime runs one manifest-declared, self-contained function in a
-// fresh existing Brain OS sandbox. It does not claim support for legacy
-// plugin dependencies, host services, or user function publication yet.
+// TypeScriptRuntime runs one manifest-declared operation in a fresh existing
+// Brain OS sandbox. Standalone and prepared-plugin capabilities have separate
+// admission rules; neither exposes host credentials or database connections.
 type TypeScriptRuntime struct {
 	root       string
 	capability execution.Runtime

@@ -29,6 +29,7 @@ const (
 type ScheduledArtifact struct {
 	catalog *execution.Catalog
 	key     execution.ArtifactKey
+	runtime execution.Runtime
 }
 
 // RegisterScheduledArtifact snapshots only declared source files and the
@@ -36,7 +37,7 @@ type ScheduledArtifact struct {
 // version. Call only with trusted registry metadata and a host-owned source
 // directory; the runtime must validate the extracted source again.
 func RegisterScheduledArtifact(catalog *execution.Catalog, runtime execution.Runtime, manifest Manifest, directory string) (*ScheduledArtifact, error) {
-	if catalog == nil || runtime.Kind != ScheduledTypeScriptKind || manifest.HostAPI != 1 {
+	if catalog == nil || runtime.Kind != ScheduledTypeScriptKind || manifest.HostAPI != 1 || len(manifest.PluginImports) != 0 {
 		return nil, ErrInvalidWorkerRequest
 	}
 	if err := ValidatePluginSources(directory, manifest); err != nil {
@@ -69,7 +70,7 @@ func RegisterScheduledArtifact(catalog *execution.Catalog, runtime execution.Run
 	if err := catalog.Register(execution.Registration{Key: key, Runtime: runtime, Entrypoints: entrypoints, Bundle: bundle}); err != nil {
 		return nil, err
 	}
-	return &ScheduledArtifact{catalog: catalog, key: key}, nil
+	return &ScheduledArtifact{catalog: catalog, key: key, runtime: runtime}, nil
 }
 
 // ScheduledWorker is an installation-scoped lifecycle handle, not a process.
@@ -118,6 +119,18 @@ func (w *ScheduledWorker) Ready() bool {
 	w.mu.RLock()
 	defer w.mu.RUnlock()
 	return w.ctx != nil
+}
+
+// ExecutionAvailable separates operator-facing availability from installation
+// lifecycle. Busy compatible Neurons still count as ready.
+func (w *ScheduledWorker) ExecutionAvailable() bool {
+	if !w.Ready() {
+		return false
+	}
+	if pool, ok := w.executor.(interface{ HasRuntime(execution.Runtime) bool }); ok {
+		return pool.HasRuntime(w.artifact.runtime)
+	}
+	return false
 }
 
 func (w *ScheduledWorker) Handle(request WorkerRequest) WorkerResponse {

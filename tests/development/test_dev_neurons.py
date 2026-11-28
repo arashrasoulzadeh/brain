@@ -28,7 +28,8 @@ class DevNeuronProcessesTest(unittest.TestCase):
             origin = f"http://127.0.0.1:{port}"
             env = dict(os.environ, HTTP_ADDRESS=f"127.0.0.1:{port}", PROJECTS_FILE=str(root / "test.sqlite"),
                        OPERATOR_USERNAME="ci-operator", OPERATOR_SECRET="ci-fixture-only",
-                       BRAIN_LOCAL_DEV="1", BRAIN_LOCAL_MACOS="1", BRAIN_DEV_WORKERS="4", BRAIN_DEV_SLOTS="1")
+                       BRAIN_LOCAL_DEV="1", BRAIN_LOCAL_MACOS="1", BRAIN_DEV_WORKERS="4", BRAIN_DEV_SLOTS="1",
+                       BRAIN_DEV_PLUGIN_EXECUTION="cortex")
             log_path = root / "server.log"
             with log_path.open("w+") as log:
                 process = subprocess.Popen([str(binary)], cwd=ROOT, env=env, stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
@@ -54,7 +55,11 @@ class DevNeuronProcessesTest(unittest.TestCase):
                     self.assertTrue(status["configured"])
                     neurons = status["snapshot"]["Neurons"]
                     self.assertEqual({row["ID"] for row in neurons}, {f"local-neuron-{i:02d}" for i in range(1, 5)})
-                    self.assertTrue(all(row["Slots"] == 1 and row["Runtimes"] for row in neurons))
+                    self.assertTrue(all(row["Slots"] == 1 and {rt["Kind"] for rt in row["Runtimes"]} ==
+                                        {"standalone-typescript", "plugin-typescript-v1"} for row in neurons))
+                    # Reuse the same actual HTTP/storage/lifecycle suite as Linux.
+                    subprocess.run(["node", str(ROOT / "scripts/test-runtime-api.mjs")], cwd=ROOT,
+                                   env=dict(env, BRAIN_TEST_ORIGIN=origin), check=True, timeout=360)
                     process.send_signal(signal.SIGTERM)
                     self.assertEqual(process.wait(timeout=15), 0, log_path.read_text())
                 finally:

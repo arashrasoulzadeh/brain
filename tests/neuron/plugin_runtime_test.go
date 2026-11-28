@@ -45,8 +45,8 @@ func TestPluginRuntimePreservesPreparedContextAndEffects(t *testing.T) {
 	request.Context, err = json.Marshal(plugin.InvocationContext{
 		InvocationID: request.ID, ProjectVerified: true, Config: map[string]any{"label": "prepared"}, Available: []string{},
 		Auth: plugin.InvocationAuth{
-			Actor: plugin.InvocationActor{Kind: "user", ID: "42", Authenticated: true, Level: "authenticated"},
-			Caller: plugin.InvocationActor{Kind: "plugin", ID: "sample@1.0.0", Level: "system"},
+			Actor:       plugin.InvocationActor{Kind: "user", ID: "42", Authenticated: true, Level: "authenticated"},
+			Caller:      plugin.InvocationActor{Kind: "plugin", ID: "sample@1.0.0", Level: "system"},
 			Permissions: []plugin.InvocationPermission{{Capability: "call", Operation: "call"}},
 		},
 	})
