@@ -83,6 +83,9 @@ if [ -n "$source_files" ] || [ "$declarative" = true ]; then mounts+=(--remount-
 # V8's default Wasm guard region exceeds our address-space limit, even for
 # plain JavaScript (Node's built-in HTTP client uses Wasm).
 node_args=(--max-old-space-size=128 --disable-wasm-trap-handler)
+if [ "$(basename "$worker_script")" = function-worker.mjs ]; then
+  node_args+=(--experimental-vm-modules --no-warnings)
+fi
 if [ -n "$runtime_root" ]; then
   runtime_root=$(realpath "$runtime_root")
   loader="$runtime_root/node_modules/tsx/dist/loader.mjs"

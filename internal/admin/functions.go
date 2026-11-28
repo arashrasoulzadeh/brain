@@ -549,12 +549,21 @@ const invokeMs=clock()-invokeStart;
 process.stdout.write(JSON.stringify({result:result??null,timings:{compile_ms:compileMs,evaluate_ms:evaluateMs,invoke_ms:invokeMs}}));
 } finally {clearTimeout(timer);}`
 	// Allow cold Node startup under load without relaxing the VM execution deadlines.
-	commandContext, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	timeout := 5*time.Second
+	if s.functionExecution != nil && operation == "functions.call" {
+		timeout = 15*time.Second
+	}
+	commandContext, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 	command := exec.CommandContext(commandContext, "node", "--no-warnings", "--experimental-vm-modules", "--input-type=module", "-e", runner)
 	command.Env = []string{"PATH=" + os.Getenv("PATH"), "BRAIN_FUNCTION_SOURCE=" + source, "BRAIN_FUNCTION_INPUT=" + string(input), "BRAIN_FUNCTION_PROJECT=" + string(projectJSON), "BRAIN_FUNCTION_AUTH=" + string(authJSON), "BRAIN_FUNCTION_OPERATION=" + operation, "BRAIN_INVOCATION_ID=" + requestID, "BRAIN_PURE_HELPERS=" + pluginsdk.PureHelperSource}
 	executionStarted := time.Now()
-	output, err := s.runFunctionCommand(commandContext, command, projectID, name, principal, operation)
+	var output []byte
+	if s.functionExecution != nil && operation == "functions.call" {
+		output, err = s.functionExecution.run(commandContext, projectID, name, source, requestID, principal, input)
+	} else {
+		output, err = s.runFunctionCommand(commandContext, command, projectID, name, principal, operation)
+	}
 	if err != nil {
 		var exitError *exec.ExitError
 		detail := ""

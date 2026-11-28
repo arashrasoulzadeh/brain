@@ -27,6 +27,7 @@ type LifecycleService struct {
 	operators *operator.Store
 	registry  *plugin.Registry
 	projects  *project.Store
+	functionExecution *functionExecution
 }
 
 func NewLifecycleService(operators *operator.Store, registry *plugin.Registry) *LifecycleService {

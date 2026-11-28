@@ -43,7 +43,7 @@ func RuntimeSourceDigest(root string) (string, error) {
 		files = append(files, BundleFile{Path: filepath.ToSlash(relative), Data: data})
 		return nil
 	}
-	for _, name := range []string{"package.json", "package-lock.json", "tsconfig.json", "scripts/typescript-worker.mjs", "scripts/run-sandboxed-typescript-worker.sh"} {
+	for _, name := range []string{"package.json", "package-lock.json", "tsconfig.json", "scripts/typescript-worker.mjs", "scripts/function-worker.mjs", "scripts/run-sandboxed-typescript-worker.sh"} {
 		if err := add(filepath.Join(root, name)); err != nil {
 			return "", err
 		}

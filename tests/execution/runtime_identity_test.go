@@ -10,7 +10,7 @@ import (
 
 func TestRuntimeSourceDigestPinsRuntimeFiles(t *testing.T) {
 	root := t.TempDir()
-	names := []string{"package.json", "package-lock.json", "tsconfig.json", "scripts/typescript-worker.mjs", "scripts/run-sandboxed-typescript-worker.sh", "plugins/sdk-typescript/src/index.ts"}
+	names := []string{"package.json", "package-lock.json", "tsconfig.json", "scripts/typescript-worker.mjs", "scripts/function-worker.mjs", "scripts/run-sandboxed-typescript-worker.sh", "plugins/sdk-typescript/src/index.ts"}
 	for _, name := range names {
 		path := filepath.Join(root, name)
 		if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
