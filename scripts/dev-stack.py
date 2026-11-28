@@ -8,6 +8,8 @@ import sys
 import time
 from pathlib import Path
 from urllib.parse import urlsplit
+from urllib.request import ProxyHandler, build_opener
+from urllib.error import URLError
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -56,6 +58,33 @@ def stop_all(children):
         child.wait()
 
 
+def wait_for_brain(child, origin, stopped, timeout=300):
+    """Wait for HTTP liveness, not application readiness (WORKERS=0 is valid)."""
+    opener = build_opener(ProxyHandler({}))
+    deadline = time.monotonic() + timeout
+    next_notice = time.monotonic() + 10
+    while not stopped():
+        status = child.poll()
+        if status is not None:
+            raise OSError(f"Brain exited ({status}) before HTTP startup; see server output above")
+        try:
+            with opener.open(origin + "/_system/livez", timeout=1) as response:
+                if response.status == 200 and response.read(16) == b"ok\n":
+                    if child.poll() is not None:
+                        raise OSError("Brain exited during HTTP startup")
+                    return True
+        except (URLError, TimeoutError, ConnectionError):
+            pass
+        now = time.monotonic()
+        if now >= deadline:
+            raise OSError("Brain did not become live before the development startup timeout; see server output above")
+        if now >= next_notice:
+            print("Waiting for Brain to finish building and starting Neurons…", flush=True)
+            next_notice = now + 10
+        time.sleep(0.25)
+    return False
+
+
 def run():
     env, host, port = settings()
     commands = (
@@ -77,8 +106,12 @@ def run():
             if stopped:
                 return 0
             print(f"Starting {name}", flush=True)
-            children.append((name, subprocess.Popen(command, cwd=ROOT, env=env,
-                                                   start_new_session=True)))
+            child = subprocess.Popen(command, cwd=ROOT, env=env, start_new_session=True)
+            children.append((name, child))
+            if name == "server":
+                print(f"Waiting for Brain at {env['BRAIN_API_ORIGIN']} before starting admin.", flush=True)
+                if not wait_for_brain(child, env["BRAIN_API_ORIGIN"], lambda: stopped):
+                    return 0
         print(f"Admin: http://{host}:{port} | Brain: {env['BRAIN_API_ORIGIN']}", flush=True)
         print(f"Managed Neurons: {env['BRAIN_DEV_WORKERS']} requested · {env['BRAIN_DEV_SLOTS']} slots each", flush=True)
         print("Ctrl+C stops the entire development stack.", flush=True)

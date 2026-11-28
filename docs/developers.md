@@ -14,7 +14,7 @@ Start the complete stack in a single terminal:
 make dev
 ```
 
-This launches Brain, the Next.js admin and four independent local Neurons, each with one execution slot. The Neurons authenticate via loopback mutual-TLS Synapse gRPC and must pass the local OS-sandbox probe before connecting. Ctrl+C shuts down the managed stack.
+This launches Brain, the Next.js admin and four independent local Neurons, each with one execution slot. The Neurons authenticate via loopback mutual-TLS Synapse gRPC and must pass the local OS-sandbox probe before connecting. The launcher waits for Brain's HTTP liveness endpoint (`/_system/livez`) before starting Next.js, avoiding connection-refused errors during a cold Go build or Neuron registration. Application readiness (`/_system/readyz`) is separate and can remain unavailable with zero workers. Ctrl+C shuts down the managed stack.
 
 ```bash
 make dev WORKERS=6 WORKER_SLOTS=2
