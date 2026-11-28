@@ -390,3 +390,75 @@ func TestFourNeuronsAcrossProjects(t *testing.T) {
 		}
 	}
 }
+
+func TestEqualLoadRoundRobinAcrossTenNeurons(t *testing.T) {
+	f := setup(t, 0, 0, 10, 10)
+	ctx := context.Background()
+	for i := 10; i >= 1; i-- {
+		id := fmt.Sprintf("n%02d", i)
+		register(t, f, id, 1, fast(id), runtime)
+	}
+	for i := 0; i < 30; i++ {
+		got, err := f.scheduler.Execute(ctx, f.request(fmt.Sprintf("rr-%d", i), "alpha"))
+		want := fmt.Sprintf("n%02d", i%10+1)
+		if err != nil || got.WorkerID != want {
+			t.Fatalf("assignment %d: worker=%q err=%v want=%q", i, got.WorkerID, err, want)
+		}
+	}
+	if err := f.scheduler.SetOperatorDrain("n01", true); err != nil {
+		t.Fatal(err)
+	}
+	got, err := f.scheduler.Execute(ctx, f.request("paused", "alpha"))
+	if err != nil || got.WorkerID != "n02" {
+		t.Fatalf("paused worker was not skipped: %+v %v", got, err)
+	}
+	if err := f.scheduler.SetOperatorDrain("n01", false); err != nil {
+		t.Fatal(err)
+	}
+	for i := 3; i <= 11; i++ {
+		got, err := f.scheduler.Execute(ctx, f.request(fmt.Sprintf("resume-%d", i), "alpha"))
+		want := fmt.Sprintf("n%02d", (i-1)%10+1)
+		if err != nil || got.WorkerID != want {
+			t.Fatalf("resumed rotation: worker=%q err=%v want=%q", got.WorkerID, err, want)
+		}
+	}
+}
+
+func TestRoundRobinPreservesLeastOccupiedFraction(t *testing.T) {
+	f := setup(t, 0, 0, 4, 2)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	started := make(chan string, 3)
+	release := make(chan struct{})
+	block := func(id string) executorFunc {
+		return func(ctx context.Context, r execution.Request) (execution.Result, error) {
+			started <- id
+			select {
+			case <-release:
+				return result(r, id), nil
+			case <-ctx.Done():
+				return execution.Result{}, ctx.Err()
+			}
+		}
+	}
+	register(t, f, "a", 2, block("a"), runtime)
+	register(t, f, "b", 4, block("b"), runtime)
+	var calls []<-chan outcome
+	for i, want := range []string{"a", "b", "b"} {
+		calls = append(calls, submit(f.scheduler, ctx, f.request(fmt.Sprintf("load-%d", i), "alpha")))
+		select {
+		case got := <-started:
+			if got != want {
+				t.Fatalf("assignment %d: got %q want %q", i, got, want)
+			}
+		case <-time.After(2 * time.Second):
+			t.Fatal("assignment did not start")
+		}
+	}
+	close(release)
+	for _, call := range calls {
+		if got := receive(t, call); got.err != nil {
+			t.Fatal(got.err)
+		}
+	}
+}
