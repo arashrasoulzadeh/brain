@@ -3,6 +3,16 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `00ab96e7` — 2026-11-28 15:50:38 +0330 — Cover ten-Neuron rotation, operator pause and weighted load preference
+  Files: tests/cortex/scheduler_test.go
+- `996e5f05` — 2026-11-28 15:50:29 +0330 — Rotate equally loaded Neurons in Cortex placement
+  Files: internal/cortex/scheduler.go
+- `71019c57` — 2026-11-28 15:49:55 +0330 — Update Neuron refresh action regression tests
+  Files: tests/admin-ui/neuron-console.test.mjs
+- `23e03bf3` — 2026-11-28 15:49:46 +0330 — Surface Neuron performance report above inventory and rename refresh action
+  Files: admin-nextjs/app/workers/view.tsx
+- `59a9847e` — 2026-11-28 12:18:36 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `706e350f` — 2026-11-28 15:46:51 +0330 — Add Neuron performance reports and authenticated Prometheus metrics (#65)
   Files: admin-nextjs/app/lib/neuron-dashboard.ts,admin-nextjs/app/workers/view.tsx cmd/brain/main.go,docs/admin-pages/workers.md internal/app/api_response.go,internal/app/app.go internal/app/neuron_metrics.go,internal/app/neuron_status.go internal/cortex/performance.go,tests/admin-ui/neuron-console.test.mjs tests/app/neuron_metrics_test.go,tests/cortex/performance_test.go
 - `c092877e` — 2026-11-28 12:09:42 +0000 — docs: update changelog [skip ci]
@@ -93,13 +103,3 @@ Automatically generated from commits on main.
   Files: Makefile,cmd/brain/dev_neurons.go cmd/brain/main.go,docs/admins.md docs/developers.md,docs/unified-execution-architecture.md scripts/start-local.sh,scripts/test-production-runtime.sh tests/development/test_dev_neurons.py,tests/development/test_makefile.py
 - `e4342b27` — 2026-11-28 14:21:12 +0330 — Fix scheduled caller context name collision
   Files: internal/plugin/scheduled_execution.go
-- `a75a2ec0` — 2026-11-28 14:19:54 +0330 — Merge pull request #57 from arashrasoulzadeh/architecture/plugin-execution-parity
-  Files: 
-- `b4aaaf7c` — 2026-11-28 14:18:09 +0330 — Enforce scheduled-only registry dispatch for credential-bound plugin calls
-  Files: cmd/brain/cortex_plugins.go,docs/unified-execution-architecture.md internal/plugin/access_management.go,internal/plugin/plugin.go internal/plugin/registry_workers.go,internal/plugin/worker.go tests/plugin/scheduled_credential_test.go
-- `78c4181e` — 2026-11-28 14:16:17 +0330 — Preserve durable observations during Neuron capacity outages
-  Files: docs/unified-execution-architecture.md,internal/plugin/observation_queue.go internal/plugin/observation_storage.go,tests/plugin/scheduled_observation_test.go
-- `b3e0b7ea` — 2026-11-28 10:45:45 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `6eb0c8ed` — 2026-11-28 14:15:20 +0330 — Merge pull request #56 from arashrasoulzadeh/architecture/plugin-cortex-migration
-  Files: 
