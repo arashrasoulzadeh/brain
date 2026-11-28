@@ -224,6 +224,12 @@ func (w *ScheduledWorker) HandleExecution(request WorkerRequest) (WorkerResponse
 		Limits:   execution.Limits{CPUTime: ScheduledTypeScriptCPU, MemoryBytes: ScheduledTypeScriptMemory, InputBytes: scheduledMessageLimit, OutputBytes: scheduledMessageLimit},
 		Auth:     execution.Authorization{ProjectID: w.project, OriginalCaller: original, Caller: caller, Capability: permission.Capability, Resource: permission.Resource},
 	}
+	if parent, ok := execution.ParentFromContext(ctx); ok {
+		if !request.functionRead || parent.ProjectID != assigned.ProjectID || parent.OriginalCaller != original || parent.Caller != caller {
+			return WorkerResponse{}, ErrInvalidWorkerRequest
+		}
+		assigned.ParentID, assigned.TraceID = parent.ID, parent.TraceID
+	}
 	if err = assigned.Validate(time.Now()); err != nil {
 		return WorkerResponse{}, ErrInvalidWorkerRequest
 	}

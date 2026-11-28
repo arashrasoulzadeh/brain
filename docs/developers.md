@@ -21,7 +21,7 @@ make dev WORKERS=6 WORKER_SLOTS=2
 make dev WORKERS=0
 ```
 
-Open [the Neurons console](http://127.0.0.1:3000/_system/ui/workers) after signing in. The console reports the real scheduler snapshot, including connections, capacity, runtime profiles, heartbeats and current queue state. Managed development uses Cortex for manifest-selected plugin computation by default, with no legacy fallback when capacity is unavailable. The standalone TypeScript runtime remains a separate capability; user-authored functions still use their current host runtime.
+Open [the Neurons console](http://127.0.0.1:3000/_system/ui/workers) after signing in. The console reports the real scheduler snapshot, including connections, capacity, runtime profiles, heartbeats and current queue state. Managed development uses Cortex for manifest-selected plugin computation by default, with no legacy fallback when capacity is unavailable. The standalone TypeScript runtime remains a separate capability; published functions and operator draft tests use the isolated user-function runtime in Cortex mode.
 
 For separate server/admin processes, use `make dev server` (Brain plus the same managed pool) and `make dev admin`. Use `WORKERS=0` to exercise control-plane recovery without execution capacity. For temporary comparison with the old worker adapter, explicitly select `BRAIN_DEV_PLUGIN_EXECUTION=legacy make dev`; production cutover is separate.
 

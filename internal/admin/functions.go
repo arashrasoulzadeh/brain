@@ -15,6 +15,7 @@ import (
 	"sync"
 	"time"
 
+	"brain/internal/execution"
 	"brain/internal/operator"
 	"brain/internal/plugin"
 	pluginsdk "brain/plugins/sdk-typescript"
@@ -562,15 +563,24 @@ process.stdout.write(JSON.stringify({result:result??null,timings:{compile_ms:com
 } finally {clearTimeout(timer);}`
 	// Allow cold Node startup under load without relaxing the VM execution deadlines.
 	timeout := 5 * time.Second
-	if s.functionExecution != nil && operation == "functions.call" {
+	if s.functionExecution != nil {
 		timeout = 15 * time.Second
 	}
 	commandContext, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 	executionStarted := time.Now()
 	var output []byte
-	if s.functionExecution != nil && operation == "functions.call" {
-		output, err = s.functionExecution.run(commandContext, projectID, name, source, requestID, principal, input)
+	if s.functionExecution != nil {
+		if operation == "functions.invoke" {
+			commandContext = execution.WithHostHandler(commandContext, func(callCtx context.Context, target string, payload json.RawMessage) (json.RawMessage, error) {
+				response := s.functionPluginRead(callCtx, projectID, name, principal, operation, functionPluginRequest{Operation: target, Payload: payload})
+				if response.Error != "" {
+					return nil, execution.ErrHostCallDenied
+				}
+				return response.Result, nil
+			})
+		}
+		output, err = s.functionExecution.run(commandContext, projectID, name, source, requestID, principal, operation, input)
 	} else {
 		command := exec.CommandContext(commandContext, "node", "--no-warnings", "--experimental-vm-modules", "--input-type=module", "-e", runner)
 		command.Env = []string{"PATH=" + os.Getenv("PATH"), "BRAIN_FUNCTION_SOURCE=" + source, "BRAIN_FUNCTION_INPUT=" + string(input), "BRAIN_FUNCTION_PROJECT=" + string(projectJSON), "BRAIN_FUNCTION_AUTH=" + string(authJSON), "BRAIN_FUNCTION_OPERATION=" + operation, "BRAIN_INVOCATION_ID=" + requestID, "BRAIN_PURE_HELPERS=" + pluginsdk.PureHelperSource}
@@ -591,7 +601,7 @@ process.stdout.write(JSON.stringify({result:result??null,timings:{compile_ms:com
 		executionError := ErrFunctionExecutionFailed
 		if errors.Is(commandContext.Err(), context.DeadlineExceeded) {
 			executionError = ErrFunctionExecutionTimeout
-		} else if s.functionExecution != nil && operation == "functions.call" {
+		} else if s.functionExecution != nil {
 			executionError = scheduledFunctionError(err)
 		} else if detail != "" {
 			executionError = fmt.Errorf("%w: %s", ErrFunctionExecutionFailed, detail)
