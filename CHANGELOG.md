@@ -3,6 +3,28 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `6eb0c8ed` — 2026-11-28 14:15:20 +0330 — Merge pull request #56 from arashrasoulzadeh/architecture/plugin-cortex-migration
+  Files: 
+- `e4c2118b` — 2026-11-28 14:14:28 +0330 — Format scheduled cancellation regression fixture
+  Files: tests/plugin/scheduled_cancellation_test.go
+- `481922d5` — 2026-11-28 14:14:04 +0330 — Propagate plugin route cancellation through Cortex and guard commits
+  Files: docs/unified-execution-architecture.md,internal/admin/lifecycle.go internal/app/project_http.go,internal/plugin/http_routes.go internal/plugin/model_runtime.go,internal/plugin/plugin_call.go internal/plugin/registry_workers.go,internal/plugin/scheduled_execution.go internal/plugin/websocket_gateway.go,internal/plugin/worker.go tests/plugin/scheduled_cancellation_test.go
+- `a45b50ca` — 2026-11-28 14:12:38 +0330 — Format artifact pin regression fixture
+  Files: tests/plugin/artifact_pins_test.go
+- `0ad08d3f` — 2026-11-28 14:12:29 +0330 — Persist scheduled plugin artifact version pins in host storage
+  Files: cmd/brain/main.go,docs/unified-execution-architecture.md internal/execution/catalog.go,internal/plugin/artifact_pins.go tests/plugin/artifact_pins_test.go
+- `64779974` — 2026-11-28 13:18:29 +0330 — style: format scheduled dependency regression fixture
+  Files: tests/plugin/scheduled_worker_test.go
+- `72f0f35b` — 2026-11-28 13:17:34 +0330 — fix: preserve dependency metadata and package resolution in isolated plugin bundles
+  Files: internal/neuron/plugin_typescript.go,internal/neuron/typescript.go internal/plugin/bundled_runtime.go,internal/plugin/scheduled_execution.go scripts/run-sandboxed-typescript-worker.sh,tests/neuron/plugin_runtime_test.go tests/plugin/scheduled_worker_test.go
+- `57158ab0` — 2026-11-28 13:13:27 +0330 — feat: opt in to managed Cortex plugin execution and run parity gates
+  Files: cmd/brain/cortex_plugins.go,cmd/brain/dev_neurons.go cmd/brain/main.go,cmd/brain/neuron.go docs/unified-execution-architecture.md,internal/cortex/scheduler.go internal/neuron/typescript.go,internal/plugin/registry_catalog.go internal/plugin/scheduled_execution.go,scripts/test-production-runtime.sh tests/development/test_dev_neurons.py,tests/development/verify-neurons.mjs tests/neuron/plugin_runtime_test.go
+- `71511f91` — 2026-11-28 13:12:22 +0330 — feat: execute prepared plugin artifacts in fresh Neuron sandboxes
+  Files: internal/neuron/plugin_typescript.go,internal/neuron/typescript.go internal/plugin/bundled_runtime.go,scripts/run-sandboxed-typescript-worker.sh tests/neuron/plugin_runtime_test.go
+- `bef41917` — 2026-11-28 13:11:23 +0330 — feat: bridge authorized plugin invocations into Cortex execution
+  Files: internal/plugin/scheduled_execution.go,internal/plugin/worker.go tests/plugin/scheduled_worker_test.go
+- `44724232` — 2026-11-28 09:37:00 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `85bca07a` — 2026-11-28 13:06:48 +0330 — Merge PR #55: managed development Neurons and Cortex dashboard
   Files: 
 - `f23ac603` — 2026-11-28 12:52:55 +0330 — test(synapse): tolerate independent heartbeat frames in job assertions
@@ -80,26 +102,4 @@ Automatically generated from commits on main.
 - `2caae147` — 2026-11-28 00:50:34 +0330 — Merge main and preserve both function studio and dependency regression tests
   Files: tests/admin-ui/pages.test.mjs
 - `62ba9575` — 2026-11-28 00:50:01 +0330 — Merge pull request #51 from arashrasoulzadeh/admin/function-development-studio
-  Files: 
-- `ad86bc6e` — 2026-11-28 00:48:58 +0330 — Apply gofmt to new regression tests
-  Files: tests/plugin/function_read_bridge_test.go
-- `7bb316e2` — 2026-11-28 00:48:52 +0330 — Apply gofmt to new regression tests
-  Files: tests/plugin/registry_enable_dependencies_test.go
-- `09e7885d` — 2026-11-28 00:48:04 +0330 — Test function plugin metadata delegation and denied authority boundaries
-  Files: tests/plugin/function_read_bridge_test.go
-- `4cabff79` — 2026-11-28 00:47:04 +0330 — Add host-mediated read-only plugin bridge to operator function tests
-  Files: docs/functions-runtime.md,docs/plugin-guides/functions.md internal/admin/function_plugin_bridge.go,internal/admin/functions.go internal/plugin/function_read.go,internal/plugin/manifest.go internal/plugin/registry_workers.go,internal/plugin/worker.go plugins/files/plugin.yaml
-- `308b8764` — 2026-11-28 00:45:41 +0330 — Test exact dependency consent, project scope and atomic rollback
-  Files: tests/plugin/registry_enable_dependencies_test.go
-- `918082f8` — 2026-11-28 00:45:04 +0330 — Confirm exact required dependency activation before enabling plugins
-  Files: admin-nextjs/app/components/plugin-catalog-panel.tsx,admin-nextjs/app/components/plugin-enable-dependencies.tsx admin-nextjs/app/lib/plugin-version-review.ts,admin-nextjs/app/plugins/[plugin]/view.tsx admin-nextjs/app/view.tsx,docs/admin-pages/plugin-detail.md docs/admin-pages/plugins.md,internal/admin/lifecycle.go internal/app/admin.go,internal/plugin/registry_enable_dependencies.go tests/admin-ui/pages.test.mjs
-- `cb9fe3a3` — 2026-11-28 00:40:34 +0330 — Redesign function editor as a source-first IDE workspace
-  Files: admin-nextjs/app/functions/[name]/view.tsx,admin-nextjs/app/functions/function-editor.tsx admin-nextjs/app/functions/function-workspace.tsx,admin-nextjs/app/theme.css docs/admin-pages/function-detail.md,docs/admin-pages/function-new.md tests/admin-ui/pages.test.mjs
-- `06304377` — 2026-11-28 00:38:02 +0330 — Guard studio saves and distinguish unavailable logs
-  Files: admin-nextjs/app/functions/[name]/view.tsx,admin-nextjs/app/functions/function-runner.tsx admin-nextjs/app/functions/new/view.tsx,tests/admin-ui/pages.test.mjs
-- `6f97511d` — 2026-11-28 00:37:42 +0330 — Build function development studio with scoped sandbox execution
-  Files: admin-nextjs/app/functions/[name]/view.tsx,admin-nextjs/app/functions/function-runner.tsx admin-nextjs/app/functions/new/view.tsx,admin-nextjs/app/lib/function-studio.ts admin-nextjs/app/theme.css,docs/admin-pages/function-detail.md docs/admin-pages/function-new.md,tests/admin-ui/pages.test.mjs tests/admin/function-inspection.test.ts
-- `bce1988e` — 2026-11-27 21:06:25 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `c70d1bda` — 2026-11-28 00:36:14 +0330 — Merge pull request #50 from arashrasoulzadeh/admin/functions-catalog-rework
   Files: 
