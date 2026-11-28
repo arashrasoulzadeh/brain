@@ -52,3 +52,22 @@ func ReadFunctionProfile(output json.RawMessage) (FunctionProfile, bool) {
 	}
 	return p, true
 }
+
+type FunctionStage struct {
+	Name string
+	Nanos int64
+}
+
+// Stages is a fixed allowlist shared by execution logs and metrics.
+func (p FunctionProfile) Stages() []FunctionStage {
+	return []FunctionStage{
+		{"artifact fetch", p.ArtifactFetchNanos},
+		{"bundle verification", p.BundleOpenNanos},
+		{"runtime artifact validation", p.ArtifactValidationNanos},
+		{"sandbox preparation", p.SandboxPreparationNanos},
+		{"sandbox startup", p.SandboxStartupNanos},
+		{"sandbox invocation", p.SandboxInvocationNanos},
+		{"sandbox termination", p.SandboxStopNanos},
+		{"filesystem cleanup", p.FilesystemCleanupNanos},
+	}
+}
