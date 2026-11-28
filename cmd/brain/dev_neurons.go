@@ -199,7 +199,9 @@ func startDevCluster(server *app.Server, httpAddress string) (*devCluster, error
 		cmd.Env = []string{}
 		// Do not pass operator credentials, application storage configuration,
 		// or other Brain process environment to a Neuron.
-		for _, name := range []string{"PATH", "HOME", "TMPDIR"} {
+		// GOCOVERDIR belongs to the trusted instrumented Go process, not its
+		// sandbox. The existing OS launcher clears the sandbox environment.
+		for _, name := range []string{"PATH", "HOME", "TMPDIR", "GOCOVERDIR"} {
 			if value, ok := os.LookupEnv(name); ok {
 				cmd.Env = append(cmd.Env, name+"="+value)
 			}
