@@ -69,7 +69,7 @@ func AuthenticatedFunctionsHandler(service *admin.LifecycleService, sessions *op
 			return
 		}
 		if command.Operation == "functions.run" {
-			result, err := service.RunFunctionDraft(actor, command.ProjectID, command.Name, command.Source, command.Input)
+			result, err := service.RunFunctionDraftContext(r.Context(), actor, command.ProjectID, command.Name, command.Source, command.Input)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusBadRequest)
 				return
@@ -181,9 +181,9 @@ func PublicFunctionHandler(service *admin.LifecycleService) http.Handler {
 				http.Error(w, "invalid authorization", http.StatusForbidden)
 				return
 			}
-			result, err = service.PublicInvokeFunctionWithSession(projectID, r.PathValue("function_name"), r.Method, input, token)
+			result, err = service.PublicInvokeFunctionWithSessionContext(r.Context(), projectID, r.PathValue("function_name"), r.Method, input, token)
 		} else {
-			result, err = service.PublicInvokeFunction(projectID, r.PathValue("function_name"), r.Method, input)
+			result, err = service.PublicInvokeFunctionContext(r.Context(), projectID, r.PathValue("function_name"), r.Method, input)
 		}
 		if err != nil {
 			if errors.Is(err, admin.ErrFunctionMethodNotAllowed) {

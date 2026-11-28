@@ -32,15 +32,17 @@ var functionMethodPattern = regexp.MustCompile(`(?s)export\s+const\s+config\s*=\
 const maxFunctionSourceBytes = 256 * 1024
 
 type FunctionDraft struct {
-	ProjectID   string     `json:"project_id"`
-	Name        string     `json:"name"`
-	Source      string     `json:"source"`
-	Version     int        `json:"version"`
-	Public      bool       `json:"public"`
-	Permissions []string   `json:"permissions"`
-	Method      string     `json:"method"`
-	PublishedAt *time.Time `json:"published_at,omitempty"`
-	CreatedAt   time.Time  `json:"created_at"`
+	ProjectID         string                      `json:"project_id"`
+	Name              string                      `json:"name"`
+	Source            string                      `json:"source"`
+	Version           int                         `json:"version"`
+	Public            bool                        `json:"public"`
+	Permissions       []string                    `json:"permissions"`
+	Method            string                      `json:"method"`
+	PublishedAt       *time.Time                  `json:"published_at,omitempty"`
+	ActivePublication int                         `json:"active_publication,omitempty"`
+	PublishedVersions map[int]FunctionPublication `json:"published_versions,omitempty"`
+	CreatedAt         time.Time                   `json:"created_at"`
 }
 type FunctionLog struct {
 	ProjectID  string            `json:"project_id"`
@@ -118,6 +120,8 @@ func loadFunctionDraftsLocked() {
 		return
 	}
 	for _, draft := range drafts {
+		// Preserve the first known legacy publication before editing the draft.
+		draft = adoptLegacyPublication(draft)
 		functionDrafts.items[draft.ProjectID+":"+draft.Name] = draft
 	}
 }
@@ -212,12 +216,22 @@ func (s *LifecycleService) CreateFunctionDraftWithSettings(actor operator.Actor,
 	}
 	draft := FunctionDraft{ProjectID: projectID, Name: strings.TrimSpace(name), Source: source, Version: version, Public: public, Permissions: append([]string(nil), permissions...), Method: method, CreatedAt: time.Now().UTC()}
 	functionDrafts.Lock()
+	defer functionDrafts.Unlock()
 	loadFunctionDraftsLocked()
+	if previous, ok := functionDrafts.items[projectID+":"+draft.Name]; ok {
+		draft.ActivePublication = previous.ActivePublication
+		draft.PublishedVersions = previous.PublishedVersions
+		draft.PublishedAt = previous.PublishedAt
+	}
+	if draft.Public && draft.ActivePublication == 0 {
+		draft, err = pinFunctionPublication(draft)
+		if err != nil {
+			return FunctionDraft{}, err
+		}
+	}
 	if err := saveFunctionDraftLocked(draft); err != nil {
-		functionDrafts.Unlock()
 		return FunctionDraft{}, err
 	}
-	functionDrafts.Unlock()
 	return draft, nil
 }
 
@@ -289,6 +303,13 @@ func (s *LifecycleService) UpdateFunctionPermissions(actor operator.Actor, proje
 	}
 	draft.Permissions = append([]string(nil), permissions...)
 	draft.Public = public
+	if public && draft.ActivePublication == 0 {
+		var err error
+		draft, err = pinFunctionPublication(draft)
+		if err != nil {
+			return err
+		}
+	}
 	return saveFunctionDraftLocked(draft)
 }
 
@@ -322,13 +343,13 @@ func persistPublishedFunction(projectID, name string) (FunctionDraft, error) {
 	if !ok {
 		return FunctionDraft{}, ErrFunctionDraftInvalid
 	}
-	method, err := functionMethodFromSource(draft.Source)
+	draft, err := pinFunctionPublication(draft)
 	if err != nil {
 		return FunctionDraft{}, err
 	}
 	now := time.Now().UTC()
 	draft.Public = true
-	draft.Method = method
+	draft.Method = draft.PublishedVersions[draft.ActivePublication].Method
 	draft.PublishedAt = &now
 	if err := saveFunctionDraftLocked(draft); err != nil {
 		return FunctionDraft{}, err
@@ -337,12 +358,20 @@ func persistPublishedFunction(projectID, name string) (FunctionDraft, error) {
 }
 
 func (s *LifecycleService) PublicInvokeFunction(projectID, name, method string, input json.RawMessage) (map[string]any, error) {
-	return s.publicInvokeFunction(projectID, name, method, input, plugin.InvocationActor{Kind: "public", Level: "anonymous"}, "public")
+	return s.PublicInvokeFunctionContext(context.Background(), projectID, name, method, input)
+}
+
+func (s *LifecycleService) PublicInvokeFunctionContext(ctx context.Context, projectID, name, method string, input json.RawMessage) (map[string]any, error) {
+	return s.publicInvokeFunction(ctx, projectID, name, method, input, plugin.InvocationActor{Kind: "public", Level: "anonymous"}, "public")
 }
 
 // PublicInvokeFunctionWithSession authenticates the existing published function
 // endpoint without permitting a bearer token to fall back to anonymous access.
 func (s *LifecycleService) PublicInvokeFunctionWithSession(projectID, name, method string, input json.RawMessage, token string) (map[string]any, error) {
+	return s.PublicInvokeFunctionWithSessionContext(context.Background(), projectID, name, method, input, token)
+}
+
+func (s *LifecycleService) PublicInvokeFunctionWithSessionContext(ctx context.Context, projectID, name, method string, input json.RawMessage, token string) (map[string]any, error) {
 	if s.registry == nil {
 		return nil, plugin.ErrActorDenied
 	}
@@ -350,42 +379,37 @@ func (s *LifecycleService) PublicInvokeFunctionWithSession(projectID, name, meth
 	if err != nil {
 		return nil, err
 	}
-	return s.publicInvokeFunction(projectID, name, method, input, actor, "user:"+actor.ID)
+	return s.publicInvokeFunction(ctx, projectID, name, method, input, actor, "user:"+actor.ID)
 }
 
-func (s *LifecycleService) publicInvokeFunction(projectID, name, method string, input json.RawMessage, authActor plugin.InvocationActor, principal string) (map[string]any, error) {
+func (s *LifecycleService) publicInvokeFunction(ctx context.Context, projectID, name, method string, input json.RawMessage, authActor plugin.InvocationActor, principal string) (map[string]any, error) {
 	edgeStarted := time.Now()
-	functionDrafts.Lock()
-	loadFunctionDraftsLocked()
-	draft, ok := functionDrafts.items[projectID+":"+strings.TrimSpace(name)]
-	functionDrafts.Unlock()
-	if !ok || !draft.Public {
-		return nil, ErrFunctionDraftInvalid
+	draft, publication, err := loadPublicFunctionPublication(projectID, name)
+	if err != nil {
+		return nil, err
 	}
 	if s.registry != nil {
 		if err := s.registry.AuthorizeHostOperation(projectID, principal, "functions", "functions.call", draft.Name); err != nil {
 			return nil, err
 		}
 	}
-	if draft.Method == "" {
-		var err error
-		draft.Method, err = functionMethodFromSource(draft.Source)
-		if err != nil {
-			return nil, err
-		}
-	}
-	if strings.ToUpper(strings.TrimSpace(method)) != draft.Method {
+	if strings.ToUpper(strings.TrimSpace(method)) != publication.Method {
 		return nil, ErrFunctionMethodNotAllowed
 	}
-	result, err := s.runFunctionDraft(operator.Actor{Kind: operator.ActorOperator}, projectID, draft.Name, draft.Source, input, authActor, principal, "functions.call", []FunctionLogStep{
+	guard := func() error {
+		_, current, err := loadPublicFunctionPublication(projectID, draft.Name)
+		if err != nil || current != publication {
+			return ErrFunctionDraftInvalid
+		}
+		if s.registry != nil {
+			return s.registry.AuthorizeHostOperation(projectID, principal, "functions", "functions.call", draft.Name)
+		}
+		return nil
+	}
+	result, err := s.runFunctionDraft(ctx, operator.Actor{Kind: operator.ActorOperator}, projectID, draft.Name, publication.Source, input, authActor, principal, "functions.call", []FunctionLogStep{
 		{Name: "edge router", Status: "success", Reason: "public route resolved and function version selected", DurationMs: time.Since(edgeStarted).Milliseconds()},
 		{Name: "method authorization", Status: "success", Reason: "request method matched function source config", DurationMs: 0},
-	})
-	if err == nil && s.registry != nil {
-		if err := s.registry.AuthorizeHostOperation(projectID, principal, "functions", "functions.call", draft.Name); err != nil {
-			return nil, err
-		}
-	}
+	}, guard)
 	return result, err
 }
 
@@ -415,19 +439,19 @@ func (s *LifecycleService) validateFunctionDraft(actor operator.Actor, projectID
 }
 
 func (s *LifecycleService) RunFunctionDraft(actor operator.Actor, projectID, name, source string, input json.RawMessage) (map[string]any, error) {
+	return s.RunFunctionDraftContext(context.Background(), actor, projectID, name, source, input)
+}
+
+func (s *LifecycleService) RunFunctionDraftContext(ctx context.Context, actor operator.Actor, projectID, name, source string, input json.RawMessage) (map[string]any, error) {
 	if err := s.authorizeFunction(actor, projectID, "functions.invoke", name); err != nil {
 		return nil, err
 	}
-	result, err := s.runFunctionDraft(actor, projectID, name, source, input, plugin.InvocationActor{Kind: "operator", ID: actor.ID, Authenticated: true, Level: "authenticated"}, "operator:"+actor.ID, "functions.invoke", nil)
-	if err == nil {
-		if err := s.authorizeFunction(actor, projectID, "functions.invoke", name); err != nil {
-			return nil, err
-		}
-	}
-	return result, err
+	return s.runFunctionDraft(ctx, actor, projectID, name, source, input, plugin.InvocationActor{Kind: "operator", ID: actor.ID, Authenticated: true, Level: "authenticated"}, "operator:"+actor.ID, "functions.invoke", nil, func() error {
+		return s.authorizeFunction(actor, projectID, "functions.invoke", name)
+	})
 }
 
-func (s *LifecycleService) runFunctionDraft(actor operator.Actor, projectID, name, source string, input json.RawMessage, authActor plugin.InvocationActor, principal, operation string, initialSteps []FunctionLogStep) (map[string]any, error) {
+func (s *LifecycleService) runFunctionDraft(ctx context.Context, actor operator.Actor, projectID, name, source string, input json.RawMessage, authActor plugin.InvocationActor, principal, operation string, initialSteps []FunctionLogStep, guard func() error) (map[string]any, error) {
 	started := time.Now()
 	requestID := createFunctionRequestID()
 	steps := append([]FunctionLogStep{}, initialSteps...)
@@ -537,12 +561,21 @@ const invokeMs=clock()-invokeStart;
 process.stdout.write(JSON.stringify({result:result??null,timings:{compile_ms:compileMs,evaluate_ms:evaluateMs,invoke_ms:invokeMs}}));
 } finally {clearTimeout(timer);}`
 	// Allow cold Node startup under load without relaxing the VM execution deadlines.
-	commandContext, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	timeout := 5 * time.Second
+	if s.functionExecution != nil && operation == "functions.call" {
+		timeout = 15 * time.Second
+	}
+	commandContext, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
-	command := exec.CommandContext(commandContext, "node", "--no-warnings", "--experimental-vm-modules", "--input-type=module", "-e", runner)
-	command.Env = []string{"PATH=" + os.Getenv("PATH"), "BRAIN_FUNCTION_SOURCE=" + source, "BRAIN_FUNCTION_INPUT=" + string(input), "BRAIN_FUNCTION_PROJECT=" + string(projectJSON), "BRAIN_FUNCTION_AUTH=" + string(authJSON), "BRAIN_FUNCTION_OPERATION=" + operation, "BRAIN_INVOCATION_ID=" + requestID, "BRAIN_PURE_HELPERS=" + pluginsdk.PureHelperSource}
 	executionStarted := time.Now()
-	output, err := s.runFunctionCommand(commandContext, command, projectID, name, principal, operation)
+	var output []byte
+	if s.functionExecution != nil && operation == "functions.call" {
+		output, err = s.functionExecution.run(commandContext, projectID, name, source, requestID, principal, input)
+	} else {
+		command := exec.CommandContext(commandContext, "node", "--no-warnings", "--experimental-vm-modules", "--input-type=module", "-e", runner)
+		command.Env = []string{"PATH=" + os.Getenv("PATH"), "BRAIN_FUNCTION_SOURCE=" + source, "BRAIN_FUNCTION_INPUT=" + string(input), "BRAIN_FUNCTION_PROJECT=" + string(projectJSON), "BRAIN_FUNCTION_AUTH=" + string(authJSON), "BRAIN_FUNCTION_OPERATION=" + operation, "BRAIN_INVOCATION_ID=" + requestID, "BRAIN_PURE_HELPERS=" + pluginsdk.PureHelperSource}
+		output, err = s.runFunctionCommand(commandContext, command, projectID, name, principal, operation)
+	}
 	if err != nil {
 		var exitError *exec.ExitError
 		detail := ""
@@ -606,6 +639,17 @@ process.stdout.write(JSON.stringify({result:result??null,timings:{compile_ms:com
 		return nil, errors.New("function response serialization failed")
 	}
 	addStep("response serialization", "success", "JSON response encoded for the caller", responseStarted, nil)
+	if err := ctx.Err(); err != nil {
+		writeLog("failed", err.Error())
+		return nil, err
+	}
+	if guard != nil {
+		if err := guard(); err != nil {
+			addStep("result authorization", "failed", "publication or caller permission changed during execution", responseStarted, err)
+			writeLog("failed", err.Error())
+			return nil, err
+		}
+	}
 	writeLog("success", "function completed successfully")
 	if s.registry != nil {
 		s.registry.PublishHostObservationAs(projectID, "functions", "invoked", principal, map[string]any{"name": name, "executionId": requestID})

@@ -33,6 +33,7 @@ type catalogEntry struct {
 	runtime     Runtime
 	entrypoints []string
 	bundle      []byte
+	transient   bool
 }
 
 // ArtifactPin is the immutable metadata persisted before exposing a bundle.
@@ -84,6 +85,32 @@ func (c *Catalog) BindPinStore(store PinStore) error {
 // Register pins content, entrypoints and runtime requirements to one version.
 // A repeat of the same registration is harmless; a change requires a new version.
 func (c *Catalog) Register(reg Registration) error {
+	return c.register(reg, false)
+}
+
+// RegisterTransient admits an invocation-scoped project bundle without creating
+// a durable version pin. The returned release function must outlive dispatch.
+func (c *Catalog) RegisterTransient(reg Registration) (func(), error) {
+	if reg.Key.ProjectID == "" {
+		return nil, ErrInvalidRequest
+	}
+	if err := c.register(reg, true); err != nil {
+		return nil, err
+	}
+	var once sync.Once
+	return func() {
+		once.Do(func() {
+			c.mu.Lock()
+			defer c.mu.Unlock()
+			if entry, ok := c.entries[reg.Key]; ok && entry.transient {
+				delete(c.entries, reg.Key)
+				c.usedBytes -= int64(len(entry.bundle))
+			}
+		})
+	}, nil
+}
+
+func (c *Catalog) register(reg Registration, transient bool) error {
 	if !present(reg.Key.ID) || !validVersion(reg.Key.Version) || (reg.Key.ProjectID != "" && !present(reg.Key.ProjectID)) ||
 		!present(reg.Runtime.Kind) || !present(reg.Runtime.Profile) || len(reg.Entrypoints) == 0 || len(reg.Entrypoints) > maxArtifactEntrypoints {
 		return ErrInvalidRequest
@@ -106,7 +133,7 @@ func (c *Catalog) Register(reg Registration) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if existing, ok := c.entries[reg.Key]; ok {
-		if existing.digest == digest && existing.runtime == reg.Runtime && slices.Equal(existing.entrypoints, entrypoints) {
+		if !transient && !existing.transient && existing.digest == digest && existing.runtime == reg.Runtime && slices.Equal(existing.entrypoints, entrypoints) {
 			return nil
 		}
 		return ErrArtifactConflict
@@ -114,12 +141,12 @@ func (c *Catalog) Register(reg Registration) error {
 	if len(c.entries) >= c.maxEntries || int64(len(bundle)) > c.maxBytes-c.usedBytes {
 		return ErrCatalogLimit
 	}
-	if c.pinStore != nil {
+	if !transient && c.pinStore != nil {
 		if err := c.pinStore.PinArtifact(reg.Key, ArtifactPin{Digest: digest, Runtime: reg.Runtime, Entrypoints: slices.Clone(entrypoints)}); err != nil {
 			return err
 		}
 	}
-	c.entries[reg.Key] = catalogEntry{digest: digest, runtime: reg.Runtime, entrypoints: entrypoints, bundle: bundle}
+	c.entries[reg.Key] = catalogEntry{digest: digest, runtime: reg.Runtime, entrypoints: entrypoints, bundle: bundle, transient: transient}
 	c.usedBytes += int64(len(bundle))
 	return nil
 }

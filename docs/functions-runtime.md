@@ -27,7 +27,7 @@ The Node VM blocks imports and string/WASM code generation, imposes bounded eval
 
 ## Storage and operations
 
-The current draft and execution-log adapter writes `.local/function-drafts.json` and `.local/function-logs.json` relative to the host working directory. Protect both files and include them in backup/restore alongside SQLite. The adapter is not a distributed version store; a publication is not an immutable deployment artifact. Logs record request ID, duration, status and workflow steps. Do not log or return secrets.
+The current draft and execution-log adapter writes `.local/function-drafts.json` and `.local/function-logs.json` relative to the host working directory. Protect both files and include them in backup/restore alongside SQLite. The adapter is not yet a distributed version store. A published function now selects an immutable source, method, version and SHA-256 digest from its retained publication history (up to 128 distinct versions per function). Editing a draft does not change the live handler or HTTP method; publish a new version to change either. Reusing an existing published version with different bytes is rejected. Public visibility can be revoked independently. Existing legacy public records are adopted from their first known source because historical bytes were not retained. Public execution fails closed if the durable publication is missing or corrupt. The runtime itself is still the host VM until distributed Functions migration. Logs record request ID, duration, status and workflow steps. Do not log or return secrets.
 
 See the [HTTP command reference](http-api.md), [auth context](plugin-auth-context.md), and [function detail screen](admin-pages/function-detail.md).
 \n## Project-first publication URLs\n\nPublished routes have the shape `/{project}/functions/{function_name}`, using the configured project slug when present. Publication and logs remain project-bound to the immutable ID; the previous `/public/{project_id}/{function_name}` URLs are deliberately removed. Deploy clients together with this breaking route change.\n
@@ -46,3 +46,7 @@ export default async function handler(input, context) {
 ```
 
 This works in operator sandbox testing only; the public invocation endpoint deliberately does not inherit operator rights. Public/user delegation requires a separately designed caller policy and is not enabled by these grants.
+
+## Cortex published execution
+
+In managed Cortex development or explicitly configured production Cortex, published public/user functions run on an isolated Neuron with no local fallback. Publication source and HTTP method are pinned independently of drafts. The user-function runtime exposes pure helpers and trusted identity, but not operator-only plugin reads. Operator draft tests retain their existing bridge pending migration. Publication history is stored in the existing Brain-local function metadata file; this is not multi-host storage. Full regression verification is pending.

@@ -38,7 +38,8 @@ assert.deepEqual(first.snapshot.Neurons.map(row => row.ID).sort(),
   ["local-neuron-01", "local-neuron-02", "local-neuron-03", "local-neuron-04"]);
 assert.ok(first.snapshot.Neurons.every(row => row.Slots === 1 && row.Running === 0 &&
   row.Runtimes.some(rt => rt.Kind === "standalone-typescript" && rt.Profile === "linux-bubblewrap") &&
-  row.Runtimes.some(rt => rt.Kind === "plugin-typescript-v1" && rt.Profile === "linux-bubblewrap")));
+  row.Runtimes.some(rt => rt.Kind === "plugin-typescript-v1" && rt.Profile === "linux-bubblewrap") &&
+  row.Runtimes.some(rt => rt.Kind === "user-function-v1" && rt.Profile === "linux-bubblewrap")));
 let later;
 for (let i = 0; i < 30; i++) {
   await new Promise(resolve => setTimeout(resolve, 200));

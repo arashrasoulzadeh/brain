@@ -17,6 +17,7 @@ import (
 	"brain/internal/app"
 	"brain/internal/config"
 	"brain/internal/deploy"
+	"brain/internal/execution"
 	"brain/internal/operator"
 	"brain/internal/plugin"
 	"brain/internal/project"
@@ -183,7 +184,13 @@ func productionServerWithCluster(cluster *devCluster) (*app.Server, error) {
 		}
 	}
 	go registry.RunObservationDelivery(context.Background(), time.Second)
-	server := app.NewServerWithOperatorAdmin(admin.NewLifecycleServiceWithProjects(operators, registry, projects), operators, digest)
+	service := admin.NewLifecycleServiceWithProjects(operators, registry, projects)
+	if scheduledPlugins {
+		if err := service.BindFunctionExecution(cluster.catalog, cluster.scheduler, execution.Runtime{Kind: execution.UserFunctionRuntimeKind, Profile: cluster.pluginRuntime.Profile}); err != nil {
+			return nil, err
+		}
+	}
+	server := app.NewServerWithOperatorAdmin(service, operators, digest)
 	server.SetReadinessCheck(func(ctx context.Context) error {
 		if err := registry.LifecycleStorageHealth(); err != nil {
 			return err
@@ -194,7 +201,7 @@ func productionServerWithCluster(cluster *devCluster) (*app.Server, error) {
 		if err := storage.CheckHealth(ctx); err != nil {
 			return err
 		}
-		if cluster != nil && cluster.pluginRuntime.Kind != "" && !cluster.scheduler.HasRuntime(cluster.pluginRuntime) {
+		if cluster != nil && cluster.pluginRuntime.Kind != "" && (!cluster.scheduler.HasRuntime(cluster.pluginRuntime) || !cluster.scheduler.HasRuntime(execution.Runtime{Kind: execution.UserFunctionRuntimeKind, Profile: cluster.pluginRuntime.Profile})) {
 			return plugin.ErrWorkerNotReady
 		}
 		for _, installation := range registry.InstallationStatuses("") {

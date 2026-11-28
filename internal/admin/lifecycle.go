@@ -24,9 +24,10 @@ type PluginInvocation struct {
 }
 
 type LifecycleService struct {
-	operators *operator.Store
-	registry  *plugin.Registry
-	projects  *project.Store
+	operators         *operator.Store
+	registry          *plugin.Registry
+	projects          *project.Store
+	functionExecution *functionExecution
 }
 
 func NewLifecycleService(operators *operator.Store, registry *plugin.Registry) *LifecycleService {

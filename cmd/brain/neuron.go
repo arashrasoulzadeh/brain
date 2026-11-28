@@ -85,6 +85,14 @@ func neuronConnect(args []string) error {
 			return err
 		}
 		adapters = append(adapters, neuron.Adapter{Capability: plugins.Capability(), Runtime: plugins})
+		functions, err := neuron.NewUserFunctionRuntime(*root, *localMacOS)
+		if err != nil {
+			return err
+		}
+		if err := functions.Probe(ctx); err != nil {
+			return err
+		}
+		adapters = append(adapters, neuron.Adapter{Capability: functions.Capability(), Runtime: functions})
 	}
 	cfg := neuron.Config{ID: *id, Slots: *slots, MaxArtifactBytes: execution.MaxBundleBytes, Adapters: adapters}
 	log.Printf("%s: isolated runtime probe passed (%s)", *id, runner.Capability().Profile)

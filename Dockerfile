@@ -15,7 +15,7 @@ WORKDIR /workspace
 COPY package.json package-lock.json ./
 RUN npm ci --ignore-scripts
 COPY tsconfig.json ./
-COPY scripts/typescript-worker.mjs scripts/run-sandboxed-typescript-worker.sh ./scripts/
+COPY scripts/typescript-worker.mjs scripts/function-worker.mjs scripts/run-sandboxed-typescript-worker.sh ./scripts/
 COPY plugins ./plugins
 COPY --from=build /out/brain /brain
 RUN mkdir -p /workspace/.local/coverage && chown -R node:node /workspace/.local
