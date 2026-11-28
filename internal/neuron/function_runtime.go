@@ -27,6 +27,8 @@ func NewUserFunctionRuntime(root string, localMacOS bool) (*UserFunctionRuntime,
 }
 
 func (r *UserFunctionRuntime) Run(ctx context.Context, req execution.Request, files []execution.BundleFile) (out execution.Result, runErr error) {
+	started := time.Now()
+	var profile execution.FunctionProfile
 	if err := req.Validate(time.Now()); err != nil {
 		return execution.Result{}, err
 	}
@@ -49,13 +51,25 @@ func (r *UserFunctionRuntime) Run(ctx context.Context, req execution.Request, fi
 	if err := req.Artifact.Verify(bundle); err != nil {
 		return execution.Result{}, err
 	}
+	profile.ArtifactValidationNanos = time.Since(started).Nanoseconds()
 	ctx, cancel := context.WithDeadline(ctx, req.Deadline)
 	defer cancel()
+	prepareStarted := time.Now()
+	// Encode only after cleanup has completed; the user result is not modified.
+	defer func() {
+		if runErr == nil && out.Status == execution.Succeeded {
+			out.Output = execution.AddFunctionProfile(out.Output, profile)
+		}
+	}()
 	dir, err := os.MkdirTemp("", "brain-function-")
 	if err != nil {
 		return execution.Result{}, err
 	}
-	defer os.RemoveAll(dir)
+	defer func() {
+		cleanupStarted := time.Now()
+		_ = os.RemoveAll(dir)
+		profile.FilesystemCleanupNanos = time.Since(cleanupStarted).Nanoseconds()
+	}()
 	dir, err = filepath.EvalSymlinks(dir)
 	if err != nil {
 		return execution.Result{}, err
@@ -83,22 +97,29 @@ func (r *UserFunctionRuntime) Run(ctx context.Context, req execution.Request, fi
 	if err != nil {
 		return execution.Result{}, err
 	}
+	profile.SandboxPreparationNanos = time.Since(prepareStarted).Nanoseconds()
+	startupStarted := time.Now()
 	if err := worker.StartContext(ctx); err != nil {
 		return execution.Result{}, err
 	}
+	profile.SandboxStartupNanos = time.Since(startupStarted).Nanoseconds()
 	defer func() {
+		stopStarted := time.Now()
 		_ = worker.Stop()
+		profile.SandboxStopNanos = time.Since(stopStarted).Nanoseconds()
 		if runErr == nil {
 			out.Usage = worker.ProcessUsage()
 		}
 	}()
 	invocation := plugin.WorkerRequest{Protocol: 1, ProjectID: req.ProjectID, Project: &plugin.ProjectSnapshot{ID: req.ProjectID, Active: true}, PluginID: "functions", Version: manifest.Version, Operation: operation, Payload: req.Input, HostContext: &plugin.InvocationContext{InvocationID: req.ID, ProjectVerified: true, Auth: plugin.InvocationAuth{Actor: actor, Caller: actor, Permissions: []plugin.InvocationPermission{{Capability: operation, Operation: operation, Resource: req.Auth.Resource}}}}}
 	var result plugin.WorkerResponse
+	invokeStarted := time.Now()
 	if operation == "functions.invoke" {
 		result = worker.HandleContextWithHostCalls(ctx, invocation, execution.CallHost)
 	} else {
 		result = worker.HandleContext(ctx, invocation)
 	}
+	profile.SandboxInvocationNanos = time.Since(invokeStarted).Nanoseconds()
 	if err := ctx.Err(); err != nil {
 		return execution.Result{}, err
 	}
