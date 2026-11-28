@@ -66,11 +66,16 @@ func formatNeuronMetrics(snapshot cortex.Snapshot) string {
 	sample(name, "{outcome=\"lost\"}", snapshot.Executions.Lost)
 	for _, field := range []struct {
 		name, help string
-		value func(cortex.NeuronSnapshot) int
+		value      func(cortex.NeuronSnapshot) int
 	}{
 		{"neuron_slots", "Advertised execution slots.", func(n cortex.NeuronSnapshot) int { return n.Slots }},
 		{"neuron_running", "Occupied execution slots.", func(n cortex.NeuronSnapshot) int { return n.Running }},
-		{"neuron_available_slots", "Available non-draining slots.", func(n cortex.NeuronSnapshot) int { if n.Draining { return 0 }; return max(0, n.Slots-n.Running) }},
+		{"neuron_available_slots", "Available non-draining slots.", func(n cortex.NeuronSnapshot) int {
+			if n.Draining {
+				return 0
+			}
+			return max(0, n.Slots-n.Running)
+		}},
 	} {
 		name := metric(field.name, "gauge", field.help)
 		for _, n := range snapshot.Neurons {
@@ -81,7 +86,7 @@ func formatNeuronMetrics(snapshot cortex.Snapshot) string {
 	report := snapshot.PerformanceReport()
 	for _, field := range []struct {
 		name, help string
-		value func(cortex.NeuronPerformance) (any, bool)
+		value      func(cortex.NeuronPerformance) (any, bool)
 	}{
 		{"neuron_recent_completed", "Completed assignments in retained recent history.", func(p cortex.NeuronPerformance) (any, bool) { return p.Completed, true }},
 		{"neuron_recent_cpu_samples", "Executions reporting positive CPU time in retained history.", func(p cortex.NeuronPerformance) (any, bool) { return p.CPUSamples, true }},
@@ -103,7 +108,10 @@ func formatNeuronMetrics(snapshot cortex.Snapshot) string {
 	}
 	name = metric("neuron_recent_outcomes", "gauge", "Terminal outcomes by Neuron in retained history.")
 	for _, p := range report {
-		for _, pair := range []struct{ outcome string; count int }{{"succeeded", p.Succeeded}, {"failed", p.Failed}, {"cancelled", p.Cancelled}, {"lost", p.Lost}} {
+		for _, pair := range []struct {
+			outcome string
+			count   int
+		}{{"succeeded", p.Succeeded}, {"failed", p.Failed}, {"cancelled", p.Cancelled}, {"lost", p.Lost}} {
 			sample(name, strings.TrimSuffix(label(p.ID), "}") + ",outcome=\"" + pair.outcome + "\"}", pair.count)
 		}
 	}
