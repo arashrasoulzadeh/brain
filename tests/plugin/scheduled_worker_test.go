@@ -165,7 +165,7 @@ func TestScheduledManifestRejectsDependencySourceAndUndeclaredMetadata(t *testin
 		SourceFiles: []string{"index.ts"}, Capabilities: []string{"read"},
 		Routes:               []plugin.Route{{Operation: "read", Function: "read", Capability: "read"}},
 		OptionalDependencies: []string{"other@1.0.0"}, PluginImports: []string{"other@1.0.0"},
-		Imports:              []string{"../sdk-typescript/src/index.js"},
+		Imports: []string{"../sdk-typescript/src/index.js"},
 	}
 	if err := plugin.ValidateScheduledManifest(manifest); err != nil {
 		t.Fatal(err)
