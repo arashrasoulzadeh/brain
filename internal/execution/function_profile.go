@@ -7,6 +7,8 @@ import "encoding/json"
 type FunctionProfile struct {
 	ArtifactValidationNanos int64 `json:"artifact_validation_ns"`
 	SandboxPreparationNanos int64 `json:"sandbox_preparation_ns"`
+	ProcessSpawnNanos int64 `json:"process_spawn_ns,omitempty"`
+	RuntimeReadinessNanos int64 `json:"runtime_readiness_ns,omitempty"`
 	SandboxStartupNanos int64 `json:"sandbox_startup_ns"`
 	SandboxInvocationNanos int64 `json:"sandbox_invocation_ns"`
 	SandboxStopNanos int64 `json:"sandbox_stop_ns"`
@@ -45,7 +47,7 @@ func ReadFunctionProfile(output json.RawMessage) (FunctionProfile, bool) {
 		return FunctionProfile{}, false
 	}
 	p := *envelope.Profile
-	for _, v := range []int64{p.ArtifactValidationNanos,p.SandboxPreparationNanos,p.SandboxStartupNanos,p.SandboxInvocationNanos,p.SandboxStopNanos,p.FilesystemCleanupNanos,p.ArtifactFetchNanos,p.BundleOpenNanos,p.NeuronDurationNanos} {
+	for _, v := range []int64{p.ArtifactValidationNanos,p.SandboxPreparationNanos,p.SandboxStartupNanos,p.ProcessSpawnNanos,p.RuntimeReadinessNanos,p.SandboxInvocationNanos,p.SandboxStopNanos,p.FilesystemCleanupNanos,p.ArtifactFetchNanos,p.BundleOpenNanos,p.NeuronDurationNanos} {
 		if v < 0 || v > 60_000_000_000 {
 			return FunctionProfile{}, false
 		}
