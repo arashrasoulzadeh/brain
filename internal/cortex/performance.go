@@ -1,20 +1,18 @@
 package cortex
 
-import (
-	"slices"
-)
+import "slices"
 
 // NeuronPerformance describes the bounded cluster-wide recent execution window,
 // not lifetime counters or live process utilization. Zero resource measurements
 // are unreported; sample counts distinguish missing measurements from zeroes.
 type NeuronPerformance struct {
-	ID string
-	Completed, Succeeded, Failed, Cancelled, Lost int
+	ID                                                         string
+	Completed, Succeeded, Failed, Cancelled, Lost               int
 	AverageWaitMillis, AverageDurationMillis, P95DurationMillis float64
-	CPUSamples, MemorySamples int
-	TotalCPUSeconds, AverageCPUSeconds float64
-	AveragePeakMemoryBytes float64
-	MaxPeakMemoryBytes int64
+	CPUSamples, MemorySamples                                   int
+	TotalCPUSeconds, AverageCPUSeconds                          float64
+	AveragePeakMemoryBytes                                      float64
+	MaxPeakMemoryBytes                                          int64
 }
 
 // PerformanceReport includes connected identities and identities represented in
@@ -23,7 +21,7 @@ func (s Snapshot) PerformanceReport() []NeuronPerformance {
 	type accumulator struct {
 		NeuronPerformance
 		wait, duration, memory float64
-		durations []int64
+		durations              []int64
 	}
 	byID := make(map[string]*accumulator)
 	get := func(id string) *accumulator {
