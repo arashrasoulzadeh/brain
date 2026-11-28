@@ -103,6 +103,7 @@ func (r *UserFunctionRuntime) Run(ctx context.Context, req execution.Request, fi
 		return execution.Result{}, err
 	}
 	profile.SandboxStartupNanos = time.Since(startupStarted).Nanoseconds()
+	profile.ProcessSpawnNanos, profile.RuntimeReadinessNanos = worker.StartupTiming()
 	defer func() {
 		stopStarted := time.Now()
 		_ = worker.Stop()
