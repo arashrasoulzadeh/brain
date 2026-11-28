@@ -127,7 +127,7 @@ func ValidateManifestContract(manifest Manifest) error {
 		if manifest.Declarative && route.Helper != "sdk.response" && route.Helper != "sdk.pipeline" && route.Helper != "host.model" && route.Helper != "host.call" {
 			return ErrInvalidManifest
 		}
-		if strings.HasPrefix(route.Operation, observationPrefix) || route.Operation == "" || route.Function == "" || route.Capability == "" || seenRoutes[route.Operation] || !declaredCapabilities[route.Capability] || (route.Helper != "" && route.Helper != "sdk.dispatch" && route.Helper != "sdk.request" && route.Helper != "sdk.response" && route.Helper != "sdk.context" && route.Helper != "sdk.pipeline" && route.Helper != "host.model" && route.Helper != "host.call" && route.Helper != "host.admin") {
+		if strings.HasPrefix(route.Operation, observationPrefix) || route.Operation == "" || route.Function == "" || route.Capability == "" || seenRoutes[route.Operation] || !declaredCapabilities[route.Capability] || route.ExecutionBoundary() == BoundaryInvalid {
 			return ErrInvalidManifest
 		}
 		if route.Helper == "host.admin" && manifest.ID != "dashboard" {

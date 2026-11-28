@@ -30,9 +30,10 @@ const (
 // ScheduledArtifact pins a trusted, manifest-selected plugin bundle. It is
 // shared across installations; the invocation's project remains mandatory.
 type ScheduledArtifact struct {
-	catalog *execution.Catalog
-	key     execution.ArtifactKey
-	runtime execution.Runtime
+	catalog    *execution.Catalog
+	key        execution.ArtifactKey
+	runtime    execution.Runtime
+	executable map[string]bool
 }
 
 // RegisterScheduledArtifact snapshots only declared source files and the
@@ -62,18 +63,25 @@ func RegisterScheduledArtifact(catalog *execution.Catalog, runtime execution.Run
 	if err != nil {
 		return nil, err
 	}
+	// Keep the full immutable catalog entrypoint list for existing durable
+	// pins. A separate manifest-derived allowlist gates executable dispatch.
 	entrypoints := make([]string, 0, len(manifest.Routes)+len(manifest.Observers))
+	executable := make(map[string]bool)
 	for _, route := range manifest.Routes {
 		entrypoints = append(entrypoints, route.Operation)
+		if route.ExecutionBoundary() == BoundaryNeuron {
+			executable[route.Operation] = true
+		}
 	}
 	for _, observer := range manifest.Observers {
 		entrypoints = append(entrypoints, observer.operation())
+		executable[observer.operation()] = true
 	}
 	key := execution.ArtifactKey{ID: manifest.ID, Version: manifest.Version}
 	if err := catalog.Register(execution.Registration{Key: key, Runtime: runtime, Entrypoints: entrypoints, Bundle: bundle}); err != nil {
 		return nil, err
 	}
-	return &ScheduledArtifact{catalog: catalog, key: key, runtime: runtime}, nil
+	return &ScheduledArtifact{catalog: catalog, key: key, runtime: runtime, executable: executable}, nil
 }
 
 // ValidateScheduledManifest permits dependency metadata, not dependency source
@@ -193,6 +201,9 @@ func (w *ScheduledWorker) HandleExecution(request WorkerRequest) (WorkerResponse
 	if request.PluginID != w.artifact.key.ID || request.Version != w.artifact.key.Version || request.Project == nil || request.HostContext == nil {
 		return WorkerResponse{}, ErrInvalidWorkerRequest
 	}
+	if !w.artifact.executable[request.Operation] {
+		return WorkerResponse{}, ErrInvalidWorkerRequest
+	}
 	artifact, runtime, err := w.artifact.catalog.Resolve(w.artifact.key, request.Operation)
 	if err != nil {
 		return WorkerResponse{}, ErrInvalidWorkerRequest
@@ -266,7 +277,7 @@ func DecodeScheduledRequest(assigned execution.Request, manifest Manifest) (Work
 	}
 	operation := assigned.Artifact.Entrypoint
 	capability := ""
-	if route, ok := manifest.Route(operation); ok && route.Helper != "host.admin" && route.Helper != "host.model" && route.Helper != "host.call" {
+	if route, ok := manifest.Route(operation); ok && route.ExecutionBoundary() == BoundaryNeuron {
 		capability = route.Capability
 	}
 	for _, observer := range manifest.Observers {
