@@ -1,6 +1,7 @@
 package plugin
 
 import (
+	"context"
 	"encoding/json"
 	"strings"
 )
@@ -66,6 +67,13 @@ func (r *Registry) AuthorizeFunctionBridgeSource(projectID, principal, name stri
 // project, worker, grant and resource checks, and admits no storage writes.
 // principal and allow are supplied by the trusted function host, not the VM.
 func (r *Registry) InvokeFunctionRead(projectID, principal, operation string, payload json.RawMessage, allow func(string) error) (WorkerResponse, error) {
+	return r.InvokeFunctionReadContext(context.Background(), projectID, principal, operation, payload, allow)
+}
+
+func (r *Registry) InvokeFunctionReadContext(ctx context.Context, projectID, principal, operation string, payload json.RawMessage, allow func(string) error) (WorkerResponse, error) {
+	if err := ctx.Err(); err != nil {
+		return WorkerResponse{}, err
+	}
 	if allow == nil || !strings.HasPrefix(principal, "operator:") || !validAccessPrincipal(principal) {
 		return WorkerResponse{}, ErrActorDenied
 	}
@@ -92,7 +100,7 @@ func (r *Registry) InvokeFunctionRead(projectID, principal, operation string, pa
 	if !valid {
 		return WorkerResponse{}, ErrInvalidWorkerRequest
 	}
-	request := WorkerRequest{Protocol: r.HostAPI, ProjectID: projectID, PluginID: match.PluginID, Version: match.Version, Operation: operation, Payload: payload, accessPrincipal: principal, httpRoute: &match, functionRead: true}
+	request := WorkerRequest{Protocol: r.HostAPI, ProjectID: projectID, PluginID: match.PluginID, Version: match.Version, Operation: operation, Payload: payload, accessPrincipal: principal, httpRoute: &match, functionRead: true}.WithContext(ctx)
 	if _, err := invocationResource(request, route); err != nil {
 		return WorkerResponse{}, err
 	}

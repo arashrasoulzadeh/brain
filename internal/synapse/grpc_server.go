@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"crypto/tls"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"io"
 	"sync"
@@ -244,8 +245,39 @@ func (h *grpcHost) receive(ctx context.Context, session *Session, worker *cortex
 		})
 	case *pb.NeuronMessage_Drained:
 		return worker.Drain()
+	case *pb.NeuronMessage_HostRequest:
+		request := body.HostRequest
+		if request == nil || request.GetExecute() == nil {
+			return ErrProtocol
+		}
+		lease, err := readLease(request.Parent)
+		if err != nil {
+			return err
+		}
+		callID := request.CallId
+		operation := request.GetExecute().Operation
+		input := json.RawMessage(request.GetExecute().InputJson)
+		callCtx, handler, err := session.BeginHostCall(lease, callID, operation, input)
+		if err != nil {
+			return err
+		}
+		go func() {
+			output, err := handler(callCtx, operation, input)
+			if !session.FinishHostCall(lease, callID) {
+				return
+			}
+			response := &pb.HostResponse{Parent: leaseWire(lease), CallId: callID}
+			if err != nil || len(output) > execution.MaxHostCallBytes || !json.Valid(output) {
+				response.Outcome = &pb.HostResponse_Error{Error: &pb.Failure{Code: "host_call_denied"}}
+			} else {
+				response.Outcome = &pb.HostResponse_OutputJson{OutputJson: output}
+			}
+			if send(&pb.BrainMessage{Body: &pb.BrainMessage_HostResponse{HostResponse: response}}) != nil {
+				session.Close()
+			}
+		}()
+		return nil
 	default:
-		// Nested calls and host service requests are not enabled in this increment.
 		return ErrProtocol
 	}
 }

@@ -2,12 +2,12 @@
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { adminHeaders, readAdminSession, preferredAdminProject, projectAdminURL, systemAdminURL, systemUIURL, adminUIContext, notifyPluginCatalogChanged } from "../lib/admin-api";
-import { availableSlots, filterNeurons, legacyWorkerState, summarizeCluster, type ClusterStatus, type Installation, type Neuron } from "../lib/neuron-dashboard";
+import { availableSlots, filterNeurons, legacyWorkerState, summarizeCluster, type ClusterStatus, type Installation, type Neuron, type NeuronAction } from "../lib/neuron-dashboard";
 import { AdminDialog, AdminProgress } from "../components/admin-dialog";
 import { PluginManageLink } from "../components/plugin-manage-link";
 import { AdminPageFrame } from "../components/admin-chrome";
 
-function NeuronRow({ neuron }: { neuron: Neuron }) {
+function NeuronRow({ neuron, busy, onAction }: { neuron: Neuron; busy: boolean; onAction: (id: string, action: NeuronAction) => void }) {
   const free = availableSlots(neuron);
   const status = neuron.Draining ? "Draining" : free > 0 ? "Available" : "At capacity";
   const runtime = neuron.Runtimes ?? [];
@@ -17,6 +17,7 @@ function NeuronRow({ neuron }: { neuron: Neuron }) {
     <td><div className="neuron-runtime-list">{runtime.map(item => <span key={item.Kind + ":" + item.Profile}>{item.Kind}<small>{item.Profile}</small></span>)}{!runtime.length && "—"}</div></td>
     <td><div className="neuron-capacity"><progress aria-label={neuron.ID + " occupied slots"} value={Math.min(neuron.Running, neuron.Slots)} max={Math.max(neuron.Slots, 1)} /><span>{neuron.Running} occupied / {neuron.Slots} total · {free} free</span></div></td>
     <td><time dateTime={neuron.LastPulse}>{new Date(neuron.LastPulse).toLocaleString()}</time></td>
+    <td>{neuron.OperatorDraining ? <button type="button" className="secondary" disabled={busy} onClick={() => onAction(neuron.ID, "resume")}>Resume {neuron.ID}</button> : <button type="button" className="secondary" disabled={busy || neuron.Draining} onClick={() => onAction(neuron.ID, "drain")}>Drain {neuron.ID}</button>}</td>
   </tr>;
 }
 
@@ -33,6 +34,7 @@ export default function WorkersPage() {
   const [search, setSearch] = useState("");
   const [state, setState] = useState("all");
   const [pending, setPending] = useState<Installation>();
+  const [neuronAction, setNeuronAction] = useState<{ id: string; action: NeuronAction; token: string }>();
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
@@ -96,6 +98,24 @@ export default function WorkersPage() {
     finally { setBusy(false); }
   }
 
+  function requestNeuronAction(id: string, action: NeuronAction) {
+    const token = readAdminSession();
+    if (!token) return;
+    setNeuronAction({ id, action, token }); setDone(false); setMessage("");
+  }
+
+  async function applyNeuronAction() {
+    const token = readAdminSession();
+    if (busy || done || !neuronAction || !token || token !== neuronAction.token) return;
+    setBusy(true); setMessage("");
+    try {
+      const response = await fetch(systemAdminURL("neurons"), { method: "POST", headers: adminHeaders(token, { "content-type": "application/json" }), body: JSON.stringify({ id: neuronAction.id, action: neuronAction.action, confirmed: true }) });
+      if (!response.ok) throw new Error("Neuron action failed: " + response.status);
+      if (readAdminSession() === token) { setDone(true); setRefresh(value => value + 1); }
+    } catch (reason) { if (readAdminSession() === token) { setMessage(String(reason)); setRefresh(value => value + 1); } }
+    finally { setBusy(false); }
+  }
+
   const summary = summarizeCluster(cluster);
   const neurons = cluster?.configured ? cluster.snapshot.Neurons ?? [] : [];
   const visible = filterNeurons(neurons, search, state);
@@ -115,9 +135,15 @@ export default function WorkersPage() {
       <section className="section" aria-labelledby="neuron-list-title">
         <div className="section-heading"><div><p className="eyebrow">CLUSTER INVENTORY</p><h2 id="neuron-list-title">Connected Neurons</h2></div><span className="count">{summary?.connected ?? "—"}</span></div>
         <div className="neuron-filters"><label>Search<input value={search} onChange={event => setSearch(event.target.value)} placeholder="Identity or runtime" /></label><label>Capacity<select value={state} onChange={event => setState(event.target.value)}><option value="all">All statuses</option><option value="available">Available</option><option value="busy">At capacity</option><option value="draining">Draining</option></select></label></div>
-        <div className="table-wrap neuron-table"><table><thead><tr><th>Neuron</th><th>Status</th><th>Runtimes</th><th>Execution slots</th><th>Last heartbeat</th></tr></thead><tbody>{visible.map(neuron => <NeuronRow key={neuron.ID} neuron={neuron} />)}{!visible.length && <tr><td colSpan={5} className="neuron-empty">{!cluster?.configured ? "Neuron inventory unavailable." : neurons.length ? "No Neurons match the filters." : "No Neurons connected."}</td></tr>}</tbody></table></div>
-        <p className="muted neuron-note">Runtime usage is launcher process accounting, not an isolation guarantee. Managed-process controls are not yet exposed.</p>
+        <div className="table-wrap neuron-table"><table><thead><tr><th>Neuron</th><th>Status</th><th>Runtimes</th><th>Execution slots</th><th>Last heartbeat</th><th>Placement</th></tr></thead><tbody>{visible.map(neuron => <NeuronRow key={neuron.ID} neuron={neuron} busy={busy} onAction={requestNeuronAction} />)}{!visible.length && <tr><td colSpan={6} className="neuron-empty">{!cluster?.configured ? "Neuron inventory unavailable." : neurons.length ? "No Neurons match the filters." : "No Neurons connected."}</td></tr>}</tbody></table></div>
+        <p className="muted neuron-note">Runtime usage is launcher process accounting, not an isolation guarantee. Drain stops new assignments; active executions continue. Resume removes the operator pause, not a runtime-initiated drain.</p>
       </section>
+      {cluster?.configured && Boolean(cluster.managed?.length) && <section className="section" aria-labelledby="managed-neurons-title">
+        <div className="section-heading"><div><p className="eyebrow">LOCAL DEVELOPMENT</p><h2 id="managed-neurons-title">Managed Neuron processes</h2><p className="muted">Stop or restart drains current work before replacing the process. Remote processes are controlled by their own supervisor.</p></div></div>
+        <div className="table-wrap neuron-table"><table><thead><tr><th>Identity</th><th>Process</th><th>Connection</th><th>Actions</th></tr></thead><tbody>
+          {cluster.managed?.map(process => <tr key={process.ID}><th scope="row">{process.ID}</th><td>{process.Running ? "Running" : "Stopped"}</td><td>{neurons.some(neuron => neuron.ID === process.ID) ? "Connected" : "Disconnected"}</td><td><div className="table-actions">{process.Running ? <><button type="button" className="secondary" disabled={busy} onClick={() => requestNeuronAction(process.ID, "stop")}>Stop {process.ID}</button><button type="button" className="secondary" disabled={busy} onClick={() => requestNeuronAction(process.ID, "restart")}>Restart {process.ID}</button></> : <button type="button" className="secondary" disabled={busy} onClick={() => requestNeuronAction(process.ID, "start")}>Start {process.ID}</button>}</div></td></tr>)}
+        </tbody></table></div>
+      </section>}
       <section className="section" aria-labelledby="execution-history-title">
         <div className="section-heading"><div><p className="eyebrow">EXECUTION TELEMETRY</p><h2 id="execution-history-title">Recent executions</h2><p className="muted">{cluster?.snapshot.HistoryPersistent ? "Last 128 assigned outcomes, retained across Brain restarts." : "Last 128 assigned outcomes, in memory since Brain startup."} Counters cover this Brain process only. Runtime success is not a durable commit.</p></div></div>
         {cluster?.snapshot.HistoryDegraded && <p role="alert">Execution history storage failed; some completed outcomes may be missing after restart.</p>}
@@ -135,6 +161,11 @@ export default function WorkersPage() {
         {!legacy && !loading && !legacyError && <p>Select an active project to inspect dedicated plugin workers. <a href={systemUIURL("projects")}>Choose project</a></p>}
         {legacy && <div className="table-wrap neuron-table"><table><thead><tr><th>Plugin</th><th>Version</th><th>Lifecycle</th><th>Recovery</th></tr></thead><tbody>{legacy.workers.map(worker => <tr key={worker.PluginID + "@" + worker.Version}><th scope="row">{worker.PluginID}</th><td>{worker.Version}</td><td><span className={"status-pill " + (legacyWorkerState(worker) === "Worker ready" ? "is-success" : "is-inactive")}>{legacyWorkerState(worker)}</span></td><td><div className="table-actions"><PluginManageLink projectID={legacy.project} pluginID={worker.PluginID} version={worker.Version} />{worker.Enabled && worker.Ready && !worker.Draining && !worker.WorkerReady && <button type="button" className="secondary" disabled={busy} onClick={() => { setPending(worker); setDone(false); setMessage(""); }}>Start worker</button>}</div></td></tr>)}{!legacy.workers.length && <tr><td colSpan={4} className="neuron-empty">No installed plugin workers.</td></tr>}</tbody></table></div>}
       </section>
+      {neuronAction && <AdminDialog title={neuronAction.action + " Neuron"} scope={neuronAction.id} busy={busy} onClose={() => setNeuronAction(undefined)}>
+        <p>Apply this cluster-wide action to {neuronAction.id}? Stop and restart wait for active assignments before replacing a process.</p>
+        {!done && <button type="button" disabled={busy} onClick={() => void applyNeuronAction()}>Confirm {neuronAction.action}</button>}
+        {busy && <AdminProgress label="Applying Neuron action…" />}{done && <p role="status">Neuron action completed</p>}{message && <p role="alert">{message}</p>}
+      </AdminDialog>}
       {pending && <AdminDialog title="Start legacy worker" scope={pending.ProjectID + " · " + pending.PluginID + "@" + pending.Version} busy={busy} onClose={() => setPending(undefined)}>{!done && <button type="button" disabled={busy || pending.ProjectID !== legacy?.project} onClick={() => void spinUp()}>Confirm start</button>}{busy && <AdminProgress label="Starting worker…" />}{done && <p role="status">Worker started</p>}{message && <p role="alert">{message}</p>}</AdminDialog>}
     </div>
   </AdminPageFrame>;

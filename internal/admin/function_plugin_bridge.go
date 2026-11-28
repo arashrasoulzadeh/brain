@@ -71,7 +71,7 @@ func (s *LifecycleService) functionPluginRead(ctx context.Context, projectID, na
 	allow := func(capability string) error {
 		return s.authorizeFunctionPluginRead(ctx, projectID, name, principal, operation, capability)
 	}
-	result, err := s.registry.InvokeFunctionRead(projectID, principal, call.Operation, call.Payload, allow)
+	result, err := s.registry.InvokeFunctionReadContext(ctx, projectID, principal, call.Operation, call.Payload, allow)
 	if err != nil {
 		if errors.Is(err, plugin.ErrStoredResourceMissing) {
 			return functionPluginResponse{Error: "Plugin resource not found"}

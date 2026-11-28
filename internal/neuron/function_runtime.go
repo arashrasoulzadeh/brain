@@ -30,11 +30,16 @@ func (r *UserFunctionRuntime) Run(ctx context.Context, req execution.Request, fi
 	if err := req.Validate(time.Now()); err != nil {
 		return execution.Result{}, err
 	}
-	if req.Runtime != r.capability || req.Artifact.ProjectID != req.ProjectID || req.Artifact.Entrypoint != "functions.call" || req.Auth.Capability != "functions.call" || req.Auth.Resource == "" || req.Auth.Caller != req.Auth.OriginalCaller || req.ParentID != "" || req.Limits.CPUTime != TypeScriptCPU || req.Limits.MemoryBytes != TypeScriptMemory || req.Limits.InputBytes > 1<<20 || req.Limits.OutputBytes > 1<<20 || len(files) != 1 || files[0].Path != "source.mjs" || len(files[0].Data) > 256*1024 {
+	operation := req.Artifact.Entrypoint
+	if req.Runtime != r.capability || req.Artifact.ProjectID != req.ProjectID || (operation != "functions.call" && operation != "functions.invoke") || req.Auth.Capability != operation || req.Auth.Resource == "" || req.Auth.Caller != req.Auth.OriginalCaller || req.ParentID != "" || req.Limits.CPUTime != TypeScriptCPU || req.Limits.MemoryBytes != TypeScriptMemory || req.Limits.InputBytes > 1<<20 || req.Limits.OutputBytes > 1<<20 || len(files) != 1 || files[0].Path != "source.mjs" || len(files[0].Data) > 256*1024 {
 		return execution.Result{}, ErrRuntimeArtifact
 	}
 	actor := safeActor(req.Auth.Caller)
-	if req.Auth.Caller != "public" && (actor.Kind != "user" || !strings.HasPrefix(req.Auth.Caller, "user:")) {
+	if operation == "functions.invoke" {
+		if actor.Kind != "operator" || !strings.HasPrefix(req.Auth.Caller, "operator:") {
+			return execution.Result{}, ErrRuntimeArtifact
+		}
+	} else if req.Auth.Caller != "public" && (actor.Kind != "user" || !strings.HasPrefix(req.Auth.Caller, "user:")) {
 		return execution.Result{}, ErrRuntimeArtifact
 	}
 	bundle, err := execution.BuildBundle(files, execution.MaxBundleBytes)
@@ -62,8 +67,11 @@ func (r *UserFunctionRuntime) Run(ctx context.Context, req execution.Request, fi
 	if err = os.WriteFile(filepath.Join(root, "source.mjs"), files[0].Data, 0o600); err != nil {
 		return execution.Result{}, err
 	}
-	manifest := plugin.Manifest{ID: "functions", Version: req.Artifact.Version, HostAPI: 1, Entry: "source.mjs", SourceFiles: []string{"source.mjs"}, Capabilities: []string{"functions.call"}, Routes: []plugin.Route{{Operation: "functions.call", Function: "handler", Capability: "functions.call"}}}
+	manifest := plugin.Manifest{ID: "functions", Version: req.Artifact.Version, HostAPI: 1, Entry: "source.mjs", SourceFiles: []string{"source.mjs"}, Capabilities: []string{operation}, Routes: []plugin.Route{{Operation: operation, Function: "handler", Capability: operation}}}
 	policy := plugin.IsolationPolicy{FilesystemReadOnly: true, CPUMillis: int(TypeScriptCPU.Milliseconds()), MemoryBytes: TypeScriptMemory, ProcessLimit: 512, WallTime: 2 * time.Second}
+	if operation == "functions.invoke" {
+		policy.WallTime = 12 * time.Second
+	}
 	script := filepath.Join(r.root, "scripts", "function-worker.mjs")
 	descriptor := filepath.Join(dir, "execution.json")
 	var worker *plugin.TypeScriptWorker
@@ -84,8 +92,13 @@ func (r *UserFunctionRuntime) Run(ctx context.Context, req execution.Request, fi
 			out.Usage = worker.ProcessUsage()
 		}
 	}()
-	invocation := plugin.WorkerRequest{Protocol: 1, ProjectID: req.ProjectID, Project: &plugin.ProjectSnapshot{ID: req.ProjectID, Active: true}, PluginID: "functions", Version: manifest.Version, Operation: "functions.call", Payload: req.Input, HostContext: &plugin.InvocationContext{InvocationID: req.ID, ProjectVerified: true, Auth: plugin.InvocationAuth{Actor: actor, Caller: actor, Permissions: []plugin.InvocationPermission{{Capability: "functions.call", Operation: "functions.call", Resource: req.Auth.Resource}}}}}
-	result := worker.HandleContext(ctx, invocation)
+	invocation := plugin.WorkerRequest{Protocol: 1, ProjectID: req.ProjectID, Project: &plugin.ProjectSnapshot{ID: req.ProjectID, Active: true}, PluginID: "functions", Version: manifest.Version, Operation: operation, Payload: req.Input, HostContext: &plugin.InvocationContext{InvocationID: req.ID, ProjectVerified: true, Auth: plugin.InvocationAuth{Actor: actor, Caller: actor, Permissions: []plugin.InvocationPermission{{Capability: operation, Operation: operation, Resource: req.Auth.Resource}}}}}
+	var result plugin.WorkerResponse
+	if operation == "functions.invoke" {
+		result = worker.HandleContextWithHostCalls(ctx, invocation, execution.CallHost)
+	} else {
+		result = worker.HandleContext(ctx, invocation)
+	}
 	if err := ctx.Err(); err != nil {
 		return execution.Result{}, err
 	}

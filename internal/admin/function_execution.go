@@ -53,18 +53,21 @@ func (s *LifecycleService) BindFunctionExecution(catalog *execution.Catalog, exe
 	return nil
 }
 
-func (f *functionExecution) run(ctx context.Context, project, name, source, id, principal string, input json.RawMessage) ([]byte, error) {
+func (f *functionExecution) run(ctx context.Context, project, name, source, id, principal, operation string, input json.RawMessage) ([]byte, error) {
+	if operation != "functions.call" && operation != "functions.invoke" {
+		return nil, execution.ErrInvalidRequest
+	}
 	bundle, err := execution.BuildBundle([]execution.BundleFile{{Path: "source.mjs", Data: []byte(source)}}, execution.MaxBundleBytes)
 	if err != nil {
 		return nil, err
 	}
 	key := execution.ArtifactKey{ProjectID: project, ID: id, Version: "1"}
-	release, err := f.catalog.RegisterTransient(execution.Registration{Key: key, Runtime: f.runtime, Entrypoints: []string{"functions.call"}, Bundle: bundle})
+	release, err := f.catalog.RegisterTransient(execution.Registration{Key: key, Runtime: f.runtime, Entrypoints: []string{operation}, Bundle: bundle})
 	if err != nil {
 		return nil, err
 	}
 	defer release()
-	artifact, runtime, err := f.catalog.Resolve(key, "functions.call")
+	artifact, runtime, err := f.catalog.Resolve(key, operation)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +75,7 @@ func (f *functionExecution) run(ctx context.Context, project, name, source, id, 
 	if !ok {
 		deadline = time.Now().Add(15 * time.Second)
 	}
-	req := execution.Request{ID: id, TraceID: id, ProjectID: project, Artifact: artifact, Runtime: runtime, Input: input, Deadline: deadline, Limits: execution.Limits{CPUTime: 30 * time.Second, MemoryBytes: 2 << 30, InputBytes: 1 << 20, OutputBytes: 1 << 20}, Auth: execution.Authorization{ProjectID: project, OriginalCaller: principal, Caller: principal, Capability: "functions.call", Resource: name}}
+	req := execution.Request{ID: id, TraceID: id, ProjectID: project, Artifact: artifact, Runtime: runtime, Input: input, Deadline: deadline, Limits: execution.Limits{CPUTime: 30 * time.Second, MemoryBytes: 2 << 30, InputBytes: 1 << 20, OutputBytes: 1 << 20}, Auth: execution.Authorization{ProjectID: project, OriginalCaller: principal, Caller: principal, Capability: operation, Resource: name}}
 	result, err := f.executor.Execute(ctx, req)
 	if err != nil {
 		return nil, err

@@ -45,11 +45,11 @@ type Registration struct {
 
 // Snapshot contains only operational metadata, never input, caller or output.
 type NeuronSnapshot struct {
-	ID             string
-	Slots, Running int
-	Draining       bool
-	LastPulse      time.Time
-	Runtimes       []execution.Runtime
+	ID                         string
+	Slots, Running             int
+	Draining, OperatorDraining bool
+	LastPulse                  time.Time
+	Runtimes                   []execution.Runtime
 }
 
 type Snapshot struct {
@@ -71,6 +71,7 @@ type Scheduler struct {
 	projectRunning, projectQueued map[string]int
 	changed                       chan struct{}
 	telemetry                     executionTelemetry
+	operatorDrains                map[string]bool
 }
 
 // Session is an opaque connection capability. Only the authenticated transport
@@ -86,11 +87,16 @@ type Session struct {
 }
 
 type assignment struct {
-	session *Session
-	project string
-	cancel  context.CancelCauseFunc
-	started time.Time
-	wait    time.Duration
+	session    *Session
+	project    string
+	cancel     context.CancelCauseFunc
+	started    time.Time
+	wait       time.Duration
+	scope      execution.ParentScope
+	parent     string
+	deadline   time.Time
+	ctx        context.Context
+	parentStop func() bool
 }
 
 type waiter struct {
@@ -104,7 +110,7 @@ func New(catalog *execution.Catalog, cfg Config) (*Scheduler, error) {
 	if cfg.Clock == nil {
 		cfg.Clock = time.Now
 	}
-	return &Scheduler{catalog: catalog, config: cfg, neurons: make(map[string]*Session), active: make(map[string]*assignment), pending: make(map[string]*waiter), projectRunning: make(map[string]int), projectQueued: make(map[string]int), changed: make(chan struct{})}, nil
+	return &Scheduler{catalog: catalog, config: cfg, neurons: make(map[string]*Session), active: make(map[string]*assignment), pending: make(map[string]*waiter), projectRunning: make(map[string]int), projectQueued: make(map[string]int), changed: make(chan struct{}), operatorDrains: make(map[string]bool)}, nil
 }
 
 func validID(s string) bool { return strings.TrimSpace(s) != "" && len(s) <= 1024 }
@@ -212,7 +218,7 @@ func (s *Scheduler) selectLocked(req execution.Request) *Session {
 	}
 	var best *Session
 	for _, w := range s.neurons {
-		if w.draining || w.running >= w.slots || !w.runtimes[req.Runtime] {
+		if w.draining || s.operatorDrains[w.id] || w.running >= w.slots || !w.runtimes[req.Runtime] {
 			continue
 		}
 		// Least occupied fraction, deterministic tie break.
@@ -266,6 +272,21 @@ func (s *Scheduler) Execute(ctx context.Context, req execution.Request) (executi
 	s.mu.Lock()
 	for {
 		s.expireLocked()
+		scope, hasParent := execution.ParentFromContext(ctx)
+		if hasParent && scope.ID != req.ParentID {
+			s.mu.Unlock()
+			return execution.Result{}, execution.ErrInvalidRequest
+		}
+		if req.ParentID != "" {
+			parent := s.active[req.ParentID]
+			if parent == nil || !hasParent || parent.scope != scope || parent.parent != "" || parent.ctx.Err() != nil ||
+				scope.TraceID != req.TraceID || scope.ProjectID != req.ProjectID ||
+				scope.OriginalCaller != req.Auth.OriginalCaller || scope.Caller != req.Auth.Caller ||
+				req.Deadline.After(parent.deadline) {
+				s.mu.Unlock()
+				return execution.Result{}, execution.ErrInvalidRequest
+			}
+		}
 		if err := ctx.Err(); err != nil {
 			if queued != nil {
 				s.removeWaiterLocked(queued)
@@ -284,7 +305,10 @@ func (s *Scheduler) Execute(ctx context.Context, req execution.Request) (executi
 			}
 			runCtx, stop := context.WithCancelCause(ctx)
 			started := time.Now()
-			a := &assignment{session: w, project: req.ProjectID, cancel: stop, started: started, wait: started.Sub(arrived)}
+			a := &assignment{session: w, project: req.ProjectID, cancel: stop, started: started, wait: started.Sub(arrived), scope: execution.ScopeOf(req), parent: req.ParentID, deadline: req.Deadline, ctx: runCtx}
+			if parent := s.active[req.ParentID]; parent != nil {
+				a.parentStop = context.AfterFunc(parent.ctx, func() { stop(context.Cause(parent.ctx)) })
+			}
 			s.telemetry.totals.Assigned++
 			s.active[req.ID] = a
 			w.running++
@@ -293,7 +317,7 @@ func (s *Scheduler) Execute(ctx context.Context, req execution.Request) (executi
 			return s.run(runCtx, req, a)
 		}
 		if queued == nil {
-			if s.config.MaxQueued == 0 {
+			if s.config.MaxQueued == 0 || req.ParentID != "" {
 				quota := s.projectRunning[req.ProjectID] >= s.config.MaxProjectRunning
 				s.mu.Unlock()
 				if quota {
@@ -326,6 +350,9 @@ func (s *Scheduler) Execute(ctx context.Context, req execution.Request) (executi
 
 func (s *Scheduler) run(ctx context.Context, req execution.Request, a *assignment) (execution.Result, error) {
 	defer a.cancel(nil)
+	if a.parentStop != nil {
+		defer a.parentStop()
+	}
 	result, err := execution.ExecuteAssigned(ctx, s.catalog, a.session.id, a.session.executor, req)
 	s.mu.Lock()
 	s.expireLocked()
@@ -337,6 +364,9 @@ func (s *Scheduler) run(ctx context.Context, req execution.Request, a *assignmen
 	}
 	s.signalLocked()
 	cause := context.Cause(ctx)
+	if a.parent != "" && s.active[a.parent] == nil && cause == nil {
+		cause = context.Canceled
+	}
 	trace := s.telemetry.finish(req, a, result, err, cause)
 	store := s.telemetry.store
 	s.mu.Unlock()
@@ -354,7 +384,7 @@ func (s *Scheduler) HasRuntime(runtime execution.Runtime) bool {
 	defer s.mu.Unlock()
 	s.expireLocked()
 	for _, w := range s.neurons {
-		if !w.draining && w.slots > 0 && w.runtimes[runtime] {
+		if !w.draining && !s.operatorDrains[w.id] && w.slots > 0 && w.runtimes[runtime] {
 			return true
 		}
 	}
@@ -367,7 +397,7 @@ func (s *Scheduler) Snapshot() Snapshot {
 	s.expireLocked()
 	out := Snapshot{Running: len(s.active), Queued: len(s.queue), Executions: s.telemetry.totals, Recent: s.telemetry.recent(), HistoryPersistent: s.telemetry.store != nil, HistoryDegraded: s.telemetry.degraded}
 	for _, w := range s.neurons {
-		v := NeuronSnapshot{ID: w.id, Slots: w.slots, Running: w.running, Draining: w.draining, LastPulse: w.lastPulse}
+		v := NeuronSnapshot{ID: w.id, Slots: w.slots, Running: w.running, Draining: w.draining || s.operatorDrains[w.id], OperatorDraining: s.operatorDrains[w.id], LastPulse: w.lastPulse}
 		for rt := range w.runtimes {
 			v.Runtimes = append(v.Runtimes, rt)
 		}

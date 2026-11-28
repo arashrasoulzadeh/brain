@@ -61,6 +61,31 @@ class DevNeuronProcessesTest(unittest.TestCase):
                     # Reuse the same actual HTTP/storage/lifecycle suite as Linux.
                     subprocess.run(["node", str(ROOT / "scripts/test-runtime-api.mjs")], cwd=ROOT,
                                    env=dict(env, BRAIN_TEST_ORIGIN=origin), check=True, timeout=360)
+                    # Exercise the actual process supervisor, not a mock controller.
+                    def control(action):
+                        request = urllib.request.Request(origin + "/_system/admin/neurons",
+                            data=json.dumps({"id": "local-neuron-01", "action": action, "confirmed": True}).encode(),
+                            headers={"Authorization": "Bearer " + token, "Content-Type": "application/json"}, method="POST")
+                        with urllib.request.urlopen(request, timeout=65) as response:
+                            self.assertEqual(json.load(response)["status"], "success")
+
+                    def inspect():
+                        request = urllib.request.Request(origin + "/_system/admin/neurons",
+                            headers={"Authorization": "Bearer " + token})
+                        with urllib.request.urlopen(request, timeout=3) as response:
+                            return json.load(response)
+
+                    control("drain")
+                    self.assertTrue(next(n for n in inspect()["snapshot"]["Neurons"] if n["ID"] == "local-neuron-01")["OperatorDraining"])
+                    control("resume")
+                    control("stop")
+                    state = inspect()
+                    self.assertEqual(len(state["snapshot"]["Neurons"]), 3)
+                    self.assertFalse(next(n for n in state["managed"] if n["ID"] == "local-neuron-01")["Running"])
+                    control("start")
+                    self.assertEqual(len(inspect()["snapshot"]["Neurons"]), 4)
+                    control("restart")
+                    self.assertEqual(len(inspect()["snapshot"]["Neurons"]), 4)
                     process.send_signal(signal.SIGTERM)
                     self.assertEqual(process.wait(timeout=15), 0, log_path.read_text())
                 finally:

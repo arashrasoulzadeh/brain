@@ -108,6 +108,8 @@ type pending struct {
 	delivered, accepted, cancelling bool
 	ctx                             context.Context
 	result                          chan execution.Result
+	hostCalls                       uint64
+	hostBusy                        bool
 }
 
 func validID(s string) bool { return strings.TrimSpace(s) != "" && len(s) <= 1024 }
@@ -303,6 +305,9 @@ func (s *Session) Complete(lease Lease, result execution.Result) error {
 	defer s.mu.Unlock()
 	p := s.lookupLocked(lease)
 	if p == nil || (!p.accepted && !(p.cancelling && result.Status == execution.Cancelled)) {
+		return ErrProtocol
+	}
+	if p.hostBusy && result.Status == execution.Succeeded {
 		return ErrProtocol
 	}
 	if err := result.Validate(p.assignment.Request, s.cfg.WorkerID); err != nil {
