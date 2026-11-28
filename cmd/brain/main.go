@@ -159,6 +159,11 @@ func productionServerWithCluster(cluster *devCluster) (*app.Server, error) {
 		return nil, fmt.Errorf("plugin storage unavailable: %w", err)
 	}
 	if cluster != nil {
+		if err := storage.BindOperatorDrains(context.Background(), cluster.scheduler); err != nil {
+			_ = storage.Close()
+			_ = projects.Close()
+			return nil, fmt.Errorf("operator drain storage unavailable: %w", err)
+		}
 		if err := storage.BindExecutionHistory(context.Background(), cluster.scheduler); err != nil {
 			_ = storage.Close()
 			_ = projects.Close()

@@ -58,6 +58,7 @@ type Snapshot struct {
 	Executions                         ExecutionTotals
 	Recent                             []ExecutionTrace
 	HistoryPersistent, HistoryDegraded bool
+	OperatorPaused                     []string
 }
 
 type Scheduler struct {
@@ -72,6 +73,7 @@ type Scheduler struct {
 	changed                       chan struct{}
 	telemetry                     executionTelemetry
 	operatorDrains                map[string]bool
+	drainStore                    OperatorDrainStore
 }
 
 // Session is an opaque connection capability. Only the authenticated transport
@@ -396,6 +398,10 @@ func (s *Scheduler) Snapshot() Snapshot {
 	defer s.mu.Unlock()
 	s.expireLocked()
 	out := Snapshot{Running: len(s.active), Queued: len(s.queue), Executions: s.telemetry.totals, Recent: s.telemetry.recent(), HistoryPersistent: s.telemetry.store != nil, HistoryDegraded: s.telemetry.degraded}
+	for id := range s.operatorDrains {
+		out.OperatorPaused = append(out.OperatorPaused, id)
+	}
+	slices.Sort(out.OperatorPaused)
 	for _, w := range s.neurons {
 		v := NeuronSnapshot{ID: w.id, Slots: w.slots, Running: w.running, Draining: w.draining || s.operatorDrains[w.id], OperatorDraining: s.operatorDrains[w.id], LastPulse: w.lastPulse}
 		for rt := range w.runtimes {

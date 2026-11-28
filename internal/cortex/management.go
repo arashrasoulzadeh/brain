@@ -2,23 +2,41 @@ package cortex
 
 import (
 	"context"
+	"time"
 
 	"brain/internal/execution"
 )
 
 // SetOperatorDrain changes host-side placement, not the Neuron's autonomous
-// runtime drain. The bounded set survives reconnects for this Brain lifetime.
-// Only trusted operator/control-plane adapters may call this method.
+// runtime drain. When a store is bound, the pause is durable before placement
+// changes. Only trusted operator/control-plane adapters may call this method.
 func (s *Scheduler) SetOperatorDrain(id string, draining bool) error {
+	return s.SetOperatorDrainContext(context.Background(), id, draining)
+}
+
+func (s *Scheduler) SetOperatorDrainContext(ctx context.Context, id string, draining bool) error {
 	if !validID(id) {
 		return ErrInvalidNeuron
 	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if draining {
-		if !s.operatorDrains[id] && len(s.operatorDrains) >= s.config.MaxNeurons {
-			return execution.ErrUnavailable
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	if s.operatorDrains[id] == draining {
+		return nil
+	}
+	if draining && len(s.operatorDrains) >= s.config.MaxNeurons {
+		return execution.ErrUnavailable
+	}
+	if s.drainStore != nil {
+		saveCtx, cancel := context.WithTimeout(ctx, 2*time.Second)
+		defer cancel()
+		if err := s.drainStore.SaveOperatorDrain(saveCtx, id, draining); err != nil {
+			return err
 		}
+	}
+	if draining {
 		s.operatorDrains[id] = true
 	} else {
 		delete(s.operatorDrains, id)

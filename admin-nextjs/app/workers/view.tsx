@@ -119,6 +119,7 @@ export default function WorkersPage() {
   const summary = summarizeCluster(cluster);
   const neurons = cluster?.configured ? cluster.snapshot.Neurons ?? [] : [];
   const visible = filterNeurons(neurons, search, state);
+  const offlinePauses = (cluster?.snapshot.OperatorPaused ?? []).filter(id => !neurons.some(neuron => neuron.ID === id) && !cluster?.managed?.some(process => process.ID === id));
   return <AdminPageFrame activePage="workers" title="Neurons" eyebrow="EXECUTION INFRASTRUCTURE" projectID={legacy?.project}>
     <div className="neuron-console">
       <div className="neuron-toolbar"><div><p className="neuron-intro">Manage execution capacity across projects and inspect the Cortex scheduler.</p><p className="muted neuron-updated">{lastRefresh ? "Last updated " + lastRefresh.toLocaleTimeString() + " · Refreshes every 5 seconds" : "No current cluster snapshot"}</p></div><button type="button" className="secondary" disabled={loading || busy} onClick={() => setRefresh(value => value + 1)}>Refresh workers</button></div>
@@ -142,6 +143,12 @@ export default function WorkersPage() {
         <div className="section-heading"><div><p className="eyebrow">LOCAL DEVELOPMENT</p><h2 id="managed-neurons-title">Managed Neuron processes</h2><p className="muted">Stop or restart drains current work before replacing the process. Remote processes are controlled by their own supervisor.</p></div></div>
         <div className="table-wrap neuron-table"><table><thead><tr><th>Identity</th><th>Process</th><th>Connection</th><th>Actions</th></tr></thead><tbody>
           {cluster.managed?.map(process => <tr key={process.ID}><th scope="row">{process.ID}</th><td>{process.Running ? "Running" : "Stopped"}</td><td>{neurons.some(neuron => neuron.ID === process.ID) ? "Connected" : "Disconnected"}</td><td><div className="table-actions">{process.Running ? <><button type="button" className="secondary" disabled={busy} onClick={() => requestNeuronAction(process.ID, "stop")}>Stop {process.ID}</button><button type="button" className="secondary" disabled={busy} onClick={() => requestNeuronAction(process.ID, "restart")}>Restart {process.ID}</button></> : <button type="button" className="secondary" disabled={busy} onClick={() => requestNeuronAction(process.ID, "start")}>Start {process.ID}</button>}</div></td></tr>)}
+        </tbody></table></div>
+      </section>}
+      {Boolean(offlinePauses.length) && <section className="section" aria-labelledby="offline-pauses-title">
+        <div className="section-heading"><div><p className="eyebrow">PLACEMENT POLICY</p><h2 id="offline-pauses-title">Paused offline Neurons</h2><p className="muted">These identities remain paused across Brain restarts. Resume clears the stored pause without starting a remote process.</p></div></div>
+        <div className="table-wrap neuron-table"><table><thead><tr><th>Identity</th><th>Placement</th></tr></thead><tbody>
+          {offlinePauses.map(id => <tr key={id}><th scope="row">{id}</th><td><button type="button" className="secondary" disabled={busy} onClick={() => requestNeuronAction(id, "resume")}>Resume {id}</button></td></tr>)}
         </tbody></table></div>
       </section>}
       <section className="section" aria-labelledby="execution-history-title">

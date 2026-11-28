@@ -70,7 +70,8 @@ func (s *Server) neuronControlHandler(sessions *operator.Store) http.Handler {
 		if managed {
 			err = s.neuronManager.ControlNeuron(r.Context(), command.ID, command.Action)
 		} else {
-			if _, connected := s.neuronScheduler.Neuron(command.ID); !connected {
+			if _, connected := s.neuronScheduler.Neuron(command.ID); !connected &&
+				!(command.Action == "resume" && s.neuronScheduler.OperatorPaused(command.ID)) {
 				http.Error(w, "Neuron unavailable", http.StatusNotFound)
 				return
 			}
@@ -78,7 +79,7 @@ func (s *Server) neuronControlHandler(sessions *operator.Store) http.Handler {
 				http.Error(w, "process controls require a Brain-managed local Neuron", http.StatusConflict)
 				return
 			}
-			err = s.neuronScheduler.SetOperatorDrain(command.ID, command.Action == "drain")
+			err = s.neuronScheduler.SetOperatorDrainContext(r.Context(), command.ID, command.Action == "drain")
 		}
 		if err != nil {
 			log.Printf("Neuron control failed: operator=%q neuron=%q action=%q", actor.ID, command.ID, command.Action)

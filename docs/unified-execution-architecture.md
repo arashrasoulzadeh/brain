@@ -189,3 +189,7 @@ Authenticated, explicitly confirmed system operator commands can pause and resum
 ### Durable execution history
 
 The Brain-owned SQLite database retains the latest 128 assigned execution outcomes, with the same redacted operational metadata as the in-memory ring. Completed outcomes are recorded outside the scheduler placement lock; database failure sets a sticky degradation indicator instead of changing an execution result or retrying it. Counters remain process-local, and unfinished work is not reconstructed or replayed after a crash. This is diagnostic history, not a journal of committed effects.
+
+### Durable operator placement policy (verification pending)
+
+Brain restores operator pauses from host SQLite before admitting work. A drain or resume is persisted before placement changes; a failed write leaves placement unchanged. Pauses survive authenticated reconnects and Brain restarts, including when a Neuron is currently offline. The authenticated operator console can clear an offline pause without starting or enrolling a remote process. Managed development still launches the configured processes on startup; a previously stopped identity remains paused until explicitly resumed. Runtime-initiated draining is independent of operator pauses. This is single-Brain placement policy, not distributed consensus across multiple Brain instances.
