@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `8646f062` — 2026-11-28 16:02:41 +0330 — Instrument function execution lifecycle timings (#66)
+  Files: internal/admin/functions.go,internal/execution/function_profile.go internal/neuron/engine.go,internal/neuron/function_runtime.go internal/plugin/typescript_worker.go
+- `868d30e4` — 2026-11-28 12:22:19 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `00ab96e7` — 2026-11-28 15:50:38 +0330 — Cover ten-Neuron rotation, operator pause and weighted load preference
   Files: tests/cortex/scheduler_test.go
 - `996e5f05` — 2026-11-28 15:50:29 +0330 — Rotate equally loaded Neurons in Cortex placement
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: cmd/brain/dev_neurons.go,cmd/brain/main.go cmd/brain/neuron.go,cmd/brain/production_neurons.go docs/admins.md,docs/developers.md docs/unified-execution-architecture.md,internal/execution/runtime_identity.go internal/synapse/enrollment.go,internal/synapse/grpc_server.go tests/execution/runtime_identity_test.go,tests/synapse/enrollment_test.go
 - `0285a832` — 2026-11-28 14:22:20 +0330 — Merge pull request #58 from arashrasoulzadeh/architecture/cortex-default-execution
   Files: 
-- `78da740b` — 2026-11-28 14:21:57 +0330 — Default managed development plugin execution to Cortex
-  Files: Makefile,cmd/brain/dev_neurons.go cmd/brain/main.go,docs/admins.md docs/developers.md,docs/unified-execution-architecture.md scripts/start-local.sh,scripts/test-production-runtime.sh tests/development/test_dev_neurons.py,tests/development/test_makefile.py
-- `e4342b27` — 2026-11-28 14:21:12 +0330 — Fix scheduled caller context name collision
-  Files: internal/plugin/scheduled_execution.go
