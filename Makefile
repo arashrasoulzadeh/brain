@@ -17,7 +17,7 @@ endif
 endif
 
 help:
-	@printf '%s\n' 'make setup       Install server and admin Node dependencies' 'make dev         Start Brain, admin and four local Neurons (WORKERS=4)' 'make dev server  Start Brain and local Neurons without admin' 'make dev admin   Start only the Next.js admin'
+	@printf '%s\n' 'make setup       Install server and admin Node dependencies' 'make dev         Watch and restart Brain, admin and four local Neurons (WORKERS=4)' 'make dev server  Start Brain and local Neurons without admin' 'make dev admin   Start only the Next.js admin'
 
 setup:
 	npm ci

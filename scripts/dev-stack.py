@@ -14,6 +14,66 @@ from urllib.error import URLError
 ROOT = Path(__file__).resolve().parents[1]
 
 
+# Watch runtime and admin sources, including untracked/new files. Do not scan
+# dependency trees, generated output, or local application state.
+WATCH_DIRS = ("cmd", "internal", "plugins", "proto", "protocol", "scripts", "admin-nextjs")
+WATCH_FILES = ("go.mod", "go.sum", "package.json", "package-lock.json", "tsconfig.json", "vendor/modules.txt")
+IGNORED_DIRS = {".git", ".local", ".next", ".next-dev", ".turbo", ".cache", ".generated-docs",
+                ".generated-site", "node_modules", "__pycache__", "coverage", "dist", "build", "out"}
+IGNORED_SUFFIXES = (".pyc", ".pyo", ".tsbuildinfo", ".log", ".sqlite", ".sqlite3", ".db",
+                    ".sqlite-wal", ".sqlite-shm", ".sqlite3-wal", ".sqlite3-shm", ".db-wal", ".db-shm", "~")
+
+
+def source_snapshot(root):
+    snapshot = {}
+
+    def record(path):
+        if path.name == ".DS_Store" or path.name.endswith(IGNORED_SUFFIXES):
+            return
+        try:
+            stat = path.lstat()
+        except FileNotFoundError:
+            return  # Atomic editor replacement or concurrent deletion.
+        snapshot[path.relative_to(root).as_posix()] = (
+            stat.st_mtime_ns, stat.st_ctime_ns, stat.st_size, stat.st_ino)
+
+    for name in WATCH_FILES:
+        record(root / name)
+    for name in WATCH_DIRS:
+        for directory, dirs, names in os.walk(root / name, followlinks=False):
+            dirs[:] = [entry for entry in dirs if entry not in IGNORED_DIRS]
+            for filename in names:
+                record(Path(directory) / filename)
+    return snapshot
+
+
+class SourceWatcher:
+    """Poll without an extra dependency; coalesce bursts of editor writes."""
+
+    def __init__(self, root, interval=0.5, debounce=0.75, clock=time.monotonic):
+        self.root = root
+        self.interval = interval
+        self.debounce = debounce
+        self.clock = clock
+        self.reset()
+
+    def reset(self):
+        self.snapshot = source_snapshot(self.root)
+        self.last_scan = self.clock()
+        self.pending_since = None
+
+    def changed(self):
+        now = self.clock()
+        if now - self.last_scan < self.interval:
+            return False
+        current = source_snapshot(self.root)
+        self.last_scan = now
+        if current != self.snapshot:
+            self.snapshot = current
+            self.pending_since = now
+        return self.pending_since is not None and now - self.pending_since >= self.debounce
+
+
 def settings():
     env = os.environ.copy()
     origin = urlsplit(env.get("BRAIN_API_ORIGIN", "http://127.0.0.1:18082"))
@@ -85,14 +145,52 @@ def wait_for_brain(child, origin, stopped, timeout=300):
     return False
 
 
-def run():
-    env, host, port = settings()
+def run_generation(env, host, port, stopped, changed):
     commands = (
         ("server", ["bash", "scripts/start-local.sh"]),
         ("admin", ["npm", "--prefix", "admin-nextjs", "run", "dev", "--",
                    "--hostname", host, "--port", str(port)]),
     )
     children = []
+    restart = False
+
+    def interrupted():
+        nonlocal restart
+        if stopped():
+            return True
+        restart = restart or changed()
+        return restart
+
+    try:
+        for name, command in commands:
+            if interrupted():
+                return "stopped" if stopped() else "changed"
+            print(f"Starting {name}", flush=True)
+            child = subprocess.Popen(command, cwd=ROOT, env=env, start_new_session=True)
+            children.append((name, child))
+            if name == "server":
+                print(f"Waiting for Brain at {env['BRAIN_API_ORIGIN']} before starting admin.", flush=True)
+                if not wait_for_brain(child, env["BRAIN_API_ORIGIN"], interrupted):
+                    return "stopped" if stopped() else "changed"
+        print(f"Admin: http://{host}:{port} | Brain: {env['BRAIN_API_ORIGIN']}", flush=True)
+        print(f"Managed Neurons: {env['BRAIN_DEV_WORKERS']} requested · {env['BRAIN_DEV_SLOTS']} slots each", flush=True)
+        while not interrupted():
+            for name, child in children:
+                status = child.poll()
+                if status is not None:
+                    print(f"{name} exited ({status}); stopping development services.", file=sys.stderr, flush=True)
+                    return "failed"
+            time.sleep(0.1)
+        return "stopped" if stopped() else "changed"
+    except OSError as error:
+        print(f"Development generation failed: {error}", file=sys.stderr, flush=True)
+        return "failed"
+    finally:
+        stop_all(children)
+
+
+def run():
+    env, host, port = settings()
     stopped = False
 
     def stop(_signal, _frame):
@@ -101,30 +199,22 @@ def run():
 
     signal.signal(signal.SIGINT, stop)
     signal.signal(signal.SIGTERM, stop)
-    try:
-        for name, command in commands:
-            if stopped:
-                return 0
-            print(f"Starting {name}", flush=True)
-            child = subprocess.Popen(command, cwd=ROOT, env=env, start_new_session=True)
-            children.append((name, child))
-            if name == "server":
-                print(f"Waiting for Brain at {env['BRAIN_API_ORIGIN']} before starting admin.", flush=True)
-                if not wait_for_brain(child, env["BRAIN_API_ORIGIN"], lambda: stopped):
-                    return 0
-        print(f"Admin: http://{host}:{port} | Brain: {env['BRAIN_API_ORIGIN']}", flush=True)
-        print(f"Managed Neurons: {env['BRAIN_DEV_WORKERS']} requested · {env['BRAIN_DEV_SLOTS']} slots each", flush=True)
-        print("Ctrl+C stops the entire development stack.", flush=True)
-        while not stopped:
-            for name, child in children:
-                status = child.poll()
-                if status is not None:
-                    print(f"{name} exited ({status}); stopping development stack.", file=sys.stderr, flush=True)
-                    return status if status > 0 else 1
-            time.sleep(0.1)
-        return 0
-    finally:
-        stop_all(children)
+    watcher = SourceWatcher(ROOT)
+    print("Watching runtime and admin source files. Ctrl+C stops the entire development stack.", flush=True)
+    while not stopped:
+        outcome = run_generation(env, host, port, lambda: stopped, watcher.changed)
+        if stopped or outcome == "stopped":
+            break
+        if outcome == "failed":
+            # Never spin on a compiler error or broken configuration. A save
+            # triggers another complete generation, even after failed startup.
+            print("Waiting for a source change to retry the development stack.", flush=True)
+            while not stopped and not watcher.changed():
+                time.sleep(0.25)
+        if not stopped:
+            print("Source change detected; rebuilding Brain and restarting all services.", flush=True)
+            watcher.reset()
+    return 0
 
 
 if __name__ == "__main__":
