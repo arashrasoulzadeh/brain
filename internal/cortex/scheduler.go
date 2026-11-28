@@ -74,6 +74,7 @@ type Scheduler struct {
 	telemetry                     executionTelemetry
 	operatorDrains                map[string]bool
 	drainStore                    OperatorDrainStore
+	lastAssigned                  string
 }
 
 // Session is an opaque connection capability. Only the authenticated transport
@@ -223,12 +224,24 @@ func (s *Scheduler) selectLocked(req execution.Request) *Session {
 		if w.draining || s.operatorDrains[w.id] || w.running >= w.slots || !w.runtimes[req.Runtime] {
 			continue
 		}
-		// Least occupied fraction, deterministic tie break.
-		if best == nil || w.running*best.slots < best.running*w.slots || (w.running*best.slots == best.running*w.slots && w.id < best.id) {
+		// Least occupied fraction first; rotate equal-load candidates by ID.
+		// Selection is read-only: queue probes must not advance the cursor.
+		if best == nil || w.running*best.slots < best.running*w.slots ||
+			(w.running*best.slots == best.running*w.slots && s.roundRobinBefore(w.id, best.id)) {
 			best = w
 		}
 	}
 	return best
+}
+
+// roundRobinBefore orders IDs after the last assignment first, wrapping at
+// the end. Caller holds the scheduler lock. Disconnected IDs need no cleanup.
+func (s *Scheduler) roundRobinBefore(a, b string) bool {
+	aAfter, bAfter := a > s.lastAssigned, b > s.lastAssigned
+	if aAfter != bAfter {
+		return aAfter
+	}
+	return a < b
 }
 
 // Earlier compatible queued work gets first claim on capacity; incompatible
@@ -311,6 +324,7 @@ func (s *Scheduler) Execute(ctx context.Context, req execution.Request) (executi
 			if parent := s.active[req.ParentID]; parent != nil {
 				a.parentStop = context.AfterFunc(parent.ctx, func() { stop(context.Cause(parent.ctx)) })
 			}
+			s.lastAssigned = w.id
 			s.telemetry.totals.Assigned++
 			s.active[req.ID] = a
 			w.running++
