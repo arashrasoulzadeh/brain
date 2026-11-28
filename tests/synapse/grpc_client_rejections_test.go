@@ -73,10 +73,10 @@ func brainMessage(seq uint64, body *pb.BrainMessage) *pb.BrainMessage {
 
 func wireAssignment(bundle []byte, attempt uint64, id string) *pb.Assignment {
 	return &pb.Assignment{
-		Lease: &pb.Lease{SessionId: "session", Attempt: attempt, ExecutionId: id},
+		Lease:   &pb.Lease{SessionId: "session", Attempt: attempt, ExecutionId: id},
 		TraceId: id, ProjectId: "alpha",
-		Artifact: &pb.Artifact{Id: "plugin", Version: "1.0.0", Sha256Digest: execution.ArtifactDigest(bundle), Entrypoint: "call"},
-		Runtime:  &pb.Runtime{Kind: "typescript", IsolationProfile: "isolated"},
+		Artifact:  &pb.Artifact{Id: "plugin", Version: "1.0.0", Sha256Digest: execution.ArtifactDigest(bundle), Entrypoint: "call"},
+		Runtime:   &pb.Runtime{Kind: "typescript", IsolationProfile: "isolated"},
 		InputJson: []byte("null"), DeadlineUnixNanos: time.Now().Add(8 * time.Second).UnixNano(),
 		Limits:        &pb.Limits{CpuNanos: 1000000000, MemoryBytes: 1024, InputBytes: 128, OutputBytes: 128},
 		Authorization: &pb.Authorization{OriginalCaller: "user:1", Caller: "user:1", Capability: "call"},
@@ -195,18 +195,27 @@ func TestNeuronRejectsMalformedBrainMessages(t *testing.T) {
 	}
 }
 
+func receiveJobMessage(stream pb.Synapse_ConnectServer) (*pb.NeuronMessage, error) {
+	for {
+		m, err := stream.Recv()
+		if err != nil || m.GetPulse() == nil {
+			return m, err
+		}
+	}
+}
+
 func sendJobAndWaitFetch(stream pb.Synapse_ConnectServer, a *pb.Assignment) error {
 	if err := stream.Send(brainMessage(1, &pb.BrainMessage{Body: &pb.BrainMessage_Assignment{Assignment: a}})); err != nil {
 		return err
 	}
-	accepted, err := stream.Recv()
+	accepted, err := receiveJobMessage(stream)
 	if err != nil {
 		return err
 	}
 	if !proto.Equal(accepted.GetAccepted().GetLease(), a.Lease) {
 		return errors.New("assignment not accepted")
 	}
-	fetch, err := stream.Recv()
+	fetch, err := receiveJobMessage(stream)
 	if err != nil {
 		return err
 	}
@@ -227,13 +236,27 @@ func TestNeuronRejectsLiveLeaseAndArtifactSubstitution(t *testing.T) {
 		message func(*pb.Assignment) *pb.BrainMessage
 		want    error
 	}{
-		{"duplicate attempt", 2, func(a *pb.Assignment) *pb.BrainMessage { return &pb.BrainMessage{Body: &pb.BrainMessage_Assignment{Assignment: a}} }, synapse.ErrProtocol},
-		{"duplicate execution", 2, func(a *pb.Assignment) *pb.BrainMessage { return &pb.BrainMessage{Body: &pb.BrainMessage_Assignment{Assignment: wireAssignment(bundle, 2, a.Lease.ExecutionId)}} }, synapse.ErrProtocol},
-		{"slot overflow", 1, func(a *pb.Assignment) *pb.BrainMessage { return &pb.BrainMessage{Body: &pb.BrainMessage_Assignment{Assignment: wireAssignment(bundle, 2, "other")}} }, synapse.ErrProtocol},
-		{"cancel substitution", 1, func(a *pb.Assignment) *pb.BrainMessage { return &pb.BrainMessage{Body: &pb.BrainMessage_Cancel{Cancel: &pb.Cancel{Lease: &pb.Lease{SessionId: "session", Attempt: 1, ExecutionId: "other"}}}} }, synapse.ErrProtocol},
-		{"chunk substitution", 1, func(a *pb.Assignment) *pb.BrainMessage { return &pb.BrainMessage{Body: &pb.BrainMessage_ArtifactChunk{ArtifactChunk: &pb.ArtifactChunk{Lease: &pb.Lease{SessionId: "session", Attempt: 1, ExecutionId: "other"}}}} }, synapse.ErrProtocol},
-		{"invalid offset", 1, func(a *pb.Assignment) *pb.BrainMessage { return &pb.BrainMessage{Body: &pb.BrainMessage_ArtifactChunk{ArtifactChunk: &pb.ArtifactChunk{Lease: a.Lease, Offset: 1, TotalBytes: 2, Data: []byte("x"), FinalChunk: true}}} }, synapse.ErrInvalidChunk},
-		{"tampered bytes", 1, func(a *pb.Assignment) *pb.BrainMessage { return &pb.BrainMessage{Body: &pb.BrainMessage_ArtifactChunk{ArtifactChunk: &pb.ArtifactChunk{Lease: a.Lease, TotalBytes: 1, Data: []byte("x"), FinalChunk: true}}} }, execution.ErrArtifactMismatch},
+		{"duplicate attempt", 2, func(a *pb.Assignment) *pb.BrainMessage {
+			return &pb.BrainMessage{Body: &pb.BrainMessage_Assignment{Assignment: a}}
+		}, synapse.ErrProtocol},
+		{"duplicate execution", 2, func(a *pb.Assignment) *pb.BrainMessage {
+			return &pb.BrainMessage{Body: &pb.BrainMessage_Assignment{Assignment: wireAssignment(bundle, 2, a.Lease.ExecutionId)}}
+		}, synapse.ErrProtocol},
+		{"slot overflow", 1, func(a *pb.Assignment) *pb.BrainMessage {
+			return &pb.BrainMessage{Body: &pb.BrainMessage_Assignment{Assignment: wireAssignment(bundle, 2, "other")}}
+		}, synapse.ErrProtocol},
+		{"cancel substitution", 1, func(a *pb.Assignment) *pb.BrainMessage {
+			return &pb.BrainMessage{Body: &pb.BrainMessage_Cancel{Cancel: &pb.Cancel{Lease: &pb.Lease{SessionId: "session", Attempt: 1, ExecutionId: "other"}}}}
+		}, synapse.ErrProtocol},
+		{"chunk substitution", 1, func(a *pb.Assignment) *pb.BrainMessage {
+			return &pb.BrainMessage{Body: &pb.BrainMessage_ArtifactChunk{ArtifactChunk: &pb.ArtifactChunk{Lease: &pb.Lease{SessionId: "session", Attempt: 1, ExecutionId: "other"}}}}
+		}, synapse.ErrProtocol},
+		{"invalid offset", 1, func(a *pb.Assignment) *pb.BrainMessage {
+			return &pb.BrainMessage{Body: &pb.BrainMessage_ArtifactChunk{ArtifactChunk: &pb.ArtifactChunk{Lease: a.Lease, Offset: 1, TotalBytes: 2, Data: []byte("x"), FinalChunk: true}}}
+		}, synapse.ErrInvalidChunk},
+		{"tampered bytes", 1, func(a *pb.Assignment) *pb.BrainMessage {
+			return &pb.BrainMessage{Body: &pb.BrainMessage_ArtifactChunk{ArtifactChunk: &pb.ArtifactChunk{Lease: a.Lease, TotalBytes: 1, Data: []byte("x"), FinalChunk: true}}}
+		}, execution.ErrArtifactMismatch},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			err := clientAgainstBrain(t, tc.slots, func(stream pb.Synapse_ConnectServer) error {
@@ -277,7 +300,7 @@ func TestNeuronCancelsArtifactFetchAndDrains(t *testing.T) {
 		if err := cancel(2); err != nil {
 			return err
 		}
-		result, err := stream.Recv()
+		result, err := receiveJobMessage(stream)
 		if err != nil || result.GetResult().GetStatus() != pb.Result_CANCELLED {
 			return errors.New("cancelled fetch did not report terminal cancellation")
 		}
