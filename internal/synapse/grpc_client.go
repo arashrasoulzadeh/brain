@@ -3,6 +3,7 @@ package synapse
 import (
 	"context"
 	"crypto/tls"
+	"encoding/json"
 	"errors"
 	"sync"
 	"time"
@@ -117,6 +118,8 @@ type remoteJob struct {
 	assembler *Assembler
 	bundle    chan []byte
 	fetching  bool
+	hostCallID uint64
+	hostReply chan hostReply
 }
 
 type remoteNeuron struct {
@@ -201,6 +204,8 @@ func (c *remoteNeuron) receive(m *pb.BrainMessage) error {
 			job.bundle <- data
 		}
 		return nil
+	case *pb.BrainMessage_HostResponse:
+		return c.receiveHostResponse(body.HostResponse)
 	case *pb.BrainMessage_Drain:
 		if body.Drain == nil {
 			return ErrProtocol
@@ -253,7 +258,11 @@ func (c *remoteNeuron) start(a Assignment) error {
 	go func() {
 		defer c.wg.Done()
 		defer cancel()
-		r, err := c.engine.Execute(context.WithValue(ctx, remoteJobKey{}, job), a.Request)
+		jobCtx := context.WithValue(ctx, remoteJobKey{}, job)
+		jobCtx = execution.WithHostCaller(jobCtx, func(ctx context.Context, operation string, input json.RawMessage) (json.RawMessage, error) {
+			return c.callHost(ctx, job, operation, input)
+		})
+		r, err := c.engine.Execute(jobCtx, a.Request)
 		if err != nil {
 			r = execution.Result{Status: execution.Failed, Error: &execution.Failure{Code: "runtime_error"}}
 			if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {

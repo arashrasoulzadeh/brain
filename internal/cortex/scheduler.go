@@ -90,6 +90,9 @@ type assignment struct {
 	cancel  context.CancelCauseFunc
 	started time.Time
 	wait    time.Duration
+	scope   execution.ParentScope
+	parent  string
+	deadline time.Time
 }
 
 type waiter struct {
@@ -265,6 +268,17 @@ func (s *Scheduler) Execute(ctx context.Context, req execution.Request) (executi
 	s.mu.Lock()
 	for {
 		s.expireLocked()
+		if req.ParentID != "" {
+			parent := s.active[req.ParentID]
+			scope, ok := execution.ParentFromContext(ctx)
+			if parent == nil || !ok || parent.scope != scope || parent.parent != "" ||
+				scope.TraceID != req.TraceID || scope.ProjectID != req.ProjectID ||
+				scope.OriginalCaller != req.Auth.OriginalCaller || scope.Caller != req.Auth.Caller ||
+				req.Deadline.After(parent.deadline) {
+				s.mu.Unlock()
+				return execution.Result{}, execution.ErrInvalidRequest
+			}
+		}
 		if err := ctx.Err(); err != nil {
 			if queued != nil {
 				s.removeWaiterLocked(queued)
@@ -283,7 +297,7 @@ func (s *Scheduler) Execute(ctx context.Context, req execution.Request) (executi
 			}
 			runCtx, stop := context.WithCancelCause(ctx)
 			started := time.Now()
-			a := &assignment{session: w, project: req.ProjectID, cancel: stop, started: started, wait: started.Sub(arrived)}
+			a := &assignment{session: w, project: req.ProjectID, cancel: stop, started: started, wait: started.Sub(arrived), scope: execution.ScopeOf(req), parent: req.ParentID, deadline: req.Deadline}
 			s.telemetry.totals.Assigned++
 			s.active[req.ID] = a
 			w.running++
@@ -292,7 +306,7 @@ func (s *Scheduler) Execute(ctx context.Context, req execution.Request) (executi
 			return s.run(runCtx, req, a)
 		}
 		if queued == nil {
-			if s.config.MaxQueued == 0 {
+			if s.config.MaxQueued == 0 || req.ParentID != "" {
 				quota := s.projectRunning[req.ProjectID] >= s.config.MaxProjectRunning
 				s.mu.Unlock()
 				if quota {
