@@ -24,7 +24,7 @@ This is the HTTP surface mounted by the current application in [app.go](../inter
 | `POST /{project}/admin/files/blob` | Operator bearer | Confirmed raw file upload; project limit up to 1 GB. |
 | `GET /{project}/admin/files/blob` | Operator bearer | Download an authorized file as a binary attachment. |
 | `POST /{project}/admin/actions` | Operator bearer | Project plugin, grant, invocation and data commands. |
-| `ANY /{project}/functions/{function_name}` | Anonymous or authorized bearer | Published functions; only their declared GET, POST, PUT or PATCH method is accepted. |
+| `ANY /{project}/functions/{function_name}` | Anonymous or authorized bearer | Published functions; only their declared GET, POST, PUT or PATCH method is accepted. Missing/private/denied calls return 404; admitted calls with no execution capacity return 503, execution deadlines return 504, and runtime/result failures return 500. |
 | `POST /{project}/ws` | Project user bearer | Request a one-time ticket for a declared socket route. |
 | `GET /{project}/ws` | Project connection ticket | Upgrade to a single project-scoped worker route. |
 | `ANY /{project}/{resource...}` | Manifest-declared | Dynamic plugin route (the HTTP method, path and authentication must be declared in `plugin.yaml`). |

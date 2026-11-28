@@ -588,9 +588,13 @@ process.stdout.write(JSON.stringify({result:result??null,timings:{compile_ms:com
 		if len(detail) > 4096 {
 			detail = detail[:4096]
 		}
-		executionError := errors.New("function execution failed")
-		if detail != "" {
-			executionError = fmt.Errorf("function execution failed: %s", detail)
+		executionError := ErrFunctionExecutionFailed
+		if errors.Is(commandContext.Err(), context.DeadlineExceeded) {
+			executionError = ErrFunctionExecutionTimeout
+		} else if s.functionExecution != nil && operation == "functions.call" {
+			executionError = scheduledFunctionError(err)
+		} else if detail != "" {
+			executionError = fmt.Errorf("%w: %s", ErrFunctionExecutionFailed, detail)
 		}
 		addStep("sandbox execution", "failed", "sandbox did not produce a result", executionStarted, executionError)
 		writeLog("failed", executionError.Error())
@@ -607,7 +611,7 @@ process.stdout.write(JSON.stringify({result:result??null,timings:{compile_ms:com
 		} `json:"timings"`
 	}
 	if err := json.Unmarshal(output, &envelope); err != nil {
-		resultError := errors.New("function must return a JSON object, array, or null")
+		resultError := ErrFunctionResultInvalid
 		addStep("result validation", "failed", "function returned malformed JSON", resultStarted, resultError)
 		writeLog("failed", resultError.Error())
 		return nil, resultError
@@ -619,14 +623,14 @@ process.stdout.write(JSON.stringify({result:result??null,timings:{compile_ms:com
 	)
 	result := any(nil)
 	if err := json.Unmarshal(envelope.Result, &result); err != nil {
-		resultError := errors.New("function must return a JSON object, array, or null")
+		resultError := ErrFunctionResultInvalid
 		addStep("result validation", "failed", "function returned malformed JSON", resultStarted, resultError)
 		writeLog("failed", resultError.Error())
 		return nil, resultError
 	}
 	switch result.(type) {
 	case string, float64, bool:
-		resultError := errors.New("function must return a JSON object, array, or null")
+		resultError := ErrFunctionResultInvalid
 		addStep("result validation", "failed", "scalar and string returns are not allowed", resultStarted, resultError)
 		writeLog("failed", resultError.Error())
 		return nil, resultError
@@ -636,7 +640,7 @@ process.stdout.write(JSON.stringify({result:result??null,timings:{compile_ms:com
 	if _, err := json.Marshal(result); err != nil {
 		addStep("response serialization", "failed", "result could not be encoded for the edge response", responseStarted, err)
 		writeLog("failed", "function response serialization failed")
-		return nil, errors.New("function response serialization failed")
+		return nil, ErrFunctionExecutionFailed
 	}
 	addStep("response serialization", "success", "JSON response encoded for the caller", responseStarted, nil)
 	if err := ctx.Err(); err != nil {

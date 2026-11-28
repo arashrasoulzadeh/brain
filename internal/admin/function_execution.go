@@ -3,10 +3,40 @@ package admin
 import (
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"time"
 
+	"brain/internal/cortex"
 	"brain/internal/execution"
+	"brain/internal/synapse"
 )
+
+var (
+	ErrFunctionExecutionFailed      = errors.New("function execution failed")
+	ErrFunctionExecutionUnavailable = errors.New("function execution capacity unavailable")
+	ErrFunctionExecutionTimeout     = errors.New("function execution deadline exceeded")
+	ErrFunctionResultInvalid        = errors.New("function must return a JSON object, array, or null")
+)
+
+// scheduledFunctionError keeps transport internals and arbitrary worker error
+// text out of the public response and operator logs.
+func scheduledFunctionError(err error) error {
+	switch {
+	case errors.Is(err, context.DeadlineExceeded):
+		return ErrFunctionExecutionTimeout
+	case errors.Is(err, execution.ErrUnavailable), errors.Is(err, execution.ErrCatalogLimit),
+		errors.Is(err, cortex.ErrProjectQuota), errors.Is(err, cortex.ErrQueueFull), errors.Is(err, cortex.ErrSessionLost),
+		errors.Is(err, synapse.ErrClosed), errors.Is(err, synapse.ErrBackpressure):
+		return ErrFunctionExecutionUnavailable
+	case errors.Is(err, execution.ErrInvalidResult):
+		return fmt.Errorf("%w: invalid Neuron result", ErrFunctionExecutionFailed)
+	case errors.Is(err, execution.ErrInvalidRequest), errors.Is(err, execution.ErrArtifactNotFound), errors.Is(err, execution.ErrArtifactMismatch):
+		return fmt.Errorf("%w: execution artifact or request rejected", ErrFunctionExecutionFailed)
+	default:
+		return ErrFunctionExecutionFailed
+	}
+}
 
 type functionExecution struct {
 	catalog  *execution.Catalog
@@ -50,8 +80,11 @@ func (f *functionExecution) run(ctx context.Context, project, name, source, id, 
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-	if err := result.Validate(req, result.WorkerID); err != nil || result.Status != execution.Succeeded || len(result.Effects) != 0 {
+	if err := result.Validate(req, result.WorkerID); err != nil || len(result.Effects) != 0 {
 		return nil, execution.ErrInvalidResult
+	}
+	if result.Status != execution.Succeeded {
+		return nil, ErrFunctionExecutionFailed
 	}
 	return result.Output, nil
 }

@@ -1,7 +1,9 @@
 package app_test
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -10,10 +12,17 @@ import (
 
 	"brain/internal/admin"
 	"brain/internal/app"
+	"brain/internal/execution"
 	"brain/internal/operator"
 	"brain/internal/plugin"
 	"brain/internal/project"
 )
+
+type publicFunctionExecutor func(context.Context, execution.Request) (execution.Result, error)
+
+func (f publicFunctionExecutor) Execute(ctx context.Context, req execution.Request) (execution.Result, error) {
+	return f(ctx, req)
+}
 
 func TestFunctionHTTPAuthoringPublishingAndExecution(t *testing.T) {
 	manifest, err := plugin.LoadManifest("../../plugins/functions/plugin.yaml")
@@ -170,6 +179,37 @@ func TestFunctionHTTPAuthoringPublishingAndExecution(t *testing.T) {
 	}
 	if !succeeded || !failed {
 		t.Fatalf("expected successful and failed logs: %+v", records)
+	}
+	// The same published URL must distinguish capacity and runtime failures
+	// from denied or nonexistent functions without exposing raw worker errors.
+	catalog, err := execution.NewCatalog(8, 1<<20)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var dispatchErr error = execution.ErrUnavailable
+	executor := publicFunctionExecutor(func(_ context.Context, req execution.Request) (execution.Result, error) {
+		if dispatchErr != nil {
+			return execution.Result{}, dispatchErr
+		}
+		return execution.Result{ID: req.ID, WorkerID: "fixture", Status: execution.Succeeded, Output: json.RawMessage(`{"result":{"scheduled":true}}`)}, nil
+	})
+	if err := service.BindFunctionExecution(catalog, executor, execution.Runtime{Kind: execution.UserFunctionRuntimeKind, Profile: "test"}); err != nil {
+		t.Fatal(err)
+	}
+	request(http.MethodGet, publicPath, "", nil, http.StatusServiceUnavailable)
+	dispatchErr = context.DeadlineExceeded
+	request(http.MethodGet, publicPath, "", nil, http.StatusGatewayTimeout)
+	dispatchErr = errors.New("private runtime failure details")
+	failedExecution := request(http.MethodGet, publicPath, "", nil, http.StatusInternalServerError)
+	if strings.Contains(failedExecution.Body.String(), "private runtime") {
+		t.Fatal("private runtime error leaked")
+	}
+	request(http.MethodGet, publicPath, "Bearer forged", nil, http.StatusNotFound)
+	request(http.MethodGet, "/"+projectID+"/functions/missing", "", nil, http.StatusNotFound)
+	dispatchErr = nil
+	scheduled := request(http.MethodGet, publicPath, "", nil, http.StatusOK)
+	if !strings.Contains(scheduled.Body.String(), `"scheduled":true`) {
+		t.Fatal(scheduled.Body.String())
 	}
 	command("unsupported", nil, 400)
 	if err := projects.SetActive(projectID, false); err != nil {

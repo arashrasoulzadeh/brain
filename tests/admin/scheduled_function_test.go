@@ -68,8 +68,8 @@ func TestPublishedFunctionDispatchUsesExactScopedBundleWithoutFallback(t *testin
 	if err := service.BindFunctionExecution(catalog, executor, runtime); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := service.PublicInvokeFunction("project", "sample", "POST", nil); err == nil {
-		t.Fatal("unavailable capacity accepted")
+	if _, err := service.PublicInvokeFunction("project", "sample", "POST", nil); !errors.Is(err, admin.ErrFunctionExecutionUnavailable) {
+		t.Fatalf("unavailable capacity not classified: %v", err)
 	}
 	if _, err := catalog.Fetch(seen); !errors.Is(err, execution.ErrArtifactNotFound) {
 		t.Fatalf("failed invocation leaked bundle: %v", err)

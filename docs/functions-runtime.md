@@ -50,3 +50,7 @@ This works in operator sandbox testing only; the public invocation endpoint deli
 ## Cortex published execution
 
 In managed Cortex development or explicitly configured production Cortex, published public/user functions run on an isolated Neuron with no local fallback. Publication source and HTTP method are pinned independently of drafts. The user-function runtime exposes pure helpers and trusted identity, but not operator-only plugin reads. Operator draft tests retain their existing bridge pending migration. Publication history is stored in the existing Brain-local function metadata file; this is not multi-host storage. Full regression verification is pending.
+
+### Troubleshooting published calls
+
+The development admin origin on port 3000 proxies the same public function path to Brain (default port 18082). Use the published method and JSON input where required. Do not send an operator session as a public user bearer. If Access Management is installed, an anonymous call needs an allow rule for principal `public`, the installed Functions plugin version, operation and capability `functions.call`, and the function name as resource. Explicit denies still win. Missing/private functions and denied callers return the same 404 to conceal protected routes. After successful admission, unavailable execution capacity returns 503, an execution deadline returns 504, and execution/result failures return 500 with a safe message. Inspect the authenticated function Logs and Neurons views for further diagnostics; no raw worker error is exposed to public callers.

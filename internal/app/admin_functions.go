@@ -191,7 +191,19 @@ func PublicFunctionHandler(service *admin.LifecycleService) http.Handler {
 				http.Error(w, err.Error(), http.StatusMethodNotAllowed)
 				return
 			}
-			http.Error(w, "public function unavailable", http.StatusNotFound)
+			// Only failures after successful publication and caller admission
+			// are exposed as execution errors. Missing/private functions and
+			// denied callers retain the same non-disclosing 404 response.
+			switch {
+			case errors.Is(err, admin.ErrFunctionExecutionUnavailable):
+				http.Error(w, "function execution capacity unavailable", http.StatusServiceUnavailable)
+			case errors.Is(err, admin.ErrFunctionExecutionTimeout):
+				http.Error(w, "function execution deadline exceeded", http.StatusGatewayTimeout)
+			case errors.Is(err, admin.ErrFunctionExecutionFailed), errors.Is(err, admin.ErrFunctionResultInvalid):
+				http.Error(w, "function execution failed", http.StatusInternalServerError)
+			default:
+				http.Error(w, "public function unavailable", http.StatusNotFound)
+			}
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
