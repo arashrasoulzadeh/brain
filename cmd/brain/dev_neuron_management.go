@@ -73,12 +73,12 @@ func (c *devCluster) ControlNeuron(ctx context.Context, id, action string) error
 	}
 	switch action {
 	case "drain":
-		return c.scheduler.SetOperatorDrainContext(ctx, true)
+		return c.scheduler.SetOperatorDrainContext(ctx, id, true)
 	case "resume":
 		if !process.running() {
 			return errNeuronControl
 		}
-		return c.scheduler.SetOperatorDrainContext(ctx, false)
+		return c.scheduler.SetOperatorDrainContext(ctx, id, false)
 	case "start", "restart", "stop":
 	default:
 		return errNeuronControl
@@ -86,7 +86,7 @@ func (c *devCluster) ControlNeuron(ctx context.Context, id, action string) error
 	if action == "start" && process.running() {
 		return errNeuronControl
 	}
-	if err := c.scheduler.SetOperatorDrainContext(ctx, true); err != nil {
+	if err := c.scheduler.SetOperatorDrainContext(ctx, id, true); err != nil {
 		return err
 	}
 	if err := c.scheduler.WaitNeuronIdle(ctx, id); err != nil {
@@ -127,7 +127,7 @@ func (c *devCluster) ControlNeuron(ctx context.Context, id, action string) error
 		stopDevNeuron(replacement)
 		return errNeuronControl
 	}
-	return c.scheduler.SetOperatorDrainContext(ctx, false)
+	return c.scheduler.SetOperatorDrainContext(ctx, id, false)
 }
 
 func stopDevNeuron(p *devNeuronProcess) {
