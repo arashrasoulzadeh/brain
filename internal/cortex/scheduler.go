@@ -85,13 +85,13 @@ type Session struct {
 }
 
 type assignment struct {
-	session *Session
-	project string
-	cancel  context.CancelCauseFunc
-	started time.Time
-	wait    time.Duration
-	scope   execution.ParentScope
-	parent  string
+	session  *Session
+	project  string
+	cancel   context.CancelCauseFunc
+	started  time.Time
+	wait     time.Duration
+	scope    execution.ParentScope
+	parent   string
 	deadline time.Time
 }
 
