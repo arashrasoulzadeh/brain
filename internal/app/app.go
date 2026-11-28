@@ -13,13 +13,13 @@ import (
 
 // Server owns the HTTP routes for the application process.
 type Server struct {
-	mux             *http.ServeMux
-	readiness       func(context.Context) error
-	projects        *project.Store
-	neuronScheduler *cortex.Scheduler
-	neuronManager   ManagedNeuronController
+	mux              *http.ServeMux
+	readiness        func(context.Context) error
+	projects         *project.Store
+	neuronScheduler  *cortex.Scheduler
+	neuronManager    ManagedNeuronController
 	metricsTokenHash [32]byte
-	metricsEnabled bool
+	metricsEnabled   bool
 }
 
 func newServer() *Server {
