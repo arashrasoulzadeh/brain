@@ -1,6 +1,7 @@
 package plugin
 
 import (
+	"context"
 	"maps"
 	"sort"
 	"strings"
@@ -169,10 +170,15 @@ func (r *Registry) InvokeAsPublic(request WorkerRequest) (WorkerResponse, error)
 
 // InvokeHTTPRoute accepts only a route selected by the host for this project.
 func (r *Registry) InvokeHTTPRoute(projectID string, match HTTPRouteMatch, payload []byte, credential string) (WorkerResponse, error) {
+	return r.InvokeHTTPRouteContext(context.Background(), projectID, match, payload, credential)
+}
+
+// InvokeHTTPRouteContext preserves the host request's cancellation boundary.
+func (r *Registry) InvokeHTTPRouteContext(ctx context.Context, projectID string, match HTTPRouteMatch, payload []byte, credential string) (WorkerResponse, error) {
 	if match.projectID != projectID || match.relativePath == "" {
 		return WorkerResponse{}, ErrNotRegistered
 	}
-	request := WorkerRequest{Protocol: r.HostAPI, ProjectID: projectID, PluginID: match.PluginID, Version: match.Version, Operation: match.Operation, Payload: payload, httpRoute: &match}
+	request := WorkerRequest{Protocol: r.HostAPI, ProjectID: projectID, PluginID: match.PluginID, Version: match.Version, Operation: match.Operation, Payload: payload, httpRoute: &match, callContext: ctx}
 	switch match.Auth {
 	case "public":
 		if credential == "" {

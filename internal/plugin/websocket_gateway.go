@@ -127,7 +127,7 @@ func (g *webSocketGateway) issue(w http.ResponseWriter, r *http.Request, project
 		ProjectID: projectID, ActorID: actor.ID, PluginID: match.PluginID, Version: match.Version,
 		Operation: match.Operation, Capability: match.Capability, Resource: match.Params[match.ResourceField],
 	}, session: token, path: input.Path, origin: origin}
-	if _, err := g.admit(binding); err != nil {
+	if _, err := g.admit(r.Context(), binding); err != nil {
 		http.Error(w, "connection denied", http.StatusForbidden)
 		return
 	}
@@ -141,7 +141,7 @@ func (g *webSocketGateway) issue(w http.ResponseWriter, r *http.Request, project
 	_ = json.NewEncoder(w).Encode(map[string]any{"ticket": ticket, "expires_in": int(MaxWebSocketTicketLifetime.Seconds()), "protocol": socketProtocol})
 }
 
-func (g *webSocketGateway) admit(binding webSocketTicketBinding) (HTTPRouteMatch, error) {
+func (g *webSocketGateway) admit(ctx context.Context, binding webSocketTicketBinding) (HTTPRouteMatch, error) {
 	r := g.registry
 	call := binding.call
 	actor, err := r.ResolveUserSession(call.ProjectID, binding.session)
@@ -173,7 +173,7 @@ func (g *webSocketGateway) admit(binding webSocketTicketBinding) (HTTPRouteMatch
 	if err := r.authorizeInvocation(request, false); err != nil {
 		return HTTPRouteMatch{}, err
 	}
-	response, err := r.InvokeHTTPRoute(call.ProjectID, admissionMatch, payload, binding.session)
+	response, err := r.InvokeHTTPRouteContext(ctx, call.ProjectID, admissionMatch, payload, binding.session)
 	var admitted struct {
 		Admitted bool `json:"admitted"`
 	}
@@ -217,7 +217,7 @@ func (g *webSocketGateway) connect(w http.ResponseWriter, r *http.Request, proje
 		http.Error(w, "connection denied", http.StatusUnauthorized)
 		return
 	}
-	if _, err := g.admit(binding); err != nil {
+	if _, err := g.admit(r.Context(), binding); err != nil {
 		http.Error(w, "connection denied", http.StatusForbidden)
 		return
 	}
@@ -245,7 +245,7 @@ func (g *webSocketGateway) connect(w http.ResponseWriter, r *http.Request, proje
 		if err != nil {
 			return
 		}
-		match, err := g.admit(binding)
+		match, err := g.admit(ctx, binding)
 		if err != nil || kind != websocket.MessageText {
 			_ = conn.Close(websocket.StatusPolicyViolation, "connection denied")
 			return
@@ -266,7 +266,7 @@ func (g *webSocketGateway) connect(w http.ResponseWriter, r *http.Request, proje
 		if err != nil {
 			return
 		}
-		response, err := g.registry.InvokeHTTPRoute(projectID, match, payload, binding.session)
+		response, err := g.registry.InvokeHTTPRouteContext(ctx, projectID, match, payload, binding.session)
 		if err != nil || !response.Success || response.ErrorCode != "" || !json.Valid(response.Payload) || len(response.Payload) > socketReadLimit {
 			_ = conn.Close(websocket.StatusPolicyViolation, "message rejected")
 			return

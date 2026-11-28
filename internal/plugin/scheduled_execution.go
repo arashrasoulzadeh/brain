@@ -170,11 +170,23 @@ func (w *ScheduledWorker) Handle(request WorkerRequest) WorkerResponse {
 
 func (w *ScheduledWorker) HandleExecution(request WorkerRequest) (WorkerResponse, error) {
 	w.mu.RLock()
-	ctx := w.ctx
+	lifecycle := w.ctx
 	w.mu.RUnlock()
-	if ctx == nil {
+	if lifecycle == nil || lifecycle.Err() != nil {
 		return WorkerResponse{}, ErrWorkerNotReady
 	}
+	caller := request.executionContext()
+	if err := caller.Err(); err != nil {
+		return WorkerResponse{}, err
+	}
+	ctx, cancel := context.WithTimeout(caller, scheduledInvocationLimit)
+	defer cancel()
+	stop := context.AfterFunc(lifecycle, cancel)
+	defer stop()
+	if lifecycle.Err() != nil {
+		return WorkerResponse{}, ErrWorkerNotReady
+	}
+	deadline, _ := ctx.Deadline()
 	if err := ValidateWorkerRequestForProject(request, 1, w.project); err != nil {
 		return WorkerResponse{}, err
 	}
@@ -208,7 +220,7 @@ func (w *ScheduledWorker) HandleExecution(request WorkerRequest) (WorkerResponse
 	assigned := execution.Request{
 		ID: host.InvocationID, TraceID: host.InvocationID, ProjectID: w.project,
 		Artifact: artifact, Runtime: runtime, Input: input, Context: encoded,
-		Deadline: time.Now().Add(scheduledInvocationLimit),
+		Deadline: deadline,
 		Limits:   execution.Limits{CPUTime: ScheduledTypeScriptCPU, MemoryBytes: ScheduledTypeScriptMemory, InputBytes: scheduledMessageLimit, OutputBytes: scheduledMessageLimit},
 		Auth:     execution.Authorization{ProjectID: w.project, OriginalCaller: original, Caller: caller, Capability: permission.Capability, Resource: permission.Resource},
 	}
@@ -216,7 +228,10 @@ func (w *ScheduledWorker) HandleExecution(request WorkerRequest) (WorkerResponse
 		return WorkerResponse{}, ErrInvalidWorkerRequest
 	}
 	result, err := w.executor.Execute(ctx, assigned)
-	if err != nil || ctx.Err() != nil {
+	if callerErr := caller.Err(); callerErr != nil {
+		return WorkerResponse{}, callerErr
+	}
+	if err != nil || ctx.Err() != nil || lifecycle.Err() != nil {
 		return WorkerResponse{}, ErrWorkerNotReady
 	}
 	return decodeScheduledResult(assigned, result)

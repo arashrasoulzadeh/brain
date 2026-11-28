@@ -1,6 +1,7 @@
 package plugin
 
 import (
+	"context"
 	"errors"
 	"time"
 )
@@ -30,6 +31,21 @@ type WorkerRequest struct {
 	requireAccessPolicy bool
 	httpRoute           *HTTPRouteMatch
 	functionRead        bool
+	callContext         context.Context
+}
+
+// WithContext binds cancellation and deadlines from a trusted host caller.
+// The context is never serialized or used as an authorization principal.
+func (r WorkerRequest) WithContext(ctx context.Context) WorkerRequest {
+	r.callContext = ctx
+	return r
+}
+
+func (r WorkerRequest) executionContext() context.Context {
+	if r.callContext == nil {
+		return context.Background()
+	}
+	return r.callContext
 }
 
 type WorkerResponse struct {
@@ -47,6 +63,9 @@ type ContractWorker interface {
 
 func InvokeForProject(worker ContractWorker, request WorkerRequest, protocol int, projectID string) (WorkerResponse, error) {
 	if err := ValidateWorkerRequestForProject(request, protocol, projectID); err != nil {
+		return WorkerResponse{}, err
+	}
+	if err := request.executionContext().Err(); err != nil {
 		return WorkerResponse{}, err
 	}
 	if worker == nil {
@@ -67,7 +86,11 @@ func InvokeForProject(worker ContractWorker, request WorkerRequest, protocol int
 	}); ok {
 		return scheduled.HandleExecution(request)
 	}
-	return worker.Handle(request), nil
+	response := worker.Handle(request)
+	if err := request.executionContext().Err(); err != nil {
+		return WorkerResponse{}, err
+	}
+	return response, nil
 }
 
 // InvokeWithCredential is the production invocation boundary. The host-issued
