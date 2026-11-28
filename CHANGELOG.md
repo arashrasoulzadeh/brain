@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `706e350f` — 2026-11-28 15:46:51 +0330 — Add Neuron performance reports and authenticated Prometheus metrics (#65)
+  Files: admin-nextjs/app/lib/neuron-dashboard.ts,admin-nextjs/app/workers/view.tsx cmd/brain/main.go,docs/admin-pages/workers.md internal/app/api_response.go,internal/app/app.go internal/app/neuron_metrics.go,internal/app/neuron_status.go internal/cortex/performance.go,tests/admin-ui/neuron-console.test.mjs tests/app/neuron_metrics_test.go,tests/cortex/performance_test.go
+- `c092877e` — 2026-11-28 12:09:42 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `0b7f3ec5` — 2026-11-28 15:39:31 +0330 — Fix managed Neuron drain calls to target the selected identity
   Files: cmd/brain/dev_neuron_management.go
 - `fae344ae` — 2026-11-28 11:52:59 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: CHANGELOG.md
 - `6eb0c8ed` — 2026-11-28 14:15:20 +0330 — Merge pull request #56 from arashrasoulzadeh/architecture/plugin-cortex-migration
   Files: 
-- `e4c2118b` — 2026-11-28 14:14:28 +0330 — Format scheduled cancellation regression fixture
-  Files: tests/plugin/scheduled_cancellation_test.go
-- `481922d5` — 2026-11-28 14:14:04 +0330 — Propagate plugin route cancellation through Cortex and guard commits
-  Files: docs/unified-execution-architecture.md,internal/admin/lifecycle.go internal/app/project_http.go,internal/plugin/http_routes.go internal/plugin/model_runtime.go,internal/plugin/plugin_call.go internal/plugin/registry_workers.go,internal/plugin/scheduled_execution.go internal/plugin/websocket_gateway.go,internal/plugin/worker.go tests/plugin/scheduled_cancellation_test.go
