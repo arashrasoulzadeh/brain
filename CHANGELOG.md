@@ -3,6 +3,16 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `93bfcf4b` — 2026-11-28 15:20:08 +0330 — Persist operator Neuron placement pauses across Brain restarts
+  Files: admin-nextjs/app/lib/neuron-dashboard.ts,admin-nextjs/app/workers/view.tsx cmd/brain/dev_neuron_management.go,cmd/brain/main.go docs/admins.md,docs/unified-execution-architecture.md internal/app/neuron_control.go,internal/cortex/drain_store.go internal/cortex/management.go,internal/cortex/scheduler.go internal/plugin/operator_drains.go,tests/cortex/drain_store_test.go
+- `3ddacd34` — 2026-11-28 15:19:13 +0330 — Use trusted project resolvers in scheduled cancellation, credential and observation fixtures
+  Files: tests/plugin/scheduled_cancellation_test.go,tests/plugin/scheduled_credential_test.go tests/plugin/scheduled_observation_test.go
+- `5aedd02b` — 2026-11-28 15:17:53 +0330 — Merge pull request #64 from arashrasoulzadeh/architecture/durable-execution-history
+  Files: 
+- `748921e8` — 2026-11-28 15:17:46 +0330 — Integrate persistent history with nested execution and Neuron management
+  Files: admin-nextjs/app/lib/neuron-dashboard.ts,admin-nextjs/app/workers/view.tsx cmd/brain/main.go,docs/unified-execution-architecture.md internal/cortex/scheduler.go,tests/admin-ui/neuron-console.test.mjs
+- `57df4201` — 2026-11-28 11:47:29 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `15410b6f` — 2026-11-28 15:16:59 +0330 — Merge pull request #63 from arashrasoulzadeh/architecture/neuron-management
   Files: 
 - `cad89382` — 2026-11-28 15:16:52 +0330 — Merge main into Neuron management and preserve nested execution
@@ -13,12 +23,18 @@ Automatically generated from commits on main.
   Files: 
 - `13e24737` — 2026-11-28 11:44:17 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
+- `00f9888e` — 2026-11-28 15:06:51 +0330 — Fix Go formatting of execution trace fields
+  Files: internal/cortex/telemetry.go
 - `e52a7401` — 2026-11-28 15:06:45 +0330 — Fix Go formatting of execution trace fields
   Files: internal/cortex/telemetry.go
 - `152c4528` — 2026-11-28 15:06:38 +0330 — Fix Go formatting of execution trace fields
   Files: internal/cortex/telemetry.go
 - `e48918b3` — 2026-11-28 15:06:31 +0330 — Fix Go formatting of execution trace fields
   Files: internal/cortex/telemetry.go
+- `b6c972d0` — 2026-11-28 15:05:09 +0330 — Verify durable history diagnostics in the operator console
+  Files: internal/cortex/scheduler.go,internal/cortex/telemetry.go tests/admin-ui/neuron-console.test.mjs
+- `fa6237fb` — 2026-11-28 15:04:36 +0330 — Retain bounded redacted Cortex execution history across Brain restarts
+  Files: admin-nextjs/app/lib/neuron-dashboard.ts,admin-nextjs/app/workers/view.tsx cmd/brain/main.go,docs/unified-execution-architecture.md internal/cortex/history.go,internal/cortex/scheduler.go internal/cortex/telemetry.go,internal/plugin/execution_history.go tests/cortex/history_test.go
 - `f708a410` — 2026-11-28 15:03:10 +0330 — Test authenticated Neuron controls and managed process recovery
   Files: admin-nextjs/app/workers/view.tsx,tests/admin-ui/neuron-console.test.mjs tests/app/neuron_status_test.go,tests/cortex/management_test.go tests/development/test_dev_neurons.py
 - `87772afb` — 2026-11-28 15:01:35 +0330 — Add operator Neuron drain/resume and managed local process controls
@@ -87,19 +103,3 @@ Automatically generated from commits on main.
   Files: tests/plugin/scheduled_worker_test.go
 - `72f0f35b` — 2026-11-28 13:17:34 +0330 — fix: preserve dependency metadata and package resolution in isolated plugin bundles
   Files: internal/neuron/plugin_typescript.go,internal/neuron/typescript.go internal/plugin/bundled_runtime.go,internal/plugin/scheduled_execution.go scripts/run-sandboxed-typescript-worker.sh,tests/neuron/plugin_runtime_test.go tests/plugin/scheduled_worker_test.go
-- `57158ab0` — 2026-11-28 13:13:27 +0330 — feat: opt in to managed Cortex plugin execution and run parity gates
-  Files: cmd/brain/cortex_plugins.go,cmd/brain/dev_neurons.go cmd/brain/main.go,cmd/brain/neuron.go docs/unified-execution-architecture.md,internal/cortex/scheduler.go internal/neuron/typescript.go,internal/plugin/registry_catalog.go internal/plugin/scheduled_execution.go,scripts/test-production-runtime.sh tests/development/test_dev_neurons.py,tests/development/verify-neurons.mjs tests/neuron/plugin_runtime_test.go
-- `71511f91` — 2026-11-28 13:12:22 +0330 — feat: execute prepared plugin artifacts in fresh Neuron sandboxes
-  Files: internal/neuron/plugin_typescript.go,internal/neuron/typescript.go internal/plugin/bundled_runtime.go,scripts/run-sandboxed-typescript-worker.sh tests/neuron/plugin_runtime_test.go
-- `bef41917` — 2026-11-28 13:11:23 +0330 — feat: bridge authorized plugin invocations into Cortex execution
-  Files: internal/plugin/scheduled_execution.go,internal/plugin/worker.go tests/plugin/scheduled_worker_test.go
-- `44724232` — 2026-11-28 09:37:00 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `85bca07a` — 2026-11-28 13:06:48 +0330 — Merge PR #55: managed development Neurons and Cortex dashboard
-  Files: 
-- `f23ac603` — 2026-11-28 12:52:55 +0330 — test(synapse): tolerate independent heartbeat frames in job assertions
-  Files: tests/synapse/grpc_client_rejections_test.go
-- `68dd7f3d` — 2026-11-28 12:50:43 +0330 — test(lifecycle): cover dependency admission, transactional rollback, admin and CLI errors
-  Files: tests/admin/lifecycle_service_edges_test.go,tests/cli/test_cli.py tests/plugin/dependency_activation_edges_test.go
-- `54e99566` — 2026-11-28 12:48:49 +0330 — test(synapse): reject malformed Brain replies and exercise cancelled artifact transfers
-  Files: tests/synapse/grpc_client_rejections_test.go
