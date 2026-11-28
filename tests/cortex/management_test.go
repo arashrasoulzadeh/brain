@@ -3,6 +3,7 @@ package cortex_test
 import (
 	"context"
 	"errors"
+	"sync"
 	"testing"
 	"time"
 
@@ -13,6 +14,9 @@ import (
 func TestOperatorDrainSurvivesReconnectAndWaitsForActiveWork(t *testing.T) {
 	f := setup(t, 0, 0, 4, 2)
 	started, release := make(chan struct{}), make(chan struct{})
+	var once sync.Once
+	finish := func() { once.Do(func() { close(release) }) }
+	defer finish()
 	w := register(t, f, "managed", 1, executorFunc(func(_ context.Context, req execution.Request) (execution.Result, error) {
 		close(started)
 		<-release
@@ -39,10 +43,12 @@ func TestOperatorDrainSurvivesReconnectAndWaitsForActiveWork(t *testing.T) {
 	if view, ok := f.scheduler.Neuron("managed"); !ok || !view.OperatorDraining || !view.Draining {
 		t.Fatal("reconnect cleared pause", view)
 	}
-	if err := f.scheduler.WaitNeuronIdle(ctx, "managed"); !errors.Is(err, context.DeadlineExceeded) {
+	oldCtx, oldCancel := context.WithTimeout(context.Background(), 20*time.Millisecond)
+	defer oldCancel()
+	if err := f.scheduler.WaitNeuronIdle(oldCtx, "managed"); !errors.Is(err, context.DeadlineExceeded) {
 		t.Fatal("fenced old work ignored", err)
 	}
-	close(release)
+	finish()
 	if got := receive(t, done); !errors.Is(got.err, cortex.ErrSessionLost) {
 		t.Fatal(got.err)
 	}

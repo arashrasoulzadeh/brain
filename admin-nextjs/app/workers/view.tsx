@@ -34,7 +34,7 @@ export default function WorkersPage() {
   const [search, setSearch] = useState("");
   const [state, setState] = useState("all");
   const [pending, setPending] = useState<Installation>();
-  const [neuronAction, setNeuronAction] = useState<{ id: string; action: NeuronAction }>();
+  const [neuronAction, setNeuronAction] = useState<{ id: string; action: NeuronAction; token: string }>();
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
@@ -99,15 +99,17 @@ export default function WorkersPage() {
   }
 
   function requestNeuronAction(id: string, action: NeuronAction) {
-    setNeuronAction({ id, action }); setDone(false); setMessage("");
+    const token = readAdminSession();
+    if (!token) return;
+    setNeuronAction({ id, action, token }); setDone(false); setMessage("");
   }
 
   async function applyNeuronAction() {
     const token = readAdminSession();
-    if (busy || done || !neuronAction || !token) return;
+    if (busy || done || !neuronAction || !token || token !== neuronAction.token) return;
     setBusy(true); setMessage("");
     try {
-      const response = await fetch(systemAdminURL("neurons"), { method: "POST", headers: adminHeaders(token, { "content-type": "application/json" }), body: JSON.stringify({ ...neuronAction, confirmed: true }) });
+      const response = await fetch(systemAdminURL("neurons"), { method: "POST", headers: adminHeaders(token, { "content-type": "application/json" }), body: JSON.stringify({ id: neuronAction.id, action: neuronAction.action, confirmed: true }) });
       if (!response.ok) throw new Error("Neuron action failed: " + response.status);
       if (readAdminSession() === token) { setDone(true); setRefresh(value => value + 1); }
     } catch (reason) { if (readAdminSession() === token) { setMessage(String(reason)); setRefresh(value => value + 1); } }
