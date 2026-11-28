@@ -14,6 +14,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"brain/internal/execution"
 )
 
 var ErrTypeScriptWorkerStarted = errors.New("typescript worker already started")
@@ -272,6 +274,19 @@ func (w *TypeScriptWorker) Handle(request WorkerRequest) WorkerResponse {
 // HandleContext kills and reaps the isolated worker before returning a cancelled
 // assignment. The existing invocation timeout remains an upper bound.
 func (w *TypeScriptWorker) HandleContext(ctx context.Context, request WorkerRequest) WorkerResponse {
+	return w.handleContext(ctx, request, nil)
+}
+
+// HandleContextWithHostCalls is reserved for the trusted operator draft
+// runtime. Other plugin workers have no host-call authority on their stdio.
+func (w *TypeScriptWorker) HandleContextWithHostCalls(ctx context.Context, request WorkerRequest, handler execution.HostCallFunc) WorkerResponse {
+	if request.PluginID != "functions" || request.Operation != "functions.invoke" || handler == nil {
+		return WorkerResponse{Protocol: request.Protocol, ErrorCode: ErrInvalidWorkerRequest.Error()}
+	}
+	return w.handleContext(ctx, request, handler)
+}
+
+func (w *TypeScriptWorker) handleContext(ctx context.Context, request WorkerRequest, handler execution.HostCallFunc) WorkerResponse {
 	w.mutex.Lock()
 	defer w.mutex.Unlock()
 	if w.options.ProjectID != "" && request.ProjectID != w.options.ProjectID {
@@ -307,32 +322,68 @@ func (w *TypeScriptWorker) HandleContext(ctx context.Context, request WorkerRequ
 		err  error
 	}
 	result := make(chan exchangeResult, 1)
-	go func() {
-		if _, err := w.stdin.Write(append(data, '\n')); err != nil {
-			result <- exchangeResult{err: err}
-			return
-		}
-		var line []byte
-		for {
-			part, err := w.reader.ReadSlice('\n')
-			if len(line)+len(part) > maxMessage {
-				result <- exchangeResult{err: ErrInvalidRPCMessage}
-				return
-			}
-			line = append(line, part...)
-			if errors.Is(err, bufio.ErrBufferFull) {
-				continue
-			}
-			result <- exchangeResult{line: line, err: err}
-			return
-		}
-	}()
-	var exchange exchangeResult
 	if w.options.InvocationTimeout > 0 {
 		var cancel context.CancelFunc
 		ctx, cancel = context.WithTimeout(ctx, w.options.InvocationTimeout)
 		defer cancel()
 	}
+	go func() {
+		if _, err := w.stdin.Write(append(data, '\n')); err != nil {
+			result <- exchangeResult{err: err}
+			return
+		}
+		for callID := uint64(1); ; {
+			line, err := readWorkerLine(w.reader, maxMessage)
+			if err != nil {
+				result <- exchangeResult{err: err}
+				return
+			}
+			if handler == nil {
+				result <- exchangeResult{line: line}
+				return
+			}
+			var message struct {
+				HostCall *workerHostCall `json:"hostCall"`
+			}
+			if err := json.Unmarshal(line, &message); err != nil {
+				result <- exchangeResult{err: ErrInvalidRPCMessage}
+				return
+			}
+			if message.HostCall == nil {
+				result <- exchangeResult{line: line}
+				return
+			}
+			call := message.HostCall
+			if call.ID != callID || callID > execution.MaxHostCalls || !execution.ValidHostCall(call.Operation, call.Input) {
+				result <- exchangeResult{err: ErrInvalidRPCMessage}
+				return
+			}
+			reply := workerHostReply{ID: callID}
+			output, err := handler(ctx, call.Operation, call.Input)
+			if ctx.Err() != nil {
+				result <- exchangeResult{err: ctx.Err()}
+				return
+			}
+			if err != nil || len(output) > execution.MaxHostCallBytes || !json.Valid(output) {
+				reply.Error = "Plugin call denied or failed; check the operation, saved function permission, plugin installation and resource policy"
+			} else {
+				reply.Output = output
+			}
+			encoded, err := json.Marshal(struct {
+				HostResponse workerHostReply `json:"hostResponse"`
+			}{reply})
+			if err != nil || len(encoded) >= maxMessage {
+				result <- exchangeResult{err: ErrInvalidRPCMessage}
+				return
+			}
+			if _, err := w.stdin.Write(append(encoded, '\n')); err != nil {
+				result <- exchangeResult{err: err}
+				return
+			}
+			callID++
+		}
+	}()
+	var exchange exchangeResult
 	select {
 	case exchange = <-result:
 	case <-ctx.Done():
