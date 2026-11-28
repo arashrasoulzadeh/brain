@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `714c4281` — 2026-11-28 15:21:16 +0330 — Classify Core placement and reject host-only manifest operations before Neuron dispatch
+  Files: docs/unified-execution-architecture.md,internal/plugin/execution_boundary.go internal/plugin/manifest.go,internal/plugin/scheduled_execution.go tests/plugin/execution_boundary_test.go
+- `a4701f3d` — 2026-11-28 11:50:56 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `93bfcf4b` — 2026-11-28 15:20:08 +0330 — Persist operator Neuron placement pauses across Brain restarts
   Files: admin-nextjs/app/lib/neuron-dashboard.ts,admin-nextjs/app/workers/view.tsx cmd/brain/dev_neuron_management.go,cmd/brain/main.go docs/admins.md,docs/unified-execution-architecture.md internal/app/neuron_control.go,internal/cortex/drain_store.go internal/cortex/management.go,internal/cortex/scheduler.go internal/plugin/operator_drains.go,tests/cortex/drain_store_test.go
 - `3ddacd34` — 2026-11-28 15:19:13 +0330 — Use trusted project resolvers in scheduled cancellation, credential and observation fixtures
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: tests/plugin/artifact_pins_test.go
 - `0ad08d3f` — 2026-11-28 14:12:29 +0330 — Persist scheduled plugin artifact version pins in host storage
   Files: cmd/brain/main.go,docs/unified-execution-architecture.md internal/execution/catalog.go,internal/plugin/artifact_pins.go tests/plugin/artifact_pins_test.go
-- `64779974` — 2026-11-28 13:18:29 +0330 — style: format scheduled dependency regression fixture
-  Files: tests/plugin/scheduled_worker_test.go
-- `72f0f35b` — 2026-11-28 13:17:34 +0330 — fix: preserve dependency metadata and package resolution in isolated plugin bundles
-  Files: internal/neuron/plugin_typescript.go,internal/neuron/typescript.go internal/plugin/bundled_runtime.go,internal/plugin/scheduled_execution.go scripts/run-sandboxed-typescript-worker.sh,tests/neuron/plugin_runtime_test.go tests/plugin/scheduled_worker_test.go
