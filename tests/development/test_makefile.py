@@ -55,6 +55,10 @@ class DevelopmentMakefileTest(unittest.TestCase):
         custom = self.run_make("-n", "dev", "WORKERS=2", "WORKER_SLOTS=3")
         self.assertIn('BRAIN_DEV_WORKERS="2"', custom.stdout)
         self.assertIn('BRAIN_DEV_SLOTS="3"', custom.stdout)
+        server = self.run_make("-n", "dev", "server", "WORKERS=0", "WORKER_SLOTS=2")
+        self.assertEqual(server.returncode, 0, server.stderr)
+        self.assertIn('BRAIN_DEV_WORKERS="0"', server.stdout)
+        self.assertIn('BRAIN_DEV_SLOTS="2"', server.stdout)
         for args in [("dev", "server", "admin")]:
             result = self.run_make(*args)
             self.assertNotEqual(result.returncode, 0)

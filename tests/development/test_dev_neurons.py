@@ -28,8 +28,9 @@ class DevNeuronProcessesTest(unittest.TestCase):
             origin = f"http://127.0.0.1:{port}"
             env = dict(os.environ, HTTP_ADDRESS=f"127.0.0.1:{port}", PROJECTS_FILE=str(root / "test.sqlite"),
                        OPERATOR_USERNAME="ci-operator", OPERATOR_SECRET="ci-fixture-only",
-                       BRAIN_LOCAL_DEV="1", BRAIN_LOCAL_MACOS="1", BRAIN_DEV_WORKERS="4", BRAIN_DEV_SLOTS="1",
-                       BRAIN_DEV_PLUGIN_EXECUTION="cortex")
+                       BRAIN_LOCAL_DEV="1", BRAIN_LOCAL_MACOS="1", BRAIN_DEV_WORKERS="4", BRAIN_DEV_SLOTS="1")
+            # Verify the default rather than an explicitly selected Cortex mode.
+            env.pop("BRAIN_DEV_PLUGIN_EXECUTION", None)
             log_path = root / "server.log"
             with log_path.open("w+") as log:
                 process = subprocess.Popen([str(binary)], cwd=ROOT, env=env, stdout=log, stderr=subprocess.STDOUT, start_new_session=True)

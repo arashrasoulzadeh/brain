@@ -102,11 +102,14 @@ type devCluster struct {
 func startDevCluster(server *app.Server, httpAddress string) (*devCluster, error) {
 	rawCount, enabled := os.LookupEnv("BRAIN_DEV_WORKERS")
 	mode := os.Getenv("BRAIN_DEV_PLUGIN_EXECUTION")
-	if mode != "" && (mode != "cortex" || !enabled) {
-		return nil, errors.New("BRAIN_DEV_PLUGIN_EXECUTION=cortex requires managed local Neurons")
+	if mode != "" && ((mode != "cortex" && mode != "legacy") || !enabled) {
+		return nil, errors.New("BRAIN_DEV_PLUGIN_EXECUTION must be cortex or legacy and requires managed local Neurons")
 	}
 	if !enabled {
 		return nil, nil
+	}
+	if mode == "" {
+		mode = "cortex"
 	}
 	count, err := strconv.Atoi(rawCount)
 	if err != nil || count < 0 || count > 32 || !strings.HasPrefix(httpAddress, "127.0.0.1:") || os.Getenv("BRAIN_LOCAL_DEV") != "1" {
