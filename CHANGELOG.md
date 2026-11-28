@@ -3,6 +3,10 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `0b7f3ec5` — 2026-11-28 15:39:31 +0330 — Fix managed Neuron drain calls to target the selected identity
+  Files: cmd/brain/dev_neuron_management.go
+- `fae344ae` — 2026-11-28 11:52:59 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `714c4281` — 2026-11-28 15:21:16 +0330 — Classify Core placement and reject host-only manifest operations before Neuron dispatch
   Files: docs/unified-execution-architecture.md,internal/plugin/execution_boundary.go internal/plugin/manifest.go,internal/plugin/scheduled_execution.go tests/plugin/execution_boundary_test.go
 - `a4701f3d` — 2026-11-28 11:50:56 +0000 — docs: update changelog [skip ci]
@@ -99,7 +103,3 @@ Automatically generated from commits on main.
   Files: tests/plugin/scheduled_cancellation_test.go
 - `481922d5` — 2026-11-28 14:14:04 +0330 — Propagate plugin route cancellation through Cortex and guard commits
   Files: docs/unified-execution-architecture.md,internal/admin/lifecycle.go internal/app/project_http.go,internal/plugin/http_routes.go internal/plugin/model_runtime.go,internal/plugin/plugin_call.go internal/plugin/registry_workers.go,internal/plugin/scheduled_execution.go internal/plugin/websocket_gateway.go,internal/plugin/worker.go tests/plugin/scheduled_cancellation_test.go
-- `a45b50ca` — 2026-11-28 14:12:38 +0330 — Format artifact pin regression fixture
-  Files: tests/plugin/artifact_pins_test.go
-- `0ad08d3f` — 2026-11-28 14:12:29 +0330 — Persist scheduled plugin artifact version pins in host storage
-  Files: cmd/brain/main.go,docs/unified-execution-architecture.md internal/execution/catalog.go,internal/plugin/artifact_pins.go tests/plugin/artifact_pins_test.go
