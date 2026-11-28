@@ -84,6 +84,7 @@ type Registry struct {
 	durableMu           sync.RWMutex
 	supervisor          *Supervisor
 	workerMu            sync.RWMutex
+	scheduledOnly       bool
 	workers             map[string]ContractWorker
 	workerFactory       func(projectID, pluginID, version string) (ContractWorker, error)
 	projectResolver     func(string) (ProjectSnapshot, error)

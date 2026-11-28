@@ -22,12 +22,11 @@ func bindCortexPluginWorkers(registry *plugin.Registry, locations map[string]plu
 		}
 		artifacts[key] = artifact
 	}
-	registry.BindWorkerFactory(func(projectID, pluginID, version string) (plugin.ContractWorker, error) {
+	return registry.BindScheduledWorkerFactory(func(projectID, pluginID, version string) (*plugin.ScheduledWorker, error) {
 		artifact := artifacts[pluginID+"@"+version]
 		if artifact == nil {
 			return nil, plugin.ErrWorkerUnavailable
 		}
 		return artifact.Worker(projectID, cluster.scheduler)
 	})
-	return nil
 }

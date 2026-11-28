@@ -102,7 +102,7 @@ func InvokeWithCredential(broker *Broker, credential InvocationCredential, worke
 	if err := ValidateWorkerRequest(request, protocol); err != nil {
 		return WorkerResponse{}, err
 	}
-	if broker.Registry != nil && broker.Registry.accessInstalled(request.ProjectID) {
+	if broker.Registry != nil && (broker.Registry.scheduledExecutionRequired() || broker.Registry.accessInstalled(request.ProjectID)) {
 		return broker.Registry.InvokeWithCredential(broker, credential, request, now)
 	}
 	if err := broker.CommitCredential(credential, now); err != nil {
