@@ -3,14 +3,26 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `15410b6f` — 2026-11-28 15:16:59 +0330 — Merge pull request #63 from arashrasoulzadeh/architecture/neuron-management
+  Files: 
+- `cad89382` — 2026-11-28 15:16:52 +0330 — Merge main into Neuron management and preserve nested execution
+  Files: docs/unified-execution-architecture.md,internal/cortex/scheduler.go
+- `470d264e` — 2026-11-28 11:46:37 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `368de351` — 2026-11-28 15:16:16 +0330 — Merge pull request #62 from arashrasoulzadeh/architecture/nested-draft-execution
   Files: 
 - `13e24737` — 2026-11-28 11:44:17 +0000 — docs: update changelog [skip ci]
   Files: CHANGELOG.md
+- `e52a7401` — 2026-11-28 15:06:45 +0330 — Fix Go formatting of execution trace fields
+  Files: internal/cortex/telemetry.go
 - `152c4528` — 2026-11-28 15:06:38 +0330 — Fix Go formatting of execution trace fields
   Files: internal/cortex/telemetry.go
 - `e48918b3` — 2026-11-28 15:06:31 +0330 — Fix Go formatting of execution trace fields
   Files: internal/cortex/telemetry.go
+- `f708a410` — 2026-11-28 15:03:10 +0330 — Test authenticated Neuron controls and managed process recovery
+  Files: admin-nextjs/app/workers/view.tsx,tests/admin-ui/neuron-console.test.mjs tests/app/neuron_status_test.go,tests/cortex/management_test.go tests/development/test_dev_neurons.py
+- `87772afb` — 2026-11-28 15:01:35 +0330 — Add operator Neuron drain/resume and managed local process controls
+  Files: admin-nextjs/app/lib/neuron-dashboard.ts,admin-nextjs/app/workers/view.tsx cmd/brain/dev_neuron_management.go,cmd/brain/dev_neurons.go cmd/brain/main.go,docs/admins.md docs/http-api.md,docs/unified-execution-architecture.md internal/app/app.go,internal/app/neuron_control.go internal/app/neuron_status.go,internal/cortex/management.go internal/cortex/scheduler.go,tests/cortex/management_test.go
 - `3bb5d66a` — 2026-11-28 14:58:14 +0330 — Fence nested call responses and add same-session transport and runtime regressions
   Files: docs/developers.md,docs/functions-runtime.md internal/cortex/scheduler.go,internal/synapse/grpc_client.go internal/synapse/grpc_host_client.go,internal/synapse/host_calls.go scripts/function-worker.mjs,scripts/test-runtime-api.mjs tests/admin/scheduled_function_test.go,tests/synapse/grpc_nested_test.go tests/synapse/host_calls_test.go
 - `e1ef66a8` — 2026-11-28 11:27:27 +0000 — docs: update changelog [skip ci]
@@ -91,15 +103,3 @@ Automatically generated from commits on main.
   Files: tests/admin/lifecycle_service_edges_test.go,tests/cli/test_cli.py tests/plugin/dependency_activation_edges_test.go
 - `54e99566` — 2026-11-28 12:48:49 +0330 — test(synapse): reject malformed Brain replies and exercise cancelled artifact transfers
   Files: tests/synapse/grpc_client_rejections_test.go
-- `72ac111b` — 2026-11-28 12:47:27 +0330 — fix(neuron): revalidate standalone artifact digests and test runtime failure boundaries
-  Files: internal/neuron/typescript.go,tests/neuron/typescript_test.go
-- `733f801f` — 2026-11-28 12:46:33 +0330 — test(admin): exercise Neuron console filters, polling, error and session states
-  Files: tests/admin-ui/neuron-console.test.mjs
-- `057b2a70` — 2026-11-28 12:46:08 +0330 — test(coverage): include real isolated Linux Neuron subprocess execution
-  Files: cmd/brain/dev_neurons.go,scripts/test-production-runtime.sh tests/development/verify-neurons.mjs
-- `130a8100` — 2026-11-28 12:45:43 +0330 — test(synapse): cover authenticated stream rejection, heartbeat and cancellation
-  Files: tests/synapse/grpc_rejections_test.go
-- `7d1ada78` — 2026-11-28 02:13:02 +0330 — Document managed development stack and exec built server for shutdown
-  Files: README.md,docs/admins.md docs/developers.md,docs/http-api.md scripts/start-local.sh
-- `3b6a4e8e` — 2026-11-28 02:11:23 +0330 — fix(dev): align console tests and isolate managed Neuron environments
-  Files: cmd/brain/dev_neurons.go,docs/admin-pages/workers.md internal/synapse/grpc_wire.go,tests/admin-ui/pages.test.mjs tests/admin-ui/registry.test.mjs
