@@ -32,6 +32,7 @@ func (w *TypeScriptWorker) BindBundledRuntime(pluginRoot string) error {
 	}{
 		{filepath.Join(runtimeRoot, "plugins", "sdk-typescript"), "sdk-typescript"},
 		{filepath.Join(runtimeRoot, "package.json"), "package.json"},
+		{filepath.Join(runtimeRoot, "node_modules"), "node_modules"},
 	} {
 		canonical, err := filepath.EvalSymlinks(link.target)
 		if err != nil || canonical != link.target {

@@ -45,9 +45,9 @@ func (r *TypeScriptRuntime) probePlugin(ctx context.Context) error {
 	request := execution.Request{
 		ID: "probe", TraceID: "probe", ProjectID: "neuron-probe",
 		Artifact: execution.Artifact{ID: "neuron-plugin-probe", Version: "1.0.0", Digest: execution.ArtifactDigest(bundle), Entrypoint: "health"},
-		Runtime: r.capability, Input: json.RawMessage("null"), Context: encoded, Deadline: time.Now().Add(20 * time.Second),
+		Runtime:  r.capability, Input: json.RawMessage("null"), Context: encoded, Deadline: time.Now().Add(20 * time.Second),
 		Limits: execution.Limits{CPUTime: TypeScriptCPU, MemoryBytes: TypeScriptMemory, InputBytes: 4096, OutputBytes: 4096},
-		Auth: execution.Authorization{ProjectID: "neuron-probe", OriginalCaller: "host", Caller: "host", Capability: "health"},
+		Auth:   execution.Authorization{ProjectID: "neuron-probe", OriginalCaller: "host", Caller: "host", Capability: "health"},
 	}
 	result, err := r.Run(ctx, request, files)
 	if err != nil {

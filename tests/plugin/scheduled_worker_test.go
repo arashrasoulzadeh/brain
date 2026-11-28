@@ -133,3 +133,50 @@ func TestRegistryScheduledWorkerUsesCortex(t *testing.T) {
 		t.Fatal("disconnected Neuron was still used", err)
 	}
 }
+
+// All shipped manifests must be snapshotable without mounting other plugin
+// source directories. Dependency metadata is not permission to load code.
+func TestScheduledArtifactsForShippedPlugins(t *testing.T) {
+	locations, err := plugin.Discover("../../plugins")
+	if err != nil {
+		t.Fatal(err)
+	}
+	catalog, err := execution.NewCatalog(128, execution.MaxBundleBytes)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rt := execution.Runtime{Kind: plugin.ScheduledTypeScriptKind, Profile: "test"}
+	for _, location := range locations {
+		t.Run(location.ID, func(t *testing.T) {
+			manifest, err := plugin.LoadManifest(location.ManifestPath)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if _, err := plugin.RegisterScheduledArtifact(catalog, rt, manifest, location.Directory); err != nil {
+				t.Fatal(err)
+			}
+		})
+	}
+}
+
+func TestScheduledManifestRejectsDependencySourceAndUndeclaredMetadata(t *testing.T) {
+	manifest := plugin.Manifest{
+		ID: "sample", Version: "1.0.0", HostAPI: 1, Entry: "index.ts",
+		SourceFiles: []string{"index.ts"}, Capabilities: []string{"read"},
+		Routes:               []plugin.Route{{Operation: "read", Function: "read", Capability: "read"}},
+		OptionalDependencies: []string{"other@1.0.0"}, PluginImports: []string{"other@1.0.0"},
+		Imports:              []string{"../sdk-typescript/src/index.js"},
+	}
+	if err := plugin.ValidateScheduledManifest(manifest); err != nil {
+		t.Fatal(err)
+	}
+	manifest.Imports = append(manifest.Imports, "../other/index.js")
+	if !errors.Is(plugin.ValidateScheduledManifest(manifest), plugin.ErrInvalidWorkerRequest) {
+		t.Fatal("dependency source import accepted")
+	}
+	manifest.Imports = manifest.Imports[:1]
+	manifest.PluginImports = []string{"unknown@1.0.0"}
+	if !errors.Is(plugin.ValidateScheduledManifest(manifest), plugin.ErrInvalidWorkerRequest) {
+		t.Fatal("undeclared dependency metadata accepted")
+	}
+}

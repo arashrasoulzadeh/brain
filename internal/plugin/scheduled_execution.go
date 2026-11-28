@@ -4,7 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"os"
+	"path"
 	"path/filepath"
+	"slices"
+	"strings"
 	"sync"
 	"time"
 
@@ -37,7 +40,7 @@ type ScheduledArtifact struct {
 // version. Call only with trusted registry metadata and a host-owned source
 // directory; the runtime must validate the extracted source again.
 func RegisterScheduledArtifact(catalog *execution.Catalog, runtime execution.Runtime, manifest Manifest, directory string) (*ScheduledArtifact, error) {
-	if catalog == nil || runtime.Kind != ScheduledTypeScriptKind || manifest.HostAPI != 1 || len(manifest.PluginImports) != 0 {
+	if catalog == nil || runtime.Kind != ScheduledTypeScriptKind || ValidateScheduledManifest(manifest) != nil {
 		return nil, ErrInvalidWorkerRequest
 	}
 	if err := ValidatePluginSources(directory, manifest); err != nil {
@@ -71,6 +74,30 @@ func RegisterScheduledArtifact(catalog *execution.Catalog, runtime execution.Run
 		return nil, err
 	}
 	return &ScheduledArtifact{catalog: catalog, key: key, runtime: runtime}, nil
+}
+
+// ValidateScheduledManifest permits dependency metadata, not dependency source
+// imports. Brain resolves available dependencies and admits any host.call route;
+// the Neuron receives only the declared sources and the trusted runtime SDK.
+func ValidateScheduledManifest(manifest Manifest) error {
+	if manifest.HostAPI != 1 {
+		return ErrInvalidWorkerRequest
+	}
+	if err := ValidateManifestContract(manifest); err != nil {
+		return err
+	}
+	for _, dependency := range manifest.PluginImports {
+		if !slices.Contains(manifest.Dependencies, dependency) && !slices.Contains(manifest.OptionalDependencies, dependency) {
+			return ErrInvalidWorkerRequest
+		}
+	}
+	for _, imported := range manifest.Imports {
+		clean := path.Clean(imported)
+		if strings.HasPrefix(clean, "../") && !strings.HasPrefix(clean, "../sdk-typescript/") {
+			return ErrInvalidWorkerRequest
+		}
+	}
+	return nil
 }
 
 // ScheduledWorker is an installation-scoped lifecycle handle, not a process.
@@ -182,8 +209,8 @@ func (w *ScheduledWorker) HandleExecution(request WorkerRequest) (WorkerResponse
 		ID: host.InvocationID, TraceID: host.InvocationID, ProjectID: w.project,
 		Artifact: artifact, Runtime: runtime, Input: input, Context: encoded,
 		Deadline: time.Now().Add(scheduledInvocationLimit),
-		Limits: execution.Limits{CPUTime: ScheduledTypeScriptCPU, MemoryBytes: ScheduledTypeScriptMemory, InputBytes: scheduledMessageLimit, OutputBytes: scheduledMessageLimit},
-		Auth: execution.Authorization{ProjectID: w.project, OriginalCaller: original, Caller: caller, Capability: permission.Capability, Resource: permission.Resource},
+		Limits:   execution.Limits{CPUTime: ScheduledTypeScriptCPU, MemoryBytes: ScheduledTypeScriptMemory, InputBytes: scheduledMessageLimit, OutputBytes: scheduledMessageLimit},
+		Auth:     execution.Authorization{ProjectID: w.project, OriginalCaller: original, Caller: caller, Capability: permission.Capability, Resource: permission.Resource},
 	}
 	if err = assigned.Validate(time.Now()); err != nil {
 		return WorkerResponse{}, ErrInvalidWorkerRequest
@@ -213,7 +240,7 @@ func DecodeScheduledRequest(assigned execution.Request, manifest Manifest) (Work
 	if err := assigned.Validate(time.Now()); err != nil {
 		return WorkerRequest{}, err
 	}
-	if assigned.Runtime.Kind != ScheduledTypeScriptKind || assigned.Artifact.ID != manifest.ID || assigned.Artifact.Version != manifest.Version || manifest.HostAPI != 1 {
+	if assigned.Runtime.Kind != ScheduledTypeScriptKind || assigned.Artifact.ID != manifest.ID || assigned.Artifact.Version != manifest.Version || ValidateScheduledManifest(manifest) != nil {
 		return WorkerRequest{}, ErrInvalidWorkerRequest
 	}
 	operation := assigned.Artifact.Entrypoint

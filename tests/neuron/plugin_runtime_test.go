@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 	"runtime"
 	"testing"
-	"time"
 
 	"brain/internal/execution"
 	"brain/internal/neuron"
@@ -20,7 +19,7 @@ func TestPluginRuntimePreservesPreparedContextAndEffects(t *testing.T) {
 		t.Skip("Linux trusted launcher fixture; real sandbox parity requires separate platform CI")
 	}
 	root := t.TempDir()
-	for _, path := range []string{"scripts", "plugins/sdk-typescript"} {
+	for _, path := range []string{"scripts", "plugins/sdk-typescript", "node_modules"} {
 		if err := os.MkdirAll(filepath.Join(root, path), 0o700); err != nil {
 			t.Fatal(err)
 		}

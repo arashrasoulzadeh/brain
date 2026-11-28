@@ -98,16 +98,18 @@ if [ -n "$runtime_root" ]; then
   fi
   if [ -n "$bundle_parent" ]; then
     # Fresh Neuron bundles use the same relative SDK and package scope as
-    # installed plugins. Only the two host-created aliases are permitted.
+    # installed plugins. Only the host-created runtime aliases are permitted.
     if [ "$bundle_parent" != "$(dirname "$plugin_root")" ] || [ "$(basename "$plugin_root")" != source ] ||
-       [ ! -L "$bundle_parent/sdk-typescript" ] || [ ! -L "$bundle_parent/package.json" ] ||
+       [ ! -L "$bundle_parent/sdk-typescript" ] || [ ! -L "$bundle_parent/package.json" ] || [ ! -L "$bundle_parent/node_modules" ] ||
        [ "$(realpath "$bundle_parent/sdk-typescript")" != "$runtime_root/plugins/sdk-typescript" ] ||
-       [ "$(realpath "$bundle_parent/package.json")" != "$runtime_root/package.json" ]; then
+       [ "$(realpath "$bundle_parent/package.json")" != "$runtime_root/package.json" ] ||
+       [ "$(realpath "$bundle_parent/node_modules")" != "$runtime_root/node_modules" ]; then
       echo "invalid bundled runtime aliases" >&2
       exit 78
     fi
     mounts+=(--symlink "$runtime_root/plugins/sdk-typescript" "$bundle_parent/sdk-typescript"
-      --symlink "$runtime_root/package.json" "$bundle_parent/package.json")
+      --symlink "$runtime_root/package.json" "$bundle_parent/package.json"
+      --symlink "$runtime_root/node_modules" "$bundle_parent/node_modules")
   fi
   node_args+=(--import "$loader")
 fi

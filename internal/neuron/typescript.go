@@ -112,9 +112,6 @@ func (r *TypeScriptRuntime) Run(ctx context.Context, request execution.Request, 
 	var invocation plugin.WorkerRequest
 	bundled := r.capability.Kind == plugin.ScheduledTypeScriptKind
 	if bundled {
-		if len(manifest.PluginImports) != 0 {
-			return execution.Result{}, ErrRuntimeArtifact
-		}
 		invocation, err = plugin.DecodeScheduledRequest(request, manifest)
 		if err != nil {
 			return execution.Result{}, err
