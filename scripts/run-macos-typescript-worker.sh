@@ -11,9 +11,11 @@ cd "${PLUGIN_ROOT:?PLUGIN_ROOT is required}"
 ulimit -t "$(( (CPU_MILLIS + 999) / 1000 ))"
 # macOS does not implement Linux's reliable per-process address-space limit.
 # Keep the V8 heap cap and Go's existing invocation deadline.
-node_args=(--max-old-space-size=128 --disable-wasm-trap-handler --import "$loader")
+node_args=(--max-old-space-size=128 --disable-wasm-trap-handler)
 if [ "$(basename "$worker")" = function-worker.mjs ]; then
   node_args+=(--experimental-vm-modules --no-warnings)
+else
+  node_args+=(--import "$loader")
 fi
 exec /usr/bin/env -i PATH=/usr/bin:/bin HOME=/tmp TMPDIR=/tmp \
   TSX_DISABLE_CACHE=1 BRAIN_WORKER_READY=1 GOMAXPROCS=2 UV_THREADPOOL_SIZE=2 \
