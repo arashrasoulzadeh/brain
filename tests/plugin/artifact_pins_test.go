@@ -17,10 +17,10 @@ func artifactRegistration(t *testing.T, project, version, source string) executi
 		t.Fatal(err)
 	}
 	return execution.Registration{
-		Key: execution.ArtifactKey{ProjectID: project, ID: "files", Version: version},
-		Runtime: execution.Runtime{Kind: "typescript", Profile: "sandboxed"},
+		Key:         execution.ArtifactKey{ProjectID: project, ID: "files", Version: version},
+		Runtime:     execution.Runtime{Kind: "typescript", Profile: "sandboxed"},
 		Entrypoints: []string{"files.list", "files.metadata"},
-		Bundle: bundle,
+		Bundle:      bundle,
 	}
 }
 
