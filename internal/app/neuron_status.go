@@ -14,9 +14,9 @@ func (s *Server) SetNeuronScheduler(scheduler *cortex.Scheduler) {
 }
 
 type neuronStatus struct {
-	Configured bool            `json:"configured"`
-	Snapshot   cortex.Snapshot `json:"snapshot"`
-	Managed    []ManagedNeuron `json:"managed,omitempty"`
+	Configured  bool                       `json:"configured"`
+	Snapshot    cortex.Snapshot            `json:"snapshot"`
+	Managed     []ManagedNeuron            `json:"managed,omitempty"`
 	Performance []cortex.NeuronPerformance `json:"performance"`
 }
 
