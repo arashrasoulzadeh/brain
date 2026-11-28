@@ -8,6 +8,7 @@ import (
 )
 
 const maxObservationAttempts = 3
+const observationCapacityDelay = 5 * time.Second
 const maxPendingObservations = 10000
 const maxPendingProjectObservations = 1000
 
@@ -78,6 +79,16 @@ func (r *Registry) DrainObservations(now time.Time, limit int) (int, error) {
 		delivery.Target.accessPrincipal = pluginAccessPrincipal(delivery.Publisher.PluginID, delivery.Publisher.Version)
 		delivery.Target.originPrincipal = delivery.Publisher.originalPrincipal()
 		event, persist, err := r.validateQueuedObservation(delivery)
+		// Lack of a compatible Neuron is not an observer execution attempt.
+		// Keep the bounded durable queue intact until capacity returns. Never
+		// defer an authorization failure, or infer non-execution from a result.
+		if err == nil && r.observationAwaitingCapacity(delivery.Target) {
+			if err := store.deferObservation(delivery, now.Add(observationCapacityDelay)); err != nil {
+				return i, err
+			}
+			r.recordObservation("observation_waiting_capacity", delivery.Target, delivery.detail())
+			continue
+		}
 		if err == nil {
 			response, invokeErr := r.invokeOnce(delivery.Target, true)
 			err = invokeErr
@@ -109,6 +120,17 @@ func (r *Registry) DrainObservations(now time.Time, limit int) (int, error) {
 		r.recordObservation("observation_retry", delivery.Target, detail)
 	}
 	return len(deliveries), nil
+}
+
+// Only scheduled handles advertise cluster availability. Preserve existing
+// missing/failed legacy-worker retry behavior and never count busy slots as
+// absence of compatible capacity.
+func (r *Registry) observationAwaitingCapacity(request WorkerRequest) bool {
+	r.workerMu.RLock()
+	worker := r.workers[request.ProjectID+":"+request.PluginID+"@"+request.Version]
+	r.workerMu.RUnlock()
+	scheduled, ok := worker.(*ScheduledWorker)
+	return ok && scheduled.Ready() && !scheduled.ExecutionAvailable()
 }
 
 func (r *Registry) validateQueuedObservation(delivery observationDelivery) (Observation, bool, error) {
