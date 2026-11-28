@@ -139,6 +139,22 @@ func TestFunctionHTTPAuthoringPublishingAndExecution(t *testing.T) {
 	request(http.MethodPost, publicPath, "Basic forged", map[string]any{}, 403)
 	request(http.MethodPost, publicPath, "Bearer forged", map[string]any{}, 404)
 	request(http.MethodPost, publicPath, "", map[string]any{"value": 8}, 200)
+	// Reproduce the editor's save-and-publish flow with a reused version.
+	changed := "export const config = { method: 'GET' }; export default () => ({updated: true})"
+	command("functions.update", map[string]any{"source": changed, "function_version": 2}, 200)
+	request(http.MethodGet, publicPath, "", nil, 405)
+	next := command("functions.publish", map[string]any{"function_version": 2}, 200)
+	var publication struct {
+		Version int    `json:"version"`
+		Method  string `json:"method"`
+	}
+	if err := json.Unmarshal(next.Body.Bytes(), &publication); err != nil || publication.Version != 3 || publication.Method != "GET" {
+		t.Fatalf("automatic publication version: %+v, %v", publication, err)
+	}
+	live := request(http.MethodGet, publicPath, "", nil, 200)
+	if !strings.Contains(live.Body.String(), `"updated":true`) {
+		t.Fatalf("new publication not live: %s", live.Body.String())
+	}
 	logs := request(http.MethodGet, "/"+projectID+"/admin/function-logs?name=echo", auth, nil, 200)
 	var records []admin.FunctionLog
 	if err := json.Unmarshal(logs.Body.Bytes(), &records); err != nil {

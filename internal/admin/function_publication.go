@@ -53,6 +53,32 @@ func pinFunctionPublication(draft FunctionDraft) (FunctionDraft, error) {
 	return draft, nil
 }
 
+// pinNextFunctionPublication preserves existing pins and allocates a new
+// version only when an explicit publication would change an existing pin.
+// The caller holds functionDrafts.Lock across selection and persistence.
+func pinNextFunctionPublication(draft FunctionDraft) (FunctionDraft, error) {
+	pinned, err := pinFunctionPublication(draft)
+	if !errors.Is(err, ErrFunctionVersionConflict) {
+		return pinned, err
+	}
+	if _, occupied := draft.PublishedVersions[draft.Version]; !occupied || len(draft.PublishedVersions) >= maxFunctionPublications {
+		return draft, err
+	}
+	highest := draft.Version
+	for version := range draft.PublishedVersions {
+		if version > highest {
+			highest = version
+		}
+	}
+	// Avoid integer overflow and version numbers that cannot round-trip
+	// through the JavaScript authoring client.
+	if highest == int(^uint(0)>>1) || int64(highest) >= 9007199254740991 {
+		return draft, ErrFunctionVersionConflict
+	}
+	draft.Version = highest + 1
+	return pinFunctionPublication(draft)
+}
+
 // Legacy records did not preserve the published bytes. Adopt the first known
 // source before editing; do not pretend historical publications can be restored.
 func adoptLegacyPublication(draft FunctionDraft) FunctionDraft {

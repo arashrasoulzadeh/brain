@@ -106,7 +106,7 @@ Send to `POST /{project}/admin/functions` (up to 1 MiB of JSON). All commands in
 | `functions.test` | source | Host preflight only, not proof of execution. |
 | `functions.run` | source, input | Sandbox result or error and execution log. |
 | `functions.permissions` | permissions, public | Save settings. |
-| `functions.publish` | method (source config authoritative) | Publication version, method, timestamp and route. |
+| `functions.publish` | method (source config authoritative) | Publication version, method, timestamp and route. If the saved version is already pinned to different bytes, the host atomically allocates a new version above the highest retained publication; use the returned version. |
 
 See [function development and publication](functions-runtime.md) for valid source, execution limits, authentication and examples. See [admin page contracts](admin-pages/README.md) for screens and [plugin communication](plugin-communication.md) for the internal RPC contract.
 

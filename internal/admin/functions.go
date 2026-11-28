@@ -343,7 +343,7 @@ func persistPublishedFunction(projectID, name string) (FunctionDraft, error) {
 	if !ok {
 		return FunctionDraft{}, ErrFunctionDraftInvalid
 	}
-	draft, err := pinFunctionPublication(draft)
+	draft, err := pinNextFunctionPublication(draft)
 	if err != nil {
 		return FunctionDraft{}, err
 	}

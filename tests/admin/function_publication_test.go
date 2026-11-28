@@ -37,9 +37,6 @@ func TestPublishedFunctionPinsSourceAndMethodAcrossDraftEdits(t *testing.T) {
 	if _, err := service.UpdateFunctionDraft(actor, project, "sample", updated, 1); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := service.PublishFunction(actor, project, "sample", "GET"); !errors.Is(err, admin.ErrFunctionVersionConflict) {
-		t.Fatalf("same version replaced: %v", err)
-	}
 	// A new service reads the immutable publication, not editable source.
 	service = admin.NewLifecycleService(nil, nil)
 	assertValue := func(method, value string) {
@@ -57,14 +54,25 @@ func TestPublishedFunctionPinsSourceAndMethodAcrossDraftEdits(t *testing.T) {
 	if _, err := service.PublicInvokeFunction(project, "sample", "GET", nil); !errors.Is(err, admin.ErrFunctionMethodNotAllowed) {
 		t.Fatalf("draft method changed live route: %v", err)
 	}
-	if _, err := service.UpdateFunctionDraft(actor, project, "sample", updated, 2); err != nil {
-		t.Fatal(err)
-	}
 	published, err = service.PublishFunction(actor, project, "sample", "GET")
-	if err != nil || published.ActivePublication != 2 || len(published.PublishedVersions) != 2 {
+	if err != nil || published.Version != 2 || published.ActivePublication != 2 || len(published.PublishedVersions) != 2 || published.PublishedVersions[1].Source != initial || published.PublishedVersions[1].Method != "POST" {
 		t.Fatalf("new publication: %+v %v", published, err)
 	}
 	assertValue("GET", "second")
+	repeated, err := service.PublishFunction(actor, project, "sample", "GET")
+	if err != nil || repeated.Version != 2 || len(repeated.PublishedVersions) != 2 {
+		t.Fatalf("unchanged source created another version: %+v %v", repeated, err)
+	}
+	// A stale draft version must skip every existing pin, not just v1.
+	const third = "export const config = { method: 'GET' }; export default () => ({value:'third'})"
+	if _, err := service.UpdateFunctionDraft(actor, project, "sample", third, 1); err != nil {
+		t.Fatal(err)
+	}
+	published, err = service.PublishFunction(actor, project, "sample", "GET")
+	if err != nil || published.Version != 3 || len(published.PublishedVersions) != 3 || published.PublishedVersions[2].Source != updated {
+		t.Fatalf("stale draft publication: %+v %v", published, err)
+	}
+	assertValue("GET", "third")
 	if err := service.UpdateFunctionPermissions(actor, project, "sample", nil, false); err != nil {
 		t.Fatal(err)
 	}
@@ -74,7 +82,7 @@ func TestPublishedFunctionPinsSourceAndMethodAcrossDraftEdits(t *testing.T) {
 	if err := service.UpdateFunctionPermissions(actor, project, "sample", nil, true); err != nil {
 		t.Fatal(err)
 	}
-	assertValue("GET", "second")
+	assertValue("GET", "third")
 	if err := os.WriteFile(".local/function-drafts.json", []byte("corrupt"), 0o600); err != nil {
 		t.Fatal(err)
 	}

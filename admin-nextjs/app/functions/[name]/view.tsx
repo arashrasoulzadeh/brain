@@ -19,6 +19,8 @@ type Draft = {
   permissions?: string[];
   method?: string;
   published_at?: string;
+  active_publication?: number;
+  published_versions?: Record<string, { version: number; method: string; source: string; digest: string }>;
 };
 export default function FunctionDetailPage() {
   const params = useParams<{ name: string }>();
@@ -186,7 +188,10 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
         report("Source saved; publication failed: " + (body || String(response.status)), true);
         return;
       }
-      report("Published current version.");
+      const publication = JSON.parse(body) as { version: number };
+      setSavedVersion(publication.version);
+      setVersionInput(String(publication.version));
+      report("Published version " + publication.version + ".");
       setPublishPending(false);
       await refresh(session).catch(reason => report("Published; refresh failed: " + String(reason), true));
     } catch (error) {
@@ -295,7 +300,7 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
         ))}
       </nav>
       {discardPending && <AdminDialog title="Discard unsaved changes" scope={project + " · " + name} onClose={() => setDiscardPending(false)}><p>Restore the last saved source and version? Local edits will be lost.</p><button type="button" onClick={() => { setDraft(previous => previous ? { ...previous, source: savedSource } : previous); setVersionInput(String(savedVersion)); setValidationMessage(""); setValidationOK(false); setDiscardPending(false); }}>Discard edits</button></AdminDialog>}
-      {publishPending && <AdminDialog title="Publish current version" scope={project + " · " + name} busy={publishing} onClose={() => setPublishPending(false)}><p>Save the current source and publish version {versionInput}?</p><p>Publishing enables public route visibility on the current host record. Caller authorization is still enforced by host policy.</p><button type="button" disabled={publishing} onClick={() => void publish()}>Confirm publish</button>{publishing && <AdminProgress label="Saving and publishing…" />}{message && <p role={messageError ? "alert" : "status"}>{message}</p>}</AdminDialog>}
+      {publishPending && <AdminDialog title="Publish current version" scope={project + " · " + name} busy={publishing} onClose={() => setPublishPending(false)}><p>Save the current source and publish version {versionInput}? If this version already contains different published source, Brain will allocate the next unused version.</p><p>Publishing enables public route visibility on the current host record. Caller authorization is still enforced by host policy.</p><button type="button" disabled={publishing} onClick={() => void publish()}>Confirm publish</button>{publishing && <AdminProgress label="Saving and publishing…" />}{message && <p role={messageError ? "alert" : "status"}>{message}</p>}</AdminDialog>}
       {settingsPending && <AdminDialog title="Update function settings" scope={project + " · " + name} busy={publishing} onClose={() => setSettingsPending(undefined)}><p>{settingsPending.publicRoute ? "Public route enabled" : "Private route"} · Permissions: {settingsPending.permissions.join(", ") || "None"}</p><button type="button" disabled={publishing} onClick={() => void savePermissions(settingsPending.permissions, settingsPending.publicRoute)}>Confirm settings</button>{publishing && <AdminProgress label="Saving function settings…" />}{message && <p role={messageError ? "alert" : "status"}>{message}</p>}</AdminDialog>}
       {tab !== "editor" && message && <p role={messageError ? "alert" : "status"}>{message}</p>}
       {logError && (tab === "logs" || tab === "analytics") && <section><p role="alert">{logError}</p><button type="button" className="secondary" onClick={() => setLogRefresh(value => value + 1)}>Refresh logs</button></section>}
@@ -321,7 +326,7 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
           <h2>Function settings</h2>
           <label>Source version<input type="number" min="1" step="1" value={versionInput} disabled={publishing || validating} onChange={event => setVersionInput(event.target.value)} /></label>
           {functionVersion(versionInput) === undefined && <p role="alert">Version must be a positive integer.</p>}
-          <p className="muted">Saved version: {savedVersion}. Changes are applied by saving or publishing.</p>
+          <p className="muted">Saved draft version: {savedVersion}. Published version: {draft.active_publication ?? "—"}. Publishing changed source automatically advances a conflicting version.</p>
           <div className="function-inspector-block"><h3>HTTP method</h3><code>{draft.method ?? "—"}</code><p className="muted">Saved method. Edit the exported config in source to change it.</p></div>
           <div className="function-inspector-block">
             <h3>Visibility</h3>
@@ -344,11 +349,12 @@ function FunctionDetail({ name, requestedProject }: { name: string; requestedPro
       {tab === "deployments" && (
         <section className="section">
           <h2>Current publication</h2>
-          <p className="muted">The host stores a publication timestamp on the current mutable record. It does not expose an immutable release history or a separately deployed source version.</p>
+          <p className="muted">The published source and method are pinned independently of the editable draft. A new publication never overwrites an existing version.</p>
           {draft.published_at ? <div className="table-wrap"><table><tbody>
             <tr><th scope="row">Last published</th><td><time dateTime={draft.published_at}>{new Date(draft.published_at).toLocaleString()}</time></td></tr>
             <tr><th scope="row">Current saved source version</th><td>{savedVersion}</td></tr>
-            <tr><th scope="row">Current stored method</th><td>{draft.method ?? "—"}</td></tr>
+            <tr><th scope="row">Active published version</th><td>{draft.active_publication ?? "—"}</td></tr>
+            <tr><th scope="row">Published method</th><td>{draft.published_versions?.[String(draft.active_publication)]?.method ?? "—"}</td></tr>
             <tr><th scope="row">Configured visibility</th><td>{draft.public ? "Public" : "Private"}</td></tr>
             <tr><th scope="row">Route</th><td><code>{route}</code> <button type="button" className="secondary" onClick={() => { if (!navigator.clipboard) { report("Clipboard unavailable", true); return; } void navigator.clipboard.writeText(route).then(() => report("URL copied"), () => report("Could not copy URL", true)); }}>Copy URL</button></td></tr>
           </tbody></table></div> : <div className="empty-panel">No publication recorded. Publish from the editor when ready.</div>}
