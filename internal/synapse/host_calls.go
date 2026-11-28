@@ -22,7 +22,8 @@ func (s *Session) BeginHostCall(lease Lease, callID uint64, operation string, in
 	}
 	req := p.assignment.Request
 	if req.Runtime.Kind != execution.UserFunctionRuntimeKind || req.Artifact.Entrypoint != "functions.invoke" ||
-		req.Auth.Capability != "functions.invoke" || req.ParentID != "" || req.Auth.OriginalCaller != req.Auth.Caller ||
+		req.Auth.Capability != "functions.invoke" || req.Artifact.ProjectID != req.ProjectID || req.Auth.Resource == "" ||
+		req.ParentID != "" || req.Auth.OriginalCaller != req.Auth.Caller ||
 		!strings.HasPrefix(req.Auth.Caller, "operator:") || len(req.Auth.Caller) <= len("operator:") {
 		return nil, nil, ErrProtocol
 	}

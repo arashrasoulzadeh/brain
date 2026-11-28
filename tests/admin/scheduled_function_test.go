@@ -85,6 +85,18 @@ func TestPublishedFunctionDispatchUsesExactScopedBundleWithoutFallback(t *testin
 }
 
 func TestOperatorDraftUsesScheduledArtifactAndHostHandler(t *testing.T) {
+	cwd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chdir(t.TempDir()); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() {
+		if err := os.Chdir(cwd); err != nil {
+			t.Error(err)
+		}
+	})
 	service := admin.NewLifecycleService(nil, nil)
 	catalog, err := execution.NewCatalog(1, 1<<20)
 	if err != nil {

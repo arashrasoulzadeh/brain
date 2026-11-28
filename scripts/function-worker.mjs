@@ -33,13 +33,15 @@ if (!first.done) {
     const draft = p.operation === "functions.invoke" && p.hostContext.auth.actor.kind === "operator";
     let tail = Promise.resolve();
     let callID = 0;
+    let bridgeOpen = true;
     const hostCall = raw => {
+      if (!draft || !bridgeOpen) return Promise.resolve('{"error":"Plugin calls require an active operator sandbox test"}');
+      if (typeof raw !== "string" || Buffer.byteLength(raw) > 262144 || callID >= 16) return Promise.resolve('{"error":"Plugin call limit exceeded"}');
+      let operation, input;
+      try { ({operation,input} = JSON.parse(raw)); } catch { return Promise.resolve('{"error":"Invalid plugin operation"}'); }
+      if (typeof operation !== "string" || !operation || operation.length > 128) return Promise.resolve('{"error":"Invalid plugin operation"}');
+      const id = ++callID;
       const job = tail.then(async () => {
-        if (!draft) return '{"error":"Plugin calls require an operator sandbox test"}';
-        if (typeof raw !== "string" || Buffer.byteLength(raw) > 262144 || callID >= 16) return '{"error":"Plugin call limit exceeded"}';
-        const { operation, input } = JSON.parse(raw);
-        if (typeof operation !== "string" || !operation || operation.length > 128) return '{"error":"Invalid plugin operation"}';
-        const id = ++callID;
         process.stdout.write(JSON.stringify({hostCall:{id,operation,input:input??null}}) + "\n");
         const response = await iterator.next();
         if (response.done || Buffer.byteLength(response.value) > 1048576) throw new Error("host bridge closed");
@@ -66,13 +68,14 @@ if (!first.done) {
     let timer;
     try {
       sandbox.__result = await Promise.race([Promise.resolve(run("__handler(__input,__context)")), new Promise((_, reject) => {timer = setTimeout(() => reject(new Error("function execution timed out")), draft ? 10000 : 400);})]);
+      bridgeOpen = false;
       await tail;
       const result = JSON.parse(run("JSON.stringify(__result??null)"));
       const payload = {result, timings:{compile_ms:compileMs,evaluate_ms:evaluateMs,invoke_ms:clock()-invokeStart}};
       const encoded = JSON.stringify({jsonrpc:"2.0",id:request.id,result:{protocol:1,success:true,payload}});
       if (Buffer.byteLength(encoded) > 1048576) throw new Error("result too large");
       process.stdout.write(encoded + "\n");
-    } finally { clearTimeout(timer); }
+    } finally { bridgeOpen = false; clearTimeout(timer); }
   } catch {
     process.stdout.write(JSON.stringify({jsonrpc:"2.0",id:request?.id,result:{protocol:1,success:false,errorCode:"function execution failed"}}) + "\n");
   }

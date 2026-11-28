@@ -255,7 +255,11 @@ async function functionAction(operation, extra = {}) {
   assert.ok(response.ok, operation + ": " + await response.clone().text());
   return response.json();
 }
-await functionAction("functions.create",{source:functionSource,function_version:1});
+await functionAction("functions.create",{source:functionSource,function_version:1,permissions:["functions.invoke","files.metadata"]});
+const draftSource = "export const config = { method: 'POST' }; export default async (input, context) => ({metadata:await context.plugins.call('files.metadata',input),actor:context.auth.actor.kind})";
+const draft = await functionAction("functions.run",{source:draftSource,input:{key:binaryKey}});
+assert.equal(draft.result.actor,"operator");
+assert.equal(draft.result.metadata.key,binaryKey);
 await functionAction("functions.publish",{method:"POST"});
 const publicCall = await fetch(base + "/ci-project/functions/" + functionName, {
   method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({value:"neuron"}),signal:AbortSignal.timeout(20000)

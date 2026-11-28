@@ -112,14 +112,15 @@ func RunNeuron(ctx context.Context, address string, tlsConfig *tls.Config, cfg n
 type remoteJobKey struct{}
 
 type remoteJob struct {
-	lease      Lease
-	request    execution.Request
-	cancel     context.CancelFunc
-	assembler  *Assembler
-	bundle     chan []byte
-	fetching   bool
-	hostCallID uint64
-	hostReply  chan hostReply
+	lease        Lease
+	request      execution.Request
+	cancel       context.CancelFunc
+	assembler    *Assembler
+	bundle       chan []byte
+	fetching     bool
+	hostCallID   uint64
+	hostReply    chan hostReply
+	hostReceived bool
 }
 
 type remoteNeuron struct {

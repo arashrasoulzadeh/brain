@@ -15,7 +15,8 @@ func TestHostCallLeaseAdmissionAndBudget(t *testing.T) {
 	r := req("draft")
 	r.Runtime.Kind = execution.UserFunctionRuntimeKind
 	r.Artifact.Entrypoint = "functions.invoke"
-	r.Auth.Capability = "functions.invoke"
+	r.Auth.Capability, r.Auth.Resource = "functions.invoke", "sample"
+	r.Artifact.ProjectID = r.ProjectID
 	r.Auth.OriginalCaller, r.Auth.Caller = "operator:root", "operator:root"
 	ctx := execution.WithHostHandler(context.Background(), func(_ context.Context, op string, input json.RawMessage) (json.RawMessage, error) {
 		return input, nil

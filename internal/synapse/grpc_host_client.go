@@ -28,6 +28,7 @@ func (c *remoteNeuron) callHost(ctx context.Context, job *remoteJob, operation s
 	callID := job.hostCallID
 	reply := make(chan hostReply, 1)
 	job.hostReply = reply
+	job.hostReceived = false
 	c.mu.Unlock()
 	defer func() {
 		c.mu.Lock()
@@ -66,7 +67,7 @@ func (c *remoteNeuron) receiveHostResponse(response *pb.HostResponse) error {
 	if job == nil {
 		return nil // A response can cross terminal cancellation.
 	}
-	if job.lease != lease || response.CallId == 0 || response.CallId != job.hostCallID {
+	if job.lease != lease || response.CallId == 0 || response.CallId != job.hostCallID || job.hostReceived {
 		return ErrProtocol
 	}
 	if job.hostReply == nil {
@@ -89,6 +90,7 @@ func (c *remoteNeuron) receiveHostResponse(response *pb.HostResponse) error {
 	}
 	select {
 	case job.hostReply <- reply:
+		job.hostReceived = true
 		return nil
 	default:
 		return ErrProtocol
