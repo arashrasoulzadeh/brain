@@ -358,12 +358,20 @@ func persistPublishedFunction(projectID, name string) (FunctionDraft, error) {
 }
 
 func (s *LifecycleService) PublicInvokeFunction(projectID, name, method string, input json.RawMessage) (map[string]any, error) {
-	return s.publicInvokeFunction(projectID, name, method, input, plugin.InvocationActor{Kind: "public", Level: "anonymous"}, "public")
+	return s.PublicInvokeFunctionContext(context.Background(), projectID, name, method, input)
+}
+
+func (s *LifecycleService) PublicInvokeFunctionContext(ctx context.Context, projectID, name, method string, input json.RawMessage) (map[string]any, error) {
+	return s.publicInvokeFunction(ctx, projectID, name, method, input, plugin.InvocationActor{Kind: "public", Level: "anonymous"}, "public")
 }
 
 // PublicInvokeFunctionWithSession authenticates the existing published function
 // endpoint without permitting a bearer token to fall back to anonymous access.
 func (s *LifecycleService) PublicInvokeFunctionWithSession(projectID, name, method string, input json.RawMessage, token string) (map[string]any, error) {
+	return s.PublicInvokeFunctionWithSessionContext(context.Background(), projectID, name, method, input, token)
+}
+
+func (s *LifecycleService) PublicInvokeFunctionWithSessionContext(ctx context.Context, projectID, name, method string, input json.RawMessage, token string) (map[string]any, error) {
 	if s.registry == nil {
 		return nil, plugin.ErrActorDenied
 	}
@@ -371,10 +379,10 @@ func (s *LifecycleService) PublicInvokeFunctionWithSession(projectID, name, meth
 	if err != nil {
 		return nil, err
 	}
-	return s.publicInvokeFunction(projectID, name, method, input, actor, "user:"+actor.ID)
+	return s.publicInvokeFunction(ctx, projectID, name, method, input, actor, "user:"+actor.ID)
 }
 
-func (s *LifecycleService) publicInvokeFunction(projectID, name, method string, input json.RawMessage, authActor plugin.InvocationActor, principal string) (map[string]any, error) {
+func (s *LifecycleService) publicInvokeFunction(ctx context.Context, projectID, name, method string, input json.RawMessage, authActor plugin.InvocationActor, principal string) (map[string]any, error) {
 	edgeStarted := time.Now()
 	draft, publication, err := loadPublicFunctionPublication(projectID, name)
 	if err != nil {
@@ -398,7 +406,7 @@ func (s *LifecycleService) publicInvokeFunction(projectID, name, method string, 
 		}
 		return nil
 	}
-	result, err := s.runFunctionDraft(operator.Actor{Kind: operator.ActorOperator}, projectID, draft.Name, publication.Source, input, authActor, principal, "functions.call", []FunctionLogStep{
+	result, err := s.runFunctionDraft(ctx, operator.Actor{Kind: operator.ActorOperator}, projectID, draft.Name, publication.Source, input, authActor, principal, "functions.call", []FunctionLogStep{
 		{Name: "edge router", Status: "success", Reason: "public route resolved and function version selected", DurationMs: time.Since(edgeStarted).Milliseconds()},
 		{Name: "method authorization", Status: "success", Reason: "request method matched function source config", DurationMs: 0},
 	}, guard)
@@ -431,15 +439,19 @@ func (s *LifecycleService) validateFunctionDraft(actor operator.Actor, projectID
 }
 
 func (s *LifecycleService) RunFunctionDraft(actor operator.Actor, projectID, name, source string, input json.RawMessage) (map[string]any, error) {
+	return s.RunFunctionDraftContext(context.Background(), actor, projectID, name, source, input)
+}
+
+func (s *LifecycleService) RunFunctionDraftContext(ctx context.Context, actor operator.Actor, projectID, name, source string, input json.RawMessage) (map[string]any, error) {
 	if err := s.authorizeFunction(actor, projectID, "functions.invoke", name); err != nil {
 		return nil, err
 	}
-	return s.runFunctionDraft(actor, projectID, name, source, input, plugin.InvocationActor{Kind: "operator", ID: actor.ID, Authenticated: true, Level: "authenticated"}, "operator:"+actor.ID, "functions.invoke", nil, func() error {
+	return s.runFunctionDraft(ctx, actor, projectID, name, source, input, plugin.InvocationActor{Kind: "operator", ID: actor.ID, Authenticated: true, Level: "authenticated"}, "operator:"+actor.ID, "functions.invoke", nil, func() error {
 		return s.authorizeFunction(actor, projectID, "functions.invoke", name)
 	})
 }
 
-func (s *LifecycleService) runFunctionDraft(actor operator.Actor, projectID, name, source string, input json.RawMessage, authActor plugin.InvocationActor, principal, operation string, initialSteps []FunctionLogStep, guard func() error) (map[string]any, error) {
+func (s *LifecycleService) runFunctionDraft(ctx context.Context, actor operator.Actor, projectID, name, source string, input json.RawMessage, authActor plugin.InvocationActor, principal, operation string, initialSteps []FunctionLogStep, guard func() error) (map[string]any, error) {
 	started := time.Now()
 	requestID := createFunctionRequestID()
 	steps := append([]FunctionLogStep{}, initialSteps...)
@@ -553,15 +565,15 @@ process.stdout.write(JSON.stringify({result:result??null,timings:{compile_ms:com
 	if s.functionExecution != nil && operation == "functions.call" {
 		timeout = 15*time.Second
 	}
-	commandContext, cancel := context.WithTimeout(context.Background(), timeout)
+	commandContext, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
-	command := exec.CommandContext(commandContext, "node", "--no-warnings", "--experimental-vm-modules", "--input-type=module", "-e", runner)
-	command.Env = []string{"PATH=" + os.Getenv("PATH"), "BRAIN_FUNCTION_SOURCE=" + source, "BRAIN_FUNCTION_INPUT=" + string(input), "BRAIN_FUNCTION_PROJECT=" + string(projectJSON), "BRAIN_FUNCTION_AUTH=" + string(authJSON), "BRAIN_FUNCTION_OPERATION=" + operation, "BRAIN_INVOCATION_ID=" + requestID, "BRAIN_PURE_HELPERS=" + pluginsdk.PureHelperSource}
 	executionStarted := time.Now()
 	var output []byte
 	if s.functionExecution != nil && operation == "functions.call" {
 		output, err = s.functionExecution.run(commandContext, projectID, name, source, requestID, principal, input)
 	} else {
+		command := exec.CommandContext(commandContext, "node", "--no-warnings", "--experimental-vm-modules", "--input-type=module", "-e", runner)
+		command.Env = []string{"PATH=" + os.Getenv("PATH"), "BRAIN_FUNCTION_SOURCE=" + source, "BRAIN_FUNCTION_INPUT=" + string(input), "BRAIN_FUNCTION_PROJECT=" + string(projectJSON), "BRAIN_FUNCTION_AUTH=" + string(authJSON), "BRAIN_FUNCTION_OPERATION=" + operation, "BRAIN_INVOCATION_ID=" + requestID, "BRAIN_PURE_HELPERS=" + pluginsdk.PureHelperSource}
 		output, err = s.runFunctionCommand(commandContext, command, projectID, name, principal, operation)
 	}
 	if err != nil {
@@ -627,6 +639,10 @@ process.stdout.write(JSON.stringify({result:result??null,timings:{compile_ms:com
 		return nil, errors.New("function response serialization failed")
 	}
 	addStep("response serialization", "success", "JSON response encoded for the caller", responseStarted, nil)
+	if err := ctx.Err(); err != nil {
+		writeLog("failed", err.Error())
+		return nil, err
+	}
 	if guard != nil {
 		if err := guard(); err != nil {
 			addStep("result authorization", "failed", "publication or caller permission changed during execution", responseStarted, err)

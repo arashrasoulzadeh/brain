@@ -57,7 +57,7 @@ class DevNeuronProcessesTest(unittest.TestCase):
                     neurons = status["snapshot"]["Neurons"]
                     self.assertEqual({row["ID"] for row in neurons}, {f"local-neuron-{i:02d}" for i in range(1, 5)})
                     self.assertTrue(all(row["Slots"] == 1 and {rt["Kind"] for rt in row["Runtimes"]} ==
-                                        {"standalone-typescript", "plugin-typescript-v1"} for row in neurons))
+                                        {"standalone-typescript", "plugin-typescript-v1", "user-function-v1"} for row in neurons))
                     # Reuse the same actual HTTP/storage/lifecycle suite as Linux.
                     subprocess.run(["node", str(ROOT / "scripts/test-runtime-api.mjs")], cwd=ROOT,
                                    env=dict(env, BRAIN_TEST_ORIGIN=origin), check=True, timeout=360)

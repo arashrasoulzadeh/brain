@@ -46,3 +46,7 @@ export default async function handler(input, context) {
 ```
 
 This works in operator sandbox testing only; the public invocation endpoint deliberately does not inherit operator rights. Public/user delegation requires a separately designed caller policy and is not enabled by these grants.
+
+## Cortex published execution
+
+In managed Cortex development or explicitly configured production Cortex, published public/user functions run on an isolated Neuron with no local fallback. Publication source and HTTP method are pinned independently of drafts. The user-function runtime exposes pure helpers and trusted identity, but not operator-only plugin reads. Operator draft tests retain their existing bridge pending migration. Publication history is stored in the existing Brain-local function metadata file; this is not multi-host storage. Full regression verification is pending.
