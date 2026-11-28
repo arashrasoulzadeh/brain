@@ -28,7 +28,7 @@ def source_snapshot(root):
     snapshot = {}
 
     def record(path):
-        if path.name == ".DS_Store" or path.name.endswith(IGNORED_SUFFIXES):
+        if path.name in {".DS_Store", "next-env.d.ts"} or path.name.endswith(IGNORED_SUFFIXES):
             return
         try:
             stat = path.lstat()

@@ -60,7 +60,6 @@ class DevStackStartupTest(unittest.TestCase):
             cleanup.assert_called_once_with([("server", server), ("admin", admin)])
         self.assertEqual(events, ["bash", "live", "npm"])
 
-
     def test_watcher_detects_edits_additions_and_deletions_but_not_generated_files(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -77,6 +76,7 @@ class DevStackStartupTest(unittest.TestCase):
 
             (root / ".local/brain.sqlite").write_text("data")
             (root / "admin-nextjs/.next-dev/build.js").write_text("generated")
+            (root / "admin-nextjs/next-env.d.ts").write_text("generated Next.js types")
             (root / "plugins/node_modules/cache.js").write_text("dependency")
             self.assertFalse(scan(1))
             self.assertFalse(scan(2))
