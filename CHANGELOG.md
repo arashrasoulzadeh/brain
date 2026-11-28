@@ -3,6 +3,48 @@
 Automatically generated from commits on main.
 
 ## Unreleased
+- `40d72486` — 2026-11-28 14:45:50 +0330 — Ignore generated Next.js environment declarations during development watching
+  Files: scripts/dev-stack.py,tests/development/test_dev_stack.py
+- `033e839f` — 2026-11-28 14:45:24 +0330 — Watch source changes and restart the entire native development stack
+  Files: Makefile,docs/developers.md scripts/dev-stack.py,tests/development/test_dev_stack.py
+- `0fd05f02` — 2026-11-28 14:43:45 +0330 — Wait for Brain HTTP liveness before launching development admin
+  Files: docs/developers.md,scripts/dev-stack.py tests/development/test_dev_stack.py
+- `176a48d7` — 2026-11-28 14:41:38 +0330 — Distinguish admitted public function execution failures from concealed routes
+  Files: docs/functions-runtime.md,docs/http-api.md internal/admin/function_execution.go,internal/admin/functions.go internal/app/admin_functions.go,tests/admin/scheduled_function_test.go tests/app/function_http_test.go
+- `31e357c2` — 2026-11-28 14:37:51 +0330 — Allocate new immutable publication version when edited source conflicts
+  Files: admin-nextjs/app/functions/[name]/view.tsx,docs/admin-pages/function-detail.md docs/functions-runtime.md,docs/http-api.md internal/admin/function_publication.go,internal/admin/functions.go tests/admin/function_publication_test.go,tests/app/function_http_test.go
+- `43b69707` — 2026-11-28 14:34:36 +0330 — Merge pull request #61 from arashrasoulzadeh/architecture/cortex-execution-telemetry
+  Files: 
+- `2dfef6a1` — 2026-11-28 14:33:26 +0330 — Expose bounded Cortex execution telemetry and real launcher usage
+  Files: admin-nextjs/app/lib/neuron-dashboard.ts,admin-nextjs/app/workers/view.tsx docs/unified-execution-architecture.md,internal/cortex/scheduler.go internal/cortex/telemetry.go,internal/neuron/function_runtime.go internal/neuron/typescript.go,internal/plugin/process_usage.go internal/plugin/process_usage_other.go,internal/plugin/process_usage_unix.go tests/admin-ui/neuron-console.test.mjs,tests/cortex/telemetry_test.go
+- `85b5f2cb` — 2026-11-28 14:31:47 +0330 — Merge pull request #60 from arashrasoulzadeh/architecture/distributed-function-runtime
+  Files: 
+- `ae02ab4e` — 2026-11-28 14:31:22 +0330 — Exercise published function API in runtime integration tests
+  Files: internal/admin/function_execution.go,internal/admin/functions.go internal/neuron/function_runtime.go,scripts/test-runtime-api.mjs
+- `dc58257e` — 2026-11-28 14:30:02 +0330 — Propagate function cancellation and cover scheduled dispatch
+  Files: cmd/brain/main.go,docs/functions-runtime.md docs/unified-execution-architecture.md,internal/admin/function_execution.go internal/admin/functions.go,internal/admin/lifecycle.go internal/app/admin_functions.go,tests/admin/scheduled_function_test.go tests/development/test_dev_neurons.py,tests/development/verify-neurons.mjs
+- `199c72d8` — 2026-11-28 14:29:08 +0330 — Route published functions through isolated Neuron runtime
+  Files: Dockerfile,cmd/brain/main.go cmd/brain/neuron.go,internal/admin/function_execution.go internal/admin/functions.go,internal/admin/lifecycle.go internal/execution/catalog.go,internal/execution/function.go internal/execution/runtime_identity.go,internal/neuron/function_runtime.go scripts/function-worker.mjs,scripts/run-macos-typescript-worker.sh scripts/run-sandboxed-typescript-worker.sh,tests/execution/runtime_identity_test.go tests/execution/transient_catalog_test.go
+- `51f4d574` — 2026-11-28 14:26:34 +0330 — Pin published function source versions independently from editable drafts
+  Files: docs/functions-runtime.md,docs/unified-execution-architecture.md internal/admin/function_publication.go,internal/admin/functions.go tests/admin/function_publication_test.go
+- `0e64ea4e` — 2026-11-28 14:24:34 +0330 — Merge pull request #59 from arashrasoulzadeh/architecture/production-synapse
+  Files: 
+- `60b6c817` — 2026-11-28 14:24:08 +0330 — Wire explicitly enrolled Linux production Neurons to Cortex
+  Files: cmd/brain/dev_neurons.go,cmd/brain/main.go cmd/brain/neuron.go,cmd/brain/production_neurons.go docs/admins.md,docs/developers.md docs/unified-execution-architecture.md,internal/execution/runtime_identity.go internal/synapse/enrollment.go,internal/synapse/grpc_server.go tests/execution/runtime_identity_test.go,tests/synapse/enrollment_test.go
+- `0285a832` — 2026-11-28 14:22:20 +0330 — Merge pull request #58 from arashrasoulzadeh/architecture/cortex-default-execution
+  Files: 
+- `78da740b` — 2026-11-28 14:21:57 +0330 — Default managed development plugin execution to Cortex
+  Files: Makefile,cmd/brain/dev_neurons.go cmd/brain/main.go,docs/admins.md docs/developers.md,docs/unified-execution-architecture.md scripts/start-local.sh,scripts/test-production-runtime.sh tests/development/test_dev_neurons.py,tests/development/test_makefile.py
+- `e4342b27` — 2026-11-28 14:21:12 +0330 — Fix scheduled caller context name collision
+  Files: internal/plugin/scheduled_execution.go
+- `a75a2ec0` — 2026-11-28 14:19:54 +0330 — Merge pull request #57 from arashrasoulzadeh/architecture/plugin-execution-parity
+  Files: 
+- `b4aaaf7c` — 2026-11-28 14:18:09 +0330 — Enforce scheduled-only registry dispatch for credential-bound plugin calls
+  Files: cmd/brain/cortex_plugins.go,docs/unified-execution-architecture.md internal/plugin/access_management.go,internal/plugin/plugin.go internal/plugin/registry_workers.go,internal/plugin/worker.go tests/plugin/scheduled_credential_test.go
+- `78c4181e` — 2026-11-28 14:16:17 +0330 — Preserve durable observations during Neuron capacity outages
+  Files: docs/unified-execution-architecture.md,internal/plugin/observation_queue.go internal/plugin/observation_storage.go,tests/plugin/scheduled_observation_test.go
+- `b3e0b7ea` — 2026-11-28 10:45:45 +0000 — docs: update changelog [skip ci]
+  Files: CHANGELOG.md
 - `6eb0c8ed` — 2026-11-28 14:15:20 +0330 — Merge pull request #56 from arashrasoulzadeh/architecture/plugin-cortex-migration
   Files: 
 - `e4c2118b` — 2026-11-28 14:14:28 +0330 — Format scheduled cancellation regression fixture
@@ -61,45 +103,3 @@ Automatically generated from commits on main.
   Files: admin-nextjs/app/%5Fsystem/ui/workers/page.tsx,admin-nextjs/app/components/admin-chrome.tsx admin-nextjs/app/components/admin-shell.tsx,admin-nextjs/app/lib/admin-menu.ts admin-nextjs/app/lib/admin-navigation.ts,admin-nextjs/app/lib/neuron-dashboard.ts admin-nextjs/app/theme.css,admin-nextjs/app/workers/view.tsx docs/admin-pages/workers.md,tests/admin/admin-menu.test.ts tests/admin/admin-navigation.test.ts,tests/admin/neuron-dashboard.test.ts
 - `5a7f5247` — 2026-11-28 02:05:56 +0330 — feat(admin): expose authenticated Cortex snapshot with explicit unavailable state
   Files: internal/app/app.go,internal/app/neuron_status.go tests/app/neuron_status_test.go
-- `8edb61ec` — 2026-11-28 02:05:26 +0330 — feat(dev): supervise native server and admin with make dev
-  Files: Makefile,scripts/dev-stack.py tests/development/test_makefile.py
-- `78cc9b79` — 2026-11-27 22:33:07 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `e30c0038` — 2026-11-28 02:02:57 +0330 — Merge PR #54: distributed execution foundations
-  Files: 
-- `3aef94ac` — 2026-11-28 01:27:32 +0330 — docs: record distributed execution integration and verification blockers
-  Files: docs/unified-execution-architecture.md
-- `41270427` — 2026-11-28 01:26:56 +0330 — test: exercise Cortex Synapse and Neuron pipeline together
-  Files: tests/distributed/pipeline_test.go
-- `10f5fee9` — 2026-11-28 01:25:27 +0330 — feat(neuron): add verified worker-local execution engine
-  Files: internal/neuron/engine.go,tests/neuron/engine_test.go
-- `31da1f08` — 2026-11-28 01:23:39 +0330 — feat(synapse): stream and verify lease-bound artifact chunks
-  Files: internal/synapse/artifact.go,tests/synapse/artifact_test.go
-- `4f89cc6e` — 2026-11-28 01:21:21 +0330 — feat(synapse): require mutually authenticated TLS and stabilize queue selection
-  Files: internal/cortex/scheduler.go,internal/synapse/tls.go tests/synapse/tls_test.go
-- `e0cf8894` — 2026-11-28 01:19:27 +0330 — feat(synapse): define v1 protocol and fence execution assignments
-  Files: internal/synapse/session.go,proto/synapse/v1/synapse.proto tests/synapse/session_test.go
-- `74a5d05a` — 2026-11-28 01:15:50 +0330 — feat(cortex): schedule compatible neuron sessions with bounded queues and quotas
-  Files: internal/cortex/scheduler.go,tests/cortex/scheduler_test.go
-- `91309f63` — 2026-11-28 01:11:32 +0330 — docs: record execution implementation evidence and baseline coverage blockers
-  Files: docs/unified-execution-architecture.md
-- `6d563193` — 2026-11-28 01:11:04 +0330 — feat(execution): validate pinned assignments and reject cancelled results
-  Files: internal/execution/dispatch.go,tests/execution/dispatch_test.go
-- `20143421` — 2026-11-28 01:08:46 +0330 — feat(execution): pin artifact versions in a bounded scoped catalog
-  Files: internal/execution/catalog.go,internal/execution/contract.go tests/execution/catalog_test.go
-- `87060dfe` — 2026-11-28 01:06:49 +0330 — feat(execution): add canonical bounded artifact bundles
-  Files: internal/execution/artifact.go,internal/execution/contract.go tests/execution/artifact_test.go
-- `d2494253` — 2026-11-28 01:04:38 +0330 — feat(execution): introduce validated invocation contract and artifact digest checks
-  Files: internal/execution/contract.go,tests/execution/contract_test.go
-- `6fef5845` — 2026-11-28 01:02:11 +0330 — docs: audit unified execution architecture and plan migration
-  Files: docs/unified-execution-architecture.md
-- `5015ce8a` — 2026-11-27 21:22:54 +0000 — docs: update changelog [skip ci]
-  Files: CHANGELOG.md
-- `d781058c` — 2026-11-28 00:50:52 +0330 — Merge pull request #53 from arashrasoulzadeh/functions/host-plugin-read-bridge
-  Files: 
-- `c94cbfbb` — 2026-11-28 00:50:48 +0330 — Merge pull request #52 from arashrasoulzadeh/admin/confirmed-dependency-enable
-  Files: 
-- `2caae147` — 2026-11-28 00:50:34 +0330 — Merge main and preserve both function studio and dependency regression tests
-  Files: tests/admin-ui/pages.test.mjs
-- `62ba9575` — 2026-11-28 00:50:01 +0330 — Merge pull request #51 from arashrasoulzadeh/admin/function-development-studio
-  Files: 
