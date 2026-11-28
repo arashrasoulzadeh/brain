@@ -200,3 +200,17 @@ test("Neuron management requires confirmation and refreshes real placement", asy
   assert.match(text(), /Neuron action completed/);
   assert.ok(button("Resume managed"));
 });
+
+test("Execution history distinguishes restored history from process-local counters and shows gaps", async () => {
+  session();
+  stubFetch(url => {
+    if (url === "/_system/admin/neurons") return json({ configured: true, snapshot: { Neurons: [], Running: 0, Queued: 0, HistoryPersistent: true, HistoryDegraded: true, Executions: { Assigned: 0, Succeeded: 0, Failed: 0, Cancelled: 0, Lost: 0 }, Recent: [{ ExecutionID: "previous-process", TraceID: "trace", ParentID: "", NeuronID: "worker", Runtime: { Kind: "typescript", Profile: "isolated" }, Outcome: "succeeded", FinishedAt: tick, WaitMillis: 0, DurationMillis: 1, CPUTimeNanos: 0, PeakMemoryBytes: 0 }] } });
+    if (url === "/_system/admin/projects") return json([]);
+    throw new Error("unexpected request " + url);
+  });
+  await mount(Workers, {}, { pathname: "/_system/ui/workers" });
+  assert.match(text(), /retained across Brain restarts/);
+  assert.match(text(), /Counters cover this Brain process only/);
+  assert.match(text(), /previous-process/);
+  assert.match(text(), /some completed outcomes may be missing/);
+});

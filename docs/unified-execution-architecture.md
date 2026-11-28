@@ -185,3 +185,7 @@ Cortex-mode draft execution uses the same isolated user-function runtime as publ
 ### Neuron placement and managed-process controls (verification pending)
 
 Authenticated, explicitly confirmed system operator commands can pause and resume Cortex placement for a Neuron. Host pauses are bounded, survive reconnects within the current Brain process, and do not clear a worker's autonomous drain. Local process controls stop/restart only identities launched by the existing development supervisor, wait for all active assignments (including fenced old sessions), preserve the host-selected launch configuration and wait for authenticated reconnection before removing the pause. Remote process control remains external. The operator console shows real managed process liveness independently of connections, with confirmation and refresh. Durable history, durable operator pauses across Brain restart, and platform verification are still pending.
+
+### Durable execution history
+
+The Brain-owned SQLite database retains the latest 128 assigned execution outcomes, with the same redacted operational metadata as the in-memory ring. Completed outcomes are recorded outside the scheduler placement lock; database failure sets a sticky degradation indicator instead of changing an execution result or retrying it. Counters remain process-local, and unfinished work is not reconstructed or replayed after a crash. This is diagnostic history, not a journal of committed effects.

@@ -145,7 +145,8 @@ export default function WorkersPage() {
         </tbody></table></div>
       </section>}
       <section className="section" aria-labelledby="execution-history-title">
-        <div className="section-heading"><div><p className="eyebrow">EXECUTION TELEMETRY</p><h2 id="execution-history-title">Recent executions</h2><p className="muted">Last 128 assigned outcomes, in memory since Brain startup. Runtime success is not a durable commit.</p></div></div>
+        <div className="section-heading"><div><p className="eyebrow">EXECUTION TELEMETRY</p><h2 id="execution-history-title">Recent executions</h2><p className="muted">{cluster?.snapshot.HistoryPersistent ? "Last 128 assigned outcomes, retained across Brain restarts." : "Last 128 assigned outcomes, in memory since Brain startup."} Counters cover this Brain process only. Runtime success is not a durable commit.</p></div></div>
+        {cluster?.snapshot.HistoryDegraded && <p role="alert">Execution history storage failed; some completed outcomes may be missing after restart.</p>}
         <div className="neuron-metrics metric-grid">
           {(["Succeeded", "Failed", "Cancelled", "Lost"] as const).map(key => <article key={key}><span>{key}</span><strong>{cluster?.configured ? cluster.snapshot.Executions?.[key] ?? "—" : "—"}</strong></article>)}
         </div>

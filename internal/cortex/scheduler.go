@@ -53,10 +53,11 @@ type NeuronSnapshot struct {
 }
 
 type Snapshot struct {
-	Neurons         []NeuronSnapshot
-	Running, Queued int
-	Executions      ExecutionTotals
-	Recent          []ExecutionTrace
+	Neurons                            []NeuronSnapshot
+	Running, Queued                    int
+	Executions                         ExecutionTotals
+	Recent                             []ExecutionTrace
+	HistoryPersistent, HistoryDegraded bool
 }
 
 type Scheduler struct {
@@ -354,7 +355,6 @@ func (s *Scheduler) run(ctx context.Context, req execution.Request, a *assignmen
 	}
 	result, err := execution.ExecuteAssigned(ctx, s.catalog, a.session.id, a.session.executor, req)
 	s.mu.Lock()
-	defer s.mu.Unlock()
 	s.expireLocked()
 	delete(s.active, req.ID)
 	a.session.running--
@@ -367,7 +367,10 @@ func (s *Scheduler) run(ctx context.Context, req execution.Request, a *assignmen
 	if a.parent != "" && s.active[a.parent] == nil && cause == nil {
 		cause = context.Canceled
 	}
-	s.telemetry.finish(req, a, result, err, cause)
+	trace := s.telemetry.finish(req, a, result, err, cause)
+	store := s.telemetry.store
+	s.mu.Unlock()
+	s.persistTrace(store, trace)
 	if cause != nil {
 		return execution.Result{}, cause
 	}
@@ -392,7 +395,7 @@ func (s *Scheduler) Snapshot() Snapshot {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.expireLocked()
-	out := Snapshot{Running: len(s.active), Queued: len(s.queue), Executions: s.telemetry.totals, Recent: s.telemetry.recent()}
+	out := Snapshot{Running: len(s.active), Queued: len(s.queue), Executions: s.telemetry.totals, Recent: s.telemetry.recent(), HistoryPersistent: s.telemetry.store != nil, HistoryDegraded: s.telemetry.degraded}
 	for _, w := range s.neurons {
 		v := NeuronSnapshot{ID: w.id, Slots: w.slots, Running: w.running, Draining: w.draining || s.operatorDrains[w.id], OperatorDraining: s.operatorDrains[w.id], LastPulse: w.lastPulse}
 		for rt := range w.runtimes {

@@ -28,14 +28,16 @@ type ExecutionTrace struct {
 }
 
 type executionTelemetry struct {
-	totals ExecutionTotals
-	ring   [executionHistoryLimit]ExecutionTrace
-	next   int
-	count  int
+	totals   ExecutionTotals
+	ring     [executionHistoryLimit]ExecutionTrace
+	next     int
+	count    int
+	store    ExecutionHistory
+	degraded bool
 }
 
 // finish is called once under the scheduler lock after result fencing.
-func (t *executionTelemetry) finish(req execution.Request, a *assignment, result execution.Result, err, cause error) {
+func (t *executionTelemetry) finish(req execution.Request, a *assignment, result execution.Result, err, cause error) ExecutionTrace {
 	outcome := "failed"
 	switch {
 	case errors.Is(cause, ErrSessionLost) || errors.Is(err, ErrSessionLost):
@@ -58,6 +60,11 @@ func (t *executionTelemetry) finish(req execution.Request, a *assignment, result
 		trace.CPUTimeNanos = int64(result.Usage.CPUTime)
 		trace.PeakMemoryBytes = result.Usage.PeakMemoryBytes
 	}
+	t.record(trace)
+	return trace
+}
+
+func (t *executionTelemetry) record(trace ExecutionTrace) {
 	t.ring[t.next] = trace
 	t.next = (t.next + 1) % executionHistoryLimit
 	if t.count < executionHistoryLimit {

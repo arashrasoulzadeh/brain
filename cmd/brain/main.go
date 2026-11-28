@@ -158,6 +158,13 @@ func productionServerWithCluster(cluster *devCluster) (*app.Server, error) {
 		_ = projects.Close()
 		return nil, fmt.Errorf("plugin storage unavailable: %w", err)
 	}
+	if cluster != nil {
+		if err := storage.BindExecutionHistory(context.Background(), cluster.scheduler); err != nil {
+			_ = storage.Close()
+			_ = projects.Close()
+			return nil, fmt.Errorf("execution history unavailable: %w", err)
+		}
+	}
 	if scheduledPlugins {
 		if err := storage.BindArtifactPins(cluster.catalog); err != nil {
 			_ = storage.Close()
