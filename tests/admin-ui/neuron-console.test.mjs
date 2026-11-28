@@ -48,7 +48,7 @@ test("Neuron console shows global capacity, filters all statuses, and excludes f
   await change(search, "");
   await change(filter, "all");
   assert.equal(document.querySelectorAll(".neuron-capacity progress").length, 3);
-  await click(button("Refresh workers"));
+  await click(button("Refresh Neurons"));
   assert.equal(calls.filter(call => call.url === "/_system/admin/neurons").length, 2);
   assert.ok(calls.every(call => call.auth === "Bearer fixture-token" && call.cache === "no-store"));
 });
@@ -78,20 +78,20 @@ test("Neuron console distinguishes empty, unconfigured and unavailable status", 
   assert.match(text(), /Choose project/);
   mode = "empty";
   projectMode = "empty";
-  await click(button("Refresh workers"));
+  await click(button("Refresh Neurons"));
   assert.match(text(), /No connected Neurons/);
   assert.match(text(), /No Neurons connected/);
   assert.match(text(), /No installed plugin workers/);
   assert.equal(find(".neuron-metrics article strong").textContent, "0");
   mode = "denied";
   projectMode = "denied";
-  await click(button("Refresh workers"));
+  await click(button("Refresh Neurons"));
   assert.match(text(), /Neuron status unavailable/);
   assert.match(text(), /No cached metrics are shown/);
   assert.match(text(), /Projects unavailable/);
   assert.equal(find(".neuron-metrics article strong").textContent, "—");
   projectMode = "plugins-denied";
-  await click(button("Refresh workers"));
+  await click(button("Refresh Neurons"));
   assert.match(text(), /Legacy worker status unavailable/);
 });
 
