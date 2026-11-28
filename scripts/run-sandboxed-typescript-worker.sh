@@ -114,7 +114,11 @@ if [ -n "$runtime_root" ]; then
       --symlink "$runtime_root/package.json" "$bundle_parent/package.json"
       --symlink "$runtime_root/node_modules" "$bundle_parent/node_modules")
   fi
-  node_args+=(--import "$loader")
+  # The function worker reads JavaScript source as text and uses vm.SourceTextModule.
+  # Only plugin workers require the TypeScript import hook.
+  if [ "$(basename "$worker_script")" != function-worker.mjs ]; then
+    node_args+=(--import "$loader")
+  fi
 fi
 
 ulimit -t "$(( (cpu_millis + 999) / 1000 ))"
