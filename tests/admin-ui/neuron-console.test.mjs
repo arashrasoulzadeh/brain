@@ -214,3 +214,21 @@ test("Execution history distinguishes restored history from process-local counte
   assert.match(text(), /previous-process/);
   assert.match(text(), /some completed outcomes may be missing/);
 });
+
+
+test("Per-Neuron performance reports measured CPU, memory, latency and unavailable samples", async () => {
+  session();
+  const empty = { Completed: 0, Succeeded: 0, Failed: 0, Cancelled: 0, Lost: 0, AverageWaitMillis: 0, AverageDurationMillis: 0, P95DurationMillis: 0, CPUSamples: 0, MemorySamples: 0, TotalCPUSeconds: 0, AverageCPUSeconds: 0, AveragePeakMemoryBytes: 0, MaxPeakMemoryBytes: 0 };
+  stubFetch(url => {
+    if (url === "/_system/admin/neurons") return json({ ...cluster([row("active")]), performance: [{ ...empty, ID: "active", Completed: 2, Succeeded: 1, Failed: 1, AverageWaitMillis: 4, AverageDurationMillis: 20, P95DurationMillis: 30, CPUSamples: 1, MemorySamples: 1, TotalCPUSeconds: 0.1, AverageCPUSeconds: 0.1, AveragePeakMemoryBytes: 1048576, MaxPeakMemoryBytes: 1048576 }, { ...empty, ID: "historical" }] });
+    if (url === "/_system/admin/projects") return json([]);
+    throw new Error("unexpected request " + url);
+  });
+  await mount(Workers, {}, { pathname: "/_system/ui/workers" });
+  assert.match(text(), /Per-Neuron performance/);
+  assert.match(text(), /100.0 \/ 100.0 ms/);
+  assert.match(text(), /1.0 \/ 1.0 MiB/);
+  assert.match(text(), /1 \/ 2 measured/);
+  assert.match(text(), /Historical identity/);
+  assert.match(text(), /0 \/ 0 measured/);
+});

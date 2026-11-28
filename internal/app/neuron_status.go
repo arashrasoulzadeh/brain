@@ -14,9 +14,10 @@ func (s *Server) SetNeuronScheduler(scheduler *cortex.Scheduler) {
 }
 
 type neuronStatus struct {
-	Configured bool            `json:"configured"`
-	Snapshot   cortex.Snapshot `json:"snapshot"`
-	Managed    []ManagedNeuron `json:"managed,omitempty"`
+	Configured  bool                       `json:"configured"`
+	Snapshot    cortex.Snapshot            `json:"snapshot"`
+	Managed     []ManagedNeuron            `json:"managed,omitempty"`
+	Performance []cortex.NeuronPerformance `json:"performance"`
 }
 
 func (s *Server) neuronStatusHandler(sessions *operator.Store) http.Handler {
@@ -29,6 +30,7 @@ func (s *Server) neuronStatusHandler(sessions *operator.Store) http.Handler {
 		if s.neuronScheduler != nil {
 			status.Configured = true
 			status.Snapshot = s.neuronScheduler.Snapshot()
+			status.Performance = status.Snapshot.PerformanceReport()
 			if s.neuronManager != nil {
 				status.Managed = s.neuronManager.ManagedNeurons()
 			}

@@ -55,6 +55,10 @@ func normalizeAPISuccess(path string, status int, body []byte) []byte {
 
 func withAPIEnvelope(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet && r.URL.Path == "/_system/metrics" {
+			next.ServeHTTP(w, r)
+			return
+		}
 		// Only the reserved project socket upgrade may bypass the JSON buffer.
 		// The WebSocket library needs the original hijack-capable writer.
 		if r.Method == http.MethodGet && strings.Count(r.URL.Path, "/") == 2 && strings.HasSuffix(r.URL.Path, "/ws") && strings.EqualFold(r.Header.Get("Upgrade"), "websocket") {

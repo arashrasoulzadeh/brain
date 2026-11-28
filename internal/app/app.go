@@ -13,15 +13,18 @@ import (
 
 // Server owns the HTTP routes for the application process.
 type Server struct {
-	mux             *http.ServeMux
-	readiness       func(context.Context) error
-	projects        *project.Store
-	neuronScheduler *cortex.Scheduler
-	neuronManager   ManagedNeuronController
+	mux              *http.ServeMux
+	readiness        func(context.Context) error
+	projects         *project.Store
+	neuronScheduler  *cortex.Scheduler
+	neuronManager    ManagedNeuronController
+	metricsTokenHash [32]byte
+	metricsEnabled   bool
 }
 
 func newServer() *Server {
 	s := &Server{mux: http.NewServeMux()}
+	s.mux.HandleFunc("GET /_system/metrics", s.neuronMetrics)
 	s.mux.HandleFunc("GET /_system/livez", func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 		_, _ = w.Write([]byte("ok\n"))

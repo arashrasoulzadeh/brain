@@ -151,6 +151,20 @@ export default function WorkersPage() {
           {offlinePauses.map(id => <tr key={id}><th scope="row">{id}</th><td><button type="button" className="secondary" disabled={busy} onClick={() => requestNeuronAction(id, "resume")}>Resume {id}</button></td></tr>)}
         </tbody></table></div>
       </section>}
+      <section className="section" aria-labelledby="neuron-performance-title">
+        <div className="section-heading"><div><p className="eyebrow">PERFORMANCE REPORT</p><h2 id="neuron-performance-title">Per-Neuron performance</h2><p className="muted">Last 128 completed assignments across the cluster, including retained offline identities. CPU time and peak resident memory (RSS) are execution measurements, not live process utilization. Unreported measurements are excluded from averages.</p></div></div>
+        <div className="table-wrap neuron-table"><table><thead><tr><th>Neuron</th><th>Completed / succeeded</th><th>Failed / cancelled / lost</th><th>Avg wait / elapsed</th><th>p95 elapsed</th><th>Total / avg CPU time</th><th>Avg / max peak RSS</th></tr></thead><tbody>
+          {cluster?.configured && (cluster.performance ?? []).map(report => <tr key={report.ID}>
+            <th scope="row">{report.ID}<small className="table-subtitle muted">{neurons.some(neuron => neuron.ID === report.ID) ? "Connected" : "Historical identity"}</small></th>
+            <td>{report.Completed} / {report.Succeeded}</td><td>{report.Failed} / {report.Cancelled} / {report.Lost}</td>
+            <td>{report.Completed ? report.AverageWaitMillis.toFixed(1) + " / " + report.AverageDurationMillis.toFixed(1) + " ms" : "—"}</td>
+            <td>{report.Completed ? report.P95DurationMillis.toFixed(1) + " ms" : "—"}</td>
+            <td>{report.CPUSamples ? (report.TotalCPUSeconds * 1000).toFixed(1) + " / " + (report.AverageCPUSeconds * 1000).toFixed(1) + " ms" : "—"}<small className="table-subtitle muted">{report.CPUSamples} / {report.Completed} measured</small></td>
+            <td>{report.MemorySamples ? (report.AveragePeakMemoryBytes / 1048576).toFixed(1) + " / " + (report.MaxPeakMemoryBytes / 1048576).toFixed(1) + " MiB" : "—"}<small className="table-subtitle muted">{report.MemorySamples} / {report.Completed} measured</small></td>
+          </tr>)}
+          {(!cluster?.configured || !cluster.performance?.length) && <tr><td colSpan={7} className="neuron-empty">No performance report available.</td></tr>}
+        </tbody></table></div>
+      </section>
       <section className="section" aria-labelledby="execution-history-title">
         <div className="section-heading"><div><p className="eyebrow">EXECUTION TELEMETRY</p><h2 id="execution-history-title">Recent executions</h2><p className="muted">{cluster?.snapshot.HistoryPersistent ? "Last 128 assigned outcomes, retained across Brain restarts." : "Last 128 assigned outcomes, in memory since Brain startup."} Counters cover this Brain process only. Runtime success is not a durable commit.</p></div></div>
         {cluster?.snapshot.HistoryDegraded && <p role="alert">Execution history storage failed; some completed outcomes may be missing after restart.</p>}
