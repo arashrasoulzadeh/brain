@@ -175,11 +175,11 @@ func (w *ScheduledWorker) HandleExecution(request WorkerRequest) (WorkerResponse
 	if lifecycle == nil || lifecycle.Err() != nil {
 		return WorkerResponse{}, ErrWorkerNotReady
 	}
-	caller := request.executionContext()
-	if err := caller.Err(); err != nil {
+	callerContext := request.executionContext()
+	if err := callerContext.Err(); err != nil {
 		return WorkerResponse{}, err
 	}
-	ctx, cancel := context.WithTimeout(caller, scheduledInvocationLimit)
+	ctx, cancel := context.WithTimeout(callerContext, scheduledInvocationLimit)
 	defer cancel()
 	stop := context.AfterFunc(lifecycle, cancel)
 	defer stop()
@@ -228,7 +228,7 @@ func (w *ScheduledWorker) HandleExecution(request WorkerRequest) (WorkerResponse
 		return WorkerResponse{}, ErrInvalidWorkerRequest
 	}
 	result, err := w.executor.Execute(ctx, assigned)
-	if callerErr := caller.Err(); callerErr != nil {
+	if callerErr := callerContext.Err(); callerErr != nil {
 		return WorkerResponse{}, callerErr
 	}
 	if err != nil || ctx.Err() != nil || lifecycle.Err() != nil {
