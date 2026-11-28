@@ -75,9 +75,9 @@ func main() {
 	}
 	var cluster *devCluster
 	var err error
-	// In explicit Cortex mode the pool and artifact catalog must exist before
-	// restoring enabled installations. No dedicated worker factory is bound.
-	if os.Getenv("BRAIN_DEV_PLUGIN_EXECUTION") != "" {
+	// Managed development defaults to Cortex. Build the pool and catalog
+	// before restoring enabled installations, without a dedicated factory.
+	if _, managed := os.LookupEnv("BRAIN_DEV_WORKERS"); managed || os.Getenv("BRAIN_DEV_PLUGIN_EXECUTION") != "" {
 		cluster, err = startDevCluster(nil, cfg.HTTPAddress)
 		if err != nil {
 			log.Fatal(err)

@@ -17,7 +17,7 @@ endif
 endif
 
 help:
-	@printf '%s\n' 'make setup       Install server and admin Node dependencies' 'make dev         Start Brain, admin and four local Neurons (WORKERS=4)' 'make dev server  Start only the local Go server' 'make dev admin   Start only the Next.js admin'
+	@printf '%s\n' 'make setup       Install server and admin Node dependencies' 'make dev         Start Brain, admin and four local Neurons (WORKERS=4)' 'make dev server  Start Brain and local Neurons without admin' 'make dev admin   Start only the Next.js admin'
 
 setup:
 	npm ci
@@ -31,7 +31,7 @@ else
 endif
 
 server:
-	bash scripts/start-local.sh
+	BRAIN_DEV_WORKERS="$(WORKERS)" BRAIN_DEV_SLOTS="$(WORKER_SLOTS)" bash scripts/start-local.sh
 
 admin:
 	BRAIN_API_ORIGIN="$(BRAIN_API_ORIGIN)" npm --prefix admin-nextjs run dev -- --hostname "$(ADMIN_HOST)" --port "$(ADMIN_PORT)"

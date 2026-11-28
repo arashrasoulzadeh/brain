@@ -21,9 +21,9 @@ make dev WORKERS=6 WORKER_SLOTS=2
 make dev WORKERS=0
 ```
 
-Open [the Neurons console](http://127.0.0.1:3000/_system/ui/workers) after signing in. The console reports the real scheduler snapshot, including connections, capacity, runtime profiles, heartbeats and current queue state. The standalone TypeScript pool is separate from existing plugin execution; application routing migration remains outstanding.
+Open [the Neurons console](http://127.0.0.1:3000/_system/ui/workers) after signing in. The console reports the real scheduler snapshot, including connections, capacity, runtime profiles, heartbeats and current queue state. Managed development uses Cortex for manifest-selected plugin computation by default, with no legacy fallback when capacity is unavailable. The standalone TypeScript runtime remains a separate capability; user-authored functions still use their current host runtime.
 
-For separate server/admin processes without the managed pool, use `make dev server` and `make dev admin`.
+For separate server/admin processes, use `make dev server` (Brain plus the same managed pool) and `make dev admin`. Use `WORKERS=0` to exercise control-plane recovery without execution capacity. For temporary comparison with the old worker adapter, explicitly select `BRAIN_DEV_PLUGIN_EXECUTION=legacy make dev`; production cutover is separate.
 
 The Go server listens on `http://127.0.0.1:18082` and uses local SQLite storage at `.local/brain.sqlite`. The Next.js admin listens on `http://127.0.0.1:3000` and proxies to the server. Stop the stack or individually launched services with Ctrl+C. The local startup script supports `HTTP_ADDRESS`, `PROJECTS_FILE`, `OPERATOR_USERNAME` and `OPERATOR_SECRET` overrides. The admin supports `ADMIN_HOST`, `ADMIN_PORT` and `BRAIN_API_ORIGIN`, for example:
 
