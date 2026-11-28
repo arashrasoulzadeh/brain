@@ -85,6 +85,10 @@ func main() {
 		cluster.Close()
 		log.Fatal(err)
 	}
+	if err := server.SetMetricsToken(os.Getenv("BRAIN_METRICS_TOKEN")); err != nil {
+		cluster.Close()
+		log.Fatal(err)
+	}
 	if cluster != nil {
 		server.SetNeuronScheduler(cluster.scheduler)
 		if cluster.controlCtx != nil {
