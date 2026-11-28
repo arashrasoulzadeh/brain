@@ -288,7 +288,9 @@ func (c *devCluster) Close() {
 	if c.server != nil {
 		c.server.Stop()
 	}
-	_ = os.RemoveAll(c.dir)
+	if c.dir != "" {
+		_ = os.RemoveAll(c.dir)
+	}
 }
 
 // Run a cancellation-aware heartbeat expiry sweep even without incoming work.

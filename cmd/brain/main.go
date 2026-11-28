@@ -73,27 +73,18 @@ func main() {
 		}
 		return
 	}
-	var cluster *devCluster
-	var err error
-	// Managed development defaults to Cortex. Build the pool and catalog
-	// before restoring enabled installations, without a dedicated factory.
-	if _, managed := os.LookupEnv("BRAIN_DEV_WORKERS"); managed || os.Getenv("BRAIN_DEV_PLUGIN_EXECUTION") != "" {
-		cluster, err = startDevCluster(nil, cfg.HTTPAddress)
-		if err != nil {
-			log.Fatal(err)
-		}
+	// Build the selected pool and catalog before restoring installations.
+	// An unavailable configured Cortex never falls back to local workers.
+	cluster, err := startExecutionCluster(cfg.HTTPAddress)
+	if err != nil {
+		log.Fatal(err)
 	}
 	server, err := productionServerWithCluster(cluster)
 	if err != nil {
 		cluster.Close()
 		log.Fatal(err)
 	}
-	if cluster == nil {
-		cluster, err = startDevCluster(server, cfg.HTTPAddress)
-		if err != nil {
-			log.Fatal(err)
-		}
-	} else {
+	if cluster != nil {
 		server.SetNeuronScheduler(cluster.scheduler)
 	}
 	if cluster != nil {
