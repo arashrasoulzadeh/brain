@@ -28,11 +28,11 @@ type ExecutionTrace struct {
 }
 
 type executionTelemetry struct {
-	totals ExecutionTotals
-	ring   [executionHistoryLimit]ExecutionTrace
-	next   int
-	count  int
-	store  ExecutionHistory
+	totals   ExecutionTotals
+	ring     [executionHistoryLimit]ExecutionTrace
+	next     int
+	count    int
+	store    ExecutionHistory
 	degraded bool
 }
 

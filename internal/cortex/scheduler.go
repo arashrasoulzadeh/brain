@@ -53,10 +53,10 @@ type NeuronSnapshot struct {
 }
 
 type Snapshot struct {
-	Neurons         []NeuronSnapshot
-	Running, Queued int
-	Executions      ExecutionTotals
-	Recent          []ExecutionTrace
+	Neurons                            []NeuronSnapshot
+	Running, Queued                    int
+	Executions                         ExecutionTotals
+	Recent                             []ExecutionTrace
 	HistoryPersistent, HistoryDegraded bool
 }
 
