@@ -633,6 +633,10 @@ process.stdout.write(JSON.stringify({result:result??null,timings:{compile_ms:com
 		for _, stage := range profile.Stages() {
 			steps = append(steps, FunctionLogStep{Name: stage.Name, Status: "success", DurationMs: stage.Nanos / 1e6, DurationNanos: stage.Nanos, Parent: "sandbox execution", Reason: "measured on the Neuron"})
 		}
+		steps = append(steps,
+			FunctionLogStep{Name: "process spawn", Status: "success", DurationMs: profile.ProcessSpawnNanos / 1e6, DurationNanos: profile.ProcessSpawnNanos, Parent: "sandbox startup", Reason: "OS process creation"},
+			FunctionLogStep{Name: "runtime readiness", Status: "success", DurationMs: profile.RuntimeReadinessNanos / 1e6, DurationNanos: profile.RuntimeReadinessNanos, Parent: "sandbox startup", Reason: "launcher and Node initialization through readiness acknowledgement"},
+		)
 	}
 	steps = append(steps,
 		FunctionLogStep{Name: "sandbox compile", Status: "success", Reason: "module compiled inside the sandbox", DurationMs: int64(envelope.Timings.CompileMs), DurationNanos: int64(envelope.Timings.CompileMs*1e6), Parent: "sandbox invocation"},
