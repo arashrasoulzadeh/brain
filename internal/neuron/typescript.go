@@ -59,7 +59,7 @@ func NewTypeScriptRuntime(root string, localMacOS bool) (*TypeScriptRuntime, err
 
 func (r *TypeScriptRuntime) Capability() execution.Runtime { return r.capability }
 
-func (r *TypeScriptRuntime) Run(ctx context.Context, request execution.Request, files []execution.BundleFile) (execution.Result, error) {
+func (r *TypeScriptRuntime) Run(ctx context.Context, request execution.Request, files []execution.BundleFile) (out execution.Result, runErr error) {
 	if err := request.Validate(time.Now()); err != nil {
 		return execution.Result{}, err
 	}
@@ -150,7 +150,12 @@ func (r *TypeScriptRuntime) Run(ctx context.Context, request execution.Request, 
 	if err = worker.StartContext(ctx); err != nil {
 		return execution.Result{}, err
 	}
-	defer worker.Stop()
+	defer func() {
+		_ = worker.Stop()
+		if runErr == nil {
+			out.Usage = worker.ProcessUsage()
+		}
+	}()
 	result := worker.HandleContext(ctx, invocation)
 	if err = ctx.Err(); err != nil {
 		return execution.Result{}, err

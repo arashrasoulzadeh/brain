@@ -55,6 +55,8 @@ type NeuronSnapshot struct {
 type Snapshot struct {
 	Neurons         []NeuronSnapshot
 	Running, Queued int
+	Executions      ExecutionTotals
+	Recent          []ExecutionTrace
 }
 
 type Scheduler struct {
@@ -67,6 +69,7 @@ type Scheduler struct {
 	queue                         []*waiter
 	projectRunning, projectQueued map[string]int
 	changed                       chan struct{}
+	telemetry                     executionTelemetry
 }
 
 // Session is an opaque connection capability. Only the authenticated transport
@@ -85,6 +88,8 @@ type assignment struct {
 	session *Session
 	project string
 	cancel  context.CancelCauseFunc
+	started time.Time
+	wait    time.Duration
 }
 
 type waiter struct {
@@ -256,6 +261,7 @@ func (s *Scheduler) Execute(ctx context.Context, req execution.Request) (executi
 	ctx, cancel := context.WithDeadline(ctx, req.Deadline)
 	defer cancel()
 	var queued *waiter
+	arrived := time.Now()
 	s.mu.Lock()
 	for {
 		s.expireLocked()
@@ -276,7 +282,9 @@ func (s *Scheduler) Execute(ctx context.Context, req execution.Request) (executi
 				s.removeWaiterLocked(queued)
 			}
 			runCtx, stop := context.WithCancelCause(ctx)
-			a := &assignment{session: w, project: req.ProjectID, cancel: stop}
+			started := time.Now()
+			a := &assignment{session: w, project: req.ProjectID, cancel: stop, started: started, wait: started.Sub(arrived)}
+			s.telemetry.totals.Assigned++
 			s.active[req.ID] = a
 			w.running++
 			s.projectRunning[req.ProjectID]++
@@ -328,7 +336,9 @@ func (s *Scheduler) run(ctx context.Context, req execution.Request, a *assignmen
 		delete(s.projectRunning, a.project)
 	}
 	s.signalLocked()
-	if cause := context.Cause(ctx); cause != nil {
+	cause := context.Cause(ctx)
+	s.telemetry.finish(req, a, result, err, cause)
+	if cause != nil {
 		return execution.Result{}, cause
 	}
 	return result, err
@@ -352,7 +362,7 @@ func (s *Scheduler) Snapshot() Snapshot {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.expireLocked()
-	out := Snapshot{Running: len(s.active), Queued: len(s.queue)}
+	out := Snapshot{Running: len(s.active), Queued: len(s.queue), Executions: s.telemetry.totals, Recent: s.telemetry.recent()}
 	for _, w := range s.neurons {
 		v := NeuronSnapshot{ID: w.id, Slots: w.slots, Running: w.running, Draining: w.draining, LastPulse: w.lastPulse}
 		for rt := range w.runtimes {

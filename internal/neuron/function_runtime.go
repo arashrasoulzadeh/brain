@@ -26,7 +26,7 @@ func NewUserFunctionRuntime(root string, localMacOS bool) (*UserFunctionRuntime,
 	return &UserFunctionRuntime{runner}, nil
 }
 
-func (r *UserFunctionRuntime) Run(ctx context.Context, req execution.Request, files []execution.BundleFile) (execution.Result, error) {
+func (r *UserFunctionRuntime) Run(ctx context.Context, req execution.Request, files []execution.BundleFile) (out execution.Result, runErr error) {
 	if err := req.Validate(time.Now()); err != nil {
 		return execution.Result{}, err
 	}
@@ -78,7 +78,12 @@ func (r *UserFunctionRuntime) Run(ctx context.Context, req execution.Request, fi
 	if err := worker.StartContext(ctx); err != nil {
 		return execution.Result{}, err
 	}
-	defer worker.Stop()
+	defer func() {
+		_ = worker.Stop()
+		if runErr == nil {
+			out.Usage = worker.ProcessUsage()
+		}
+	}()
 	invocation := plugin.WorkerRequest{Protocol: 1, ProjectID: req.ProjectID, Project: &plugin.ProjectSnapshot{ID: req.ProjectID, Active: true}, PluginID: "functions", Version: manifest.Version, Operation: "functions.call", Payload: req.Input, HostContext: &plugin.InvocationContext{InvocationID: req.ID, ProjectVerified: true, Auth: plugin.InvocationAuth{Actor: actor, Caller: actor, Permissions: []plugin.InvocationPermission{{Capability: "functions.call", Operation: "functions.call", Resource: req.Auth.Resource}}}}}
 	result := worker.HandleContext(ctx, invocation)
 	if err := ctx.Err(); err != nil {

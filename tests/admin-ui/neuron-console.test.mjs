@@ -161,3 +161,17 @@ test("Neuron console polls while visible and suspends background requests", asyn
     else delete document.hidden;
   }
 });
+
+test("Neuron console shows real outcomes and distinguishes unreported resource usage", async () => {
+  session();
+  stubFetch(url => {
+    if (url === "/_system/admin/neurons") return json({ configured: true, snapshot: { Neurons: [], Running: 0, Queued: 0, Executions: { Assigned: 3, Succeeded: 1, Failed: 1, Cancelled: 0, Lost: 1 }, Recent: [{ ExecutionID: "exec-one", TraceID: "trace-one", ParentID: "", NeuronID: "worker-one", Runtime: { Kind: "typescript", Profile: "isolated" }, Outcome: "succeeded", FinishedAt: tick, WaitMillis: 2, DurationMillis: 14, CPUTimeNanos: 1000000, PeakMemoryBytes: 1048576 }] } });
+    if (url === "/_system/admin/projects") return json([]);
+    throw new Error("unexpected request " + url);
+  });
+  await mount(Workers, {}, { pathname: "/_system/ui/workers" });
+  assert.match(text(), /exec-one/);
+  assert.match(text(), /trace-one/);
+  assert.match(text(), /2 \/ 14 ms/);
+  assert.match(text(), /1.0 ms \/ 1.0 MiB/);
+});
