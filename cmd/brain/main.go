@@ -73,13 +73,28 @@ func main() {
 		}
 		return
 	}
-	server, err := productionServer()
+	var cluster *devCluster
+	var err error
+	// In explicit Cortex mode the pool and artifact catalog must exist before
+	// restoring enabled installations. No dedicated worker factory is bound.
+	if os.Getenv("BRAIN_DEV_PLUGIN_EXECUTION") != "" {
+		cluster, err = startDevCluster(nil, cfg.HTTPAddress)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	server, err := productionServerWithCluster(cluster)
 	if err != nil {
+		cluster.Close()
 		log.Fatal(err)
 	}
-	cluster, err := startDevCluster(server, cfg.HTTPAddress)
-	if err != nil {
-		log.Fatal(err)
+	if cluster == nil {
+		cluster, err = startDevCluster(server, cfg.HTTPAddress)
+		if err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		server.SetNeuronScheduler(cluster.scheduler)
 	}
 	if cluster != nil {
 		defer cluster.Close()
@@ -96,6 +111,10 @@ func main() {
 }
 
 func productionServer() (*app.Server, error) {
+	return productionServerWithCluster(nil)
+}
+
+func productionServerWithCluster(cluster *devCluster) (*app.Server, error) {
 	username, secret := os.Getenv("OPERATOR_USERNAME"), os.Getenv("OPERATOR_SECRET")
 	if username == "" || secret == "" {
 		return nil, fmt.Errorf("OPERATOR_USERNAME and OPERATOR_SECRET are required")
@@ -120,8 +139,11 @@ func productionServer() (*app.Server, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := bindSandboxedTypeScriptWorkers(registry, locations); err != nil {
-		return nil, err
+	scheduledPlugins := cluster != nil && cluster.pluginRuntime.Kind != ""
+	if !scheduledPlugins {
+		if err := bindSandboxedTypeScriptWorkers(registry, locations); err != nil {
+			return nil, err
+		}
 	}
 	if err := os.MkdirAll(filepath.Dir(projectsPath), 0o700); err != nil {
 		return nil, fmt.Errorf("project storage directory unavailable: %w", err)
@@ -140,6 +162,18 @@ func productionServer() (*app.Server, error) {
 	if err != nil {
 		_ = projects.Close()
 		return nil, fmt.Errorf("plugin storage unavailable: %w", err)
+	}
+	if scheduledPlugins {
+		if err := storage.BindArtifactPins(cluster.catalog); err != nil {
+			_ = storage.Close()
+			_ = projects.Close()
+			return nil, fmt.Errorf("artifact pin storage unavailable: %w", err)
+		}
+		if err := bindCortexPluginWorkers(registry, locations, cluster); err != nil {
+			_ = storage.Close()
+			_ = projects.Close()
+			return nil, err
+		}
 	}
 	if err := registry.BindSQLiteStorage(storage); err != nil {
 		_ = storage.Close()
@@ -168,6 +202,9 @@ func productionServer() (*app.Server, error) {
 		}
 		if err := storage.CheckHealth(ctx); err != nil {
 			return err
+		}
+		if cluster != nil && cluster.pluginRuntime.Kind != "" && !cluster.scheduler.HasRuntime(cluster.pluginRuntime) {
+			return plugin.ErrWorkerNotReady
 		}
 		for _, installation := range registry.InstallationStatuses("") {
 			if installation.Enabled && !installation.Draining && (!installation.Ready || !installation.WorkerReady) {

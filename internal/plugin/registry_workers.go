@@ -59,6 +59,9 @@ func (r *Registry) UnbindWorker(projectID, id, version string) {
 
 // Invoke executes only an installed, ready, enabled and fully granted plugin.
 func (r *Registry) Invoke(request WorkerRequest) (WorkerResponse, error) {
+	if err := request.executionContext().Err(); err != nil {
+		return WorkerResponse{}, err
+	}
 	if err := validatePayloadProject(request); err != nil {
 		return WorkerResponse{}, err
 	}
@@ -100,6 +103,9 @@ func (r *Registry) invokeUsingWorker(request WorkerRequest, observer bool, overr
 	// Serialize read/modify/write plans for the same project and plugin.
 	planner, unlock := r.lockStorageInvocation(request)
 	defer unlock()
+	if err := request.executionContext().Err(); err != nil {
+		return WorkerResponse{}, err
+	}
 	if err := r.authorizeInvocation(request, observer); err != nil {
 		return WorkerResponse{}, err
 	}
@@ -171,6 +177,7 @@ func (r *Registry) invokeUsingWorker(request WorkerRequest, observer bool, overr
 	}
 	prepared.HostContext = hostContext
 	prepared.Project = &model
+	prepared = prepared.WithContext(request.executionContext())
 	response, err := InvokeForProject(worker, prepared, r.HostAPI, request.ProjectID)
 	if err != nil || !response.Success || response.ErrorCode != "" {
 		// A failed response-aware operation must never expose private state.
@@ -206,6 +213,11 @@ func (r *Registry) invokeUsingWorker(request WorkerRequest, observer bool, overr
 	r.installationMu.RLock()
 	defer r.installationMu.RUnlock()
 	if err := r.authorizeInvocationLocked(request, observer); err != nil {
+		return WorkerResponse{}, err
+	}
+	// A cancelled caller must not authorize a new commit. Once a durable
+	// transaction has started, cancellation cannot undo committed effects.
+	if err := request.executionContext().Err(); err != nil {
 		return WorkerResponse{}, err
 	}
 	if atomicCommit != nil {

@@ -69,6 +69,9 @@ func (r *Registry) Status(projectID, pluginID, version string) (InstallationStat
 	workerReady := false
 	if worker := r.workers[projectID+":"+pluginID+"@"+version]; worker != nil {
 		workerReady = worker.Ready()
+		if scheduled, ok := worker.(interface{ ExecutionAvailable() bool }); ok {
+			workerReady = scheduled.ExecutionAvailable()
+		}
 	}
 	r.workerMu.RUnlock()
 	grants := make([]string, 0, len(installation.Grants))

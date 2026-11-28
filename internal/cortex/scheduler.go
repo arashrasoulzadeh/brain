@@ -334,6 +334,20 @@ func (s *Scheduler) run(ctx context.Context, req execution.Request, a *assignmen
 	return result, err
 }
 
+// HasRuntime reports live compatible capacity independent of temporary slot
+// saturation. It does not reserve a slot; Execute remains the admission gate.
+func (s *Scheduler) HasRuntime(runtime execution.Runtime) bool {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.expireLocked()
+	for _, w := range s.neurons {
+		if !w.draining && w.slots > 0 && w.runtimes[runtime] {
+			return true
+		}
+	}
+	return false
+}
+
 func (s *Scheduler) Snapshot() Snapshot {
 	s.mu.Lock()
 	defer s.mu.Unlock()

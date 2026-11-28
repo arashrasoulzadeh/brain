@@ -26,9 +26,9 @@ const (
 
 var ErrRuntimeArtifact = errors.New("unsupported standalone TypeScript artifact")
 
-// TypeScriptRuntime runs one manifest-declared, self-contained function in a
-// fresh existing Brain OS sandbox. It does not claim support for legacy
-// plugin dependencies, host services, or user function publication yet.
+// TypeScriptRuntime runs one manifest-declared operation in a fresh existing
+// Brain OS sandbox. Standalone and prepared-plugin capabilities have separate
+// admission rules; neither exposes host credentials or database connections.
 type TypeScriptRuntime struct {
 	root       string
 	capability execution.Runtime
@@ -106,14 +106,29 @@ func (r *TypeScriptRuntime) Run(ctx context.Context, request execution.Request, 
 	if err != nil {
 		return execution.Result{}, ErrRuntimeArtifact
 	}
-	if manifest.ID != request.Artifact.ID || manifest.Version != request.Artifact.Version || manifest.HostAPI != 1 || manifest.Declarative ||
-		len(manifest.Routes) != 1 || len(manifest.Dependencies)+len(manifest.OptionalDependencies)+len(manifest.PluginImports)+len(manifest.Imports)+len(manifest.Observers)+len(manifest.Events)+len(manifest.Models) != 0 ||
-		manifest.Admin != nil || len(manifest.ConfigSchema) != 0 || len(files) != len(manifest.SourceFiles)+1 {
+	if manifest.ID != request.Artifact.ID || manifest.Version != request.Artifact.Version || manifest.HostAPI != 1 || len(files) != len(manifest.SourceFiles)+1 {
 		return execution.Result{}, ErrRuntimeArtifact
 	}
-	route := manifest.Routes[0]
-	if route.Operation != request.Artifact.Entrypoint || route.Capability != request.Auth.Capability || route.Helper != "" || route.ResourceField != "" || route.Function == "" {
-		return execution.Result{}, ErrRuntimeArtifact
+	var invocation plugin.WorkerRequest
+	bundled := r.capability.Kind == plugin.ScheduledTypeScriptKind
+	if bundled {
+		invocation, err = plugin.DecodeScheduledRequest(request, manifest)
+		if err != nil {
+			return execution.Result{}, err
+		}
+	} else {
+		if manifest.Declarative || len(manifest.Routes) != 1 || len(manifest.Dependencies)+len(manifest.OptionalDependencies)+len(manifest.PluginImports)+len(manifest.Imports)+len(manifest.Observers)+len(manifest.Events)+len(manifest.Models) != 0 || manifest.Admin != nil || len(manifest.ConfigSchema) != 0 {
+			return execution.Result{}, ErrRuntimeArtifact
+		}
+		route := manifest.Routes[0]
+		if route.Operation != request.Artifact.Entrypoint || route.Capability != request.Auth.Capability || route.Helper != "" || route.ResourceField != "" || route.Function == "" {
+			return execution.Result{}, ErrRuntimeArtifact
+		}
+		host := &plugin.InvocationContext{
+			InvocationID: request.ID, ProjectVerified: true, Config: map[string]any{}, Available: []string{},
+			Auth: plugin.InvocationAuth{Actor: safeActor(request.Auth.OriginalCaller), Caller: safeActor(request.Auth.Caller), Permissions: []plugin.InvocationPermission{{Capability: request.Auth.Capability, Operation: route.Operation, Resource: request.Auth.Resource}}},
+		}
+		invocation = plugin.WorkerRequest{Protocol: 1, ProjectID: request.ProjectID, Project: &plugin.ProjectSnapshot{ID: request.ProjectID, Active: true}, PluginID: manifest.ID, Version: manifest.Version, Operation: route.Operation, Payload: request.Input, HostContext: host}
 	}
 	policy := plugin.IsolationPolicy{FilesystemReadOnly: true, CPUMillis: int(TypeScriptCPU.Milliseconds()), MemoryBytes: TypeScriptMemory, ProcessLimit: 512, WallTime: 2 * time.Second}
 	launcher, script := filepath.Join(r.root, "scripts", "run-sandboxed-typescript-worker.sh"), filepath.Join(r.root, "scripts", "typescript-worker.mjs")
@@ -127,17 +142,21 @@ func (r *TypeScriptRuntime) Run(ctx context.Context, request execution.Request, 
 	if err != nil {
 		return execution.Result{}, err
 	}
+	if bundled {
+		if err = worker.BindBundledRuntime(root); err != nil {
+			return execution.Result{}, err
+		}
+	}
 	if err = worker.StartContext(ctx); err != nil {
 		return execution.Result{}, err
 	}
 	defer worker.Stop()
-	host := &plugin.InvocationContext{
-		InvocationID: request.ID, ProjectVerified: true, Config: map[string]any{}, Available: []string{},
-		Auth: plugin.InvocationAuth{Actor: safeActor(request.Auth.OriginalCaller), Caller: safeActor(request.Auth.Caller), Permissions: []plugin.InvocationPermission{{Capability: request.Auth.Capability, Operation: route.Operation, Resource: request.Auth.Resource}}},
-	}
-	result := worker.HandleContext(ctx, plugin.WorkerRequest{Protocol: 1, ProjectID: request.ProjectID, Project: &plugin.ProjectSnapshot{ID: request.ProjectID, Active: true}, PluginID: manifest.ID, Version: manifest.Version, Operation: route.Operation, Payload: request.Input, HostContext: host})
+	result := worker.HandleContext(ctx, invocation)
 	if err = ctx.Err(); err != nil {
 		return execution.Result{}, err
+	}
+	if bundled {
+		return plugin.EncodeScheduledResult(invocation, result)
 	}
 	if !result.Success || result.ErrorCode != "" || result.Protocol != 1 || len(result.Observations) != 0 || !json.Valid(result.Payload) {
 		return execution.Result{Status: execution.Failed, Error: &execution.Failure{Code: "runtime_error"}}, nil
@@ -162,6 +181,9 @@ func safeActor(principal string) plugin.InvocationActor {
 // Probe runs host-authored code inside the same sandbox before advertising a
 // runtime. Missing sandbox prerequisites therefore never create fake capacity.
 func (r *TypeScriptRuntime) Probe(ctx context.Context) error {
+	if r.capability.Kind == plugin.ScheduledTypeScriptKind {
+		return r.probePlugin(ctx)
+	}
 	files := []execution.BundleFile{
 		{Path: "plugin.yaml", Data: []byte("id: neuron-probe\nversion: 1.0.0\nhost_api: 1\nentrypoint: index.mts\nsource_files:\n  - index.mts\ncapabilities:\n  - health\nroutes:\n  - operation: health\n    function: health\n    capability: health\n")},
 		{Path: "index.mts", Data: []byte("export function health(): { accepted: boolean } { const memory = new WebAssembly.Memory({ initial: 1, maximum: 2 }); return { accepted: memory.buffer.byteLength === 65536 }; }\n")},

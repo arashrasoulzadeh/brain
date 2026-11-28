@@ -26,6 +26,8 @@ import (
 	"brain/internal/app"
 	"brain/internal/cortex"
 	"brain/internal/execution"
+	"brain/internal/neuron"
+	"brain/internal/plugin"
 	"brain/internal/synapse"
 
 	"google.golang.org/grpc"
@@ -89,14 +91,20 @@ type devNeuronProcess struct {
 }
 
 type devCluster struct {
-	server    *grpc.Server
-	scheduler *cortex.Scheduler
-	dir       string
-	processes []*devNeuronProcess
+	server        *grpc.Server
+	scheduler     *cortex.Scheduler
+	catalog       *execution.Catalog
+	pluginRuntime execution.Runtime
+	dir           string
+	processes     []*devNeuronProcess
 }
 
 func startDevCluster(server *app.Server, httpAddress string) (*devCluster, error) {
 	rawCount, enabled := os.LookupEnv("BRAIN_DEV_WORKERS")
+	mode := os.Getenv("BRAIN_DEV_PLUGIN_EXECUTION")
+	if mode != "" && (mode != "cortex" || !enabled) {
+		return nil, errors.New("BRAIN_DEV_PLUGIN_EXECUTION=cortex requires managed local Neurons")
+	}
 	if !enabled {
 		return nil, nil
 	}
@@ -153,6 +161,14 @@ func startDevCluster(server *app.Server, httpAddress string) (*devCluster, error
 		return nil, err
 	}
 	cluster.scheduler = scheduler
+	cluster.catalog = catalog
+	if mode == "cortex" {
+		profile := neuron.LinuxProfile
+		if runtime.GOOS == "darwin" {
+			profile = neuron.MacOSProfile
+		}
+		cluster.pluginRuntime = execution.Runtime{Kind: plugin.ScheduledTypeScriptKind, Profile: profile}
+	}
 	cluster.server, err = synapse.NewGRPCServer(tlsConfig, scheduler, catalog, 2*time.Second)
 	if err != nil {
 		return nil, err
@@ -195,6 +211,9 @@ func startDevCluster(server *app.Server, httpAddress string) (*devCluster, error
 		if runtime.GOOS == "darwin" {
 			args = append(args, "--local-macos")
 		}
+		if mode == "cortex" {
+			args = append(args, "--plugin-runtime")
+		}
 		cmd := exec.Command(binary, args...)
 		cmd.Env = []string{}
 		// Do not pass operator credentials, application storage configuration,
@@ -233,7 +252,9 @@ func startDevCluster(server *app.Server, httpAddress string) (*devCluster, error
 		}
 		time.Sleep(100 * time.Millisecond)
 	}
-	server.SetNeuronScheduler(scheduler)
+	if server != nil {
+		server.SetNeuronScheduler(scheduler)
+	}
 	log.Printf("Synapse development pool: %d connected Neurons · %d slots each · %s", count, slots, listener.Addr())
 	success = true
 	return cluster, nil

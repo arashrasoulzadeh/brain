@@ -101,6 +101,9 @@ func (r *Registry) invokeModel(req WorkerRequest) (WorkerResponse, bool, error) 
 			return WorkerResponse{}, true, err
 		}
 	}
+	if err := req.executionContext().Err(); err != nil {
+		return WorkerResponse{}, true, err
+	}
 	result, err := storage.executeModel(req, manifest.Models[route.Model.Name], *route.Model)
 	if err != nil {
 		return WorkerResponse{}, true, err

@@ -5,6 +5,7 @@ import (
 	"brain/internal/operator"
 	"brain/internal/plugin"
 	"brain/internal/project"
+	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -448,10 +449,14 @@ func (s *LifecycleService) ProjectHTTPRoutes(projectID string) []plugin.HTTPRout
 }
 
 func (s *LifecycleService) InvokeHTTPRoute(projectID string, match plugin.HTTPRouteMatch, payload []byte, actorID string) (plugin.WorkerResponse, error) {
+	return s.InvokeHTTPRouteContext(context.Background(), projectID, match, payload, actorID)
+}
+
+func (s *LifecycleService) InvokeHTTPRouteContext(ctx context.Context, projectID string, match plugin.HTTPRouteMatch, payload []byte, actorID string) (plugin.WorkerResponse, error) {
 	if s == nil || s.registry == nil {
 		return plugin.WorkerResponse{}, plugin.ErrNotRegistered
 	}
-	return s.registry.InvokeHTTPRoute(projectID, match, payload, actorID)
+	return s.registry.InvokeHTTPRouteContext(ctx, projectID, match, payload, actorID)
 }
 
 func (s *LifecycleService) ProjectURLNamespace(id string) string {

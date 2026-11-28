@@ -1,6 +1,7 @@
 package plugin
 
 import (
+	"context"
 	"errors"
 	"time"
 )
@@ -30,6 +31,21 @@ type WorkerRequest struct {
 	requireAccessPolicy bool
 	httpRoute           *HTTPRouteMatch
 	functionRead        bool
+	callContext         context.Context
+}
+
+// WithContext binds cancellation and deadlines from a trusted host caller.
+// The context is never serialized or used as an authorization principal.
+func (r WorkerRequest) WithContext(ctx context.Context) WorkerRequest {
+	r.callContext = ctx
+	return r
+}
+
+func (r WorkerRequest) executionContext() context.Context {
+	if r.callContext == nil {
+		return context.Background()
+	}
+	return r.callContext
 }
 
 type WorkerResponse struct {
@@ -49,6 +65,9 @@ func InvokeForProject(worker ContractWorker, request WorkerRequest, protocol int
 	if err := ValidateWorkerRequestForProject(request, protocol, projectID); err != nil {
 		return WorkerResponse{}, err
 	}
+	if err := request.executionContext().Err(); err != nil {
+		return WorkerResponse{}, err
+	}
 	if worker == nil {
 		return WorkerResponse{}, ErrWorkerNotReady
 	}
@@ -60,7 +79,18 @@ func InvokeForProject(worker ContractWorker, request WorkerRequest, protocol int
 		// already supplied the trusted project identity as a separate argument.
 		request.Project = &ProjectSnapshot{ID: projectID, Active: true}
 	}
-	return worker.Handle(request), nil
+	// Scheduled installation handles can report placement failure separately
+	// from a plugin's own error response. Legacy workers keep their contract.
+	if scheduled, ok := worker.(interface {
+		HandleExecution(WorkerRequest) (WorkerResponse, error)
+	}); ok {
+		return scheduled.HandleExecution(request)
+	}
+	response := worker.Handle(request)
+	if err := request.executionContext().Err(); err != nil {
+		return WorkerResponse{}, err
+	}
+	return response, nil
 }
 
 // InvokeWithCredential is the production invocation boundary. The host-issued

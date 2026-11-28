@@ -252,7 +252,7 @@ func PluginHTTPHandler(service *admin.LifecycleService, sessions *operator.Store
 			http.Error(w, "invalid payload", http.StatusBadRequest)
 			return
 		}
-		response, err := service.InvokeHTTPRoute(p.ID, route, payload, credential)
+		response, err := service.InvokeHTTPRouteContext(r.Context(), p.ID, route, payload, credential)
 		if err != nil {
 			status := http.StatusForbidden
 			if errors.Is(err, plugin.ErrNotInstalled) || errors.Is(err, plugin.ErrDisabled) || errors.Is(err, plugin.ErrNotReady) || errors.Is(err, plugin.ErrNotRegistered) || errors.Is(err, plugin.ErrProjectInvalid) {
