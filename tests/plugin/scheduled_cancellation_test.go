@@ -52,6 +52,14 @@ func TestScheduledHTTPRouteCancellationPreventsCommit(t *testing.T) {
 		t.Fatal(err)
 	}
 	registry := plugin.NewRegistry(1)
+	// Scheduled execution requires a trusted project resolver, unlike legacy
+	// standalone registry fixtures. Never weaken the worker's verified-scope check.
+	registry.BindProjectResolver(func(id string) (plugin.ProjectSnapshot, error) {
+		if id != "alpha" {
+			return plugin.ProjectSnapshot{}, plugin.ErrProjectInvalid
+		}
+		return plugin.ProjectSnapshot{ID: id, Active: true}, nil
+	})
 	planner := &cancellationPlanner{}
 	registry.BindInvocationStorage(planner)
 	registry.BindWorkerFactory(func(project, id, version string) (plugin.ContractWorker, error) {
@@ -109,6 +117,8 @@ func TestScheduledHTTPRouteCancellationPreventsCommit(t *testing.T) {
 		if !request.Deadline.Equal(deadline) {
 			t.Fatalf("caller deadline lost: %v != %v", request.Deadline, deadline)
 		}
+	case err := <-finished:
+		t.Fatalf("request rejected before Cortex: %v", err)
 	case <-ctx.Done():
 		t.Fatal("request did not reach Cortex")
 	}

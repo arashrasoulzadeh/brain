@@ -43,6 +43,14 @@ func TestScheduledObservationSurvivesNeuronOutage(t *testing.T) {
 		t.Fatal(err)
 	}
 	registry := plugin.NewRegistry(1)
+	// Scheduled execution requires a trusted project resolver, unlike legacy
+	// standalone registry fixtures. Never weaken the worker's verified-scope check.
+	registry.BindProjectResolver(func(id string) (plugin.ProjectSnapshot, error) {
+		if id != "project" {
+			return plugin.ProjectSnapshot{}, plugin.ErrProjectInvalid
+		}
+		return plugin.ProjectSnapshot{ID: id, Active: true}, nil
+	})
 	for _, m := range []plugin.Manifest{publisher, subscriber} {
 		if err := registry.Register(m); err != nil {
 			t.Fatal(err)
