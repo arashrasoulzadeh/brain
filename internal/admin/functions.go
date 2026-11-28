@@ -60,6 +60,8 @@ type FunctionLogStep struct {
 	Name       string `json:"name"`
 	Status     string `json:"status"`
 	DurationMs int64  `json:"duration_ms"`
+	DurationNanos int64 `json:"duration_ns,omitempty"`
+	Parent string `json:"parent,omitempty"`
 	Reason     string `json:"reason,omitempty"`
 	Error      string `json:"error,omitempty"`
 }
@@ -458,6 +460,7 @@ func (s *LifecycleService) runFunctionDraft(ctx context.Context, actor operator.
 	steps := append([]FunctionLogStep{}, initialSteps...)
 	addStep := func(name, status, reason string, stepStarted time.Time, stepError error) {
 		step := FunctionLogStep{Name: name, Status: status, Reason: reason, DurationMs: time.Since(stepStarted).Milliseconds()}
+		step.DurationNanos = time.Since(stepStarted).Nanoseconds()
 		if stepError != nil {
 			step.Error = stepError.Error()
 		}
@@ -626,10 +629,15 @@ process.stdout.write(JSON.stringify({result:result??null,timings:{compile_ms:com
 		writeLog("failed", resultError.Error())
 		return nil, resultError
 	}
+	if profile, ok := execution.ReadFunctionProfile(output); ok && s.functionExecution != nil {
+		for _, stage := range profile.Stages() {
+			steps = append(steps, FunctionLogStep{Name: stage.Name, Status: "success", DurationMs: stage.Nanos / 1e6, DurationNanos: stage.Nanos, Parent: "sandbox execution", Reason: "measured on the Neuron"})
+		}
+	}
 	steps = append(steps,
-		FunctionLogStep{Name: "sandbox compile", Status: "success", Reason: "module compiled inside the sandbox", DurationMs: int64(envelope.Timings.CompileMs)},
-		FunctionLogStep{Name: "sandbox evaluate", Status: "success", Reason: "module evaluated inside the sandbox", DurationMs: int64(envelope.Timings.EvaluateMs)},
-		FunctionLogStep{Name: "handler execution", Status: "success", Reason: "default handler completed inside the sandbox", DurationMs: int64(envelope.Timings.InvokeMs)},
+		FunctionLogStep{Name: "sandbox compile", Status: "success", Reason: "module compiled inside the sandbox", DurationMs: int64(envelope.Timings.CompileMs), DurationNanos: int64(envelope.Timings.CompileMs*1e6), Parent: "sandbox invocation"},
+		FunctionLogStep{Name: "sandbox evaluate", Status: "success", Reason: "module evaluated inside the sandbox", DurationMs: int64(envelope.Timings.EvaluateMs), DurationNanos: int64(envelope.Timings.EvaluateMs*1e6), Parent: "sandbox invocation"},
+		FunctionLogStep{Name: "handler execution", Status: "success", Reason: "default handler completed inside the sandbox", DurationMs: int64(envelope.Timings.InvokeMs), DurationNanos: int64(envelope.Timings.InvokeMs*1e6), Parent: "sandbox invocation"},
 	)
 	result := any(nil)
 	if err := json.Unmarshal(envelope.Result, &result); err != nil {
