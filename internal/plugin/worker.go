@@ -60,6 +60,13 @@ func InvokeForProject(worker ContractWorker, request WorkerRequest, protocol int
 		// already supplied the trusted project identity as a separate argument.
 		request.Project = &ProjectSnapshot{ID: projectID, Active: true}
 	}
+	// Scheduled installation handles can report placement failure separately
+	// from a plugin's own error response. Legacy workers keep their contract.
+	if scheduled, ok := worker.(interface {
+		HandleExecution(WorkerRequest) (WorkerResponse, error)
+	}); ok {
+		return scheduled.HandleExecution(request)
+	}
 	return worker.Handle(request), nil
 }
 
