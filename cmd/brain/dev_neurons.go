@@ -21,6 +21,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"brain/internal/app"
@@ -97,6 +98,11 @@ type devCluster struct {
 	pluginRuntime execution.Runtime
 	dir           string
 	processes     []*devNeuronProcess
+	processMu     sync.RWMutex
+	controlMu     sync.Mutex
+	controlCtx    context.Context
+	controlCancel context.CancelFunc
+	closeOnce     sync.Once
 }
 
 func startDevCluster(server *app.Server, httpAddress string) (*devCluster, error) {
@@ -126,7 +132,8 @@ func startDevCluster(server *app.Server, httpAddress string) (*devCluster, error
 	if err != nil {
 		return nil, err
 	}
-	cluster := &devCluster{dir: dir}
+	controlCtx, controlCancel := context.WithCancel(context.Background())
+	cluster := &devCluster{dir: dir, controlCtx: controlCtx, controlCancel: controlCancel}
 	success := false
 	defer func() {
 		if !success {
@@ -229,15 +236,11 @@ func startDevCluster(server *app.Server, httpAddress string) (*devCluster, error
 			}
 		}
 		cmd.Stdout, cmd.Stderr = os.Stdout, os.Stderr
-		if err = cmd.Start(); err != nil {
+		process, err := launchDevNeuron(id, cmd)
+		if err != nil {
 			return nil, err
 		}
-		process := &devNeuronProcess{id: id, cmd: cmd, done: make(chan struct{})}
 		cluster.processes = append(cluster.processes, process)
-		go func() {
-			process.err = process.cmd.Wait()
-			close(process.done)
-		}()
 	}
 	// A process is not counted until its isolated runtime probe has passed
 	// and its authenticated registration is visible in Cortex.
@@ -267,6 +270,17 @@ func (c *devCluster) Close() {
 	if c == nil {
 		return
 	}
+	c.closeOnce.Do(func() {
+		if c.controlCancel != nil {
+			c.controlCancel()
+		}
+		c.controlMu.Lock()
+		defer c.controlMu.Unlock()
+		c.closeProcesses()
+	})
+}
+
+func (c *devCluster) closeProcesses() {
 	for _, process := range c.processes {
 		_ = process.cmd.Process.Signal(os.Interrupt)
 	}

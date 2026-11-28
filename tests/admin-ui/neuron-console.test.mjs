@@ -175,3 +175,28 @@ test("Neuron console shows real outcomes and distinguishes unreported resource u
   assert.match(text(), /2 \/ 14 ms/);
   assert.match(text(), /1.0 ms \/ 1.0 MiB/);
 });
+
+test("Neuron management requires confirmation and refreshes real placement", async () => {
+  session();
+  let paused = false;
+  const calls = [];
+  stubFetch((url, init) => {
+    if (url === "/_system/admin/projects") return json([]);
+    if (url === "/_system/admin/neurons" && init.method === "POST") {
+      const body = JSON.parse(init.body);
+      calls.push(body);
+      paused = body.action === "drain";
+      return json({ status: "success" });
+    }
+    if (url === "/_system/admin/neurons") return json({ ...cluster([row("managed", { Draining: paused, OperatorDraining: paused })]), managed: [{ ID: "managed", Running: true }] });
+    throw new Error("unexpected request " + url);
+  });
+  await mount(Workers, {}, { pathname: "/_system/ui/workers" });
+  assert.match(text(), /Managed Neuron processes/);
+  await click(button("Drain managed"));
+  assert.equal(calls.length, 0);
+  await click(button("Confirm drain"));
+  assert.deepEqual(calls, [{ id: "managed", action: "drain", confirmed: true }]);
+  assert.match(text(), /Neuron action completed/);
+  assert.ok(button("Resume managed"));
+});

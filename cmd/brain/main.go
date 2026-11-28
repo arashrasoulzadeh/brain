@@ -87,6 +87,9 @@ func main() {
 	}
 	if cluster != nil {
 		server.SetNeuronScheduler(cluster.scheduler)
+		if cluster.controlCtx != nil {
+			server.SetManagedNeuronController(cluster)
+		}
 	}
 	if cluster != nil {
 		defer cluster.Close()
