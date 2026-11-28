@@ -35,15 +35,28 @@ type catalogEntry struct {
 	bundle      []byte
 }
 
-// Catalog is a bounded, in-memory immutable artifact index. Only trusted host
-// code may register or resolve identities. It is not a permission broker or a
-// durable registry; production must persist and restore version pins separately.
+// ArtifactPin is the immutable metadata persisted before exposing a bundle.
+type ArtifactPin struct {
+	Digest      string
+	Runtime     Runtime
+	Entrypoints []string
+}
+
+// PinStore atomically creates or verifies an exact immutable pin.
+type PinStore interface {
+	PinArtifact(ArtifactKey, ArtifactPin) error
+}
+
+// Catalog is a bounded, in-memory artifact index. When a pin store is bound,
+// every registration also verifies the durable version identity. It is not a
+// permission broker; bundle bytes are reconstructed from trusted sources.
 type Catalog struct {
 	mu         sync.RWMutex
 	entries    map[ArtifactKey]catalogEntry
 	maxEntries int
 	maxBytes   int64
 	usedBytes  int64
+	pinStore   PinStore
 }
 
 func NewCatalog(maxEntries int, maxBytes int64) (*Catalog, error) {
@@ -51,6 +64,21 @@ func NewCatalog(maxEntries int, maxBytes int64) (*Catalog, error) {
 		return nil, ErrCatalogLimit
 	}
 	return &Catalog{entries: make(map[ArtifactKey]catalogEntry), maxEntries: maxEntries, maxBytes: maxBytes}, nil
+}
+
+// BindPinStore must run before registration. A catalog cannot switch its
+// pin authority or silently upgrade already-unpinned artifacts.
+func (c *Catalog) BindPinStore(store PinStore) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if store == nil {
+		return ErrInvalidRequest
+	}
+	if c.pinStore != nil || len(c.entries) != 0 {
+		return ErrArtifactConflict
+	}
+	c.pinStore = store
+	return nil
 }
 
 // Register pins content, entrypoints and runtime requirements to one version.
@@ -85,6 +113,11 @@ func (c *Catalog) Register(reg Registration) error {
 	}
 	if len(c.entries) >= c.maxEntries || int64(len(bundle)) > c.maxBytes-c.usedBytes {
 		return ErrCatalogLimit
+	}
+	if c.pinStore != nil {
+		if err := c.pinStore.PinArtifact(reg.Key, ArtifactPin{Digest: digest, Runtime: reg.Runtime, Entrypoints: slices.Clone(entrypoints)}); err != nil {
+			return err
+		}
 	}
 	c.entries[reg.Key] = catalogEntry{digest: digest, runtime: reg.Runtime, entrypoints: entrypoints, bundle: bundle}
 	c.usedBytes += int64(len(bundle))

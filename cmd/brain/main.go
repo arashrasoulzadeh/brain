@@ -139,12 +139,11 @@ func productionServerWithCluster(cluster *devCluster) (*app.Server, error) {
 	if err != nil {
 		return nil, err
 	}
-	if cluster != nil && cluster.pluginRuntime.Kind != "" {
-		if err := bindCortexPluginWorkers(registry, locations, cluster); err != nil {
+	scheduledPlugins := cluster != nil && cluster.pluginRuntime.Kind != ""
+	if !scheduledPlugins {
+		if err := bindSandboxedTypeScriptWorkers(registry, locations); err != nil {
 			return nil, err
 		}
-	} else if err := bindSandboxedTypeScriptWorkers(registry, locations); err != nil {
-		return nil, err
 	}
 	if err := os.MkdirAll(filepath.Dir(projectsPath), 0o700); err != nil {
 		return nil, fmt.Errorf("project storage directory unavailable: %w", err)
@@ -163,6 +162,18 @@ func productionServerWithCluster(cluster *devCluster) (*app.Server, error) {
 	if err != nil {
 		_ = projects.Close()
 		return nil, fmt.Errorf("plugin storage unavailable: %w", err)
+	}
+	if scheduledPlugins {
+		if err := storage.BindArtifactPins(cluster.catalog); err != nil {
+			_ = storage.Close()
+			_ = projects.Close()
+			return nil, fmt.Errorf("artifact pin storage unavailable: %w", err)
+		}
+		if err := bindCortexPluginWorkers(registry, locations, cluster); err != nil {
+			_ = storage.Close()
+			_ = projects.Close()
+			return nil, err
+		}
 	}
 	if err := registry.BindSQLiteStorage(storage); err != nil {
 		_ = storage.Close()
