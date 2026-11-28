@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"crypto/subtle"
 	"encoding/base64"
+	"io"
 	"net/http"
 )
 
@@ -18,7 +19,7 @@ func CSRF(next http.Handler) http.Handler {
 		}
 		if token == "" {
 			var bytes [32]byte
-			if _, err := rand.Read(bytes[:]); err != nil {
+			if _, err := io.ReadFull(rand.Reader, bytes[:]); err != nil {
 				http.Error(w, "csrf unavailable", http.StatusInternalServerError)
 				return
 			}

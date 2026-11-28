@@ -11,7 +11,7 @@ const pageTitles: Record<string, string> = {
   dashboard: "Dashboard",
   functions: "Functions",
   workflows: "Workflows",
-  workers: "Workers",
+  workers: "Neurons",
   projects: "Projects", plugins: "Plugins", audit: "Audit log", system: "System capabilities", routes: "API routes", monitoring: "Monitoring", database: "Database", files: "Files", "live-sessions": "Live sessions", extensions: "Plugin administration",
 };
 

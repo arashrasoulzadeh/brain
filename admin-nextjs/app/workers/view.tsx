@@ -1,70 +1,130 @@
 "use client";
-import { adminHeaders, readAdminSession, preferredAdminProject, signOutAdminSession, projectAdminURL, systemAdminURL, systemUIURL, adminUIContext, notifyPluginCatalogChanged } from "../lib/admin-api";
-
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { adminHeaders, readAdminSession, preferredAdminProject, projectAdminURL, systemAdminURL, systemUIURL, adminUIContext, notifyPluginCatalogChanged } from "../lib/admin-api";
+import { availableSlots, filterNeurons, legacyWorkerState, summarizeCluster, type ClusterStatus, type Installation, type Neuron } from "../lib/neuron-dashboard";
 import { AdminDialog, AdminProgress } from "../components/admin-dialog";
 import { PluginManageLink } from "../components/plugin-manage-link";
 import { AdminPageFrame } from "../components/admin-chrome";
 
-type Installation = { ProjectID: string; Draining?: boolean; PluginID: string; Version: string; Enabled: boolean; Ready: boolean; WorkerReady?: boolean };
+function NeuronRow({ neuron }: { neuron: Neuron }) {
+  const free = availableSlots(neuron);
+  const status = neuron.Draining ? "Draining" : free > 0 ? "Available" : "At capacity";
+  const runtime = neuron.Runtimes ?? [];
+  return <tr>
+    <th scope="row"><strong>{neuron.ID}</strong><small className="table-subtitle muted">Connected via scheduler</small></th>
+    <td><span className={"status-pill " + (status === "Available" ? "is-success" : "is-warning")}>{status}</span></td>
+    <td><div className="neuron-runtime-list">{runtime.map(item => <span key={item.Kind + ":" + item.Profile}>{item.Kind}<small>{item.Profile}</small></span>)}{!runtime.length && "—"}</div></td>
+    <td><div className="neuron-capacity"><progress aria-label={neuron.ID + " occupied slots"} value={Math.min(neuron.Running, neuron.Slots)} max={Math.max(neuron.Slots, 1)} /><span>{neuron.Running} occupied / {neuron.Slots} total · {free} free</span></div></td>
+    <td><time dateTime={neuron.LastPulse}>{new Date(neuron.LastPulse).toLocaleString()}</time></td>
+  </tr>;
+}
 
 export default function WorkersPage() {
   const router = useRouter();
   const { namespace } = adminUIContext(usePathname());
-  const [session, setSession] = useState("");
-  const [project, setProject] = useState("");
-  const [workers, setWorkers] = useState<Installation[]>([]);
-  const [message, setMessage] = useState("");
-  const [refreshError, setRefreshError] = useState("");
+  const [cluster, setCluster] = useState<ClusterStatus>();
+  const [legacy, setLegacy] = useState<{ project: string; workers: Installation[] }>();
+  const [clusterError, setClusterError] = useState("");
+  const [legacyError, setLegacyError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [lastRefresh, setLastRefresh] = useState<Date>();
   const [refresh, setRefresh] = useState(0);
+  const [search, setSearch] = useState("");
+  const [state, setState] = useState("all");
   const [pending, setPending] = useState<Installation>();
+  const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
-  const epoch = useRef(0);
-
-  async function load(token: string, signal?: AbortSignal) {
-    const current = ++epoch.current;
-    const valid = () => current === epoch.current && !signal?.aborted && readAdminSession() === token;
-    const options = { headers: adminHeaders(token), signal };
-    const projectsResponse = await fetch(systemAdminURL("projects"), options);
-    if (!projectsResponse.ok) throw new Error("Projects unavailable");
-    const projects = (await projectsResponse.json() as { ID: string; Slug?: string; Active: boolean }[] | null) ?? [];
-    const activeProject = namespace ? preferredAdminProject(projects, namespace)?.ID : undefined;
-    if (!activeProject) throw new Error("Project unavailable");
-    const pluginsResponse = await fetch(projectAdminURL(activeProject, "plugins"), options);
-    if (!pluginsResponse.ok) throw new Error("Worker status unavailable");
-    const data = await pluginsResponse.json() as { installations: Installation[] | null };
-    if (valid()) { setProject(activeProject); setWorkers((data.installations ?? []).filter(worker => worker.ProjectID === activeProject)); setRefreshError(""); }
-  }
 
   useEffect(() => {
     const controller = new AbortController();
     const token = readAdminSession();
     if (!token) { router.replace(systemUIURL()); return; }
-    setSession(token); setProject(""); setWorkers([]); setMessage(""); setRefreshError(""); setLoading(true); setPending(undefined);
+    const valid = () => !controller.signal.aborted && readAdminSession() === token;
+    const options = { headers: adminHeaders(token), signal: controller.signal, cache: "no-store" as const };
     let timer: ReturnType<typeof setTimeout>;
+    setLoading(true);
+    setCluster(undefined);
+    setLegacy(undefined);
+    setClusterError("");
+    setLegacyError("");
+    setLastRefresh(undefined);
+    async function loadCluster() {
+      try {
+        const response = await fetch(systemAdminURL("neurons"), options);
+        if (!response.ok) throw new Error("Neuron status unavailable");
+        const data = await response.json() as ClusterStatus;
+        if (valid()) { setCluster(data); setClusterError(""); setLastRefresh(new Date()); }
+      } catch (reason) {
+        if (valid()) { setCluster(undefined); setLastRefresh(undefined); setClusterError(String(reason)); }
+      }
+    }
+    async function loadLegacy() {
+      try {
+        const response = await fetch(systemAdminURL("projects"), options);
+        if (!response.ok) throw new Error("Projects unavailable");
+        const projects = (await response.json() as { ID: string; Slug?: string; Active: boolean }[] | null) ?? [];
+        const project = preferredAdminProject(projects, namespace)?.ID;
+        if (!project) { if (valid()) { setLegacy(undefined); setLegacyError(""); } return; }
+        const plugins = await fetch(projectAdminURL(project, "plugins"), options);
+        if (!plugins.ok) throw new Error("Legacy worker status unavailable");
+        const data = await plugins.json() as { installations: Installation[] | null };
+        if (valid()) { setLegacy({ project, workers: (data.installations ?? []).filter(worker => worker.ProjectID === project) }); setLegacyError(""); }
+      } catch (reason) {
+        if (valid()) { setLegacy(undefined); setLegacyError(String(reason)); }
+      }
+    }
     async function poll() {
-      if (controller.signal.aborted) return;
-      try { if (!document.hidden || timer === undefined) await load(token, controller.signal); }
-      catch (reason) { if (!controller.signal.aborted && readAdminSession() === token) { setWorkers([]); setRefreshError(String(reason)); } }
-      finally { if (!controller.signal.aborted) { setLoading(false); timer = setTimeout(() => void poll(), 10000); } }
+      if (!valid()) return;
+      if (!document.hidden || timer === undefined) await Promise.all([loadCluster(), loadLegacy()]);
+      if (valid()) { setLoading(false); timer = setTimeout(() => void poll(), 5000); }
     }
     void poll();
-    return () => { controller.abort(); clearTimeout(timer); epoch.current++; };
+    return () => { controller.abort(); clearTimeout(timer); };
   }, [router, namespace, refresh]);
 
   async function spinUp() {
-    if (busy || done || !pending || pending.ProjectID !== project || !session) return;
+    const token = readAdminSession();
+    if (busy || done || !pending || pending.ProjectID !== legacy?.project || !token) return;
     setBusy(true); setMessage("");
     try {
-      const response = await fetch(projectAdminURL(project, "actions"), { method: "POST", headers: adminHeaders(session, { "content-type": "application/json" }), body: JSON.stringify({ operation: "plugin.worker.start", project_id: project, plugin_id: pending.PluginID, version: pending.Version }) });
-      if (!response.ok) throw new Error(await response.text());
-      setDone(true); notifyPluginCatalogChanged(project); await load(session).catch(reason => setMessage("Worker started; refresh failed: " + String(reason)));
-    } catch (reason) { setMessage(String(reason)); }
+      const response = await fetch(projectAdminURL(pending.ProjectID, "actions"), { method: "POST", headers: adminHeaders(token, { "content-type": "application/json" }), body: JSON.stringify({ operation: "plugin.worker.start", project_id: pending.ProjectID, plugin_id: pending.PluginID, version: pending.Version }) });
+      if (!response.ok) throw new Error("Worker start failed");
+      if (readAdminSession() === token) { setDone(true); notifyPluginCatalogChanged(pending.ProjectID); setRefresh(value => value + 1); }
+    } catch (reason) { if (readAdminSession() === token) setMessage(String(reason)); }
     finally { setBusy(false); }
   }
 
-  return <AdminPageFrame activePage="workers" title="Workers" projectID={project} onSignOut={() => { void signOutAdminSession().finally(() => router.replace(systemUIURL())); }}><p className="muted">Project: {project || "—"}. A plugin is executable only after its worker is ready.</p><button type="button" className="secondary" disabled={loading || busy || !!pending} onClick={() => setRefresh(value => value + 1)}>Refresh workers</button>{loading && <AdminProgress label="Loading workers…" />}{refreshError && <p role="alert">{refreshError}</p>}{!pending && message && <p role="alert">{message}</p>}{!loading && !workers.length && !message && !refreshError && <p>No installed workers.</p>}<div className="audit-list">{workers.map(worker => <div className="audit" key={worker.PluginID + "@" + worker.Version}><span className={worker.WorkerReady ? "success" : "failure"}>{worker.WorkerReady ? "✓" : "!"}</span><div><strong>{worker.PluginID}@{worker.Version}</strong><small>{worker.Draining ? "Draining" : worker.WorkerReady ? "Worker ready" : "Worker not ready"}</small></div><div className="lifecycle-actions"><PluginManageLink projectID={project} pluginID={worker.PluginID} version={worker.Version} />{worker.Enabled && worker.Ready && !worker.Draining && !worker.WorkerReady && <button type="button" onClick={() => { setPending(worker); setDone(false); setMessage(""); }}>Start worker</button>}</div></div>)}</div>{pending && <AdminDialog title="Start worker" scope={project + " · " + pending.PluginID + "@" + pending.Version} busy={busy} onClose={() => setPending(undefined)}>{!done && <button type="button" disabled={busy} onClick={() => void spinUp()}>Confirm start</button>}{busy && <AdminProgress label="Starting worker…" />}{done && <p role="status">Worker started</p>}{message && <p role="alert">{message}</p>}</AdminDialog>}</AdminPageFrame>;
+  const summary = summarizeCluster(cluster);
+  const neurons = cluster?.configured ? cluster.snapshot.Neurons ?? [] : [];
+  const visible = filterNeurons(neurons, search, state);
+  return <AdminPageFrame activePage="workers" title="Neurons" eyebrow="EXECUTION INFRASTRUCTURE" projectID={legacy?.project}>
+    <div className="neuron-console">
+      <div className="neuron-toolbar"><div><p className="neuron-intro">Manage execution capacity across projects and inspect the Cortex scheduler.</p><p className="muted neuron-updated">{lastRefresh ? "Last updated " + lastRefresh.toLocaleTimeString() + " · Refreshes every 5 seconds" : "No current cluster snapshot"}</p></div><button type="button" className="secondary" disabled={loading || busy} onClick={() => setRefresh(value => value + 1)}>Refresh workers</button></div>
+      {loading && <AdminProgress label="Loading execution infrastructure…" />}
+      {clusterError && <p role="alert">{clusterError}. No cached metrics are shown.</p>}
+      {cluster && !cluster.configured && <section className="neuron-notice"><span className="status-pill is-warning">Not configured</span><h2>Neuron transport is not connected</h2><p>Brain is still using dedicated plugin workers. The Cortex scheduler is not attached to this server, so live Neuron capacity is unavailable.</p></section>}
+      {cluster?.configured && summary?.connected === 0 && <section className="neuron-notice"><span className="status-pill is-warning">No capacity</span><h2>No connected Neurons</h2><p>The scheduler is online, but no Neurons have registered.</p></section>}
+      <section aria-label="Cortex capacity" className="neuron-metrics metric-grid">
+        <article><span>Connected Neurons</span><strong>{summary?.connected ?? "—"}</strong><small className="muted">Authenticated sessions</small></article>
+        <article><span>Available slots</span><strong>{summary?.available ?? "—"}{summary && <small> / {summary.slots}</small>}</strong><small className="muted">Excludes draining capacity</small></article>
+        <article><span>Running executions</span><strong>{summary?.running ?? "—"}</strong><small className="muted">Active Cortex assignments</small></article>
+        <article><span>Pending executions</span><strong>{summary?.queued ?? "—"}</strong><small className="muted">Current queue depth</small></article>
+      </section>
+      <section className="section" aria-labelledby="neuron-list-title">
+        <div className="section-heading"><div><p className="eyebrow">CLUSTER INVENTORY</p><h2 id="neuron-list-title">Connected Neurons</h2></div><span className="count">{summary?.connected ?? "—"}</span></div>
+        <div className="neuron-filters"><label>Search<input value={search} onChange={event => setSearch(event.target.value)} placeholder="Identity or runtime" /></label><label>Capacity<select value={state} onChange={event => setState(event.target.value)}><option value="all">All statuses</option><option value="available">Available</option><option value="busy">At capacity</option><option value="draining">Draining</option></select></label></div>
+        <div className="table-wrap neuron-table"><table><thead><tr><th>Neuron</th><th>Status</th><th>Runtimes</th><th>Execution slots</th><th>Last heartbeat</th></tr></thead><tbody>{visible.map(neuron => <NeuronRow key={neuron.ID} neuron={neuron} />)}{!visible.length && <tr><td colSpan={5} className="neuron-empty">{!cluster?.configured ? "Neuron inventory unavailable." : neurons.length ? "No Neurons match the filters." : "No Neurons connected."}</td></tr>}</tbody></table></div>
+        <p className="muted neuron-note">CPU, memory, history, completed and failed executions, latency, and managed-process controls are not yet exposed by the host. Unavailable values are not reported as zero.</p>
+      </section>
+      <section className="section" aria-labelledby="legacy-workers-title">
+        <div className="section-heading"><div><p className="eyebrow">COMPATIBILITY</p><h2 id="legacy-workers-title">Legacy plugin workers</h2><p className="muted">Dedicated workers are separate from shared Neurons.{legacy ? " Project: " + legacy.project : ""}</p></div></div>
+        {legacyError && <p role="alert">{legacyError}</p>}
+        {!legacy && !loading && !legacyError && <p>Select an active project to inspect dedicated plugin workers. <a href={systemUIURL("projects")}>Choose project</a></p>}
+        {legacy && <div className="table-wrap neuron-table"><table><thead><tr><th>Plugin</th><th>Version</th><th>Lifecycle</th><th>Recovery</th></tr></thead><tbody>{legacy.workers.map(worker => <tr key={worker.PluginID + "@" + worker.Version}><th scope="row">{worker.PluginID}</th><td>{worker.Version}</td><td><span className={"status-pill " + (legacyWorkerState(worker) === "Worker ready" ? "is-success" : "is-inactive")}>{legacyWorkerState(worker)}</span></td><td><div className="table-actions"><PluginManageLink projectID={legacy.project} pluginID={worker.PluginID} version={worker.Version} />{worker.Enabled && worker.Ready && !worker.Draining && !worker.WorkerReady && <button type="button" className="secondary" disabled={busy} onClick={() => { setPending(worker); setDone(false); setMessage(""); }}>Start worker</button>}</div></td></tr>)}{!legacy.workers.length && <tr><td colSpan={4} className="neuron-empty">No installed plugin workers.</td></tr>}</tbody></table></div>}
+      </section>
+      {pending && <AdminDialog title="Start legacy worker" scope={pending.ProjectID + " · " + pending.PluginID + "@" + pending.Version} busy={busy} onClose={() => setPending(undefined)}>{!done && <button type="button" disabled={busy || pending.ProjectID !== legacy?.project} onClick={() => void spinUp()}>Confirm start</button>}{busy && <AdminProgress label="Starting worker…" />}{done && <p role="status">Worker started</p>}{message && <p role="alert">{message}</p>}</AdminDialog>}
+    </div>
+  </AdminPageFrame>;
 }

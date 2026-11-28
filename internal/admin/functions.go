@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -614,7 +615,7 @@ process.stdout.write(JSON.stringify({result:result??null,timings:{compile_ms:com
 
 func createFunctionRequestID() string {
 	bytes := make([]byte, 12)
-	if _, err := rand.Read(bytes); err != nil {
+	if _, err := io.ReadFull(rand.Reader, bytes); err != nil {
 		return fmt.Sprintf("function-%d", time.Now().UnixNano())
 	}
 	return fmt.Sprintf("function-%x", bytes)

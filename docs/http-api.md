@@ -14,6 +14,7 @@ This is the HTTP surface mounted by the current application in [app.go](../inter
 | `GET /_system/admin/plugins` | Operator bearer | Global plugin catalog and installation inventory. |
 | `GET /_system/admin/audit` | Operator bearer | Server audit events. |
 | `GET /_system/admin/system` | Operator bearer | Global capabilities and system manifests. |
+| `GET /_system/admin/neurons` | Operator bearer | Global Cortex connection and capacity snapshot (`configured`, `snapshot`); an unconfigured scheduler is not reported as an empty healthy pool. |
 | `POST /_system/admin/actions` | Operator bearer | Server-wide lifecycle and project-creation commands. |
 | `GET /{project}/admin/plugins` | Operator bearer | Installed plugin catalog within resolved project. |
 | `GET /{project}/admin/functions` | Operator bearer | Function drafts within resolved project. |

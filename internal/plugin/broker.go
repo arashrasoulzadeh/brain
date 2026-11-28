@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"errors"
+	"io"
 	"sync"
 	"time"
 )
@@ -49,7 +50,7 @@ func (b *Broker) Issue(call HostCall, now time.Time, lifetime time.Duration) (In
 		return InvocationCredential{}, err
 	}
 	var raw [32]byte
-	if _, err := rand.Read(raw[:]); err != nil {
+	if _, err := io.ReadFull(rand.Reader, raw[:]); err != nil {
 		return InvocationCredential{}, err
 	}
 	token := base64.RawURLEncoding.EncodeToString(raw[:])

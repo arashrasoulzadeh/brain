@@ -99,6 +99,19 @@ class CLITest(unittest.TestCase):
         for value in ("", ":memory:", "file:fixture"):
             self.cli(expected=1, contains="PROJECTS_FILE must name an explicit durable SQLite file", PROJECTS_FILE=value, **env)
 
+    def test_neuron_cli_rejects_invalid_configuration(self):
+        self.cli("neuron", expected=1, contains="usage: brain neuron connect")
+        self.cli("neuron", "unknown", expected=1, contains="usage:")
+        self.cli("neuron", "connect", "--unknown", expected=1, contains="flag provided but not defined")
+        self.cli("neuron", "connect", expected=1, contains="neuron connect requires")
+        args = ("neuron", "connect", "--brain", "127.0.0.1:1234", "--id", "fixture",
+                "--cert", str(Path(self.temp.name) / "missing.pem"), "--key", str(Path(self.temp.name) / "missing.key"),
+                "--ca", str(Path(self.temp.name) / "missing-ca.pem"), "--server-name", "brain.test")
+        self.cli(*args, expected=1, contains="no such file")
+        self.cli(*args, "--slots", "0", expected=1, contains="neuron connect requires")
+        self.cli(*args, "--slots", "9", expected=1, contains="neuron connect requires")
+        self.cli(*args, "extra", expected=1, contains="neuron connect requires")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -12,6 +12,6 @@ test("platform and specialized navigation retain readiness policy", () => {
   assert.ok(!pages.includes("functions"));
   assert.ok(!canViewAdminPage("functions", enabled));
   assert.ok(!pages.includes("live-sessions"), "plugin aliases are now discovered from manifests");
-  assert.ok(!canViewAdminPage("workers", new Set()));
-  assert.deepEqual(visibleAdminPages(0, new Set()), ["projects", "audit"]);
+  assert.ok(canViewAdminPage("workers", new Set()));
+  assert.deepEqual(visibleAdminPages(0, new Set()), ["projects", "audit", "workers"]);
 });

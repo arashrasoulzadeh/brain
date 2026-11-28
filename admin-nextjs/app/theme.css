@@ -300,3 +300,28 @@ form > button[type=submit], form > button:not([type]) { margin-top: 14px; }
 .function-code-editor .editor-diagnostic button { font-size: 11px; min-height: 24px; padding: 2px 6px; }
 @media (max-width: 1050px) { .function-workspace-grid.has-inspector { grid-template-columns: minmax(0, 1fr); } .function-workspace-inspector { border-left: 1px solid var(--border); border-radius: 0 0 var(--radius) var(--radius); } }
 @media (max-width: 600px) { .function-workspace-toolbar { align-items: flex-start; } .function-workspace-file { flex-basis: 100%; } .function-workspace-restore, .function-code-editor .function-code-shortcut { margin-left: 0; } }
+
+/* System execution infrastructure console */
+.neuron-console { display: grid; gap: 18px; min-width: 0; }
+.neuron-console .section { margin: 0; }
+.neuron-toolbar { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.neuron-intro { margin: 0 0 4px; font-size: 14px; }
+.neuron-updated, .neuron-note { font-size: 12px; margin: 6px 0 0; }
+.neuron-notice { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #a16a1d; border-radius: var(--radius); padding: 15px; }
+.neuron-notice h2 { font-size: 17px; margin: 9px 0 5px; }
+.neuron-notice p { margin: 0; color: var(--muted); }
+.neuron-metrics { grid-template-columns: repeat(auto-fit, minmax(min(155px, 100%), 1fr)); }
+.neuron-metrics article { display: grid; gap: 5px; }
+.neuron-metrics strong small { font-size: 14px; color: var(--muted); font-weight: 500; }
+.neuron-metrics article > small { font-size: 11px; }
+.neuron-filters { display: flex; gap: 12px; flex-wrap: wrap; align-items: end; margin-bottom: 12px; }
+.neuron-filters label { margin: 0; flex: 1 1 160px; max-width: 300px; }
+.neuron-table { overflow-x: auto; }
+.neuron-table table { min-width: 600px; }
+.neuron-table th[scope="row"] { background: transparent; font-size: inherit; color: var(--text); }
+.neuron-runtime-list { display: flex; flex-wrap: wrap; gap: 5px; }
+.neuron-runtime-list > span { border: 1px solid var(--border); border-radius: 5px; padding: 4px 7px; font-size: 12px; }
+.neuron-runtime-list small { display: block; color: var(--muted); font-size: 10px; }
+.neuron-capacity { min-width: 125px; display: grid; gap: 5px; font-size: 11px; color: var(--muted); }
+.neuron-capacity progress { width: 100%; height: 8px; accent-color: var(--accent); }
+.neuron-empty { text-align: center !important; padding: 28px 12px !important; color: var(--muted); }

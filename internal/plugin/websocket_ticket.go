@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"errors"
+	"io"
 	"strings"
 	"sync"
 	"time"
@@ -62,7 +63,7 @@ func (s *WebSocketTicketStore) issue(binding webSocketTicketBinding, now time.Ti
 		return "", ErrWebSocketTicketDenied
 	}
 	var raw [32]byte
-	if _, err := rand.Read(raw[:]); err != nil {
+	if _, err := io.ReadFull(rand.Reader, raw[:]); err != nil {
 		return "", ErrWebSocketTicketDenied
 	}
 	token := base64.RawURLEncoding.EncodeToString(raw[:])

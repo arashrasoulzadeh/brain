@@ -20,6 +20,7 @@ These are actual Next.js page patterns. The URL's first segment is authoritative
 | `/_system/ui` | [Login and control plane](login.md) | Sign in and select a project. |
 | `/_system/ui/projects` | [Projects](projects.md) | Create, select, activate, deactivate and uninstall projects. |
 | `/_system/ui/audit` | [Audit](audit.md) | Global lifecycle and delivery audit history. |
+| `/_system/ui/workers` | [Neurons](workers.md) | Global execution capacity and Neuron status. |
 | `/[project]/ui` | [Plugins](plugins.md) | Project landing page. |
 | `/[project]/ui/dashboard` | [Dashboard](dashboard.md) | Project installation and worker overview. |
 | `/[project]/ui/plugins` | [Plugins](plugins.md) | Installed and registered version catalog. |
@@ -27,7 +28,7 @@ These are actual Next.js page patterns. The URL's first segment is authoritative
 | `/[project]/ui/system` | [System](system.md) | Capability and manifest metadata. |
 | `/[project]/ui/routes` | [Routes](routes.md) | Discovered operations and playground. |
 | `/[project]/ui/monitoring` | [Monitoring](monitoring.md) | Readiness, worker and lifecycle state. |
-| `/[project]/ui/workers` | [Workers](workers.md) | Worker inspection and startup controls. |
+| `/[project]/ui/workers` | [Neurons](workers.md) | Compatibility link and project worker recovery. |
 | `/[project]/ui/functions` | [Functions](functions.md) | Function list for active project. |
 | `/[project]/ui/functions/new` | [Create](function-new.md) | Draft editor. |
 | `/[project]/ui/functions/[name]` | [Function detail](function-detail.md) | Editor, publication, settings, logs. |

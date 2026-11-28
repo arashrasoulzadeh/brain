@@ -26,4 +26,10 @@ command -v go >/dev/null 2>&1 || { echo "Install Go first." >&2; exit 1; }
 command -v node >/dev/null 2>&1 || { echo "Install Node.js 20+ first." >&2; exit 1; }
 [ -f node_modules/tsx/dist/loader.mjs ] || { echo "Install dependencies first: make setup" >&2; exit 1; }
 
+if [[ "${BRAIN_LOCAL_DEV:-}" == 1 ]]; then
+  mkdir -p .local
+  go build -o .local/brain-dev ./cmd/brain
+  exec .local/brain-dev
+fi
+
 exec go run ./cmd/brain

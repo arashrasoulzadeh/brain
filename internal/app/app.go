@@ -6,15 +6,17 @@ import (
 	"time"
 
 	"brain/internal/admin"
+	"brain/internal/cortex"
 	"brain/internal/operator"
 	"brain/internal/project"
 )
 
 // Server owns the HTTP routes for the application process.
 type Server struct {
-	mux       *http.ServeMux
-	readiness func(context.Context) error
-	projects  *project.Store
+	mux             *http.ServeMux
+	readiness       func(context.Context) error
+	projects        *project.Store
+	neuronScheduler *cortex.Scheduler
 }
 
 func newServer() *Server {
@@ -69,6 +71,7 @@ func NewServerWithOperatorAdmin(adminService *admin.LifecycleService, sessions *
 	mux.Handle("GET /_system/admin/plugins", AuthenticatedPluginsHandler(adminService, sessions))
 	mux.Handle("GET /_system/admin/audit", AuthenticatedAuditHandler(adminService, sessions))
 	mux.Handle("GET /_system/admin/system", AuthenticatedSystemHandler(adminService, sessions))
+	mux.Handle("GET /_system/admin/neurons", server.neuronStatusHandler(sessions))
 	mux.Handle("POST /_system/admin/actions", adminNamespaceHandler(AuthenticatedAdminHandler(adminService, sessions), true))
 
 	mux.Handle("POST /{project}/admin/actions", AuthenticatedProjectCommandHandler(adminNamespaceHandler(AuthenticatedAdminHandler(adminService, sessions), false), sessions))

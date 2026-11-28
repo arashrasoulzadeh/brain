@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"io"
 	"math"
 	"regexp"
 )
@@ -55,7 +56,7 @@ func modelFieldsValid(spec ModelSpec, fields map[string]any) bool {
 
 func newModelRevision() (string, error) {
 	var b [16]byte
-	if _, err := rand.Read(b[:]); err != nil {
+	if _, err := io.ReadFull(rand.Reader, b[:]); err != nil {
 		return "", err
 	}
 	return hex.EncodeToString(b[:]), nil
