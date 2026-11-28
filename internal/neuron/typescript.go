@@ -60,6 +60,9 @@ func NewTypeScriptRuntime(root string, localMacOS bool) (*TypeScriptRuntime, err
 func (r *TypeScriptRuntime) Capability() execution.Runtime { return r.capability }
 
 func (r *TypeScriptRuntime) Run(ctx context.Context, request execution.Request, files []execution.BundleFile) (execution.Result, error) {
+	if err := request.Validate(time.Now()); err != nil {
+		return execution.Result{}, err
+	}
 	if request.Runtime != r.capability || request.Limits.CPUTime != TypeScriptCPU || request.Limits.MemoryBytes != TypeScriptMemory ||
 		request.Limits.InputBytes > 1<<20 || request.Limits.OutputBytes > 1<<20 {
 		return execution.Result{}, plugin.ErrInvalidIsolationPolicy
@@ -82,9 +85,12 @@ func (r *TypeScriptRuntime) Run(ctx context.Context, request execution.Request, 
 	if err = os.Mkdir(root, 0o700); err != nil {
 		return execution.Result{}, err
 	}
-	// OpenBundle already rejects traversal, duplicates, case collisions and
-	// ancestors. Recheck paths here because the adapter is also callable directly.
-	if _, err = execution.BuildBundle(files, execution.MaxBundleBytes); err != nil {
+	// Recheck canonical bytes and digest even for direct callers of the adapter.
+	bundle, err := execution.BuildBundle(files, execution.MaxBundleBytes)
+	if err != nil {
+		return execution.Result{}, err
+	}
+	if err = request.Artifact.Verify(bundle); err != nil {
 		return execution.Result{}, err
 	}
 	for _, file := range files {
