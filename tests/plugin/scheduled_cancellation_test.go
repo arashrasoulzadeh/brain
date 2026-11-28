@@ -32,7 +32,7 @@ func TestScheduledHTTPRouteCancellationPreventsCommit(t *testing.T) {
 		ID: "cancel-fixture", Version: "1.0.0", HostAPI: 1, Entry: "index.ts",
 		SourceFiles: []string{"index.ts"}, Mount: "/cancel-fixture",
 		Capabilities: []string{"write"},
-		Routes: []plugin.Route{{Operation: "write", Function: "write", Capability: "write", Method: "POST", Path: "/", Auth: "operator"}},
+		Routes:       []plugin.Route{{Operation: "write", Function: "write", Capability: "write", Method: "POST", Path: "/", Auth: "operator"}},
 	}
 	root := t.TempDir()
 	if err := os.WriteFile(filepath.Join(root, "index.ts"), []byte("export function write() { return {}; }"), 0o600); err != nil {
