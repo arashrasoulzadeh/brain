@@ -97,6 +97,13 @@ func (r *Registry) InvokeWithCredential(broker *Broker, credential InvocationCre
 		return WorkerResponse{}, err
 	}
 	request.accessPrincipal = "user:" + credential.Call.ActorID
+	if r.scheduledExecutionRequired() {
+		request.requireAccessPolicy = r.accessInstalled(request.ProjectID)
+		started := time.Now()
+		return r.invokeWithGuard(request, func() error {
+			return broker.Authorize(credential.Call, now.Add(time.Since(started)))
+		})
+	}
 	return r.Invoke(request)
 }
 

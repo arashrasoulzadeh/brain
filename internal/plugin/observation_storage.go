@@ -77,6 +77,15 @@ func (s *SQLiteStorage) dueObservations(now time.Time, limit int) ([]observation
 	return deliveries, rows.Err()
 }
 
+// Defer without consuming an attempt: the scheduler had no compatible
+// Neuron before invocation. Do not use this for an unknown execution outcome.
+func (s *SQLiteStorage) deferObservation(delivery observationDelivery, due time.Time) error {
+	target := delivery.Target
+	_, err := s.db.Exec(`UPDATE plugin_observation_queue SET due_at=? WHERE project_id=? AND target_plugin=? AND target_version=? AND observation_id=?`,
+		due.UnixMilli(), target.ProjectID, target.PluginID, target.Version, delivery.ID)
+	return err
+}
+
 func (s *SQLiteStorage) retryObservation(delivery observationDelivery, now time.Time) error {
 	target := delivery.Target
 	delay := time.Second * time.Duration(1<<uint(delivery.Attempts))

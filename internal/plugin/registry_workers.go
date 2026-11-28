@@ -15,10 +15,47 @@ func (r *Registry) BindWebSocketRegistry(webSockets *WebSocketRegistry) {
 	r.webSockets = webSockets
 }
 
-func (r *Registry) BindWorkerFactory(factory func(projectID, pluginID, version string) (ContractWorker, error)) {
+func (r *Registry) BindWorkerFactory(factory func(projectID, pluginID, version string) (ContractWorker, error)) error {
 	r.workerMu.Lock()
 	defer r.workerMu.Unlock()
+	if r.scheduledOnly {
+		return ErrWorkerUnavailable
+	}
 	r.workerFactory = factory
+	return nil
+}
+
+// BindScheduledWorkerFactory selects an irreversible startup execution mode.
+// The registry must not contain any previously bound workers or factory.
+func (r *Registry) BindScheduledWorkerFactory(factory func(projectID, pluginID, version string) (*ScheduledWorker, error)) error {
+	r.workerMu.Lock()
+	defer r.workerMu.Unlock()
+	if factory == nil || r.scheduledOnly || r.workerFactory != nil || len(r.workers) != 0 {
+		return ErrInvalidWorkerRequest
+	}
+	r.scheduledOnly = true
+	r.workerFactory = func(projectID, pluginID, version string) (ContractWorker, error) {
+		worker, err := factory(projectID, pluginID, version)
+		if err != nil {
+			return nil, err
+		}
+		if !matchesScheduledWorker(worker, projectID, pluginID, version) {
+			return nil, ErrInvalidWorkerRequest
+		}
+		return worker, nil
+	}
+	return nil
+}
+
+func (r *Registry) scheduledExecutionRequired() bool {
+	r.workerMu.RLock()
+	defer r.workerMu.RUnlock()
+	return r.scheduledOnly
+}
+
+func matchesScheduledWorker(worker *ScheduledWorker, projectID, pluginID, version string) bool {
+	return worker != nil && worker.artifact != nil && worker.project == projectID &&
+		worker.artifact.key.ID == pluginID && worker.artifact.key.Version == version
 }
 
 func (r *Registry) resolveProject(id string) (ProjectSnapshot, error) {
@@ -47,6 +84,12 @@ func (r *Registry) BindWorker(projectID, id, version string, worker ContractWork
 	}
 	r.workerMu.Lock()
 	defer r.workerMu.Unlock()
+	if r.scheduledOnly {
+		scheduled, ok := worker.(*ScheduledWorker)
+		if !ok || !matchesScheduledWorker(scheduled, projectID, id, version) {
+			return ErrInvalidWorkerRequest
+		}
+	}
 	r.workers[projectID+":"+id+"@"+version] = worker
 	return nil
 }
@@ -59,16 +102,30 @@ func (r *Registry) UnbindWorker(projectID, id, version string) {
 
 // Invoke executes only an installed, ready, enabled and fully granted plugin.
 func (r *Registry) Invoke(request WorkerRequest) (WorkerResponse, error) {
+	return r.invokeWithGuard(request, nil)
+}
+
+func (r *Registry) invokeWithGuard(request WorkerRequest, guard func() error) (WorkerResponse, error) {
 	if err := request.executionContext().Err(); err != nil {
 		return WorkerResponse{}, err
 	}
 	if err := validatePayloadProject(request); err != nil {
 		return WorkerResponse{}, err
 	}
+	if guard != nil {
+		if err := guard(); err != nil {
+			return WorkerResponse{}, err
+		}
+	}
 	if response, handled, err := r.invokePluginCall(request); handled {
+		if err == nil && guard != nil {
+			if err := guard(); err != nil {
+				return WorkerResponse{}, err
+			}
+		}
 		return response, err
 	}
-	response, err := r.invokeOnce(request, false)
+	response, err := r.invokeUsingWorker(request, false, nil, guard)
 	return r.finishWorkerInvocation(request, response, err)
 }
 
@@ -111,11 +168,15 @@ func (r *Registry) invokeUsingWorker(request WorkerRequest, observer bool, overr
 	}
 	key := request.ProjectID + ":" + request.PluginID + "@" + request.Version
 	worker := override
-	if worker == nil {
-		r.workerMu.RLock()
-		worker = r.workers[key]
+	r.workerMu.RLock()
+	if r.scheduledOnly && override != nil {
 		r.workerMu.RUnlock()
+		return WorkerResponse{}, ErrWorkerUnavailable
 	}
+	if worker == nil {
+		worker = r.workers[key]
+	}
+	r.workerMu.RUnlock()
 	if worker == nil || !worker.Ready() {
 		return WorkerResponse{}, ErrWorkerNotReady
 	}
