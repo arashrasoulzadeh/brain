@@ -56,6 +56,7 @@ type TypeScriptWorker struct {
 	mutex            sync.Mutex
 	ready            bool
 	startupHandshake bool
+	spawnNanos, readinessNanos int64
 	done             chan struct{}
 }
 
@@ -185,10 +186,13 @@ func (w *TypeScriptWorker) StartContext(ctx context.Context) error {
 		_ = stdin.Close()
 		return err
 	}
+	spawnStarted := time.Now()
 	if err := w.command.Start(); err != nil {
 		_ = stdin.Close()
 		return err
 	}
+	w.spawnNanos = time.Since(spawnStarted).Nanoseconds()
+	readyStarted := time.Now()
 	w.stdin = stdin
 	w.reader = bufio.NewReader(stdout)
 	if w.startupHandshake {
@@ -226,8 +230,16 @@ func (w *TypeScriptWorker) StartContext(ctx context.Context) error {
 			close(w.done)
 		}()
 	}
+	w.readinessNanos = time.Since(readyStarted).Nanoseconds()
 	w.ready = true
 	return nil
+}
+
+// StartupTiming separates OS process creation from launcher/Node readiness.
+func (w *TypeScriptWorker) StartupTiming() (int64, int64) {
+	w.mutex.Lock()
+	defer w.mutex.Unlock()
+	return w.spawnNanos, w.readinessNanos
 }
 
 func (w *TypeScriptWorker) Stop() error {

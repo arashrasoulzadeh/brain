@@ -128,6 +128,8 @@ func (e *Engine) Execute(ctx context.Context, r execution.Request) (execution.Re
 	if err != nil {
 		return execution.Result{}, err
 	}
+	fetchNanos := time.Since(started).Nanoseconds()
+	openStarted := time.Now()
 	files, err := execution.OpenBundle(r.Artifact, bundle, e.maxArtifact)
 	if err != nil {
 		return execution.Result{}, err
@@ -135,6 +137,7 @@ func (e *Engine) Execute(ctx context.Context, r execution.Request) (execution.Re
 	if cause := context.Cause(ctx); cause != nil {
 		return execution.Result{}, cause
 	}
+	openNanos := time.Since(openStarted).Nanoseconds()
 	result, err := adapter.Run(ctx, r, files)
 	if cause := context.Cause(ctx); cause != nil {
 		return execution.Result{}, cause
@@ -143,6 +146,14 @@ func (e *Engine) Execute(ctx context.Context, r execution.Request) (execution.Re
 		return execution.Result{}, err
 	}
 	result.ID, result.WorkerID, result.Duration = r.ID, e.id, time.Since(started)
+	if r.Runtime.Kind == execution.UserFunctionRuntimeKind && result.Status == execution.Succeeded {
+		if profile, ok := execution.ReadFunctionProfile(result.Output); ok {
+			profile.ArtifactFetchNanos = fetchNanos
+			profile.BundleOpenNanos = openNanos
+			profile.NeuronDurationNanos = result.Duration.Nanoseconds()
+			result.Output = execution.AddFunctionProfile(result.Output, profile)
+		}
+	}
 	if err = result.Validate(r, e.id); err != nil {
 		return execution.Result{}, err
 	}
