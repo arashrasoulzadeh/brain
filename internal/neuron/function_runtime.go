@@ -96,7 +96,7 @@ func (r *UserFunctionRuntime) Probe(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	req := execution.Request{ID: "function-probe", TraceID: "function-probe", ProjectID: "probe", Artifact: execution.Artifact{ProjectID: "probe", ID: "function-probe", Version: "1", Digest: execution.ArtifactDigest(bundle), Entrypoint: "functions.call"}, Runtime: r.capability, Input: json.RawMessage("null"), Deadline: time.Now().Add(15*time.Second), Limits: execution.Limits{CPUTime: TypeScriptCPU, MemoryBytes: TypeScriptMemory, InputBytes: 4096, OutputBytes: 4096}, Auth: execution.Authorization{ProjectID: "probe", OriginalCaller: "public", Caller: "public", Capability: "functions.call", Resource: "probe"}}
+	req := execution.Request{ID: "function-probe", TraceID: "function-probe", ProjectID: "probe", Artifact: execution.Artifact{ProjectID: "probe", ID: "function-probe", Version: "1", Digest: execution.ArtifactDigest(bundle), Entrypoint: "functions.call"}, Runtime: r.capability, Input: json.RawMessage("null"), Deadline: time.Now().Add(15 * time.Second), Limits: execution.Limits{CPUTime: TypeScriptCPU, MemoryBytes: TypeScriptMemory, InputBytes: 4096, OutputBytes: 4096}, Auth: execution.Authorization{ProjectID: "probe", OriginalCaller: "public", Caller: "public", Capability: "functions.call", Resource: "probe"}}
 	result, err := r.Run(ctx, req, files)
 	if err != nil {
 		return err

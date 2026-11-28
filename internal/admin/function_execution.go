@@ -9,7 +9,7 @@ import (
 )
 
 type functionExecution struct {
-	catalog *execution.Catalog
+	catalog  *execution.Catalog
 	executor execution.Executor
 	runtime  execution.Runtime
 }
@@ -24,12 +24,12 @@ func (s *LifecycleService) BindFunctionExecution(catalog *execution.Catalog, exe
 }
 
 func (f *functionExecution) run(ctx context.Context, project, name, source, id, principal string, input json.RawMessage) ([]byte, error) {
-	bundle, err := execution.BuildBundle([]execution.BundleFile{{Path: "source.mjs", Data:[]byte(source)}}, execution.MaxBundleBytes)
+	bundle, err := execution.BuildBundle([]execution.BundleFile{{Path: "source.mjs", Data: []byte(source)}}, execution.MaxBundleBytes)
 	if err != nil {
 		return nil, err
 	}
 	key := execution.ArtifactKey{ProjectID: project, ID: id, Version: "1"}
-	release, err := f.catalog.RegisterTransient(execution.Registration{Key: key, Runtime: f.runtime, Entrypoints:[]string{"functions.call"}, Bundle: bundle})
+	release, err := f.catalog.RegisterTransient(execution.Registration{Key: key, Runtime: f.runtime, Entrypoints: []string{"functions.call"}, Bundle: bundle})
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +40,7 @@ func (f *functionExecution) run(ctx context.Context, project, name, source, id, 
 	}
 	deadline, ok := ctx.Deadline()
 	if !ok {
-		deadline = time.Now().Add(15*time.Second)
+		deadline = time.Now().Add(15 * time.Second)
 	}
 	req := execution.Request{ID: id, TraceID: id, ProjectID: project, Artifact: artifact, Runtime: runtime, Input: input, Deadline: deadline, Limits: execution.Limits{CPUTime: 30 * time.Second, MemoryBytes: 2 << 30, InputBytes: 1 << 20, OutputBytes: 1 << 20}, Auth: execution.Authorization{ProjectID: project, OriginalCaller: principal, Caller: principal, Capability: "functions.call", Resource: name}}
 	result, err := f.executor.Execute(ctx, req)

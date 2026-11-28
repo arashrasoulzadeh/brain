@@ -244,3 +244,21 @@ assert.ok(!revokedTicket.ok || !(await revokedTicket.json()).Success,"revoked su
 const fresh = await invoke("subscriptions","subscriptions.open",{channel});
 await invoke("subscriptions","subscriptions.close",{channel,ticket:fresh.ticket});
 assert.ok((await fetch(base + "/_system/readyz")).ok);
+
+// Exercise the same published function API in both explicit legacy and Cortex runs.
+const functionName = "runtimeFixture";
+const functionSource = "export const config = { method: 'POST' }; export default (input, context) => ({echo:context.helpers.call('string.upper',input.value),project:context.project.id,allowed:context.auth.can('functions.call','runtimeFixture')})";
+async function functionAction(operation, extra = {}) {
+  const response = await fetch(base + "/ci-project/admin/functions", {
+    method:"POST", headers, body:JSON.stringify({operation,project_id:"ci-project",name:functionName,...extra}), signal:AbortSignal.timeout(20000)
+  });
+  assert.ok(response.ok, operation + ": " + await response.clone().text());
+  return response.json();
+}
+await functionAction("functions.create",{source:functionSource,function_version:1});
+await functionAction("functions.publish",{method:"POST"});
+const publicCall = await fetch(base + "/ci-project/functions/" + functionName, {
+  method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({value:"neuron"}),signal:AbortSignal.timeout(20000)
+});
+assert.ok(publicCall.ok, await publicCall.clone().text());
+assert.deepEqual((await publicCall.json()).result,{echo:"NEURON",project:"ci-project",allowed:true});

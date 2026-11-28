@@ -561,9 +561,9 @@ const invokeMs=clock()-invokeStart;
 process.stdout.write(JSON.stringify({result:result??null,timings:{compile_ms:compileMs,evaluate_ms:evaluateMs,invoke_ms:invokeMs}}));
 } finally {clearTimeout(timer);}`
 	// Allow cold Node startup under load without relaxing the VM execution deadlines.
-	timeout := 5*time.Second
+	timeout := 5 * time.Second
 	if s.functionExecution != nil && operation == "functions.call" {
-		timeout = 15*time.Second
+		timeout = 15 * time.Second
 	}
 	commandContext, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
